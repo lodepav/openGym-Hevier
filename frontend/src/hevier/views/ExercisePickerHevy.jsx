@@ -3,8 +3,10 @@
 // Replace, a swap and Structural balance all get it. Adding picks several (✓ circles, then "Add 2
 // exercises"); a Replace, a swap or any other titled pick takes one tap. Each pick goes through the
 // caller's own `onPick(ex, true)`, upstream's quick add with the default config, so what an added
-// exercise starts with is upstream's. The search and ranking are upstream's too.
+// exercise starts with is upstream's. The search and ranking are upstream's too. The same list,
+// browsing (no ✓, a tap opens exercise details), is the fork's Exercises page (Profile → Exercises).
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -22,13 +24,13 @@ import { muscleOf, muscleOptions, recentIds, filterPicker } from '../lib/exercis
 const PAGE = 50
 const MINE = '@'   // the equipment filter's "what the active profile has"
 
-function ExercisePickerHevy({ onPick, title, like, close }) {
+function ExerciseList({ onPick, title, like, close, browse }) {
   const st = useStore(s => s.S)
   const all = allExercises(st)
   const profile = activeProfile(st)
   const likeEx = like ? (EXIDX[like] || all.find(e => e.id === like) || null) : null
   // Adding takes several at once; a titled pick (Replace, swap, Change exercise) takes one.
-  const multi = !title
+  const multi = !title && !browse
   const [q, setQ] = useState('')
   // A swap opens on what trains the same muscle, as upstream's does (#473).
   const [muscle, setMuscle] = useState(() => muscleOf(likeEx))
@@ -53,6 +55,7 @@ function ExercisePickerHevy({ onPick, title, like, close }) {
 
   const isOn = e => picked.some(p => p.id === e.id)
   const tap = e => {
+    if (browse) { exerciseDetailSheet(e); return }
     if (!multi) { onPick(e, true); return }
     setPicked(cur => (cur.some(p => p.id === e.id) ? cur.filter(p => p.id !== e.id) : [...cur, e]))
   }
@@ -74,7 +77,7 @@ function ExercisePickerHevy({ onPick, title, like, close }) {
       ...muscleOptions(all).map(m => ({ label: t(m), on: muscle === m, onClick: () => reset(setMuscle)(m) })),
     ],
   })
-  const create = () => customExSheet(null, ex => { if (!ex) return; if (multi) setPicked(cur => [...cur, ex]); else onPick(ex, true) }, q.trim())
+  const create = () => customExSheet(null, ex => { if (!ex) return; if (browse) exerciseDetailSheet(ex); else if (multi) setPicked(cur => [...cur, ex]); else onPick(ex, true) }, q.trim())
 
   const row = (e, key) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}>
     <button className="hv-thumb" aria-label={t('Details')} onClick={ev => { ev.stopPropagation(); exerciseDetailSheet(e) }}><Thumb ex={e} /></button>
@@ -87,10 +90,10 @@ function ExercisePickerHevy({ onPick, title, like, close }) {
 
   const eqLabel = eq === MINE ? profile?.name : eq ? t(eq) : t('All Equipment')
   return <div className="hv-pk">
-    <div className="hv-pk-hd">
+    {browse ? browse({ create }) : <div className="hv-pk-hd">
       <h3>{title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>
-    </div>
+    </div>}
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input ref={searchRef} className="input" placeholder={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
       {q && <button className="clear" onClick={() => reset(setQ)('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
@@ -112,7 +115,20 @@ function ExercisePickerHevy({ onPick, title, like, close }) {
 }
 
 export const exercisePickerSheet = (onPick, { title, like } = {}) =>
-  useUI.getState().openSheet(close => <ExercisePickerHevy onPick={onPick} title={title} like={like} close={close} />)
+  useUI.getState().openSheet(close => <ExerciseList onPick={onPick} title={title} like={like} close={close} />)
+
+// Profile → Exercises (reference/SCREENS.md §8): the list to browse, Create, and openGym's own
+// By muscle explorer (upstream's /muscles) one tap away.
+export function Exercises() {
+  const nav = useNavigate()
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
+  return <ExerciseList browse={({ create }) => <div className="hv-pagebar">
+    <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
+    <div className="hv-title">{t('Exercises')}</div>
+    <button type="button" className="iconbtn" aria-label={t('By muscle')} onClick={() => nav('/muscles')}><Icon name="figureStrength" /></button>
+    <button type="button" className="hv-link" onClick={create}>{t('Create')}</button>
+  </div>} />
+}
 
 /** Points upstream's exercisePicker at this sheet (seam S13). */
 export function installExercisePicker() { hooks.exercisePicker = exercisePickerSheet }

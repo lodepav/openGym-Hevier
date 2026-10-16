@@ -261,7 +261,12 @@ The Hevy Add Exercise picker (SCREENS.md §8) came after phase 1, through seam S
 (with the active equipment profile as an option, on by default as upstream's) and All Muscles
 sheets, Recent Exercises, ✓ circles and "Add 2 exercises". Each pick is the caller's quick add,
 so what an exercise starts with is upstream's. A Replace or a swap is one tap, opening on the
-same muscle. Not built: Hevy's "Add as superset" (link them after with ⋮).
+same muscle. Not built: Hevy's "Add as superset" (link them after with ⋮). The same list,
+without ✓, is Profile → **Exercises** (`/library`; a tap opens exercise details, upstream's
+By muscle is in the header). Profile → **Calendar** is a page (`hevier/views/Calendar.jsx`,
+`hevier/lib/calendar.js`): week streak and rest days, Month (months back, trained days filled)
+and Year (twelve small months), with upstream's marks and day sheet. Android back on a tab screen
+offers to exit (seam S16) instead of walking back through every tab.
 
 ### M4. Finish → Save → Summary
 
