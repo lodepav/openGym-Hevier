@@ -12,6 +12,9 @@
 import { MOBILE } from './mobile.js'
 import { useUI } from '../store/useUI.js'
 import { t } from './i18n.js'
+// [hevier] S16: the fork's tab screens end the history (back.js stays upstream's otherwise)
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 // How long a first back press stays armed as "press again to exit" (the toast shows 2.2s).
 export const EXIT_WINDOW = 2000
@@ -54,7 +57,9 @@ export async function initBackButton() {
       goBack: () => window.history.back(),
       exit: () => App.exitApp(),
     })
-    const sub = await App.addListener('backButton', handler)
+    // [hevier] S16
+    const sub = await App.addListener('backButton', ev => handler(hooks.backEvent ? hooks.backEvent(ev) : ev))
+    // [/hevier]
     return () => sub.remove()
   } catch (e) {
     return () => {}   // no plugin (older install): leave back to the default behaviour

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker } from './exercise-picker.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun } from './exercise-picker.js'
 
 describe('hevier: exercise picker list', () => {
   it('files the catalogue’s and a custom exercise’s spellings under one muscle', () => {
@@ -39,5 +39,20 @@ describe('hevier: exercise picker list', () => {
     expect(filterPicker(list, { eq: 'barbell' }).map(e => e.id)).toEqual([1, 3])
     expect(filterPicker(list, { muscle: 'Chest', avail: e => e.eq === 'dumbbell' }).map(e => e.id)).toEqual([2])
     expect(filterPicker(list)).toEqual(list)
+  })
+})
+
+describe('hevier: Add superset finds what was just added', () => {
+  const items = ['a', 'b', 'c', 'd'].map(id => ({ id }))
+  it('the run ending at `end`, when it holds the picks in order', () => {
+    expect(addedRun(items, 3, ['c', 'd'])).toBe(2)
+    expect(addedRun(items, 2, ['a', 'b', 'c'])).toBe(0)
+  })
+  it('nothing to link when they sit elsewhere, or for one exercise', () => {
+    expect(addedRun(items, 3, ['d', 'c'])).toBe(-1)
+    expect(addedRun(items, 1, ['a', 'b', 'c'])).toBe(-1)
+    expect(addedRun(items, 4, ['d', 'x'])).toBe(-1)
+    expect(addedRun(items, 3, ['d'])).toBe(-1)
+    expect(addedRun([], -1, ['a', 'b'])).toBe(-1)
   })
 })

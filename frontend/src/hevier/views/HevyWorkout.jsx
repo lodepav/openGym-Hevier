@@ -21,6 +21,9 @@ import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import KeypadBar from '../components/KeypadBar.jsx'
 import HvIcon from '../components/HvIcon.jsx'
+import MuscleLine from '../components/MuscleLine.jsx'
+import { volumeMode } from '../lib/volume.js'
+import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -28,6 +31,13 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
   const resting = useUI(s => !!s.timer)
   const A = S.active
   const { addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg } = actions
+  // The picker's "Add superset": upstream's add puts each pick after the current one and moves
+  // there, so the last one added is the session's current exercise.
+  useSupersetTarget({
+    items: () => useStore.getState().S.active?.entries || [],
+    end: () => useStore.getState().S.active?.cur ?? -1,
+    pair: pairAt,
+  })
 
   // Finish: the editor of a saved workout saves at once; a session goes to the Save Workout page
   // (seam S9 sends upstream's finishWorkout there).
@@ -70,9 +80,10 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
       </div>
       <div className="hv-stats">
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} />}</b></div>
-        <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>
+        {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
         <div><span>{t('Sets')}</span><b>{done}</b></div>
       </div>
+      {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} />}
     </div>
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}

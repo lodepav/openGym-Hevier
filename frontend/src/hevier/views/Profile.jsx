@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
-import { calendarSheet } from '../../sheets.jsx'
 import { historyRows } from '../../views/History.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -42,7 +41,7 @@ export default function Profile() {
       {tile('chart', t('Statistics'), () => nav('/stats'))}
       {tile('dumbbell', t('Exercises'), () => nav('/library'))}
       {tile('ruler', t('Measures'), () => nav('/measures'))}
-      {tile('calendar', t('Calendar'), () => calendarSheet())}
+      {tile('calendar', t('Calendar'), () => nav('/calendar'))}
     </div>
     <h4 className="sec">{t('Workouts')}</h4>
     <WorkoutFeed S={S} />

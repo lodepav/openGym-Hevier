@@ -38,6 +38,7 @@ function render(ex, extra = {}) {
   </MemoryRouter>))
 }
 const slot = (i = 0) => useStore.getState().S.routines[0].ex[i]
+const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].find(b => b.textContent.includes(text))
 const byText = (sel, text) => [...container.querySelectorAll(sel)].find(b => b.textContent.includes(text))
 const sheet = () => {
   const host = document.createElement('div')
@@ -124,5 +125,22 @@ describe('hevier: routine editor (M3)', () => {
     act(() => grips()[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })))
     expect(useStore.getState().S.routines[0].ex.map(e => e.id)).toEqual([B, C, A])
     expect(useStore.getState().S.routines[0].ex.slice(0, 2).every(e => e.sg === 'sg1')).toBe(true)
+  })
+
+  it('Add superset adds the ticked exercises linked as one superset', () => {
+    render([{ id: EX, sets: 3, reps: 5, w: 60 }])
+    act(() => byText('button', 'Add Exercise').click())
+    const host = sheet()
+    const rows = host.querySelectorAll('.hv-pk-row')
+    act(() => rows[0].click())
+    expect(host.querySelector('.hv-pk-add').textContent).not.toContain('Add superset')
+    act(() => rows[1].click())
+    act(() => byTextIn(host, 'button', 'Add superset').click())
+    const ex = useStore.getState().S.routines[0].ex
+    expect(ex).toHaveLength(3)
+    expect(ex[0].sg).toBeUndefined()
+    expect(ex[1].sg).toBeTruthy()
+    expect(ex[2].sg).toBe(ex[1].sg)
+    host.remove()
   })
 })

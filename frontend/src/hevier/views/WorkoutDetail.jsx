@@ -3,7 +3,8 @@
 // Seam S14 sends upstream's workoutDetailSheet here, so the feed, History, Stats, the calendar and
 // exercise details all open it. ⋯ has Hevy's actions (upstream's, as on the feed card) and
 // All details, upstream's own sheet: the session note editor, photos, date, duration, copy, share, .fit.
-// The muscle split counts sets, as the fork's Statistics does (hevier/lib/muscle-sets.js).
+// The muscle split counts sets: as the fork's Statistics does (hevier/lib/muscle-sets.js), or in
+// sets mode each set once for its main muscle, as the line under the stats does (DECISIONS.md D18).
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -24,11 +25,17 @@ import Icon from '../../components/Icon.jsx'
 import { workoutActions } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutSplit } from '../lib/muscle-sets.js'
+import { prSetIndex } from '../lib/pr-set.js'
+import { volumeMode, workSets, muscleSets } from '../lib/volume.js'
+import MuscleLine from '../components/MuscleLine.jsx'
 
 export const DETAIL_PATH = '/workout-detail'
 
-function ExerciseSets({ e, st, pr }) {
+function ExerciseSets({ w, e, st }) {
   const ex = EXIDX[e.id]
+  // The record sits on the set that made it, as in Hevy; on the exercise when no set can be named.
+  const prAt = prSetIndex(w, e)
+  const pr = !!w.prs?.includes(e.id)
   const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
@@ -36,7 +43,7 @@ function ExerciseSets({ e, st, pr }) {
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button>
-      {pr && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
+      {pr && prAt < 0 && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
     </div>
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
@@ -44,6 +51,7 @@ function ExerciseSets({ e, st, pr }) {
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         <span>{setLabel(e.id, s, e.target, speedUnitOf(st))}</span>
+        {i === prAt && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
       </div>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
@@ -59,9 +67,10 @@ export function WorkoutDetail() {
   if (!w) return <Navigate to="/home" replace />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const ms = Math.max(0, (w.end || w.start) - w.start)
-  const setN = (w.entries || []).reduce((n, e) => n + (e.sets || []).filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length, 0)
+  const setN = workSets(w.entries)
   const prs = w.prs || []
-  const split = workoutSplit(w)
+  const mode = volumeMode(st)
+  const split = mode === 'sets' ? muscleSets(w.entries) : workoutSplit(w)
   const top = split[0]?.sets || 1
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
   const more = () => workoutActions(w, nav, [
@@ -78,10 +87,11 @@ export function WorkoutDetail() {
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
       <div><span>{t('Time')}</span><b>{ms >= 60000 ? fmtDur(ms) : '–'}</b></div>
-      <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, st.unit)}</b></div>
+      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, st.unit)}</b></div>}
       <div><span>{t('Sets')}</span><b>{setN}</b></div>
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
+    {mode === 'sets' && <MuscleLine entries={w.entries} />}
     {w.note && <p className="hv-wd-note">{w.note}</p>}
     {/* Shown when there is something to show; adding one is in All details. */}
     {workoutMediaCount(w) > 0 && <WorkoutMediaSection w={w} />}
@@ -97,7 +107,7 @@ export function WorkoutDetail() {
     </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} pr={prs.includes(w.entries[i].id)} />)}
+      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} />)}
     </div>)}
   </div>
 }

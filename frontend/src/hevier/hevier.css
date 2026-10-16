@@ -24,6 +24,9 @@
 :root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
+:root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
+:root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd .hv-mline,:root[data-ui="hevier"] .hv-save .hv-mline{margin:-6px 0 14px}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
 
 :root[data-ui="hevier"] .hv-unit{margin:0 0 22px}
@@ -148,7 +151,7 @@
 :root[data-ui="hevier"] .hv-profile > .card:has(.hv-bars){background:none;padding:0}
 :root[data-ui="hevier"] .hv-chart-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-bars{display:flex;align-items:flex-end;gap:4px;height:120px;border-bottom:var(--hair) solid var(--sep)}
-:root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end}
+:root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
 :root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px}
 :root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
 :root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
@@ -311,7 +314,8 @@
 :root[data-ui="hevier"] .hv-pk-more{width:100%;margin-top:8px}
 /* Sticks over the sheet's own bottom padding (index.css .sheet), so nothing shows below it. */
 :root[data-ui="hevier"] .hv-pk-add{position:sticky;bottom:calc(-20px - var(--sab));margin:0 -18px;padding:12px 18px calc(20px + var(--sab));background:var(--bg-el);box-shadow:0 -8px 16px var(--bg-el)}
-:root[data-ui="hevier"] .hv-pk-add .btn{width:100%}
+:root[data-ui="hevier"] .hv-pk-add{display:flex;gap:10px}
+:root[data-ui="hevier"] .hv-pk-add .btn{flex:1}
 
 /* Workout Detail (hevier/views/WorkoutDetail.jsx, reference/SCREENS.md §4) */
 :root[data-ui="hevier"] .hv-wd-d{font-size:13px;color:var(--label-2);margin-top:4px}
@@ -322,8 +326,36 @@
 :root[data-ui="hevier"] .hv-wd-split b{text-align:end;font-weight:500;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wd-ex{margin-bottom:6px}
 :root[data-ui="hevier"] .hv-wd-sets{display:flex;flex-direction:column}
-:root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr auto;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd-row:nth-child(odd):not(.hv-wd-th){background:var(--surface-2);border-radius:6px}
 :root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
 :root[data-ui="hevier"] .hv-wd-row span:first-child{text-align:center;font-weight:600}
 :root[data-ui="hevier"] .hv-wd-w{color:var(--yellow,#f5c518)}
+
+/* Exercises and Calendar under Profile (reference/SCREENS.md §8, §11) */
+:root[data-ui="hevier"] .hv-pagebar .hv-link{flex:none;padding:0 4px}
+:root[data-ui="hevier"] .hv-cal-pad{width:40px;flex:none}
+:root[data-ui="hevier"] .hv-cal-streak{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600;margin:4px 0 12px}
+:root[data-ui="hevier"] .hv-cal-streak .icn{color:var(--orange)}
+:root[data-ui="hevier"] .hv-cal-streak .muted{font-weight:400}
+:root[data-ui="hevier"] .hv-cal-m{margin-top:18px}
+:root[data-ui="hevier"] .hv-cal-mt{display:flex;align-items:baseline;justify-content:space-between;width:100%;background:none;padding:0;margin-bottom:8px;color:var(--label);font:inherit}
+:root[data-ui="hevier"] .hv-cal-mt b{font-size:17px}
+:root[data-ui="hevier"] .hv-cal-mt span{font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;justify-items:center}
+:root[data-ui="hevier"] .hv-cal-h{font-size:12px;color:var(--label-2);padding-bottom:2px}
+:root[data-ui="hevier"] .hv-cal-d{position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:none;padding:0;font-size:14px;color:var(--label);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-cal-d.done{background:var(--acc);color:var(--on-acc);font-weight:600}
+:root[data-ui="hevier"] .hv-cal-d.today{box-shadow:inset 0 0 0 2px var(--acc)}
+:root[data-ui="hevier"] .hv-cal-d.plan::after,:root[data-ui="hevier"] .hv-cal-d.ovr::after,:root[data-ui="hevier"] .hv-cal-d.noted::after{content:"";position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--label-3)}
+:root[data-ui="hevier"] .hv-cal-d.ovr::after{background:var(--orange)}
+:root[data-ui="hevier"] .hv-cal-d.noted::after{background:var(--indigo)}
+:root[data-ui="hevier"] .hv-cal-more{width:100%;margin-top:18px}
+:root[data-ui="hevier"] .hv-cal-yr{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:12px;font-size:17px}
+:root[data-ui="hevier"] .hv-cal-year{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 14px}
+:root[data-ui="hevier"] .hv-cal-m.small{margin-top:12px}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-mt b{font-size:13px}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-g{gap:2px}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d{width:8px;height:8px;background:var(--surface-2)}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done{background:var(--acc)}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d::after{display:none}

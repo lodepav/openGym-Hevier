@@ -9,7 +9,8 @@ import { Section } from '../../components/ui.jsx'
 // The root, top to bottom. `account` puts upstream's account card first in its group.
 export const SETTINGS_GROUPS = [
   { title: 'Account', account: true, ids: ['reminders'] },
-  { title: 'Preferences', ids: ['workout', 'alerts', 'plan', 'units', 'equipment', 'look'] },
+  // `volume` is the fork's own row (DECISIONS.md D18), after upstream's pages.
+  { title: 'Preferences', ids: ['workout', 'alerts', 'plan', 'units', 'equipment', 'look'], volume: true },
   { title: 'More', ids: ['coach', 'data', 'about'] },
 ]
 
