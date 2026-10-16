@@ -20,6 +20,7 @@ import Elapsed from '../../components/Elapsed.jsx'
 import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import KeypadBar from '../components/KeypadBar.jsx'
+import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -27,6 +28,13 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
   const resting = useUI(s => !!s.timer)
   const A = S.active
   const { addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg } = actions
+  // The picker's "Add superset": upstream's add puts each pick after the current one and moves
+  // there, so the last one added is the session's current exercise.
+  useSupersetTarget({
+    items: () => useStore.getState().S.active?.entries || [],
+    end: () => useStore.getState().S.active?.cur ?? -1,
+    pair: pairAt,
+  })
 
   // Finish: the editor of a saved workout saves at once; a session goes to the Save Workout page
   // (seam S9 sends upstream's finishWorkout there).

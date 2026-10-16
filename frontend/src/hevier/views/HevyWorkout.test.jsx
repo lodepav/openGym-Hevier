@@ -10,6 +10,8 @@ import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
+import { hooks } from '../hooks.js'
+import { installExercisePicker } from './ExercisePickerHevy.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -143,5 +145,29 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelector('.hv-keypad')).toBeNull()
     expect(document.body.classList.contains('hv-kb')).toBe(false)
     vi.restoreAllMocks()
+  })
+
+  it('the picker’s Add superset links the new exercises after the current one', () => {
+    installExercisePicker()
+    const OTHER = EXDB.find(e => e.id !== EX && /dumbbell/i.test(e.eq || '')).id
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: OTHER, target: { sets: 1, reps: 8 }, sets: [reps(20, 8)] }])
+    act(() => container.querySelector('.hv-addex').click())
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const r = createRoot(host)
+    act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const rows = host.querySelectorAll('.hv-pk-row')
+    act(() => rows[0].click())
+    act(() => rows[1].click())
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Add superset').click())
+    const es = useStore.getState().S.active.entries
+    expect(es).toHaveLength(4)
+    expect([es[0].id, es[3].id]).toEqual([EX, OTHER])
+    expect(es[1].sg).toBeTruthy()
+    expect(es[2].sg).toBe(es[1].sg)
+    expect(es[0].sg || es[3].sg).toBeFalsy()
+    act(() => r.unmount())
+    host.remove()
+    hooks.exercisePicker = null
   })
 })

@@ -62,7 +62,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.textContent).toContain('Felt strong')
     expect(page.textContent).toContain('Muscle Split')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
-    expect(page.querySelector('.hv-pr')).toBeTruthy()
+    expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
 
   it('lists the ticked sets, the warm-up as W', () => {
@@ -70,6 +70,10 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(W))
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')].map(r => r.firstChild.textContent)
     expect(rows).toEqual(['W', '1', '2'])
+    // The record is on the set that made it (the first at 60), not on the exercise.
+    const prRows = [...container.querySelectorAll('.hv-wd-row')].filter(r => r.querySelector('.hv-pr'))
+    expect(prRows.map(r => r.firstChild.textContent)).toEqual(['1'])
+    expect(container.querySelector('.hv-exhd .hv-pr')).toBeNull()
     const sets = [...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Sets'))
     expect(sets.querySelector('b').textContent).toBe('2')
   })
