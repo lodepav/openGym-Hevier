@@ -1,10 +1,13 @@
 // Hevy's bottom tabs (hevier/DECISIONS.md D11; reference/SCREENS.md §0): Home · Workout · Profile,
 // no Coach. A session you stepped away from rides above the tabs as a "Workout in progress" bar
-// that takes you back to it — the same rule upstream's Start/Resume button uses (TabBar.jsx).
+// that takes you back to it — the same rule upstream's Start/Resume button uses (TabBar.jsx) — or
+// discards it.
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
+import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
+import { confirmSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import Elapsed from '../../components/Elapsed.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
@@ -42,13 +45,25 @@ export default function HevyTabBar() {
     return () => document.body.classList.remove('hv-resume')
   }, [pending])
   if (!user && !isGuest) return null
+  // Upstream's own discard (views/Workout.jsx discardWorkout), from outside the workout screen.
+  const discard = () => confirmSheet({
+    title: t('Discard workout?'), message: t('The sets you logged in this session will be lost.'), confirmText: t('Discard'), danger: true,
+    onConfirm: () => {
+      useStore.getState().update(s => { s.active = null })
+      useUI.getState().stopRest()
+      useUI.getState().stopWork()
+    },
+  })
 
   return <nav id="tabbar" className="hv-tabbar">
-    {pending && <button type="button" className="hv-resumebar" onClick={() => nav('/workout')}>
-      <span className="hv-resume-t">{A.editingWorkoutId ? t('Editing workout') : t('Workout in progress')}</span>
-      <span className="hv-resume-s">{running ? <Elapsed start={A.start} /> : A.name}</span>
-      <span className="hv-resume-go"><Icon name="play" />{A.editingWorkoutId ? t('Edit') : t('Resume')}</span>
-    </button>}
+    {pending && <div className="hv-resumebar">
+      <button type="button" className="hv-resume-main" onClick={() => nav('/workout')}>
+        <span className="hv-resume-t">{A.editingWorkoutId ? t('Editing workout') : t('Workout in progress')}</span>
+        <span className="hv-resume-s">{running ? <Elapsed start={A.start} /> : A.name}</span>
+      </button>
+      <button type="button" className="hv-resume-go" onClick={() => nav('/workout')}><Icon name="play" />{A.editingWorkoutId ? t('Edit') : t('Resume')}</button>
+      {!A.editingWorkoutId && <button type="button" className="hv-resume-x" onClick={discard}><Icon name="xmark" />{t('Discard')}</button>}
+    </div>}
     <Tab active={tab === 'home'} icon="house" label={t('Home')} dot={trouble} onClick={() => nav('/home')} />
     <Tab active={tab === 'workout'} icon="dumbbell" label={t('Workout')} onClick={() => nav('/workout')} />
     <Tab active={tab === 'profile'} icon="person" label={t('Profile')} onClick={() => nav('/profile')} />

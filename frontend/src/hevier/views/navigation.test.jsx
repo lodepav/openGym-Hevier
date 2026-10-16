@@ -78,8 +78,50 @@ describe('hevier: navigation (seam S2)', () => {
     const bar = container.querySelector('.hv-resumebar')
     expect(bar.textContent).toContain('Workout in progress')
     expect(document.body.classList.contains('hv-resume')).toBe(true)
-    act(() => bar.click())
+    act(() => bar.querySelector('.hv-resume-go').click())
     expect(path).toBe('/workout')
+  })
+
+  it('the resume bar discards through upstream’s confirm', () => {
+    render('/home', { active: { id: 'a', d: '2026-10-16', start: Date.now(), name: 'Push', cur: 0, entries: [] } })
+    act(() => container.querySelector('.hv-resume-x').click())
+    const sheet = useUI.getState().sheets.at(-1)
+    expect(sheet).toBeTruthy()
+    expect(useStore.getState().S.active).toBeTruthy()
+    // the confirm's own button, rendered from the sheet
+    const host = document.createElement('div')
+    const r2 = createRoot(host)
+    act(() => r2.render(sheet.render(() => {})))
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Discard').click())
+    act(() => r2.unmount())
+    expect(useStore.getState().S.active).toBeNull()
+  })
+
+  it('Stats and Exercises get a way back to Profile', () => {
+    render('/library')
+    const back = container.querySelector('.hv-back')
+    expect(back.textContent).toContain('Profile')
+    act(() => back.click())
+    expect(path).toBe('/profile')
+  })
+
+  it('a feed card’s ⋯ deletes the workout after upstream’s confirm', () => {
+    render('/profile', { workouts: [workout('2026-10-14')] })
+    act(() => container.querySelector('.hv-wcard .iconbtn').click())
+    const menu = useUI.getState().sheets.at(-1)
+    const host = document.createElement('div')
+    const r2 = createRoot(host)
+    act(() => r2.render(menu.render(() => {})))
+    const rows = [...host.querySelectorAll('.menu-item')]
+    expect(rows.map(b => b.textContent)).toEqual(['Save as routine', 'Repeat today', 'Edit workout', 'Delete workout'])
+    act(() => rows[3].click())
+    act(() => r2.unmount())
+    const confirm = useUI.getState().sheets.at(-1)
+    const r3 = createRoot(host)
+    act(() => r3.render(confirm.render(() => {})))
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Delete').click())
+    act(() => r3.unmount())
+    expect(useStore.getState().S.workouts).toEqual([])
   })
 
   it('Profile: dashboard, weekly chart and the workouts as feed cards', () => {

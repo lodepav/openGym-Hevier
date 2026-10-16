@@ -226,9 +226,10 @@ phone: `lib/coach-device.js`). Its code is untouched, so it costs nothing in mer
 `HevyTabBar` (three tabs + "Workout in progress · Resume" bar), `views/WorkoutTab.jsx` (D13),
 `views/Profile.jsx` with `components/WeeklyChart.jsx` over `lib/weekly-series.js` (D14), and
 `views/HevyHome.jsx` with Edit Home over `lib/home-layout.js` (D12). Feed cards
-(`components/WorkoutCard.jsx`) open upstream's workout details for edit/repeat/delete. Verified on
-the emulator. Still open: Hevy's ⋯ menu on feed cards, a back button on upstream screens reached
-from Profile (Android back works), Discard on the resume bar.
+(`components/WorkoutCard.jsx`) open upstream's workout details for edit/repeat/delete. Feed cards also have Hevy's ⋯
+(Save as routine · Repeat today · Edit workout · Delete workout, upstream's own actions), the
+resume bar has Discard, and Stats and Exercises get a "‹ Profile" back row. Verified on the
+emulator.
 
 openGym's weekly **schedule** and rotation (the "today is Leg Day" logic) have no Hevy
 equivalent. Keep them, surfaced as "Today: Leg Day — Start" at the top of the Workout tab,

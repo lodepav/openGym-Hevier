@@ -1,9 +1,13 @@
 // The fork's screens, reached through seam S2 (frontend/src/App.jsx). The routes are placed
 // before upstream's own, and React Router gives an exact tie to the first one, so a fork route
 // replaces upstream's same path without its line being touched.
-import { Route } from 'react-router-dom'
+import { Route, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
+import { t } from '../lib/i18n.js'
 import Workout from '../views/Workout.jsx'
+import Stats from '../views/Stats.jsx'
+import Library from '../views/Library.jsx'
+import Icon from '../components/Icon.jsx'
 import HevyHome from './views/HevyHome.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
 import Profile from './views/Profile.jsx'
@@ -15,10 +19,23 @@ function WorkoutRoute() {
   return active ? <Workout /> : <WorkoutTab />
 }
 
+// Upstream's Stats and Exercises were tabs and have no way back; in the fork they open from
+// Profile, so they get a back row above their own header.
+function WithBack({ children }) {
+  const nav = useNavigate()
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
+  return <>
+    <button type="button" className="hv-back" onClick={back}><Icon name="chevronLeft" />{t('Profile')}</button>
+    {children}
+  </>
+}
+
 export const hevierRoutes = [
   <Route key="hv-home" path="/home" element={<HevyHome />} />,
   <Route key="hv-workout" path="/workout" element={<WorkoutRoute />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
+  <Route key="hv-stats" path="/stats" element={<WithBack><Stats /></WithBack>} />,
+  <Route key="hv-library" path="/library" element={<WithBack><Library /></WithBack>} />,
 ]
 
 export { HevyTabBar }
