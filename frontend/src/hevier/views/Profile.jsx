@@ -8,6 +8,7 @@ import { t } from '../../lib/i18n.js'
 import { historyRows } from '../../views/History.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
+import HvIcon from '../components/HvIcon.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 
@@ -28,7 +29,7 @@ export default function Profile() {
   const S = useStore(s => s.S)
   const user = useStore(s => s.user)
   const trouble = useConnectionTrouble()
-  const tile = (icon, label, onClick) => <button type="button" className="btn hv-tile" onClick={onClick}><Icon name={icon} />{label}</button>
+  const tile = (icon, label, onClick) => <button type="button" className="btn hv-tile" onClick={onClick}><HvIcon name={icon} />{label}</button>
   return <div className="narrow hv-profile">
     <div className="hdr">
       <div><h1>{user?.name || t('Profile')}</h1><div className="sub">{t('Workouts')} {S.workouts.length}</div></div>
@@ -38,9 +39,9 @@ export default function Profile() {
     <div className="card"><WeeklyChart /></div>
     <h4 className="sec">{t('Dashboard')}</h4>
     <div className="hv-dash">
-      {tile('chart', t('Statistics'), () => nav('/stats'))}
+      {tile('chartLine', t('Statistics'), () => nav('/stats'))}
       {tile('dumbbell', t('Exercises'), () => nav('/library'))}
-      {tile('ruler', t('Measures'), () => nav('/measures'))}
+      {tile('figure', t('Measures'), () => nav('/measures'))}
       {tile('calendar', t('Calendar'), () => nav('/calendar'))}
     </div>
     <h4 className="sec">{t('Workouts')}</h4>

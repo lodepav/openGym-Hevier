@@ -390,9 +390,9 @@ Hevy's, so only the glyphs Hevy draws differently are the fork's own, in
 figure for Profile's Measures tile), falling back to upstream's `Icon` for every other name: no
 seam in `Icon.jsx`. App icon and splash: upstream's, recoloured from lime to Hevy blue by
 `hevier/tools/recolour-icons.py` into `frontend/android/app/src/hevier/res`, which seam S7's
-`hevier.gradle` adds to both build types; the system splash is dark. Still to do: Profile's
-dashboard tiles (Statistics → `chartLine`, Measures → `figure`), waiting on a merge of
-`hevier/ux`, whose `Profile.jsx` changed the line beside them.
+`hevier.gradle` adds to both build types; the system splash is dark. Profile's dashboard tiles
+are Hevy's: a line chart for Statistics, the standing figure for Measures. Phase 2 is done; the
+PWA icons in `frontend/public` are still upstream's lime (the fork targets the Android app).
 
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per
