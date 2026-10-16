@@ -241,3 +241,7 @@
 :root[data-ui="hevier"] .hv-xd-set{display:flex;gap:12px;font-size:14px;padding:3px 0;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-n{width:16px;color:var(--label-2);text-align:end}
 :root[data-ui="hevier"] .hv-xd-pin{display:flex;gap:6px;align-items:flex-start}
+/* The sheet keeps one height across its tabs, so switching tabs never moves the tabs themselves. */
+:root[data-ui="hevier"] .hv-xd{min-height:min(78vh,720px)}
+:root[data-ui="hevier"] .hv-xd h4.sec{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-xd h4.sec .icn{color:var(--yellow,#f5c518)}
