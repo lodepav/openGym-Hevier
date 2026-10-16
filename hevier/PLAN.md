@@ -388,11 +388,20 @@ the feature is not Hevy-specific (it would remove fork code).
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
-3. **Strength level per exercise**, like Hevy's, but rated against
-   [strengthlevel.com](https://strengthlevel.com) standards (Beginner … Elite, by body weight,
-   sex and age). Needs a mapping from openGym's exercise ids to Strength Level's exercises
-   (a reviewed table, not guessed). Check its licence and terms before bundling its numbers. A
-   pure helper with tests in `hevier/lib/` (rule 2), shown in exercise details (M5 Summary).
+3. **Strength level per exercise**, like Hevy's (Beginner … Elite, by body weight, sex and
+   age). **Not from strengthlevel.com without written permission:** its terms forbid automated
+   or programmatic access, scraping and scripts included (checked 2026-10-16). Options, in order:
+   - **Ask Strength Level** for written permission to bundle its standards in an AGPL app. If
+     they say yes, keep the written permission in `hevier/` and map openGym's exercise ids to
+     theirs (a reviewed table, not guessed).
+   - **Build our own standards from open data.** [OpenPowerlifting](https://www.openpowerlifting.org)
+     publishes its meet results as open data (licence to verify before use). Percentiles of
+     squat, bench and deadlift by sex, weight class and age give the levels for those lifts. Other
+     exercises get levels through ratios to them, which are our own estimates and have to be
+     labelled as such. Published scoring formulas (DOTS, IPF GL) can scale between body weights.
+   - Other published standard tables (ExRx and others) are copyrighted too: same rule, ask first.
+   Either way: a pure helper with tests in `hevier/lib/` (rule 2), shown in exercise details
+   (M5 Summary), and the data's source and licence named in the app.
 4. **Gyms.** Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
    for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
    second one.
