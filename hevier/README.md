@@ -14,6 +14,7 @@ Everything that belongs only to the fork lives in this `hevier/` folder or in
 | [PLAN.md](PLAN.md) | The implementation plan: the pre-work, phase 1 (UX), phase 2 (UI design), and the rules the code follows. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |
+| [PIPELINE.md](PIPELINE.md) | What upstream's unreleased `release-*` branches already bring, and what it means for the fork. Check it before starting a milestone. |
 | [SEAMS.md](SEAMS.md) | The list of every place the fork edits an upstream file. Keep it current: it is what makes conflicts predictable. |
 | [tools/emulator.sh](tools/emulator.sh) | Builds the debug APK, boots the Android 16 emulator, installs and launches it. |
 | [tools/cdp.mjs](tools/cdp.mjs) | Drives the app's WebView over the Chrome DevTools Protocol: click, read text, screenshot. |
