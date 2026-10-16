@@ -10,6 +10,9 @@ on an Android 16 (API 36) emulator at the Xperia 1 VI's resolution (1080×2340, 
 
 ---
 
+Design decisions agreed with the user are in [DECISIONS.md](DECISIONS.md) and take precedence
+over this plan where they differ.
+
 ## Scope principle (decided 2026-10-16)
 
 **openGym's functionality, Hevy's UX and UI.** Phases 1 and 2 re-present what openGym already

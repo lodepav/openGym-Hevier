@@ -10,6 +10,7 @@ Everything that belongs only to the fork lives in this `hevier/` folder or in
 
 | File | What it is |
 |---|---|
+| [DECISIONS.md](DECISIONS.md) | The agreed design decisions (D1–D14). They override the plan and the spec where they differ. |
 | [PLAN.md](PLAN.md) | The implementation plan: the pre-work, phase 1 (UX), phase 2 (UI design), and the rules the code follows. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |
