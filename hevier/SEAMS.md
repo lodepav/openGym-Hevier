@@ -23,6 +23,8 @@ longer needed gets removed, and so does its row.
 | S3 | `frontend/src/views/Workout.jsx` | Two imports after the last import, and `if (HEVIER) return <HevyWorkout …/>` right before `ActiveWorkout`'s final `return`, after every hook. The Hevy screen is the fork's only layout (D1), so no `workoutView` value is stored and S4/S5 were not needed | done |
 | S9 | `frontend/src/sheets.jsx` | Imports `hevier/hooks.js`; `finishWorkout` calls `hooks.finish` (the Save Workout page) when it is set and the session is not an edit; `doFinishWorkout` calls `hooks.done` (the fork's summary) instead of opening `FinishSummary`; and `doFinishWorkout`, `LastAndNext`, `CardioDone` are exported. The hook is filled in only by `hevier/index.js` with the flag on, so upstream's tests see upstream's finish | done |
 | S10 | `frontend/src/sheets.jsx` | `exerciseDetailSheet` calls `hooks.exerciseDetail` (the fork's tabbed exercise details) when it is set; upstream's sheet becomes `upstreamExerciseDetailSheet`, which the fork's ⋯ → All details opens. The hook is set in `hevier/routes.jsx` with the flag on | done |
+| S11 | `frontend/src/views/Settings.jsx` | Imports `hevier/hooks.js`; `SettingsRoot` renders `hooks.settings.root(…)` (the fork's titled groups, `hevier/views/SettingsRootHevy.jsx`) in place of upstream's account card and groups, and filters its search hits through `hooks.settings.hides` | done |
+| S12 | `frontend/src/views/Settings.jsx` | A page's tree goes through `hooks.settings.page(id, tree)` before it renders: `hevier/lib/settings.js` `prunePage` leaves out the rows that only steer upstream's workout layouts (D16) | done |
 | S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
 | S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
 | S8 | `CLAUDE.md` | Points agents at `hevier/README.md` and `DECISIONS.md` (HTML-comment markers) | done |
@@ -56,6 +58,10 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   discard, and changes When / Duration with `lib/workout-date.js` (`moveWorkout`,
   `setWorkoutDuration`, `endsInFuture`). If upstream moves its summary or its finish steps, move
   the seam with them.
+- Settings (seams S11, S12): the fork's root repeats upstream's account card markup and reads
+  `PAGES` / `pageVisible` from `views/settings-pages.js`; `prunePage` finds rows by their English
+  title passed through `t()` and sections by upstream's `Section` component. If upstream renames a
+  hidden row, it shows again — `src/hevier/views/SettingsRootHevy.test.jsx` fails first.
 - `setNumberAt(sets, i)` exported from `views/Workout.jsx`: the set number the Hevy table shows.
   `HevyExerciseBlock`'s `setSide` is a copy of upstream's per-side field edit (`setSideField`,
   `weightOrigin`, `cascadeWeight`); if upstream's changes, change the copy.

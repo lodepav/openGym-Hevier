@@ -298,6 +298,11 @@ weekly series are a 🆕 helper derived from logged workouts. The radar chart is
 Hevy's "Workout Settings" page order and wording over openGym's existing settings. Only
 presentation, via a fork page list instead of editing `views/settings-pages.js`.
 
+**Status: done** (DECISIONS.md D16). Seam S11 gives `views/Settings.jsx`'s root the fork's titled
+groups (`hevier/views/SettingsRootHevy.jsx`) and drops hidden rows from its search; seam S12 passes
+each page's element tree through `hevier/lib/settings.js` `prunePage`, which leaves out the rows
+that only steer upstream's workout layouts.
+
 ### Out of scope for the fork (say no early)
 
 Social feed, followers, likes, and the explore and community routines. They need a server-side

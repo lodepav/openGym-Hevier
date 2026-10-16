@@ -16,11 +16,13 @@ import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
 import { SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 import { installExerciseDetails } from './views/ExerciseDetails.jsx'
+import { installSettings } from './views/SettingsRootHevy.jsx'
 import { HEVIER } from './flag.js'
 
-// Every exercise's details open the fork's tabbed sheet (seam S10). Installed here rather than in
-// ./index.js because App imports this module after sheets.jsx, which the sheet is built from.
-if (HEVIER) installExerciseDetails()
+// Every exercise's details open the fork's tabbed sheet (seam S10), and Settings is regrouped
+// (S11, S12). Installed here rather than in ./index.js because App imports this module after
+// sheets.jsx, which they are built from.
+if (HEVIER) { installExerciseDetails(); installSettings() }
 
 // /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
 function WorkoutRoute() {

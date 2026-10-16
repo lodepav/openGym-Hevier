@@ -1,0 +1,77 @@
+// @vitest-environment happy-dom
+// Settings through seams S11 and S12 (hevier/DECISIONS.md D16): Hevy's titled root over upstream's
+// pages, and upstream's pages without the rows that only steer upstream's workout layouts.
+import React, { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { MemoryRouter } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DEF, useStore } from '../../store/useStore.js'
+import { useUI } from '../../store/useUI.js'
+import Settings from '../../views/Settings.jsx'
+import { hooks } from '../hooks.js'
+import { installSettings } from './SettingsRootHevy.jsx'
+import { HIDDEN_ROWS, hiddenSetting } from '../lib/settings.js'
+
+vi.mock('../flag.js', () => ({ HEVIER: true }))
+vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
+const clone = v => JSON.parse(JSON.stringify(v))
+let root, container
+
+function render(page) {
+  useStore.setState({ S: clone(DEF), user: null, isGuest: () => true })
+  container = document.createElement('div')
+  document.body.appendChild(container)
+  root = createRoot(container)
+  act(() => root.render(<MemoryRouter><Settings page={page} /></MemoryRouter>))
+}
+const titles = () => [...container.querySelectorAll('.lrow-t')].map(e => e.textContent)
+
+beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }); installSettings() })
+afterEach(() => {
+  if (root) act(() => root.unmount())
+  container?.remove()
+  hooks.settings = null
+})
+
+describe('hevier: Settings (seams S11, S12)', () => {
+  it('groups the root under Account, Preferences and More, the account card first', () => {
+    render(null)
+    const text = container.textContent
+    expect(text.indexOf('Account')).toBeLessThan(text.indexOf('Preferences'))
+    expect(text.indexOf('Preferences')).toBeLessThan(text.indexOf('More'))
+    const rows = titles()
+    expect(rows.indexOf('Workout')).toBeGreaterThan(-1)
+    expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))
+    expect(container.querySelector('.sp-acct')).toBeTruthy()
+    expect(container.textContent).not.toContain('Cards')
+  })
+
+  it('leaves the layout rows out of Workout and Fine-tuning, keeping the rest', () => {
+    render('workout')
+    const rows = titles()
+    for (const k of HIDDEN_ROWS.workout) expect(rows).not.toContain(k)
+    expect(rows).toContain('Rest timer')
+    expect(rows).toContain('Effort per set')
+    expect(rows).toContain('Weigh in before workouts')
+    act(() => root.unmount()); container.remove()
+    render('advanced')
+    const adv = titles()
+    for (const k of HIDDEN_ROWS.advanced) expect(adv).not.toContain(k)
+    expect(adv).toContain('Swipe actions')
+    expect(container.textContent).not.toContain('Everything hidden here stays one tap away')
+  })
+
+  it('a search never offers a row the page leaves out', () => {
+    expect(hiddenSetting({ page: 'workout', title: 'Layout' })).toBe(true)
+    expect(hiddenSetting({ page: 'workout', title: 'Rest timer' })).toBe(false)
+    expect(hiddenSetting({ page: 'workout', title: 'Workout', isPage: true })).toBe(false)
+  })
+
+  it('without the hook, upstream’s rows are all there', () => {
+    hooks.settings = null
+    render('workout')
+    expect(titles()).toContain('Layout')
+  })
+})
