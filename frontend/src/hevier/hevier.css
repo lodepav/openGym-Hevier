@@ -262,3 +262,32 @@
 :root[data-ui="hevier"] .hv-mset-d.down{color:var(--orange)}
 :root[data-ui="hevier"] .hv-linkrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-linkrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+
+/* M3 Add Exercise picker (reference/SCREENS.md §8) */
+:root[data-ui="hevier"] .hv-pk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+:root[data-ui="hevier"] .hv-pk-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+:root[data-ui="hevier"] .hv-pk-filters .btn{min-height:36px;font-size:14px}
+:root[data-ui="hevier"] .hv-pk-filters .btn.on{color:var(--acc)}
+:root[data-ui="hevier"] .hv-pk-row{gap:12px}
+:root[data-ui="hevier"] .hv-pk-row.on{box-shadow:inset 3px 0 0 var(--acc)}
+:root[data-ui="hevier"] .hv-pk-check{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--label-3);color:var(--on-acc);font-size:13px}
+:root[data-ui="hevier"] .hv-pk-check.on{background:var(--acc);border-color:var(--acc)}
+:root[data-ui="hevier"] .hv-pk-more{width:100%;margin-top:8px}
+/* Sticks over the sheet's own bottom padding (index.css .sheet), so nothing shows below it. */
+:root[data-ui="hevier"] .hv-pk-add{position:sticky;bottom:calc(-20px - var(--sab));margin:0 -18px;padding:12px 18px calc(20px + var(--sab));background:var(--bg-el);box-shadow:0 -8px 16px var(--bg-el)}
+:root[data-ui="hevier"] .hv-pk-add .btn{width:100%}
+
+/* Workout Detail (hevier/views/WorkoutDetail.jsx, reference/SCREENS.md §4) */
+:root[data-ui="hevier"] .hv-wd-d{font-size:13px;color:var(--label-2);margin-top:4px}
+:root[data-ui="hevier"] .hv-wd-t{font-size:22px;font-weight:700;margin:2px 0 10px}
+:root[data-ui="hevier"] .hv-wd .hv-stats{margin:0 0 14px}
+:root[data-ui="hevier"] .hv-wd-note{font-size:15px;white-space:pre-wrap;margin:0 0 12px}
+:root[data-ui="hevier"] .hv-wd-split{display:grid;grid-template-columns:7.5em 1fr 4.5em;align-items:center;gap:8px;font-size:14px}
+:root[data-ui="hevier"] .hv-wd-split b{text-align:end;font-weight:500;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-wd-ex{margin-bottom:6px}
+:root[data-ui="hevier"] .hv-wd-sets{display:flex;flex-direction:column}
+:root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd-row:nth-child(odd):not(.hv-wd-th){background:var(--surface-2);border-radius:6px}
+:root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
+:root[data-ui="hevier"] .hv-wd-row span:first-child{text-align:center;font-weight:600}
+:root[data-ui="hevier"] .hv-wd-w{color:var(--yellow,#f5c518)}

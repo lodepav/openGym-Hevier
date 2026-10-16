@@ -229,7 +229,10 @@ phone: `lib/coach-device.js`). Its code is untouched, so it costs nothing in mer
 `HevyTabBar` (three tabs + "Workout in progress · Resume" bar), `views/WorkoutTab.jsx` (D13),
 `views/Profile.jsx` with `components/WeeklyChart.jsx` over `lib/weekly-series.js` (D14), and
 `views/HevyHome.jsx` with Edit Home over `lib/home-layout.js` (D12). Feed cards
-(`components/WorkoutCard.jsx`) open upstream's workout details for edit/repeat/delete. Feed cards also have Hevy's ⋯
+(`components/WorkoutCard.jsx`) open the fork's **Workout Detail** page (seam S14, added after
+phase 1 at the user's report): title, Time · Volume · Sets · Records, description, a muscle split
+in sets, each exercise's SET · WEIGHT & REPS table; ⋯ has Hevy's actions and All details
+(upstream's sheet: note, date, duration, copy, share, .fit). Feed cards also have Hevy's ⋯
 (Save as routine · Repeat today · Edit workout · Delete workout, upstream's own actions), the
 resume bar has Discard, and Stats and Exercises get a "‹ Profile" back row. Verified on the
 emulator.
@@ -253,7 +256,12 @@ REP RANGE, a pyramid is edited set by set. W / F / Max set types; drop sets, bac
 per side and progression stay in upstream's settings behind ⋮. Exercises drag to reorder
 (`hevier/components/useDragReorder.js`, rows of any height, auto-scroll), supersets as one. The
 Workout tab's routines got the same drag and Hevy's folders (D13, `hevier/lib/routine-folders.js`).
-Not yet: a Hevy-style Add Exercise picker (SCREENS.md §8; upstream's picker is used for now).
+The Hevy Add Exercise picker (SCREENS.md §8) came after phase 1, through seam S13
+(`hevier/views/ExercisePickerHevy.jsx`, `hevier/lib/exercise-picker.js`): search, All Equipment
+(with the active equipment profile as an option, on by default as upstream's) and All Muscles
+sheets, Recent Exercises, ✓ circles and "Add 2 exercises". Each pick is the caller's quick add,
+so what an exercise starts with is upstream's. A Replace or a swap is one tap, opening on the
+same muscle. Not built: Hevy's "Add as superset" (link them after with ⋮).
 
 ### M4. Finish → Save → Summary
 
@@ -438,6 +446,14 @@ the feature is not Hevy-specific (it would remove fork code).
    dependency-light rules. So decide whether the folder route is enough before building it. Restore:
    upstream's import with "Merge them in" (1.4.2). From here on, fork data that matters goes in
    `S`, not localStorage, so that it is part of this sync.
+
+8. **Volume as sets per muscle group** (user, 2026-10-16). Hevy measures volume as tonnage
+   (weight × reps). The user wants a Settings switch between **total weight** and **sets per
+   muscle group**, the sets counted over whatever period the screen shows (a workout, a week, a
+   month…). The fork's Statistics already counts sets per muscle (`hevier/lib/muscle-sets.js`,
+   upstream's `loadOfWorkouts`), and Workout Detail's muscle split counts sets. Decide which places
+   switch (feed card Volume, the workout's stats row, Profile's weekly chart Volume, Statistics)
+   and where the setting lives (`S`, so it syncs, per §4), in DECISIONS.md first.
 
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.

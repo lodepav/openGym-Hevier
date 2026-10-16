@@ -60,3 +60,12 @@ export function lastDays(workouts, today, days = 7) {
   const list = Array.from({ length: days }, (_, i) => plusDays(span.from, i)).map(d => ({ d, trained: trained.has(d) }))
   return { days: list, workouts: ws, load: loadOfWorkouts(ws) }
 }
+
+/** Sets per muscle in one workout (Workout Detail's muscle split), most first, to one decimal.
+ *  Muscles the workout did not train are left out. */
+export function workoutSplit(w) {
+  return Object.entries(loadOfWorkouts([w]))
+    .map(([muscle, sets]) => ({ muscle, sets: tenth(sets) }))
+    .filter(r => r.sets > 0)
+    .sort((a, b) => b.sets - a.sets || MUSCLES.indexOf(a.muscle) - MUSCLES.indexOf(b.muscle))
+}

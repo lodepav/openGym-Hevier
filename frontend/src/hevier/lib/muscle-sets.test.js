@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts, lastDays } from './muscle-sets.js'
+import { periodOf, muscleSetCounts, lastDays, workoutSplit } from './muscle-sets.js'
 import { loadOfWorkouts } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -39,5 +39,20 @@ describe('hevier muscle set counts', () => {
     expect(r.days.filter(d => d.trained).map(d => d.d)).toEqual(['2026-10-10', '2026-10-16'])
     expect(r.workouts).toHaveLength(2)
     expect(r.load.chest).toBeGreaterThan(0)
+  })
+})
+
+describe('hevier workout muscle split', () => {
+  it('counts one workout’s sets per muscle, most first, as upstream’s load does', () => {
+    const w = W('2026-10-01', [set(), set(), set(false)])
+    const split = workoutSplit(w)
+    const load = loadOfWorkouts([w])
+    expect(split[0].muscle).toBe('chest')
+    expect(split.map(r => r.sets)).toEqual([...split.map(r => r.sets)].sort((a, b) => b - a))
+    for (const r of split) expect(r.sets).toBe(Math.round(load[r.muscle] * 10) / 10)
+  })
+
+  it('is empty for a workout with nothing ticked', () => {
+    expect(workoutSplit(W('2026-10-01', [set(false)]))).toEqual([])
   })
 })

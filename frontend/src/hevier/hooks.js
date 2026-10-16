@@ -1,14 +1,16 @@
-// The hand-offs of the fork's hook seams: S9 and S10 (frontend/src/sheets.jsx), S11 and S12
+// The hand-offs of the fork's hook seams: S9, S10, S13 and S14 (frontend/src/sheets.jsx), S11 and S12
 // (frontend/src/views/Settings.jsx). Upstream's code asks this object first: when the fork has
 // filled it in (only with the flag on), Finish opens the fork's Save Workout page instead of
 // upstream's confirm, a saved workout opens the fork's summary instead of upstream's, an
-// exercise's details open the fork's tabbed sheet, and Settings is regrouped. Empty, as in
-// upstream's own tests, all are upstream's. No imports, so the seams add nothing to what the
-// upstream files load.
+// exercise's details open the fork's tabbed sheet, a finished workout the fork's Workout Detail
+// page, an exercise picker the fork's Hevy picker, and Settings is regrouped. Empty, as in upstream's own tests, all are upstream's. No imports, so the
+// seams add nothing to what the upstream files load.
 export const hooks = {
   finish: null,   // () => void: Finish was asked for (the session is not saved yet)
   done: null,     // ({ w, prs, e1prs }) => void: upstream saved the session as `w`
   exerciseDetail: null,   // (ex) => void: an exercise's details were asked for (S10)
+  workoutDetail: null,    // (w) => void: a finished workout's details were asked for (S14)
+  exercisePicker: null,   // (onPick, { title, like }) => sheet handle: an exercise picker was asked for (S13)
   settings: null,  // { root(props), page(id, tree), hides(hit) }: the Settings root and pages (S11, S12)
 }
 

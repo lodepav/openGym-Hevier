@@ -22,12 +22,15 @@ import { SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 import { installExerciseDetails } from './views/ExerciseDetails.jsx'
 import { installSettings } from './views/SettingsRootHevy.jsx'
+import { installExercisePicker } from './views/ExercisePickerHevy.jsx'
+import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/WorkoutDetail.jsx'
 import { HEVIER } from './flag.js'
 
-// Every exercise's details open the fork's tabbed sheet (seam S10), and Settings is regrouped
-// (S11, S12). Installed here rather than in ./index.js because App imports this module after
-// sheets.jsx, which they are built from.
-if (HEVIER) { installExerciseDetails(); installSettings() }
+// Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
+// Workout Detail page (S14), every exercise picker the fork's Hevy picker (S13), and Settings is
+// regrouped (S11, S12). Installed here rather than in
+// ./index.js because App imports this module after sheets.jsx, which they are built from.
+if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutDetail(); installSettings() }
 
 // /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
 function WorkoutRoute() {
@@ -77,6 +80,7 @@ export const hevierRoutes = [
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
   <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,
+  <Route key="hv-detail" path={DETAIL_PATH} element={<WorkoutDetail />} />,
 ]
 
 export { HevyTabBar }
