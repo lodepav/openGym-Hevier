@@ -245,3 +245,20 @@
 :root[data-ui="hevier"] .hv-xd{min-height:min(78vh,720px)}
 :root[data-ui="hevier"] .hv-xd h4.sec{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-xd h4.sec .icn{color:var(--yellow,#f5c518)}
+
+/* M6 Statistics and Measures (reference/SCREENS.md §6, §11) */
+:root[data-ui="hevier"] .hv-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 12px}
+:root[data-ui="hevier"] .hv-day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-day b{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:14px;color:var(--label)}
+:root[data-ui="hevier"] .hv-day.on b{background:var(--acc);color:var(--on-acc)}
+:root[data-ui="hevier"] .hv-day.today b{box-shadow:inset 0 0 0 2px var(--acc)}
+:root[data-ui="hevier"] .hv-msets{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+:root[data-ui="hevier"] .hv-mset{display:grid;grid-template-columns:7.5em 1fr 2.6em 3em;align-items:center;gap:8px;font-size:14px}
+:root[data-ui="hevier"] .hv-mset b{text-align:end}
+:root[data-ui="hevier"] .hv-mset-bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+:root[data-ui="hevier"] .hv-mset-bar i{display:block;height:100%;background:var(--acc);border-radius:4px}
+:root[data-ui="hevier"] .hv-mset-d{text-align:end;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-mset-d.up{color:var(--green)}
+:root[data-ui="hevier"] .hv-mset-d.down{color:var(--orange)}
+:root[data-ui="hevier"] .hv-linkrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
+:root[data-ui="hevier"] .hv-linkrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}

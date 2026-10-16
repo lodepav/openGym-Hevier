@@ -293,6 +293,14 @@ The Profile header with the weekly bar chart (Duration / Volume / Reps), Dashboa
 set count per muscle). New views over `Stats` / `recovery` / `structuralBalance` data. The
 weekly series are a 🆕 helper derived from logged workouts. The radar chart is on the backlog.
 
+**Status: done.** Profile (header, weekly chart, dashboard, feed) came with M2. `/stats` is the
+fork's Statistics (`hevier/views/Statistics.jsx`): the last 7 days as a week strip and body map,
+the set count per muscle group by week, month or year against the one before
+(`hevier/lib/muscle-sets.js`, over upstream's `loadOfWorkouts`), then upstream's whole Stats at
+`/stats/all` and Structural balance. `/measures` (`hevier/views/Measures.jsx`) has body weight
+with upstream's log, goal and weigh-in list, then upstream's Body measurements and Progress
+photos, whose own ‹ now goes back where the user came from.
+
 ### M7. Settings regrouped (SCREENS.md §10)
 
 Hevy's "Workout Settings" page order and wording over openGym's existing settings. Only
@@ -309,6 +317,10 @@ Social feed, followers, likes, and the explore and community routines. They need
 social model that openGym deliberately doesn't have.
 
 ### Phase 1 done when
+
+**Status (2026-10-16): done.** M1–M7 are on `hevier/ux`, the full suite is green (5161 tests,
+the fork's 101 among them), each milestone was walked through on the emulator, and `hevier/ux` is
+merged into `hevier/main`. The walk on the Xperia itself is still the user's.
 
 - M1–M7 merged into `hevier/ux`, all tests green, and SEAMS.md current.
 - Walked through on the emulator (scripted) and on the Xperia (manual), with screenshots in

@@ -41,7 +41,7 @@ export default function Profile() {
     <div className="hv-dash">
       {tile('chart', t('Statistics'), () => nav('/stats'))}
       {tile('dumbbell', t('Exercises'), () => nav('/library'))}
-      {tile('ruler', t('Measures'), () => nav('/measurements'))}
+      {tile('ruler', t('Measures'), () => nav('/measures'))}
       {tile('calendar', t('Calendar'), () => calendarSheet())}
     </div>
     <h4 className="sec">{t('Workouts')}</h4>

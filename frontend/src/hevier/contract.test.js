@@ -12,6 +12,7 @@ import * as stats from '../views/Stats.jsx'
 import * as workoutView from '../views/Workout.jsx'
 import * as routineEdit from '../views/RoutineEdit.jsx'
 import * as routines from '../lib/routines.js'
+import * as muscles from '../lib/muscles.js'
 import { HEVIER } from './flag.js'
 
 describe('hevier: upstream contract', () => {
@@ -20,7 +21,8 @@ describe('hevier: upstream contract', () => {
       'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
       'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
       'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet',
-      'upstreamExerciseDetailSheet', 'detailTags', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx']) {
+      'upstreamExerciseDetailSheet', 'detailTags', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
+      'bwSheet', 'goalSheet', 'weighInsSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
   })
@@ -47,6 +49,10 @@ describe('hevier: upstream contract', () => {
     expect(history.NOTE_MAX).toBeGreaterThan(0)
     expect(typeof historyView.historyRows).toBe('function')
     expect(Array.isArray(stats.FATIGUE_LEVELS)).toBe(true)
+    // M6 Statistics counts with upstream's muscle load and names
+    expect(typeof muscles.loadOfWorkouts).toBe('function')
+    expect(Array.isArray(muscles.MUSCLES)).toBe(true)
+    expect(muscles.MUSCLE_NAME.chest).toBeTruthy()
   })
 
   it('the fork UI is off unless the build asks for it', () => {

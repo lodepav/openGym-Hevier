@@ -18,7 +18,7 @@ const TAB_OF = {
   home: 'home', checkin: 'home',
   workout: 'workout', plan: 'workout',
   profile: 'profile', stats: 'profile', history: 'profile', library: 'profile', muscles: 'profile',
-  'structural-balance': 'profile', 'progress-photos': 'profile', measurements: 'profile', settings: 'profile',
+  'structural-balance': 'profile', 'progress-photos': 'profile', measurements: 'profile', measures: 'profile', settings: 'profile',
 }
 export const tabOf = path => TAB_OF[path.split('/')[1] || 'home'] || null
 
