@@ -379,7 +379,11 @@ the feature is not Hevy-specific (it would remove fork code).
 
 1. **Body weight from Health Connect.** Read weigh-ins *from* Android Health. Upstream only
    writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
-   Android code beyond seam S7. Decide how duplicates are handled against openGym's own weigh-ins.
+   Android code beyond seam S7. **Health Connect becomes the only source** (user, 2026-10-16):
+   with it on, the app's own weigh-in entry is turned off (the body-weight card, the check-in's
+   weight prompt and the add sheet), and upstream's write of weigh-ins *to* Health Connect is
+   skipped so they don't echo back. The weights read are still stored as openGym's body-weight
+   log, since bodyweight exercises, the charts and strength level (item 3) read it from there.
 2. **Heart rate pulled in after the finish.** On finishing, fetch the workout's heart-rate
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
