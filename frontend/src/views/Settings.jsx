@@ -944,7 +944,10 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
   const initial = user && !DEMO ? String(user.name || '?').trim().charAt(0).toUpperCase() : null
   return <div className="narrow">
     <div className="sp-nav">
-      <button className="sp-back" onClick={home} aria-label={t('Home')}><Icon name="chevronLeft" /><span>{t('Home')}</span></button>
+      {/* [hevier] S11: in the fork, Settings opens from Profile and goes back there */}
+      {hooks.settings ? hooks.settings.back()
+        : <button className="sp-back" onClick={home} aria-label={t('Home')}><Icon name="chevronLeft" /><span>{t('Home')}</span></button>}
+      {/* [/hevier] */}
     </div>
     <h1 className="sp-root-title">{t('Settings')}</h1>
     <div className="sp-search">

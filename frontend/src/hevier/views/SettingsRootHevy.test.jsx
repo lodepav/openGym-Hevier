@@ -46,6 +46,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))
     expect(container.querySelector('.sp-acct')).toBeTruthy()
     expect(container.textContent).not.toContain('Cards')
+    expect(container.querySelector('.sp-back').textContent).toBe('Profile')
   })
 
   it('leaves the layout rows out of Workout and Fine-tuning, keeping the rest', () => {
