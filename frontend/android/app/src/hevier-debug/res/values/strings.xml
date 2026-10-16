@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- [hevier] The fork's debug launcher name (replaces upstream's src/debug/res, see hevier.gradle). -->
+<resources>
+    <string name="app_name">Hevier Test</string>
+    <string name="title_activity_main">Hevier Test</string>
+</resources>

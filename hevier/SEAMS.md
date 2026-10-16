@@ -18,14 +18,14 @@ longer needed gets removed, and so does its row.
 
 | Id | File | What the seam does | Status |
 |---|---|---|---|
-| S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`) | planned |
+| S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`), right after `index.css` | done |
 | S2 | `frontend/src/App.jsx` | `HevyTabBar` instead of `TabBar` when `HEVIER`; extra routes | planned |
 | S3 | `frontend/src/views/Workout.jsx` | `'hevy'` accepted as a workout layout; renders `HevyWorkout` | planned |
 | S4 | `frontend/src/views/Workout.jsx` | Hevy header stats row and footer for the `'hevy'` layout | planned |
 | S5 | `frontend/src/sheets.jsx` | `beginWorkout` default layout `'hevy'` when `HEVIER` | planned |
-| S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | planned |
-| S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` (app id, name) at end of file | planned |
-| S8 | `CLAUDE.md` | Points agents at `hevier/README.md` | planned |
+| S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
+| S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
+| S8 | `CLAUDE.md` | Points agents at `hevier/README.md` and `DECISIONS.md` (HTML-comment markers) | done |
 
 ## Upstream contracts the overlay depends on
 

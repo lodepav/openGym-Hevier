@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+<!-- [hevier] S8 -->
+> **This is the openGym-Hevier fork.** Read @hevier/README.md and @hevier/DECISIONS.md before
+> changing anything; upstream files are edited only at the seams in hevier/SEAMS.md.
+<!-- [/hevier] -->
+
 ## What this is
 
 openGym is a self-hosted gym & body-weight tracker PWA. Two containers (`api` + `web`) plus a

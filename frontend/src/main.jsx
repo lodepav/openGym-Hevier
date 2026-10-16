@@ -6,6 +6,9 @@ import { useStore } from './store/useStore.js'
 import { startMediaSync } from './lib/media-sync.js'
 import { startNativeKeyboard } from './lib/native-keyboard.js'
 import './index.css'
+// [hevier] S1: the fork's overlay (data-ui flag + hevier.css); after index.css so its rules win
+import './hevier/index.js'
+// [/hevier]
 
 // App.jsx restores per-route scroll itself; the browser's own attempt races it.
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'

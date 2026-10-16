@@ -1,0 +1,3 @@
+/* All fork CSS. Every rule is scoped under :root[data-ui="hevier"] (set by ./index.js when the
+   VITE_HEVIER flag is on), so none of it can leak into upstream's look. Phase 2 (hevier/PLAN.md §3)
+   overrides upstream's design tokens here rather than editing index.css. */

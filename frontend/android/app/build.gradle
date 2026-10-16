@@ -69,3 +69,7 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+// [hevier] S7: the fork's application id and launcher name
+apply from: 'hevier.gradle'
+// [/hevier]

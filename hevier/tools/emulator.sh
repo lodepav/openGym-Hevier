@@ -20,7 +20,7 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export JAVA_HOME="${JAVA_HOME:-$HOME/.local/opt/jdk21}"
 export PATH="$HOME/.local/opt/node/bin:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 AVD="${AVD:-xperia1vi_api36}"
-APP_ID="${APP_ID:-ch.duartesantos.opengym.test}"   # debug build adds .test (app/build.gradle)
+APP_ID="${APP_ID:-ch.duartesantos.opengym.hevier.test}"   # hevier.gradle id + debug .test suffix
 APK="$ROOT/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
 
 # Fork build flags (hevier/PLAN.md §1.4). Harmless before the overlay exists.

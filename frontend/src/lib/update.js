@@ -11,7 +11,9 @@
 
 import { MOBILE } from './mobile.js'
 
-const REPO = 'DuarteSantos8/openGym'
+// [hevier] S6: the fork's builds check the fork's releases (VITE_UPDATE_REPO), not upstream's
+const REPO = import.meta.env.VITE_UPDATE_REPO || 'DuarteSantos8/openGym'
+// [/hevier]
 const LATEST_URL = `https://api.github.com/repos/${REPO}/releases/latest`
 export const RELEASES_PAGE = `https://github.com/${REPO}/releases/latest`
 

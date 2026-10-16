@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- [hevier] The fork's launcher name (see hevier.gradle). -->
+<resources>
+    <string name="app_name">Hevier</string>
+    <string name="title_activity_main">Hevier</string>
+</resources>

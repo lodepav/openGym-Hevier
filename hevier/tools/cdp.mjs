@@ -8,14 +8,14 @@
 //   node hevier/tools/cdp.mjs shot out.png                   # screenshot of the WebView
 //   node hevier/tools/cdp.mjs reload | nav "#/workout"
 //
-// Env: ADB (default ~/Android/Sdk/platform-tools/adb), APP_ID (default ch.duartesantos.opengym.test),
+// Env: ADB (default ~/Android/Sdk/platform-tools/adb), APP_ID (default ch.duartesantos.opengym.hevier.test),
 // CDP_PORT (default 9223).
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 
 const ADB = process.env.ADB || homedir() + '/Android/Sdk/platform-tools/adb'
-const APP_ID = process.env.APP_ID || 'ch.duartesantos.opengym.test'
+const APP_ID = process.env.APP_ID || 'ch.duartesantos.opengym.hevier.test'
 const PORT = process.env.CDP_PORT || '9223'
 
 function forward() {
