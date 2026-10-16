@@ -1,6 +1,6 @@
 // A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, date, Time · Volume ·
-// Records, then the first exercises with their set counts. Tapping it opens upstream's workout
-// details; ⋯ offers Hevy's four actions, each the one upstream's details sheet runs.
+// Records, then the first exercises with their set counts. Tapping it opens the workout's details
+// (the fork's Workout Detail, seam S14); ⋯ offers Hevy's four actions, each the one upstream's details sheet runs.
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -20,8 +20,9 @@ import Icon from '../../components/Icon.jsx'
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
 
-// The actions of upstream's WorkoutDetail (sheets.jsx), with its wording and its confirms.
-export function workoutActions(w, nav) {
+// The actions of upstream's WorkoutDetail (sheets.jsx), with its wording and its confirms. `extra`
+// items go last (Workout Detail's All details).
+export function workoutActions(w, nav, extra = []) {
   const update = useStore.getState().update
   const media = workoutMediaOf(w, Infinity).length
   return menuSheet({
@@ -47,6 +48,7 @@ export function workoutActions(w, nav) {
         confirmText: t('Delete'), danger: true,
         onConfirm: () => { update(s => { s.workouts = s.workouts.filter(x => !sameWorkout(x, w)) }); toast(t('Workout deleted')) },
       }) },
+      ...extra,
     ],
   })
 }
