@@ -197,6 +197,13 @@ for the finish flow). Summary:
 | Rest timer docked at the bottom with −15 / +15 / Skip | `RestTimer` (already docks in a workout) | restyle in phase 2; check its buttons |
 | Minimised workout → floating "Workout in progress · Resume" bar above the tabs | `S.active` + TabBar's resume logic | part of `HevyTabBar` (M2) |
 
+**Status (2026-10-16): first cut built** on `hevier/ux`: `frontend/src/hevier/views/HevyWorkout.jsx`
+and `components/HevyExerciseBlock.jsx` through seam S3. It covers reps exercises (warm-up /
+failure / drop / rest-pause, PREVIOUS, effort column, swipe, plate line, supersets) and was
+verified on the emulator through a full start → log → finish → second-session cycle. Still open in
+M1: Hevy rows for timed, cardio and per-side (L/R) exercises (these currently render upstream's
+block inside the Hevy screen) and the rest timer riding above the keypad.
+
 Acceptance: a full leg-day session can be logged, minimised, resumed, finished, and read back
 in history, with weights progressing for the next session exactly as upstream's layouts do.
 The proof is a component test that runs the same session through `'list'` and `'hevy'` and

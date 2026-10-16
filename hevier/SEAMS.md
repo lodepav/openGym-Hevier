@@ -20,9 +20,7 @@ longer needed gets removed, and so does its row.
 |---|---|---|---|
 | S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`), right after `index.css` | done |
 | S2 | `frontend/src/App.jsx` | `HevyTabBar` instead of `TabBar` when `HEVIER`; extra routes | planned |
-| S3 | `frontend/src/views/Workout.jsx` | `'hevy'` accepted as a workout layout; renders `HevyWorkout` | planned |
-| S4 | `frontend/src/views/Workout.jsx` | Hevy header stats row and footer for the `'hevy'` layout | planned |
-| S5 | `frontend/src/sheets.jsx` | `beginWorkout` default layout `'hevy'` when `HEVIER` | planned |
+| S3 | `frontend/src/views/Workout.jsx` | Two imports after the last import, and `if (HEVIER) return <HevyWorkout …/>` right before `ActiveWorkout`'s final `return`, after every hook. The Hevy screen is the fork's only layout (D1), so no `workoutView` value is stored and S4/S5 were not needed | done |
 | S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
 | S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
 | S8 | `CLAUDE.md` | Points agents at `hevier/README.md` and `DECISIONS.md` (HTML-comment markers) | done |
@@ -34,6 +32,14 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
 
 - `blockProps(idx)` in `views/Workout.jsx`: the handler props an exercise layout receives
   (`onToggle`, `onField`, `onAddSet`, `onRemoveSetAt`, `onRest`, `onSwap`, …).
+- The `ActiveWorkout` locals seam S3 passes to `HevyWorkout`: `units`, `editing`, `done`,
+  `blockProps`, `bindExRef`, `bindSetRef`, `ExerciseBlock` (the fallback for timed, cardio and
+  per-side exercises), `addExercise`, `discardWorkout`, `markAllDone`, `pairAt`, `unpairAt`,
+  `noProgSwitchable`, `toggleSessionNoProg`. If upstream renames one, the build fails (an
+  undefined identifier) or `src/hevier/views/HevyWorkout.test.jsx` does. Rename it in the seam.
+- What upstream's `ExerciseBlock` does to a row (set-type menu, drops, bursts, plate line):
+  `HevyExerciseBlock` repeats those calls over the same `lib/` helpers. After a sync, diff
+  `ExerciseBlock` for new behaviour (CONFLICTS.md, "silent drift").
 - Exports from `sheets.jsx`: `startFlow`, `beginWorkout`, `finishWorkout`,
   `finishWorkoutSheet`, `menuSheet`, `exerciseDetailSheet`, `exerciseHistorySheet`,
   `exerciseNoteSheet`.

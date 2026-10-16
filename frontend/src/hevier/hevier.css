@@ -1,3 +1,80 @@
 /* All fork CSS. Every rule is scoped under :root[data-ui="hevier"] (set by ./index.js when the
    VITE_HEVIER flag is on), so none of it can leak into upstream's look. Phase 2 (hevier/PLAN.md §3)
-   overrides upstream's design tokens here rather than editing index.css. */
+   overrides upstream's design tokens here rather than editing index.css.
+
+   Phase 1 (UX) only lays things out the way Hevy does, on upstream's tokens (--acc, --surface…);
+   colours and type are phase 2's. */
+
+/* ---------- Log Workout screen (hevier/views/HevyWorkout.jsx) ---------- */
+:root[data-ui="hevier"] .hv-whdr{
+  position:sticky;top:0;z-index:20;
+  margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 8px;
+  padding:calc(var(--sat) + var(--conn) + 6px) var(--pad) 8px;
+  background:var(--bg);border-bottom:var(--hair) solid var(--sep);
+}
+:root[data-ui="hevier"] .hv-bar{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-title{flex:1;min-width:0;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-finish{flex:none;width:auto;padding:0 18px;min-height:34px}
+:root[data-ui="hevier"] .hv-stats{display:flex;gap:28px;margin-top:8px}
+:root[data-ui="hevier"] .hv-stats div{display:flex;flex-direction:column;gap:2px}
+:root[data-ui="hevier"] .hv-stats span{font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
+:root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
+
+:root[data-ui="hevier"] .hv-unit{margin:0 0 22px}
+:root[data-ui="hevier"] .hv-unit.ss{border-inline-start:3px solid var(--purple);padding-inline-start:10px}
+:root[data-ui="hevier"] .hv-unit.ss > div + div{margin-top:18px}
+:root[data-ui="hevier"] .hv-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:40px 0 24px;color:var(--label-2);text-align:center}
+:root[data-ui="hevier"] .hv-empty .icn{font-size:34px}
+:root[data-ui="hevier"] .hv-empty b{color:var(--label);font-size:17px}
+:root[data-ui="hevier"] .hv-addex{width:100%;margin:6px 0 10px}
+:root[data-ui="hevier"] .hv-foot{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+:root[data-ui="hevier"] .hv-danger{color:var(--red)}
+
+/* ---------- one exercise (hevier/components/HevyExerciseBlock.jsx) ---------- */
+:root[data-ui="hevier"] .hv-exhd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+:root[data-ui="hevier"] .hv-thumb{flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;background:#fff;padding:0}
+:root[data-ui="hevier"] .hv-thumb img{width:100%;height:100%;object-fit:cover}
+:root[data-ui="hevier"] .hv-name{flex:1;min-width:0;text-align:start;font-size:17px;font-weight:600;color:var(--acc);background:none;padding:0}
+:root[data-ui="hevier"] .hv-more{flex:none}
+:root[data-ui="hevier"] .hv-ss{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+:root[data-ui="hevier"] .hv-sspill{background:var(--purple);color:#fff;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+:root[data-ui="hevier"] .hv-noprog{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+:root[data-ui="hevier"] .hv-link{color:var(--acc);background:none;padding:0;font-size:13px}
+:root[data-ui="hevier"] .hv-note{font-size:14px;margin-bottom:4px}
+:root[data-ui="hevier"] .hv-notes{display:block;width:100%;text-align:start;background:none;padding:2px 0 6px;font-size:14px;color:var(--label-3)}
+:root[data-ui="hevier"] .hv-notes.has{color:var(--label)}
+:root[data-ui="hevier"] .hv-rest{display:inline-flex;align-items:center;gap:6px;background:none;padding:2px 0 8px;color:var(--acc);font-size:14px}
+
+/* SET · PREVIOUS · KG · REPS · (RPE) · ✓ */
+:root[data-ui="hevier"] .hv-head,
+:root[data-ui="hevier"] .hv-row{
+  display:grid;align-items:center;column-gap:6px;
+  grid-template-columns:34px minmax(0,1fr) 62px 50px 36px;
+}
+:root[data-ui="hevier"] .hv-head.eff,
+:root[data-ui="hevier"] .hv-row.eff{grid-template-columns:34px minmax(0,1fr) 58px 46px 44px 36px}
+:root[data-ui="hevier"] .hv-head{font-size:11px;letter-spacing:.04em;color:var(--label-2);padding:0 4px 4px;text-align:center}
+:root[data-ui="hevier"] .hv-head > span:nth-child(2){text-align:start}
+:root[data-ui="hevier"] .hv-head .icn{font-size:13px}
+:root[data-ui="hevier"] .hv-row{min-height:44px;padding:0 4px;border-radius:8px}
+:root[data-ui="hevier"] .hv-row.done{background:color-mix(in srgb,var(--green) 22%,transparent)}
+:root[data-ui="hevier"] .hv-set{background:none;padding:0;font-weight:600;font-size:15px;text-align:center;min-height:36px}
+:root[data-ui="hevier"] .hv-w{color:var(--yellow)}
+:root[data-ui="hevier"] .hv-f{color:var(--red)}
+:root[data-ui="hevier"] .hv-d{color:var(--blue)}
+:root[data-ui="hevier"] .hv-prev{background:none;padding:0;text-align:start;font-size:14px;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-num{width:100%;text-align:center;font-size:16px;font-weight:600;background:none;border:0;padding:8px 0;color:var(--label)}
+/* D2: a value the progression engine filled in and nobody has touched yet */
+:root[data-ui="hevier"] .hv-num.hv-hint{color:var(--label-3);font-weight:500}
+:root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:6px;padding:4px 0;background:var(--surface-2);color:var(--label)}
+:root[data-ui="hevier"] .hv-eff.empty{color:var(--label-3)}
+:root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center}
+:root[data-ui="hevier"] .hv-chk.on{background:var(--green);color:#fff}
+:root[data-ui="hevier"] .hv-sub-row{padding-inline-start:18px}
+:root[data-ui="hevier"] .hv-x{justify-self:center}
+:root[data-ui="hevier"] .hv-plates{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label-2);padding:2px 0 4px 44px}
+:root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--acc);padding:6px 12px;border-radius:999px}
+:root[data-ui="hevier"] .hv-addset{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;min-height:38px;border-radius:8px;background:var(--surface);color:var(--label);font-size:15px}
+:root[data-ui="hevier"] .hv-fallback{margin-bottom:4px}
