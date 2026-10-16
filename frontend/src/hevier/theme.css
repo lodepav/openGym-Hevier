@@ -1,0 +1,61 @@
+/* Phase 2, step 1: Hevy's look as overrides of upstream's tokens (hevier/PLAN.md §3,
+   hevier/DECISIONS.md D17). Upstream's whole UI and the fork's components draw with these
+   custom properties, so this one block restyles both without touching index.css.
+
+   Seam S15 (App.jsx) keeps the root on data-theme="dark" with the "sky" preset, so the block
+   below is the fork's one look. The light block exists only for upstream's timer flash, which
+   blinks the theme to light and back (components/TimerFlash.jsx).
+
+   Hevy blue, warm-up yellow and failure red are measured from Hevy's own screenshots
+   (hevier/reference/web). Hevy's site shows only its light mode, so the dark surfaces are an
+   estimate: near-black page, slightly lifted cards, cool grey secondary text. Tune them here. */
+
+:root[data-ui="hevier"] {
+  --bg:        #0e0f12;
+  --bg-el:     #131418;   /* sheets, bars */
+  --surface:   #1b1d22;   /* cards, grouped lists */
+  --surface-2: #262930;   /* pressed, nested, input fills */
+  --surface-3: #353941;   /* controls: segmented track, switch off */
+
+  --label:     #ffffff;
+  --label-2:   #9a9ea7;   /* Hevy's grey secondary text */
+  --label-3:   rgba(154,158,167,.55);
+  --label-4:   rgba(154,158,167,.25);
+
+  --sep:       #2a2d34;
+  --sep-op:    rgba(42,45,52,.7);
+
+  --blue:   #008cff;
+  --yellow: #efab03;
+  --red:    #e34b37;
+  --green:  #2fbf5b;
+
+  --acc:      #008cff;
+  --acc-2:    #0070d6;
+  --on-acc:   #ffffff;
+
+  --r-card: 12px;
+
+  color-scheme: dark;
+}
+
+/* Only during the timer flash. */
+:root[data-ui="hevier"][data-theme="light"] {
+  --bg:        #ffffff;
+  --bg-el:     #f7f8fa;
+  --surface:   #f2f3f5;
+  --surface-2: #e7e9ec;
+  --surface-3: #dcdfe3;
+
+  --label:     #111317;
+  --label-2:   #6b7079;
+  --label-3:   rgba(107,112,121,.55);
+  --label-4:   rgba(107,112,121,.25);
+
+  --sep:       #e3e5e8;
+  --sep-op:    rgba(227,229,232,.8);
+
+  --on-acc:    #ffffff;
+
+  color-scheme: light;
+}

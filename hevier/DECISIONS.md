@@ -47,7 +47,10 @@ Added 2026-10-16, at the start of M7 (was "still open"), at the user's choice.
 |---|---|
 | D16 | **Hevy's root, upstream's pages.** The Settings root is regrouped under titles: **Account** (the account card, Notifications), **Preferences** (Workout, Timer alerts, Plan & schedule, Units & language, Equipment, Look & Home), **More** (AI Coach where upstream shows it, Data & backup, About). Upstream's search and row previews stay. Each row opens upstream's own page unchanged, except that the rows which only steer upstream's workout layouts are left out: Layout, Collapse completed exercises, Shown under each exercise, Exercise animations (D1, D3, D7), and in Fine-tuning the steppers (D4), set shortcuts, exercise chips, superset and move/swap buttons. Their stored values are untouched, so upstream's UI reads them as before. No fork-built Workout Settings page: copying upstream's rows would drift on every merge. |
 
-## Still open (decide in phase 2)
+## Look
 
-- Default theme and accent. Hevy is light-first with a blue accent; openGym defaults to dark
-  with green.
+Added 2026-10-16, before phase 2, at the user's choice.
+
+| # | Decision |
+|---|---|
+| D17 | **Hevy's dark theme with Hevy blue, only.** The fork has one look: Hevy's dark surfaces, grey secondary text, blue accent, green completed rows. No light theme and no accent choice are offered in the fork's UI; upstream's theme settings stay in the code and their stored values are untouched. |

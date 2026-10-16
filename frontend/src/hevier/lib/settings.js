@@ -1,8 +1,8 @@
 // Hevy's Settings over upstream's pages (hevier/DECISIONS.md D16). The root is regrouped under
 // titles (seam S11); a page keeps upstream's rows except those that only steer upstream's own
-// workout layouts, which the fork's one Hevy layout never reads (D1, D3, D4, D7). They are left out
-// of the page's element tree before it renders (seam S12), so upstream's Settings.jsx keeps every
-// row and the fork edits none of them.
+// workout layouts, which the fork's one Hevy layout never reads (D1, D3, D4, D7), and the theme and
+// accent pickers (D17). They are left out of the page's element tree before it renders (seam S12),
+// so upstream's Settings.jsx keeps every row and the fork edits none of them.
 import { Children, cloneElement, isValidElement } from 'react'
 import { Section } from '../../components/ui.jsx'
 
@@ -16,6 +16,8 @@ export const SETTINGS_GROUPS = [
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Exercise animations'],
+  // One look (D17): no light theme, no accent choice.
+  look: ['Theme', 'Accent color'],
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise'],
 }
@@ -24,6 +26,16 @@ const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ butto
 
 /** Whether a settings search hit is a row the fork leaves out. */
 export const hiddenSetting = hit => !hit.isPage && (HIDDEN_ROWS[hit.page] || []).includes(hit.title)
+
+// A row's title: a Row's `title` prop, or the `.lrow-t` text of a hand-built `.lrow` (the accent row).
+function titleOf(node) {
+  if (node.props.title !== undefined) return node.props.title
+  if (node.props.className !== 'lrow') return undefined
+  const label = Children.toArray(node.props.children)
+    .flatMap(k => isValidElement(k) ? Children.toArray(k.props.children) : [])
+    .find(k => isValidElement(k) && k.props.className === 'lrow-t')
+  return label?.props.children
+}
 
 /**
  * A page's element tree without the hidden rows. `tr` is the translation the page rendered its
@@ -35,7 +47,7 @@ export function prunePage(page, tree, tr) {
   if (!hide.size) return tree
   const walk = node => {
     if (!isValidElement(node)) return node
-    if (hide.has(node.props.title)) return null
+    if (hide.has(titleOf(node))) return null
     if (node.props.children === undefined) return node
     const kids = Children.toArray(node.props.children).map(walk).filter(k => k != null && k !== false)
     const isSection = node.type === Section

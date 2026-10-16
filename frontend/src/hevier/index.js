@@ -2,6 +2,7 @@
 // adds is reached from here or from the other seams listed in hevier/SEAMS.md.
 import { HEVIER } from './flag.js'
 import './hevier.css'
+import './theme.css'
 import { nav } from '../lib/nav.js'
 import { installFinishHook } from './hooks.js'
 

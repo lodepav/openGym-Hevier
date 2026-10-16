@@ -65,6 +65,9 @@ const resolveTheme = theme => theme === 'light' || theme === 'dark'
   : (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 
 function applyPrefs(theme, accent) {
+  // [hevier] S15: one look, Hevy's dark with its blue (hevier/DECISIONS.md D17)
+  if (HEVIER) { theme = 'dark'; accent = 'sky' }
+  // [/hevier]
   const de = document.documentElement
   de.dataset.theme = resolveTheme(theme)
   applyAccent(de, accent, de.dataset.theme)
