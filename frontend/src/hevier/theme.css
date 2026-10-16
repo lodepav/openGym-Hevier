@@ -74,3 +74,53 @@
 :root[data-ui="hevier"] .btn .icn{font-size:17px}
 :root[data-ui="hevier"] .btn{font-weight:500}
 :root[data-ui="hevier"] .btn.primary{font-weight:600}
+
+/* ---------- Sheets (phase 2, step 3) ----------
+   Hevy's sheets: a centred, smaller title; each group of rows one rounded card with hairlines
+   between rows; bare leading glyphs instead of filled icon tiles. :where() keeps the row rules at
+   the fork's base weight, so upstream's own states (the effort picker's tinted pick) still win. */
+:root[data-ui="hevier"] .sheet{border-radius:16px 16px 0 0}
+:root[data-ui="hevier"] .sheet .grab{margin:4px auto 12px}
+:root[data-ui="hevier"] .sheet h3{font-size:17px;font-weight:500;text-align:center;letter-spacing:-.01em;margin-bottom:12px}
+/* A title that shares its bar (the picker's Create, exercise details' ⋯) keeps the bar's spacing. */
+:root[data-ui="hevier"] .sheet :is(.hv-pk-hd, .hv-xd-bar) > h3{margin:0}
+:root[data-ui="hevier"] :where(.menu-list){gap:0;background:var(--surface);border-radius:12px;overflow:hidden}
+:root[data-ui="hevier"] :where(.menu-list .menu-item){position:relative;border-radius:0;background:none;min-height:50px}
+:root[data-ui="hevier"] :where(.menu-list .menu-item:active){background:var(--surface-2)}
+:root[data-ui="hevier"] :where(.menu-list .menu-item + .menu-item)::before{
+  content:'';position:absolute;top:0;inset-inline:48px 0;height:var(--hair);background:var(--sep);
+}
+:root[data-ui="hevier"] .menu-list .menu-item .lrow-i{width:24px;background:none;font-size:18px}
+:root[data-ui="hevier"] .menu-list .menu-item.accent .lrow-i{color:var(--acc)}
+:root[data-ui="hevier"] .menu-group.grouped .menu-item + .menu-item::before{inset-inline-start:48px;background:var(--sep)}
+
+/* ---------- Rest timer on the workout screen ----------
+   Hevy's: a flat bar across the bottom under its blue progress line, the clock large and centred,
+   then −15 · +15 · Skip side by side. openGym's pause stays between them. While the keypad is up
+   the fork rides the timer on the keypad row (hevier.css, body.hv-kb), where it stays compact. */
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest{
+  flex-wrap:wrap;row-gap:12px;border-radius:0;box-shadow:none;
+  background:var(--bg-el);border-top:var(--hair) solid var(--sep);padding-top:16px;
+}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .tclock{flex:1 0 100%;align-items:center;text-align:center}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .t{font-size:44px;align-items:center}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts{flex:1 0 100%;gap:8px}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > .btn{flex:1 1 0;min-width:0}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > :is(.pause, .pause-slot){flex:none}
+:root[data-ui="hevier"] body.no-tabbar.resting:not(.hv-kb) #app{padding-bottom:calc(170px + var(--sab))}
+
+/* ---------- Settings (phase 2, step 5) ----------
+   Hevy's Settings are edge-to-edge lists under grey section bands, not inset cards, with plain
+   outline icons. A Settings page is the .narrow that holds .sp-nav (views/Settings.jsx). */
+:root[data-ui="hevier"] .sp-root-title{font-size:22px;line-height:1.2;letter-spacing:-.01em}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b{margin-inline:calc(-1 * var(--pad));border-radius:0;background:none}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow{padding-inline:var(--pad)}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow + .lrow::before{inset-inline-start:var(--pad)}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow:has(.lrow-i) + .lrow:has(.lrow-i)::before{inset-inline-start:calc(var(--pad) + 36px)}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-t{margin-inline:calc(-1 * var(--pad));padding:8px var(--pad);background:var(--surface);font-size:14px}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-f{padding-inline:0}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .lrow-t{font-size:16px}
+
+/* Icons in list rows are plain outline glyphs, as everywhere in Hevy, not tinted tiles. */
+:root[data-ui="hevier"] .lrow-i{width:24px;background:none;color:var(--label)}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .lbl{align-self:center}

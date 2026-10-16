@@ -69,6 +69,9 @@
 :root[data-ui="hevier"] .hv-unit .swfront{background:var(--bg)}
 :root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row{padding-inline:calc(var(--pad) + 4px);border-radius:0}
 :root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{margin-inline:calc(-1 * var(--pad));padding-inline:calc(var(--pad) + 4px);border-radius:0}
+/* and alternate sets are striped, in the log and in the routine editor (each set is one unclassed
+   wrapper in .hv-ex, so the stripe counts sets, not the drop and burst lines under them) */
+:root[data-ui="hevier"] .hv-ex > :nth-child(even of div:not([class])) :is(.hv-row, .hv-rt-row):not(.done){background:var(--surface)}
 :root[data-ui="hevier"] .hv-row.done{background:color-mix(in srgb,var(--green) 22%,transparent)}
 :root[data-ui="hevier"] .hv-set{background:none;padding:0;font-weight:600;font-size:15px;text-align:center;min-height:36px}
 :root[data-ui="hevier"] .hv-w{color:var(--yellow)}
@@ -176,6 +179,11 @@
 :root[data-ui="hevier"] .hv-notes-in{width:100%;background:none;border:0;padding:2px 0 6px;font:inherit;font-size:14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in::placeholder{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-rt-row{display:grid;align-items:center;column-gap:8px;grid-template-columns:40px repeat(var(--nc,2),minmax(0,1fr));min-height:44px;padding:0 4px;border-radius:8px}
+/* the routine editor's rows run edge to edge like the log's (a superset keeps its rule) */
+:root[data-ui="hevier"] .hv-routine .hv-ex:not(.hv-in-ss) > div:not([class]){margin-inline:calc(-1 * var(--pad))}
+:root[data-ui="hevier"] .hv-routine .hv-ex:not(.hv-in-ss) > div:not([class]) .hv-rt-row{padding-inline:calc(var(--pad) + 4px);border-radius:0}
+:root[data-ui="hevier"] .hv-routine .hv-ex .swrow{border-radius:0}
+:root[data-ui="hevier"] .hv-routine .hv-ex .swfront{background:var(--bg)}
 :root[data-ui="hevier"] .hv-rt-head{min-height:0;font-size:11px;letter-spacing:.04em;color:var(--label-2);padding-bottom:4px;text-align:center}
 :root[data-ui="hevier"] .hv-rt-auto,:root[data-ui="hevier"] .hv-rt-fixed{text-align:center;color:var(--label-3);font-size:15px}
 :root[data-ui="hevier"] .hv-rt-range{background:none;padding:8px 0;font-size:16px;font-weight:600;color:var(--label);text-align:center}
@@ -212,7 +220,9 @@
 }
 :root[data-ui="hevier"] .hv-pagebar .hv-title{text-align:center}
 :root[data-ui="hevier"] .hv-stitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 12px;color:var(--label)}
-:root[data-ui="hevier"] .hv-save .hv-stats{margin:0 0 14px}
+:root[data-ui="hevier"] .hv-save .hv-stats{margin:0 0 14px;padding-bottom:14px;border-bottom:var(--hair) solid var(--sep)}
+/* Hevy's title is plain text with the stats' hairline under it, not an underlined field */
+:root[data-ui="hevier"] .hv-save .hv-stitle{font-size:20px;font-weight:600;border-bottom:0;padding:8px 0;margin:2px 0 6px}
 :root[data-ui="hevier"] .hv-warn{color:var(--orange);margin:-4px 0 12px}
 :root[data-ui="hevier"] .hv-sgroup{border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:18px}
 :root[data-ui="hevier"] .hv-srow{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px}
@@ -222,10 +232,10 @@
 :root[data-ui="hevier"] .hv-sval .timef{color:var(--acc)}
 :root[data-ui="hevier"] .hv-smin{width:72px;text-align:end}
 :root[data-ui="hevier"] .hv-sdesc{width:100%;min-height:96px;margin-bottom:22px;font-size:15px}
-:root[data-ui="hevier"] .hv-sdiscard{width:100%;margin-bottom:24px}
+:root[data-ui="hevier"] .hv-sdiscard{width:100%;margin-bottom:24px;background:none}
 :root[data-ui="hevier"] .hv-done-top{text-align:center;padding:10px 0 18px}
 :root[data-ui="hevier"] .hv-done-ic{display:inline-flex;font-size:46px;color:var(--yellow,#f5c518)}
-:root[data-ui="hevier"] .hv-done-top h2{margin:6px 0 4px;font-size:26px}
+:root[data-ui="hevier"] .hv-done-top h2{margin:6px 0 4px;font-size:22px;font-weight:600}
 :root[data-ui="hevier"] .hv-done-top p{margin:0;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-done-prs{display:flex;flex-direction:column;gap:6px;margin:12px 0}
 :root[data-ui="hevier"] .hv-done-pr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px}
@@ -234,9 +244,15 @@
 :root[data-ui="hevier"] .hv-done-btn{width:100%;margin:18px 0 24px}
 
 /* ---------- Exercise details (hevier/views/ExerciseDetails.jsx) ---------- */
-:root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+:root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;color:var(--blue)}
+:root[data-ui="hevier"] .hv-xd-bar .iconbtn{background:none}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}
+/* Hevy's tabs: plain words over a hairline, the open one blue with a blue underline */
+:root[data-ui="hevier"] .seg.hv-xd-tabs{background:none;border-radius:0;padding:0;border-bottom:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .seg.hv-xd-tabs .seg-sel{top:auto;bottom:-1px;height:2px;inset-inline-start:0;width:calc(100% / var(--n));border-radius:0;background:var(--acc);box-shadow:none}
+:root[data-ui="hevier"] .seg.hv-xd-tabs button{min-height:40px;font-size:15px}
+:root[data-ui="hevier"] .seg.hv-xd-tabs button.on{color:var(--acc)}
 :root[data-ui="hevier"] .hv-xd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
 :root[data-ui="hevier"] .hv-xd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-xd-big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -283,8 +299,13 @@
 :root[data-ui="hevier"] .hv-pk-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-pk-filters .btn{min-height:36px;font-size:14px}
 :root[data-ui="hevier"] .hv-pk-filters .btn.on{color:var(--acc)}
-:root[data-ui="hevier"] .hv-pk-row{gap:12px}
-:root[data-ui="hevier"] .hv-pk-row.on{box-shadow:inset 3px 0 0 var(--acc)}
+/* Hevy's list: flat rows split by hairlines, not cards */
+:root[data-ui="hevier"] .hv-pk .list{gap:0}
+:root[data-ui="hevier"] .hv-pk .item.hv-pk-row{gap:12px;background:none;border-radius:0;padding-inline:0;min-height:64px}
+:root[data-ui="hevier"] .hv-pk .item.hv-pk-row + .hv-pk-row{border-top:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .hv-pk .item.hv-pk-row:active{background:var(--surface)}
+/* a pick shows in its ✓ circle, as in Hevy */
+:root[data-ui="hevier"] .hv-pk .item.hv-pk-row.on{box-shadow:none}
 :root[data-ui="hevier"] .hv-pk-check{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--label-3);color:var(--on-acc);font-size:13px}
 :root[data-ui="hevier"] .hv-pk-check.on{background:var(--acc);border-color:var(--acc)}
 :root[data-ui="hevier"] .hv-pk-more{width:100%;margin-top:8px}

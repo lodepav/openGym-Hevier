@@ -15,8 +15,10 @@ import { SETTINGS_GROUPS, prunePage, hiddenSetting } from '../lib/settings.js'
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
-  // rest timer alone, in upstream's words.
-  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', fmtRest(restSec)) : t('No rest timer')) : preview[id]?.() || null)
+  // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
+  // fork pins (D17), so that row shows none.
+  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', fmtRest(restSec)) : t('No rest timer'))
+    : id === 'look' ? null : preview[id]?.() || null)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={t(PAGES[id].title)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   return SETTINGS_GROUPS.map(g => {

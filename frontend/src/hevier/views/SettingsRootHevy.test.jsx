@@ -72,6 +72,10 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows).toContain('Body diagram')
     expect(rows).toContain('Gym check-in')
     expect(hiddenSetting({ page: 'look', title: 'Accent color' })).toBe(true)
+    act(() => root.unmount()); container.remove()
+    render(null)
+    const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
+    expect(look.textContent).toBe('Look & Home')
   })
 
   it('a search never offers a row the page leaves out', () => {

@@ -369,8 +369,14 @@ header icons, buttons at 15px / weight 500 with 8px corners. The fork's own, in 
 Log Workout's set rows are flat and run edge to edge (a ticked set is a full-width green band),
 the ✓ is Hevy's filled grey box, ⋮ is vertical, the header glyphs are bare, the stats values are
 regular weight; Profile's weekly chart sits on the page; the tabs' icon buttons are bare.
-Next: the sheets (set type, ⋮ menus, rest timer), Save Workout and the summary, exercise
-details, the routine editor, Settings.
+Second pass (2026-10-16), same check: sheets have a centred 17px title and their rows are one
+card with hairlines and bare glyphs (`theme.css`); the rest timer on the workout screen is a flat
+bar with the clock large and centred over −15 · +15 · ⏸ · Skip; zebra rows in Log Workout and
+the routine editor; the Add Exercise picker is a flat list with hairlines; exercise details' tabs
+are underline tabs; Save Workout's title and stats sit flat on the page; Settings is edge to edge
+under grey section bands, and Look & Home shows no theme preview. Next: icons (step 4), app
+icon and splash (step 5). Open: Statistics, Measures and Settings keep upstream's large title
+under a back link, not Hevy's compact bar.
 
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per
