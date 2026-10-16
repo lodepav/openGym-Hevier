@@ -66,6 +66,9 @@ import { workoutCardModel, layoutWorkoutCard, drawWorkoutCard, viewAspect, CARD_
 import { copyText } from './lib/clipboard.js'
 import { queueRemaining, pinState } from './lib/queue.js'
 import { DAY_NOTE_TAGS, DAY_NOTE_LABEL, DAY_NOTE_ICON, dayNoteOf, dayNoteLine, canNoteDay, withDayNote } from './lib/day-notes.js'
+// [hevier] S9: the fork's Save Workout page and summary hook into the finish
+import { finishHook } from './hevier/finish-hook.js'
+// [/hevier]
 
 const S = () => useStore.getState().S
 const update = (...a) => useStore.getState().update(...a)
@@ -3333,6 +3336,9 @@ function FinishSummary({ w, prs, e1prs = [], close }) {
 }
 export function finishWorkout() {
   if (S().active?.editingWorkoutId) { saveWorkoutEdits(); return }
+  // [hevier] S9: Finish opens the fork's Save Workout page, which saves through doFinishWorkout
+  if (finishHook.finish && S().active) { finishHook.finish(); return }
+  // [/hevier]
   const A = S().active
   if (!A) return
   const done = setsDoneActive(A)
@@ -3418,5 +3424,11 @@ function doFinishWorkout() {
   // into s.active, which is gone. What it held is not logged, like any set left unchecked.
   useUI.getState().stopWork()
   beep(snd(), 880, 0.15); beep(snd(), 1100, 0.15, 0.18); beep(snd(), 1320, 0.3, 0.36)
+  // [hevier] S9: the fork shows its own summary of the saved workout
+  if (finishHook.done) { finishHook.done({ w: shown, prs, e1prs }); return }
+  // [/hevier]
   ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} close={close} />, { kind: 'center', locked: true })
 }
+// [hevier] S9: the fork's Save Workout page saves, and its summary reuses these sections
+export { doFinishWorkout, LastAndNext, CardioDone }
+// [/hevier]

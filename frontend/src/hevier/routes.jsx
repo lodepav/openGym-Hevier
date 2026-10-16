@@ -12,6 +12,8 @@ import HevyHome from './views/HevyHome.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
 import Profile from './views/Profile.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
+import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
+import { SAVE_PATH, DONE_PATH } from './finish-hook.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 
 // /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
@@ -38,6 +40,8 @@ export const hevierRoutes = [
   <Route key="hv-stats" path="/stats" element={<WithBack><Stats /></WithBack>} />,
   <Route key="hv-library" path="/library" element={<WithBack><Library /></WithBack>} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
+  <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
+  <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,
 ]
 
 export { HevyTabBar }

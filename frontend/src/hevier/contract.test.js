@@ -18,7 +18,8 @@ describe('hevier: upstream contract', () => {
   it('sheets.jsx still exports the flows the overlay calls', () => {
     for (const name of ['startFlow', 'beginWorkout', 'finishWorkout', 'finishWorkoutSheet', 'menuSheet',
       'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
-      'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet']) {
+      'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
+      'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
   })

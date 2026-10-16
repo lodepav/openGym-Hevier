@@ -10,6 +10,7 @@ import { t } from '../../lib/i18n.js'
 import { confirmSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import Elapsed from '../../components/Elapsed.jsx'
+import { SAVE_PATH } from '../finish-hook.js'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 
 // Which tab an upstream route belongs to now that it is reached from a fork screen.
@@ -39,7 +40,8 @@ export default function HevyTabBar() {
   // Upstream's condition for a live session away from its screen; a saved workout being edited
   // or one logged after the fact has no clock, and resumes through the Workout tab instead.
   const running = !!A && !A.editingWorkoutId && !A.backfill && A.start > 0
-  const pending = !!A && loc.pathname !== '/workout'
+  // The Save Workout page belongs to the session, like its own screen.
+  const pending = !!A && loc.pathname !== '/workout' && loc.pathname !== SAVE_PATH
   useEffect(() => {
     document.body.classList.toggle('hv-resume', pending)
     return () => document.body.classList.remove('hv-resume')

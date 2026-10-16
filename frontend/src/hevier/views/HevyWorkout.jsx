@@ -11,7 +11,7 @@ import { fmtNum, fmtDate } from '../../lib/format.js'
 import { workoutVolume } from '../../lib/history.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
 import {
-  finishWorkout, finishWorkoutSheet, exitWorkoutEdit, menuSheet, sessionNoteSheet, renameWorkoutSheet,
+  finishWorkout, exitWorkoutEdit, menuSheet, sessionNoteSheet, renameWorkoutSheet,
   addRoutineToSessionSheet,
 } from '../../sheets.jsx'
 import { workoutSettingsSheet } from '../../components/WorkoutSettingsSheet.jsx'
@@ -28,7 +28,9 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
   const A = S.active
   const { addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg } = actions
 
-  const finish = () => (editing ? finishWorkout() : finishWorkoutSheet({ onDiscard: discardWorkout }))
+  // Finish: the editor of a saved workout saves at once; a session goes to the Save Workout page
+  // (seam S9 sends upstream's finishWorkout there).
+  const finish = () => finishWorkout()
   // Hevy's footer "Settings": the session's own options, upstream's header ⋯ without Layout (D1).
   const openSettings = () => menuSheet({
     sections: [

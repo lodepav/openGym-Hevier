@@ -263,6 +263,15 @@ Hevy: **Save Workout** page (title, duration/volume/sets, when, description) the
 fields (name, `A.note`) and then calls upstream's finish. `lib/finish-workout.js` is never
 forked.
 
+**Status: done.** Seam S9 sends upstream's `finishWorkout` to `/workout/save`
+(`hevier/views/SaveWorkout.jsx`), which writes the title and description into the session,
+saves with upstream's `doFinishWorkout` and then applies a changed When / Duration with
+upstream's `moveWorkout` / `setWorkoutDuration` (`hevier/lib/save-workout.js`). The same seam
+replaces upstream's summary sheet with `/workout/done`: "Nice work!", the workout number, the
+feed card, PRs and estimated-1RM records, the last 7 days, the body map and upstream's
+"Last time and next time", cardio and media sections. Unchecked sets are a warning on the page
+instead of a confirm.
+
 ### M5. Exercise details
 
 Tabs **Summary** (heaviest weight / est. 1RM / best-set volume chart, PRs) · **History** ·

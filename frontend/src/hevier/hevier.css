@@ -187,3 +187,33 @@
 :root[data-ui="hevier"] .hv-namesheet h3{margin-bottom:14px}
 :root[data-ui="hevier"] .hv-namesheet .input{width:100%;margin-bottom:14px}
 :root[data-ui="hevier"] .hv-namesheet .btn{width:100%}
+
+/* ---------- Save Workout and "Nice work!" (hevier/views/SaveWorkout.jsx) ---------- */
+:root[data-ui="hevier"] .hv-pagebar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;
+  margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 8px;
+  padding:calc(var(--sat) + var(--conn) + 6px) var(--pad) 8px;
+  background:var(--bg);border-bottom:var(--hair) solid var(--sep);
+}
+:root[data-ui="hevier"] .hv-pagebar .hv-title{text-align:center}
+:root[data-ui="hevier"] .hv-stitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 12px;color:var(--label)}
+:root[data-ui="hevier"] .hv-save .hv-stats{margin:0 0 14px}
+:root[data-ui="hevier"] .hv-warn{color:var(--orange);margin:-4px 0 12px}
+:root[data-ui="hevier"] .hv-sgroup{border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:18px}
+:root[data-ui="hevier"] .hv-srow{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px}
+:root[data-ui="hevier"] .hv-srow + .hv-srow{border-top:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .hv-srow > span:first-child{color:var(--label-2);font-size:15px}
+:root[data-ui="hevier"] .hv-sval{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-sval .timef{color:var(--acc)}
+:root[data-ui="hevier"] .hv-smin{width:72px;text-align:end}
+:root[data-ui="hevier"] .hv-sdesc{width:100%;min-height:96px;margin-bottom:22px;font-size:15px}
+:root[data-ui="hevier"] .hv-sdiscard{width:100%;margin-bottom:24px}
+:root[data-ui="hevier"] .hv-done-top{text-align:center;padding:10px 0 18px}
+:root[data-ui="hevier"] .hv-done-ic{display:inline-flex;font-size:46px;color:var(--yellow,#f5c518)}
+:root[data-ui="hevier"] .hv-done-top h2{margin:6px 0 4px;font-size:26px}
+:root[data-ui="hevier"] .hv-done-top p{margin:0;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-done-prs{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+:root[data-ui="hevier"] .hv-done-pr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px}
+:root[data-ui="hevier"] .hv-done-pr .icn{color:var(--yellow,#f5c518)}
+:root[data-ui="hevier"] .hv-done-week{color:var(--label-2);margin:14px 0}
+:root[data-ui="hevier"] .hv-done-btn{width:100%;margin:18px 0 24px}
