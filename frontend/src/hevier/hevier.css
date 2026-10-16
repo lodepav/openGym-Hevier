@@ -217,3 +217,27 @@
 :root[data-ui="hevier"] .hv-done-pr .icn{color:var(--yellow,#f5c518)}
 :root[data-ui="hevier"] .hv-done-week{color:var(--label-2);margin:14px 0}
 :root[data-ui="hevier"] .hv-done-btn{width:100%;margin:18px 0 24px}
+
+/* ---------- Exercise details (hevier/views/ExerciseDetails.jsx) ---------- */
+:root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+:root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;color:var(--blue)}
+:root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}
+:root[data-ui="hevier"] .hv-xd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+:root[data-ui="hevier"] .hv-xd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+:root[data-ui="hevier"] .hv-xd-big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-xd-range{background:var(--surface-2);color:var(--label);border:0;border-radius:8px;padding:6px 8px;font-size:13px}
+:root[data-ui="hevier"] .hv-xd-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+:root[data-ui="hevier"] .hv-xd-chips .chip.on{background:var(--blue);color:#fff}
+:root[data-ui="hevier"] .hv-xd-rec .grow{display:flex;flex-direction:column}
+:root[data-ui="hevier"] .hv-xd-reps{display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-xd-rh,:root[data-ui="hevier"] .hv-xd-rr{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:8px 2px}
+:root[data-ui="hevier"] .hv-xd-rh{font-size:12px;color:var(--label-2);text-transform:uppercase}
+:root[data-ui="hevier"] .hv-xd-rr + .hv-xd-rr{border-top:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .hv-xd-rr em{font-style:normal;color:var(--label-2);font-size:12px;margin-inline-start:8px}
+:root[data-ui="hevier"] .hv-xd-history{display:flex;flex-direction:column;gap:10px}
+:root[data-ui="hevier"] .hv-xd-sess{padding:12px 14px}
+:root[data-ui="hevier"] .hv-xd-st{font-weight:600;display:flex;gap:8px;align-items:center}
+:root[data-ui="hevier"] .hv-xd-sd{font-size:12px;color:var(--label-2);margin:2px 0 8px}
+:root[data-ui="hevier"] .hv-xd-set{display:flex;gap:12px;font-size:14px;padding:3px 0;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-xd-n{width:16px;color:var(--label-2);text-align:end}
+:root[data-ui="hevier"] .hv-xd-pin{display:flex;gap:6px;align-items:flex-start}

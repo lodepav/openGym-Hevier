@@ -11,7 +11,7 @@ import { EXDB } from '../../lib/exercises.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { finishWorkout } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
-import { finishHook, installFinishHook } from '../finish-hook.js'
+import { hooks, installFinishHook } from '../hooks.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -55,7 +55,7 @@ beforeEach(() => {
 afterEach(() => {
   if (root) act(() => root.unmount())
   container?.remove()
-  finishHook.finish = finishHook.done = null
+  hooks.finish = hooks.done = null
 })
 
 describe('hevier: Save Workout (seam S9)', () => {

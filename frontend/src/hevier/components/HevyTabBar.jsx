@@ -10,7 +10,7 @@ import { t } from '../../lib/i18n.js'
 import { confirmSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import Elapsed from '../../components/Elapsed.jsx'
-import { SAVE_PATH } from '../finish-hook.js'
+import { SAVE_PATH } from '../hooks.js'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 
 // Which tab an upstream route belongs to now that it is reached from a fork screen.

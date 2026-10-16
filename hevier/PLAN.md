@@ -277,6 +277,15 @@ instead of a confirm.
 Tabs **Summary** (heaviest weight / est. 1RM / best-set volume chart, PRs) · **History** ·
 **How to**, from `exerciseDetailSheet`, `exerciseHistorySheet` and `onerm.js` data.
 
+**Status: done.** Seam S10 sends upstream's `exerciseDetailSheet` to the fork's sheet
+(`hevier/views/ExerciseDetails.jsx`): Summary (media, muscle tags, the latest value with a
+3-month / year / all-time chart of heaviest weight, one-rep max or best set volume, Personal
+Records, Set Records by rep count), History (a card per session, tap for the workout) and How to
+(pinned note, description, steps). The numbers come from upstream's `exerciseHistory`, read by
+`hevier/lib/exercise-summary.js`. ⋯ has favourites, Add to my plan, edit/delete for custom
+exercises, and **All details**, upstream's own sheet (plate loading, weight meaning, 1RM
+calculator).
+
 ### M6. Profile dashboard and statistics (SCREENS.md §5, §6, §11)
 
 The Profile header with the weekly bar chart (Duration / Volume / Reps), Dashboard

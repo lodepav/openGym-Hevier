@@ -3,7 +3,7 @@
 import { HEVIER } from './flag.js'
 import './hevier.css'
 import { nav } from '../lib/nav.js'
-import { installFinishHook } from './finish-hook.js'
+import { installFinishHook } from './hooks.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'

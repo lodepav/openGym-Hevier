@@ -13,8 +13,14 @@ import WorkoutTab from './views/WorkoutTab.jsx'
 import Profile from './views/Profile.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
 import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
-import { SAVE_PATH, DONE_PATH } from './finish-hook.js'
+import { SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
+import { installExerciseDetails } from './views/ExerciseDetails.jsx'
+import { HEVIER } from './flag.js'
+
+// Every exercise's details open the fork's tabbed sheet (seam S10). Installed here rather than in
+// ./index.js because App imports this module after sheets.jsx, which the sheet is built from.
+if (HEVIER) installExerciseDetails()
 
 // /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
 function WorkoutRoute() {

@@ -21,7 +21,8 @@ longer needed gets removed, and so does its row.
 | S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`), right after `index.css` | done |
 | S2 | `frontend/src/App.jsx` | The `TabBar` import is renamed `UpstreamTabBar` and `TabBar` is bound to `HevyTabBar` when `HEVIER` (upstream's JSX line, which `App.no-tabs.test.js` reads, stays as it is). `{HEVIER && hevierRoutes}` sits first inside `<Routes>`: React Router gives an exact tie to the first route, so `/home`, `/workout`, `/profile`, `/stats`, `/library` and `/plan/r/:id` (the routine editor) become, and the fork adds `/workout/save` and `/workout/done` (seam S9), the fork's without upstream's lines changing (`hevier/routes.jsx`) | done |
 | S3 | `frontend/src/views/Workout.jsx` | Two imports after the last import, and `if (HEVIER) return <HevyWorkout …/>` right before `ActiveWorkout`'s final `return`, after every hook. The Hevy screen is the fork's only layout (D1), so no `workoutView` value is stored and S4/S5 were not needed | done |
-| S9 | `frontend/src/sheets.jsx` | Imports `hevier/finish-hook.js`; `finishWorkout` calls `finishHook.finish` (the Save Workout page) when it is set and the session is not an edit; `doFinishWorkout` calls `finishHook.done` (the fork's summary) instead of opening `FinishSummary`; and `doFinishWorkout`, `LastAndNext`, `CardioDone` are exported. The hook is filled in only by `hevier/index.js` with the flag on, so upstream's tests see upstream's finish | done |
+| S9 | `frontend/src/sheets.jsx` | Imports `hevier/hooks.js`; `finishWorkout` calls `hooks.finish` (the Save Workout page) when it is set and the session is not an edit; `doFinishWorkout` calls `hooks.done` (the fork's summary) instead of opening `FinishSummary`; and `doFinishWorkout`, `LastAndNext`, `CardioDone` are exported. The hook is filled in only by `hevier/index.js` with the flag on, so upstream's tests see upstream's finish | done |
+| S10 | `frontend/src/sheets.jsx` | `exerciseDetailSheet` calls `hooks.exerciseDetail` (the fork's tabbed exercise details) when it is set; upstream's sheet becomes `upstreamExerciseDetailSheet`, which the fork's ⋯ → All details opens. The hook is set in `hevier/routes.jsx` with the flag on | done |
 | S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
 | S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
 | S8 | `CLAUDE.md` | Points agents at `hevier/README.md` and `DECISIONS.md` (HTML-comment markers) | done |
@@ -49,7 +50,7 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   field and keeping fields it does not know; if upstream ever starts rebuilding routines from a
   fixed list of fields (as `lib/plan-share.js` does for shared plans), folders would be lost
   there. `src/hevier/lib/routine-folders.test.js` and the merge's own tests are the check.
-- Upstream's finish (seam S9): `doFinishWorkout` saves, then the fork's `finishHook.done` gets
+- Upstream's finish (seam S9): `doFinishWorkout` saves, then the fork's `hooks.done` gets
   `{ w, prs, e1prs }`. The Save Workout page (`hevier/views/SaveWorkout.jsx`) writes `name` /
   `customName` / `note` the way upstream's Rename and Session note sheets do, copies upstream's
   discard, and changes When / Duration with `lib/workout-date.js` (`moveWorkout`,
