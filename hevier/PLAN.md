@@ -388,20 +388,23 @@ the feature is not Hevy-specific (it would remove fork code).
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
-3. **Strength level per exercise**, like Hevy's (Beginner … Elite, by body weight, sex and
-   age). **Not from strengthlevel.com without written permission:** its terms forbid automated
-   or programmatic access, scraping and scripts included (checked 2026-10-16). Options, in order:
-   - **Ask Strength Level** for written permission to bundle its standards in an AGPL app. If
-     they say yes, keep the written permission in `hevier/` and map openGym's exercise ids to
-     theirs (a reviewed table, not guessed).
-   - **Build our own standards from open data.** [OpenPowerlifting](https://www.openpowerlifting.org)
-     publishes its meet results as open data (licence to verify before use). Percentiles of
-     squat, bench and deadlift by sex, weight class and age give the levels for those lifts. Other
-     exercises get levels through ratios to them, which are our own estimates and have to be
-     labelled as such. Published scoring formulas (DOTS, IPF GL) can scale between body weights.
-   - Other published standard tables (ExRx and others) are copyrighted too: same rule, ask first.
-   Either way: a pure helper with tests in `hevier/lib/` (rule 2), shown in exercise details
-   (M5 Summary), and the data's source and licence named in the app.
+3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). The app
+   bundles no standards: strengthlevel.com's terms forbid automated access (scraping, scripts),
+   and its tables are theirs. Instead, exercise details get a **Compare strength** button that
+   opens strengthlevel.com in the browser (the exercise's page if we know its slug, else the site's
+   search). There the user enters their own numbers, then types the five thresholds it
+   shows (Beginner · Novice · Intermediate · Advanced · Elite, in kg or lb) into a small form in
+   the app. The app saves them for that exercise, then shows a **progress bar through the
+   levels** from the user's best estimated 1RM (upstream's `onerm.js`): the current level, and
+   how far it is to the next.
+   - The thresholds depend on body weight and age, so the form saves the date and the body weight
+     they were entered at, and suggests re-entering when either has drifted (say 5 %).
+   - Storage: per exercise, synced with the user's data like routine folders (D13), so it is
+     backed up. To decide: in `S` (a fork-only field upstream ignores) or device-local.
+   - A pure helper with tests in `hevier/lib/` (level and progress from the thresholds and the
+     1RM history), shown in exercise details (M5 Summary).
+   - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
+     land on the right page. It holds no data from them.
 4. **Gyms.** Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
    for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
    second one.
