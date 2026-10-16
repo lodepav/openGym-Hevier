@@ -357,6 +357,13 @@ into `hevier/ui` regularly, which doubles the sync work. Avoid it.)
    `hevier/resources/` and copy them in at build time from `emulator.sh` / the release script,
    or accept one small seam in `android/app/src/main/res/` (these rarely change upstream).
 
+**Status:** step 1 done (2026-10-16). `hevier/theme.css` overrides upstream's tokens under
+`:root[data-ui="hevier"]`: Hevy blue `#008cff` as `--acc` and `--blue`, warm-up yellow `#efab03`
+and failure red `#e34b37` (all three measured from Hevy's screenshots), near-black surfaces and
+grey secondary text (estimated: Hevy's site shows only light mode). Seam S15 pins dark and the
+blue preset (D17); Look & Home no longer offers Theme or Accent color. Next: typography and
+density (step 2), then the side-by-side passes per screen (step 3).
+
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per
 upstream sync (CONFLICTS.md step 6).
