@@ -138,7 +138,9 @@
 
 /* ---------- Profile (hevier/views/Profile.jsx, components/WeeklyChart.jsx) ---------- */
 :root[data-ui="hevier"] .hv-dash{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-:root[data-ui="hevier"] .hv-tile{justify-content:flex-start;gap:8px}
+:root[data-ui="hevier"] .hv-tile{justify-content:flex-start;gap:8px;font-weight:500}
+/* Hevy's weekly chart sits on the page, not in a card */
+:root[data-ui="hevier"] .hv-profile > .card:has(.hv-bars){background:none;padding:0}
 :root[data-ui="hevier"] .hv-chart-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-bars{display:flex;align-items:flex-end;gap:4px;height:120px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end}
