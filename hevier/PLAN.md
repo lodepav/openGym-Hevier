@@ -399,8 +399,9 @@ the feature is not Hevy-specific (it would remove fork code).
    how far it is to the next.
    - The thresholds depend on body weight and age, so the form saves the date and the body weight
      they were entered at, and suggests re-entering when either has drifted (say 5 %).
-   - Storage: per exercise, synced with the user's data like routine folders (D13), so it is
-     backed up. To decide: in `S` (a fork-only field upstream ignores) or device-local.
+   - Storage: per exercise, in `S` (a fork-only field upstream ignores, like routine folders,
+     D13), so it syncs and is in backups, including the Google Drive sync (item 7). Not
+     device-local.
    - A pure helper with tests in `hevier/lib/` (level and progress from the thresholds and the
      1RM history), shown in exercise details (M5 Summary).
    - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
@@ -415,6 +416,16 @@ the feature is not Hevy-specific (it would remove fork code).
 6. **Gym at workout start picks the backups.** Starting a workout or routine at a tagged gym
    swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
    *backups for an exercise* (up to five per routine exercise).
+
+7. **Automatic sync to Google Drive** (user, 2026-10-16). The user's data is backed up to their
+   own Google Drive without a manual export. Start from what upstream has: Android auto-backup
+   after a workout or an edit (v1.x), into a folder the user picks (#161, "for example a sync
+   app's folder"). The cheapest route may be pointing that folder at Google Drive (the system file
+   picker, or a sync app) and adding nothing. A real Drive API client is a fork-only opt-in: a
+   Google account, OAuth and a dependency, all against upstream's "no third-party account" and
+   dependency-light rules. So decide whether the folder route is enough before building it. Restore:
+   upstream's import with "Merge them in" (1.4.2). From here on, fork data that matters goes in
+   `S`, not localStorage, so that it is part of this sync.
 
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.
