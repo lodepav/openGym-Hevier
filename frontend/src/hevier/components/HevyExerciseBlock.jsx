@@ -1,6 +1,8 @@
 // One exercise in the Hevy workout screen (hevier/DECISIONS.md D2–D9, reference/SCREENS.md §2):
 // thumbnail · blue name · ⋮, the notes, "Rest Timer: …", then the SET · PREVIOUS · KG · REPS · ✓
-// table and a full-width "+ Add Set".
+// table and a full-width "+ Add Set". The columns follow the exercise's mode as upstream's block
+// does: KG · REPS, KG · SEC with a start button for a timed hold, MIN · speed (· incline) for
+// cardio, and an L and an R line under one set number for a per-side exercise.
 //
 // Presentation only. Every change to the session goes through the handlers the workout screen
 // passes in (`blockProps` in views/Workout.jsx) or through upstream's pure helpers in lib/, the
@@ -15,13 +17,17 @@ import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { fmtRest } from '../../lib/duration.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
-  canBeWarmup, setSpanAt, lastEntryFor,
+  canBeWarmup, setSpanAt, lastEntryFor, setLabel, cascadeWeight,
 } from '../../lib/history.js'
 import {
   isWarmupRow, isFailureSet, toggleFailure, isDropSet, isRestPauseSet, dropsOf, clustersOf, addDrop,
   addCluster, removeDropAt, removeClusterAt, setDropAt, setClusterAt, nextDropWeight, nextBurstReps,
-  WEIGHT_ORIGIN_MANUAL,
+  isSideSet, setSideField, addSideDrop, removeSideDropAt, setSideDropAt, addSideCluster,
+  removeSideClusterAt, setSideClusterAt, WEIGHT_ORIGIN_MANUAL,
 } from '../../lib/workout-model.js'
+import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
+import { clampIncline, hasIncline, inclineFits } from '../../lib/incline.js'
+import { setNumberAt } from '../../views/Workout.jsx'
 import { dropGrid, loadKindFor, baseWeightFor, inventoryFor, rowLoad, sameLoad } from '../../lib/plates.js'
 import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
@@ -39,15 +45,11 @@ import { previousSetsFor } from '../lib/previous-sets.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
-/** Whether the Hevy table can show this entry. Timed holds, cardio and per-side (L/R) exercises
- *  still use upstream's block until the Hevy table learns them (hevier/PLAN.md M1). */
-export function hevyTableFits(S, entry) {
-  const cfg = { ...(entry.target || {}), id: entry.id }
-  return modeOf(cfg) === 'reps' && !isPerSide(cfg)
-}
+// A column's number as it is shown: cardio speed is stored in km/h and shown in the profile's unit.
+const viewOf = (col, v) => (col.view && v != null && v !== '' ? col.view(v) : v)
 
 export default function HevyExerciseBlock({
-  entryIdx, editing, busy, superset, onToggle, onField, onAddSet, onAddWarmup, onRemoveSetAt, onCopySetAt,
+  entryIdx, editing, busy, superset, onToggle, onToggleSide, onStartTimed, onField, onAddSet, onAddWarmup, onRemoveSetAt, onCopySetAt,
   onProgressionSettings, onRest, onNoProg, routineUpdate, onSwap, onMoveUp, onMoveDown, canMoveUp, canMoveDown,
   onRemoveExercise, onPairPrev, onPairNext, onUnpair, onSetRowRef,
 }) {
@@ -56,6 +58,7 @@ export default function HevyExerciseBlock({
   const restEnds = useUI(s => s.timer?.endsAt)
   const swipeHint = useUI(s => (s.swipeHint?.idx === entryIdx ? s.swipeHint : null))
   const setFlash = useUI(s => (s.setFlash?.idx === entryIdx ? s.setFlash : null))
+  const working = useUI(s => s.work)
   // D2: which values were typed or copied this session (rows by index, fields by name). A weight
   // edit is also on the row itself as weightOrigin, which survives a reload; reps have no mark.
   const [touched, setTouched] = useState(() => new Set())
@@ -73,6 +76,23 @@ export default function HevyExerciseBlock({
   const wc = workoutControls(S)
   const guidance = progressionGuidance(entry.plan)
   const unit = S.unit
+  const mode = modeOf(cfg)
+  const timed = mode === 'time', cardio = mode === 'cardio'
+  const perSide = mode === 'reps' && isPerSide(cfg)
+  const speedUnit = speedUnitOf(S)
+
+  // The value columns, in upstream's fields (views/Workout.jsx col1–col3), in Hevy's order.
+  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + unit.toUpperCase(), label: t('Weight ({0})', unit) }
+  const R = { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }
+  const cols = cardio ? [
+    { f: 'min', dec: false, hd: t('MIN'), label: t('Duration (min)') },
+    { f: 'speed', dec: true, hd: speedUnit === 'mph' ? t('MPH') : t('KM/H'), label: speedUnit === 'mph' ? t('Speed (mph)') : t('Speed (km/h)'),
+      view: v => toSpeed(v, speedUnit), store: v => fromSpeed(v, speedUnit) },
+    (inclineFits(ex) || entry.sets.some(hasIncline)) && { f: 'incline', dec: true, opt: true, hd: t('INCL %'), label: t('Incline (%)'), store: clampIncline },
+  ].filter(Boolean) : timed ? [W, { f: 'sec', dec: false, hd: t('SEC'), label: t('Seconds') }] : [W, R]
+  const effOn = mode === 'reps' && !!eff
+  const playOn = timed && !editing
+  const grid = { '--nc': cols.length + (effOn ? 1 : 0) + (playOn ? 1 : 0) }
 
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), over the same
   // lib helpers: a set's phase, its failure mark, its drops and bursts.
@@ -88,6 +108,7 @@ export default function HevyExerciseBlock({
   }, true)
   const intens = entry.target?.intensifier
   const addDropRow = i => mutSet(i, row => {
+    if (isSideSet(row)) return addSideDrop(row, intens?.type === 'dropset' ? intens.pct : undefined, dropGrid(S, cfg))
     const drops = dropsOf(row)
     const base = drops.length ? drops[drops.length - 1].w : (row.w || 0)
     const pct = intens?.type === 'dropset' ? intens.pct : undefined
@@ -95,23 +116,40 @@ export default function HevyExerciseBlock({
   })
   const addBurstRow = i => mutSet(i, row => {
     const restSec = intens?.type === 'restpause' ? intens.restSec : (S.restPauseSec || 15)
+    if (isSideSet(row)) return addSideCluster(row, restSec)
     const clusters = clustersOf(row)
     const added = nextBurstReps(clusters.length ? clusters[clusters.length - 1].r : (row.r || 0))
     return { ...addCluster(row, { r: added, restSec }), r: (row.r || 0) + added }
   })
-  const setDropField = (i, di, f, v) => mutSet(i, row => setDropAt(row, di, { [f]: v }))
-  const removeDrop = (i, di) => mutSet(i, row => removeDropAt(row, di))
-  const setBurstReps = (i, ci, v) => mutSet(i, row => {
+  const setDropField = (i, di, f, v, side) => mutSet(i, row =>
+    (side ? setSideDropAt(row, side, di, { [f]: v }) : setDropAt(row, di, { [f]: v })))
+  const removeDrop = (i, di) => mutSet(i, row => (isSideSet(row) ? removeSideDropAt(row, di) : removeDropAt(row, di)))
+  const setBurstReps = (i, ci, v, side) => mutSet(i, row => {
+    if (side) return setSideClusterAt(row, side, ci, v)
     const delta = (Number(v) || 0) - (clustersOf(row)[ci]?.r || 0)
     return { ...setClusterAt(row, ci, { r: v }), r: Math.max(0, (row.r || 0) + delta) }
   })
   const removeBurst = (i, ci) => mutSet(i, row => {
+    if (isSideSet(row)) return removeSideClusterAt(row, ci)
     const removed = clustersOf(row)[ci]?.r || 0
     return { ...removeClusterAt(row, ci), r: Math.max(0, (row.r || 0) - removed) }
   })
 
+  // One side of a per-side row (upstream's setSide): the row's totals follow through the model
+  // helper, and a weight edit is marked as typed and carried down to the sets after it.
+  const setSide = (i, side, f, v) => {
+    if (f !== 'w') return mutSet(i, row => setSideField(row, side, f, v))
+    update(st => {
+      const e = st.active.entries[entryIdx]
+      const row = setSideField(e.sets[i], side, f, v)
+      row.sides[side].weightOrigin = WEIGHT_ORIGIN_MANUAL
+      e.sets[i] = row
+      e.sets = cascadeWeight(e.sets, i, v, side, e.target?.backoffStep)
+    }, true)
+  }
+
   // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
-  const workNumber = i => entry.sets.slice(0, i + 1).filter(x => !isWarmupRow(x)).length
+  const workNumber = i => setNumberAt(entry.sets, i)
   const openSetType = (s, i) => {
     const warm = isWarmupRow(s)
     const fail = isFailureSet(s)
@@ -120,15 +158,15 @@ export default function HevyExerciseBlock({
       title: t('Select set type'),
       sections: [
         { items: [
-          { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && !(canBeWarmup(s) && otherWork),
+          mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && !(mode === 'reps' && canBeWarmup(s) && otherWork),
             onClick: () => { if (!warm) setPhaseAt(i, true) } },
           { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s),
-            onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false) } },
-          { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
-          { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || isRestPauseSet(s), onClick: () => addDropRow(i) },
+            onClick: () => { if (warm && !perSide) setPhaseAt(i, false); else if (fail) setFailureAt(i, false) } },
+          !cardio && { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
+          mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || isRestPauseSet(s), onClick: () => addDropRow(i) },
         ] },
         { title: t('More'), items: [
-          !warm && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
+          mode === 'reps' && !warm && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
           onCopySetAt && { icon: 'copy', label: t('Copy this set'), onClick: () => onCopySetAt(i) },
         ] },
         { items: [
@@ -174,10 +212,14 @@ export default function HevyExerciseBlock({
   })
 
   // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes.
-  const loadKind = plateLoading ? loadKindFor(S, cfg) : 'none'
+  const loadKind = plateLoading && mode === 'reps' ? loadKindFor(S, cfg) : 'none'
   const loads = loadKind === 'none' ? [] : (() => {
     const inv = inventoryFor(S), base = baseWeightFor(S, entry.id)
-    return entry.sets.map(s => rowLoad(loadKind, s.w, base, inv))
+    return entry.sets.map(s => {
+      if (!(perSide && isSideSet(s))) return rowLoad(loadKind, s.w, base, inv)
+      const L = s.sides.L?.w || 0, R = s.sides.R?.w || 0
+      return L && R && L !== R ? null : rowLoad(loadKind, L || R, base, inv)
+    })
   })()
   const plateLine = i => {
     const L = loads[i]
@@ -193,29 +235,53 @@ export default function HevyExerciseBlock({
 
   const prevLabel = p => {
     if (!p) return '–'
+    if (mode !== 'reps' || isSideSet(p)) return setLabel(entry.id, p, last?.target, speedUnit)
     if (bw) return (p.w > 0 ? `+${fmtNum(p.w)}${unit} × ` : '× ') + (p.r || 0)
     return `${fmtNum(p.w || 0)}${unit} × ${p.r || 0}`
   }
-  const copyPrev = (i, p) => {
-    if (!p) return
-    onField(i, 'w', p.w || 0)
-    onField(i, 'r', p.r || 0)
-    touch(i, 'w'); touch(i, 'r')
+  const sidePrev = (p, side) => {
+    const sd = p && isSideSet(p) ? p.sides[side] : null
+    if (!sd) return '–'
+    return bw ? (sd.w > 0 ? `+${fmtNum(sd.w)}${unit} × ` : '× ') + (sd.r || 0) : `${fmtNum(sd.w || 0)}${unit} × ${sd.r || 0}`
   }
-  const field = (s, i, f, dec) => {
-    const firm = s.done || touched.has(i + ':' + f) || (f === 'w' && s.weightOrigin === WEIGHT_ORIGIN_MANUAL)
-    return <NumberField decimal={dec} className={'hv-num' + (firm ? '' : ' hv-hint')} value={s[f] ?? ''}
-      aria-label={f === 'w' ? t('Weight ({0})', unit) : t('Reps')}
-      onChange={v => { touch(i, f); onField(i, f, v) }} />
+  // A tap on PREVIOUS copies it into the row, field by field, in the row's own shape.
+  const copyPrev = (i, p, side) => {
+    if (!p) return
+    if (side) {
+      const sd = isSideSet(p) ? p.sides[side] : null
+      if (!sd) return
+      setSide(i, side, 'w', sd.w || 0); setSide(i, side, 'r', sd.r || 0)
+      touch(i, side + 'w'); touch(i, side + 'r')
+      return
+    }
+    cols.forEach(c => {
+      if (p[c.f] == null && c.opt) return
+      onField(i, c.f, p[c.f] ?? 0)
+      touch(i, c.f)
+    })
+  }
+  const field = (s, i, col, side) => {
+    const src = side ? (s.sides?.[side] || {}) : s
+    const key = (side || '') + col.f
+    const firm = src.done || touched.has(i + ':' + key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
+    return <NumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
+      aria-label={side ? col.label + ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : col.label}
+      onChange={v => {
+        touch(i, key)
+        const val = col.store ? col.store(v) : v
+        if (side) setSide(i, side, col.f, val); else onField(i, col.f, val)
+      }} />
   }
   // D6: the effort column, in the profile's scale. Picking a rating ticks the set (upstream #64).
-  const effortCell = (s, i) => {
-    const v = s[eff.f] ?? null
+  const effortCell = (s, i, side) => {
+    const src = side ? (s.sides?.[side] || {}) : s
+    const v = src[eff.f] ?? null
     const color = effortColor(kind === 'rpe' ? (v == null ? null : 10 - v) : v)
     const open = () => effortPickerSheet(kind, v, nv => {
-      onField(i, eff.f, nv)
+      if (side) setSide(i, side, eff.f, nv); else onField(i, eff.f, nv)
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
-      if (nv != null && fresh && !fresh.done) onToggle(i)
+      const freshSrc = side ? fresh?.sides?.[side] : fresh
+      if (nv != null && freshSrc && !freshSrc.done) (side ? onToggleSide(i, side) : onToggle(i))
     })
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open} aria-label={t(eff.hd)}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
@@ -224,30 +290,74 @@ export default function HevyExerciseBlock({
   }
 
   const swipeOn = !!(wc.swipeSets && onCopySetAt && onRemoveSetAt)
-  const row = (s, i) => {
-    const warm = isWarmupRow(s)
-    const fail = isFailureSet(s)
-    const mark = warm ? <span className="hv-w">W</span> : fail ? <span className="hv-f">F</span> : workNumber(i)
-    const body = <div ref={el => onSetRowRef?.(i, el)} className={'hv-row' + (s.done ? ' done' : '') + (eff ? ' eff' : '')}>
-      <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
-        aria-label={warm ? t('Warm-up') : t('Set {0}', workNumber(i)) + (fail ? ', ' + t('Taken to failure') : '')}>{mark}</button>
-      <button type="button" className="hv-prev" disabled={!prev[i]} onClick={() => copyPrev(i, prev[i])}
-        aria-label={prev[i] ? t('Last time') + ': ' + prevLabel(prev[i]) : undefined}>{prevLabel(prev[i])}</button>
-      {field(s, i, 'w', true)}
-      {field(s, i, 'r', false)}
-      {eff && effortCell(s, i)}
-      <Check checked={s.done} className="hv-chk" label={warm ? t('Warm-up') : t('Set {0} done', workNumber(i))} onChange={() => onToggle(i)} />
+  const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
+  const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span> : workNumber(i))
+  const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
+    aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '')}>{markOf(s, i)}</button>
+  const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up') : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
+  // One line of the table: a straight set, one half of a timed per-side pair (`s.side`), or one
+  // side of a per-side reps set (`side`).
+  const line = (s, i, side) => {
+    const src = side ? (s.sides?.[side] || {}) : s
+    const p = prev[i]
+    const sideTag = side || s.side
+    const prevText = side ? sidePrev(p, side) : prevLabel(p)
+    const canCopy = side ? !!(p && isSideSet(p)) : !!p
+    return <div ref={side === 'R' ? undefined : el => onSetRowRef?.(i, el)} style={grid}
+      className={'hv-row' + (src.done ? ' done' : '') + (side ? ' hv-side' : '')}>
+      {side === 'R' ? <span /> : setButton(s, i)}
+      <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
+        aria-label={canCopy ? t('Last time') + ': ' + prevText : undefined}>
+        {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
+      {cols.map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
+      {effOn && effortCell(s, i, side)}
+      {playOn && <button type="button" className="iconbtn hv-go" aria-label={t('Start set')} disabled={s.done || !!working}
+        onClick={() => onStartTimed(i)}><Icon name="play" /></button>}
+      <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
+        onChange={() => (side ? onToggleSide(i, side) : onToggle(i))} />
     </div>
+  }
+  // A drop or a burst, indented under its set (or under one side of it), as Hevy's `D` rows.
+  const subRows = (src, i, side) => <>
+    {dropsOf(src).map((d, di) => <div key={'d' + di} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
+      <span className="hv-set"><span className="hv-d">D</span></span><span />
+      <NumberField decimal className="hv-num" value={d.w ?? ''} onChange={v => setDropField(i, di, 'w', v, side)} aria-label={t('Drop {0}', di + 1)} />
+      <NumberField decimal={false} className="hv-num" value={d.r ?? ''} onChange={v => setDropField(i, di, 'r', v, side)} aria-label={t('Reps')} />
+      <button type="button" className="iconbtn hv-x" aria-label={t('Remove drop')} onClick={() => removeDrop(i, di)}><Icon name="xmark" /></button>
+    </div>)}
+    {clustersOf(src).map((c, ci) => <div key={'c' + ci} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
+      <span className="hv-set"><span className="hv-d">+</span></span><span className="hv-prev">{c.restSec}s</span><span />
+      <NumberField decimal={false} className="hv-num" value={c.r ?? ''} onChange={v => setBurstReps(i, ci, v, side)} aria-label={t('Burst {0}', ci + 1)} />
+      <button type="button" className="iconbtn hv-x" aria-label={t('Remove burst')} onClick={() => removeBurst(i, ci)}><Icon name="xmark" /></button>
+    </div>)}
+  </>
+  const swipe = (s, i, body) => {
     if (!swipeOn) return body
-    return <SwipeRow canDelete={editing || entry.sets.length > 1}
+    const [from, count] = setSpanAt(entry.sets, i)
+    const mine = j => j != null && j >= from && j < from + count
+    return <SwipeRow canDelete={editing || entry.sets.length > count}
       onDelete={() => onRemoveSetAt(i)} onCopy={() => onCopySetAt(i)}
       onBlocked={() => useUI.getState().toast(t('Keep at least one set, champ'))}
       onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }) }}
-      closeKey={[entry.sets.length, s.done ? 1 : 0, restEnds || 0, S.active.cur].join('|')}
-      flash={setFlash && setFlash.i === i ? setFlash.id : 0}
-      peek={swipeHint && swipeHint.i === i ? swipeHint.id : 0}>
+      closeKey={[entry.sets.length, s.done ? 1 : 0, count === 2 && entry.sets[from + 1]?.done ? 1 : 0,
+        s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0, restEnds || 0, working?.endsAt || 0, S.active.cur].join('|')}
+      flash={setFlash && mine(setFlash.i) ? setFlash.id : 0}
+      peek={swipeHint && mine(swipeHint.i) ? swipeHint.id : 0}>
       {body}
     </SwipeRow>
+  }
+  // A set as the table draws it. A timed per-side pair (L row, R row) swipes as the one set it is,
+  // so its R row is drawn with the L row and not on its own.
+  const setBlock = (s, i) => {
+    const [from, count] = setSpanAt(entry.sets, i)
+    if (count === 2 && from !== i) return null
+    if (perSide && isSideSet(s)) return swipe(s, i, <div className={'hv-pair' + (s.done ? ' done' : '')}>
+      {line(s, i, 'L')}{!isWarmupRow(s) && subRows(s.sides.L || {}, i, 'L')}
+      {line(s, i, 'R')}{!isWarmupRow(s) && subRows(s.sides.R || {}, i, 'R')}
+    </div>)
+    if (count === 2) return swipe(s, i, <div className="hv-pair">{line(s, i)}{line(entry.sets[i + 1], i + 1)}</div>)
+    return <>{swipe(s, i, line(s, i))}{!isWarmupRow(s) && mode === 'reps' && subRows(s, i)}</>
   }
 
   const ss = superset ? supersetMeta(S.active.entries, superset, { onTarget: true }) : null
@@ -270,27 +380,16 @@ export default function HevyExerciseBlock({
       {entry.note || t('Add notes here…')}
     </button>
     {onRest && <button type="button" className="hv-rest" onClick={onRest}><Icon name="timer" />{t('Rest Timer: {0}', restText)}</button>}
-    <div className={'hv-head' + (eff ? ' eff' : '')} aria-hidden="true">
+    <div className="hv-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span><span>{t('PREVIOUS')}</span>
-      <span>{bw ? '+' + unit.toUpperCase() : unit.toUpperCase()}</span><span>{t('REPS')}</span>
-      {eff && <span>{t(eff.hd).toUpperCase()}</span>}<span><Icon name="check" /></span>
+      {cols.map(c => <span key={c.f}>{c.hd}</span>)}
+      {effOn && <span>{t(eff.hd).toUpperCase()}</span>}{playOn && <span />}<span><Icon name="check" /></span>
     </div>
     {entry.sets.map((s, i) => <div key={i}>
-      {row(s, i)}
+      {setBlock(s, i)}
       {swipeHint && swipeHint.i === i && swipeOn && <button type="button" className="hv-hint-chip" onClick={() => setUI({ swipeHint: null })}>
         <Icon name="swap" />{t('Psst: swipe a set. Left deletes, right copies.')}</button>}
       {plateLine(i)}
-      {!isWarmupRow(s) && dropsOf(s).map((d, di) => <div key={'d' + di} className="hv-row hv-sub-row">
-        <span className="hv-set"><span className="hv-d">D</span></span><span />
-        <NumberField decimal className="hv-num" value={d.w ?? ''} onChange={v => setDropField(i, di, 'w', v)} aria-label={t('Drop {0}', di + 1)} />
-        <NumberField decimal={false} className="hv-num" value={d.r ?? ''} onChange={v => setDropField(i, di, 'r', v)} aria-label={t('Reps')} />
-        <button type="button" className="iconbtn hv-x" aria-label={t('Remove drop')} onClick={() => removeDrop(i, di)}><Icon name="xmark" /></button>
-      </div>)}
-      {!isWarmupRow(s) && clustersOf(s).map((c, ci) => <div key={'c' + ci} className="hv-row hv-sub-row">
-        <span className="hv-set"><span className="hv-d">+</span></span><span className="hv-prev">{c.restSec}s</span><span />
-        <NumberField decimal={false} className="hv-num" value={c.r ?? ''} onChange={v => setBurstReps(i, ci, v)} aria-label={t('Burst {0}', ci + 1)} />
-        <button type="button" className="iconbtn hv-x" aria-label={t('Remove burst')} onClick={() => removeBurst(i, ci)}><Icon name="xmark" /></button>
-      </div>)}
     </div>)}
     <button type="button" className="hv-addset" onClick={onAddSet}><Icon name="plus" />{t('Add Set')}</button>
   </div>

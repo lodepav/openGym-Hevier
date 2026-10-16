@@ -18,9 +18,9 @@ import { workoutSettingsSheet } from '../../components/WorkoutSettingsSheet.jsx'
 import { adjustRestSheet } from '../../components/RestTimer.jsx'
 import Elapsed from '../../components/Elapsed.jsx'
 import Icon from '../../components/Icon.jsx'
-import HevyExerciseBlock, { hevyTableFits } from '../components/HevyExerciseBlock.jsx'
+import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 
-export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions, ExerciseBlock }) {
+export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const resting = useUI(s => !!s.timer)
@@ -45,7 +45,6 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
   const block = (idx, unit) => {
     const props = blockProps(idx)
     const entry = A.entries[idx]
-    if (!hevyTableFits(S, entry)) return <div className="hv-ex hv-fallback"><ExerciseBlock entryIdx={idx} dense compact={unit.length > 1} {...props} /></div>
     return <HevyExerciseBlock entryIdx={idx} {...props}
       superset={unit.length > 1 ? unit : null}
       onUnpair={unit.length > 1 ? () => unpairAt(idx) : null}

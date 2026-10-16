@@ -51,10 +51,9 @@
 :root[data-ui="hevier"] .hv-head,
 :root[data-ui="hevier"] .hv-row{
   display:grid;align-items:center;column-gap:6px;
-  grid-template-columns:34px minmax(0,1fr) 62px 50px 36px;
+  /* --nc: the value columns of the exercise's mode, plus effort or the start button */
+  grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,58px)) 36px;
 }
-:root[data-ui="hevier"] .hv-head.eff,
-:root[data-ui="hevier"] .hv-row.eff{grid-template-columns:34px minmax(0,1fr) 58px 46px 44px 36px}
 :root[data-ui="hevier"] .hv-head{font-size:11px;letter-spacing:.04em;color:var(--label-2);padding:0 4px 4px;text-align:center}
 :root[data-ui="hevier"] .hv-head > span:nth-child(2){text-align:start}
 :root[data-ui="hevier"] .hv-head .icn{font-size:13px}
@@ -73,11 +72,14 @@
 :root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center}
 :root[data-ui="hevier"] .hv-chk.on{background:var(--green);color:#fff}
 :root[data-ui="hevier"] .hv-sub-row{padding-inline-start:18px}
+/* the L / R line of a per-side set, and its tag in PREVIOUS */
+:root[data-ui="hevier"] .hv-row.hv-side + .hv-row.hv-side{margin-top:-4px}
+:root[data-ui="hevier"] .hv-lr{display:inline-block;min-width:14px;margin-inline-end:4px;font-size:11px;font-weight:700;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-go{justify-self:center}
 :root[data-ui="hevier"] .hv-x{justify-self:center}
 :root[data-ui="hevier"] .hv-plates{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label-2);padding:2px 0 4px 44px}
 :root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--acc);padding:6px 12px;border-radius:999px}
 :root[data-ui="hevier"] .hv-addset{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;min-height:38px;border-radius:8px;background:var(--surface);color:var(--label);font-size:15px}
-:root[data-ui="hevier"] .hv-fallback{margin-bottom:4px}
 
 /* ---------- tabs and the minimised workout (hevier/components/HevyTabBar.jsx) ---------- */
 :root[data-ui="hevier"] #tabbar .hv-resumebar{

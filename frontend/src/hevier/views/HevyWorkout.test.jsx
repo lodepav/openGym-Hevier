@@ -9,6 +9,7 @@ import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
+import { modeOf } from '../../lib/history.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -17,6 +18,7 @@ vi.mock('../../lib/api.js', () => ({ api: vi.fn(() => Promise.resolve({})), beac
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
 const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
+const modeOfId = id => modeOf({ id })
 const reps = (w, r, extra = {}) => ({ w, r, done: false, ...extra })
 
 let root, container
@@ -92,9 +94,39 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
-  it('leaves timed exercises to upstream’s block for now', () => {
+  it('a timed hold gets KG · SEC and a start button (M1)', () => {
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
-    expect(container.querySelector('.hv-fallback')).toBeTruthy()
-    expect(container.querySelector('.hv-head')).toBeNull()
+    const head = container.querySelector('.hv-head').textContent
+    expect(head).toContain('SEC')
+    expect(head).not.toContain('REPS')
+    const go = container.querySelector('.hv-go')
+    expect(go).toBeTruthy()
+    act(() => go.click())
+    expect(useUI.getState().work).toBeTruthy()
+    typeInto(container.querySelectorAll('.hv-num')[1], '45')
+    expect(sets()[0].sec).toBe(45)
+  })
+
+  it('cardio gets MIN · speed, stored in km/h (M1)', () => {
+    const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
+    render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, speed: 10, done: false }] }])
+    const head = container.querySelector('.hv-head').textContent
+    expect(head).toContain('MIN')
+    expect(head).not.toContain('REPS')
+    expect(container.querySelector('.hv-go')).toBeNull()
+    typeInto(container.querySelectorAll('.hv-num')[1], '12')
+    expect(sets()[0].speed).toBe(12)
+  })
+
+  it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
+    const side = { w: 20, r: 8, done: false }
+    render([{ id: EX, target: { sets: 1, reps: 16, side: true }, sets: [{ w: 20, r: 16, sides: { L: { ...side }, R: { ...side } } }] }])
+    const lines = container.querySelectorAll('.hv-row.hv-side')
+    expect(lines.length).toBe(2)
+    act(() => lines[0].querySelector('.hv-chk').click())
+    expect(sets()[0].sides.L.done).toBe(true)
+    expect(sets()[0].sides.R.done).toBe(false)
+    typeInto(lines[1].querySelectorAll('.hv-num')[0], '22.5')
+    expect(sets()[0].sides.R.w).toBe(22.5)
   })
 })

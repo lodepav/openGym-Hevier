@@ -9,6 +9,7 @@ import * as model from '../lib/workout-model.js'
 import * as plan from '../views/Plan.jsx'
 import * as historyView from '../views/History.jsx'
 import * as stats from '../views/Stats.jsx'
+import * as workoutView from '../views/Workout.jsx'
 import { HEVIER } from './flag.js'
 
 describe('hevier: upstream contract', () => {
@@ -34,6 +35,7 @@ describe('hevier: upstream contract', () => {
 
   it('the views the fork screens borrow from still export what they use', () => {
     expect(typeof plan.deleteRoutineWithUndo).toBe('function')
+    expect(typeof workoutView.setNumberAt).toBe('function')
     expect(typeof historyView.historyRows).toBe('function')
     expect(Array.isArray(stats.FATIGUE_LEVELS)).toBe(true)
   })

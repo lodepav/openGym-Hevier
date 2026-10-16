@@ -200,9 +200,11 @@ for the finish flow). Summary:
 **Status (2026-10-16): first cut built** on `hevier/ux`: `frontend/src/hevier/views/HevyWorkout.jsx`
 and `components/HevyExerciseBlock.jsx` through seam S3. It covers reps exercises (warm-up /
 failure / drop / rest-pause, PREVIOUS, effort column, swipe, plate line, supersets) and was
-verified on the emulator through a full start → log → finish → second-session cycle. Still open in
-M1: Hevy rows for timed, cardio and per-side (L/R) exercises (these currently render upstream's
-block inside the Hevy screen) and the rest timer riding above the keypad.
+verified on the emulator through a full start → log → finish → second-session cycle. Timed holds
+(KG · SEC with a start button, L/R pairs), cardio (MIN · speed · optional incline) and per-side
+reps (an L and an R line under one set number, each ticked on its own) now have Hevy rows too, so
+upstream's block no longer renders inside the Hevy screen. Still open in M1: the rest timer riding
+above the keypad.
 
 Acceptance: a full leg-day session can be logged, minimised, resumed, finished, and read back
 in history, with weights progressing for the next session exactly as upstream's layouts do.
