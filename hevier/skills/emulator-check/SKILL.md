@@ -1,0 +1,48 @@
+---
+name: emulator-check
+description: Build the fork's debug APK, install it on the Android 16 emulator and check a screen or flow with real taps and screenshots. Use after UI changes, to check a milestone on device, or when asked to "check on the emulator".
+---
+
+# Emulator check
+
+## Build, install, launch
+
+```bash
+export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
+HEADLESS=1 hevier/tools/emulator.sh            # vite build + cap sync + gradle + install + launch
+HEADLESS=1 hevier/tools/emulator.sh --no-build # reinstall the last APK
+```
+Run it in the background (it takes a few minutes) and wait for the notification. The app id is
+`ch.duartesantos.opengym.hevier.test`, and the AVD is `xperia1vi_api36` (1080×2340, 420 dpi).
+
+## Drive the WebView: `node hevier/tools/cdp.mjs …`
+
+- `text`: the visible text of the page. Check this first; it costs fewer tokens than a screenshot.
+- `shot <scratchpad>/name.png`, then Read the png to look at it. Save every screenshot to the
+  session scratchpad, never in the repo.
+- `nav "#/workout"`, `reload`, `click "Finish"` (the first visible element with that text).
+- `eval "(() => { … })()"`: always wrap the code in an IIFE, because a top-level `const` collides
+  with names already on the page.
+
+**Prefer real taps** for anything gesture-like (swipes, drags, long presses, sheet buttons
+that listen for pointer events): `adb shell input tap X Y` and `adb shell input swipe x1 y1 x2 y2
+300`. Device px = CSS px × 2.625. Get the CSS coordinates from
+`eval "(() => { const r = document.querySelector('…').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2] })()"`.
+
+## Test data
+
+The state is in `localStorage.gym_state_v1`. The emulator's data has the routines Push
+`mvb4ura0xf0oq`, Pull `mvb4ura0bo1ca` and Leg `mvb4ura0uvo91`, and one workout (Leg Day,
+2026-10-16).
+- Before a flow that writes data (finishing a workout, deleting something), save a copy:
+  `eval "localStorage.gym_state_v1"`, written to the scratchpad.
+- To inject or restore state, the app's own save must not overwrite it during reload. Run, in
+  one eval: `localStorage.setItem('gym_state_v1', DATA); Storage.prototype.setItem = () => {};
+  location.reload()`. The reload restores the real `setItem`.
+- Afterwards, restore the saved copy so the next check starts from the same data.
+
+## Report
+
+For each step, say what was tapped and what was seen, with the screenshot path. Known upstream
+quirks to ignore: exercise media renders blank white on the emulator, and a LineChart with a
+single point draws a wedge.

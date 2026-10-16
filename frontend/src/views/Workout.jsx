@@ -46,6 +46,10 @@ import { nextOpenSet, workoutKeyAction } from '../lib/workout-keys.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
 import FocusView from './FocusView.jsx'
 import { withMeaning, historyAs, dbLoadFor, entryDbLoad, bellsIn, ownedWeightsFor, stepOwned } from '../lib/dumbbells.js'
+// [hevier] S3: the fork's workout screen (hevier/DECISIONS.md D1)
+import { HEVIER } from '../hevier/flag.js'
+import HevyWorkout from '../hevier/views/HevyWorkout.jsx'
+// [/hevier]
 
 // How long after a key starts a hold the same key is not yet its "Done" (#133). A USB button
 // that bounces, or a double press, sends two presses a moment apart: the first starts the hold,
@@ -1902,6 +1906,12 @@ function ActiveWorkout() {
     }
   }, [])
 
+  // [hevier] S3: in the fork's build the Hevy screen is the only layout. It renders from this
+  // screen's own handlers, after every hook above has run, so the session logic stays upstream's.
+  if (HEVIER) return <HevyWorkout units={units} editing={editing} done={done} blockProps={blockProps}
+    bindExRef={bindExRef} bindSetRef={bindSetRef} ExerciseBlock={ExerciseBlock}
+    actions={{ addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg }} />
+  // [/hevier]
   return <WorkoutScrollAnchor enabled={collapseOn} collapsed={[...collapsed].join(',')}>
     {/* In list mode the whole session scrolls under the header, so the header (name, clock,
         set counter, discard/finish, progress) stays pinned — the one thing you want in view

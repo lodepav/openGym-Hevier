@@ -197,12 +197,22 @@ for the finish flow). Summary:
 | Rest timer docked at the bottom with −15 / +15 / Skip | `RestTimer` (already docks in a workout) | restyle in phase 2; check its buttons |
 | Minimised workout → floating "Workout in progress · Resume" bar above the tabs | `S.active` + TabBar's resume logic | part of `HevyTabBar` (M2) |
 
+**Status (2026-10-16): first cut built** on `hevier/ux`: `frontend/src/hevier/views/HevyWorkout.jsx`
+and `components/HevyExerciseBlock.jsx` through seam S3. It covers reps exercises (warm-up /
+failure / drop / rest-pause, PREVIOUS, effort column, swipe, plate line, supersets) and was
+verified on the emulator through a full start → log → finish → second-session cycle. Timed holds
+(KG · SEC with a start button, L/R pairs), cardio (MIN · speed · optional incline) and per-side
+reps (an L and an R line under one set number, each ticked on its own) now have Hevy rows too, so
+upstream's block no longer renders inside the Hevy screen. A focused field gets Hevy's keypad row
+(`components/KeypadBar.jsx`: ⌨ hides the keyboard) and the rest timer rides on top of it, on
+Android 15's `--native-kb` as on older versions. M1's layout is complete.
+
 Acceptance: a full leg-day session can be logged, minimised, resumed, finished, and read back
 in history, with weights progressing for the next session exactly as upstream's layouts do.
 The proof is a component test that runs the same session through `'list'` and `'hevy'` and
 asserts identical `S.workouts` and identical next-session targets.
 
-### M2. Navigation: four tabs (SCREENS.md §0, §1, §4, §5)
+### M2. Navigation: three tabs (SCREENS.md §0, §1, §4, §5)
 
 `HevyTabBar` (seam S2): **Home · Workout · Profile**. No Coach tab. The AI coach is
 **disabled by default** and not surfaced anywhere in the fork's navigation. It stays reachable
@@ -215,6 +225,15 @@ phone: `lib/coach-device.js`). Its code is untouched, so it costs nothing in mer
 | Workout: "Start Empty Workout", Routines (folders, "New Routine", ⋯), each routine card with exercise preview and **Start Routine** | `Plan` / `StartChooser` data and `startFlow(routineIds)` |
 | Profile: summary header; weekly chart toggled between Duration / Volume / Reps; Dashboard links (Statistics, Exercises, Measures, Calendar); ⚙ Settings | `Stats`, `Library`, `Measurements`, `History`, `Settings`, all as existing routes |
 
+**Status (2026-10-16): first cut built** on `hevier/ux` through seam S2 (`hevier/routes.jsx`):
+`HevyTabBar` (three tabs + "Workout in progress · Resume" bar), `views/WorkoutTab.jsx` (D13),
+`views/Profile.jsx` with `components/WeeklyChart.jsx` over `lib/weekly-series.js` (D14), and
+`views/HevyHome.jsx` with Edit Home over `lib/home-layout.js` (D12). Feed cards
+(`components/WorkoutCard.jsx`) open upstream's workout details for edit/repeat/delete. Feed cards also have Hevy's ⋯
+(Save as routine · Repeat today · Edit workout · Delete workout, upstream's own actions), the
+resume bar has Discard, and Stats and Exercises get a "‹ Profile" back row. Verified on the
+emulator.
+
 openGym's weekly **schedule** and rotation (the "today is Leg Day" logic) have no Hevy
 equivalent. Keep them, surfaced as "Today: Leg Day — Start" at the top of the Workout tab,
 rather than deleting logic.
@@ -226,6 +245,16 @@ Prefer a new view `hevier/views/RoutineEditHevy.jsx` routed by S2 over editing
 `RoutineEdit.jsx`. Progression settings stay reachable from the ⋯ menu: this is openGym's
 strength over Hevy, so keep it.
 
+**Status (2026-10-16): first cut built** (`hevier/views/RoutineEditHevy.jsx`, routed over
+`/plan/r/:id` by S2, with `hevier/lib/routine-table.js` and its test). Hevy's table is drawn from
+openGym's one-prescription-per-exercise plan, per DECISIONS.md D15: a flat exercise's rows share
+one weight and one rep target, back-off weights are derived, double/triple progression shows
+REP RANGE, a pyramid is edited set by set. W / F / Max set types; drop sets, back-off, pyramid,
+per side and progression stay in upstream's settings behind ⋮. Exercises drag to reorder
+(`hevier/components/useDragReorder.js`, rows of any height, auto-scroll), supersets as one. The
+Workout tab's routines got the same drag and Hevy's folders (D13, `hevier/lib/routine-folders.js`).
+Not yet: a Hevy-style Add Exercise picker (SCREENS.md §8; upstream's picker is used for now).
+
 ### M4. Finish → Save → Summary
 
 Hevy: **Save Workout** page (title, duration/volume/sets, when, description) then a
@@ -234,10 +263,28 @@ Hevy: **Save Workout** page (title, duration/volume/sets, when, description) the
 fields (name, `A.note`) and then calls upstream's finish. `lib/finish-workout.js` is never
 forked.
 
+**Status: done.** Seam S9 sends upstream's `finishWorkout` to `/workout/save`
+(`hevier/views/SaveWorkout.jsx`), which writes the title and description into the session,
+saves with upstream's `doFinishWorkout` and then applies a changed When / Duration with
+upstream's `moveWorkout` / `setWorkoutDuration` (`hevier/lib/save-workout.js`). The same seam
+replaces upstream's summary sheet with `/workout/done`: "Nice work!", the workout number, the
+feed card, PRs and estimated-1RM records, the last 7 days, the body map and upstream's
+"Last time and next time", cardio and media sections. Unchecked sets are a warning on the page
+instead of a confirm.
+
 ### M5. Exercise details
 
 Tabs **Summary** (heaviest weight / est. 1RM / best-set volume chart, PRs) · **History** ·
 **How to**, from `exerciseDetailSheet`, `exerciseHistorySheet` and `onerm.js` data.
+
+**Status: done.** Seam S10 sends upstream's `exerciseDetailSheet` to the fork's sheet
+(`hevier/views/ExerciseDetails.jsx`): Summary (media, muscle tags, the latest value with a
+3-month / year / all-time chart of heaviest weight, one-rep max or best set volume, Personal
+Records, Set Records by rep count), History (a card per session, tap for the workout) and How to
+(pinned note, description, steps). The numbers come from upstream's `exerciseHistory`, read by
+`hevier/lib/exercise-summary.js`. ⋯ has favourites, Add to my plan, edit/delete for custom
+exercises, and **All details**, upstream's own sheet (plate loading, weight meaning, 1RM
+calculator).
 
 ### M6. Profile dashboard and statistics (SCREENS.md §5, §6, §11)
 
@@ -246,10 +293,23 @@ The Profile header with the weekly bar chart (Duration / Volume / Reps), Dashboa
 set count per muscle). New views over `Stats` / `recovery` / `structuralBalance` data. The
 weekly series are a 🆕 helper derived from logged workouts. The radar chart is on the backlog.
 
+**Status: done.** Profile (header, weekly chart, dashboard, feed) came with M2. `/stats` is the
+fork's Statistics (`hevier/views/Statistics.jsx`): the last 7 days as a week strip and body map,
+the set count per muscle group by week, month or year against the one before
+(`hevier/lib/muscle-sets.js`, over upstream's `loadOfWorkouts`), then upstream's whole Stats at
+`/stats/all` and Structural balance. `/measures` (`hevier/views/Measures.jsx`) has body weight
+with upstream's log, goal and weigh-in list, then upstream's Body measurements and Progress
+photos, whose own ‹ now goes back where the user came from.
+
 ### M7. Settings regrouped (SCREENS.md §10)
 
 Hevy's "Workout Settings" page order and wording over openGym's existing settings. Only
 presentation, via a fork page list instead of editing `views/settings-pages.js`.
+
+**Status: done** (DECISIONS.md D16). Seam S11 gives `views/Settings.jsx`'s root the fork's titled
+groups (`hevier/views/SettingsRootHevy.jsx`) and drops hidden rows from its search; seam S12 passes
+each page's element tree through `hevier/lib/settings.js` `prunePage`, which leaves out the rows
+that only steer upstream's workout layouts.
 
 ### Out of scope for the fork (say no early)
 
@@ -257,6 +317,10 @@ Social feed, followers, likes, and the explore and community routines. They need
 social model that openGym deliberately doesn't have.
 
 ### Phase 1 done when
+
+**Status (2026-10-16): done.** M1–M7 are on `hevier/ux`, the full suite is green (5161 tests,
+the fork's 101 among them), each milestone was walked through on the emulator, and `hevier/ux` is
+merged into `hevier/main`. The walk on the Xperia itself is still the user's.
 
 - M1–M7 merged into `hevier/ux`, all tests green, and SEAMS.md current.
 - Walked through on the emulator (scripted) and on the Xperia (manual), with screenshots in
@@ -312,12 +376,71 @@ upstream sync (CONFLICTS.md step 6).
 Hevy elements that need behaviour openGym doesn't have. Not built in phases 1–2; listed so they
 aren't lost:
 
-- Routine folders (openGym has a flat routine list plus the weekly plan or rotation)
+- ~~Routine folders~~ (moved into phase 1, D13, 2026-10-16)
 - Workout photos / videos on the Save Workout page
 - Live personal-record badge while logging a set, with its notification and sound
 - Monthly report, multi-year calendar, muscle-distribution radar chart
 - "Previous Workout Values: Any workout / Same routine" as a user setting
 - Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
+
+### The user's own features (added 2026-10-16)
+
+Not Hevy parity: features the user wants on top. Each needs a decision in DECISIONS.md before
+it is built. Check [PIPELINE.md](PIPELINE.md) first, and prefer contributing upstream where
+the feature is not Hevy-specific (it would remove fork code).
+
+1. **Body weight from Health Connect.** Read weigh-ins *from* Android Health. Upstream only
+   writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
+   Android code beyond seam S7. **Health Connect becomes the only source** (user, 2026-10-16):
+   with it on, the app's own weigh-in entry is turned off (the body-weight card, the check-in's
+   weight prompt and the add sheet), and upstream's write of weigh-ins *to* Health Connect is
+   skipped so they don't echo back. The weights read are still stored as openGym's body-weight
+   log, since bodyweight exercises, the charts and strength level (item 3) read it from there.
+2. **Heart rate pulled in after the finish.** On finishing, fetch the workout's heart-rate
+   samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
+   on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
+   Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
+3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). The app
+   bundles no standards: strengthlevel.com's terms forbid automated access (scraping, scripts),
+   and its tables are theirs. Instead, exercise details get a **Compare strength** button that
+   opens strengthlevel.com in the browser (the exercise's page if we know its slug, else the site's
+   search). There the user enters their own numbers, then types the five thresholds it
+   shows (Beginner · Novice · Intermediate · Advanced · Elite, in kg or lb) into a small form in
+   the app. The app saves them for that exercise, then shows a **progress bar through the
+   levels** from the user's best estimated 1RM (upstream's `onerm.js`): the current level, and
+   how far it is to the next.
+   - The thresholds depend on body weight and age, so the form saves the date and the body weight
+     they were entered at, and suggests re-entering when either has drifted (say 5 %).
+   - Storage: per exercise, in `S` (a fork-only field upstream ignores, like routine folders,
+     D13), so it syncs and is in backups, including the Google Drive sync (item 7). Not
+     device-local.
+   - A pure helper with tests in `hevier/lib/` (level and progress from the thresholds and the
+     1RM history), shown in exercise details (M5 Summary).
+   - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
+     land on the right page. It holds no data from them.
+4. **Gyms.** Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
+   for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
+   second one.
+5. **Gym and brand labels for machine and cable exercises.** A machine exercise can carry a
+   gym and/or an equipment brand label (e.g. "Life Fitness", "my gym"). Exercise stats can show
+   either everything, or only the sets done with the current labels, since the same exercise
+   on two machines isn't comparable. Machines and cables only, not free weights.
+6. **Gym at workout start picks the backups.** Starting a workout or routine at a tagged gym
+   swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
+   *backups for an exercise* (up to five per routine exercise).
+
+7. **Automatic sync to Google Drive** (user, 2026-10-16). The user's data is backed up to their
+   own Google Drive without a manual export. Start from what upstream has: Android auto-backup
+   after a workout or an edit (v1.x), into a folder the user picks (#161, "for example a sync
+   app's folder"). The cheapest route may be pointing that folder at Google Drive (the system file
+   picker, or a sync app) and adding nothing. A real Drive API client is a fork-only opt-in: a
+   Google account, OAuth and a dependency, all against upstream's "no third-party account" and
+   dependency-light rules. So decide whether the folder route is enough before building it. Restore:
+   upstream's import with "Merge them in" (1.4.2). From here on, fork data that matters goes in
+   `S`, not localStorage, so that it is part of this sync.
+
+Items 4–6 share one model (gyms, their equipment and labels), so design them together.
+Items 1–2 share the Health Connect read plumbing.
 
 ## 6. Risks
 

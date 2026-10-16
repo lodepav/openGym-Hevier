@@ -1,0 +1,126 @@
+// @vitest-environment happy-dom
+// Finish → Save Workout → "Nice work!" through seam S9 (hevier/DECISIONS.md D10): the page writes
+// the session's name and note, upstream's doFinishWorkout saves it, and the summary reads it back.
+import React, { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DEF, useStore } from '../../store/useStore.js'
+import { useUI } from '../../store/useUI.js'
+import { EXDB } from '../../lib/exercises.js'
+import { setNav, nav } from '../../lib/nav.js'
+import { finishWorkout } from '../../sheets.jsx'
+import { hevierRoutes } from '../routes.jsx'
+import { hooks, installFinishHook } from '../hooks.js'
+
+vi.mock('../flag.js', () => ({ HEVIER: true }))
+vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
+vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
+const clone = v => JSON.parse(JSON.stringify(v))
+const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
+const pad = n => String(n).padStart(2, '0')
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+let root, container, path
+
+function Bridge() { const n = useNavigate(); setNav(n); path = useLocation().pathname; return null }
+
+function render(at, entries) {
+  const S = Object.assign(clone(DEF), { weighIn: false })
+  const start = Date.now() - 45 * 60000
+  S.active = { id: 'hv1', d: iso(new Date(start)), start, name: 'Leg Day', cur: 0, entries }
+  useStore.setState({ S, user: null, isGuest: () => true })
+  container = document.createElement('div')
+  document.body.appendChild(container)
+  root = createRoot(container)
+  act(() => root.render(<MemoryRouter initialEntries={['/home', at]} initialIndex={1}>
+    <Routes>{hevierRoutes}<Route path="*" element={<div id="elsewhere" />} /></Routes>
+    <Bridge />
+  </MemoryRouter>))
+}
+const typeInto = (el, text) => act(() => {
+  const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype
+  Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, text)
+  el.dispatchEvent(new Event('input', { bubbles: true }))
+})
+const byText = (sel, text) => [...container.querySelectorAll(sel)].find(b => b.textContent.includes(text))
+const logged = () => [{ id: EX, target: { sets: 2, reps: 8 }, sets: [{ w: 60, r: 8, done: true, at: Date.now() - 60000 }, { w: 60, r: 8, done: false }] }]
+
+beforeEach(() => {
+  localStorage.clear()
+  useUI.setState({ sheets: [], toastMsg: '', timer: null, work: null })
+  installFinishHook(nav)
+})
+afterEach(() => {
+  if (root) act(() => root.unmount())
+  container?.remove()
+  hooks.finish = hooks.done = null
+})
+
+describe('hevier: Save Workout (seam S9)', () => {
+  it('Finish opens the Save page instead of upstream’s confirm', () => {
+    render('/workout', logged())
+    act(() => finishWorkout())
+    expect(path).toBe('/workout/save')
+    expect(useUI.getState().sheets).toHaveLength(0)
+    expect(container.querySelector('.hv-save')).toBeTruthy()
+    expect(container.querySelector('.hv-warn').textContent).toContain('1 set still unchecked')
+  })
+
+  it('saves the title and description through upstream’s finish, then shows Nice work!', () => {
+    render('/workout/save', logged())
+    typeInto(container.querySelector('.hv-stitle'), 'Heavy legs')
+    typeInto(container.querySelector('.hv-sdesc'), 'Felt strong')
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    const S = useStore.getState().S
+    expect(S.active).toBeNull()
+    expect(S.workouts).toHaveLength(1)
+    expect(S.workouts[0]).toMatchObject({ id: 'hv1', name: 'Heavy legs', note: 'Felt strong' })
+    expect(useUI.getState().sheets).toHaveLength(0)   // upstream's summary sheet is not opened
+    expect(path).toBe('/workout/done')
+    expect(container.textContent).toContain('Nice work!')
+    expect(container.textContent).toContain('That’s workout number 1.')
+    expect(container.querySelector('.hv-wcard').textContent).toContain('Heavy legs')
+    expect(container.textContent).toContain('New PR:')
+    act(() => byText('.hv-done-btn', 'Done').click())
+    expect(path).toBe('/home')
+  })
+
+  it('a changed When and Duration land on the saved record', () => {
+    render('/workout/save', logged())
+    const y = new Date(Date.now() - 86400000)
+    typeInto(container.querySelector('input[type="date"]'), iso(y))
+    typeInto(container.querySelector('input[type="time"]'), '07:15')
+    typeInto(container.querySelector('.hv-smin'), '50')
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    const [w] = useStore.getState().S.workouts
+    expect(w.d).toBe(iso(y))
+    expect(new Date(w.start).getHours()).toBe(7)
+    expect(w.end - w.start).toBe(50 * 60000)
+    expect(container.textContent).toContain('Nice work!')
+  })
+
+  it('refuses a day ahead and saves nothing', () => {
+    render('/workout/save', logged())
+    typeInto(container.querySelector('input[type="date"]'), iso(new Date(Date.now() + 2 * 86400000)))
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    expect(useStore.getState().S.active).toBeTruthy()
+    expect(useUI.getState().toastMsg).toBe('Pick a day up to today')
+  })
+
+  it('Discard Workout ends the session after upstream’s confirm', () => {
+    render('/workout/save', logged())
+    act(() => byText('.hv-sdiscard', 'Discard').click())
+    const sheet = useUI.getState().sheets.at(-1)
+    const div = document.createElement('div')
+    const r = createRoot(div)
+    act(() => r.render(sheet.render(() => {})))
+    act(() => byTextIn(div, 'button', 'Discard').click())
+    expect(useStore.getState().S.active).toBeNull()
+    expect(useStore.getState().S.workouts).toHaveLength(0)
+    expect(path).toBe('/home')
+    act(() => r.unmount())
+  })
+})
+const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].filter(b => b.textContent.includes(text)).at(-1)

@@ -30,3 +30,6 @@ frontend/bundle-size.json
 
 # Local planning notes
 docs/superpowers/plans/
+
+# Hevy reference material (the UX spec and its screenshots), kept locally only
+hevier/reference/

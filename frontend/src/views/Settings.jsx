@@ -44,6 +44,9 @@ import { passwordOn, PasswordRow, openPasswordSignIn, openPasswordRegister } fro
 import { usePasskeys, PasskeysRow, DeviceLinkRow, openDeviceLinkRedeem } from '../components/Passkeys.jsx'
 import { Section, Row, SelectRow, Switch, Segmented, Button, TextField, SearchField } from '../components/ui.jsx'
 import { PAGES, ROOT_GROUPS, pageVisible, searchSettings, pageTrail } from './settings-pages.js'
+// [hevier] S11/S12: the fork's Settings root and the rows it leaves out
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 /* Settings (v1.3.11). The root is one screen: an account card, eleven rows that each open a page
    (/settings/<page>), and a search over every row. Rare things live one level further down
@@ -908,7 +911,9 @@ export default function Settings({ page = null, find = null, via = null }) {
         </button>
         <h1 className="sp-title">{t(PAGES[page].title)}</h1>
       </div>
-      {pages[page]()}
+      {/* [hevier] S12: the fork leaves out the rows its workout screen never reads */}
+      {hooks.settings ? hooks.settings.page(page, pages[page]()) : pages[page]()}
+      {/* [/hevier] */}
     </div>
   }
 
@@ -925,7 +930,9 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
   const [key] = useState(() => window.history.state?.key || null)
   const [q, setQ] = useState(() => (key && lastQuery.key === key ? lastQuery.q : ''))
   const set = v => { lastQuery = { q: v, key }; setQ(v) }
-  const hits = q.trim() ? searchSettings(q, ctx) : null
+  // [hevier] S11: a row the fork leaves out of its page is no search hit either
+  const hits = q.trim() ? searchSettings(q, ctx).filter(h => !hooks.settings?.hides(h)) : null
+  // [/hevier]
   // The account card: who this is, and the one line that matters about it.
   const acct = DEMO ? { title: t('Demo'), sub: t('Example data, only in this browser.') }
     : user ? {
@@ -937,7 +944,10 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
   const initial = user && !DEMO ? String(user.name || '?').trim().charAt(0).toUpperCase() : null
   return <div className="narrow">
     <div className="sp-nav">
-      <button className="sp-back" onClick={home} aria-label={t('Home')}><Icon name="chevronLeft" /><span>{t('Home')}</span></button>
+      {/* [hevier] S11: in the fork, Settings opens from Profile and goes back there */}
+      {hooks.settings ? hooks.settings.back()
+        : <button className="sp-back" onClick={home} aria-label={t('Home')}><Icon name="chevronLeft" /><span>{t('Home')}</span></button>}
+      {/* [/hevier] */}
     </div>
     <h1 className="sp-root-title">{t('Settings')}</h1>
     <div className="sp-search">
@@ -949,6 +959,9 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
         <Row key={h.page + ':' + h.title} icon={h.icon} iconTint={h.tint} title={h.label} subtitle={h.trail} accessory="chevron" onClick={() => go(h)} />
       ))}
     </Section> : <div className="sp-empty">{t('No setting matches “{0}”.', q.trim())}</div>) : <>
+      {/* [hevier] S11: the fork's root, in Hevy's titled groups */}
+      {hooks.settings ? hooks.settings.root({ ctx, preview, open, acct, initial }) : <>
+      {/* [/hevier] */}
       <Section>
         <button className="lrow tap sp-acct" onClick={() => open('account')}>
           <span className={'sp-avatar' + (initial ? ' on' : '')} aria-hidden="true">{initial || <Icon name="personCircle" />}</span>
@@ -962,6 +975,9 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
             value={preview[id]?.() || null} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />)}
         </Section>
       ))}
+      {/* [hevier] S11 */}
+      </>}
+      {/* [/hevier] */}
       <div className="dim small sp-version">openGym v{__APP_VERSION__}</div>
     </>}
   </div>

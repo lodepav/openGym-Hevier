@@ -6,12 +6,23 @@ import { describe, it, expect } from 'vitest'
 import * as sheets from '../sheets.jsx'
 import * as history from '../lib/history.js'
 import * as model from '../lib/workout-model.js'
+import * as plan from '../views/Plan.jsx'
+import * as historyView from '../views/History.jsx'
+import * as stats from '../views/Stats.jsx'
+import * as workoutView from '../views/Workout.jsx'
+import * as routineEdit from '../views/RoutineEdit.jsx'
+import * as routines from '../lib/routines.js'
+import * as muscles from '../lib/muscles.js'
 import { HEVIER } from './flag.js'
 
 describe('hevier: upstream contract', () => {
   it('sheets.jsx still exports the flows the overlay calls', () => {
     for (const name of ['startFlow', 'beginWorkout', 'finishWorkout', 'finishWorkoutSheet', 'menuSheet',
-      'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet']) {
+      'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
+      'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
+      'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet',
+      'upstreamExerciseDetailSheet', 'detailTags', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
+      'bwSheet', 'goalSheet', 'weighInsSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
   })
@@ -26,6 +37,22 @@ describe('hevier: upstream contract', () => {
     for (const name of ['isWarmupRow', 'isFailureSet', 'toggleFailure', 'addDrop', 'dropsOf', 'isSideSet']) {
       expect(typeof model[name], name).toBe('function')
     }
+  })
+
+  it('the views the fork screens borrow from still export what they use', () => {
+    expect(typeof plan.deleteRoutineWithUndo).toBe('function')
+    expect(typeof workoutView.setNumberAt).toBe('function')
+    // the routine editor (M3) reuses upstream's remove-with-undo and routine helpers
+    expect(typeof routineEdit.removeRoutineExercise).toBe('function')
+    expect(typeof routineEdit.reorderRoutineUnit).toBe('function')
+    for (const f of ['copyRoutine', 'deleteRoutine', 'replaceSlotExercise']) expect(typeof routines[f]).toBe('function')
+    expect(history.NOTE_MAX).toBeGreaterThan(0)
+    expect(typeof historyView.historyRows).toBe('function')
+    expect(Array.isArray(stats.FATIGUE_LEVELS)).toBe(true)
+    // M6 Statistics counts with upstream's muscle load and names
+    expect(typeof muscles.loadOfWorkouts).toBe('function')
+    expect(Array.isArray(muscles.MUSCLES)).toBe(true)
+    expect(muscles.MUSCLE_NAME.chest).toBeTruthy()
   })
 
   it('the fork UI is off unless the build asks for it', () => {
