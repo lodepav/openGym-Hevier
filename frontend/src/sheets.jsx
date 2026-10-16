@@ -1409,7 +1409,8 @@ function ExercisePicker({ onPick, title, close, like }) {
 // `title` names what the pick is for when it is not an add — the routine editor's Replace (#110).
 // `like` is the exercise a swap or a replace is away from: the picker then opens on the ones that
 // train the same muscle, same equipment first (#473).
-export const exercisePicker = (onPick, { title, like } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} like={like} close={close} />)
+// [hevier] S13: the fork's Hevy picker when it is installed
+export const exercisePicker = (onPick, { title, like } = {}) => hooks.exercisePicker ? hooks.exercisePicker(onPick, { title, like }) : ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} like={like} close={close} />)
 
 /** Start a safe swap for one exact active-workout occurrence. */
 export function swapActiveWorkoutExercise(index) {
@@ -2689,7 +2690,9 @@ function mediaGoesToo(rec) {
   const n = workoutMediaOf(rec, Infinity).length
   return n ? ' ' + tn('Its photo or video is deleted with it.', 'Its {0} photos or videos are deleted with it.', n) : ''
 }
-export const workoutDetailSheet = w => ui().openSheet(close => <WorkoutDetail w={w} close={close} />)
+// [hevier] S14: the fork's Workout Detail page; upstream's sheet stays one tap away there
+export const workoutDetailSheet = w => (hooks.workoutDetail ? hooks.workoutDetail(w) : upstreamWorkoutDetailSheet(w))
+export const upstreamWorkoutDetailSheet = w => ui().openSheet(close => <WorkoutDetail w={w} close={close} />)
 
 /* ============================ calendar ============================ */
 function Calendar({ start, close }) {
