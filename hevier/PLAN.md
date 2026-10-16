@@ -364,12 +364,44 @@ upstream sync (CONFLICTS.md step 6).
 Hevy elements that need behaviour openGym doesn't have. Not built in phases 1–2; listed so they
 aren't lost:
 
-- Routine folders (openGym has a flat routine list plus the weekly plan or rotation)
+- ~~Routine folders~~ (moved into phase 1, D13, 2026-10-16)
 - Workout photos / videos on the Save Workout page
 - Live personal-record badge while logging a set, with its notification and sound
 - Monthly report, multi-year calendar, muscle-distribution radar chart
 - "Previous Workout Values: Any workout / Same routine" as a user setting
 - Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
+
+### The user's own features (added 2026-10-16)
+
+Not Hevy parity: features the user wants on top. Each needs a decision in DECISIONS.md before
+it is built. Check [PIPELINE.md](PIPELINE.md) first, and prefer contributing upstream where
+the feature is not Hevy-specific (it would remove fork code).
+
+1. **Body weight from Health Connect.** Read weigh-ins *from* Android Health. Upstream only
+   writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
+   Android code beyond seam S7. Decide how duplicates are handled against openGym's own weigh-ins.
+2. **Heart rate pulled in after the finish.** On finishing, fetch the workout's heart-rate
+   samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
+   on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
+   Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
+3. **Strength level per exercise**, like Hevy's, but rated against
+   [strengthlevel.com](https://strengthlevel.com) standards (Beginner … Elite, by body weight,
+   sex and age). Needs a mapping from openGym's exercise ids to Strength Level's exercises
+   (a reviewed table, not guessed). Check its licence and terms before bundling its numbers. A
+   pure helper with tests in `hevier/lib/` (rule 2), shown in exercise details (M5 Summary).
+4. **Gyms.** Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
+   for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
+   second one.
+5. **Gym and brand labels for machine and cable exercises.** A machine exercise can carry a
+   gym and/or an equipment brand label (e.g. "Life Fitness", "my gym"). Exercise stats can show
+   either everything, or only the sets done with the current labels, since the same exercise
+   on two machines isn't comparable. Machines and cables only, not free weights.
+6. **Gym at workout start picks the backups.** Starting a workout or routine at a tagged gym
+   swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
+   *backups for an exercise* (up to five per routine exercise).
+
+Items 4–6 share one model (gyms, their equipment and labels), so design them together.
+Items 1–2 share the Health Connect read plumbing.
 
 ## 6. Risks
 
