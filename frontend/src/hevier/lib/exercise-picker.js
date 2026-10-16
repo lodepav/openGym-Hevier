@@ -45,3 +45,14 @@ export function recentIds(S, n = 10) {
  */
 export const filterPicker = (list, { muscle = '', eq = '', avail = null } = {}) => list.filter(e =>
   (!muscle || muscleOf(e) === muscle) && (!eq || e.eq === eq) && (!avail || avail(e)))
+
+/**
+ * Where the exercises just added sit, for "Add superset": the index of the first, when the
+ * `ids.length` items ending at `end` are those exercises in that order; else -1, and nothing is
+ * linked (the caller placed them some other way).
+ */
+export function addedRun(items, end, ids) {
+  const first = end - ids.length + 1
+  if (ids.length < 2 || first < 0 || end >= (items?.length || 0)) return -1
+  return ids.every((id, k) => items[first + k]?.id === id) ? first : -1
+}

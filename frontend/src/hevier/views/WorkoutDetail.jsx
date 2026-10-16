@@ -24,11 +24,15 @@ import Icon from '../../components/Icon.jsx'
 import { workoutActions } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutSplit } from '../lib/muscle-sets.js'
+import { prSetIndex } from '../lib/pr-set.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
-function ExerciseSets({ e, st, pr }) {
+function ExerciseSets({ w, e, st }) {
   const ex = EXIDX[e.id]
+  // The record sits on the set that made it, as in Hevy; on the exercise when no set can be named.
+  const prAt = prSetIndex(w, e)
+  const pr = !!w.prs?.includes(e.id)
   const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
@@ -36,7 +40,7 @@ function ExerciseSets({ e, st, pr }) {
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button>
-      {pr && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
+      {pr && prAt < 0 && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
     </div>
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
@@ -44,6 +48,7 @@ function ExerciseSets({ e, st, pr }) {
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         <span>{setLabel(e.id, s, e.target, speedUnitOf(st))}</span>
+        {i === prAt && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
       </div>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
@@ -97,7 +102,7 @@ export function WorkoutDetail() {
     </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} pr={prs.includes(w.entries[i].id)} />)}
+      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} />)}
     </div>)}
   </div>
 }

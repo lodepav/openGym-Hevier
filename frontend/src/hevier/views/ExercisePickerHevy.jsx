@@ -5,7 +5,9 @@
 // caller's own `onPick(ex, true)`, upstream's quick add with the default config, so what an added
 // exercise starts with is upstream's. The search and ranking are upstream's too. The same list,
 // browsing (no ✓, a tap opens exercise details), is the fork's Exercises page (Profile → Exercises).
-import { useRef, useState } from 'react'
+// "Add superset" adds the ticked exercises the same way, then links them with upstream's superset
+// pairing, through the target the open workout or routine editor registers (useSupersetTarget).
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -19,10 +21,18 @@ import { menuSheet, customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker } from '../lib/exercise-picker.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun } from '../lib/exercise-picker.js'
 
 const PAGE = 50
 const MINE = '@'   // the equipment filter's "what the active profile has"
+
+// What "Add superset" links into: { items() -> the list the picks were added to, end() -> the
+// index of the last one added, pair(i, j) -> links two neighbours }. Set while a screen that adds
+// exercises is open; with none, the picker offers no superset.
+let supersetTarget = null
+export function useSupersetTarget(target) {
+  useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
+}
 
 function ExerciseList({ onPick, title, like, close, browse }) {
   const st = useStore(s => s.S)
@@ -60,6 +70,13 @@ function ExerciseList({ onPick, title, like, close, browse }) {
     setPicked(cur => (cur.some(p => p.id === e.id) ? cur.filter(p => p.id !== e.id) : [...cur, e]))
   }
   const addPicked = () => { close(); picked.forEach(e => onPick(e, true)) }
+  const canLink = multi && picked.length > 1 && !!supersetTarget
+  const addSuperset = () => {
+    const target = supersetTarget
+    addPicked()
+    const first = addedRun(target.items(), target.end(), picked.map(e => e.id))
+    for (let i = first; first >= 0 && i < first + picked.length - 1; i++) target.pair(i, i + 1)
+  }
   const reset = fn => v => { fn(v); setShown(PAGE) }
 
   const openEquipment = () => menuSheet({
@@ -109,6 +126,7 @@ function ExerciseList({ onPick, title, like, close, browse }) {
     </div>
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}
     {multi && picked.length > 0 && <div className="hv-pk-add">
+      {canLink && <button className="btn" onClick={addSuperset}>{t('Add superset')}</button>}
       <button className="btn primary" onClick={addPicked}>{picked.length === 1 ? t('Add 1 exercise') : t('Add {0} exercises', picked.length)}</button>
     </div>}
   </div>

@@ -11,7 +11,7 @@ import { exOr } from '../../lib/exercises.js'
 import { activeProfile, exAvailable } from '../../lib/equipment.js'
 import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX } from '../../lib/history.js'
+import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
 import { fmtRest, REST_MAX } from '../../lib/duration.js'
 import { copyRoutine, deleteRoutine, replaceSlotExercise } from '../../lib/routines.js'
@@ -28,6 +28,7 @@ import {
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { removeRoutineExercise, reorderRoutineUnit } from '../../views/RoutineEdit.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
+import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
@@ -246,8 +247,15 @@ export default function RoutineEditHevy() {
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
   const [name, setName] = useState(r?.name || '')
-  if (!r) return null
   const setR = fn => update(s => { const x = s.routines.find(y => y.id === id); if (x) fn(x) })
+  // The picker's "Add superset": a quick add goes to the end of the routine.
+  const exOf = () => useStore.getState().S.routines.find(y => y.id === id)?.ex || []
+  useSupersetTarget({
+    items: exOf,
+    end: () => exOf().length - 1,
+    pair: (i, j) => setR(x => { x.ex = pairAdjacent(x.ex, i, j) }),
+  })
+  if (!r) return null
 
   const addExercise = () => exercisePicker((ex, quick) => {
     if (quick) {

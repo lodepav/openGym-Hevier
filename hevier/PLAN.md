@@ -231,7 +231,8 @@ phone: `lib/coach-device.js`). Its code is untouched, so it costs nothing in mer
 `views/HevyHome.jsx` with Edit Home over `lib/home-layout.js` (D12). Feed cards
 (`components/WorkoutCard.jsx`) open the fork's **Workout Detail** page (seam S14, added after
 phase 1 at the user's report): title, Time · Volume · Sets · Records, description, a muscle split
-in sets, each exercise's SET · WEIGHT & REPS table; ⋯ has Hevy's actions and All details
+in sets, each exercise's SET · WEIGHT & REPS table with the PR on the set that made it
+(`hevier/lib/pr-set.js`, upstream's record); ⋯ has Hevy's actions and All details
 (upstream's sheet: note, date, duration, copy, share, .fit). Feed cards also have Hevy's ⋯
 (Save as routine · Repeat today · Edit workout · Delete workout, upstream's own actions), the
 resume bar has Discard, and Stats and Exercises get a "‹ Profile" back row. Verified on the
@@ -261,7 +262,8 @@ The Hevy Add Exercise picker (SCREENS.md §8) came after phase 1, through seam S
 (with the active equipment profile as an option, on by default as upstream's) and All Muscles
 sheets, Recent Exercises, ✓ circles and "Add 2 exercises". Each pick is the caller's quick add,
 so what an exercise starts with is upstream's. A Replace or a swap is one tap, opening on the
-same muscle. Not built: Hevy's "Add as superset" (link them after with ⋮). The same list,
+same muscle. With two or more ticked, **Add superset** adds them the same way and links them
+with upstream's `pairAdjacent`, in a workout or the routine editor. The same list,
 without ✓, is Profile → **Exercises** (`/library`; a tap opens exercise details, upstream's
 By muscle is in the header). Profile → **Calendar** is a page (`hevier/views/Calendar.jsx`,
 `hevier/lib/calendar.js`): week streak and rest days, Month (months back, trained days filled)
