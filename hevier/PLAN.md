@@ -374,9 +374,18 @@ card with hairlines and bare glyphs (`theme.css`); the rest timer on the workout
 bar with the clock large and centred over −15 · +15 · ⏸ · Skip; zebra rows in Log Workout and
 the routine editor; the Add Exercise picker is a flat list with hairlines; exercise details' tabs
 are underline tabs; Save Workout's title and stats sit flat on the page; Settings is edge to edge
-under grey section bands, and Look & Home shows no theme preview. Next: icons (step 4), app
-icon and splash (step 5). Open: Statistics, Measures and Settings keep upstream's large title
-under a back link, not Hevy's compact bar.
+under grey section bands, and Look & Home shows no theme preview. Settings, Statistics and
+Measures name themselves in the bar, centred beside the back link, like Settings' sub-pages.
+
+Steps 4–5 (2026-10-16, at the user's choice). Icons: upstream's outline set already reads like
+Hevy's, so only the glyphs Hevy draws differently are the fork's own, in
+`hevier/components/HvIcon.jsx` (an alarm clock for Log Workout's rest timer button; a standing
+figure for Profile's Measures tile), falling back to upstream's `Icon` for every other name: no
+seam in `Icon.jsx`. App icon and splash: upstream's, recoloured from lime to Hevy blue by
+`hevier/tools/recolour-icons.py` into `frontend/android/app/src/hevier/res`, which seam S7's
+`hevier.gradle` adds to both build types; the system splash is dark. Still to do: Profile's
+dashboard tiles (Statistics → `chartLine`, Measures → `figure`), waiting on a merge of
+`hevier/ux`, whose `Profile.jsx` changed the line beside them.
 
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per

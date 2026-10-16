@@ -112,7 +112,6 @@
 /* ---------- Settings (phase 2, step 5) ----------
    Hevy's Settings are edge-to-edge lists under grey section bands, not inset cards, with plain
    outline icons. A Settings page is the .narrow that holds .sp-nav (views/Settings.jsx). */
-:root[data-ui="hevier"] .sp-root-title{font-size:22px;line-height:1.2;letter-spacing:-.01em}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b{margin-inline:calc(-1 * var(--pad));border-radius:0;background:none}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow{padding-inline:var(--pad)}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow + .lrow::before{inset-inline-start:var(--pad)}
@@ -124,3 +123,18 @@
 /* Icons in list rows are plain outline glyphs, as everywhere in Hevy, not tinted tiles. */
 :root[data-ui="hevier"] .lrow-i{width:24px;background:none;color:var(--label)}
 :root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .lbl{align-self:center}
+
+/* ---------- Page bars ----------
+   Hevy names a pushed page in its bar: back on the left, the title centred on the same line, as
+   upstream's Settings sub-pages already do (.sp-nav). The Settings root and the fork's pages under
+   Profile put their title on the line below instead; pull it up into the bar. The title lets taps
+   through to the back link it overlaps. Only a header that is a bare title moves (not one with a
+   subtitle or its own buttons). */
+:root[data-ui="hevier"] .sp-nav + .sp-root-title{
+  margin:-54px 0 10px;min-height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:600;line-height:1.2;letter-spacing:0;pointer-events:none;
+}
+:root[data-ui="hevier"] .hv-back{min-height:44px;padding:0;font-size:17px}
+:root[data-ui="hevier"] .hv-back .icn{font-size:22px;--icon-stroke:2.2}
+:root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)){margin:-44px 0 10px;min-height:44px;justify-content:center;pointer-events:none}
+:root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)) h1{font-size:17px;font-weight:600;letter-spacing:0}

@@ -1,4 +1,4 @@
-// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle).
+// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash.
 // Its own application id, so it installs beside the official openGym instead of clashing with it.
 // The debug build keeps upstream's ".test" suffix: ch.duartesantos.opengym.hevier.test.
 // The Java namespace stays ch.duartesantos.opengym; only the id the device sees changes.
@@ -10,8 +10,10 @@ android {
     // src/debug names its test build), so app_name changes without editing upstream's strings.xml.
     // debug's folder is *replaced*, not added to (a second app_name in one source set is a
     // duplicate-resource error): if upstream ever puts more into src/debug/res, copy it across.
+    // The app icon and splash are upstream's recoloured to Hevy blue (hevier/tools/recolour-icons.py),
+    // in src/hevier/res, which both build types add the same way.
     sourceSets {
-        release.res.srcDirs += 'src/hevier-release/res'
-        debug.res.srcDirs = ['src/hevier-debug/res']
+        release.res.srcDirs += ['src/hevier-release/res', 'src/hevier/res']
+        debug.res.srcDirs = ['src/hevier-debug/res', 'src/hevier/res']
     }
 }
