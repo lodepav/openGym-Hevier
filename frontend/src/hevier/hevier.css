@@ -14,11 +14,15 @@
 }
 :root[data-ui="hevier"] .hv-bar{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-title{flex:1;min-width:0;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-ui="hevier"] .hv-finish{flex:none;width:auto;padding:0 18px;min-height:34px}
+:root[data-ui="hevier"] .hv-finish{flex:none;width:auto;padding:0 18px;min-height:34px;border-radius:8px}
+/* Hevy's header and exercise icons are bare glyphs, not filled circles; its menu is a vertical ⋮ (D7) */
+:root[data-ui="hevier"] .hv-bar .iconbtn,
+:root[data-ui="hevier"] .hv-more{background:none}
+:root[data-ui="hevier"] .hv-more .icn{transform:rotate(90deg)}
 :root[data-ui="hevier"] .hv-stats{display:flex;gap:28px;margin-top:8px}
 :root[data-ui="hevier"] .hv-stats div{display:flex;flex-direction:column;gap:2px}
-:root[data-ui="hevier"] .hv-stats span{font-size:12px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
 
@@ -55,21 +59,28 @@
   grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,58px)) 36px;
 }
 :root[data-ui="hevier"] .hv-head{font-size:11px;letter-spacing:.04em;color:var(--label-2);padding:0 4px 4px;text-align:center}
-:root[data-ui="hevier"] .hv-head > span:nth-child(2){text-align:start}
+
 :root[data-ui="hevier"] .hv-head .icn{font-size:13px}
 :root[data-ui="hevier"] .hv-row{min-height:44px;padding:0 4px;border-radius:8px}
+/* Hevy's set rows are flat and run edge to edge, so a ticked row is a full-width green band.
+   SwipeRow's front clips, so the bleed goes on the swipe row; a row without one bleeds itself.
+   A superset keeps its rows inside its purple rule. */
+:root[data-ui="hevier"] .hv-unit:not(.ss) .swrow{margin-inline:calc(-1 * var(--pad));border-radius:0}
+:root[data-ui="hevier"] .hv-unit .swfront{background:var(--bg)}
+:root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row{padding-inline:calc(var(--pad) + 4px);border-radius:0}
+:root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{margin-inline:calc(-1 * var(--pad));padding-inline:calc(var(--pad) + 4px);border-radius:0}
 :root[data-ui="hevier"] .hv-row.done{background:color-mix(in srgb,var(--green) 22%,transparent)}
 :root[data-ui="hevier"] .hv-set{background:none;padding:0;font-weight:600;font-size:15px;text-align:center;min-height:36px}
 :root[data-ui="hevier"] .hv-w{color:var(--yellow)}
 :root[data-ui="hevier"] .hv-f{color:var(--red)}
 :root[data-ui="hevier"] .hv-d{color:var(--blue)}
-:root[data-ui="hevier"] .hv-prev{background:none;padding:0;text-align:start;font-size:14px;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-prev{background:none;padding:0;text-align:center;font-size:14px;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-num{width:100%;text-align:center;font-size:16px;font-weight:600;background:none;border:0;padding:8px 0;color:var(--label)}
 /* D2: a value the progression engine filled in and nobody has touched yet */
 :root[data-ui="hevier"] .hv-num.hv-hint{color:var(--label-3);font-weight:500}
 :root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:6px;padding:4px 0;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-eff.empty{color:var(--label-3)}
-:root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center}
+:root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center;background:var(--surface-3);box-shadow:none;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-chk.on{background:var(--green);color:#fff}
 :root[data-ui="hevier"] .hv-sub-row{padding-inline-start:18px}
 /* the L / R line of a per-side set, and its tag in PREVIOUS */
