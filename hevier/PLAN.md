@@ -250,8 +250,10 @@ strength over Hevy, so keep it.
 openGym's one-prescription-per-exercise plan, per DECISIONS.md D15: a flat exercise's rows share
 one weight and one rep target, back-off weights are derived, double/triple progression shows
 REP RANGE, a pyramid is edited set by set. W / F / Max set types; drop sets, back-off, pyramid,
-per side and progression stay in upstream's settings behind ⋮. Not yet: drag to reorder (⋮ has
-Move up / down), a Hevy-style Add Exercise picker (SCREENS.md §8; upstream's picker is used for now).
+per side and progression stay in upstream's settings behind ⋮. Exercises drag to reorder
+(`hevier/components/useDragReorder.js`, rows of any height, auto-scroll), supersets as one. The
+Workout tab's routines got the same drag and Hevy's folders (D13, `hevier/lib/routine-folders.js`).
+Not yet: a Hevy-style Add Exercise picker (SCREENS.md §8; upstream's picker is used for now).
 
 ### M4. Finish → Save → Summary
 

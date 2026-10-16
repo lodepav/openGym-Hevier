@@ -174,3 +174,16 @@
 :root[data-ui="hevier"] .hv-range-row label{flex:1;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-range-to{padding-bottom:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-range .btn{width:100%}
+
+/* Routine folders and drag handles (WorkoutTab.jsx, useDragReorder.js) */
+:root[data-ui="hevier"] .hv-grip{background:none;padding:6px 4px;color:var(--label-3);display:flex;touch-action:none;cursor:grab}
+:root[data-ui="hevier"] .is-reordering .hv-grip{cursor:grabbing}
+:root[data-ui="hevier"] [data-reorder-row]{transition:transform .18s var(--ease)}
+:root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;text-align:start}
+:root[data-ui="hevier"] .hv-folder{margin-bottom:10px}
+:root[data-ui="hevier"] .hv-fhead{display:flex;align-items:center;gap:4px;min-height:40px}
+:root[data-ui="hevier"] .hv-ftoggle{flex:1;display:flex;align-items:center;gap:6px;background:none;padding:6px 0;font-size:15px;font-weight:600;color:var(--label-2);text-align:start}
+:root[data-ui="hevier"] .hv-fempty{font-size:14px;color:var(--label-3);padding:6px 2px 12px}
+:root[data-ui="hevier"] .hv-namesheet h3{margin-bottom:14px}
+:root[data-ui="hevier"] .hv-namesheet .input{width:100%;margin-bottom:14px}
+:root[data-ui="hevier"] .hv-namesheet .btn{width:100%}

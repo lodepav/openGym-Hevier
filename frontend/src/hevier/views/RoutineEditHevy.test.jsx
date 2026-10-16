@@ -114,4 +114,15 @@ describe('hevier: routine editor (M3)', () => {
     typeInto(container.querySelector('.hv-rtitle'), 'Push Day')
     expect(useStore.getState().S.routines[0].name).toBe('Push Day')
   })
+
+  it('a handle moves an exercise, and a superset moves as one', () => {
+    const [A, B, C] = EXDB.filter(e => /barbell/i.test(e.eq || '')).slice(0, 3).map(e => e.id)
+    render([{ id: A, mode: 'reps', sets: 3, reps: 8, weight: 0 },
+      { id: B, mode: 'reps', sets: 3, reps: 8, weight: 0, sg: 'sg1' }, { id: C, mode: 'reps', sets: 3, reps: 8, weight: 0, sg: 'sg1' }])
+    const grips = () => container.querySelectorAll('.hv-ex .hv-grip')
+    expect(grips().length).toBe(3)
+    act(() => grips()[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })))
+    expect(useStore.getState().S.routines[0].ex.map(e => e.id)).toEqual([B, C, A])
+    expect(useStore.getState().S.routines[0].ex.slice(0, 2).every(e => e.sg === 'sg1')).toBe(true)
+  })
 })

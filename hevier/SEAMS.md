@@ -39,10 +39,15 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   undefined identifier) or `src/hevier/views/HevyWorkout.test.jsx` does. Rename it in the seam.
 - The routine editor (`hevier/views/RoutineEditHevy.jsx`) copies upstream's `RoutineEdit.jsx`
   flows — Replace, the superset link, print, the routine-wide Progression and Deload rows — and
-  reuses its exported `removeRoutineExercise`. Its table edits go through
+  reuses its exported `removeRoutineExercise` and `reorderRoutineUnit`. Its table edits go through
   `hevier/lib/routine-table.js`, which follows `ExConfig`'s save rules in `sheets.jsx` (even
   per-side reps, `normalizeRepRange`, a pyramid's lists, `setsMax` above `sets`). If upstream adds
   a field to a routine exercise or changes those rules, check both.
+- A routine's `folder` field (the fork's routine folders, DECISIONS.md D13). It is the only field
+  the fork adds to upstream's data. It relies on `lib/sync-merge.js` merging a routine field by
+  field and keeping fields it does not know; if upstream ever starts rebuilding routines from a
+  fixed list of fields (as `lib/plan-share.js` does for shared plans), folders would be lost
+  there. `src/hevier/lib/routine-folders.test.js` and the merge's own tests are the check.
 - `setNumberAt(sets, i)` exported from `views/Workout.jsx`: the set number the Hevy table shows.
   `HevyExerciseBlock`'s `setSide` is a copy of upstream's per-side field edit (`setSideField`,
   `weightOrigin`, `cascadeWeight`); if upstream's changes, change the copy.

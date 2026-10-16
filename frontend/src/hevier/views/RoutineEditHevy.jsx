@@ -26,7 +26,8 @@ import {
   glyphPicker, exercisePicker, exConfigSheet, confirmSheet, supersetSheet, menuSheet, exerciseDetailSheet,
 } from '../../sheets.jsx'
 import { durationSheet } from '../../components/DurationWheel.jsx'
-import { removeRoutineExercise } from '../../views/RoutineEdit.jsx'
+import { removeRoutineExercise, reorderRoutineUnit } from '../../views/RoutineEdit.jsx'
+import { useDragReorder } from '../components/useDragReorder.js'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
@@ -52,7 +53,7 @@ function RangeSheet({ from, to, onDone, close }) {
   </div>
 }
 
-function RoutineExercise({ r, i, units, unitOf, S }) {
+function RoutineExercise({ r, i, unitOf, S, grip }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -212,6 +213,7 @@ function RoutineExercise({ r, i, units, unitOf, S }) {
       {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(meta.rest))}</span>}<Icon name="pencil" />
     </button>}
     <div className="hv-exhd">
+      {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
       {noEquip && <span className="hv-warn" title={t('Needs {0}, which isn’t in your active profile', t(ex.eq))}><Icon name="warning" /></span>}
@@ -280,6 +282,8 @@ export default function RoutineEditHevy() {
   const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
   const load = r.ex.length ? loadOfRoutine(r) : null
+  // A superset moves as one: any of its exercises' handles drags the whole unit.
+  const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
     <div className="hv-bar">
       <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
@@ -290,9 +294,13 @@ export default function RoutineEditHevy() {
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}
       onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('Routine') }) }} />
 
-    {r.ex.length ? units.map(u => <section key={u.join('-')} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
-      {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} units={units} unitOf={unitOf} S={S} />)}
-    </section>) : <div className="hv-empty">
+    {r.ex.length ? <div ref={reorder.listRef} className={'hv-units' + (reorder.drag ? ' is-reordering' : '')}>
+      {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
+        className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
+        {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S}
+          grip={units.length > 1 ? reorder.handle(n) : null} />)}
+      </section>)}
+    </div> : <div className="hv-empty">
       <Icon name="dumbbell" />
       <b>{t('Get started')}</b>
       <span>{t('Add an exercise to start your routine')}</span>

@@ -40,6 +40,7 @@ describe('hevier: upstream contract', () => {
     expect(typeof workoutView.setNumberAt).toBe('function')
     // the routine editor (M3) reuses upstream's remove-with-undo and routine helpers
     expect(typeof routineEdit.removeRoutineExercise).toBe('function')
+    expect(typeof routineEdit.reorderRoutineUnit).toBe('function')
     for (const f of ['copyRoutine', 'deleteRoutine', 'replaceSlotExercise']) expect(typeof routines[f]).toBe('function')
     expect(history.NOTE_MAX).toBeGreaterThan(0)
     expect(typeof historyView.historyRows).toBe('function')
