@@ -143,3 +143,14 @@
 
 /* back row over upstream screens opened from Profile (hevier/routes.jsx) */
 :root[data-ui="hevier"] .hv-back{display:inline-flex;align-items:center;gap:2px;background:none;padding:0 0 4px;margin-inline-start:-6px;color:var(--acc);font-size:16px}
+
+/* The keypad row (KeypadBar.jsx): ⌨ hide at the edge, the rest timer riding on top of it */
+:root[data-ui="hevier"] .hv-keypad{
+  position:fixed;inset-inline:0;bottom:var(--native-kb,0px);z-index:61;height:44px;
+  display:flex;align-items:center;justify-content:flex-end;padding:0 10px;
+  background:var(--surface);border-top:var(--hair) solid var(--sep,rgba(127,127,127,.25));
+}
+:root[data-ui="hevier"] .hv-kb-hide{background:var(--surface-2);color:var(--label);border-radius:8px;padding:6px 12px;display:flex}
+:root[data-ui="hevier"] body.hv-kb #timer{
+  bottom:calc(44px + var(--native-kb,0px));border-radius:var(--r-xl) var(--r-xl) 0 0;padding-bottom:10px;
+}

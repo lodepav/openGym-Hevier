@@ -203,8 +203,9 @@ failure / drop / rest-pause, PREVIOUS, effort column, swipe, plate line, superse
 verified on the emulator through a full start → log → finish → second-session cycle. Timed holds
 (KG · SEC with a start button, L/R pairs), cardio (MIN · speed · optional incline) and per-side
 reps (an L and an R line under one set number, each ticked on its own) now have Hevy rows too, so
-upstream's block no longer renders inside the Hevy screen. Still open in M1: the rest timer riding
-above the keypad.
+upstream's block no longer renders inside the Hevy screen. A focused field gets Hevy's keypad row
+(`components/KeypadBar.jsx`: ⌨ hides the keyboard) and the rest timer rides on top of it, on
+Android 15's `--native-kb` as on older versions. M1's layout is complete.
 
 Acceptance: a full leg-day session can be logged, minimised, resumed, finished, and read back
 in history, with weights progressing for the next session exactly as upstream's layouts do.
