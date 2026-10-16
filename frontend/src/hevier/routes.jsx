@@ -6,7 +6,6 @@ import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import Workout from '../views/Workout.jsx'
 import Stats from '../views/Stats.jsx'
-import Library from '../views/Library.jsx'
 import Measurements from '../views/Measurements.jsx'
 import ProgressPhotos from '../views/ProgressPhotos.jsx'
 import StructuralBalance from '../views/StructuralBalance.jsx'
@@ -18,12 +17,14 @@ import Statistics from './views/Statistics.jsx'
 import Measures from './views/Measures.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
 import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
-import { SAVE_PATH, DONE_PATH } from './hooks.js'
+import { hooks, SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 import { installExerciseDetails } from './views/ExerciseDetails.jsx'
 import { installSettings } from './views/SettingsRootHevy.jsx'
-import { installExercisePicker } from './views/ExercisePickerHevy.jsx'
+import { installExercisePicker, Exercises } from './views/ExercisePickerHevy.jsx'
 import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/WorkoutDetail.jsx'
+import Calendar from './views/Calendar.jsx'
+import { atTabRoot } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
 // Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
@@ -31,6 +32,9 @@ import { HEVIER } from './flag.js'
 // regrouped (S11, S12). Installed here rather than in
 // ./index.js because App imports this module after sheets.jsx, which they are built from.
 if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutDetail(); installSettings() }
+// Android back on a tab screen offers to exit (seam S16). The path is the HashRouter's.
+if (HEVIER) hooks.backEvent = ev =>
+  atTabRoot(ev, (location.hash.slice(1) || '/').split('?')[0], !!useStore.getState().S.active, window.history.state?.idx || 0)
 
 // /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
 function WorkoutRoute() {
@@ -38,8 +42,8 @@ function WorkoutRoute() {
   return active ? <Workout /> : <WorkoutTab />
 }
 
-// Upstream's Stats and Exercises were tabs and have no way back; in the fork they open from
-// Profile (Stats through the fork's Statistics), so they get a back row above their own header.
+// Upstream's Stats was a tab and has no way back; in the fork it opens from Statistics, so it gets
+// a back row above its own header.
 function WithBack({ label = 'Profile', to = '/profile', children }) {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to))
@@ -76,7 +80,8 @@ export const hevierRoutes = [
   <Route key="hv-measurements" path="/measurements" element={<BackWhereFrom to="/measures"><Measurements /></BackWhereFrom>} />,
   <Route key="hv-photos" path="/progress-photos" element={<BackWhereFrom to="/measures"><ProgressPhotos /></BackWhereFrom>} />,
   <Route key="hv-balance" path="/structural-balance" element={<BackWhereFrom to="/stats"><StructuralBalance /></BackWhereFrom>} />,
-  <Route key="hv-library" path="/library" element={<WithBack><Library /></WithBack>} />,
+  <Route key="hv-library" path="/library" element={<Exercises />} />,
+  <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
   <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,

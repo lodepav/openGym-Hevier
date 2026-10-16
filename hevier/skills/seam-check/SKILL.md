@@ -19,8 +19,8 @@ markers, with a row in `hevier/SEAMS.md`.
    - every added or changed line sits on, or right next to, a `[hevier] <id>` marker comment;
    - the seam id has a row in `hevier/SEAMS.md` naming this file;
    - nothing is in `frontend/src/lib/`, `frontend/src/store/`, `api/` or `mcp/` (except
-     `lib/update.js`, seam S6). Logic changes there break rule 2: move them to a wrapper in
-     `frontend/src/hevier/lib/` with a test beside it.
+     `lib/update.js`, seam S6, and `lib/back.js`, seam S16). Logic changes there break rule 2:
+     move them to a wrapper in `frontend/src/hevier/lib/` with a test beside it.
 3. Also flag rows in SEAMS.md whose marker no longer exists:
    ```bash
    git grep -n '\[hevier\]' -- . ':!hevier' ':!frontend/src/hevier'

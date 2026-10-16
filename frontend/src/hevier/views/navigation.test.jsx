@@ -97,11 +97,11 @@ describe('hevier: navigation (seam S2)', () => {
     expect(useStore.getState().S.active).toBeNull()
   })
 
-  it('Stats and Exercises get a way back to Profile', () => {
+  it('Exercises is the fork’s list, with a way back to Profile', () => {
     render('/library')
-    const back = container.querySelector('.hv-back')
-    expect(back.textContent).toContain('Profile')
-    act(() => back.click())
+    expect(container.querySelector('.hv-pk')).toBeTruthy()
+    expect(container.querySelector('.hv-pk-check')).toBeNull()
+    act(() => container.querySelector('.hv-pagebar [aria-label="Back"]').click())
     expect(path).toBe('/profile')
   })
 
