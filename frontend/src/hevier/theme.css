@@ -72,3 +72,5 @@
 /* Buttons: 15px, a tighter pad, Hevy's 8px corners. */
 :root[data-ui="hevier"] .btn{padding:11px 16px;border-radius:8px;font-size:15px;letter-spacing:0}
 :root[data-ui="hevier"] .btn .icn{font-size:17px}
+:root[data-ui="hevier"] .btn{font-weight:500}
+:root[data-ui="hevier"] .btn.primary{font-weight:600}

@@ -361,8 +361,16 @@ into `hevier/ui` regularly, which doubles the sync work. Avoid it.)
 `:root[data-ui="hevier"]`: Hevy blue `#008cff` as `--acc` and `--blue`, warm-up yellow `#efab03`
 and failure red `#e34b37` (all three measured from Hevy's screenshots), near-black surfaces and
 grey secondary text (estimated: Hevy's site shows only light mode). Seam S15 pins dark and the
-blue preset (D17); Look & Home no longer offers Theme or Accent color. Next: typography and
-density (step 2), then the side-by-side passes per screen (step 3).
+blue preset (D17); Look & Home no longer offers Theme or Accent color.
+
+Steps 2–3, first pass (2026-10-16), checked side by side with Hevy on the emulator. Upstream's
+pages, by selector in `theme.css`: compact 22px page titles instead of 34px large titles, bare
+header icons, buttons at 15px / weight 500 with 8px corners. The fork's own, in `hevier.css`:
+Log Workout's set rows are flat and run edge to edge (a ticked set is a full-width green band),
+the ✓ is Hevy's filled grey box, ⋮ is vertical, the header glyphs are bare, the stats values are
+regular weight; Profile's weekly chart sits on the page; the tabs' icon buttons are bare.
+Next: the sheets (set type, ⋮ menus, rest timer), Save Workout and the summary, exercise
+details, the routine editor, Settings.
 
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per

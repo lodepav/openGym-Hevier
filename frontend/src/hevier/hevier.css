@@ -110,11 +110,13 @@
 :root[data-ui="hevier"] body.hv-resume #toast{bottom:calc(140px + var(--sab))}
 
 /* ---------- Workout tab (hevier/views/WorkoutTab.jsx) ---------- */
+/* Hevy's ⋯, folder and gear buttons are bare glyphs, here and on Home and Profile */
+:root[data-ui="hevier"] :is(.hv-wtab, .hv-profile, .hv-home) .iconbtn{background:none}
 :root[data-ui="hevier"] .hv-quick{width:100%;justify-content:flex-start;gap:8px;margin-bottom:14px}
 :root[data-ui="hevier"] .hv-today{display:flex;align-items:center;gap:12px}
 :root[data-ui="hevier"] .hv-today .grow{flex:1;min-width:0}
 :root[data-ui="hevier"] .hv-today-n{font-size:17px;font-weight:600}
-:root[data-ui="hevier"] .hv-today .btn{flex:none;width:auto;padding:0 18px}
+:root[data-ui="hevier"] .hv-today .btn{flex:none;width:auto;padding:0 18px;min-height:34px}
 :root[data-ui="hevier"] .hv-rbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
 :root[data-ui="hevier"] .hv-rbtns .btn{gap:6px;font-size:14px;padding-inline:6px}
 :root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;min-width:0;text-align:start;background:none;padding:0;font-size:17px;font-weight:600;color:var(--label)}
