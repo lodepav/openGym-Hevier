@@ -15,6 +15,8 @@ import { sameWorkout } from '../../lib/workout-date.js'
 import { workoutMediaOf } from '../../lib/media-refs.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import { Thumb } from '../../components/Media.jsx'
+import MuscleLine from './MuscleLine.jsx'
+import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
 
 const SHOWN = 3
@@ -56,6 +58,7 @@ export function workoutActions(w, nav, extra = []) {
 export default function WorkoutCard({ w }) {
   const nav = useNavigate()
   const unit = useStore(s => s.S.unit)
+  const mode = useStore(s => volumeMode(s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   const ms = Math.max(0, (w.end || w.start) - w.start)
   const prs = w.prs?.length || 0
@@ -68,9 +71,12 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-d">{fmtDate(w.d, true)}</div>
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{ms >= 60000 ? fmtDur(ms) : '–'}</b></div>
-      <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, unit)}</b></div>
+      {mode === 'weight'
+        ? <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, unit)}</b></div>
+        : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
     </div>
+    {mode === 'sets' && <MuscleLine entries={w.entries} />}
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
       const n = e.sets.filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length

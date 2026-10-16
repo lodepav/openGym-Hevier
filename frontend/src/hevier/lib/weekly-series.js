@@ -1,19 +1,25 @@
-// Hevy's Profile chart (reference/SCREENS.md §5): one bar per week, as Duration, Volume or Reps.
-// Derived from logged workouts only, over upstream's own readers, so nothing new is stored.
+// Hevy's Profile chart (reference/SCREENS.md §5): one bar per week, as Duration, Volume or Reps,
+// or in sets mode (DECISIONS.md D18) Sets instead of Volume. Derived from logged workouts only,
+// over upstream's own readers, so nothing new is stored.
 import { workoutDay, completedRepsOf } from '../../lib/history.js'
 import { isoOf, weekKey } from '../../lib/format.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
+import { workSets } from './volume.js'
 
 export const SERIES = ['duration', 'volume', 'reps']
 
 const durationOf = w => Math.max(0, (Number(w.end) || 0) - (Number(w.start) || 0))
 const repsOf = w => (w.entries || []).reduce((n, e) =>
   n + (e.sets || []).reduce((m, s) => m + (isWarmupRow(s) ? 0 : completedRepsOf(s)), 0), 0)
-const VALUE = { duration: durationOf, volume: w => Number(w.vol) || 0, reps: repsOf }
+const VALUE = { duration: durationOf, volume: w => Number(w.vol) || 0, sets: w => workSets(w.entries), reps: repsOf }
+
+/** Whether workout `w` falls in the week that starts on `week` (a bar's `week`). */
+export const inWeek = (w, week, weekStart) => { const day = workoutDay(w); return !!day && weekKey(day, weekStart) === week }
 
 /** The last `weeks` weeks up to and including the one `today` is in, oldest first:
  *  `[{ week: 'YYYY-MM-DD' (its first day), value }]`. Duration is in ms, volume in the
- *  profile's unit (as stored on each workout), reps a count of completed work reps. */
+ *  profile's unit (as stored on each workout), sets a count of ticked work sets, reps a count
+ *  of completed work reps. */
 export function weeklySeries(workouts, kind, { today, weeks = 12, weekStart } = {}) {
   const value = VALUE[kind]
   if (!value) throw new Error('unknown series ' + kind)

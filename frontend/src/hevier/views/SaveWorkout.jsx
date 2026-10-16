@@ -19,6 +19,8 @@ import BodyMap from '../../components/BodyMap.jsx'
 import WorkoutMediaSection from '../../components/WorkoutMedia.jsx'
 import Icon from '../../components/Icon.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
+import MuscleLine from '../components/MuscleLine.jsx'
+import { volumeMode } from '../lib/volume.js'
 import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the Save page.
@@ -36,6 +38,7 @@ export function SaveWorkout() {
   const nav = useNavigate()
   const A = useStore(s => s.S.active)
   const unit = useStore(s => s.S.unit)
+  const mode = useStore(s => volumeMode(s.S))
   const [base] = useState(() => (A ? whenOf(A) : null))
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
@@ -84,9 +87,10 @@ export function SaveWorkout() {
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
       <div><span>{t('Duration')}</span><b className="acc">{fmtDur((min ?? live) * 60000)}</b></div>
-      <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>
+      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>}
       <div><span>{t('Sets')}</span><b>{done}</b></div>
     </div>
+    {mode === 'sets' && <MuscleLine entries={A.entries} />}
     {done < total && <p className="hv-sub hv-warn">{!done
       ? t('You haven’t checked off any sets. Finish the workout anyway?')
       : tn('{0} set still unchecked. Finish the workout now?', '{0} sets still unchecked. Finish the workout now?', total - done)}</p>}

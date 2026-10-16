@@ -54,3 +54,11 @@ Added 2026-10-16, before phase 2, at the user's choice.
 | # | Decision |
 |---|---|
 | D17 | **Hevy's dark theme with Hevy blue, only.** The fork has one look: Hevy's dark surfaces, grey secondary text, blue accent, green completed rows. No light theme and no accent choice are offered in the fork's UI; upstream's theme settings stay in the code and their stored values are untouched. |
+
+## Volume
+
+Added 2026-10-16, at the user's request (PLAN.md §5 item 8), with the user's choices.
+
+| # | Decision |
+|---|---|
+| D18 | **Volume as tonnage or as sets per muscle group.** Settings root → Preferences gets one row, **Volume: Sets per muscle / Total weight**, stored in `S.hvVolume` (`'sets'` or `'weight'`; a fork-only field upstream ignores, so it syncs and is in backups), **default sets**. A muscle's sets count **each ticked work set once, for the exercise's main muscle** (Hevy's way; warm-ups left out, a per-side or drop set is one set), so the numbers are whole. In sets mode: the workout stats rows (the live workout, Save Workout, feed cards, Workout Detail) drop **Volume** and get a line under them, `Chest 8 · Triceps 5 · Shoulders 3`, biggest first; Workout Detail's Muscle Split counts the same way; Profile's weekly chart shows **Sets** per week instead of Volume, and a tap on a week lists its sets per muscle. Unchanged in both modes: Statistics' "Set count per muscle group" (openGym's count, a secondary muscle in part, labelled so), exercise details' Best Set Volume and Best Session Volume (one exercise's records), and the stored `w.vol`. Weight mode is today's look. |

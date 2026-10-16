@@ -20,6 +20,9 @@
 :root[data-ui="hevier"] .hv-stats span{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
+:root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
+:root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd .hv-mline,:root[data-ui="hevier"] .hv-save .hv-mline{margin:-6px 0 14px}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
 
 :root[data-ui="hevier"] .hv-unit{margin:0 0 22px}
@@ -130,7 +133,7 @@
 :root[data-ui="hevier"] .hv-tile{justify-content:flex-start;gap:8px}
 :root[data-ui="hevier"] .hv-chart-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-bars{display:flex;align-items:flex-end;gap:4px;height:120px;border-bottom:var(--hair) solid var(--sep)}
-:root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end}
+:root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
 :root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px}
 :root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
 :root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
