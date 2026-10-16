@@ -454,7 +454,7 @@ the feature is not Hevy-specific (it would remove fork code).
    upstream's import with "Merge them in" (1.4.2). From here on, fork data that matters goes in
    `S`, not localStorage, so that it is part of this sync.
 
-8. **Volume as sets per muscle group** (user, 2026-10-16). Hevy measures volume as tonnage
+8. **Volume as sets per muscle group** (user, 2026-10-16; decided as D18, built). Hevy measures volume as tonnage
    (weight × reps). The user wants a Settings switch between **total weight** and **sets per
    muscle group**, the sets counted over whatever period the screen shows (a workout, a week, a
    month…). The fork's Statistics already counts sets per muscle (`hevier/lib/muscle-sets.js`,

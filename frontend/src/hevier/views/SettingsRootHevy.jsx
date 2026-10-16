@@ -1,7 +1,8 @@
 // Hevy's Settings root over upstream's pages (hevier/DECISIONS.md D16; reference/SCREENS.md §10),
 // through seams S11 and S12 in views/Settings.jsx: upstream's search, account card data and row
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
-// upstream's workout layouts (hevier/lib/settings.js).
+// upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
+// (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume.
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
 import { useStore } from '../../store/useStore.js'
@@ -9,11 +10,20 @@ import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
 import { Section, Row } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
+import { volumeMode } from '../lib/volume.js'
 import { SETTINGS_GROUPS, prunePage, hiddenSetting } from '../lib/settings.js'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
+  const mode = useStore(s => volumeMode(s.S))
+  const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
+  const pickVolume = () => menuSheet({
+    title: t('Volume'),
+    items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
+      onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })),
+  })
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', fmtRest(restSec)) : t('No rest timer')) : preview[id]?.() || null)
@@ -30,6 +40,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
         <Icon name="chevronRight" className="lrow-c" />
       </button>}
       {ids.map(row)}
+      {g.volume && <Row icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />}
     </Section>
   })
 }
