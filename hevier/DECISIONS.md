@@ -22,6 +22,14 @@ work well (PLAN.md §5, backlog).
 | D9 | **Swipe left deletes a set** (with undo), as in Hevy. openGym's swipe-right-to-copy stays as an unadvertised extra. |
 | D10 | **Header and finish flow.** ⌄ · duration · ⏱ · **Finish**, then a stats row (Duration · Volume · Sets). Finish → **Save Workout** page (title, when, duration, description = session note, Discard) → **"Nice work!"** summary from openGym's own PRs, 1RM records and finish comparison. Discard Workout also sits at the bottom of the workout. Upstream's `finishWorkout` / `doFinishWorkout` do the saving, unchanged. |
 
+## Routine editor
+
+Added 2026-10-16, at the start of M3.
+
+| # | Decision |
+|---|---|
+| D15 | **Hevy's table over openGym's plan, not per-set plans.** An openGym routine exercise is one prescription (`sets × reps @ weight`, a warm-up count, back-off, an intensifier, "last set to failure"), and the progression engine moves it as one. Only a pyramid has per-set reps and weights. So the routine editor draws Hevy's SET · KG · REPS table *from* that prescription: a flat exercise's rows share one weight and one rep target (typing in any row changes them all), back-off rows show their derived weights read-only, a double/triple-progression exercise shows **REP RANGE** (`8–12`, tap to edit), and only a pyramid's rows are edited one by one. Set types map to what the plan can hold: **W** = the warm-up count (weights are worked out at session start), **F** = "last set to failure" (the last set only; a pyramid's is **Max**), drop sets / rest-pause / back-off / pyramid / per side / progression stay in upstream's exercise settings behind ⋮ → **Settings & progression** (D8). Edits save as they are made, as upstream's editor does: the header has **Done**, not Cancel / Save. Routine-wide Progression, Deload and the body map stay below the exercises. |
+
 ## Navigation
 
 | # | Decision |

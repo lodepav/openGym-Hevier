@@ -19,7 +19,7 @@ longer needed gets removed, and so does its row.
 | Id | File | What the seam does | Status |
 |---|---|---|---|
 | S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`), right after `index.css` | done |
-| S2 | `frontend/src/App.jsx` | The `TabBar` import is renamed `UpstreamTabBar` and `TabBar` is bound to `HevyTabBar` when `HEVIER` (upstream's JSX line, which `App.no-tabs.test.js` reads, stays as it is). `{HEVIER && hevierRoutes}` sits first inside `<Routes>`: React Router gives an exact tie to the first route, so `/home` and `/workout` become the fork's without upstream's lines changing (`hevier/routes.jsx`) | done |
+| S2 | `frontend/src/App.jsx` | The `TabBar` import is renamed `UpstreamTabBar` and `TabBar` is bound to `HevyTabBar` when `HEVIER` (upstream's JSX line, which `App.no-tabs.test.js` reads, stays as it is). `{HEVIER && hevierRoutes}` sits first inside `<Routes>`: React Router gives an exact tie to the first route, so `/home`, `/workout`, `/profile`, `/stats`, `/library` and `/plan/r/:id` (the routine editor) become the fork's without upstream's lines changing (`hevier/routes.jsx`) | done |
 | S3 | `frontend/src/views/Workout.jsx` | Two imports after the last import, and `if (HEVIER) return <HevyWorkout …/>` right before `ActiveWorkout`'s final `return`, after every hook. The Hevy screen is the fork's only layout (D1), so no `workoutView` value is stored and S4/S5 were not needed | done |
 | S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
 | S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
@@ -37,6 +37,12 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   has Hevy rows), `addExercise`, `discardWorkout`, `markAllDone`, `pairAt`, `unpairAt`,
   `noProgSwitchable`, `toggleSessionNoProg`. If upstream renames one, the build fails (an
   undefined identifier) or `src/hevier/views/HevyWorkout.test.jsx` does. Rename it in the seam.
+- The routine editor (`hevier/views/RoutineEditHevy.jsx`) copies upstream's `RoutineEdit.jsx`
+  flows — Replace, the superset link, print, the routine-wide Progression and Deload rows — and
+  reuses its exported `removeRoutineExercise`. Its table edits go through
+  `hevier/lib/routine-table.js`, which follows `ExConfig`'s save rules in `sheets.jsx` (even
+  per-side reps, `normalizeRepRange`, a pyramid's lists, `setsMax` above `sets`). If upstream adds
+  a field to a routine exercise or changes those rules, check both.
 - `setNumberAt(sets, i)` exported from `views/Workout.jsx`: the set number the Hevy table shows.
   `HevyExerciseBlock`'s `setSide` is a copy of upstream's per-side field edit (`setSideField`,
   `weightOrigin`, `cascadeWeight`); if upstream's changes, change the copy.

@@ -245,6 +245,14 @@ Prefer a new view `hevier/views/RoutineEditHevy.jsx` routed by S2 over editing
 `RoutineEdit.jsx`. Progression settings stay reachable from the ⋯ menu: this is openGym's
 strength over Hevy, so keep it.
 
+**Status (2026-10-16): first cut built** (`hevier/views/RoutineEditHevy.jsx`, routed over
+`/plan/r/:id` by S2, with `hevier/lib/routine-table.js` and its test). Hevy's table is drawn from
+openGym's one-prescription-per-exercise plan, per DECISIONS.md D15: a flat exercise's rows share
+one weight and one rep target, back-off weights are derived, double/triple progression shows
+REP RANGE, a pyramid is edited set by set. W / F / Max set types; drop sets, back-off, pyramid,
+per side and progression stay in upstream's settings behind ⋮. Not yet: drag to reorder (⋮ has
+Move up / down), a Hevy-style Add Exercise picker (SCREENS.md §8; upstream's picker is used for now).
+
 ### M4. Finish → Save → Summary
 
 Hevy: **Save Workout** page (title, duration/volume/sets, when, description) then a
