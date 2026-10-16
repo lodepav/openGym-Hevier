@@ -19,7 +19,7 @@ longer needed gets removed, and so does its row.
 | Id | File | What the seam does | Status |
 |---|---|---|---|
 | S1 | `frontend/src/main.jsx` | Imports `./hevier/index.js` (sets `data-ui`, loads `hevier.css`), right after `index.css` | done |
-| S2 | `frontend/src/App.jsx` | `HevyTabBar` instead of `TabBar` when `HEVIER`; extra routes | planned |
+| S2 | `frontend/src/App.jsx` | The `TabBar` import is renamed `UpstreamTabBar` and `TabBar` is bound to `HevyTabBar` when `HEVIER` (upstream's JSX line, which `App.no-tabs.test.js` reads, stays as it is). `{HEVIER && hevierRoutes}` sits first inside `<Routes>`: React Router gives an exact tie to the first route, so `/home` and `/workout` become the fork's without upstream's lines changing (`hevier/routes.jsx`) | done |
 | S3 | `frontend/src/views/Workout.jsx` | Two imports after the last import, and `if (HEVIER) return <HevyWorkout …/>` right before `ActiveWorkout`'s final `return`, after every hook. The Hevy screen is the fork's only layout (D1), so no `workoutView` value is stored and S4/S5 were not needed | done |
 | S6 | `frontend/src/lib/update.js` | Updater repo from `VITE_UPDATE_REPO` | done |
 | S7 | `frontend/android/app/build.gradle` | `apply from: 'hevier.gradle'` at end of file. The fork-owned `hevier.gradle` sets the app id and points release/debug resources at `src/hevier-release` / `src/hevier-debug` (launcher name). Debug's res folder is *replaced*, so new upstream files in `src/debug/res` must be copied across | done |
@@ -44,6 +44,14 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   `finishWorkoutSheet`, `menuSheet`, `exerciseDetailSheet`, `exerciseHistorySheet`,
   `exerciseNoteSheet`.
 - `lib/history.js`: `lastEntryFor`, `effectiveRoutines`, `effectiveRoutineIds`.
+- Views the fork screens borrow from: `views/Plan.jsx` `deleteRoutineWithUndo`, `views/History.jsx`
+  `historyRows`, `views/Stats.jsx` `FATIGUE_LEVELS`. `hevier/views/HevyHome.jsx` repeats upstream
+  Home's week strip and today row in compact form: after a sync, diff `views/Home.jsx` for new
+  behaviour there.
+- React Router's tie-break (first of two equal routes wins), which seam S2 relies on;
+  `src/hevier/views/navigation.test.jsx` fails if it changes.
+- Upstream strings only for `tn()`: `lib/i18n-plural.test.js` requires every plural key in the
+  locale packs, so fork code uses `t()` for new text and only existing `tn()` keys.
 - `lib/workout-model.js`: set-type helpers (`isWarmupRow`, `toggleFailure`, `addDrop`, …).
 - `S.workoutView` / `S.active.workoutView` semantics (docs/dev/LIST_VIEW.md).
 - `build:mobile` in `frontend/package.json`, mirrored by `hevier/tools/emulator.sh`.

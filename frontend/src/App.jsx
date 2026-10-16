@@ -19,7 +19,9 @@ import { syncPushSubscription } from './lib/push.js'
 import { MOBILE } from './lib/mobile.js'
 import { exitWorkoutEdit, startFlow } from './sheets.jsx'
 import Icon from './components/Icon.jsx'
-import TabBar from './components/TabBar.jsx'
+// [hevier] S2: the import is renamed so `TabBar` below can be the fork's
+import UpstreamTabBar from './components/TabBar.jsx'
+// [/hevier]
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import Modals from './components/Modals.jsx'
 import Toast from './components/Toast.jsx'
@@ -46,6 +48,11 @@ import CoachChat from './views/CoachChat.jsx'
 import Measurements from './views/Measurements.jsx'
 import CoachIntake from './views/CoachIntake.jsx'
 import CoachSetup from './views/CoachSetup.jsx'
+// [hevier] S2: the fork's tabs and screens (hevier/DECISIONS.md D11–D14)
+import { HEVIER } from './hevier/flag.js'
+import { hevierRoutes, HevyTabBar } from './hevier/routes.jsx'
+const TabBar = HEVIER ? HevyTabBar : UpstreamTabBar
+// [/hevier]
 
 // last known scrollY per route, so back-navigation can put the page where it was
 const scrollPositions = new Map()
@@ -204,6 +211,9 @@ function Shell() {
         <ErrorBoundary>
           {!authed ? <Login /> : needsMobileOnboarding ? <MobileOnboarding /> : (
             <Routes>
+              {/* [hevier] S2: first, so they win the tie with upstream's same paths */}
+              {HEVIER && hevierRoutes}
+              {/* [/hevier] */}
               <Route path="/home" element={<Home />} />
               {/* Gym check-in — switched off in Settings, the route falls through to the
                   catch-all redirect below. */}

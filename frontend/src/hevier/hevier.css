@@ -78,3 +78,60 @@
 :root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--acc);padding:6px 12px;border-radius:999px}
 :root[data-ui="hevier"] .hv-addset{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;min-height:38px;border-radius:8px;background:var(--surface);color:var(--label);font-size:15px}
 :root[data-ui="hevier"] .hv-fallback{margin-bottom:4px}
+
+/* ---------- tabs and the minimised workout (hevier/components/HevyTabBar.jsx) ---------- */
+:root[data-ui="hevier"] #tabbar .hv-resumebar{
+  position:absolute;inset-inline:0;bottom:100%;
+  display:flex;align-items:center;gap:10px;flex:none;flex-direction:row;
+  padding:10px var(--pad);font-size:14px;color:var(--label);
+  background:var(--bg-el);border-top:var(--hair) solid var(--sep-op);
+}
+:root[data-ui="hevier"] .hv-resume-t{font-weight:600}
+:root[data-ui="hevier"] .hv-resume-s{color:var(--label-2);font-variant-numeric:tabular-nums;flex:1;text-align:start;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-resume-go{display:inline-flex;align-items:center;gap:4px;color:var(--acc);font-weight:600}
+:root[data-ui="hevier"] #tabbar .hv-resumebar .icn{font-size:14px;color:inherit}
+:root[data-ui="hevier"] body.hv-resume #app{padding-bottom:calc(132px + var(--sab))}
+:root[data-ui="hevier"] body.hv-resume #timer{bottom:calc(132px + var(--sab))}
+:root[data-ui="hevier"] body.hv-resume #toast{bottom:calc(140px + var(--sab))}
+
+/* ---------- Workout tab (hevier/views/WorkoutTab.jsx) ---------- */
+:root[data-ui="hevier"] .hv-quick{width:100%;justify-content:flex-start;gap:8px;margin-bottom:14px}
+:root[data-ui="hevier"] .hv-today{display:flex;align-items:center;gap:12px}
+:root[data-ui="hevier"] .hv-today .grow{flex:1;min-width:0}
+:root[data-ui="hevier"] .hv-today-n{font-size:17px;font-weight:600}
+:root[data-ui="hevier"] .hv-today .btn{flex:none;width:auto;padding:0 18px}
+:root[data-ui="hevier"] .hv-rbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+:root[data-ui="hevier"] .hv-rbtns .btn{gap:6px;font-size:14px;padding-inline:6px}
+:root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;min-width:0;text-align:start;background:none;padding:0;font-size:17px;font-weight:600;color:var(--label)}
+:root[data-ui="hevier"] .hv-rpreview{font-size:14px;color:var(--label-2);margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- feed cards (hevier/components/WorkoutCard.jsx) ---------- */
+:root[data-ui="hevier"] .hv-wcard{cursor:pointer}
+:root[data-ui="hevier"] .hv-wcard-t{font-size:17px;font-weight:600}
+:root[data-ui="hevier"] .hv-wcard-d{font-size:13px;color:var(--label-2);margin-bottom:8px}
+:root[data-ui="hevier"] .hv-wcard-stats{display:flex;gap:28px;margin-bottom:10px}
+:root[data-ui="hevier"] .hv-wcard-stats div{display:flex;flex-direction:column;gap:2px}
+:root[data-ui="hevier"] .hv-wcard-stats span{font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-wcard-stats b{font-size:15px;font-weight:600}
+:root[data-ui="hevier"] .hv-pr{display:inline-flex;align-items:center;gap:4px;color:var(--yellow)}
+:root[data-ui="hevier"] .hv-wcard-ex{display:flex;align-items:center;gap:10px;font-size:14px;padding:3px 0}
+:root[data-ui="hevier"] .hv-wcard-ex .grow{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-thumb.sm{width:32px;height:32px;display:inline-block}
+:root[data-ui="hevier"] .hv-wcard-more{font-size:14px;color:var(--label-2);text-align:center;padding-top:6px}
+:root[data-ui="hevier"] .hv-moreb{width:100%;margin-bottom:12px}
+
+/* ---------- Profile (hevier/views/Profile.jsx, components/WeeklyChart.jsx) ---------- */
+:root[data-ui="hevier"] .hv-dash{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+:root[data-ui="hevier"] .hv-tile{justify-content:flex-start;gap:8px}
+:root[data-ui="hevier"] .hv-chart-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+:root[data-ui="hevier"] .hv-bars{display:flex;align-items:flex-end;gap:4px;height:120px;border-bottom:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end}
+:root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px}
+:root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
+:root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
+:root[data-ui="hevier"] .hv-chip{padding:6px 12px;border-radius:999px;font-size:13px;background:var(--surface-2);color:var(--label)}
+:root[data-ui="hevier"] .hv-chip.on{background:var(--acc);color:var(--on-acc)}
+
+/* ---------- Home (hevier/views/HevyHome.jsx) ---------- */
+:root[data-ui="hevier"] .hv-edithome .item{gap:10px}
+:root[data-ui="hevier"] .hv-edithome .grow{flex:1}

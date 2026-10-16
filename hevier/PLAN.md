@@ -209,7 +209,7 @@ in history, with weights progressing for the next session exactly as upstream's 
 The proof is a component test that runs the same session through `'list'` and `'hevy'` and
 asserts identical `S.workouts` and identical next-session targets.
 
-### M2. Navigation: four tabs (SCREENS.md §0, §1, §4, §5)
+### M2. Navigation: three tabs (SCREENS.md §0, §1, §4, §5)
 
 `HevyTabBar` (seam S2): **Home · Workout · Profile**. No Coach tab. The AI coach is
 **disabled by default** and not surfaced anywhere in the fork's navigation. It stays reachable
@@ -221,6 +221,14 @@ phone: `lib/coach-device.js`). Its code is untouched, so it costs nothing in mer
 | Home: a feed of your finished workouts as cards (name, date, duration, volume, PR count, top sets) | `S.workouts`, `History`'s data and `onerm.js`. No social features. |
 | Workout: "Start Empty Workout", Routines (folders, "New Routine", ⋯), each routine card with exercise preview and **Start Routine** | `Plan` / `StartChooser` data and `startFlow(routineIds)` |
 | Profile: summary header; weekly chart toggled between Duration / Volume / Reps; Dashboard links (Statistics, Exercises, Measures, Calendar); ⚙ Settings | `Stats`, `Library`, `Measurements`, `History`, `Settings`, all as existing routes |
+
+**Status (2026-10-16): first cut built** on `hevier/ux` through seam S2 (`hevier/routes.jsx`):
+`HevyTabBar` (three tabs + "Workout in progress · Resume" bar), `views/WorkoutTab.jsx` (D13),
+`views/Profile.jsx` with `components/WeeklyChart.jsx` over `lib/weekly-series.js` (D14), and
+`views/HevyHome.jsx` with Edit Home over `lib/home-layout.js` (D12). Feed cards
+(`components/WorkoutCard.jsx`) open upstream's workout details for edit/repeat/delete. Verified on
+the emulator. Still open: Hevy's ⋯ menu on feed cards, a back button on upstream screens reached
+from Profile (Android back works), Discard on the resume bar.
 
 openGym's weekly **schedule** and rotation (the "today is Leg Day" logic) have no Hevy
 equivalent. Keep them, surfaced as "Today: Leg Day — Start" at the top of the Workout tab,

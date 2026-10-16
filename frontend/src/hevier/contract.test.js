@@ -6,12 +6,16 @@ import { describe, it, expect } from 'vitest'
 import * as sheets from '../sheets.jsx'
 import * as history from '../lib/history.js'
 import * as model from '../lib/workout-model.js'
+import * as plan from '../views/Plan.jsx'
+import * as historyView from '../views/History.jsx'
+import * as stats from '../views/Stats.jsx'
 import { HEVIER } from './flag.js'
 
 describe('hevier: upstream contract', () => {
   it('sheets.jsx still exports the flows the overlay calls', () => {
     for (const name of ['startFlow', 'beginWorkout', 'finishWorkout', 'finishWorkoutSheet', 'menuSheet',
-      'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet']) {
+      'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
+      'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
   })
@@ -26,6 +30,12 @@ describe('hevier: upstream contract', () => {
     for (const name of ['isWarmupRow', 'isFailureSet', 'toggleFailure', 'addDrop', 'dropsOf', 'isSideSet']) {
       expect(typeof model[name], name).toBe('function')
     }
+  })
+
+  it('the views the fork screens borrow from still export what they use', () => {
+    expect(typeof plan.deleteRoutineWithUndo).toBe('function')
+    expect(typeof historyView.historyRows).toBe('function')
+    expect(Array.isArray(stats.FATIGUE_LEVELS)).toBe(true)
   })
 
   it('the fork UI is off unless the build asks for it', () => {
