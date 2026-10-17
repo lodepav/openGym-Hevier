@@ -13,6 +13,7 @@ import * as hevyMore from './lib/hevy-more.js'
 import { HevyMoreRows, moreToast } from './components/HevyMoreRows.jsx'
 import { useStore } from '../store/useStore.js'
 import { initHealthRead } from './lib/health-read-sync.js'
+import { initHevyExport } from './lib/hevy-export-sync.js'
 import { initWeighInSource, weighInBlocked } from './lib/weigh-in-source.js'
 import { useUI } from '../store/useUI.js'
 import { t } from '../lib/i18n.js'
@@ -40,5 +41,9 @@ if (HEVIER) initHealthRead(() => useStore.getState().S, fn => useStore.getState(
   cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
 // …and while the weigh-in read is on, weigh-ins come from there only (seam S22, D32).
 if (HEVIER) { initWeighInSource(); hooks.weighIns = opts => weighInBlocked(opts, () => useUI.getState().toast(t('Weigh-ins come from Health Connect'))) }
+
+// New workouts and changed routines go to Hevy, when switched on with a key (DECISIONS.md D34).
+if (HEVIER) initHevyExport(() => useStore.getState().S, fn => useStore.getState().update(fn),
+  cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
 
 export { HEVIER }
