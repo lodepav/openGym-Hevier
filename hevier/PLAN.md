@@ -479,7 +479,9 @@ the feature is not Hevy-specific (it would remove fork code).
    backup → turn on **Auto-backup on changes** (optionally choose a folder); install a sync app
    and pair `Documents/openGym` (or the chosen folder) with a Drive folder, upload only, on any
    change. Check after the next workout that a dated `opengym-backup-….json` lands in Drive.
-   Restore: download the newest file, then Settings → Data & backup → import → **Merge them in**.
+   Restore: download the newest file, then Settings → Data & backup → **Import backup**. It
+   replaces the data; signed in, it offers **Merge them in** when the server has workouts the
+   backup lacks.
    The original note: The user's data is backed up to their
    own Google Drive without a manual export. Start from what upstream has: Android auto-backup
    after a workout or an edit (v1.x), into a folder the user picks (#161, "for example a sync
