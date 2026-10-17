@@ -4,8 +4,9 @@
 #   hevier/tools/release-check.sh                 # build the mobile bundle, run every gate
 #   hevier/tools/release-check.sh --no-build      # scan the existing frontend/dist
 #   hevier/tools/release-check.sh --apk <file>    # also check a signed release APK (D38): its
-#                                                 # secrets, signing certificate, debuggable flag
-#                                                 # and permissions
+#                                                 # secrets, signing certificate and scheme,
+#                                                 # debuggable flag, permissions, native
+#                                                 # libraries and exported components
 #
 # Every gate runs even when an earlier one fails; exit 1 if any failed. A finding is fixed, or
 # accepted with its reason in hevier/security/ (a reviewed diff). Scanners: install-scanners.sh.
@@ -121,10 +122,49 @@ apk_permissions() {
   echo "not in hevier/security/apk-permissions.txt:"; echo "$new" | sed 's/^/  /'
   return 1
 }
+# Signed with APK Signature Scheme v2 or later, not only the v1 JAR signature (which leaves the
+# zip's other bytes unsigned and is what Android before 7 reads).
+apk_scheme() {
+  local out; out="$("${BT}apksigner" verify -v "$APK" 2>/dev/null)" || { echo "the signature does not verify"; return 1; }
+  local schemes; schemes="$(echo "$out" | sed -n 's/^Verified using \(v[0-9.]*\) scheme.*: true$/\1/p' | tr '\n' ' ')"
+  if echo "$out" | grep -Eq '^Verified using v(2|3|3\.1) scheme.*: true$'; then echo "schemes: $schemes"; return 0; fi
+  echo "only ${schemes:-no scheme}: v2 or later is required"; return 1
+}
+# A list's entries against what the APK has: new ones fail, listed ones no longer there are reported.
+against() {   # list file, what (for the messages), entries on stdin
+  local have allowed new gone
+  have="$(sort -u)"
+  allowed="$(listed "$1" | sed 's/[[:space:]]\{2,\}.*//' | sort -u)"
+  new="$(comm -23 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
+  gone="$(comm -13 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
+  [[ -n "$gone" ]] && { echo "listed but no longer in the APK (remove from the list):"; echo "$gone" | sed 's/^/  /'; }
+  [[ -z "$new" ]] && { echo "$(echo "$have" | sed '/^$/d' | wc -l) $2, all listed"; return 0; }
+  echo "not in ${1#"$ROOT/"}:"; echo "$new" | sed 's/^/  /'
+  return 1
+}
+# Native code: every .so the APK ships (by name, any ABI) is in the reviewed list.
+apk_native() {
+  unzip -Z1 "$APK" | sed -n 's|^lib/[^/]*/\([^/]*\.so\)$|\1|p' | against "$SEC/apk-native-libs.txt" "native libraries"
+}
+# What other apps can reach: every exported activity, alias, service, receiver and provider is in
+# the reviewed list, written "type name" (with the permission that guards it, if any).
+apk_exported() {
+  "${BT}aapt2" dump xmltree --file AndroidManifest.xml "$APK" | awk '
+    function out() { if (t != "" && ex == "true") print t " " n (perm != "" ? " [" perm "]" : "") ; t = "" }
+    /E: (activity|activity-alias|receiver|service|provider) / { out(); t = $2; n = ""; ex = ""; perm = ""; depth = index($0, "E:"); next }
+    /E: / { if (t != "" && index($0, "E:") <= depth) out(); next }
+    t != "" && /android:name\(/ && n == "" { match($0, /="[^"]*"/); n = substr($0, RSTART + 2, RLENGTH - 3) }
+    t != "" && /android:exported\(/ { ex = ($0 ~ /=true/) ? "true" : "false" }
+    t != "" && /android:permission\(/ { match($0, /="[^"]*"/); perm = substr($0, RSTART + 2, RLENGTH - 3) }
+    END { out() }' | against "$SEC/apk-exported.txt" "exported components"
+}
 if [[ -n "$APK" ]]; then
   gate "APK: signing certificate" apk_signature
+  gate "APK: signature scheme" apk_scheme
   gate "APK: release build" apk_release
   gate "APK: permissions" apk_permissions
+  gate "APK: native libraries" apk_native
+  gate "APK: exported components" apk_exported
 fi
 
 gate "dependencies: known vulnerabilities" trivy fs . --scanners vuln --include-dev-deps \
