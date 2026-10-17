@@ -682,7 +682,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
       the title; any other bracket is left as it is. **A cable exercise with no ratio is taken as
       1:1, and the import asks to confirm or change it** before importing (a step beside D33's
       Check exercise matches, one row per cable exercise, remembered like `S.hvImportMap`).
-24. **Compare strength opens a section, not only the browser** (user, 2026-10-17). D19's
+24. ~~**Compare strength opens a section, not only the browser**~~ Done 2026-10-17 (D19 changed). The original note (user, 2026-10-17): D19's
     **Compare strength** expands a collapsed section in exercise details with the five level
     fields and the buttons to look the levels up (strengthlevel.com) and save them, in place of
     the separate sheet.
