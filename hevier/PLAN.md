@@ -629,7 +629,7 @@ session is adding D numbers for the Hevy import).
       host for D26's allow-list, and the position leaves the phone, so the decision says so
       and the sheet works without it (own gyms + custom). A profile remembers where it was
       tagged, so the next time your own gym is suggested first when you are there.
-18. **A weight unit per exercise** (user, 2026-10-17; *open: ask upstream / the author first*). Hevy lets one exercise be logged in lb
+18. ~~**A weight unit per exercise**~~ Built as D41 (2026-10-17), fork-only. The original note (user, 2026-10-17; *open: ask upstream / the author first*). Hevy lets one exercise be logged in lb
     while the rest are in kg (a machine with lb plates). ifrankerem/openGym `6c4635a9e` builds
     it (+500 lines across 30 files, `lib/exercise-unit.js`, synced, with tests), but it touches
     upstream's sync stamps (`api/sync-stamps.js`) and the logging path, which are upstream
