@@ -658,6 +658,10 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     **sets**. Native fork code (an `AppWidgetProvider` in the fork's Java source set), fed from
     the app when it saves (nothing read in the background). Check upstream / PIPELINE.md for
     widgets first.
+    **The user's choices (2026-10-17):** 4×2 and resizable; the month grid with trained days
+    filled in item 25's colours (cardio / strength / deload) and `N workouts · N sets` for the
+    month; the sets are ticked work sets (D18's count, as the monthly report); a tap opens
+    Profile → Calendar on this month.
 22. **Hevy import: more fix-table rows** (user, 2026-10-17). The user has seen a *deficit Smith
     machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
     check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
@@ -699,7 +703,10 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
 28. **Statistics: secondary muscles as fractional sets, as a setting** (user, 2026-10-17).
     Fractional sets (openGym's count, a secondary muscle in part) show in Statistics now; a
     setting chooses **main muscle only** (D18's count) or **secondary muscles too, as
-    fractions**. Decide which screens it steers, beside D18's Volume setting.
+    fractions** (upstream's own fractions). **The user's choice (2026-10-17):** it steers every
+    place sets per muscle show: Statistics, the live workout's and Save Workout's muscle line,
+    Workout Detail's split, the weekly chart's tap and the monthly report; default main muscle
+    only.
 29. **Battery** (user, 2026-10-17; *after every other item*). Go over what keeps the phone awake
     or busy: timers and intervals left running, the Health Connect and Hevy export loops (D27,
     D34), wake lock, re-renders while a workout runs, media downloads.
