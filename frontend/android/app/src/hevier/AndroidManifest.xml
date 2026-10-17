@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- [hevier] The fork's manifest overlay (seam S7, hevier/DECISIONS.md D24): hevier.gradle makes it
+     the debug and release source sets' manifest, and the manifest merger folds it into upstream's
+     src/main one. It only locks the app to portrait, as the PWA manifest already is. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            tools:node="merge" />
+    </application>
+</manifest>

@@ -41,7 +41,8 @@ import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
 import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
-import { previousSetsFor } from '../lib/previous-sets.js'
+import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
+import { livePrSetIndex } from '../lib/pr-set.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -69,7 +70,9 @@ export default function HevyExerciseBlock({
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
   const H = sessionHistory(S)
-  const prev = previousSetsFor(H, entry)
+  const prev = previousSetsFor(H, entry, previousMode(S))
+  // D22: the set that is a weight record so far, by upstream's finish rule.
+  const prAt = livePrSetIndex(S, entry)
   const last = lastEntryFor(H, entry.id, entry.rid)
   const kind = effortOf(S)
   const eff = EFFORT[kind]
@@ -294,7 +297,16 @@ export default function HevyExerciseBlock({
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span> : workNumber(i))
   const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
     aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
-      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '')}>{markOf(s, i)}</button>
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (i === prAt ? ', ' + t('PR') : '')}>
+    {markOf(s, i)}{i === prAt && <Icon name="trophy" className="hv-pr-live" />}</button>
+  // A tick that makes this set the record says so (D22): a toast, no sound of its own.
+  const tick = (i, side) => {
+    if (side) onToggleSide(i, side); else onToggle(i)
+    const st = useStore.getState().S
+    const e = st.active?.entries[entryIdx]
+    if (i !== prAt && e?.sets[i]?.done && livePrSetIndex(st, e) === i)
+      useUI.getState().toast(t('New PR · {0}', fmtNum(e.sets[i].w) + ' ' + st.unit))
+  }
   const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up') : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
   // One line of the table: a straight set, one half of a timed per-side pair (`s.side`), or one
   // side of a per-side reps set (`side`).
@@ -315,7 +327,7 @@ export default function HevyExerciseBlock({
       {playOn && <button type="button" className="iconbtn hv-go" aria-label={t('Start set')} disabled={s.done || !!working}
         onClick={() => onStartTimed(i)}><Icon name="play" /></button>}
       <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
-        onChange={() => (side ? onToggleSide(i, side) : onToggle(i))} />
+        onChange={() => tick(i, side)} />
     </div>
   }
   // A drop or a burst, indented under its set (or under one side of it), as Hevy's `D` rows.

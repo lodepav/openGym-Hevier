@@ -16,14 +16,14 @@ import { monthCells, monthsBack, workoutsByDay, restDays, dayMark } from '../lib
 
 const MORE = 6
 
-function openDay(iso, ws) {
+export function openDay(iso, ws) {
   if (!ws) { dayOverrideSheet(iso); return }
   if (ws.length === 1) { workoutDetailSheet(ws[0]); return }
   useUI.getState().openSheet(close => <><h3>{fmtDate(iso, true)}</h3>
     <div className="list">{ws.map(w => <WorkoutRow key={w.id} w={w} onClick={() => { close(); workoutDetailSheet(w) }} />)}</div></>)
 }
 
-function Month({ y, mo, st, byDay, today, small, onTitle }) {
+export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const ws = weekStartOf(st)
   const cells = monthCells(y, mo, ws)
   const n = cells.filter(iso => iso && byDay[iso]).length

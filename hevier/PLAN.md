@@ -422,11 +422,16 @@ Hevy elements that need behaviour openGym doesn't have. Not built in phases 1–
 aren't lost:
 
 - ~~Routine folders~~ (moved into phase 1, D13, 2026-10-16)
-- Workout photos / videos on the Save Workout page
-- Live personal-record badge while logging a set, with its notification and sound
-- Monthly report, multi-year calendar, muscle-distribution radar chart
-- "Previous Workout Values: Any workout / Same routine" as a user setting
-- Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
+- ~~Workout photos / videos on the Save Workout page~~ (covered, 2026-10-17: upstream's
+  WorkoutMediaSection is on the "Nice work!" page right after Save and in Workout Detail; upstream
+  ties a photo to a saved workout, so it cannot sit on the Save page itself without new logic)
+- ~~Live personal-record badge while logging a set~~ (D22, 2026-10-17; no sound, at the user's choice)
+- Monthly report (D23, 2026-10-17). ~~Muscle-distribution radar chart~~: dropped, at the user's
+  request. ~~Multi-year calendar~~: covered, Profile → Calendar → Year steps back a year at a time.
+- ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
+- ~~Hevy-style warm-up calculator sheet~~ (covered, 2026-10-17: openGym ramps warm-ups itself,
+  `rerampWarmups`, from the routine's warm-up count and ⋮ → Add warm-up set; a percentage
+  calculator would be a second warm-up rule beside upstream's)
 
 ### The user's own features (added 2026-10-16)
 
@@ -445,7 +450,7 @@ the feature is not Hevy-specific (it would remove fork code).
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
-3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). The app
+3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). Decided as D19 (2026-10-17), built: all-time best 1RM, no re-enter prompt. The app
    bundles no standards: strengthlevel.com's terms forbid automated access (scraping, scripts),
    and its tables are theirs. Instead, exercise details get a **Compare strength** button that
    opens strengthlevel.com in the browser (the exercise's page if we know its slug, else the site's
@@ -474,7 +479,15 @@ the feature is not Hevy-specific (it would remove fork code).
    swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
    *backups for an exercise* (up to five per routine exercise).
 
-7. **Automatic sync to Google Drive** (user, 2026-10-16). The user's data is backed up to their
+7. **Automatic sync to Google Drive** (user, 2026-10-16). Decided as D20 (2026-10-17): a sync
+   app over upstream's auto-backup folder, no fork code. Setup on the phone: Settings → Data &
+   backup → turn on **Auto-backup on changes** (optionally choose a folder); install a sync app
+   and pair `Documents/openGym` (or the chosen folder) with a Drive folder, upload only, on any
+   change. Check after the next workout that a dated `opengym-backup-….json` lands in Drive.
+   Restore: download the newest file, then Settings → Data & backup → **Import backup**. It
+   replaces the data; signed in, it offers **Merge them in** when the server has workouts the
+   backup lacks.
+   The original note: The user's data is backed up to their
    own Google Drive without a manual export. Start from what upstream has: Android auto-backup
    after a workout or an edit (v1.x), into a folder the user picks (#161, "for example a sync
    app's folder"). The cheapest route may be pointing that folder at Google Drive (the system file
@@ -491,6 +504,72 @@ the feature is not Hevy-specific (it would remove fork code).
    upstream's `loadOfWorkouts`), and Workout Detail's muscle split counts sets. Decide which places
    switch (feed card Volume, the workout's stats row, Profile's weekly chart Volume, Statistics)
    and where the setting lives (`S`, so it syncs, per §4), in DECISIONS.md first.
+
+### Fixes and features from the second session (added 2026-10-17)
+
+Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked first.
+
+9. ~~**No screen rotation.**~~ Decided as D24 (2026-10-17), built. The app stays portrait. The PWA manifest already says
+   `"orientation": "portrait"`, but the Android activity (`AndroidManifest.xml`, `.MainActivity`)
+   sets no `screenOrientation`, so the APK rotates. Fix without a new seam: a fork-owned
+   `src/hevier/AndroidManifest.xml` that the manifest merger folds in, adding
+   `android:screenOrientation="portrait"` to `.MainActivity` (`tools:node="merge"`), added to both
+   build types' source sets in `hevier.gradle` (seam S7). iOS, if it is ever built: the
+   supported orientations in `Info.plist`. Check on the emulator that turning the device leaves
+   the workout screen as it is. Upstream may take this too (a gym app rarely wants landscape):
+   ask before carrying it.
+10. ~~**Keep the screen on during a workout, as a Settings switch.**~~ Decided as D25 (2026-10-17): upstream's switch works in the APK, checked on the emulator; no fork code. Upstream already has it:
+    Settings → Workout → *Before and during* → **Keep screen awake** (`S.keepAwake`, default
+    on; `lib/wakelock.js`, used in `App.jsx` while a workout runs), and the fork's pruning
+    (D16) does not hide it. But the row is only drawn when the Screen Wake Lock API exists
+    (`wakeOK || !MOBILE`), and the native app runs in Android's WebView, so first check on
+    the emulator and the phone whether the row shows and the screen actually stays on. If the
+    WebView lacks `navigator.wakeLock`, the row is hidden and the screen sleeps: the fix is a
+    native fallback (the activity's `FLAG_KEEP_SCREEN_ON`, set and cleared from JS through a
+    tiny bridge, the way upstream's own Java talks to the page), which also helps upstream's
+    Android build, so offer it upstream first. The fork's quick-access copy could also sit on
+    the workout's ⏱/⋮ sheet (upstream's `WorkoutSettingsSheet` has the same switch).
+11. **Security gates on release builds.** Before an APK (or image) is called final, check it for
+    leaked secrets and malicious code. Upstream's GitLab CI already Trivy-scans the images (OS
+    packages and npm trees, HIGH/CRITICAL fixable fails) and writes SBOMs, but nothing scans the
+    APK or the source for secrets, and the fork builds its APK locally
+    (`hevier/tools/emulator.sh`). Proposed gates, all run by a fork-owned script
+    (`hevier/tools/release-check.sh`) and by the `verify` skill before a release:
+    - **Secrets:** gitleaks (or trufflehog) over the git history and the working tree, and over
+      the unpacked APK and `dist/` (no API keys, keystore passwords, `.env` values, Hevy API
+      keys from testing, private VAPID keys).
+    - **Dependencies:** `npm audit --omit=dev` for frontend, api and mcp (high and above
+      fails), plus Trivy `fs` over the repo and the APK's bundled JS.
+    - **Malicious code:** a lockfile diff since the last release (new or changed packages,
+      install scripts, packages that are new on npm) reviewed by hand; grep the built bundle
+      for unexpected network endpoints (anything that isn't the user's own server, Hevy's API
+      during import, or the media CDN), `eval`/`new Function`, and obfuscated blobs.
+    - **APK checks:** the permissions in the merged manifest match an allow-list (a new one
+      fails), `debuggable` is false and the release is signed with the fork's key; optionally
+      MobSF for a static report.
+    These are tools run *by* the build, not dependencies *of* the app, so the dependency-light
+    rule is kept. A GitHub Actions workflow is fork-owned only if it lives under a new file
+    name upstream won't use (`hevier-release.yml`).
+12. **Better import from Hevy (API and CSV): exercises map wrongly.** Upstream imports both:
+    the API (`lib/import-hevy.js`, Hevy Pro key) and a detected Hevy CSV (`lib/import-csv.js`).
+    Both resolve exercises only through the generated table `lib/hevy-id-map.js` (template id
+    for the API, English title for the CSV, built by `scripts/build-hevy-id-map.mjs`); a
+    template it doesn't know becomes a custom exercise, and non-English CSV titles fall back to
+    name matching. In practice exercises land on the wrong openGym exercise. Steps:
+    - **Collect the failures first:** import the user's own export and API account, and list
+      every Hevy exercise → openGym exercise pair with how it was matched (table, name
+      fallback, custom). Mark each wrong one; that list becomes the test fixture.
+    - **Fix the cause** where it is: a wrong row in the generated table, a name fallback that
+      grabs a near miss (e.g. "Bench Press (Dumbbell)" vs the barbell bench, "Lat Pulldown
+      (Cable)" vs machine), equipment ignored when matching, or the CSV's title not matching
+      the API's. Fixes to the table or the matcher are upstream logic: send them upstream
+      (their tests cover the import) rather than patching the fork (rule 2).
+    - **A review step before import** (fork UI if upstream doesn't want it): a list of the
+      Hevy exercises with the openGym match each got, unmatched and low-confidence ones first,
+      each changeable with the library picker or "keep as custom". The choices are remembered
+      (in `S`, so a re-import maps the same way), and the import then runs with them.
+    - Tests: a pure helper in `hevier/lib/` (or upstream's `lib/` if it goes upstream) with the
+      collected pairs as fixtures, for both the API and the CSV paths.
 
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.

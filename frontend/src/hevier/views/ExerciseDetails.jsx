@@ -2,8 +2,8 @@
 // Seam S10 sends upstream's exerciseDetailSheet here, so every place that opens an exercise —
 // the workout's blue name, the routine editor, the library, Stats — gets the same sheet. The
 // numbers are upstream's read-back of the log (lib/exercise-history.js) through
-// hevier/lib/exercise-summary.js; upstream's own details sheet (plate loading, "weight means",
-// the 1RM calculator) is ⋯ → All details.
+// hevier/lib/exercise-summary.js, with the strength level (D19) under the records; upstream's
+// own details sheet (plate loading, "weight means", the 1RM calculator) is ⋯ → All details.
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -23,6 +23,7 @@ import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
+import StrengthLevel from '../components/StrengthLevel.jsx'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -73,6 +74,7 @@ function Summary({ ex, sum, st }) {
           <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true)}</span></span><b>{x.v}</b>
         </div>)}</div>
       </>}
+      {r.e1rm && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
       {sum.reps.length > 0 && <>
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">
