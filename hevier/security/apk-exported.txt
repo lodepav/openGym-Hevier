@@ -1,0 +1,10 @@
+# Components of the release APK that other apps can reach (D38): every activity, alias, service,
+# receiver and provider with android:exported="true", written "type name", with the permission
+# that guards it in [brackets]. `release-check.sh --apk` fails on any other, so a component a
+# plugin or an upstream merge exposes is read before it ships. One per line, the reason after #.
+
+activity ch.duartesantos.opengym.MainActivity    # the launcher's entry, and upstream's links into the app
+activity-alias ch.duartesantos.opengym.HealthPermissionsRationaleActivity    # Health Connect opens it to show why the app asks (required by Health Connect)
+activity-alias ch.duartesantos.opengym.ViewPermissionUsageActivity [android.permission.START_VIEW_PERMISSION_USAGE]    # the same, from Android's permission settings; only the system holds the permission
+service androidx.health.platform.client.impl.sdkservice.HealthDataSdkService    # AndroidX Health Connect client: Health Connect binds to it for its callbacks
+receiver androidx.profileinstaller.ProfileInstallReceiver [android.permission.DUMP]    # AndroidX baseline profiles; only the shell / system holds DUMP

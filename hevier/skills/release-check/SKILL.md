@@ -47,3 +47,10 @@ its reason; accept only with the user's agreement.
   upstream merge or the fork. Add it to `hevier/security/apk-permissions.txt` only with what
   uses it, with the user's agreement. A permission listed but no longer asked for is reported
   and should be removed from the list.
+- **APK: signature scheme**: sign with apksigner (v2/v3 on by default), not jarsigner alone.
+- **APK: native libraries / exported components**: find who brings it (the merged manifest, or
+  `unzip -l` and the dependency's AAR): a plugin, an upstream merge or the fork. List it in
+  `hevier/security/apk-native-libs.txt` / `apk-exported.txt` only with what it is and why it
+  must be there (an exported one: who calls it, and the permission guarding it), with the
+  user's agreement. An exported component nobody needs is closed instead (`exported="false"`
+  in the fork's manifest overlay, `tools:node="merge"`).
