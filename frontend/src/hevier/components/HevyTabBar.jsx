@@ -61,7 +61,7 @@ export default function HevyTabBar() {
     {pending && <div className="hv-resumebar">
       <button type="button" className="hv-resume-main" onClick={() => nav('/workout')}>
         <span className="hv-resume-t">{A.editingWorkoutId ? t('Editing workout') : t('Workout in progress')}</span>
-        <span className="hv-resume-s">{running ? <Elapsed start={A.start} /> : A.name}</span>
+        <span className={'hv-resume-s' + (running ? ' tm' : '')}>{running ? <Elapsed start={A.start} /> : A.name}</span>
       </button>
       <button type="button" className="hv-resume-go" onClick={() => nav('/workout')}><Icon name="play" />{A.editingWorkoutId ? t('Edit') : t('Resume')}</button>
       {!A.editingWorkoutId && <button type="button" className="hv-resume-x" onClick={discard}><Icon name="xmark" />{t('Discard')}</button>}

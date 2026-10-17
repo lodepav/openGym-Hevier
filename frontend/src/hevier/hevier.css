@@ -109,6 +109,8 @@
 :root[data-ui="hevier"] #tabbar .hv-resumebar button{flex:none;flex-direction:row;gap:5px;padding:8px;font-size:14px;font-weight:600;color:var(--label)}
 :root[data-ui="hevier"] #tabbar .hv-resumebar .hv-resume-main{flex:1;min-width:0;justify-content:flex-start;gap:10px}
 :root[data-ui="hevier"] .hv-resume-s{color:var(--label-2);font-weight:400;font-variant-numeric:tabular-nums;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the running time is never cut: the title wraps instead */
+:root[data-ui="hevier"] .hv-resume-s.tm{flex:none}
 :root[data-ui="hevier"] #tabbar .hv-resumebar .hv-resume-go{color:var(--acc)}
 :root[data-ui="hevier"] #tabbar .hv-resumebar .hv-resume-x{color:var(--red)}
 :root[data-ui="hevier"] #tabbar .hv-resumebar .icn{font-size:14px;color:inherit}
