@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB, isAssisted } from '../../lib/exercises.js'
-import { prSetIndex, livePrSetIndex } from './pr-set.js'
+import { prSetIndex, livePrSetIndex, recordWeight } from './pr-set.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const s = (w, done = true, extra = {}) => ({ w, r: 5, done, ...extra })
@@ -35,6 +35,13 @@ describe('hevier: the set that made a record', () => {
     })
     it('a warm-up never counts', () => {
       expect(live(S([s(100, true, { phase: 'warmup' }), s(80)]))).toBe(-1)
+    })
+    it('the record weight the workout screen keeps gives the same answer (battery, item 29)', () => {
+      const st = S([s(80), s(90)])
+      const e = st.active.entries[0]
+      expect(recordWeight(st, e)).toBe(85)
+      expect(livePrSetIndex(st, e, recordWeight(st, e))).toBe(1)
+      expect(livePrSetIndex(st, e, 95)).toBe(-1)
     })
     it('none in a workout logged into the past', () => {
       expect(live(S([s(100)], { backfill: { d: '2026-09-01' } }))).toBe(-1)

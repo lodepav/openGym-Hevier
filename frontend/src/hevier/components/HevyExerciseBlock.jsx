@@ -9,7 +9,7 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
@@ -43,7 +43,7 @@ import Icon from '../../components/Icon.jsx'
 import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
-import { livePrSetIndex } from '../lib/pr-set.js'
+import { livePrSetIndex, recordWeight } from '../lib/pr-set.js'
 import { BrandLine } from './GymLabels.jsx'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 
@@ -72,10 +72,15 @@ export default function HevyExerciseBlock({
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
-  const H = sessionHistory(S)
+  // The history only changes when a workout is saved, not for each set typed: kept, not rebuilt on
+  // every render (battery, PLAN item 29). Only its workouts are read.
+  const A = S.active
+  const H = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
+    [S.workouts, A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   const prev = previousSetsFor(H, entry, previousMode(S))
   // D22: the set that is a weight record so far, by upstream's finish rule.
-  const prAt = livePrSetIndex(S, entry)
+  const record = useMemo(() => recordWeight(S, entry), [S.workouts, entry.id, entry.target?.dbLoad]) // eslint-disable-line react-hooks/exhaustive-deps
+  const prAt = livePrSetIndex(S, entry, record)
   const last = lastEntryFor(H, entry.id, entry.rid)
   const kind = effortOf(S)
   const eff = EFFORT[kind]

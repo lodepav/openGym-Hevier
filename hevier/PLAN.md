@@ -707,7 +707,18 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     place sets per muscle show: Statistics, the live workout's and Save Workout's muscle line,
     Workout Detail's split, the weekly chart's tap and the monthly report; default main muscle
     only.
-29. **Battery** (user, 2026-10-17; *after every other item*). Go over what keeps the phone awake
+29. ~~**Battery**~~ Done 2026-10-17. Found and fixed: the running workout lives in `S.active`, so
+    every set typed woke the Health Connect read, the Hevy export and the month widget (D27, D34,
+    D44); each now wakes only when a field it reads changes (`hevier/lib/store-watch.js`). The
+    export's usual pass with nothing new no longer reads the Keystore or writes its file. Each
+    exercise block rescanned the whole log on every keystroke for the live PR (D22) and the
+    backfill history; both are now kept until a workout is saved. Checked, nothing to change:
+    no fork interval runs outside a page that shows it (Save Workout's 15 s clock); upstream's
+    1 s clock re-renders only its text and WebView timers stop in the background; the Health
+    Connect read is throttled to every ten minutes and is a no-op with its switches off; the
+    widget's only alarm is inexact and does not wake the phone; the wake lock is upstream's and is
+    released when the workout ends (D25); the APK bundles its media, so nothing is downloaded.
+    The original note (user, 2026-10-17; *after every other item*): Go over what keeps the phone awake
     or busy: timers and intervals left running, the Health Connect and Hevy export loops (D27,
     D34), wake lock, re-renders while a workout runs, media downloads.
 
