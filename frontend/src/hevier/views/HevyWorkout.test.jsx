@@ -95,6 +95,15 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[3].className).toContain('hv-hint')       // set 3, untouched
   })
 
+  it('a typed value stays bold on its own set when a set below it goes (D2)', () => {
+    render([{ id: EX, target: { sets: 3, reps: 8 }, sets: [reps(60, 8), reps(60, 8), reps(60, 8)] }])
+    typeInto(container.querySelectorAll('.hv-num')[1], '10')   // set 1's reps
+    act(() => useStore.getState().update(s => { s.active.entries[0].sets.splice(2, 1) }))
+    const nums = container.querySelectorAll('.hv-num')
+    expect(nums[1].className).not.toContain('hv-hint')   // set 1, typed
+    expect(nums[3].className).toContain('hv-hint')       // set 2, untouched
+  })
+
   it('PREVIOUS shows last time’s matching set and a tap copies it in (D3)', () => {
     const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 55, r: 9, done: true }] }] }]
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }], past)

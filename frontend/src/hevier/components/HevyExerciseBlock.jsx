@@ -72,11 +72,13 @@ export default function HevyExerciseBlock({
 
   const entry = S.active.entries[entryIdx]
   // A set added or removed above a row renumbers it: its marks move with it (lib/touched.js).
+  // The rows are kept as they were last drawn, a value typed included, so the comparison finds
+  // the row that went rather than the one typed into.
   const rowsNow = entry.sets.map(s => JSON.stringify(s))
   const [rowsSeen, setRowsSeen] = useState(rowsNow)
-  if (rowsNow.length !== rowsSeen.length) {
+  if (rowsNow.join('\n') !== rowsSeen.join('\n')) {
     setRowsSeen(rowsNow)
-    setTouched(prev => shiftTouched(prev, rowsSeen, rowsNow))
+    if (rowsNow.length !== rowsSeen.length) setTouched(prev => shiftTouched(prev, rowsSeen, rowsNow))
   }
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }

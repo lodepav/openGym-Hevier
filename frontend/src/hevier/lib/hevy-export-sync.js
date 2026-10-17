@@ -38,8 +38,8 @@ export async function hevyCall(key, method, path, body, get = fetch) {
 const stops = e => !(e instanceof HevyApiError) || e.status === 0 || e.status === 401 || e.status === 429 || e.status >= 500
 const kindOf = e => (!(e instanceof HevyApiError) ? 'failed' : e.status === 401 ? 'auth' : e.status === 429 ? 'rate' : e.status === 0 ? 'offline' : 'failed')
 const idOf = (res, k) => { const v = Array.isArray(res?.[k]) ? res[k][0] : res?.[k] || res; return v?.id != null ? String(v.id) : null }
-// A create Hevy answered without an id is refused, not kept as sent with no id: the next change
-// would create it again, and Hevy's API cannot delete the extra copy.
+// A create Hevy answered without an id is refused, not kept as sent with no id: the row then shows
+// it, rather than a later change quietly creating a second copy Hevy's API cannot delete.
 const createdId = (res, k) => { const id = idOf(res, k); if (!id) throw new HevyApiError(422, 'no id'); return id }
 
 /**
