@@ -56,6 +56,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
   if (!todo.workouts.length && !todo.routines.length) return { sent, refused, error: null }
   const drafts = [...todo.workouts, ...todo.routines]
   const refuse = async item => { st.failed[item.id] = item.h; refused++; await save(st) }
+  const off = () => st.on === false    // turned off while this pass runs: no further call
 
   try {
     // The templates: what is already known, else the account's, else made in Hevy.
@@ -65,6 +66,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
       const find = templateFinder(await pages('/v1/exercise_templates', 'exercise_templates', 100), S)
       const exs = new Map(allExercises(S).map(e => [e.id, e]))
       for (const ex of need) {
+        if (off()) break
         const known = find(ex)
         if (known) { st.tpl[ex] = known; continue }
         const body = newTemplate(exs.get(ex) || { id: ex, n: ex }, drafts.flatMap(i => setsOf(i.draft, ex)))
@@ -81,6 +83,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
     const ready = item => exercisesOf(item.draft).every(ex => !bad.has(ex) && st.tpl[ex])
 
     for (const item of todo.workouts) {
+      if (off()) break
       if (!ready(item)) { await refuse(item); continue }
       const body = { workout: finish(item.draft, tplOf) }
       try {
@@ -114,6 +117,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
     }
 
     for (const item of todo.routines) {
+      if (off()) break
       if (!ready(item)) { await refuse(item); continue }
       const folder = item.draft.folder
       const folderId = folder && st.folders[folder] != null ? Number(st.folders[folder]) : null
@@ -186,12 +190,18 @@ export async function enableExport(key, getState, { apply = null, get = fetch, n
   return { ok: true, reason: null }
 }
 
-/** Turns the export off and forgets the key. What was sent stays in Hevy. */
+/**
+ * Turns the export off and forgets the key. What was sent stays in Hevy. The state is changed in
+ * place: a pass still running holds the same object, so its saves keep it off and it stops at
+ * its next item.
+ */
 export async function disableExport() {
-  if (running) await within(running, 3000).catch(() => {})
-  await removeSecret(KEY_NAME)
-  const st = { ...(await loadExport()), on: false, last: null }
+  const st = await loadExport()
+  st.on = false
+  st.last = null
   await saveExport(st)
+  await removeSecret(KEY_NAME)
+  if (running) await within(running, 3000).catch(() => {})
   told(st)
   return st
 }
