@@ -51,7 +51,7 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.querySelector('.hv-report-bar h1').textContent).toContain(MONTHS_LONG[last.mo] + ' Report')
     expect(stat('Workouts').textContent).toBe('Workouts2+1')
     expect(stat('Sets').textContent).toBe('Sets5+4')
-    expect(container.textContent).toContain('1 record')
+    expect([...container.querySelectorAll('h4.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 1')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
   })
 
@@ -68,6 +68,6 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.querySelector('.hv-report-bar h1').textContent).toContain(MONTHS_LONG[before.mo])
     expect(stat('Workouts').textContent).toBe('Workouts1+1')
     expect(prev.disabled).toBe(true)
-    expect(container.textContent).not.toContain('record')
+    expect(container.textContent).not.toContain('PRs')
   })
 })

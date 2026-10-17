@@ -54,7 +54,7 @@ export default function MonthReport() {
       <div className="hv-sub hv-report-vs">{t('Against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))}</div>
 
       {r.records.length > 0 && <>
-        <h4 className="sec"><Icon name="trophy" /> {tn('{0} record', '{0} records', r.records.length)}</h4>
+        <h4 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h4>
         <div className="list">{r.records.map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className={'grow ' + exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
           <span className="dim">{fmtDate(x.d, true)}</span>

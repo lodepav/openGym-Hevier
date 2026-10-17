@@ -18,6 +18,10 @@ VITE_HEVIER=1 npx vite build              # the fork build
 node scripts/check-locales.mjs            # only if a locale or t() key was touched
 ```
 
+- A red upstream `src/lib/i18n-plural.test.js` naming a fork string means a fork file calls
+  `tn()` with a plural key upstream's ru/uk/pl packs lack (the test reads every `tn()` in `src`,
+  the fork's included). Use a plural key upstream already has, or reword so `t()` does, never a
+  new one. The fork-only test run doesn't catch this: check `tn(` in new fork code at every commit.
 - A red `src/hevier/contract.test.js` means an upstream export the overlay uses changed:
   adapt the fork to the new shape.
 - Then run the `seam-check` skill if any upstream file changed.
