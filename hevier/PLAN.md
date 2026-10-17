@@ -686,7 +686,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     **Compare strength** expands a collapsed section in exercise details with the five level
     fields and the buttons to look the levels up (strengthlevel.com) and save them, in place of
     the separate sheet.
-25. **Calendar** (user, 2026-10-17).
+25. ~~**Calendar**~~ Done 2026-10-17 (`hevier/lib/calendar.js` `workoutKind` / `dayKind` / `dayTitle`): each trained day shows its first workout's title under the number, and is filled blue (strength), green (cardio) or orange (deload), with a legend; the year view and the monthly report's grid (D23, the same `Month`) take the colours too. A day with several workouts: deload over strength over cardio. The original note (user, 2026-10-17):
     - Each trained day labelled with **the day's first workout's title**, as newer Hevy
       versions do.
     - **Colours by workout type:** **cardio** when the day's workout has only cardio exercises,
