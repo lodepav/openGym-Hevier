@@ -10,12 +10,14 @@ import { bwSheet, goalSheet, weighInsSheet } from '../../sheets.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import { Button } from '../../components/ui.jsx'
 import { BackTo, LinkRow } from './Statistics.jsx'
+import { useHcOnly } from '../lib/weigh-in-source.js'
 
 const DAYS_SHOWN = 90
 
 export default function Measures() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
+  const hc = useHcOnly()
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
@@ -32,7 +34,7 @@ export default function Measures() {
         </div>
         <div className="row" style={{ gap: 8 }}>
           <Button size="sm" icon="target" onClick={goalSheet}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
-          <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>
+          {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
       {pts.length > 0 && <div className="chart"><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>}

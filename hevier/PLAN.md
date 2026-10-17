@@ -442,7 +442,7 @@ Not Hevy parity: features the user wants on top. Each needs a decision in DECISI
 it is built. Check [PIPELINE.md](PIPELINE.md) first, and prefer contributing upstream where
 the feature is not Hevy-specific (it would remove fork code).
 
-1. ~~**Body weight from Health Connect.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 rules, until that merge; the "only source" part below is not built yet. **The "only source" part: agreed with the user on 2026-10-17, to build next** (a decision first). Read weigh-ins *from* Android Health. Upstream only
+1. ~~**Body weight from Health Connect.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 rules, until that merge; the "only source" part below built as D32 (2026-10-17). Read weigh-ins *from* Android Health. Upstream only
    writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
    Android code beyond seam S7. **Health Connect becomes the only source** (user, 2026-10-16):
    with it on, the app's own weigh-in entry is turned off (the body-weight card, the check-in's
@@ -471,8 +471,8 @@ the feature is not Hevy-specific (it would remove fork code).
      1RM history), shown in exercise details (M5 Summary).
    - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
      land on the right page. It holds no data from them.
-4. ~~**Gyms.**~~ Decided with item 5 as D28 (2026-10-17). Later: a prompt to pick the gym (an
-   equipment profile) at the start of a workout. Replaced by item 17 (2026-10-17). The original note: Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
+4. ~~**Gyms.**~~ Decided with item 5 as D28 (2026-10-17). No prompt at the start (the user's choice,
+   2026-10-17): the workout's gym line shows and changes it from the first second. Item 17 (2026-10-17) adds Hevy's gym picker. The original note: Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
    for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
    second one.
 5. ~~**Gym and brand labels for machine and cable exercises.**~~ D28 (2026-10-17). A machine exercise can carry a
@@ -556,7 +556,7 @@ Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked 
     These are tools run *by* the build, not dependencies *of* the app, so the dependency-light
     rule is kept. A GitHub Actions workflow is fork-owned only if it lives under a new file
     name upstream won't use (`hevier-release.yml`).
-12. ~~**Better import from Hevy (API and CSV): exercises map wrongly.**~~ Decided as D29 (2026-10-17), built: a fork fix table, one-limb titles as per-side sets, `(brand: X)` as D28 brands; the fixes written up for upstream in `hevier/upstream/hevy-map-fixes.md`. The review step is not built. The original note: Upstream imports both:
+12. ~~**Better import from Hevy (API and CSV): exercises map wrongly.**~~ Decided as D29 (2026-10-17), built: a fork fix table, one-limb titles as per-side sets, `(brand: X)` as D28 brands; the fixes written up for upstream in `hevier/upstream/hevy-map-fixes.md`. The review step built as D33 (2026-10-17). The original note: Upstream imports both:
     the API (`lib/import-hevy.js`, Hevy Pro key) and a detected Hevy CSV (`lib/import-csv.js`).
     Both resolve exercises only through the generated table `lib/hevy-id-map.js` (template id
     for the API, English title for the CSV, built by `scripts/build-hevy-id-map.mjs`); a

@@ -63,3 +63,14 @@ Fix: cache by the exact lower-cased title (the word bag is still right for `matc
 
 And one more wrong match: **Standing Leg Curls** gives 0795 standing single leg curl (body weight,
 against a wall); Hevy's is the machine, 4347 lever standing leg curl.
+
+## 4. A review of the matches before an import (any app)
+
+The fork has one (D33, `frontend/src/hevier/lib/import-review.js`): the import summary gets a
+**Check exercise matches** row listing every title in the file with what it becomes, the user's
+own exercises first; a tap picks a library exercise, keeps it as the user's own, or goes back to the
+automatic match. Choices are kept per app and title (the fork stores them in `S`, so a re-import
+maps the same way) and the file is parsed again at once. Upstream could take it into
+`ImportSummary` and the Hevy sheet directly: its parsers would read the choices before their own
+match, which removes the fork's re-read of the file. Every wrong match the table above lists would
+have been fixable this way by the user alone.

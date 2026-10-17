@@ -32,6 +32,7 @@ export async function importHevyFolders(key, data, pages) {
   if (!data?.routines?.routines?.length) return
   let folders = []
   try { folders = await fetchHevyFolders(key, pages) } catch { folders = [] }
+  data.hvFolders = folders   // for D33's review, which reads the routines again
   nameFolders(data.routines, folders)
 }
 

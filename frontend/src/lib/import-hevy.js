@@ -246,6 +246,9 @@ export function parseHevyWorkouts(workouts, templates, { unit = 'kg', customEx =
       day = { d: start.d, ex: new Map(), name: title, start: start.t, end: end?.t ?? null }
       byDate.set(key, day)
     } else if (!day.name && title) day.name = title
+    // [hevier] S21: the workout's description and routine, for the fork (D31)
+    if (hooks.hevyMore) hooks.hevyMore.day(day, w)
+    // [/hevier]
     // Past midnight the end's clock restarts; count it from the start day's midnight instead.
     if (end?.t != null) day.end = end.t + daysBetween(start.d, end.d) * 86400000
 
@@ -253,6 +256,9 @@ export function parseHevyWorkouts(workouts, templates, { unit = 'kg', customEx =
       const id = R.resolve(ex.exercise_template_id, ex.title)
       if (!id) { skipped++; continue }
       if (EXIDX[id] && !String(id).startsWith('im')) matched++
+      // [hevier] S21: the exercise's notes, for the fork (D31)
+      if (hooks.hevyMore) hooks.hevyMore.exercise(day, id, ex)
+      // [/hevier]
 
       // Filed only once a set lands in it: an exercise whose sets all had nothing measured would
       // otherwise import as an entry with no sets, which nothing that reads a session back expects.
@@ -309,6 +315,9 @@ export function parseHevyWorkouts(workouts, templates, { unit = 'kg', customEx =
     }
     // Work sets only, the number `workoutVolume` gives a workout finished in the app; it is stored for good.
     workout.vol = entries.reduce((a, e) => a + e.sets.reduce((b, s) => b + (isWarmupRow(s) ? 0 : (s.w || 0) * (s.r || 0)), 0), 0)
+    // [hevier] S21: the note, the entries' notes and the Hevy routine (D31)
+    if (hooks.hevyMore) hooks.hevyMore.workout(workout, day)
+    // [/hevier]
     return workout
   })
   const used = new Set(outWorkouts.flatMap(w => w.entries.map(e => e.id)))
@@ -375,6 +384,9 @@ export function parseHevyRoutines(routines, templates, { unit = 'kg', customEx =
       }
       if (warm > 0) cfg.warmupSets = Math.min(5, warm)
       if (he.notes) cfg.note = String(he.notes).slice(0, 280)
+      // [hevier] S21: the rest and the rep range (D31)
+      if (hooks.hevyMore) hooks.hevyMore.routineExercise(cfg, he)
+      // [/hevier]
 
       if (he.superset_id != null && he.superset_id !== '') {
         const key = String(he.superset_id)
@@ -488,6 +500,9 @@ export async function importHevyData(apiKey, { unit = 'kg', onProgress, customEx
     routines: parseHevyRoutines(routines, templates, { unit, customEx }),
     bodyweight: parseHevyBodyweight(bodyMeasurements, { unit }),
     templateCount: templates.length,
+    // [hevier] S21: what the fork reads after the parse (D31)
+    ...(hooks.hevyMore ? { hvRaw: { templates, bodyMeasurements, workouts, routines } } : {}),
+    // [/hevier]
   }
 }
 
