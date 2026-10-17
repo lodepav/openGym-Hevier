@@ -141,7 +141,22 @@ export function WorkoutDone() {
     savedSession = null
     return session ? routineUpdates(useStore.getState().S, session) : []
   })
-  const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
+  // Once shown, the page keeps its workout: a sync or a Health Connect read that rewrites the
+  // record while the page sits open must not send it Home (PLAN.md item 27).
+  const found = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
+  const last = useRef(null)
+  if (found) last.current = found
+  const w = found || last.current
+  // The header's Done goes while the one at the bottom is on screen.
+  const bottom = useRef(null)
+  const [atBottom, setAtBottom] = useState(false)
+  useEffect(() => {
+    const el = bottom.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([e]) => setAtBottom(e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [!!w])
   if (!w) return <Navigate to="/home" replace />
   const n = workoutNumber(st.workouts, w)
   const week = workoutsInDays(st.workouts, w, 7)
@@ -153,7 +168,7 @@ export function WorkoutDone() {
   return <div className="hv-done">
     <div className="hv-pagebar">
       <div className="hv-title">{updates.length > 0 && <RoutineUpdateButton updates={updates} />}</div>
-      <button type="button" className="btn primary pill hv-finish" onClick={finish}>{t('Done')}</button>
+      {!atBottom && <button type="button" className="btn primary pill hv-finish" onClick={finish}>{t('Done')}</button>}
     </div>
     <div className="hv-done-top">
       <span className="hv-done-ic"><Icon name="trophy" /></span>
@@ -172,7 +187,7 @@ export function WorkoutDone() {
     <LastAndNext st={st} w={w} />
     <CardioDone st={st} w={w} />
     <WorkoutMediaSection w={w} hint />
-    <button type="button" className="btn primary hv-done-btn" onClick={finish}>{t('Done')}</button>
+    <button type="button" ref={bottom} className="btn primary hv-done-btn" onClick={finish}>{t('Done')}</button>
   </div>
 }
 

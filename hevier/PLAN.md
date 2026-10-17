@@ -695,7 +695,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
       calendar (D23).
 26. ~~**Bug: the workout header's timer button does nothing**~~ Fixed 2026-10-17 (D10): a countdown when no rest runs; a stopwatch not added. (user, 2026-10-17). The button
     beside **Finish** (D10's ⏱) should open Hevy's timer setup (rest timer / stopwatch).
-27. **Save Workout page** (user, 2026-10-17).
+27. ~~**Save Workout page**~~ Done 2026-10-17, on the "Nice work!" summary (the page with the two Done buttons): the header's Done hides while the bottom one shows; the closing could not be reproduced on the emulator (3 min idle, lock, background), so the page now keeps its workout once shown instead of going Home when the record changes under it (a sync, a Health Connect stamp). If it still closes, note what was on (signed in, Health Connect, Send to Hevy). The original note (user, 2026-10-17):
     - The header's **Save** / Done button hides once the same button at the bottom is scrolled
       into view.
     - **Bug:** the page seems to close by itself when left alone. Check whether D35's 5-second

@@ -169,3 +169,29 @@ describe('hevier: Update routine from the summary (D35)', () => {
   })
 })
 const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].filter(b => b.textContent.includes(text)).at(-1)
+
+describe('hevier: the summary stays put (PLAN.md item 27)', () => {
+  it('keeps showing the workout when a sync rewrites its record', () => {
+    render('/workout/save', logged())
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    expect(container.textContent).toContain('Nice work!')
+    act(() => useStore.getState().update(s => { s.workouts = s.workouts.map(w => ({ ...w, id: 'other' })) }))
+    expect(path).toBe('/workout/done')
+    expect(container.textContent).toContain('Nice work!')
+  })
+
+  it('the header’s Done goes while the bottom one is on screen', () => {
+    let seen
+    const IO = globalThis.IntersectionObserver
+    globalThis.IntersectionObserver = class { constructor(cb) { seen = cb } observe() {} disconnect() {} }
+    try {
+      render('/workout/save', logged())
+      act(() => byText('.hv-pagebar button', 'Save').click())
+      expect(byText('.hv-pagebar button', 'Done')).toBeTruthy()
+      act(() => seen([{ isIntersecting: true }]))
+      expect(byText('.hv-pagebar button', 'Done')).toBeUndefined()
+      act(() => seen([{ isIntersecting: false }]))
+      expect(byText('.hv-pagebar button', 'Done')).toBeTruthy()
+    } finally { globalThis.IntersectionObserver = IO }
+  })
+})
