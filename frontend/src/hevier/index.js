@@ -16,7 +16,7 @@ import { initHealthRead } from './lib/health-read-sync.js'
 import { initWeighInSource, weighInBlocked } from './lib/weigh-in-source.js'
 import { useUI } from '../store/useUI.js'
 import { t } from '../lib/i18n.js'
-import { applyForkIcons } from './lib/pwa-icons.js'
+import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -33,8 +33,8 @@ if (HEVIER) hooks.importReview = { keep, Row: ReviewRow }
 if (HEVIER) hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
 // …and the rest of what Hevy's API holds: measurements, rest, rep ranges, notes, routine links (S21, D31).
 if (HEVIER) hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
-// The installed PWA is Hevier, in blue, not upstream's lime openGym.
-if (HEVIER) applyForkIcons()
+// The installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39).
+if (HEVIER) { applyForkIcons(); applyForkName() }
 // Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).
 if (HEVIER) initHealthRead(() => useStore.getState().S, fn => useStore.getState().update(fn),
   cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))

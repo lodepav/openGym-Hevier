@@ -213,3 +213,11 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 16, the part D26 left o
 | # | Decision |
 |---|---|
 | D38 | **Given an APK, the release check also checks the APK itself, and a failure blocks.** `release-check.sh --apk <file>` adds three gates to D26's, with `aapt2` and `apksigner` from the Android SDK already installed for the emulator (newest build-tools, apksigner on the same JDK 21), no new tool. **Signing certificate:** the signature verifies, there is one signer, it is not the Android debug key, and its SHA-256 digest is pinned in `hevier/security/apk-cert.txt`. The list starts empty, so the gate fails until the user pins the fork's release key (the keystore stays outside the repo; updates only install over an app signed with the same key); the failure prints the digest. **Release build:** the app id is `ch.duartesantos.opengym.hevier` (not the debug build's `.test`) and `android:debuggable` is not set. **Permissions:** every `uses-permission` of the merged manifest is in `hevier/security/apk-permissions.txt`, each with what uses it (the app's own id written `$PKG`), so a permission a plugin or an upstream merge adds fails until it is read and listed; one listed but no longer asked for is reported, not failed. Upstream's 1.4.3 location permissions (its gym reminder) are reviewed at that merge. Not done: checking the APK's other contents (native libraries, exported components) and a minimum signature scheme. Upstream files are not touched. |
+
+## App name
+
+Added 2026-10-17, at the user's request.
+
+| # | Decision |
+|---|---|
+| D39 | **The app is called "Go Hevier".** It is the name under the launcher icon and in the recent-apps list (the fork's `hevier-release` strings; the debug build is "Go Hevier Test"), the installed PWA's name (`public/hevier/manifest.json`), and the browser tab's and iOS home-screen title, which the fork sets at boot because `index.html` is upstream's (`hevier/lib/pwa-icons.js`, beside the icon swap). Health Connect and Android's settings show the launcher name. **Unchanged:** the app id `ch.duartesantos.opengym.hevier` (a new id would install as a second app and could not update the first), the repository and its `hevier/` names, the native plugin names, and upstream's own screens that name openGym (About, the login, the licence), which credit the project the fork is built on. |
