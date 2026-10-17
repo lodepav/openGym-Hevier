@@ -21,7 +21,7 @@ import { menuSheet, customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun } from '../lib/exercise-picker.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 
 const PAGE = 50
 const MINE = '@'   // the equipment filter's "what the active profile has"
@@ -55,6 +55,10 @@ function ExerciseList({ onPick, title, like, close, browse }) {
   const base = filterPicker(all, { muscle, eq: eq === MINE ? '' : eq, avail }).filter(e => e.id !== like)
   let list = searchExercises(base, q)
   list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
+  // D36: exercises a typed brand reaches come first, with the brand under the name.
+  const byBrand = q.trim() ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []
+  const brandOf = new Map(byBrand.map(m => [m.ex.id, m.brand]))
+  if (byBrand.length) list = [...byBrand.map(m => m.ex), ...list.filter(e => !brandOf.has(e.id))]
   // Same equipment first on a swap: a taken machine is usually swapped for the same kind of kit.
   if (likeEx?.eq && !q.trim()) list = [...list].sort((a, b) => Number(b.eq === likeEx.eq) - Number(a.eq === likeEx.eq))
   // Browsing (nothing typed or narrowed) shows Recent Exercises above everything.
@@ -100,7 +104,7 @@ function ExerciseList({ onPick, title, like, close, browse }) {
     <button className="hv-thumb" aria-label={t('Details')} onClick={ev => { ev.stopPropagation(); exerciseDetailSheet(e) }}><Thumb ex={e} /></button>
     <div className="grow">
       <div className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div>
-      <div className="ss">{t(muscleOf(e))}</div>
+      <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id)].filter(Boolean).join(' · ')}</div>
     </div>
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>

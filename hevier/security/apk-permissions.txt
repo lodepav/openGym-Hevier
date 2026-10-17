@@ -1,0 +1,21 @@
+# Permissions the release APK may ask for (D38). `release-check.sh --apk` fails on any other
+# `uses-permission` in the merged manifest, so a plugin or an upstream merge that adds one is
+# read before it ships. One per line, the reason after #; `$PKG` stands for the app id.
+# Upstream 1.4.3 adds location permissions (its gym reminder): review them at that merge.
+
+android.permission.INTERNET                      # sync with the user's own server, Hevy import/export, update check
+android.permission.ACCESS_NETWORK_STATE          # Capacitor plugins: whether the phone is online
+android.permission.REQUEST_INSTALL_PACKAGES      # upstream's in-app updater installs the fork's own signed APK
+android.permission.SCHEDULE_EXACT_ALARM          # upstream: rest-timer and day reminders on the minute
+android.permission.POST_NOTIFICATIONS            # upstream: rest-timer and day-reminder notifications
+android.permission.RECEIVE_BOOT_COMPLETED        # local notifications plugin: reminders survive a reboot
+android.permission.VIBRATE                       # upstream: the set tick's and the rest timer's buzz
+android.permission.WAKE_LOCK                     # upstream: keep the screen on during a workout (D25), alarms
+android.permission.FOREGROUND_SERVICE            # upstream's RestTimerService
+android.permission.FOREGROUND_SERVICE_SPECIAL_USE # upstream's RestTimerService (specialUse)
+android.permission.CAMERA                        # upstream's camera scan (its gym check-in, hidden in the fork, D12)
+android.permission.health.WRITE_EXERCISE         # upstream: finished workouts to Health Connect, when switched on
+android.permission.health.WRITE_WEIGHT           # upstream: weigh-ins to Health Connect, when switched on
+android.permission.health.READ_HEART_RATE        # the fork's heart-rate read (D27), when switched on
+android.permission.health.READ_WEIGHT            # the fork's weigh-in read (D27), when switched on
+$PKG.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION    # added by AndroidX for its own unexported receivers, app-private
