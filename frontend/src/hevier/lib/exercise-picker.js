@@ -56,3 +56,39 @@ export function addedRun(items, end, ids) {
   if (ids.length < 2 || first < 0 || end >= (items?.length || 0)) return -1
   return ids.every((id, k) => items[first + k]?.id === id) ? first : -1
 }
+
+// D36 (hevier/DECISIONS.md): the brand labels of machine exercises (D28) are searchable. "Life Fitness", "lifefitness"
+// and "life fit" all reach a leg press labelled Life Fitness; words that are not part of a brand
+// then narrow by the exercise's name with upstream's search, so "life fitness press" keeps the
+// presses. Two letters at least make a brand word, so a stray "a" does not match every brand.
+const norm = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu, '')
+
+/** `{ [exId]: [brand, …] }`: every brand an exercise carries, as a default or on a logged set. */
+export function brandsByExercise(S) {
+  const out = {}
+  const add = (id, b) => { if (id && b && !(out[id] ||= []).includes(b)) out[id].push(b) }
+  for (const [id, byGym] of Object.entries(S?.hvMachines || {})) for (const b of Object.values(byGym || {})) add(id, b)
+  for (const w of S?.workouts || []) for (const e of w?.entries || []) add(e?.id, e?.hvBrand)
+  return out
+}
+
+/**
+ * The exercises of `list` a query reaches through a brand, in `list`'s order, with the brand that
+ * matched: `[{ ex, brand }]`. `search(list, q)` is upstream's name search, for the other words.
+ */
+export function brandMatches(list, brands, q, search) {
+  const words = String(q || '').trim().split(/\s+/).map(norm).filter(Boolean)
+  const whole = norm(q)
+  if (whole.length < 2) return []
+  const out = []
+  for (const ex of list) {
+    for (const brand of brands[ex.id] || []) {
+      const b = norm(brand)
+      if (b.includes(whole)) { out.push({ ex, brand }); break }
+      const rest = words.filter(w => w.length < 2 || !b.includes(w))
+      if (rest.length === words.length) continue
+      if (!rest.length || search([ex], rest.join(' ')).length) { out.push({ ex, brand }); break }
+    }
+  }
+  return out
+}

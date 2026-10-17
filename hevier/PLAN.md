@@ -594,7 +594,7 @@ session is adding D numbers for the Hevy import).
     missed button isn't lost. Swapped exercises are not "added" (the swap already has its rule).
     A pure helper with tests in `hevier/lib/` (which entries are new, where they go); start from
     vinayakgupta62/openGym `9ce5015f8`, `2e4e56286`, `502d63818` (~150 lines, AGPL, credit).
-14. **Search exercises by machine name** (user, 2026-10-17). The Add Exercise / swap picker
+14. ~~**Search exercises by machine name**~~ Built as D36 (2026-10-17). The original note: (user, 2026-10-17). The Add Exercise / swap picker
     finds an exercise by its D28 brand labels (`S.hvMachines`, and the `hvBrand` on logged
     entries): typing "Life Fitness" lists the exercises done on one. A fork addition to
     `hevier/lib/exercise-picker.js`'s search, with tests. Look at frdc/openGym `940e6f410`

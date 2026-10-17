@@ -47,6 +47,15 @@ afterEach(() => {
 })
 
 describe('hevier: Add Exercise picker (seam S13)', () => {
+  it('finds an exercise by its machine brand and says so under the name (D36)', () => {
+    const PRESS = EXDB.find(e => /^sled 45° leg press$/i.test(e.n))
+    open(vi.fn(), undefined, [{ d: '2026-10-01', entries: [{ id: PRESS.id, hvBrand: 'Life Fitness', sets: [{ w: 100, r: 10, done: true }] }] }])
+    search('lifefitness')
+    const first = container.querySelector('.hv-pk-row')
+    expect(first.querySelector('.tt').textContent).toBe(PRESS.n)
+    expect(first.querySelector('.ss').textContent).toContain('Life Fitness')
+  })
+
   it('adds several exercises in the order they were ticked, with upstream’s quick add', () => {
     const onPick = vi.fn()
     open(onPick)

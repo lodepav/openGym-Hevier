@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun } from './exercise-picker.js'
+import { EXDB as DB, searchExercises } from '../../lib/exercises.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from './exercise-picker.js'
 
 describe('hevier: exercise picker list', () => {
   it('files the catalogue’s and a custom exercise’s spellings under one muscle', () => {
@@ -54,5 +55,36 @@ describe('hevier: Add superset finds what was just added', () => {
     expect(addedRun(items, 4, ['d', 'x'])).toBe(-1)
     expect(addedRun(items, 3, ['d'])).toBe(-1)
     expect(addedRun([], -1, ['a', 'b'])).toBe(-1)
+  })
+})
+
+describe('hevier: search by machine brand (D36)', () => {
+  const ex = re => DB.find(e => re.test(e.n))
+  const PRESS = ex(/^sled 45° leg press$/i)
+  const CURL = ex(/^lever lying leg curl$/i)
+  const EXT = ex(/^lever leg extension$/i)
+  const S = {
+    hvMachines: { [PRESS.id]: { '': 'Life Fitness' }, [EXT.id]: { g1: 'Technogym' } },
+    workouts: [{ d: '2026-10-01', entries: [{ id: CURL.id, hvBrand: 'LifeFitness', sets: [] }, { id: EXT.id, sets: [] }] }],
+  }
+  const list = [PRESS, CURL, EXT]
+  const hits = q => brandMatches(list, brandsByExercise(S), q, searchExercises).map(m => [m.ex.n, m.brand])
+
+  it('collects the brands of the defaults and of logged sets', () => {
+    expect(brandsByExercise(S)).toEqual({ [PRESS.id]: ['Life Fitness'], [EXT.id]: ['Technogym'], [CURL.id]: ['LifeFitness'] })
+  })
+  it('matches whatever the spacing and case', () => {
+    for (const q of ['Life Fitness', 'lifefitness', 'LIFE fit', 'fitness']) {
+      expect(hits(q).map(h => h[0])).toEqual([PRESS.n, CURL.n])
+    }
+    expect(hits('techno')).toEqual([[EXT.n, 'Technogym']])
+  })
+  it('narrows by the exercise name with the other words', () => {
+    expect(hits('life fitness press').map(h => h[0])).toEqual([PRESS.n])
+    expect(hits('technogym squat')).toEqual([])
+  })
+  it('nothing for a query too short or naming no brand', () => {
+    expect(hits('l')).toEqual([])
+    expect(hits('leg press')).toEqual([])
   })
 })
