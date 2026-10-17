@@ -91,11 +91,11 @@ intent is exactly what conflict resolution needs.
 | What | Why | How (seam) |
 |---|---|---|
 | Application id `ch.duartesantos.opengym.hevier` | Installs beside the official openGym on the Xperia instead of clashing with it. | `frontend/android/app/hevier.gradle` sets `android.defaultConfig.applicationId`. One `apply from: 'hevier.gradle'` line goes at the end of `app/build.gradle` (the end of the file is stable; `versionCode` near the top changes each release). |
-| App name "Hevier" (or your choice) | The launcher label. | `hevier.gradle` → `resValue "string", "app_name", ...`, after removing the string from `res/values/strings.xml` only if Gradle complains about a duplicate. Try `resValue` first. |
+| App name **Go Hevier** (D39, 2026-10-17; was "Hevier") | The launcher label. | Done: fork-owned `src/hevier-release/res/values/strings.xml` (and `hevier-debug`, "Go Hevier Test"), added to the source sets by `hevier.gradle`; the PWA's in `public/hevier/manifest.json`. |
 | In-app updater | `lib/update.js` checks `DuarteSantos8/openGym` releases, so the fork would offer the *official* APK, which can't install over it (different signing key). | One line: `const REPO = import.meta.env.VITE_UPDATE_REPO \|\| 'DuarteSantos8/openGym'`. The fork build sets `VITE_UPDATE_REPO=lodepav/openGym-Hevier`. Optionally upstream this as a PR: it is a harmless improvement. |
-| Signing key | Updates must be signed with the same key. | `keytool` per `docs/MOBILE.md`. The keystore lives **outside** the repo. |
+| Signing key | Updates must be signed with the same key. | `keytool` per `docs/MOBILE.md`. The keystore lives **outside** the repo; its certificate's SHA-256 is pinned in `hevier/security/apk-cert.txt` (D38). |
 
-**Decision for you:** the application id and name above are placeholders. A different id also
+**Decided:** the application id above, and the name Go Hevier (D39). A different id also
 means the fork's data is separate from an installed official app. Move data across with
 Settings → Data & backup → Export / Import.
 
@@ -306,7 +306,7 @@ calculator).
 The Profile header with the weekly bar chart (Duration / Volume / Reps), Dashboard
 (Statistics · Exercises · Measures · Calendar), and the Statistics page (body-map week,
 set count per muscle). New views over `Stats` / `recovery` / `structuralBalance` data. The
-weekly series are a 🆕 helper derived from logged workouts. The radar chart is on the backlog.
+weekly series are a 🆕 helper derived from logged workouts. The radar chart was dropped (§5, D23).
 
 **Status: done.** Profile (header, weekly chart, dashboard, feed) came with M2. `/stats` is the
 fork's Statistics (`hevier/views/Statistics.jsx`): the last 7 days as a week strip and body map,
@@ -393,7 +393,7 @@ seam in `Icon.jsx`. App icon and splash: upstream's, recoloured from lime to Hev
 `hevier.gradle` adds to both build types; the system splash is dark. Profile's dashboard tiles
 are Hevy's: a line chart for Statistics, the standing figure for Measures. Phase 2 is done. The
 PWA's icons followed on 2026-10-17: the same script writes blue copies of `frontend/public`'s
-into `frontend/public/hevier/`, beside a manifest named Hevier, and `hevier/lib/pwa-icons.js`
+into `frontend/public/hevier/`, beside a manifest named Hevier (Go Hevier since D39), and `hevier/lib/pwa-icons.js`
 points index.html's manifest and icon links there at boot (no seam). The web push notification
 icons in upstream's `sw.js` stay lime.
 
@@ -429,7 +429,7 @@ aren't lost:
   WorkoutMediaSection is on the "Nice work!" page right after Save and in Workout Detail; upstream
   ties a photo to a saved workout, so it cannot sit on the Save page itself without new logic)
 - ~~Live personal-record badge while logging a set~~ (D22, 2026-10-17; no sound, at the user's choice)
-- Monthly report (D23, 2026-10-17). ~~Muscle-distribution radar chart~~: dropped, at the user's
+- ~~Monthly report~~ (D23, 2026-10-17, built). ~~Muscle-distribution radar chart~~: dropped, at the user's
   request. ~~Multi-year calendar~~: covered, Profile → Calendar → Year steps back a year at a time.
 - ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
 - ~~Hevy-style warm-up calculator sheet~~ (covered, 2026-10-17: openGym ramps warm-ups itself,
@@ -453,7 +453,7 @@ the feature is not Hevy-specific (it would remove fork code).
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
-3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). Decided as D19 (2026-10-17), built: all-time best 1RM, no re-enter prompt. The app
+3. ~~**Strength level per exercise, typed in by the user**~~ (user's choice, 2026-10-16). Decided as D19 (2026-10-17), built: all-time best 1RM, no re-enter prompt. The app
    bundles no standards: strengthlevel.com's terms forbid automated access (scraping, scripts),
    and its tables are theirs. Instead, exercise details get a **Compare strength** button that
    opens strengthlevel.com in the browser (the exercise's page if we know its slug, else the site's
@@ -479,11 +479,11 @@ the feature is not Hevy-specific (it would remove fork code).
    gym and/or an equipment brand label (e.g. "Life Fitness", "my gym"). Exercise stats can show
    either everything, or only the sets done with the current labels, since the same exercise
    on two machines isn't comparable. Machines and cables only, not free weights.
-6. **Gym at workout start picks the backups.** Starting a workout or routine at a tagged gym
+6. **Gym at workout start picks the backups.** *Waits for upstream 1.4.2's backups (the merge of v1.4.2).* Starting a workout or routine at a tagged gym
    swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
    *backups for an exercise* (up to five per routine exercise).
 
-7. **Automatic sync to Google Drive** (user, 2026-10-16). Decided as D20 (2026-10-17): a sync
+7. ~~**Automatic sync to Google Drive**~~ (user, 2026-10-16). Done, no code: decided as D20 (2026-10-17): a sync
    app over upstream's auto-backup folder, no fork code. Setup on the phone: Settings → Data &
    backup → turn on **Auto-backup on changes** (optionally choose a folder); install a sync app
    and pair `Documents/openGym` (or the chosen folder) with a Drive folder, upload only, on any
@@ -501,7 +501,7 @@ the feature is not Hevy-specific (it would remove fork code).
    upstream's import with "Merge them in" (1.4.2). From here on, fork data that matters goes in
    `S`, not localStorage, so that it is part of this sync.
 
-8. **Volume as sets per muscle group** (user, 2026-10-16; decided as D18, built). Hevy measures volume as tonnage
+8. ~~**Volume as sets per muscle group**~~ (user, 2026-10-16; decided as D18, built). Hevy measures volume as tonnage
    (weight × reps). The user wants a Settings switch between **total weight** and **sets per
    muscle group**, the sets counted over whatever period the screen shows (a workout, a week, a
    month…). The fork's Statistics already counts sets per muscle (`hevier/lib/muscle-sets.js`,
@@ -616,7 +616,7 @@ session is adding D numbers for the Hevy import).
       membership card"): not offered in the fork. Off the Home widgets (D12, `home-layout.js`'s
       `checkin`) and off Look & Home's "On Home" row (D16's hidden rows). `S.checkIn` and
       `S.gymCards` stay untouched, so upstream's UI reads them as before. D12 changes first.
-    - **A gym picker list**, like Hevy's gym tag: from the workout header (D28's gym chip) and
+    - **A gym picker list**, like Hevy's gym tag (*open: waits for the v1.4.3 merge*): from the workout header (D28's gym chip) and
       Save Workout, a sheet listing **nearby gyms** first, then the user's own gyms (D28's
       equipment profiles), then **Custom gym…** (type a name). Picking a nearby gym that is
       not yet a profile creates one with that name (equipment copied from the active profile),
@@ -629,7 +629,7 @@ session is adding D numbers for the Hevy import).
       host for D26's allow-list, and the position leaves the phone, so the decision says so
       and the sheet works without it (own gyms + custom). A profile remembers where it was
       tagged, so the next time your own gym is suggested first when you are there.
-18. **A weight unit per exercise** (user, 2026-10-17). Hevy lets one exercise be logged in lb
+18. **A weight unit per exercise** (user, 2026-10-17; *open: ask upstream / the author first*). Hevy lets one exercise be logged in lb
     while the rest are in kg (a machine with lb plates). ifrankerem/openGym `6c4635a9e` builds
     it (+500 lines across 30 files, `lib/exercise-unit.js`, synced, with tests), but it touches
     upstream's sync stamps (`api/sync-stamps.js`) and the logging path, which are upstream

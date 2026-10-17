@@ -48,12 +48,12 @@ from their **titles only**, so read a PR before acting on it. Refresh:
 | PR | What | Fork item |
 |---|---|---|
 | #590 | Home: health widgets, a pencil to arrange the cards | D12 configurable Home: if it lands, back the fork's Edit Home with it |
-| #589, #463, #434 | Health area (body composition, activity, heart, sleep) reading Apple Health; weigh-in from Apple Health; weight provenance | §5 items 1–2: the read side may come for Android too, check before building Health Connect reads |
-| #568, #495 | Gym check-in with barcode membership cards | §5 item 4 gyms |
-| #531 | QR codes on machines: scan to jump to the exercise | §5 item 5 machine labels |
-| #624 | Editable aliases for built-in and custom exercises | §5 item 5 labels (maybe) |
+| #589, #463, #434 | Health area (body composition, activity, heart, sleep) reading Apple Health; weigh-in from Apple Health; weight provenance | §5 items 1–2: **done** as D27 / D32 (upstream 1.4.3's Android reads, ported); watch for the Android side of these |
+| #568, #495 | Gym check-in with barcode membership cards | **Won't do:** the fork hides upstream's check-in (D12, 2026-10-17); gyms are D28, the picker §5 item 17 |
+| #531 | QR codes on machines: scan to jump to the exercise | §5 item 5 machine labels (**done** as D28 without QR codes) |
+| #624 | Editable aliases for built-in and custom exercises | §5 item 5 labels: D28 chose brand labels, so only take it if it lands upstream |
 | #509 | Social: friendships and progress on Profile | D14 Profile, Hevy's feed |
-| #484 | Home: favourite lifts with their best e1RM | D12 Home widget candidate, M6 |
+| #484 | Home: favourite lifts with their best e1RM | D12 Home widget candidate, M6: take it if it lands |
 | #498 | Stats: exercise progress defaults to per set | M5 exercise details, M6 |
 | #528 | Liquid Glass redesign (tokens, glass surfaces) | **Phase 2 theme**: a large CSS change, conflicts with `hevier.css` |
 | #549 | Dark mode inverts exercise artwork | Phase 2 theme |
@@ -91,38 +91,38 @@ gh api "repos/DuarteSantos8/openGym/compare/main...OWNER:REPO:BRANCH" --jq '[.ah
 git log --no-merges <fork-ref> --not <all upstream heads and refs/pull/*/head>
 ```
 
-**Matches a planned fork item**
+**Matches a planned fork item** (marked 2026-10-17)
 
 | Fork · commit | What | Fork item |
 |---|---|---|
-| hpeppitt/opengym `7a689334c`, `d3c01db9b` | Health Connect *read* plugin (`HealthReadPlugin.java`, `lib/health-read.js` with tests), backfills body weight; tagged "[upstream]" by its author | §5 item 1: the read plumbing, already written. Ask whether it is going upstream before building ours |
-| awkaplan/openGym `2105f02ef` | Health Connect: read weigh-ins other apps logged, extends upstream's own `HealthConnectPlugin` / `health-sync.js` (tests) | §5 item 1, a second take that extends upstream's code rather than adding a plugin: the better base |
-| frdc/openGym `3eae35eac` | Wear OS controls and heart-rate tracking (3.8k lines) | §5 item 2 (heart rate), for the data shape only |
-| hpeppitt/opengym `69d1db2c7` | Import review step: search the whole library for a match | §5 item 12, the review step (their importer is a photo one, the UI idea carries) |
-| linjames890828/openGym `8cf2010f5` | CSV import reads Chinese and Japanese dates | §5 item 12, small, for upstream |
-| camilopez/openGym `168205bb7` | Fixes up Strong exports before import | §5 item 12, neighbouring |
-| frdc/openGym `940e6f410` | Search exercises by machine names | §5 item 5 (machine labels) |
-| kdaneshmir-gif/lift `05b7b51dd`, `14c44f184` | "Machine taken" swap; several gyms each saved as a profile | §5 items 4–6 (upstream 1.4.2 backups cover the swap) |
-| Hugo-Mllr/Biscotos (2026-10-14 "chore(security)"), geniok1980/openGym (CI structural checks) | gitleaks pre-commit hook and history audit; CI checks for secrets, big files, line endings, lockfiles | §5 item 11, examples for the release check |
-| solhren/openGym (2026-10-10) | Drops `@capacitor/assets` tooling for a vulnerable dependency | §5 item 11; check whether upstream still carries it |
-| alikulovuzz/kuch (2026-10-14/15) | Signed APK built on GitHub Actions; a "storage boundary" test that fails when an upstream merge touches the store; a sync runbook | Fork upkeep ideas (CONFLICTS.md, item 11's signing check) |
+| hpeppitt/opengym `7a689334c`, `d3c01db9b` | Health Connect *read* plugin (`HealthReadPlugin.java`, `lib/health-read.js` with tests), backfills body weight; tagged "[upstream]" by its author | §5 item 1: **done** as D27 from upstream's own 1.4.3 code instead, so not taken |
+| awkaplan/openGym `2105f02ef` | Health Connect: read weigh-ins other apps logged, extends upstream's own `HealthConnectPlugin` / `health-sync.js` (tests) | §5 item 1: **done** as D27 from upstream's 1.4.3 code instead, so not taken |
+| frdc/openGym `3eae35eac` | Wear OS controls and heart-rate tracking (3.8k lines) | §5 item 2: **done** as D27 with upstream 1.4.3's data shape; Wear OS not taken |
+| hpeppitt/opengym `69d1db2c7` | Import review step: search the whole library for a match | §5 item 12's review step: **done** as D33 (the idea only) |
+| linjames890828/openGym `8cf2010f5` | CSV import reads Chinese and Japanese dates | **Won't do** in the fork: upstream's importer, for upstream |
+| camilopez/openGym `168205bb7` | Fixes up Strong exports before import | **Won't do** in the fork: Strong, upstream's importer |
+| frdc/openGym `940e6f410` | Search exercises by machine names | §5 item 14: **done** as D36 (the idea only, over D28's brands) |
+| kdaneshmir-gif/lift `05b7b51dd`, `14c44f184` | "Machine taken" swap; several gyms each saved as a profile | §5 items 4–5 **done** as D28 (gyms are profiles); item 6 waits for upstream 1.4.2's backups, which cover the swap |
+| Hugo-Mllr/Biscotos (2026-10-14 "chore(security)"), geniok1980/openGym (CI structural checks) | gitleaks pre-commit hook and history audit; CI checks for secrets, big files, line endings, lockfiles | §5 item 11: **done** as D26 (gitleaks over the history, local, no CI) |
+| solhren/openGym (2026-10-10) | Drops `@capacitor/assets` tooling for a vulnerable dependency | §5 item 11: D26's Trivy gate scans every lockfile, dev dependencies included, so a vulnerable one fails there |
+| alikulovuzz/kuch (2026-10-14/15) | Signed APK built on GitHub Actions; a "storage boundary" test that fails when an upstream merge touches the store; a sync runbook | The signing check **done** as D38 (local, no CI); the rest fork upkeep ideas (CONFLICTS.md) |
 
-**Hevy behaviours the fork has no item for yet (backlog candidates)**
+**Hevy behaviours and other ideas (backlog candidates, marked 2026-10-17)**
 
 | Fork · commit | What | Note |
 |---|---|---|
-| vinayakgupta62/openGym `9ce5015f8`, `2e4e56286`, `502d63818` | After finishing, offer to keep exercises added mid-workout in the routine; also from History. Pure helper `lib/session-routines.js` with tests | Hevy asks "Update routine?" on Save. Good fit for M4 (Save Workout) |
-| vinayakgupta62/openGym (2026-10-15 "automatically advance") | Move to the next exercise after the last set, every layout | Compare with upstream PR #563 first |
-| soldsawn/openGym `be14748ab` | Running-workout bar above the tab bar with Resume and Discard | Hevy has exactly this; check what the fork's tab bar does today |
-| ifrankerem/openGym `997992509` → `6c4635a9e` | Per-exercise weight unit (kg on one, lb on another), synced, with tests (`lib/exercise-unit.js`) | Hevy has per-exercise units. Touches sync (`api/sync-stamps.js`): only through upstream |
-| ifrankerem/openGym `debf782c9`, `2c27004cf`, `1d9fe8a75` | Warm-ups carry over from the last session; "Repeat last session" progression incl. warm-ups | Upstream PR #485 is the same idea; follow that |
-| jeanluyac-sketch/openGym `eac00d74a` | Swap opens on the same muscle | Hevy does this; check the fork's swap picker |
-| Packebusch/openGym `49c494328` | Show what a workout holds before it starts | Hevy's routine preview (SCREENS.md); the fork may already have it via the routine card |
-| its-everdred/openGym `ad781c945` | Set how long an exercise took | Small |
-| furittsu-desu/openGym `6287c7efb` | Body-weight unit separate from the lifting unit | Small |
-| slippylabs/opengym (2026-10-16) | Live PR toasts while logging | §5 backlog "live personal-record badge" |
-| em4go/openGym `37e4b4d60`, `4be1c540e` | Percentage-of-training-max loading; ordered program blocks | Not Hevy; progression logic, upstream's call |
-| camilopez/openGym `36d34ade7` | Progression says why it restarted | Not Hevy; for upstream |
+| vinayakgupta62/openGym `9ce5015f8`, `2e4e56286`, `502d63818` | After finishing, offer to keep exercises added mid-workout in the routine; also from History. Pure helper `lib/session-routines.js` with tests | §5 item 13: **done** as D35 (every kind of change, a fading button on "Nice work!") |
+| vinayakgupta62/openGym (2026-10-15 "automatically advance") | Move to the next exercise after the last set, every layout | Open: compare with upstream PR #563 first |
+| soldsawn/openGym `be14748ab` | Running-workout bar above the tab bar with Resume and Discard | **Done** in the fork: `HevyTabBar`'s resume bar has Resume and Discard (M2) |
+| ifrankerem/openGym `997992509` → `6c4635a9e` | Per-exercise weight unit (kg on one, lb on another), synced, with tests (`lib/exercise-unit.js`) | §5 item 18, open. Touches sync (`api/sync-stamps.js`): only through upstream, else a fork display unit |
+| ifrankerem/openGym `debf782c9`, `2c27004cf`, `1d9fe8a75` | Warm-ups carry over from the last session; "Repeat last session" progression incl. warm-ups | **Won't do** in the fork: progression logic; upstream PR #485 is the same idea, follow that |
+| jeanluyac-sketch/openGym `eac00d74a` | Swap opens on the same muscle | **Done** in the fork: the Hevy picker's Replace and swap open on the same muscle (M3) |
+| Packebusch/openGym `49c494328` | Show what a workout holds before it starts | §5 item 15: **done** as D37, the routine page (the idea only) |
+| its-everdred/openGym `ad781c945` | Set how long an exercise took | Small, not picked (2026-10-17) |
+| furittsu-desu/openGym `6287c7efb` | Body-weight unit separate from the lifting unit | Small, not picked (2026-10-17) |
+| slippylabs/opengym (2026-10-16) | Live PR toasts while logging | **Done** as D22 (the fork's own) |
+| em4go/openGym `37e4b4d60`, `4be1c540e` | Percentage-of-training-max loading; ordered program blocks | **Won't do**: not Hevy; progression logic, upstream's call |
+| camilopez/openGym `36d34ade7` | Progression says why it restarted | **Won't do**: not Hevy; for upstream |
 
 Not taken: dafepro/openGym's Google Drive sync through a snapshot provider (D20 chose the sync-app
 route); everything Coach (D11), nutrition, social and hosting.
