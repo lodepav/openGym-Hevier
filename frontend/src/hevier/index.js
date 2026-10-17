@@ -11,6 +11,9 @@ import * as hevyMore from './lib/hevy-more.js'
 import { HevyMoreRows, moreToast } from './components/HevyMoreRows.jsx'
 import { useStore } from '../store/useStore.js'
 import { initHealthRead } from './lib/health-read-sync.js'
+import { initWeighInSource, weighInBlocked } from './lib/weigh-in-source.js'
+import { useUI } from '../store/useUI.js'
+import { t } from '../lib/i18n.js'
 import { applyForkIcons } from './lib/pwa-icons.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
@@ -28,5 +31,7 @@ if (HEVIER) applyForkIcons()
 // Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).
 if (HEVIER) initHealthRead(() => useStore.getState().S, fn => useStore.getState().update(fn),
   cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
+// …and while the weigh-in read is on, weigh-ins come from there only (seam S22, D32).
+if (HEVIER) { initWeighInSource(); hooks.weighIns = opts => weighInBlocked(opts, () => useUI.getState().toast(t('Weigh-ins come from Health Connect'))) }
 
 export { HEVIER }
