@@ -230,3 +230,11 @@ Added 2026-10-17, at the user's request.
 | # | Decision |
 |---|---|
 | D39 | **The app is called "Go Hevier".** It is the name under the launcher icon and in the recent-apps list (the fork's `hevier-release` strings; the debug build is "Go Hevier Test"), the installed PWA's name (`public/hevier/manifest.json`), and the browser tab's and iOS home-screen title, which the fork sets at boot because `index.html` is upstream's (`hevier/lib/pwa-icons.js`, beside the icon swap). Health Connect and Android's settings show the launcher name. **Unchanged:** the app id `ch.duartesantos.opengym.hevier` (a new id would install as a second app and could not update the first), the repository and its `hevier/` names, the native plugin names, and upstream's own screens that name openGym (About, the login, the licence), which credit the project the fork is built on. |
+
+## Weights to the hundredth
+
+Added 2026-10-17, at the user's request: a Hevy import rounded 20.41 kg to 20.4.
+
+| # | Decision |
+|---|---|
+| D40 | **An imported weight keeps its hundredths, and a typed one already does.** Upstream's importers round every weight to a tenth in the profile's unit: the Hevy API's `weight_kg` and body weights (`lib/import-hevy.js`), and a CSV row converted between kg and lb, or an Apple Health weigh-in converted (`lib/import-csv.js`). With the flag on, seam S25 hands the weight to `hooks.importWeight` instead, which rounds to 0.01 (`hevier/lib/hevy-import.js`), so Hevy's 20.41 kg stays 20.41 and 45 lb read into a kg profile is 20.41 kg. A CSV weight in the profile's own unit was never rounded. **Logging** needs no change: the set fields store what is typed (upstream's `NumberField`, no rounding), and upstream's Settings → Units & language → **Weight decimals** → `0.25` shows weights to two decimals everywhere (`fmtNum`); its default, `0.5`, shows one, while the value stays exact. Unchanged: the progression's targets, which upstream rounds to its increment and to a tenth (`snapWeight`), and Health Connect weigh-ins, read to a tenth by upstream's v1.4.3 rule ported word for word (D27). Re-importing does not fix weights an earlier import already rounded: its days are never re-imported (D29). |
