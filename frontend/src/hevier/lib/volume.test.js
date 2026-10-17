@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { volumeMode, workSets, muscleSets } from './volume.js'
+import { volumeMode, muscleMode, workSets, muscleSets } from './volume.js'
+import { loadOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { muscleOf } from './exercise-picker.js'
 
 const byMuscle = m => EXDB.filter(e => muscleOf(e) === m)
@@ -35,5 +36,21 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(muscleSets([{ id: 'nope', sets: [done()] }])).toEqual([])
     expect(muscleSets(undefined)).toEqual([])
     expect(workSets([])).toBe(0)
+  })
+})
+
+describe('hevier: secondary muscles in part (D42)', () => {
+  it('defaults to the main muscle only', () => {
+    expect(muscleMode({})).toBe('main')
+    expect(muscleMode({ hvMuscleSets: 'share' })).toBe('share')
+  })
+
+  it('share mode counts upstream’s load, a secondary muscle in part, by upstream’s names', () => {
+    const entries = [{ id: BENCH.id, sets: [done(), done(), done({ phase: 'warmup' })] }]
+    const load = loadOf([{ id: BENCH.id, sets: 2 }])
+    const list = muscleSets(entries, 'share')
+    expect(list[0]).toEqual({ muscle: MUSCLE_NAME.chest, sets: Math.round(load.chest * 10) / 10 })
+    expect(list.length).toBe(Object.values(load).filter(v => v > 0).length)
+    expect(list.slice(1).every(r => r.sets < 2)).toBe(true)
   })
 })

@@ -39,9 +39,10 @@ export function firstMonth(workouts) {
 /**
  * The report for month (y, mo): { ...totals, prev (the month before's totals), records
  * [{ id, d }], weeks { trained, total }, muscles [{ muscle, sets }], top [{ id, sets, best }] }.
- * `ws` is the week's first day, for the weeks the month's calendar rows show.
+ * `ws` is the week's first day, for the weeks the month's calendar rows show; `mode` counts the
+ * muscles (D42).
  */
-export function monthReport(workouts, y, mo, ws = 1) {
+export function monthReport(workouts, y, mo, ws = 1, mode = 'main') {
   const list = monthWorkouts(workouts, y, mo)
   const before = shift(y, mo, -1)
   const records = []
@@ -63,7 +64,7 @@ export function monthReport(workouts, y, mo, ws = 1) {
     prev: totals(monthWorkouts(workouts, before.y, before.mo)),
     records,
     weeks: { trained: trainedRows.size, total: Math.ceil(cells.length / 7) },
-    muscles: muscleSets(list.flatMap(w => w.entries || [])),
+    muscles: muscleSets(list.flatMap(w => w.entries || []), mode),
     top: [...byEx.values()].sort((a, b) => b.sets - a.sets).slice(0, 5),
   }
 }

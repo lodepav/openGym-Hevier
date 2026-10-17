@@ -7,10 +7,10 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, DAYS } from '../../lib/format.js'
-import { MUSCLE_NAME } from '../../lib/muscles.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import { muscleSetCounts, lastDays, PERIODS } from '../lib/muscle-sets.js'
+import { muscleMode } from '../lib/volume.js'
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
@@ -44,7 +44,7 @@ function LastSevenDays({ S, today }) {
 
 function SetCounts({ S, today }) {
   const [kind, setKind] = useState('week')
-  const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S) })
+  const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S), mode: muscleMode(S) })
   const max = Math.max(1, ...rows.map(r => r.sets))
   return <div className="card">
     <h2>{t('Set count per muscle group')}</h2>
@@ -53,13 +53,13 @@ function SetCounts({ S, today }) {
     {rows.length ? <div className="hv-msets">{rows.map(r => {
       const delta = Math.round((r.sets - r.prev) * 10) / 10
       return <div key={r.muscle} className="hv-mset">
-        <span className="hv-mset-n">{t(MUSCLE_NAME[r.muscle])}</span>
+        <span className="hv-mset-n">{t(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>
         <b>{fmtNum(r.sets)}</b>
         <span className={'hv-mset-d' + (delta > 0 ? ' up' : delta < 0 ? ' down' : '')}>{delta ? (delta > 0 ? '+' : '') + fmtNum(delta) : '–'}</span>
       </div>
     })}
-      <div className="small dim">{t('Work sets, a secondary muscle counted in part')} · {t(SINCE[kind])}</div>
+      <div className="small dim">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     </div> : <div className="muted small" style={{ marginTop: 10 }}>{t('No sets in this period yet.')}</div>}
   </div>
 }

@@ -700,7 +700,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
       into view.
     - **Bug:** the page seems to close by itself when left alone. Check whether D35's 5-second
       fade, an update check, or the session timer causes it.
-28. **Statistics: secondary muscles as fractional sets, as a setting** (user, 2026-10-17).
+28. ~~**Statistics: secondary muscles as fractional sets, as a setting**~~ Done 2026-10-17 (D42): Settings root → Preferences → **Muscle sets**. The original note (user, 2026-10-17).
     Fractional sets (openGym's count, a secondary muscle in part) show in Statistics now; a
     setting chooses **main muscle only** (D18's count) or **secondary muscles too, as
     fractions** (upstream's own fractions). **The user's choice (2026-10-17):** it steers every
