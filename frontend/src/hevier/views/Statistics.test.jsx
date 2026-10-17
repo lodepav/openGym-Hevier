@@ -88,4 +88,10 @@ describe('hevier: Statistics and Measures (M6)', () => {
     act(() => container.querySelector('.hdr > .iconbtn').click())
     expect(path).toBe('/measures')
   })
+
+  it('… and Muscle balance goes back to Statistics (review S3: these fail if upstream’s header changes)', () => {
+    render(['/structural-balance'])
+    act(() => container.querySelector('.hdr > .iconbtn').click())
+    expect(path).toBe('/stats')
+  })
 })
