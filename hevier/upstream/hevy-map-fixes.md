@@ -3,7 +3,7 @@
 Found on 2026-10-17 by running the user's Hevy CSV export (165 exercises, about 6,000 sets)
 through upstream's `parseWorkoutCSV` and checking every match against its catalogue artwork
 (`catalogue/media/still/<id>.webp`). The fork carries these in `frontend/src/hevier/lib/hevy-import.js`
-(`FIXES`, D29) and deletes each row once upstream has it. The pull request is branch `hevier-upstream/hevy-map-fixes` (sections 1 to 3, each id checked against
+(`FIXES`, D29) and deletes each row once upstream has it. The pull request is branch `hevier-upstream/hevy-map-fixes` (DuarteSantos8/openGym#672) (sections 1 to 3, each id checked against
 Hevy's thumbnail, which names the catalogue animation it shows); the ids below are from before
 that check, and the fork's `FIXES` now uses the pull request's.
 
