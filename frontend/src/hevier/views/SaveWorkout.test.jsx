@@ -68,6 +68,17 @@ describe('hevier: Save Workout (seam S9)', () => {
     expect(container.querySelector('.hv-warn').textContent).toContain('1 set still unchecked')
   })
 
+  it('writes the day’s auto-backup again once the gym label is on the saved workout (D20, D28)', () => {
+    render('/workout/save', logged())
+    useStore.setState(st => ({ S: { ...st.S, equipProfiles: [{ id: 'g1', name: 'City Gym', equipment: [] }], activeEquipId: 'g1' } }))
+    const seen = []
+    const spy = vi.spyOn(useStore.getState(), 'autoBackupNow').mockImplementation(() => { seen.push(clone(useStore.getState().S.workouts)) })
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    spy.mockRestore()
+    expect(seen.length).toBeGreaterThan(1)
+    expect(seen.at(-1)[0].entries[0].hvGym).toBe('g1')
+  })
+
   it('saves the title and description through upstream’s finish, then shows Nice work!', () => {
     render('/workout/save', logged())
     typeInto(container.querySelector('.hv-stitle'), 'Heavy legs')

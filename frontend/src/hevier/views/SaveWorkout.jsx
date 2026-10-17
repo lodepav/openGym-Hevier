@@ -91,6 +91,9 @@ export function SaveWorkout() {
       s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
       s.workouts = applyWhen(s.workouts, ref, base, when)
     })
+    // doFinishWorkout wrote the day's auto-backup before the labels and the date above: again,
+    // so the backup holds the workout as saved (D20).
+    useStore.getState().autoBackupNow()
   }
 
   return <div className="hv-save">
