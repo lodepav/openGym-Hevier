@@ -143,6 +143,20 @@
 :root[data-ui="hevier"] .hv-wcard-ex .grow{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-thumb.sm{width:32px;height:32px;display:inline-block}
 :root[data-ui="hevier"] .hv-wcard-more{font-size:14px;color:var(--label-2);text-align:center;padding-top:6px}
+/* Hevy's feed: full-width cards, the date above the title, regular-weight numbers and names,
+   40 px thumbnails, a small grey "see more" */
+:root[data-ui="hevier"] .hv-wcard{display:flex;flex-direction:column;margin-inline:calc(-1 * var(--pad));border-radius:0;padding:14px var(--pad) 12px}
+:root[data-ui="hevier"] .hv-wcard-d{order:-1;font-size:12px;margin-bottom:2px}
+:root[data-ui="hevier"] .hv-wcard-h{margin:-4px -6px 6px 0}
+:root[data-ui="hevier"] .hv-wcard-stats{gap:32px}
+:root[data-ui="hevier"] .hv-wcard-stats span{font-size:11px}
+:root[data-ui="hevier"] .hv-wcard-stats b{font-weight:400}
+:root[data-ui="hevier"] .hv-wcard .hv-mline b{font-weight:500}
+:root[data-ui="hevier"] .hv-wcard-ex{font-size:15px;gap:12px;padding:4px 0}
+:root[data-ui="hevier"] .hv-wcard-ex b{font-weight:400}
+:root[data-ui="hevier"] .hv-wcard .hv-thumb.sm{width:40px;height:40px}
+:root[data-ui="hevier"] .hv-wcard .hv-thumb.sm img{width:40px;height:40px}
+:root[data-ui="hevier"] .hv-wcard-more{font-size:13px}
 :root[data-ui="hevier"] .hv-moreb{width:100%;margin-bottom:12px}
 
 /* ---------- Profile (hevier/views/Profile.jsx, components/WeeklyChart.jsx) ---------- */
