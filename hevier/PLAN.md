@@ -662,7 +662,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     filled in item 25's colours (cardio / strength / deload) and `N workouts · N sets` for the
     month; the sets are ticked work sets (D18's count, as the monthly report); a tap opens
     Profile → Calendar on this month.
-22. **Hevy import: more fix-table rows** (user, 2026-10-17). The user has seen a *deficit Smith
+22. ~~**Hevy import: more fix-table rows**~~ Checked 2026-10-17 against the user's export: no row needed. `Belt Squat (Machine)` lands on *lever belt squat* (2950) and `Deficit Bulgarian Split Squat (Smith Machine)` on *smith unilateral bulgarian split squat from deficit* (11568) by upstream's own match, now held by a test. The misses are the export's older titles with a bare brand bracket, `… (Smith Machine) (LifeFitness)`, which D29 never guesses at: renamed to `(brand: LifeFitness)` in Hevy, or picked in Check exercise matches (D33), they land right. The original note (user, 2026-10-17): The user has seen a *deficit Smith
     machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
     check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
     write-up) where they miss.
