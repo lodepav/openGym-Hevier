@@ -21,6 +21,7 @@ import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
 import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
 import { watchS } from './lib/store-watch.js'
+import { initGymBackups } from './lib/gym-backups-run.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -56,5 +57,9 @@ if (HEVIER) initHevyExport(() => useStore.getState().S, fn => useStore.getState(
 // (DECISIONS.md D44, Android only).
 if (HEVIER) initMonthWidget(() => useStore.getState().S,
   watchS(useStore.subscribe, ['workouts', 'weekStart', 'lang']), route => nav(route), todayISO)
+
+// A routine started at a gym swaps in the backups that gym took last time; swaps teach it (D46).
+if (HEVIER) initGymBackups(() => useStore.getState().S, fn => useStore.getState().update(fn),
+  fn => useStore.subscribe(fn), (msg, opts) => useUI.getState().toast(msg, opts))
 
 export { HEVIER }

@@ -22,6 +22,7 @@ import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { cleanBackups, swapBackups } from '../lib/routine-backups.js'
+import { armSwap } from '../lib/gym-backups-run.js'
 import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 
 const PAGE = 50
@@ -144,8 +145,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 // `backups` (D45): the slot's planned backups. Upstream's v1.4.1 swap does not pass them (1.4.2's
 // does), so a swap of the running workout's exercise reads them from its entry.
 export const exercisePickerSheet = (onPick, { title, like, backups } = {}) => {
-  const list = backups ?? (title === t('Swap exercise') ? swapBackups(useStore.getState().S, like) : null)
-  return useUI.getState().openSheet(close => <ExerciseList onPick={onPick} title={title} like={like} backups={list} close={close} />)
+  const swap = title === t('Swap exercise')
+  const list = backups ?? (swap ? swapBackups(useStore.getState().S, like) : null)
+  // D46: a swap's pick is learned for the session's gym.
+  const pick = swap ? armSwap(() => useStore.getState().S, like, onPick) : onPick
+  return useUI.getState().openSheet(close => <ExerciseList onPick={pick} title={title} like={like} backups={list} close={close} />)
 }
 
 // Profile → Exercises (reference/SCREENS.md §8): the list to browse, Create, and openGym's own
