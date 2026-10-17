@@ -1,4 +1,4 @@
-// Hevy's Add Exercise picker (hevier/PLAN.md M3; reference/SCREENS.md §8). Seam S13 sends
+// Hevy's Add Exercise picker (reference/SCREENS.md §8). Seam S13 sends
 // upstream's exercisePicker here, so the workout's Add Exercise, the routine editor's Add and
 // Replace, a swap and Structural balance all get it. Adding picks several (✓ circles, then "Add 2
 // exercises"); a Replace, a swap or any other titled pick takes one tap. Each pick goes through the

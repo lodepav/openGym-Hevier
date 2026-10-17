@@ -1,4 +1,4 @@
-// The gym picker's nearby gyms (hevier/DECISIONS.md D47, PLAN.md §5 item 17). Only on a tap of
+// The gym picker's nearby gyms (hevier/DECISIONS.md D47). Only on a tap of
 // "Find gyms nearby": the phone's position, once (HevierLocationPlugin.java, seam S27, or the
 // browser's geolocation in the PWA), then OpenStreetMap's gyms around it from the Overpass API.
 // The position goes to Overpass in that one request and is kept nowhere. A gym picked from the

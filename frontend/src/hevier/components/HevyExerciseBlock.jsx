@@ -88,7 +88,7 @@ export default function HevyExerciseBlock({
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
   // The history only changes when a workout is saved, not for each set typed: kept, not rebuilt on
-  // every render (battery, PLAN item 29). Only its workouts are read. The store deep-copies S on
+  // every render (battery). Only its workouts are read. The store deep-copies S on
   // every change, so the log is compared by content (fieldSig), not by identity.
   const A = S.active
   const H = useMemo(() => ({ workouts: sessionHistory(S).workouts }),

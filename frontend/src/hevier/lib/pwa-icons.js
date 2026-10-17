@@ -1,4 +1,4 @@
-// The PWA's name and icons: the fork's, "Go Hevier" (D39) in Hevy blue (hevier/PLAN.md §3 step 5). index.html and
+// The PWA's name and icons: the fork's, "Go Hevier" (D39) in Hevy blue. index.html and
 // public/ are upstream's, so the page is pointed at the fork's copies in public/hevier/ (written
 // by hevier/tools/recolour-icons.py) once it loads. Browsers read the manifest and the
 // touch icon when the app is installed, not when the page is parsed, so swapping the links at

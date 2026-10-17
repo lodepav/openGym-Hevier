@@ -172,7 +172,7 @@ describe('hevier: Update routine from the summary (D35)', () => {
 })
 const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].filter(b => b.textContent.includes(text)).at(-1)
 
-describe('hevier: the summary stays put (PLAN.md item 27)', () => {
+describe('hevier: the summary stays put', () => {
   it('keeps showing the workout when a sync rewrites its record', () => {
     render('/workout/save', logged())
     act(() => byText('.hv-pagebar button', 'Save').click())

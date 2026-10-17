@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The Hevy Add Exercise picker through seam S13 (hevier/PLAN.md M3): upstream's exercisePicker
+// The Hevy Add Exercise picker through seam S13: upstream's exercisePicker
 // opens the fork's sheet; an add picks several, a titled pick (Replace, swap) takes one tap.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'

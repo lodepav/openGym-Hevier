@@ -1,4 +1,4 @@
-// A gym's backups (hevier/DECISIONS.md D46, PLAN.md §5 item 6): a routine exercise swapped for one
+// A gym's backups (hevier/DECISIONS.md D46): a routine exercise swapped for one
 // of its planned backups (D45) at a gym is swapped the same way the next time the routine starts
 // there. What each gym took is learned from the swaps themselves, the last choice winning, and kept
 // in S.hvGymSwaps ({ [exId]: { [gymId]: backupExId } }, a fork-only field synced as a whole):

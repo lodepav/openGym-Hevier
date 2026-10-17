@@ -1,11 +1,10 @@
 # Design decisions
 
 Agreed with the user on 2026-10-16, before implementation. These override anything in
-PLAN.md or reference/SCREENS.md that says otherwise. Change a decision here first, with the
+RULES.md or reference/SCREENS.md that says otherwise. Change a decision here first, with the
 date, before changing the code.
 
-**Scope rule:** openGym's functionality, Hevy's UX and UI. New features wait until phases 1–2
-work well (PLAN.md §5, backlog).
+**Scope rule:** openGym's functionality, Hevy's UX and UI (RULES.md, "Scope").
 
 ## Workout screen
 
@@ -35,7 +34,7 @@ Added 2026-10-16, at the start of M3.
 | # | Decision |
 |---|---|
 | D11 | **Three tabs: Home · Workout · Profile.** No Coach tab. **The AI coach is disabled by default** and appears nowhere in the fork's navigation; only upstream's own opt-in under Settings remains. |
-| D12 | **Home is configurable.** Home is a list of widgets the user can **add, remove and rearrange** (an "Edit Home" mode with drag handles and switches). It always includes the **workout feed** (Hevy-style cards of finished workouts) as one widget. The widgets are existing openGym pieces: today's plan + week strip, workout feed, body weight, week streak, muscle recovery map, weekly chart. Show/hide reuses upstream's existing switch where it exists (`S.showWeightCard`). **No gym check-in** (changed 2026-10-17, at the user's request; was a widget): upstream's membership QR / barcode cards are not offered in the fork, neither as a Home widget nor as Look & Home's "Gym check-in" row (D16's hidden rows); `S.checkIn` and `S.gymCards` are left as they are, so upstream's UI reads them as before. Hevy-style gym tagging replaces it (PLAN.md §5 item 17). The order and the other widgets' visibility are device-local (`localStorage`, key `hevier_home`), not added to `S`, so nothing changes in sync or exports. |
+| D12 | **Home is configurable.** Home is a list of widgets the user can **add, remove and rearrange** (an "Edit Home" mode with drag handles and switches). It always includes the **workout feed** (Hevy-style cards of finished workouts) as one widget. The widgets are existing openGym pieces: today's plan + week strip, workout feed, body weight, week streak, muscle recovery map, weekly chart. Show/hide reuses upstream's existing switch where it exists (`S.showWeightCard`). **No gym check-in** (changed 2026-10-17, at the user's request; was a widget): upstream's membership QR / barcode cards are not offered in the fork, neither as a Home widget nor as Look & Home's "Gym check-in" row (D16's hidden rows); `S.checkIn` and `S.gymCards` are left as they are, so upstream's UI reads them as before. Hevy-style gym tagging replaces it (D47). The order and the other widgets' visibility are device-local (`localStorage`, key `hevier_home`), not added to `S`, so nothing changes in sync or exports. |
 | D13 | **Workout tab**: Quick Start ("+ Start Empty Workout") · a **Today card** ("Today: Leg Day · Start", from openGym's schedule or rotation) · Routines header with **New Routine**, **Explore** (→ openGym's starter plans) and a **Schedule** button (→ openGym's weekly plan / rotation editor) · Hevy-style routine cards with **Start Routine**. **Routine folders** (changed 2026-10-16, at the user's request; was "backlog"): "My Routines" first, then the folders, each folding shut; a folder is the routine's own `folder` field, so it syncs and is backed up with the routine (upstream ignores the field; shared plan files leave it out). The folders' order is their first routine's place in `S.routines`, so moving a folder moves its routines as a block and nothing else is stored. An empty folder and which folders are folded are device-local (`hevier_folders`, `hevier_folders_closed`). Deleting a folder keeps its routines. **Drag to reorder** routines inside a folder and the folders themselves, by a handle; across folders with ⋯ → Move to folder. |
 | D14 | **Profile**: header with the weekly chart (Duration / Volume / Reps) · a 2×2 dashboard: Statistics · Exercises · Measures · Calendar · then the workout list. openGym's muscle map, recovery, muscle balance and progress photos live under Statistics and Measures. ⚙ opens Settings. |
 
@@ -57,7 +56,7 @@ Added 2026-10-16, before phase 2, at the user's choice.
 
 ## Volume
 
-Added 2026-10-16, at the user's request (PLAN.md §5 item 8), with the user's choices.
+Added 2026-10-16, at the user's request, with the user's choices.
 
 | # | Decision |
 |---|---|
@@ -65,23 +64,23 @@ Added 2026-10-16, at the user's request (PLAN.md §5 item 8), with the user's ch
 
 ## Strength level
 
-Added 2026-10-17, at the user's request (PLAN.md §5 item 3), with the user's choices.
+Added 2026-10-17, at the user's request, with the user's choices.
 
 | # | Decision |
 |---|---|
-| D19 | **Strength level from thresholds the user types in.** The app bundles no standards and never fetches strengthlevel.com (its terms forbid automated access). Exercise details → Summary gets a **Strength level** section, for an exercise that has an estimated 1RM (weighted, not assisted). Empty, it offers **Compare strength**, which folds open in the section itself (changed 2026-10-17, PLAN.md item 24; it was a browser button and an Enter levels sheet): **Look up on strengthlevel.com** (opens the exercise's standards page in the browser if a small slug table knows it, else the standards index), five fields, Beginner · Novice · Intermediate · Advanced · Elite, in the profile unit, rising, and Cancel / Save. Filled, it shows a five-band bar with a marker at the user's **all-time best estimated 1RM**, the page's own Best 1RM record (upstream's read-back, unchanged), the level reached and how far it is to the next (`Intermediate · 7.5 kg to Advanced`; below the first, `Below Beginner`; past the last, `Elite`), and the date the levels were entered. **No re-enter prompt**: the date is shown, nothing else. Stored per exercise in `S.hvStrength` (`{ [exId]: { lv: [5 numbers], u: 'kg' \| 'lb', d: 'YYYY-MM-DD' } }`, a fork-only field upstream ignores, so it syncs and is in backups). Each entry keeps its own unit and is converted for display, since sync brings weights into one unit only for the fields it knows. Sync merges the field as a whole, like the fork's other settings (the newer copy's). **Edit** folds the same fields open under the bar, with **Remove levels**. |
+| D19 | **Strength level from thresholds the user types in.** The app bundles no standards and never fetches strengthlevel.com (its terms forbid automated access). Exercise details → Summary gets a **Strength level** section, for an exercise that has an estimated 1RM (weighted, not assisted). Empty, it offers **Compare strength**, which folds open in the section itself (changed 2026-10-17, at the user's request; it was a browser button and an Enter levels sheet): **Look up on strengthlevel.com** (opens the exercise's standards page in the browser if a small slug table knows it, else the standards index), five fields, Beginner · Novice · Intermediate · Advanced · Elite, in the profile unit, rising, and Cancel / Save. Filled, it shows a five-band bar with a marker at the user's **all-time best estimated 1RM**, the page's own Best 1RM record (upstream's read-back, unchanged), the level reached and how far it is to the next (`Intermediate · 7.5 kg to Advanced`; below the first, `Below Beginner`; past the last, `Elite`), and the date the levels were entered. **No re-enter prompt**: the date is shown, nothing else. Stored per exercise in `S.hvStrength` (`{ [exId]: { lv: [5 numbers], u: 'kg' \| 'lb', d: 'YYYY-MM-DD' } }`, a fork-only field upstream ignores, so it syncs and is in backups). Each entry keeps its own unit and is converted for display, since sync brings weights into one unit only for the fields it knows. Sync merges the field as a whole, like the fork's other settings (the newer copy's). **Edit** folds the same fields open under the bar, with **Remove levels**. |
 
 ## Backup to Google Drive
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 7).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
-| D20 | **Google Drive through a sync app, no fork code.** Upstream's auto-backup (Settings → Data & backup → **Auto-backup on changes**) already writes the whole of `S` after a workout or an edit, one dated file a day, the newest 14 kept, into `Documents/openGym/` or a folder picked with the system picker (#161). A sync app on the phone (Autosync for Google Drive, FolderSync, …) mirrors that folder to Drive. The fork builds no Drive client: a Google sign-in, an OAuth client and a Play Services dependency would go against upstream's "no third-party account" and dependency-light rules, and be native code to carry across merges. Restore is upstream's **Import backup** (a replace; signed in, it offers **Merge them in** when the server has workouts the backup lacks). Everything that must be in the backup therefore lives in `S` (PLAN.md §4), not in `localStorage`. |
+| D20 | **Google Drive through a sync app, no fork code.** Upstream's auto-backup (Settings → Data & backup → **Auto-backup on changes**) already writes the whole of `S` after a workout or an edit, one dated file a day, the newest 14 kept, into `Documents/openGym/` or a folder picked with the system picker (#161). A sync app on the phone (Autosync for Google Drive, FolderSync, …) mirrors that folder to Drive. The fork builds no Drive client: a Google sign-in, an OAuth client and a Play Services dependency would go against upstream's "no third-party account" and dependency-light rules, and be native code to carry across merges. Restore is upstream's **Import backup** (a replace; signed in, it offers **Merge them in** when the server has workouts the backup lacks). Everything that must be in the backup therefore lives in `S` (RULES.md, "Every change"), not in `localStorage`. |
 
 ## Previous values
 
-Added 2026-10-17 (PLAN.md §5, Hevy's "Previous Workout Values").
+Added 2026-10-17 (Hevy's "Previous Workout Values").
 
 | # | Decision |
 |---|---|
@@ -89,7 +88,7 @@ Added 2026-10-17 (PLAN.md §5, Hevy's "Previous Workout Values").
 
 ## Live personal record
 
-Added 2026-10-17 (PLAN.md §5), at the user's choice: no sound.
+Added 2026-10-17, at the user's choice: no sound.
 
 | # | Decision |
 |---|---|
@@ -97,7 +96,7 @@ Added 2026-10-17 (PLAN.md §5), at the user's choice: no sound.
 
 ## Monthly report
 
-Added 2026-10-17, at the user's choice (PLAN.md §5). The muscle-distribution radar is dropped, at
+Added 2026-10-17, at the user's choice. The muscle-distribution radar is dropped, at
 the user's request.
 
 | # | Decision |
@@ -106,7 +105,7 @@ the user's request.
 
 ## Android app
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 items 9 and 10).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
@@ -115,7 +114,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 items 9 and 10).
 
 ## Security gates
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 11).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
@@ -123,16 +122,16 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 11).
 
 ## Health Connect reads
 
-Added 2026-10-17, at the user's request (PLAN.md §5 items 1 and 2): built now, replaced by upstream's
+Added 2026-10-17, at the user's request: built now, replaced by upstream's
 own when the fork merges v1.4.3.
 
 | # | Decision |
 |---|---|
-| D27 | **Heart rate and weigh-ins read from Health Connect, as upstream's v1.4.3 will, until it does.** Upstream's unreleased `release-1.4.3` reads both (commit `f9c03474`, #544, #127); the fork carries the same behaviour now and drops its copy at that merge. **What is stored is v1.4.3's, field for field**, so upstream's code takes the data over unchanged: an imported weigh-in is a body-weight entry with `src: 'hc'`, a set gets `hr` / `restHr` `{ avg, max }`, a workout `hr { avg, max, src, n }` (stamped as an edit, so it syncs). **The rules are upstream's, ported word for word** (`hevier/lib/health-read.js`, `heart-rate.js` with upstream's tests): one weigh-in a day, the latest; a day with a weigh-in typed into openGym is never replaced and typing over an imported one makes it yours; openGym's own records are never read back (the fork's `…opengym.hevier` id included); a weigh-in deleted in openGym does not come back; a set's heart rate is worked out from its tick time and its reps, and only when the watch saved samples densely enough. **Reading** is upstream's loop (`hevier/lib/health-read-sync.js`): only while the app is open (at launch, on coming back, after a save), the heart rate of workouts finished in the last 24 hours, weigh-ins since the last read (30 days the first time); no background or history permission. **Switches:** **Heart rate from your watch** and **Weigh-ins from other apps** (upstream's words) on Settings → Data & backup, under upstream's Health Connect card, each asking for its one permission; off by default; kept on the phone in `hevier-health-read.json`, not in `S`. **Native:** a fork plugin, `HevierHealthReadPlugin.java`, with v1.4.3's `readWeights` / `readHeartRate` replies, in the fork's Java source set, registered by seam S17. **Three upstream rules are backported verbatim** (seam S18), so the v1.4.3 merge meets identical lines: an imported weigh-in is not written back to Health Connect, a typed weigh-in beats an imported one in a sync merge, and the weigh-in sheet clears `src`. **Shown** on the fork's Workout Detail: "♥ Heart rate 128 avg · 161 max" under the stats and ♥ bpm on each set that has one (fork UI, which stays after the merge). Not done here: PLAN item 1's "Health Connect as the only source" (the app's own weigh-in entry turned off), which waits for its own decision. **At the v1.4.3 merge:** delete the plugin, S17, the three hevier/lib files and the Data-page insert; keep S18's lines as upstream's; turn the two switches on again in upstream's rows. |
+| D27 | **Heart rate and weigh-ins read from Health Connect, as upstream's v1.4.3 will, until it does.** Upstream's unreleased `release-1.4.3` reads both (commit `f9c03474`, #544, #127); the fork carries the same behaviour now and drops its copy at that merge. **What is stored is v1.4.3's, field for field**, so upstream's code takes the data over unchanged: an imported weigh-in is a body-weight entry with `src: 'hc'`, a set gets `hr` / `restHr` `{ avg, max }`, a workout `hr { avg, max, src, n }` (stamped as an edit, so it syncs). **The rules are upstream's, ported word for word** (`hevier/lib/health-read.js`, `heart-rate.js` with upstream's tests): one weigh-in a day, the latest; a day with a weigh-in typed into openGym is never replaced and typing over an imported one makes it yours; openGym's own records are never read back (the fork's `…opengym.hevier` id included); a weigh-in deleted in openGym does not come back; a set's heart rate is worked out from its tick time and its reps, and only when the watch saved samples densely enough. **Reading** is upstream's loop (`hevier/lib/health-read-sync.js`): only while the app is open (at launch, on coming back, after a save), the heart rate of workouts finished in the last 24 hours, weigh-ins since the last read (30 days the first time); no background or history permission. **Switches:** **Heart rate from your watch** and **Weigh-ins from other apps** (upstream's words) on Settings → Data & backup, under upstream's Health Connect card, each asking for its one permission; off by default; kept on the phone in `hevier-health-read.json`, not in `S`. **Native:** a fork plugin, `HevierHealthReadPlugin.java`, with v1.4.3's `readWeights` / `readHeartRate` replies, in the fork's Java source set, registered by seam S17. **Three upstream rules are backported verbatim** (seam S18), so the v1.4.3 merge meets identical lines: an imported weigh-in is not written back to Health Connect, a typed weigh-in beats an imported one in a sync merge, and the weigh-in sheet clears `src`. **Shown** on the fork's Workout Detail: "♥ Heart rate 128 avg · 161 max" under the stats and ♥ bpm on each set that has one (fork UI, which stays after the merge). "Health Connect as the only source" (the app's own weigh-in entry turned off) is D32. **At the v1.4.3 merge:** delete the plugin, S17, the three hevier/lib files and the Data-page insert; keep S18's lines as upstream's; turn the two switches on again in upstream's rows. |
 
 ## Gyms and machine labels
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 items 4–5; item 6 waits for upstream 1.4.2).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
@@ -140,7 +139,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 items 4–5; item 6 waits fo
 
 ## Hevy import
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 12), after the user's own Hevy export was
+Added 2026-10-17, at the user's choices, after the user's own Hevy export was
 run through upstream's matcher and every match was checked against its catalogue artwork.
 
 | # | Decision |
@@ -167,7 +166,7 @@ its routine, the ones imported earlier included.
 
 ## Weigh-ins from Health Connect only
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 1, the part D27 left out).
+Added 2026-10-17, at the user's choice (the part D27 left out).
 
 | # | Decision |
 |---|---|
@@ -175,7 +174,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 1, the part D27 left ou
 
 ## Hevy import review
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 12's review step).
+Added 2026-10-17, at the user's choice (D29's review step).
 
 | # | Decision |
 |---|---|
@@ -192,7 +191,7 @@ switch on, edits updated, exercises Hevy lacks created there.
 
 ## Update routine after a workout
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 13): no prompt, a button that goes by
+Added 2026-10-17, at the user's choices: no prompt, a button that goes by
 itself; every kind of change; one tap keeps them all.
 
 | # | Decision |
@@ -201,7 +200,7 @@ itself; every kind of change; one tap keeps them all.
 
 ## Search by machine brand
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 14).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
@@ -209,7 +208,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 14).
 
 ## Routine page
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 15).
+Added 2026-10-17, at the user's choice.
 
 | # | Decision |
 |---|---|
@@ -217,7 +216,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 15).
 
 ## APK checks
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 16, the part D26 left out).
+Added 2026-10-17, at the user's choice (the part D26 left out).
 
 | # | Decision |
 |---|---|
@@ -241,7 +240,7 @@ Added 2026-10-17, at the user's request: a Hevy import rounded 20.41 kg to 20.4.
 
 ## Weight unit per exercise
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 18): fork-only, not asked upstream first.
+Added 2026-10-17, at the user's choices: fork-only, not asked upstream first.
 
 | # | Decision |
 |---|---|
@@ -249,7 +248,7 @@ Added 2026-10-17, at the user's choices (PLAN.md §5 item 18): fork-only, not as
 
 ## Muscle sets
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 28).
+Added 2026-10-17, at the user's choices.
 
 | # | Decision |
 |---|---|
@@ -257,7 +256,7 @@ Added 2026-10-17, at the user's choices (PLAN.md §5 item 28).
 
 ## Cable setup
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 23).
+Added 2026-10-17, at the user's choices.
 
 | # | Decision |
 |---|---|
@@ -265,7 +264,7 @@ Added 2026-10-17, at the user's choices (PLAN.md §5 item 23).
 
 ## Month widget
 
-Added 2026-10-17, at the user's choices (PLAN.md §5 item 21).
+Added 2026-10-17, at the user's choices.
 
 | # | Decision |
 |---|---|
@@ -282,7 +281,7 @@ replace them.
 
 ## A gym's backups
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 6): learned from swaps.
+Added 2026-10-17, at the user's choice: learned from swaps.
 
 | # | Decision |
 |---|---|
@@ -290,7 +289,7 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 6): learned from swaps.
 
 ## Gym picker
 
-Added 2026-10-17, at the user's choice (PLAN.md §5 item 17): nearby gyms only on a tap. Built now,
+Added 2026-10-17, at the user's choice: nearby gyms only on a tap. Built now,
 ahead of upstream 1.4.3's location code, which it ports.
 
 | # | Decision |

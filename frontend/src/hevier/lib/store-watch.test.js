@@ -4,7 +4,7 @@ import { fieldSig, fieldsChanged, watchS } from './store-watch.js'
 // The store's update deep-copies S (store/useStore.js), so every field is a new object.
 const copy = o => JSON.parse(JSON.stringify(o))
 
-describe('hevier store watch (battery, PLAN item 29)', () => {
+describe('hevier store watch (battery)', () => {
   const S = { workouts: [{ id: 'w1', entries: [] }], routines: [], active: { sets: 1 } }
 
   it('a set typed in the running workout changes none of the watched fields, even in a deep copy', () => {

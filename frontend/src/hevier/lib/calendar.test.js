@@ -36,7 +36,7 @@ describe('hevier: calendar', () => {
   })
 })
 
-describe('hevier: calendar kinds and titles (PLAN item 25)', () => {
+describe('hevier: calendar kinds and titles', () => {
   const RUN = EXDB.find(e => isCardio(e)).id
   const LIFT = EXDB.find(e => !isCardio(e)).id
   const w = (name, ids, extra = {}) => ({ name, entries: ids.map(id => ({ id })), ...extra })

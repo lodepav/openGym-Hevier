@@ -20,7 +20,8 @@ import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
 // (hevier/upstream/hevy-map-fixes.md), and goes from here once upstream has it.
 export const FIXES = {
   // Each id is the catalogue entry with the animation Hevy's own thumbnail shows (its file name
-  // starts with that id), as offered upstream; the last three titles are the user's own exercises.
+  // starts with that id), as offered upstream (hevier/upstream/hevy-map-fixes.md lists the four
+  // titles that are the user's own and stay here).
   // upstream picks the wrong exercise
   'seated leg curl (machine)': '0599',          // not the lying leg curl
   'single leg extensions': { id: '7108', side: true },   // not the floor knee extension

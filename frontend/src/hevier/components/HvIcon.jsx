@@ -1,4 +1,4 @@
-// Hevy's glyphs where they differ from upstream's (hevier/PLAN.md §3, step 4). Drawn to upstream's
+// Hevy's glyphs where they differ from upstream's (D17, step 4). Drawn to upstream's
 // conventions (components/Icon.jsx: 24×24, live area 3…21, strokes only, round caps), so they sit
 // beside upstream's set unnoticed. Any other name falls back to upstream's Icon, so the fork never
 // edits the shared table.
