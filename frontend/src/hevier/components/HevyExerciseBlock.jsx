@@ -41,7 +41,7 @@ import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
 import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
-import { previousSetsFor } from '../lib/previous-sets.js'
+import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -69,7 +69,7 @@ export default function HevyExerciseBlock({
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
   const H = sessionHistory(S)
-  const prev = previousSetsFor(H, entry)
+  const prev = previousSetsFor(H, entry, previousMode(S))
   const last = lastEntryFor(H, entry.id, entry.rid)
   const kind = effortOf(S)
   const eff = EFFORT[kind]

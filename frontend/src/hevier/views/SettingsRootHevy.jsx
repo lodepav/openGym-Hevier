@@ -2,7 +2,8 @@
 // through seams S11 and S12 in views/Settings.jsx: upstream's search, account card data and row
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
-// (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume.
+// (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume; and its Previous values
+// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious.
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
 import { useStore } from '../../store/useStore.js'
@@ -13,6 +14,7 @@ import Icon from '../../components/Icon.jsx'
 import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode } from '../lib/volume.js'
+import { previousMode } from '../lib/previous-sets.js'
 import { SETTINGS_GROUPS, prunePage, hiddenSetting } from '../lib/settings.js'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
@@ -23,6 +25,13 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     title: t('Volume'),
     items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
       onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })),
+  })
+  const prevMode = useStore(s => previousMode(s.S))
+  const PREVIOUS = { routine: t('Same routine'), any: t('Any workout') }
+  const pickPrevious = () => menuSheet({
+    title: t('Previous values'),
+    items: Object.entries(PREVIOUS).map(([v, label]) => ({ label, on: prevMode === v,
+      onClick: () => useStore.getState().update(s => { s.hvPrevious = v }) })),
   })
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
@@ -43,6 +52,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
       </button>}
       {ids.map(row)}
       {g.volume && <Row icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />}
+      {g.volume && <Row icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />}
     </Section>
   })
 }

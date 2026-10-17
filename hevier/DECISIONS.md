@@ -78,3 +78,11 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 7).
 | # | Decision |
 |---|---|
 | D20 | **Google Drive through a sync app, no fork code.** Upstream's auto-backup (Settings → Data & backup → **Auto-backup on changes**) already writes the whole of `S` after a workout or an edit, one dated file a day, the newest 14 kept, into `Documents/openGym/` or a folder picked with the system picker (#161). A sync app on the phone (Autosync for Google Drive, FolderSync, …) mirrors that folder to Drive. The fork builds no Drive client: a Google sign-in, an OAuth client and a Play Services dependency would go against upstream's "no third-party account" and dependency-light rules, and be native code to carry across merges. Restore is upstream's **Import backup** (a replace; signed in, it offers **Merge them in** when the server has workouts the backup lacks). Everything that must be in the backup therefore lives in `S` (PLAN.md §4), not in `localStorage`. |
+
+## Previous values
+
+Added 2026-10-17 (PLAN.md §5, Hevy's "Previous Workout Values").
+
+| # | Decision |
+|---|---|
+| D21 | **Where the PREVIOUS column reads from is a setting.** Settings root → Preferences gets **Previous values: Same routine / Any workout**, stored in `S.hvPrevious` (`'routine'` or `'any'`, a fork-only field upstream ignores), **default Same routine**, which is D3's rule: the same routine's last session, else any workout's. **Any workout** reads the newest workout with the exercise, whatever routine it came from. Only the PREVIOUS column follows the setting: the session's prefilled targets and the progression keep reading upstream's `lastEntryFor`, unchanged. |

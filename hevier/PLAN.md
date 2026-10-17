@@ -425,7 +425,7 @@ aren't lost:
 - Workout photos / videos on the Save Workout page
 - Live personal-record badge while logging a set, with its notification and sound
 - Monthly report, multi-year calendar, muscle-distribution radar chart
-- "Previous Workout Values: Any workout / Same routine" as a user setting
+- ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
 - Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
 
 ### The user's own features (added 2026-10-16)
@@ -499,6 +499,72 @@ the feature is not Hevy-specific (it would remove fork code).
    upstream's `loadOfWorkouts`), and Workout Detail's muscle split counts sets. Decide which places
    switch (feed card Volume, the workout's stats row, Profile's weekly chart Volume, Statistics)
    and where the setting lives (`S`, so it syncs, per §4), in DECISIONS.md first.
+
+### Fixes and features from the second session (added 2026-10-17)
+
+Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked first.
+
+9. **No screen rotation.** The app stays portrait. The PWA manifest already says
+   `"orientation": "portrait"`, but the Android activity (`AndroidManifest.xml`, `.MainActivity`)
+   sets no `screenOrientation`, so the APK rotates. Fix without a new seam: a fork-owned
+   `src/hevier/AndroidManifest.xml` that the manifest merger folds in, adding
+   `android:screenOrientation="portrait"` to `.MainActivity` (`tools:node="merge"`), added to both
+   build types' source sets in `hevier.gradle` (seam S7). iOS, if it is ever built: the
+   supported orientations in `Info.plist`. Check on the emulator that turning the device leaves
+   the workout screen as it is. Upstream may take this too (a gym app rarely wants landscape):
+   ask before carrying it.
+10. **Keep the screen on during a workout, as a Settings switch.** Upstream already has it:
+    Settings → Workout → *Before and during* → **Keep screen awake** (`S.keepAwake`, default
+    on; `lib/wakelock.js`, used in `App.jsx` while a workout runs), and the fork's pruning
+    (D16) does not hide it. But the row is only drawn when the Screen Wake Lock API exists
+    (`wakeOK || !MOBILE`), and the native app runs in Android's WebView, so first check on
+    the emulator and the phone whether the row shows and the screen actually stays on. If the
+    WebView lacks `navigator.wakeLock`, the row is hidden and the screen sleeps: the fix is a
+    native fallback (the activity's `FLAG_KEEP_SCREEN_ON`, set and cleared from JS through a
+    tiny bridge, the way upstream's own Java talks to the page), which also helps upstream's
+    Android build, so offer it upstream first. The fork's quick-access copy could also sit on
+    the workout's ⏱/⋮ sheet (upstream's `WorkoutSettingsSheet` has the same switch).
+11. **Security gates on release builds.** Before an APK (or image) is called final, check it for
+    leaked secrets and malicious code. Upstream's GitLab CI already Trivy-scans the images (OS
+    packages and npm trees, HIGH/CRITICAL fixable fails) and writes SBOMs, but nothing scans the
+    APK or the source for secrets, and the fork builds its APK locally
+    (`hevier/tools/emulator.sh`). Proposed gates, all run by a fork-owned script
+    (`hevier/tools/release-check.sh`) and by the `verify` skill before a release:
+    - **Secrets:** gitleaks (or trufflehog) over the git history and the working tree, and over
+      the unpacked APK and `dist/` (no API keys, keystore passwords, `.env` values, Hevy API
+      keys from testing, private VAPID keys).
+    - **Dependencies:** `npm audit --omit=dev` for frontend, api and mcp (high and above
+      fails), plus Trivy `fs` over the repo and the APK's bundled JS.
+    - **Malicious code:** a lockfile diff since the last release (new or changed packages,
+      install scripts, packages that are new on npm) reviewed by hand; grep the built bundle
+      for unexpected network endpoints (anything that isn't the user's own server, Hevy's API
+      during import, or the media CDN), `eval`/`new Function`, and obfuscated blobs.
+    - **APK checks:** the permissions in the merged manifest match an allow-list (a new one
+      fails), `debuggable` is false and the release is signed with the fork's key; optionally
+      MobSF for a static report.
+    These are tools run *by* the build, not dependencies *of* the app, so the dependency-light
+    rule is kept. A GitHub Actions workflow is fork-owned only if it lives under a new file
+    name upstream won't use (`hevier-release.yml`).
+12. **Better import from Hevy (API and CSV): exercises map wrongly.** Upstream imports both:
+    the API (`lib/import-hevy.js`, Hevy Pro key) and a detected Hevy CSV (`lib/import-csv.js`).
+    Both resolve exercises only through the generated table `lib/hevy-id-map.js` (template id
+    for the API, English title for the CSV, built by `scripts/build-hevy-id-map.mjs`); a
+    template it doesn't know becomes a custom exercise, and non-English CSV titles fall back to
+    name matching. In practice exercises land on the wrong openGym exercise. Steps:
+    - **Collect the failures first:** import the user's own export and API account, and list
+      every Hevy exercise → openGym exercise pair with how it was matched (table, name
+      fallback, custom). Mark each wrong one; that list becomes the test fixture.
+    - **Fix the cause** where it is: a wrong row in the generated table, a name fallback that
+      grabs a near miss (e.g. "Bench Press (Dumbbell)" vs the barbell bench, "Lat Pulldown
+      (Cable)" vs machine), equipment ignored when matching, or the CSV's title not matching
+      the API's. Fixes to the table or the matcher are upstream logic: send them upstream
+      (their tests cover the import) rather than patching the fork (rule 2).
+    - **A review step before import** (fork UI if upstream doesn't want it): a list of the
+      Hevy exercises with the openGym match each got, unmatched and low-confidence ones first,
+      each changeable with the library picker or "keep as custom". The choices are remembered
+      (in `S`, so a re-import maps the same way), and the import then runs with them.
+    - Tests: a pure helper in `hevier/lib/` (or upstream's `lib/` if it goes upstream) with the
+      collected pairs as fixtures, for both the API and the CSV paths.
 
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.

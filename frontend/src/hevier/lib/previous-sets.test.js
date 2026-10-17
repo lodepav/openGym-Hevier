@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { previousSetsFor } from './previous-sets.js'
+import { previousSetsFor, previousMode } from './previous-sets.js'
 
 const W = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
 const warm = (w, r) => W(w, r, { phase: 'warmup' })
@@ -33,6 +33,16 @@ describe('hevier previousSetsFor', () => {
     ])
     expect(previousSetsFor(hist, { id: 'squat', rid: 'heavy', sets: [{}] })).toEqual([W(100, 5)])
     expect(previousSetsFor(hist, { id: 'squat', rid: 'light', sets: [{}] })).toEqual([W(70, 10)])
+  })
+
+  it('Any workout (D21) reads the newest session, whatever routine it came from', () => {
+    const hist = H([
+      { d: '2026-10-01', entries: [{ id: 'squat', rid: 'heavy', sets: [W(100, 5)] }] },
+      { d: '2026-10-03', entries: [{ id: 'squat', rid: 'light', sets: [W(70, 10)] }] },
+    ])
+    expect(previousSetsFor(hist, { id: 'squat', rid: 'heavy', sets: [{}] }, 'any')).toEqual([W(70, 10)])
+    expect(previousMode({})).toBe('routine')
+    expect(previousMode({ hvPrevious: 'any' })).toBe('any')
   })
 
   it('is all nulls for an exercise never done before', () => {

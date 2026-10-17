@@ -1,4 +1,4 @@
-// The Hevy PREVIOUS column (hevier/DECISIONS.md D3): for each row of an exercise in the running
+// The Hevy PREVIOUS column (hevier/DECISIONS.md D3, D21): for each row of an exercise in the running
 // session, the matching set from the last time it was done — warm-up N against last time's warm-up
 // N, work set N against last time's work set N. Read-only over upstream's history; nothing here
 // changes what is logged or how the next session is built.
@@ -19,14 +19,18 @@ function lastWarmups(H, exId, last) {
   return []
 }
 
+/** Settings → Previous values (D21): 'routine' (the default, D3's rule) or 'any'. */
+export const previousMode = S => (S?.hvPrevious === 'any' ? 'any' : 'routine')
+
 /**
  * One slot per row of `entry.sets`: the previous set it lines up with, or null when last time had
  * no set at that position (or there was no last time). `H` is the history the session reads from
  * (backfill's sessionHistory, so a workout logged into the past is held against what came before it).
+ * `mode` 'any' skips the same-routine lookup: the newest workout with the exercise.
  */
-export function previousSetsFor(H, entry) {
+export function previousSetsFor(H, entry, mode = 'routine') {
   const rows = entry?.sets || []
-  const last = entry ? lastEntryFor(H, entry.id, entry.rid) : null
+  const last = entry ? lastEntryFor(H, entry.id, mode === 'any' ? null : entry.rid) : null
   if (!last) return rows.map(() => null)
   const warm = lastWarmups(H, entry.id, last)
   let w = 0, k = 0
