@@ -326,7 +326,7 @@
 :root[data-ui="hevier"] .hv-wd-split b{text-align:end;font-weight:500;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wd-ex{margin-bottom:6px}
 :root[data-ui="hevier"] .hv-wd-sets{display:flex;flex-direction:column}
-:root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr auto;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr auto auto;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd-row:nth-child(odd):not(.hv-wd-th){background:var(--surface-2);border-radius:6px}
 :root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
 :root[data-ui="hevier"] .hv-wd-row span:first-child{text-align:center;font-weight:600}
@@ -392,3 +392,8 @@
 :root[data-ui="hevier"] .hv-report .hv-cal-mt{display:none}
 :root[data-ui="hevier"] .hv-report h4.sec{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-report h4.sec .icn{color:var(--yellow)}
+
+/* Heart rate read from Health Connect (DECISIONS.md D27): the session's under the stats, each set's on its row. */
+:root[data-ui="hevier"] .hv-wd-hrline{display:flex;align-items:center;gap:6px;margin:-6px 0 14px;font-size:13px;color:var(--label-2);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-wd-hrline .icn,:root[data-ui="hevier"] .hv-wd-hr .icn{color:var(--red);font-size:13px}
+:root[data-ui="hevier"] .hv-wd-hr{display:inline-flex;align-items:center;gap:3px;font-size:13px;color:var(--label-2)}

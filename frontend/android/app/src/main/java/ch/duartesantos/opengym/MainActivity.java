@@ -26,6 +26,9 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(RestAlertPlugin.class);
         registerPlugin(BackupFolderPlugin.class);
         registerPlugin(SystemBarsPlugin.class);
+        // [hevier] S17: the fork's Health Connect reads (D27), until upstream's v1.4.3
+        registerPlugin(HevierHealthReadPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

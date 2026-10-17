@@ -58,3 +58,24 @@ export function prunePage(page, tree, tr) {
   }
   return walk(tree)
 }
+
+/**
+ * A page's element tree with `el` put in right before the first Section titled `title` (`title`
+ * already translated), or the tree as it was when there is none. The fork's own rows on an
+ * upstream page (DECISIONS.md D27) go in this way, beside upstream's own.
+ */
+export function insertBeforeSection(tree, title, el) {
+  let done = false
+  const walk = node => {
+    if (done || !isValidElement(node) || node.props.children === undefined) return node
+    const kids = Children.toArray(node.props.children)
+    const at = kids.findIndex(k => isValidElement(k) && k.type === Section && k.props.title === title)
+    if (at >= 0) {
+      done = true
+      return cloneElement(node, {}, ...kids.slice(0, at), el, ...kids.slice(at))
+    }
+    const next = kids.map(walk)
+    return done ? cloneElement(node, {}, ...next) : node
+  }
+  return walk(tree)
+}

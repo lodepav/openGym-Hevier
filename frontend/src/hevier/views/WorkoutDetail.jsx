@@ -5,6 +5,7 @@
 // All details, upstream's own sheet: the session note editor, photos, date, duration, copy, share, .fit.
 // The muscle split counts sets: as the fork's Statistics does (hevier/lib/muscle-sets.js), or in
 // sets mode each set once for its main muscle, as the line under the stats does (DECISIONS.md D18).
+// Heart rate (D27), when a watch saved one: the session's under the stats, each set's on its row.
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -28,6 +29,7 @@ import { workoutSplit } from '../lib/muscle-sets.js'
 import { prSetIndex } from '../lib/pr-set.js'
 import { volumeMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
+import { sanitizeHr } from '../lib/heart-rate.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -52,6 +54,7 @@ function ExerciseSets({ w, e, st }) {
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         <span>{setLabel(e.id, s, e.target, speedUnitOf(st))}</span>
         {i === prAt && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
+        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
@@ -92,6 +95,8 @@ export function WorkoutDetail() {
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} />}
+    {sanitizeHr(w.hr) && <div className="hv-wd-hrline"><Icon name="heart" />
+      {t('Heart rate {0} avg · {1} max', sanitizeHr(w.hr).avg, sanitizeHr(w.hr).max)}</div>}
     {w.note && <p className="hv-wd-note">{w.note}</p>}
     {/* Shown when there is something to show; adding one is in All details. */}
     {workoutMediaCount(w) > 0 && <WorkoutMediaSection w={w} />}

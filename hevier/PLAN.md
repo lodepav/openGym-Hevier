@@ -439,14 +439,14 @@ Not Hevy parity: features the user wants on top. Each needs a decision in DECISI
 it is built. Check [PIPELINE.md](PIPELINE.md) first, and prefer contributing upstream where
 the feature is not Hevy-specific (it would remove fork code).
 
-1. **Body weight from Health Connect.** Read weigh-ins *from* Android Health. Upstream only
+1. ~~**Body weight from Health Connect.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 rules, until that merge; the "only source" part below is not built yet. Read weigh-ins *from* Android Health. Upstream only
    writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
    Android code beyond seam S7. **Health Connect becomes the only source** (user, 2026-10-16):
    with it on, the app's own weigh-in entry is turned off (the body-weight card, the check-in's
    weight prompt and the add sheet), and upstream's write of weigh-ins *to* Health Connect is
    skipped so they don't echo back. The weights read are still stored as openGym's body-weight
    log, since bodyweight exercises, the charts and strength level (item 3) read it from there.
-2. **Heart rate pulled in after the finish.** On finishing, fetch the workout's heart-rate
+2. ~~**Heart rate pulled in after the finish.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 reading, until that merge. On finishing, fetch the workout's heart-rate
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
