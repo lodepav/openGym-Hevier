@@ -4,9 +4,10 @@
 // entry's D28 brand (`hvBrand`) and upstream's per-side sets once the parse is finished.
 //
 // In order: (1) "(brand: X)" anywhere in a title is the user's own convention for a D28 brand,
-// from any app; (2) the fix table below, Hevy's English titles only; (3) a Hevy "Single/One
-// Arm/Leg" title whose rest is a machine or cable exercise: that exercise, per side; (4) upstream's
-// match, untouched.
+// from any app; (2) the user's own choice from the review (D33, `S.hvImportMap`), any app; (3) the
+// fix table below, Hevy's English titles only; (4) a Hevy "Single/One Arm/Leg" title whose rest is
+// a machine or cable exercise: that exercise, per side; (5) upstream's match, untouched. Every
+// title asked about is noted, and `importDone` hands the list on as `hvTitles` for the review.
 import { EXIDX, canonicalExId } from '../../lib/exercises.js'
 import { importId, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
@@ -79,6 +80,9 @@ function fixOf(name) {
 }
 
 const matchOf = name => canonicalExId(fixOf(name)?.id || matchHevyTitle(name) || matchExercise(name))
+/** Upstream's own match for a title, as its importers make it (null: a custom exercise). */
+export const upstreamMatch = (name, source) =>
+  canonicalExId((source === 'Hevy' ? matchHevyTitle(name) : null) || matchExercise(name)) || null
 const isMachineId = id => !!id && MACHINE_EQ.has(EXIDX[id]?.eq)
 
 /** The machine or cable exercise a one-limb title is done on, or null ("Single Leg Press (Machine)"). */
@@ -100,22 +104,60 @@ export function readKey(id) {
   try { return JSON.parse(id.slice(KEY.length)) } catch { return null }
 }
 
+/** The review's key for a title: the app and the title without its brand, lower case (D33). */
+export const choiceKey = (title, source) => source + '|' + splitBrand(title).name.toLowerCase()
+
+/**
+ * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist }`, or null.
+ * Kept until the next call, so one parse reads one set of choices.
+ */
+let ctx = null
+export function useChoices(next) { ctx = next || null }
+const choiceOf = (title, source) => {
+  const v = ctx?.map?.[choiceKey(title, source)]
+  if (v === 'custom') return v
+  return v && (EXIDX[v] || ctx.known?.has(v)) ? v : null
+}
+
 /**
  * The fork's answer for an exercise title, or null to leave it to upstream. A plain catalogue id
  * when there is nothing else to carry, else a key for `importDone`.
  */
-const memo = new Map()
+const memos = new WeakMap()
+const noCtx = {}
+const seen = new Map()
 export function importExercise(title, source) {
+  seen.set(choiceKey(title, source), { title: splitBrand(title).name, source })
+  return resolved(title, source)
+}
+function resolved(title, source) {
+  const c = ctx || noCtx
+  if (!memos.has(c)) memos.set(c, new Map())
+  const memo = memos.get(c)
   const k = source + '|' + title
   if (!memo.has(k)) memo.set(k, answer(title, source))
   return memo.get(k)
 }
 
+/**
+ * What a title becomes: { id, custom, chosen }, `id` null for an exercise of the user's own that an
+ * import makes. For the review's list.
+ */
+export function outcomeOf(title, source) {
+  const chosen = !!choiceOf(title, source)
+  const a = resolved(title, source)
+  const k = readKey(a) || { id: a }
+  const id = k.id ?? upstreamMatch(splitBrand(title).name, source)
+  return { id: id && !k.n ? id : null, chosen }
+}
+
 function answer(title, source) {
   const { name, brand } = splitBrand(title)
   const hevy = source === 'Hevy'
+  const own = choiceOf(title, source)
+  if (own === 'custom') return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side: false, brand, n: name.toLowerCase() })
   let id = null, side = false
-  const fix = hevy ? fixOf(name) : null
+  const fix = own ? { id: own, side: LIMB.test(name) && isMachineId(own) } : hevy ? fixOf(name) : null
   if (fix) ({ id, side } = fix)
   else if (hevy) { id = oneLimbOf(name); side = !!id }
   if (!id && !brand) return null
@@ -145,7 +187,13 @@ const workVol = entries => entries.reduce((a, e) => a + e.sets.reduce((b, s) => 
 
 /** A parse result with the fork's keys turned back into ids, brands and per-side sets. */
 export function importDone(parsed) {
+  const hvTitles = [...seen.values()]
+  seen.clear()
   if (!parsed || parsed.error) return parsed
+  return { ...done(parsed), hvTitles }
+}
+
+function done(parsed) {
   const made = new Map()
   const take = k => { if (k.n && !EXIDX[k.id] && !made.has(k.id)) made.set(k.id, customOf(k)) }
   if (parsed.kind === 'routines') {

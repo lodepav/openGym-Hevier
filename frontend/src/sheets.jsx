@@ -479,6 +479,9 @@ function ImportSummary({ parsed, close }) {
     {!isBW && parsed.skipped > 0 && <div className="small dim" style={{ marginBottom: 10 }}>
       {tn('{0} row skipped (couldn’t read it)', '{0} rows skipped (couldn’t read them)', parsed.skipped)}
     </div>}
+    {/* [hevier] S23: the review of the exercise matches (D33) */}
+    {!isBW && hooks.importReview && <hooks.importReview.Row parsed={parsed} />}
+    {/* [/hevier] */}
     {!isBW && parsed.unmatchedNames.length > 0 && <>
       <h4 className="sec">{t('Not in the library, so they’re added as your own exercises')}</h4>
       <div className="mchips" style={{ marginBottom: 12 }}>
@@ -507,6 +510,9 @@ export function importFromApp(file, onDone) {
     if (parsed.kind === 'bodyweight' ? !parsed.bodyweight.length : !parsed.workouts.length) {
       toast(t('Nothing to import from that file')); return
     }
+    // [hevier] S23: how to read the file again after a match is changed (D33)
+    if (hooks.importReview) hooks.importReview.keep(parsed, () => parseImport(String(rd.result), { unit: S().unit, customEx: S().customEx }))
+    // [/hevier]
     ui().openSheet(close => <ImportSummary parsed={parsed} close={close} />)
     onDone && onDone()
   }
@@ -720,6 +726,9 @@ function HevyImportSheet({ close }) {
     {wantWorkouts && (w.rirSets + w.rpeSets) > 0 && <div className="small dim" style={{ marginBottom: 10 }}>
       {effortLine(effortOf(st), w.rirSets || w.rpeSets, w.rirSets ? 'RIR' : 'RPE')}
     </div>}
+    {/* [hevier] S23: the review of the exercise matches (D33) */}
+    {hooks.importReview && <hooks.importReview.Row parsed={payload} />}
+    {/* [/hevier] */}
     {unmatched.length > 0 && <>
       <h4 className="sec">{t('Not in the library, so they’re added as your own exercises')}</h4>
       <div className="mchips" style={{ marginBottom: 12 }}>
