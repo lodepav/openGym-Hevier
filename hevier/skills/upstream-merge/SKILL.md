@@ -29,9 +29,9 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    Also diff the screens the fork copies or wraps: `git diff <old>..$TARGET --
    frontend/src/views/Home.jsx frontend/src/views/Settings.jsx frontend/src/sheets.jsx
    frontend/src/components/ExerciseBlock*` and list what the fork's screens should pick up.
-7. **Verify.** Run the `verify` skill, then the `seam-check` skill, then the `emulator-check`
-   skill with the smoke walk: start a routine, log two sets, minimise, resume, finish, see
-   it in history, start it again, see the progressed weights.
+7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
+   skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
+   minimise, resume, finish, see it in history, start it again, see the progressed weights.
 8. **Land.** Commit message body: the conflicted files with the rule used for each, seams
    added, moved or removed, and drift items skipped. `git checkout hevier/main && git merge
    --ff-only sync/$TARGET`, then `git checkout hevier/ux && git merge hevier/main`. Push only
