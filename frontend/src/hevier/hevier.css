@@ -370,6 +370,14 @@
 :root[data-ui="hevier"] .hv-cal-year{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 14px}
 :root[data-ui="hevier"] .hv-cal-m.small{margin-top:12px}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-mt b{font-size:13px}
+:root[data-ui="hevier"] .hv-cal-c{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:49px;width:100%;min-width:0;background:none;border:0;padding:0;color:inherit}
+:root[data-ui="hevier"] .hv-cal-tl{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:9px;line-height:1.1;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-cal-d.done.k-cardio,:root[data-ui="hevier"] .hv-cal-key .k-cardio{background:var(--green);color:#fff}
+:root[data-ui="hevier"] .hv-cal-d.done.k-deload,:root[data-ui="hevier"] .hv-cal-key .k-deload{background:var(--orange);color:#fff}
+:root[data-ui="hevier"] .hv-cal-key .k-strength{background:var(--acc)}
+:root[data-ui="hevier"] .hv-cal-key{display:flex;gap:14px;justify-content:center;margin:10px 0 2px;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-cal-key span{display:flex;align-items:center;gap:5px}
+:root[data-ui="hevier"] .hv-cal-key i{width:10px;height:10px;border-radius:50%}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-g{gap:2px}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d{width:8px;height:8px;background:var(--surface-2)}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done{background:var(--acc)}
@@ -420,3 +428,5 @@
 :root[data-ui="hevier"] .hv-wd-hrline{display:flex;align-items:center;gap:6px;margin:-6px 0 14px;font-size:13px;color:var(--label-2);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd-hrline .icn,:root[data-ui="hevier"] .hv-wd-hr .icn{color:var(--red);font-size:13px}
 :root[data-ui="hevier"] .hv-wd-hr{display:inline-flex;align-items:center;gap:3px;font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-cardio{background:var(--green)}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-deload{background:var(--orange)}

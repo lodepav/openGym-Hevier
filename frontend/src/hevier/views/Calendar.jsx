@@ -12,7 +12,7 @@ import { streakWeeks } from '../../lib/history.js'
 import { workoutDetailSheet, dayOverrideSheet, WorkoutRow } from '../../sheets.jsx'
 import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle } from '../lib/calendar.js'
 
 const MORE = 6
 
@@ -37,11 +37,16 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
       {cells.map((iso, i) => {
         if (!iso) return <span key={'b' + i} />
         const mark = dayMark(st, iso, byDay)
-        const cls = 'hv-cal-d ' + mark + (iso === today ? ' today' : '')
+        const kind = dayKind(byDay[iso])
+        const cls = 'hv-cal-d ' + mark + (kind ? ' k-' + kind : '') + (iso === today ? ' today' : '')
         const day = Number(iso.slice(8))
+        const title = dayTitle(byDay[iso])
         return small
           ? <span key={iso} className={cls} />
-          : <button key={iso} type="button" className={cls} onClick={() => openDay(iso, byDay[iso])}>{day}</button>
+          : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} onClick={() => openDay(iso, byDay[iso])}>
+            <span className={cls}>{day}</span>
+            {title && <span className="hv-cal-tl">{title}</span>}
+          </button>
       })}
     </div>
   </div>
@@ -75,6 +80,11 @@ export default function Calendar() {
       {rest != null && <span className="muted">· {rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
+    <div className="hv-cal-key">
+      <span><i className="k-strength" />{t('Strength')}</span>
+      <span><i className="k-cardio" />{t('Cardio')}</span>
+      <span><i className="k-deload" />{t('Deload')}</span>
+    </div>
     {view === 'month' ? <>
       {monthsBack(from.y, from.mo, count).map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
       <button type="button" className="btn hv-cal-more" onClick={() => setCount(c => c + MORE)}>{t('Show earlier months')}</button>

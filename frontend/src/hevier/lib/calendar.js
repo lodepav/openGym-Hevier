@@ -5,6 +5,7 @@ import { workoutDay, effectiveRoutineIds } from '../../lib/history.js'
 import { weekDayOffset } from '../../lib/format.js'
 import { pinState } from '../../lib/queue.js'
 import { dayNoteOf } from '../../lib/day-notes.js'
+import { isCardio } from '../../lib/exercises.js'
 
 const pad = n => String(n).padStart(2, '0')
 
@@ -44,4 +45,25 @@ export function dayMark(S, iso, byDay) {
   const planned = effectiveRoutineIds(S, iso).length > 0
   const ovr = S.dayPlan?.[iso] !== undefined && pinState(S, S.dayPlan[iso]) !== 'done'
   return ovr && planned ? 'ovr' : planned ? 'plan' : ''
+}
+
+const DELOAD = /deload/i
+/** A workout's kind for the calendar's colour (PLAN.md item 25): 'deload' when its title or note
+ *  says so, 'cardio' when every exercise in it is cardio, else 'strength'. */
+export function workoutKind(w) {
+  if (DELOAD.test(w?.name || '') || DELOAD.test(w?.note || '')) return 'deload'
+  const ids = (w?.entries || []).map(e => e?.id).filter(Boolean)
+  return ids.length && ids.every(id => isCardio(id)) ? 'cardio' : 'strength'
+}
+
+/** A trained day's kind: deload over strength over cardio, across the day's workouts. */
+export function dayKind(ws) {
+  const kinds = new Set((ws || []).map(workoutKind))
+  return kinds.has('deload') ? 'deload' : kinds.has('strength') ? 'strength' : kinds.size ? 'cardio' : ''
+}
+
+/** The title a trained day shows, as newer Hevy versions do: its first workout's. */
+export function dayTitle(ws) {
+  const first = [...(ws || [])].sort((a, b) => (a.start || 0) - (b.start || 0))[0]
+  return first?.name || ''
 }

@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark } from './calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle } from './calendar.js'
+import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
 
@@ -32,5 +33,29 @@ describe('hevier: calendar', () => {
     expect(by['2026-10-13']).toHaveLength(1)
     expect(dayMark(S, '2026-10-13', by)).toBe('done')
     expect(dayMark(S, '2026-10-14', by)).toBe('')
+  })
+})
+
+describe('hevier: calendar kinds and titles (PLAN item 25)', () => {
+  const RUN = EXDB.find(e => isCardio(e)).id
+  const LIFT = EXDB.find(e => !isCardio(e)).id
+  const w = (name, ids, extra = {}) => ({ name, entries: ids.map(id => ({ id })), ...extra })
+
+  it('cardio only when every exercise is cardio, strength with any lift, deload when the title or note says so', () => {
+    expect(workoutKind(w('Run', [RUN]))).toBe('cardio')
+    expect(workoutKind(w('Mixed', [RUN, LIFT]))).toBe('strength')
+    expect(workoutKind(w('Deload week', [LIFT]))).toBe('deload')
+    expect(workoutKind(w('Push', [LIFT], { note: 'light, DELOAD' }))).toBe('deload')
+    expect(workoutKind(w('Empty', []))).toBe('strength')
+  })
+
+  it('a day takes deload over strength over cardio, and its first workout\'s title', () => {
+    const run = w('Run', [RUN], { start: 2 }), push = w('Push', [LIFT], { start: 1 })
+    expect(dayKind([run, push])).toBe('strength')
+    expect(dayKind([run])).toBe('cardio')
+    expect(dayKind([run, w('Deload', [LIFT])])).toBe('deload')
+    expect(dayKind(undefined)).toBe('')
+    expect(dayTitle([run, push])).toBe('Push')
+    expect(dayTitle(undefined)).toBe('')
   })
 })
