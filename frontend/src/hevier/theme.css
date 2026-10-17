@@ -70,7 +70,11 @@
 :root[data-ui="hevier"] .hdr .iconbtn{background:none}
 
 /* Buttons: 15px, a tighter pad, Hevy's 8px corners. */
-:root[data-ui="hevier"] .btn{padding:11px 16px;border-radius:8px;font-size:15px;letter-spacing:0}
+:root[data-ui="hevier"] .btn{padding:9px 14px;border-radius:8px;font-size:15px;letter-spacing:0}
+/* Hevy's small buttons (Log, the header's Finish / Done) are about 30 px tall; this rule
+   above would otherwise make them as big as the full-width ones */
+:root[data-ui="hevier"] .btn.sm{padding:6px 12px;font-size:14px}
+:root[data-ui="hevier"] .btn.hv-finish{padding:0 14px;min-height:32px;font-size:14px;border-radius:6px}
 :root[data-ui="hevier"] .btn .icn{font-size:17px}
 :root[data-ui="hevier"] .btn{font-weight:500}
 :root[data-ui="hevier"] .btn.primary{font-weight:600}

@@ -14,7 +14,7 @@
 }
 :root[data-ui="hevier"] .hv-bar{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-title{flex:1;min-width:0;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-ui="hevier"] .hv-finish{flex:none;width:auto;padding:0 18px;min-height:34px;border-radius:8px}
+:root[data-ui="hevier"] .hv-finish{flex:none;width:auto}
 /* Hevy's header and exercise icons are bare glyphs, not filled circles; its menu is a vertical ⋮ (D7) */
 :root[data-ui="hevier"] .hv-bar .iconbtn,
 :root[data-ui="hevier"] .hv-more{background:none}
