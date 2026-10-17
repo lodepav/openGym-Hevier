@@ -2,4 +2,4 @@
 # `apksigner verify --print-certs` prints it, one per line, the reason after #. Updates install
 # over the app only when signed with the same key, so this never changes without a reason.
 # `release-check.sh --apk` fails while this list is empty and prints the APK's digest to pin.
-# The keystore itself lives outside the repo (hevier/PLAN.md, pre-work: Signing key).
+# The keystore itself lives outside the repo (hevier/RULES.md, "Fork identity").

@@ -1,4 +1,4 @@
-// The home-screen month widget's data (hevier/DECISIONS.md D44, PLAN.md §5 item 21). A widget
+// The home-screen month widget's data (hevier/DECISIONS.md D44). A widget
 // draws without the app, so the page hands the fork's native widget (HevierWidgetPlugin.java) a
 // small snapshot whenever the log changes: the trained days of this month and the last one, each
 // with its calendar kind (item 25's colours), each month's "N workouts · N sets" in the app's

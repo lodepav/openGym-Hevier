@@ -1,4 +1,4 @@
-/* Phase 2, step 1: Hevy's look as overrides of upstream's tokens (hevier/PLAN.md §3,
+/* Phase 2, step 1: Hevy's look as overrides of upstream's tokens (D17,
    hevier/DECISIONS.md D17). Upstream's whole UI and the fork's components draw with these
    custom properties, so this one block restyles both without touching index.css.
 

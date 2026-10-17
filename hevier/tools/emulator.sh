@@ -23,7 +23,7 @@ AVD="${AVD:-xperia1vi_api36}"
 APP_ID="${APP_ID:-ch.duartesantos.opengym.hevier.test}"   # hevier.gradle id + debug .test suffix
 APK="$ROOT/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
 
-# Fork build flags (hevier/PLAN.md §1.4). Harmless before the overlay exists.
+# Fork build flags (hevier/RULES.md, "The build flag"). Harmless before the overlay exists.
 export VITE_MOBILE=1 VITE_HEVIER="${VITE_HEVIER:-1}" VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}"
 
 if [[ "${1:-}" != "--no-build" ]]; then

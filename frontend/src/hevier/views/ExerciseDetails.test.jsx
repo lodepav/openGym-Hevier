@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// Exercise details through seam S10 (hevier/PLAN.md M5): upstream's exerciseDetailSheet opens the
+// Exercise details through seam S10: upstream's exerciseDetailSheet opens the
 // fork's Summary · History · How to sheet, built from upstream's read-back of the log.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -72,7 +72,7 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-xd-howto')).toBeTruthy()
   })
 
-  it('Strength level: Compare strength folds the fields open, Save places the Best 1RM (D19, PLAN item 24)', () => {
+  it('Strength level: Compare strength folds the fields open, Save places the Best 1RM (D19)', () => {
     open(log)
     const sl = () => container.querySelector('.hv-sl')
     expect(sl().querySelector('input')).toBeNull()

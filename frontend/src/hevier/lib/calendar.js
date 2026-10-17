@@ -48,7 +48,7 @@ export function dayMark(S, iso, byDay) {
 }
 
 const DELOAD = /deload/i
-/** A workout's kind for the calendar's colour (PLAN.md item 25): 'deload' when its title or note
+/** A workout's kind for the calendar's colour: 'deload' when its title or note
  *  says so, 'cardio' when every exercise in it is cardio, else 'strength'. */
 export function workoutKind(w) {
   if (DELOAD.test(w?.name || '') || DELOAD.test(w?.note || '')) return 'deload'

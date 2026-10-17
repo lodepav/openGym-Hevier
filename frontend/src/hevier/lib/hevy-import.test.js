@@ -64,7 +64,7 @@ describe('hevier Hevy import (D29)', () => {
     expect(r.customEx).toEqual([])
   })
 
-  it('the belt squat and the deficit Smith split squat land on their own exercises (PLAN item 22)', () => {
+  it('the belt squat and the deficit Smith split squat land on their own exercises', () => {
     const match = t => importExercise(t, 'Hevy') || upstreamMatch(t, 'Hevy')
     expect(match('Belt Squat (Machine)')).toBe('2950')
     expect(match('Deficit Bulgarian Split Squat (Smith Machine)')).toBe('11568')

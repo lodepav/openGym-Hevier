@@ -1,4 +1,4 @@
-// Battery (PLAN.md §5 item 29): the fork's background-ish passes (the Health Connect read, the
+// Battery: the fork's background-ish passes (the Health Connect read, the
 // Hevy export, the month widget) each wake only when a field of S they read has changed. The
 // running workout lives in `S.active`, so watching S as a whole woke all three for every set
 // typed or ticked. The store's update deep-copies S (store/useStore.js `clone`), so every field

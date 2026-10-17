@@ -1,6 +1,6 @@
 // Exercise details → Summary's Strength level (hevier/DECISIONS.md D19): a five-band bar from the
 // thresholds the user typed in from strengthlevel.com, with a marker at the page's Best 1RM. The
-// fields fold open in the section itself (PLAN.md item 24), not in a sheet.
+// fields fold open in the section itself (D19), not in a sheet.
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
@@ -8,7 +8,7 @@ import { fmtNum, fmtDate, todayISO } from '../../lib/format.js'
 import { openExternal } from '../../components/CustomMedia.jsx'
 import { LEVELS, compareUrl, levelsIn, setLevels, strengthLevel, validLevels } from '../lib/strength-level.js'
 
-// The levels' fields, folded open under the section (PLAN.md item 24): a button to look the
+// The levels' fields, folded open under the section (D19): a button to look the
 // levels up on strengthlevel.com, the five 1RMs, Save, and Remove once there are levels.
 function LevelsForm({ exId, unit, close }) {
   const entry = useStore.getState().S.hvStrength?.[exId]

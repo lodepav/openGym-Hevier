@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // The workout header's ⏱ (D10): Timer · Stopwatch. The Timer starts a countdown at the Settings
-// rest with no rest running (PLAN.md item 26), or adjusts the running one; the Stopwatch counts.
+// rest with no rest running (D10), or adjusts the running one; the Stopwatch counts.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

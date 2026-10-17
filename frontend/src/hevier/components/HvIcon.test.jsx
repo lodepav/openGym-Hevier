@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The fork's glyphs (hevier/PLAN.md §3, step 4): its own where Hevy's differ, upstream's otherwise.
+// The fork's glyphs (D17, step 4): its own where Hevy's differ, upstream's otherwise.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it } from 'vitest'

@@ -12,8 +12,8 @@ touches any of them, so they never conflict.
 
 | File | What it is |
 |---|---|
-| [DECISIONS.md](DECISIONS.md) | The agreed design decisions, numbered D1, D2, … (take the next free number for a new one). They override the plan and the spec where they differ. |
-| [PLAN.md](PLAN.md) | The implementation plan: the pre-work, phase 1 (UX), phase 2 (UI design), and the rules the code follows. |
+| [DECISIONS.md](DECISIONS.md) | The agreed design decisions, numbered D1, D2, … (take the next free number for a new one). They override RULES.md and the spec where they differ. |
+| [RULES.md](RULES.md) | How the fork is built and kept mergeable: scope, branches, the build flag, the test rig, the rules every change follows, and the risks. The finished implementation plan is in git history. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |
 | [PIPELINE.md](PIPELINE.md) | What upstream's unreleased `release-*` branches already bring, and what it means for the fork. Check it before starting a milestone. |

@@ -1,4 +1,4 @@
-// Hevy's exercise details (hevier/PLAN.md M5; reference/SCREENS.md §7): Summary · History · How to.
+// Hevy's exercise details (reference/SCREENS.md §7): Summary · History · How to.
 // Seam S10 sends upstream's exerciseDetailSheet here, so every place that opens an exercise —
 // the workout's blue name, the routine editor, the library, Stats — gets the same sheet. The
 // numbers are upstream's read-back of the log (lib/exercise-history.js) through

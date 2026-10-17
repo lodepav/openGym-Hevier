@@ -1,4 +1,4 @@
-// Hevy's "Edit Routine" over upstream's routine data (hevier/PLAN.md M3, DECISIONS.md D15):
+// Hevy's "Edit Routine" over upstream's routine data (DECISIONS.md D15):
 // a title, then one block per exercise — thumbnail · blue name · ⋮, notes, "Rest Timer: …" and a
 // SET · KG · REPS table drawn from the exercise's prescription (lib/routine-table.js) — then
 // + Add Exercise, and below it the routine-wide progression, deload and body map upstream's

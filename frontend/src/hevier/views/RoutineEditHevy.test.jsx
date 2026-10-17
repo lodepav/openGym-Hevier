@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The fork's routine editor (hevier/PLAN.md M3, DECISIONS.md D15), routed over upstream's
+// The fork's routine editor (DECISIONS.md D15), routed over upstream's
 // /plan/r/:id by seam S2. Every edit lands in the routine as upstream's settings would save it.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'

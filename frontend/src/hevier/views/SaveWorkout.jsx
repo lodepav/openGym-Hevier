@@ -140,7 +140,7 @@ export function WorkoutDone() {
     return session ? routineUpdates(useStore.getState().S, session) : []
   })
   // Once shown, the page keeps its workout: a sync or a Health Connect read that rewrites the
-  // record while the page sits open must not send it Home (PLAN.md item 27).
+  // record while the page sits open must not send it Home.
   const found = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
   const last = useRef(null)
   if (found) last.current = found

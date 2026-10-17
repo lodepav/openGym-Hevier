@@ -1,4 +1,4 @@
-// The Hevy Add Exercise picker's list (hevier/PLAN.md M3; reference/SCREENS.md §8): one search,
+// The Hevy Add Exercise picker's list (reference/SCREENS.md §8): one search,
 // an equipment and a muscle filter, Recent Exercises on top. The search and the ranking are
 // upstream's (lib/exercises.js searchExercises, lib/favourites.js); this only decides which
 // exercises a filter keeps and what the muscle filter calls them.
