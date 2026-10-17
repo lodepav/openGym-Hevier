@@ -662,12 +662,21 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
     check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
     write-up) where they miss.
-23. **Pulleys on cable exercises** (user, 2026-10-17). A cable exercise carries how many pulleys
-    it used, **1 or 2**, as D28 does a brand (per exercise and gym default, changeable in the
-    workout, stored on the logged entry, a stats filter). Open: where a **double pulley** fits
-    (one movement on two cables, both connected), and whether it changes how the weight reads.
-    The Hevy import reads it from the title like the brand: `(pulleys: 1)` / `(pulleys: 2)`,
-    the user's own naming convention, cut out of the title (D29 step 1).
+23. **Cable setup on cable exercises** (user, 2026-10-17, with the user's choices). A cable
+    exercise carries a **Cable setup** label, as D28 does a brand (a per exercise and gym
+    default, changeable in the workout, stored on the logged entry, a stats filter, so a 2:1
+    machine's numbers are never compared with a 1:1 machine's):
+    - **Single pulley (1:1)** and **Double pulley (2:1)**: the weight logged is the stack's
+      number, as Hevy logs it; the ratio is only the label. Optional later, display only: a
+      grey "≈ 10 kg at the handle".
+    - **Two stacks (×2)** (a crossover, both sides loaded): logged **per stack**, the way openGym
+      logs a dumbbell per hand, shown "15 kg × 2", so volume and the PR rule read it as they read
+      dumbbells. (Both handles on one stack is one stack: 1:1 or 2:1.)
+    - **Hevy import** reads it from the title as a ratio, the user's own convention like
+      `(brand: X)` (D29 step 1): `(ratio: 1:1)`, `(ratio: 2:1)`, `(ratio: x2)` (exact spelling
+      fixed in the decision), cut out of the title. **A cable exercise with no ratio is taken as
+      1:1, and the import asks to confirm or change it** before importing (a step beside D33's
+      Check exercise matches, one row per cable exercise, remembered like `S.hvImportMap`).
 24. **Compare strength opens a section, not only the browser** (user, 2026-10-17). D19's
     **Compare strength** expands a collapsed section in exercise details with the five level
     fields and the buttons to look the levels up (strengthlevel.com) and save them, in place of
