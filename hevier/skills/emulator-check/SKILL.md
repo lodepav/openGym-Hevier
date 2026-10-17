@@ -29,6 +29,18 @@ that listen for pointer events): `adb shell input tap X Y` and `adb shell input 
 300`. Device px = CSS px × 2.625. Get the CSS coordinates from
 `eval "(() => { const r = document.querySelector('…').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2] })()"`.
 
+## Screen sizes: `node hevier/tools/screens.mjs --out <scratchpad>/screens`
+
+Resizes the running emulator to each phone profile (`--list`: 320 to 690 dp wide, 16:9 to 21:9,
+a foldable, 130% font), restarts the app, visits every main screen plus the first routine's page
+and editor, screenshots each into `<out>/<profile>/`, and writes `<out>/report.md`. Checks: the
+page scrolling sideways, anything past the screen edge, cut-off text, overlapping controls (notes:
+tap targets under 24 px). Exits 1 on a finding. `--only small,fold` and `--screens /home,/stats`
+narrow it. The display is reset afterwards, also on an error. Run it with `nice -n 19` after a UI
+change, and look at the screenshots of the screens you changed, not only the report. An open
+workout on the emulator is left alone (then the Workout tab's hub is not checked); without one,
+an empty workout is started, checked and discarded.
+
 ## Test data
 
 The state is in `localStorage.gym_state_v1`. The emulator's data has the routines Push
