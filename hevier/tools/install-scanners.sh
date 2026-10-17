@@ -4,7 +4,7 @@
 #   trivy     -> ~/.local/opt/trivy/trivy
 #
 # Versions and checksums are pinned here. To update: change the version, take the sha256 of the
-# linux x64 archive from the release's checksums file, and say so in the commit (D22).
+# linux x64 archive from the release's checksums file, and say so in the commit (D26).
 # Trivy is the version upstream's .gitlab-ci.yml pins (TRIVY_IMAGE), so both scan alike.
 set -euo pipefail
 

@@ -1,4 +1,4 @@
-# Accepted gitleaks findings (D22), by fingerprint (commit:file:rule:line), the reason above each.
+# Accepted gitleaks findings (D26), by fingerprint (commit:file:rule:line), the reason above each.
 # `release-check.sh` scans the whole git history, the built bundle and, when given, the APK;
 # anything not listed here fails. Never list a real secret: rotate it, then rewrite or accept
 # the history with the reason "rotated on <date>".

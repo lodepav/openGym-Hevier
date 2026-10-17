@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Supply-chain gate (D22): the npm packages the lockfiles pin, and what the built bundle reaches.
+// Supply-chain gate (D26): the npm packages the lockfiles pin, and what the built bundle reaches.
 //
 //   node hevier/tools/supply-chain.mjs packages           # lockfiles against hevier/security/packages.txt
 //   node hevier/tools/supply-chain.mjs packages --accept  # rewrite the baseline after reviewing the diff
@@ -56,7 +56,7 @@ function packages(accept) {
   const current = [...new Set(lines)].sort()
   const file = join(SEC, 'packages.txt')
   if (accept) {
-    const head = '# Reviewed npm packages, all four lockfiles (D22). Rewritten by\n' +
+    const head = '# Reviewed npm packages, all four lockfiles (D26). Rewritten by\n' +
       '# `node hevier/tools/supply-chain.mjs packages --accept` after the diff was read.\n'
     writeFileSync(file, head + current.join('\n') + '\n')
     console.log(`packages: baseline rewritten, ${current.length} entries`)

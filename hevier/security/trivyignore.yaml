@@ -1,4 +1,4 @@
-# Accepted vulnerabilities (D22). `release-check.sh` runs Trivy over every lockfile, dev
+# Accepted vulnerabilities (D26). `release-check.sh` runs Trivy over every lockfile, dev
 # dependencies included, all severities; anything not listed here fails. Each entry is scoped to
 # the exact package version (purls) and expires, so a new version or a lapsed review fails again.
 #

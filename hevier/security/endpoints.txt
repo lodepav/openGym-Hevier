@@ -1,4 +1,4 @@
-# Hosts the built app may name (D22). `supply-chain.mjs bundle` fails on any other URL host in
+# Hosts the built app may name (D26). `supply-chain.mjs bundle` fails on any other URL host in
 # the bundle. One host per line, the reason after #. A host here is named, not necessarily
 # fetched: say which. Review the list on every upstream merge that adds one.
 

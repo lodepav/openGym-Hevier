@@ -27,4 +27,4 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
 ## Before a release
 
 Before building an APK to install or share: the steps above, then the `release-check` skill
-(`hevier/tools/release-check.sh`, D22). Its gates block: a release is not built until they pass.
+(`hevier/tools/release-check.sh`, D26). Its gates block: a release is not built until they pass.

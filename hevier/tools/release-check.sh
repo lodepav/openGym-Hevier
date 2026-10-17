@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Security gates for a release build (D22): secrets, vulnerable dependencies, supply chain.
+# Security gates for a release build (D26): secrets, vulnerable dependencies, supply chain.
 #
 #   hevier/tools/release-check.sh                 # build the mobile bundle, run every gate
 #   hevier/tools/release-check.sh --no-build      # scan the existing frontend/dist

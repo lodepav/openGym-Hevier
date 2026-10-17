@@ -1,6 +1,6 @@
 ---
 name: release-check
-description: Run the fork's security gates (D22) on a release build — leaked secrets, vulnerable dependencies, new npm packages, and unexpected endpoints or code in the bundle. Use before building a release APK, after an upstream merge, when a lockfile changed, or when asked to check security, secrets or the supply chain.
+description: Run the fork's security gates (D26) on a release build — leaked secrets, vulnerable dependencies, new npm packages, and unexpected endpoints or code in the bundle. Use before building a release APK, after an upstream merge, when a lockfile changed, or when asked to check security, secrets or the supply chain.
 ---
 
 # Release check
