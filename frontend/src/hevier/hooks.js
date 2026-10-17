@@ -1,6 +1,6 @@
 // The hand-offs of the fork's hook seams: S9, S10, S13 and S14 (frontend/src/sheets.jsx), S11 and
 // S12 (frontend/src/views/Settings.jsx), S16 (frontend/src/lib/back.js), S19, S20 and
-// S21 and S25 (lib/import-csv.js, lib/import-hevy.js, sheets.jsx), S22 and S23 (sheets.jsx). Upstream's code asks this object first:
+// S21 and S25 (lib/import-csv.js, lib/import-hevy.js, sheets.jsx), S22 and S23 (sheets.jsx), S28 (components/DurationWheel.jsx). Upstream's code asks this object first:
 // when the fork has filled it in (only with the flag on), Finish opens the fork's Save Workout page
 // instead of upstream's confirm, a saved workout opens the fork's summary instead of upstream's, an
 // exercise's details open the fork's tabbed sheet, a finished workout the fork's Workout Detail
@@ -22,6 +22,7 @@ export const hooks = {
   importReview: null,    // { keep(parsed, redo), Row }: the import's review of exercise matches (S23)
   weighIns: null,        // (opts) => true when upstream's weigh-in sheet is not to open (S22)
   importWeight: null,    // (w) => w: an imported weight, in the profile's unit, rounded the fork's way (S25)
+  secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 

@@ -22,6 +22,9 @@ import { vibrate } from '../lib/sound.js'
 import { useUI } from '../store/useUI.js'
 import { REST_MAX, clampDuration, splitDuration, joinDuration, fmtDuration, durationText } from '../lib/duration.js'
 import { Button } from './ui.jsx'
+// [hevier] S28
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 // One row of a wheel, in CSS px. Kept in step with --dw-item in index.css.
 export const WHEEL_ITEM = 40
@@ -210,7 +213,11 @@ export default function DurationWheel({ value, onChange, min = 0, max = REST_MAX
   const live = useRef({ m, s })
   live.current = { m, s }
   const mRow = useRef(null), sRow = useRef(null)
-  if (readRef) readRef.current = () => joinDuration(mRow.current ? mRow.current() : m, sRow.current ? sRow.current() : s, min, max)
+  // [hevier] S28: the fork's seconds wheel goes in Hevy's 5 s steps (D48); a row is `per` seconds
+  const per = hooks.secondsStep || 1, sec = i => i * per
+  live.current.s = sec(Math.floor(s / per))   // a stored 1:06 reads 1:05 on the wheel
+  if (readRef) readRef.current = () => joinDuration(mRow.current ? mRow.current() : m, sRow.current ? sec(sRow.current()) : s, min, max)
+  // [/hevier]
   const pick = (mm, ss) => {
     const next = joinDuration(mm, ss, min, max)
     setNonce(n => n + 1)            // the wheels go back to what was kept, if it was clamped
@@ -223,9 +230,11 @@ export default function DurationWheel({ value, onChange, min = 0, max = REST_MAX
       <WheelColumn count={maxM + 1} index={m} nonce={nonce} step={5} rowRef={mRow}
         onPick={i => pick(i, live.current.s)} label={t('Minutes')} unit={t('min')} valueText={text}
         disabledAt={i => i * 60 > max || (i + 1) * 60 - 1 < min} />
-      <WheelColumn count={60} index={s} nonce={nonce} step={10} format={pad2} rowRef={sRow}
-        onPick={i => pick(live.current.m, i)} label={t('Seconds')} unit={t('sec')} valueText={text}
-        disabledAt={i => m * 60 + i > max || m * 60 + i < min} />
+      {/* [hevier] S28: rows of `per` seconds */}
+      <WheelColumn count={60 / per} index={Math.floor(s / per)} nonce={nonce} step={Math.max(1, 10 / per)} format={i => pad2(sec(i))} rowRef={sRow}
+        onPick={i => pick(live.current.m, sec(i))} label={t('Seconds')} unit={t('sec')} valueText={text}
+        disabledAt={i => m * 60 + sec(i) > max || m * 60 + sec(i) < min} />
+      {/* [/hevier] */}
     </div>
   )
 }
