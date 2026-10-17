@@ -379,3 +379,16 @@
 /* ---------- Live personal record on a set (hevier/components/HevyExerciseBlock.jsx, D22) ---------- */
 :root[data-ui="hevier"] .hv-set{position:relative}
 :root[data-ui="hevier"] .hv-pr-live{position:absolute;top:50%;left:calc(50% + 9px);transform:translateY(-50%);font-size:13px;color:var(--yellow)}
+
+/* ---------- Monthly report (hevier/views/MonthReport.jsx, D23) ---------- */
+:root[data-ui="hevier"] .hv-report-bar{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
+:root[data-ui="hevier"] .hv-report-bar > div{flex:1;text-align:center}
+:root[data-ui="hevier"] .hv-report-bar h1{font-size:22px;margin:0}
+:root[data-ui="hevier"] .hv-report-stats em{font-style:normal;font-size:12px;font-weight:500}
+:root[data-ui="hevier"] .hv-report-stats em.up{color:var(--green)}
+:root[data-ui="hevier"] .hv-report-stats em.down{color:var(--red)}
+:root[data-ui="hevier"] .hv-report-vs{margin:4px 0 6px}
+:root[data-ui="hevier"] .hv-report-row{width:100%;text-align:start;font:inherit;color:var(--label);gap:10px}
+:root[data-ui="hevier"] .hv-report .hv-cal-mt{display:none}
+:root[data-ui="hevier"] .hv-report h4.sec{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-report h4.sec .icn{color:var(--yellow)}

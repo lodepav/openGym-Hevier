@@ -1,6 +1,7 @@
 // Hevy's Statistics page (hevier/DECISIONS.md D14; reference/SCREENS.md §6), opened from Profile:
 // the last 7 days as a week strip and a body map, the set count per muscle group (week, month,
-// year, against the one before), then upstream's own statistics and structural balance, whole.
+// year, against the one before), then the monthly report (D23) and upstream's own statistics and
+// structural balance, whole.
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -76,6 +77,7 @@ export default function Statistics() {
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>
+    {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

@@ -94,3 +94,12 @@ Added 2026-10-17 (PLAN.md §5), at the user's choice: no sound.
 | # | Decision |
 |---|---|
 | D22 | **A personal record shows on the set as it is ticked.** While logging, the ticked work set that beats the exercise's heaviest weight gets the **PR** trophy badge, by upstream's own finish rule (`doFinishWorkout`: the session's best ticked working weight beats `bestWeightFor`, read the way the session logs a dumbbell), so it is the same set Workout Detail marks afterwards (`prSetIndex`). The tick that makes a new record also shows a toast, `New PR · 100 kg`. **No sound and no extra vibration**: the tick's own beep and buzz stay upstream's. Weight records only (openGym's PR); a heavier estimated 1RM stays in the finish summary. A workout logged into the past shows none, as upstream's finish awards none live. Derived on screen from the session, nothing stored. |
+
+## Monthly report
+
+Added 2026-10-17, at the user's choice (PLAN.md §5). The muscle-distribution radar is dropped, at
+the user's request.
+
+| # | Decision |
+|---|---|
+| D23 | **A monthly report page, from the log alone.** Profile → Statistics gets a **Monthly report** row → `/report`, Hevy's "October Report": ‹ month › (back to the first logged month, forward to this one, which reads "so far"); it opens on last month when last month has workouts, else on this one. Top to bottom: **Workouts · Duration · Volume** (Sets in place of Volume in D18's sets mode), each with its change against the month before; **Records**, upstream's stored PRs of the month's workouts (`w.prs`), one row per exercise; the month's **calendar** (the Calendar page's grid, trained days filled) with "N of M weeks trained"; the **muscle split**, sets per main muscle as bars (D18's count); **top exercises**, the five with the most work sets, with their heaviest weight. A tap on a day opens it as on the Calendar page; a tap on an exercise opens its details. Nothing is stored and no notification is sent. |

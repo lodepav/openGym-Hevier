@@ -1,0 +1,81 @@
+// Hevy's monthly report (hevier/DECISIONS.md D23), read from the log alone: the month's totals
+// against the month before, its records, weeks trained, sets per muscle and top exercises.
+// Nothing here is stored. Records are upstream's own (`w.prs`, set at the finish).
+import { workoutDay, workoutDuration, bestWeightForEntry } from '../../lib/history.js'
+import { betterWeight } from '../../lib/exercises.js'
+import { muscleSets, workSets } from './volume.js'
+import { monthCells } from './calendar.js'
+
+const pad = n => String(n).padStart(2, '0')
+const keyOf = (y, mo) => `${y}-${pad(mo + 1)}`
+const shift = (y, mo, by) => { const d = new Date(y, mo + by, 1); return { y: d.getFullYear(), mo: d.getMonth() } }
+
+/** The workouts logged in month (y, mo), oldest first. */
+export const monthWorkouts = (workouts, y, mo) => (workouts || []).filter(w => (workoutDay(w) || '').startsWith(keyOf(y, mo) + '-'))
+
+function totals(ws) {
+  return {
+    workouts: ws.length,
+    duration: ws.reduce((n, w) => n + workoutDuration(w), 0),
+    volume: ws.reduce((n, w) => n + (Number(w.vol) || 0), 0),
+    sets: ws.reduce((n, w) => n + workSets(w.entries), 0),
+  }
+}
+
+/** The month the page opens on: last month when it has workouts, else this one. */
+export function defaultMonth(workouts, today) {
+  const now = { y: Number(today.slice(0, 4)), mo: Number(today.slice(5, 7)) - 1 }
+  const last = shift(now.y, now.mo, -1)
+  return monthWorkouts(workouts, last.y, last.mo).length ? last : now
+}
+
+/** The first month with a workout, as { y, mo }, or null. */
+export function firstMonth(workouts) {
+  let first = ''
+  for (const w of workouts || []) { const d = workoutDay(w); if (d && (!first || d < first)) first = d }
+  return first ? { y: Number(first.slice(0, 4)), mo: Number(first.slice(5, 7)) - 1 } : null
+}
+
+/**
+ * The report for month (y, mo): { ...totals, prev (the month before's totals), records
+ * [{ id, d }], weeks { trained, total }, muscles [{ muscle, sets }], top [{ id, sets, best }] }.
+ * `ws` is the week's first day, for the weeks the month's calendar rows show.
+ */
+export function monthReport(workouts, y, mo, ws = 1) {
+  const list = monthWorkouts(workouts, y, mo)
+  const before = shift(y, mo, -1)
+  const records = []
+  for (const w of list) for (const id of w.prs || []) records.push({ id, d: workoutDay(w) })
+  const cells = monthCells(y, mo, ws)
+  const trainedRows = new Set(list.map(w => Math.floor(cells.indexOf(workoutDay(w)) / 7)))
+  const byEx = new Map()
+  for (const w of list) for (const e of w.entries || []) {
+    const sets = workSets([e])
+    if (!sets) continue
+    const cur = byEx.get(e.id) || { id: e.id, sets: 0, best: 0 }
+    cur.sets += sets
+    const b = bestWeightForEntry(e)
+    if (b > 0) cur.best = cur.best > 0 ? betterWeight(e.id, cur.best, b) : b
+    byEx.set(e.id, cur)
+  }
+  return {
+    ...totals(list),
+    prev: totals(monthWorkouts(workouts, before.y, before.mo)),
+    records,
+    weeks: { trained: trainedRows.size, total: Math.ceil(cells.length / 7) },
+    muscles: muscleSets(list.flatMap(w => w.entries || [])),
+    top: [...byEx.values()].sort((a, b) => b.sets - a.sets).slice(0, 5),
+  }
+}
+
+/** A change against the month before: { up, text } with text like '+3' or '−20%', or null. */
+export function change(now, before, pct = false) {
+  if (!before && !now) return null
+  if (pct) {
+    if (!before) return null
+    const p = Math.round((now - before) / before * 100)
+    return p ? { up: p > 0, text: (p > 0 ? '+' : '−') + Math.abs(p) + '%' } : null
+  }
+  const d = now - before
+  return d ? { up: d > 0, text: (d > 0 ? '+' : '−') + Math.abs(d) } : null
+}

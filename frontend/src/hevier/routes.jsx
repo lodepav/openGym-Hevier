@@ -24,6 +24,7 @@ import { installSettings } from './views/SettingsRootHevy.jsx'
 import { installExercisePicker, Exercises } from './views/ExercisePickerHevy.jsx'
 import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/WorkoutDetail.jsx'
 import Calendar from './views/Calendar.jsx'
+import MonthReport from './views/MonthReport.jsx'
 import { atTabRoot } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
@@ -82,6 +83,7 @@ export const hevierRoutes = [
   <Route key="hv-balance" path="/structural-balance" element={<BackWhereFrom to="/stats"><StructuralBalance /></BackWhereFrom>} />,
   <Route key="hv-library" path="/library" element={<Exercises />} />,
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
+  <Route key="hv-report" path="/report" element={<MonthReport />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
   <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,
