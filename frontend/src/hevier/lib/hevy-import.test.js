@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { FIXES, splitBrand, oneLimbOf, importExercise, importDone, importWeight, readKey } from './hevy-import.js'
+import { FIXES, splitBrand, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch } from './hevy-import.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { parseImport, mergeImport } from '../../lib/import-csv.js'
@@ -34,6 +34,13 @@ describe('hevier Hevy import (D29)', () => {
     expect(importExercise('Air Bike', 'Hevy')).toBe('3893')
     expect(importExercise('Seated Leg Curl (Machine)', 'Strong')).toBe(null)
     expect(importExercise('Squat (Barbell)', 'Hevy')).toBe(null)   // upstream's match stands
+  })
+
+  it('the belt squat and the deficit Smith split squat land on their own exercises (PLAN item 22)', () => {
+    const match = t => importExercise(t, 'Hevy') || upstreamMatch(t, 'Hevy')
+    expect(match('Belt Squat (Machine)')).toBe('2950')
+    expect(match('Deficit Bulgarian Split Squat (Smith Machine)')).toBe('11568')
+    expect(readKey(importExercise('Deficit Bulgarian Split Squat (Smith Machine) (brand: LifeFitness)', 'Hevy'))).toMatchObject({ id: '11568', brand: 'LifeFitness' })
   })
 
   it('takes a one-limb title to its machine or cable exercise, per side; free weights stay upstream\'s', () => {
