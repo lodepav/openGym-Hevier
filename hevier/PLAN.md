@@ -645,6 +645,55 @@ session is adding D numbers for the Hevy import).
     and routines changed since the switch went on, edits updated, exercises Hevy lacks created
     as custom templates. Not done: deleting in Hevy (the API cannot), weigh-ins and measurements.
 
+### Fourth session (added 2026-10-17)
+
+The user's list, in their order. Same rule: a decision in DECISIONS.md before each is built,
+PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
+
+20. **Themed Android icon** (user, 2026-10-17). Android 13+'s themed (monochrome) launcher icon,
+    so Go Hevier follows the wallpaper colours like other apps: a `<monochrome>` layer in the
+    fork's adaptive icon (`frontend/android/app/src/hevier*` resources, D39's icon set).
+21. **Home-screen widget: a compact month calendar** (user, 2026-10-17). An Android app widget
+    with this month's calendar, trained days marked, and the month's **number of workouts** and
+    **sets**. Native fork code (an `AppWidgetProvider` in the fork's Java source set), fed from
+    the app when it saves (nothing read in the background). Check upstream / PIPELINE.md for
+    widgets first.
+22. **Hevy import: more fix-table rows** (user, 2026-10-17). The user has seen a *deficit Smith
+    machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
+    check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
+    write-up) where they miss.
+23. **Pulleys on cable exercises** (user, 2026-10-17). A cable exercise carries how many pulleys
+    it used, **1 or 2**, as D28 does a brand (per exercise and gym default, changeable in the
+    workout, stored on the logged entry, a stats filter). Open: where a **double pulley** fits
+    (one movement on two cables, both connected), and whether it changes how the weight reads.
+    The Hevy import reads it from the title like the brand: `(pulleys: 1)` / `(pulleys: 2)`,
+    the user's own naming convention, cut out of the title (D29 step 1).
+24. **Compare strength opens a section, not only the browser** (user, 2026-10-17). D19's
+    **Compare strength** expands a collapsed section in exercise details with the five level
+    fields and the buttons to look the levels up (strengthlevel.com) and save them, in place of
+    the separate sheet.
+25. **Calendar** (user, 2026-10-17).
+    - Each trained day labelled with **the day's first workout's title**, as newer Hevy
+      versions do.
+    - **Colours by workout type:** **cardio** when the day's workout has only cardio exercises,
+      **strength** when it has any strength exercise, **deload** when "deload" is in the
+      workout's title or notes (deload wins). A legend; the same colours in the monthly report's
+      calendar (D23).
+26. **Bug: the workout header's timer button does nothing** (user, 2026-10-17). The button
+    beside **Finish** (D10's ⏱) should open Hevy's timer setup (rest timer / stopwatch).
+27. **Save Workout page** (user, 2026-10-17).
+    - The header's **Save** / Done button hides once the same button at the bottom is scrolled
+      into view.
+    - **Bug:** the page seems to close by itself when left alone. Check whether D35's 5-second
+      fade, an update check, or the session timer causes it.
+28. **Statistics: secondary muscles as fractional sets, as a setting** (user, 2026-10-17).
+    Fractional sets (openGym's count, a secondary muscle in part) show in Statistics now; a
+    setting chooses **main muscle only** (D18's count) or **secondary muscles too, as
+    fractions**. Decide which screens it steers, beside D18's Volume setting.
+29. **Battery** (user, 2026-10-17; *after every other item*). Go over what keeps the phone awake
+    or busy: timers and intervals left running, the Health Connect and Hevy export loops (D27,
+    D34), wake lock, re-renders while a workout runs, media downloads.
+
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.
 
