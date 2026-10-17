@@ -17,8 +17,8 @@ export const SETTINGS_GROUPS = [
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Exercise animations'],
-  // One look (D17): no light theme, no accent choice.
-  look: ['Theme', 'Accent color'],
+  // One look (D17): no light theme, no accent choice. No gym check-in on Home (D12).
+  look: ['Theme', 'Accent color', 'Gym check-in'],
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise'],
 }

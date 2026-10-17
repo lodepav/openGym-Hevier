@@ -64,13 +64,14 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.textContent).not.toContain('Everything hidden here stays one tap away')
   })
 
-  it('offers no theme or accent choice, keeping the rest of Look & Home (D17)', () => {
+  it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
     render('look')
     const rows = titles()
     expect(rows).not.toContain('Theme')
     expect(rows).not.toContain('Accent color')
     expect(rows).toContain('Body diagram')
-    expect(rows).toContain('Gym check-in')
+    expect(rows).not.toContain('Gym check-in')
+    expect(rows).toContain('Body weight')
     expect(hiddenSetting({ page: 'look', title: 'Accent color' })).toBe(true)
     act(() => root.unmount()); container.remove()
     render(null)

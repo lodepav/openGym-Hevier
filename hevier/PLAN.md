@@ -612,7 +612,7 @@ session is adding D numbers for the Hevy import).
     1.4.3 adds location permissions (gym reminder), so the allow-list changes at that merge.
 17. **Gym tagging as Hevy does it, without membership cards** (user, 2026-10-17; replaces item
     4's "prompt at start"). Two parts:
-    - **Drop upstream's Gym check-in** (membership QR / barcode cards, "Import a photo of your
+    - ~~**Drop upstream's Gym check-in**~~ Done 2026-10-17 (D12 changed). (membership QR / barcode cards, "Import a photo of your
       membership card"): not offered in the fork. Off the Home widgets (D12, `home-layout.js`'s
       `checkin`) and off Look & Home's "On Home" row (D16's hidden rows). `S.checkIn` and
       `S.gymCards` stay untouched, so upstream's UI reads them as before. D12 changes first.

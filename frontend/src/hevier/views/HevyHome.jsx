@@ -27,7 +27,7 @@ import { useHcOnly } from '../lib/weigh-in-source.js'
 import { homeWidgets, storedLayout, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 
 const TITLE = {
-  today: 'Today & this week', checkin: 'Gym check-in', streak: 'Week streak', weight: 'Body weight',
+  today: 'Today & this week', streak: 'Week streak', weight: 'Body weight',
   recovery: 'Muscle recovery', weekly: 'Weekly chart', feed: 'Workouts',
 }
 
@@ -97,16 +97,11 @@ function RecoveryWidget({ S }) {
 }
 
 function Widget({ id, S }) {
-  const nav = useNavigate()
   if (id === 'today') return <TodayWidget S={S} />
   if (id === 'weight') return <WeightWidget S={S} />
   if (id === 'recovery') return <RecoveryWidget S={S} />
   if (id === 'weekly') return <div className="card"><WeeklyChart /></div>
   if (id === 'feed') return <><h4 className="sec">{t('Workouts')}</h4><WorkoutFeed S={S} /></>
-  if (id === 'checkin') return <div className="card tappable" {...tappable(() => nav('/checkin'))}>
-    <div className="row between"><div><div className="lbl2">{t('At the gym')}</div><div className="ttl">{t('Check in')}</div></div>
-      <Icon name="qr" className="chev" /></div>
-  </div>
   if (id === 'streak') {
     const { done, planned } = weekTally(S, todayISO())
     return <div className="card tappable" {...tappable(() => calendarSheet())}>
