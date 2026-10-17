@@ -17,7 +17,7 @@ import { hooks } from '../hooks.js'
 import { volumeMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
-import { SETTINGS_GROUPS, prunePage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 
@@ -70,7 +70,7 @@ export function installSettings() {
       onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/profile', { replace: true }))}>
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
-      const out = prunePage(id, tree, t)
+      const out = relabelPage(id, prunePage(id, tree, t), t)
       if (id !== 'data' || !MOBILE) return out
       // D27's Health Connect reads, then D34's export to Hevy, both before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>
