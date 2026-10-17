@@ -23,6 +23,11 @@ import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
 import { labelsAtFinish, withLabels } from '../lib/gym-labels.js'
+import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
+
+// D34: the session as it stood at Save, for the summary's Update routine button. The saved
+// record drops an exercise with no ticked set, so what was taken out can only be read from here.
+let savedSession = null
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the Save page.
 const discard = nav => confirmSheet({
@@ -78,6 +83,7 @@ export function SaveWorkout() {
     // D28: upstream's finish keeps only the fields it knows, so the gym and machine labels are
     // written onto the saved record here, before it is moved.
     const labels = labelsAtFinish(cur0, cur)
+    savedSession = structuredClone(cur)
     doFinishWorkout()
     update(s => {
       s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
@@ -128,6 +134,13 @@ export function WorkoutDone() {
   const nav = useNavigate()
   const { state } = useLocation()
   const st = useStore(s => s.S)
+  // Read once, against the routines as they are after the save, so a swapped-in exercise starts
+  // from today's weight (replaceSlotExercise).
+  const [updates] = useState(() => {
+    const session = savedSession?.id === state?.ref?.id ? savedSession : null
+    savedSession = null
+    return session ? routineUpdates(useStore.getState().S, session) : []
+  })
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
   if (!w) return <Navigate to="/home" replace />
   const n = workoutNumber(st.workouts, w)
@@ -139,7 +152,7 @@ export function WorkoutDone() {
 
   return <div className="hv-done">
     <div className="hv-pagebar">
-      <div className="hv-title" />
+      <div className="hv-title">{updates.length > 0 && <RoutineUpdateButton updates={updates} />}</div>
       <button type="button" className="btn primary pill hv-finish" onClick={finish}>{t('Done')}</button>
     </div>
     <div className="hv-done-top">
@@ -163,3 +176,39 @@ export function WorkoutDone() {
   </div>
 }
 
+
+const SHOWN_MS = 5000
+
+// D34: Hevy's "Update routine?" as a small button in the corner that goes by itself after five
+// seconds. Ignored, nothing changes; a tap keeps everything the workout changed, with Undo.
+function RoutineUpdateButton({ updates }) {
+  const [state, setState] = useState('shown')   // shown → leaving → gone
+  useEffect(() => {
+    const ids = [setTimeout(() => setState(s => (s === 'shown' ? 'leaving' : s)), SHOWN_MS),
+      setTimeout(() => setState('gone'), SHOWN_MS + 400)]
+    return () => ids.forEach(clearTimeout)
+  }, [])
+  if (state === 'gone') return null
+  const n = summaryParts(updates)
+  const parts = [
+    n.added && '+' + n.added,
+    n.removed && '−' + n.removed,
+    n.swapped && t('{0} swapped', n.swapped),
+    n.changed && t('{0} changed', n.changed),
+    n.moved && t('new order'),
+  ].filter(Boolean).join(' · ')
+  const label = updates.length === 1 ? t('Update {0}', updates[0].name) : t('Update {0} routines', updates.length)
+  const run = () => {
+    setState('gone')
+    const { update } = useStore.getState()
+    let before = []
+    update(s => { before = applyRoutineUpdates(s, updates) })
+    useUI.getState().toast(updates.length === 1 ? t('“{0}” updated', updates[0].name) : t('Routines updated'), {
+      action: t('Undo'), onAction: () => update(s => { undoRoutineUpdates(s, before) }),
+    })
+  }
+  return <button type="button" className={'hv-ru' + (state === 'leaving' ? ' leaving' : '')} onClick={run}>
+    <Icon name="clipboard" />
+    <span><b>{label}</b><small>{parts}</small></span>
+  </button>
+}

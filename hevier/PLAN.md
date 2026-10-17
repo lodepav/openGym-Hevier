@@ -583,7 +583,9 @@ Picked by the user from the review of what was left and from PIPELINE.md's other
 rule: a decision in DECISIONS.md before each is built (take the next free number then: another
 session is adding D numbers for the Hevy import).
 
-13. **Keep added exercises in the routine, without a prompt** (user, 2026-10-17). Hevy asks
+13. ~~**Keep added exercises in the routine, without a prompt**~~ Built as D34 (2026-10-17), with
+    every kind of change (added, removed, swapped, order, work sets, warm-ups/rest/note), one tap
+    for all with Undo, and no Workout Detail entry. The original note: (user, 2026-10-17). Hevy asks
     "Update routine?" on Save; the user finds a prompt that comes up often annoying. Instead,
     after a routine workout that added exercises the routine doesn't have, a **small button in a
     corner** of the "Nice work!" page (`+ Add 2 to Leg Day`) that **fades after 5 seconds**.

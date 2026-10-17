@@ -123,4 +123,49 @@ describe('hevier: Save Workout (seam S9)', () => {
     act(() => r.unmount())
   })
 })
+
+describe('hevier: Update routine from the summary (D34)', () => {
+  const CURL = EXDB.find(e => /^lever lying leg curl$/i.test(e.n)).id
+  const withRoutine = () => {
+    render('/workout/save', [
+      { ...logged()[0], rid: 'r1' },
+      { id: CURL, rid: 'r1', target: { sets: 3, reps: 10 }, sets: [{ w: 30, r: 10, done: true, at: Date.now() - 30000 }] },
+    ])
+    useStore.getState().update(s => { s.routines = [{ id: 'r1', name: 'Leg Day', ex: [{ id: EX, sets: 2, reps: 8, weight: 60 }] }] })
+    act(() => byText('.hv-pagebar button', 'Save').click())
+  }
+  const routineIds = () => useStore.getState().S.routines[0].ex.map(e => e.id)
+
+  it('a small button keeps the added exercise in the routine, with Undo', () => {
+    withRoutine()
+    const btn = container.querySelector('.hv-ru')
+    expect(btn.textContent).toContain('Update Leg Day')
+    expect(btn.textContent).toContain('+1')
+    act(() => btn.click())
+    expect(routineIds()).toEqual([EX, CURL])
+    expect(container.querySelector('.hv-ru')).toBeNull()
+    expect(useUI.getState().toastMsg).toBe('“Leg Day” updated')
+    act(() => useUI.getState().toastAction.run())
+    expect(routineIds()).toEqual([EX])
+  })
+
+  it('goes by itself after five seconds, and the routine stays as it was', () => {
+    vi.useFakeTimers()
+    try {
+      withRoutine()
+      act(() => vi.advanceTimersByTime(5000))
+      expect(container.querySelector('.hv-ru.leaving')).toBeTruthy()
+      act(() => vi.advanceTimersByTime(500))
+      expect(container.querySelector('.hv-ru')).toBeNull()
+      expect(routineIds()).toEqual([EX])
+    } finally { vi.useRealTimers() }
+  })
+
+  it('no button after a freestyle workout', () => {
+    render('/workout/save', logged())
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    expect(container.textContent).toContain('Nice work!')
+    expect(container.querySelector('.hv-ru')).toBeNull()
+  })
+})
 const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].filter(b => b.textContent.includes(text)).at(-1)
