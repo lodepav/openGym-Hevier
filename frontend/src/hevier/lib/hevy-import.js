@@ -19,24 +19,26 @@ import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
 // checked against the catalogue's artwork; each is also a fix for upstream's lib/hevy-id-map.js
 // (hevier/upstream/hevy-map-fixes.md), and goes from here once upstream has it.
 export const FIXES = {
+  // Each id is the catalogue entry with the animation Hevy's own thumbnail shows (its file name
+  // starts with that id), as offered upstream; the last three titles are the user's own exercises.
   // upstream picks the wrong exercise
   'seated leg curl (machine)': '0599',          // not the lying leg curl
-  'single leg extensions': { id: '0585', side: true },   // not the floor knee extension
-  'single arm cable row': { id: '0861', side: true },    // a horizontal row, not a high row
-  'reverse grip lat pulldown (cable)': '5123',  // a cable, not the machine
+  'single leg extensions': { id: '7108', side: true },   // not the floor knee extension
+  'single arm cable row': { id: '7564', side: true },    // a horizontal row, not a high row
+  'reverse grip lat pulldown (cable)': '0208',  // a cable, not the machine
   'lat pulldown (machine)': '0579',             // not the reverse grip
   'skullcrusher (dumbbell)': '0351',            // not the barbell
   'romanian deadlift (smith machine)': '1597',  // not the barbell; no Smith RDL in the catalogue
   'triceps dip': '0814',                        // body weight, not the lever machine
-  'triceps dip (weighted)': '1767',
-  'back extension (hyperextension)': '5813',    // the bench, not the lever machine
+  'triceps dip (weighted)': '1755',
+  'back extension (hyperextension)': '1860',    // the bench, not the lever machine
   'back extension (weighted hyperextension)': '5035',
-  'seated overhead press (dumbbell)': '0405',   // not the barbell
-  'overhead press (barbell)': '1162',           // standing, not seated
-  'shoulder press (machine plates)': '1454',    // upstream's pick is a landmine press
+  'seated overhead press (dumbbell)': '0290',   // not the barbell
+  'overhead press (barbell)': '1165',           // standing, not seated
+  'shoulder press (machine plates)': '0587',    // upstream's pick is a landmine press
   'seated shoulder press (machine)': '1454',
   'seated cable row - v grip (cable)': '2661',  // not the wide grip
-  'seated cable row - bar grip': '0861',
+  'seated cable row - bar grip': '0180',
   'triceps extension (dumbbell)': '0430',       // not the lever machine
   'hanging knee raise': '9819',                 // knees, not straight legs
   'ez bar biceps curl': '0447',                 // without an arm blaster
@@ -47,24 +49,24 @@ export const FIXES = {
   // upstream leaves these unmatched
   'seated cable row - bar wide grip': '0218',
   'seated cable row - bar wide grip (cable)': '0218',
-  'iso-lateral high row (machine)': '2662',
+  'iso-lateral high row (machine)': '0581',
   'iso-lateral low row': '4214',
-  'band pullaparts': '1503',
+  'band pullaparts': '4568',
   'triceps rope pushdown': '0200',
-  'triceps pressdown': '0241',
+  'triceps pressdown': '1605',
   'straight arm lat pulldown (cable)': '0238',
   'lying neck curls': '10780',
-  'single arm tricep extension (dumbbell)': '4343',
+  'single arm tricep extension (dumbbell)': '0362',
   'pull up (close neutral grip)': '0651',
-  'single leg standing calf raise': '3712',
-  'calf extension (machine)': '2289',
-  'iso-lateral chest press (machine)': '1029',
-  'triceps extension (cable)': '0194',
+  'single leg standing calf raise': '5052',
+  'calf extension (machine)': '2315',
+  'iso-lateral chest press (machine)': '0576',
+  'triceps extension (cable)': '0149',
   'bulgarian split squat (smith machine)': '0768',
   'standing leg curls': '4347',               // the machine, not the body-weight curl
   'nordic hamstrings curls': '7746',
   'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
-  'behind the back curl (cable)': '2656',     // the one arm cable curl v. 2, by its artwork
+  'behind the back curl (cable)': '4838',     // the cable unilateral curl
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i

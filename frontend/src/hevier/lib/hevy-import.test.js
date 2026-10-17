@@ -40,7 +40,7 @@ describe('hevier Hevy import (D29)', () => {
   it('the user’s own matches: Nordic curls, deficit push ups, the behind-the-back cable curl', () => {
     expect(importExercise('Nordic Hamstrings Curls', 'Hevy')).toBe('7746')
     expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
-    expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('2656')
+    expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('4838')
     expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip(Cable)', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip (Cable)', 'Hevy')).toBe('0218')
@@ -73,7 +73,7 @@ describe('hevier Hevy import (D29)', () => {
 
   it('takes a one-limb title to its machine or cable exercise, per side; free weights stay upstream\'s', () => {
     expect(oneLimbOf('Single Leg Press (Machine)')).toBe('0739')
-    expect(readKey(importExercise('Single Leg Extensions', 'Hevy'))).toEqual({ id: '0585', side: true, brand: '' })
+    expect(readKey(importExercise('Single Leg Extensions', 'Hevy'))).toEqual({ id: '7108', side: true, brand: '' })
     expect(oneLimbOf('Single Leg Standing Calf Raise (Dumbbell)')).toBe(null)
     expect(oneLimbOf('Leg Press (Machine)')).toBe(null)
   })
@@ -90,16 +90,16 @@ describe('hevier Hevy import (D29)', () => {
       row('Qwerty Zorb (brand: LifeFitness)', 0, 'normal', 10, 12),
     ]), { unit: 'kg', customEx: [] })
     const [ext, press, dip, wdip, calf, curl, odd] = entriesOf(p)
-    expect(ext.id).toBe('0585')
+    expect(ext.id).toBe('7108')
     expect(ext.sets.every(isSideSet)).toBe(true)
     expect(ext.sets[1]).toMatchObject({ w: 48.75, r: 20, sides: { L: { w: 48.75, r: 10 }, R: { w: 48.75, r: 10 } } })
     expect(ext.sets[0].phase).toBe('warmup')
     expect(press).toMatchObject({ id: '0739', hvBrand: 'LifeFitness' })
     expect(dip.id).toBe('0814')
-    expect(wdip.id).toBe('1767')
-    expect(calf).toMatchObject({ id: '2289', hvBrand: 'Achilles Rehab' })
+    expect(wdip.id).toBe('1755')
+    expect(calf).toMatchObject({ id: '2315', hvBrand: 'Achilles Rehab' })
     // unmatched with a brand: one custom exercise, named without the brand
-    expect(curl).toMatchObject({ id: '2656', hvBrand: 'LifeFitness' })
+    expect(curl).toMatchObject({ id: '4838', hvBrand: 'LifeFitness' })
     expect(odd.hvBrand).toBe('LifeFitness')
     expect(p.customEx.find(c => c.id === odd.id)?.n).toBe('qwerty zorb')
     expect(p.unmatchedNames).toContain('qwerty zorb')
@@ -135,7 +135,7 @@ describe('hevier Hevy import (D29)', () => {
     }]
     const p = importDone(parseHevyWorkouts(workouts, templates, { unit: 'kg' }))
     const [ext, curl] = entriesOf(p)
-    expect(ext.id).toBe('0585')
+    expect(ext.id).toBe('7108')
     expect(ext.sets[0]).toMatchObject({ r: 20, sides: { L: { r: 10 }, R: { r: 10 } } })
     expect(curl).toMatchObject({ id: '0599', hvBrand: 'Hammer' })
     expect(p.customEx).toEqual([])
@@ -144,7 +144,7 @@ describe('hevier Hevy import (D29)', () => {
       { exercise_template_id: 't1', title: 'Single Leg Extensions', sets: [{ type: 'normal', weight_kg: 40, reps: 10 }] },
     ] }]
     const r = importDone(parseHevyRoutines(routines, templates, { unit: 'kg' }))
-    expect(r.routines[0].ex[0]).toMatchObject({ id: '0585', side: true })
+    expect(r.routines[0].ex[0]).toMatchObject({ id: '7108', side: true })
   })
 
   it('changes nothing with the hooks empty, as in upstream\'s build', () => {
