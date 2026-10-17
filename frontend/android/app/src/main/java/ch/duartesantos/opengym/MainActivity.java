@@ -32,6 +32,9 @@ public class MainActivity extends BridgeActivity {
         // [hevier] S24: the fork's encrypted secret, the Hevy API key of the export to Hevy (D34)
         registerPlugin(HevierSecretPlugin.class);
         // [/hevier]
+        // [hevier] S26: the fork's home-screen month widget (D44)
+        registerPlugin(HevierWidgetPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

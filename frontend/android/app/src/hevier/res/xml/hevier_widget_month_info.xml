@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [hevier] The month widget (D44): 4×2, resizable, no periodic update (the app and a midnight
+     alarm redraw it). The preview is a picture of
+     it: its layout alone would show an empty card. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/hevier_widget_month"
+    android:previewImage="@drawable/hevier_widget_preview"
+    android:description="@string/hevier_widget_desc"
+    android:widgetCategory="home_screen" />

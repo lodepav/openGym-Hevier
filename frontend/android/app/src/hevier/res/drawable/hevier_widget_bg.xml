@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [hevier] The month widget's card (D44): the fork's dark surface, rounded like a launcher widget. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#F2131418" />
+    <corners android:radius="20dp" />
+</shape>
