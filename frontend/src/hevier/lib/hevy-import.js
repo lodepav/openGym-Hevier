@@ -4,13 +4,15 @@
 // entry's D28 brand (`hvBrand`) and upstream's per-side sets once the parse is finished.
 //
 // In order: (1) "(brand: X)" anywhere in a title is the user's own convention for a D28 brand,
-// from any app; (2) the user's own choice from the review (D33, `S.hvImportMap`), any app; (3) the
+// from any app, and so is a bare "(1:1)", "(2:1)" or "(x2)" for a cable's D43 setup (else the
+// review's choice, `S.hvImportCable`; none is 1:1); (2) the user's own choice from the review (D33, `S.hvImportMap`), any app; (3) the
 // fix table below, Hevy's English titles only; (4) a Hevy "Single/One Arm/Leg" title whose rest is
 // a machine or cable exercise: that exercise, per side; (5) upstream's match, untouched. Every
 // title asked about is noted, and `importDone` hands the list on as `hvTitles` for the review.
 import { EXIDX, canonicalExId } from '../../lib/exercises.js'
 import { importId, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
+import { volumeFactor } from '../../lib/dumbbells.js'
 import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
 
 // Hevy's English title (lower case) → catalogue id, `side` for a one-limb title. Each row was
@@ -76,6 +78,19 @@ export function splitBrand(title) {
   return { name: clean(String(title).replace(BRAND, ' ')), brand: clean(m[1]).slice(0, BRAND_MAX) }
 }
 
+const CABLE = /\(\s*(1\s*:\s*1|2\s*:\s*1|[x×]\s*2)\s*\)/i
+
+/** A title (brand already cut) without its cable setup tag, and the setup ('' for none). */
+export function splitCable(name) {
+  const m = String(name || '').match(CABLE)
+  if (!m) return { name: clean(name), cable: '' }
+  const c = m[1].replace(/\s+/g, '').toLowerCase()
+  return { name: clean(String(name).replace(CABLE, ' ')), cable: c === '×2' ? 'x2' : c }
+}
+
+/** A title's parts: the name to match, the brand and the cable tag. */
+const partsOf = title => { const { name, brand } = splitBrand(title); return { ...splitCable(name), brand } }
+
 function fixOf(name) {
   const f = FIXES[clean(name).toLowerCase()]
   if (!f) return null
@@ -101,15 +116,15 @@ export function oneLimbOf(name) {
 }
 
 const KEY = 'hv:'
-const keyOf = v => KEY + JSON.stringify(v)
+const keyOf = ({ cable, ...v }) => KEY + JSON.stringify(cable ? { ...v, cable } : v)
 /** What a key carries: { id, side, brand, n } (n: the name of a custom exercise to make), or null. */
 export function readKey(id) {
   if (typeof id !== 'string' || !id.startsWith(KEY)) return null
   try { return JSON.parse(id.slice(KEY.length)) } catch { return null }
 }
 
-/** The review's key for a title: the app and the title without its brand, lower case (D33). */
-export const choiceKey = (title, source) => source + '|' + splitBrand(title).name.toLowerCase()
+/** The review's key for a title: the app and the title without its brand and cable tag, lower case (D33). */
+export const choiceKey = (title, source) => source + '|' + partsOf(title).name.toLowerCase()
 
 /**
  * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist }`, or null.
@@ -131,7 +146,8 @@ const memos = new WeakMap()
 const noCtx = {}
 const seen = new Map()
 export function importExercise(title, source) {
-  seen.set(choiceKey(title, source), { title: splitBrand(title).name, source })
+  const { name, cable } = partsOf(title)
+  seen.set(choiceKey(title, source), { title: name, source, cable })
   return resolved(title, source)
 }
 function resolved(title, source) {
@@ -151,26 +167,30 @@ export function outcomeOf(title, source) {
   const chosen = !!choiceOf(title, source)
   const a = resolved(title, source)
   const k = readKey(a) || { id: a }
-  const id = k.id ?? upstreamMatch(splitBrand(title).name, source)
+  const id = k.id ?? upstreamMatch(partsOf(title).name, source)
   return { id: id && !k.n ? id : null, chosen }
 }
 
+/** The cable setup a title is imported with: its tag, else the review's choice, else '' (1:1). */
+export const cableFor = (title, source) => partsOf(title).cable || ctx?.cables?.[choiceKey(title, source)] || ''
+
 function answer(title, source) {
-  const { name, brand } = splitBrand(title)
+  const { name, brand } = partsOf(title)
+  const cable = cableFor(title, source)
   const hevy = source === 'Hevy'
   const own = choiceOf(title, source)
-  if (own === 'custom') return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side: false, brand, n: name.toLowerCase() })
+  if (own === 'custom') return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side: false, brand, cable, n: name.toLowerCase() })
   let id = null, side = false
   const fix = own ? { id: own, side: LIMB.test(name) && isMachineId(own) } : hevy ? fixOf(name) : null
   if (fix) ({ id, side } = fix)
   else if (hevy) { id = oneLimbOf(name); side = !!id }
-  if (!id && !brand) return null
+  if (!id && !brand && !cable) return null
   id = id || matchOf(name)
-  if (!side && !brand) return id
+  if (!side && !brand && !cable) return id
   // A brand on an exercise nobody matched: a custom exercise named without the brand, the id
   // upstream would give it, so a later import finds the same one.
-  if (!id) return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side, brand, n: name.toLowerCase() })
-  return keyOf({ id, side, brand })
+  if (!id) return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side, brand, cable, n: name.toLowerCase() })
+  return keyOf({ id, side, brand, cable })
 }
 
 const both = s => {
@@ -187,7 +207,8 @@ const customOf = k => ({ id: k.id, n: k.n, custom: true, eq: 'custom', tg: '', d
 
 const fresh = (parsed, made) => [...made.values()].filter(c => !parsed.customEx.some(x => x.id === c.id))
 
-const workVol = entries => entries.reduce((a, e) => a + e.sets.reduce((b, s) => b + (isWarmupRow(s) ? 0 : (s.w || 0) * (s.r || 0)), 0), 0)
+// Two stacks (×2) count both, as upstream counts a dumbbell logged per bell.
+const workVol = entries => entries.reduce((a, e) => a + volumeFactor(e) * e.sets.reduce((b, s) => b + (isWarmupRow(s) ? 0 : (s.w || 0) * (s.r || 0)), 0), 0)
 
 /** A parse result with the fork's keys turned back into ids, brands and per-side sets. */
 export function importDone(parsed) {
@@ -223,6 +244,9 @@ function done(parsed) {
       take(k)
       const out = { ...e, id: k.id, sets: k.side ? e.sets.map(perSide) : e.sets }
       if (k.brand) out.hvBrand = k.brand
+      // A cable's setup (D43); two stacks are logged per stack, as a dumbbell per bell.
+      if (k.cable) out.hvCable = k.cable
+      if (k.cable === 'x2' && !k.side) out.target = { ...(out.target || {}), dbLoad: 'each' }
       return out
     })
     return { ...w, entries, vol: workVol(entries) }

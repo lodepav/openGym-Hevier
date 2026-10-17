@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { FIXES, splitBrand, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch } from './hevy-import.js'
+import { FIXES, splitBrand, splitCable, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch, useChoices } from './hevy-import.js'
+import { workoutVolume } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { parseImport, mergeImport } from '../../lib/import-csv.js'
@@ -145,5 +146,45 @@ describe('hevier import weights to the hundredth (D40)', () => {
     hooks.importWeight = null
     expect(ws(parseImport(lb, { unit: 'kg' }))).toEqual([20.4])
     expect(ws(parseHevyWorkouts(api(20.41), [], { unit: 'kg' }))).toEqual([20.4])
+  })
+})
+
+describe('hevier cable setup from the title (D43)', () => {
+  beforeEach(() => Object.assign(hooks, { importExercise, importDone }))
+  afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
+
+  it('reads a bare (1:1), (2:1) or (x2), before or after other brackets, and cuts it out', () => {
+    expect(splitCable('Lat Pulldown (Cable)(x2)')).toEqual({ name: 'Lat Pulldown (Cable)', cable: 'x2' })
+    expect(splitCable('Lat Pulldown ( 2 : 1 ) (Cable)')).toEqual({ name: 'Lat Pulldown (Cable)', cable: '2:1' })
+    expect(splitCable('Cable Fly (X2)')).toEqual({ name: 'Cable Fly', cable: 'x2' })
+    expect(splitCable('Lat Pulldown (Cable) (x3)')).toEqual({ name: 'Lat Pulldown (Cable) (x3)', cable: '' })
+  })
+
+  it('imports the setup on the entry, two stacks per stack with volume counted twice', () => {
+    const p = parseImport(csv([
+      row('Lat Pulldown (Cable)(x2)', 0, 'normal', 30, 10),
+      row('Lat Pulldown (Cable) (brand: Matrix) (2:1)', 0, 'normal', 50, 10, '15 Oct 2026, 16:27'),
+      row('Lat Pulldown (Cable)', 0, 'normal', 60, 10, '16 Oct 2026, 16:27'),
+    ]), { unit: 'kg', customEx: [] })
+    const [x2, ratio, plain] = entriesOf(p)
+    expect(EXIDX[x2.id].eq).toBe('cable')
+    expect(ratio.id).toBe(x2.id)
+    expect(plain.id).toBe(x2.id)
+    expect(x2).toMatchObject({ hvCable: 'x2', target: { dbLoad: 'each' } })
+    expect(ratio).toMatchObject({ hvCable: '2:1', hvBrand: 'Matrix' })
+    expect(ratio.target?.dbLoad).toBeUndefined()
+    expect(plain.hvCable).toBeUndefined()      // 1:1, unless the review says otherwise
+    expect(p.workouts[0].vol).toBe(2 * 30 * 10)
+    expect(workoutVolume(p.workouts[0])).toBe(2 * 30 * 10)   // upstream's own count agrees
+    expect(p.workouts[1].vol).toBe(50 * 10)
+  })
+
+  it('a cable the review set is imported with that setup; the title’s own tag wins', () => {
+    useChoices({ map: null, cables: { 'Hevy|lat pulldown (cable)': '2:1' }, known: new Set() })
+    const p = parseImport(csv([
+      row('Lat Pulldown (Cable)', 0, 'normal', 60, 10),
+      row('Lat Pulldown (Cable) (x2)', 0, 'normal', 30, 10, '15 Oct 2026, 16:27'),
+    ]), { unit: 'kg', customEx: [] })
+    expect(entriesOf(p).map(e => e.hvCable)).toEqual(['2:1', 'x2'])
   })
 })

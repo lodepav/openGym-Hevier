@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
   isMachine, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands,
-  labelsAtFinish, withLabels, labelsFor, labelText, labelKey, withLabelFilter,
+  labelsAtFinish, withLabels, labelsFor, labelText, labelKey, withLabelFilter, isCable, entryCable, setEntryCable,
 } from './gym-labels.js'
 import { buildCompletedWorkout } from '../../lib/finish-workout.js'
+import { workoutVolume } from '../../lib/history.js'
 import { saveWorkoutEdit, editCompletedSession, editChangesNothing } from '../../lib/session-edit.js'
 import { exerciseSummary } from './exercise-summary.js'
 import { mergeStates, stampChange } from '../../lib/sync-merge.js'
@@ -74,7 +75,7 @@ describe('hevier gyms and machine labels (D28)', () => {
       { id: CABLE, sets: [set(15, 12)] },
     ])
     const labels = labelsAtFinish(S, S.active)
-    expect(labels).toEqual([{ hvGym: 'g1' }, { hvGym: 'g1', hvBrand: 'Life Fitness' }])
+    expect(labels).toEqual([{ hvGym: 'g1' }, { hvGym: 'g1', hvBrand: 'Life Fitness', hvCable: '1:1' }])
     const saved = withLabels(buildCompletedWorkout(S.active, { end: 2 }), labels)
     expect(saved.entries.map(e => [e.id, e.hvGym, e.hvBrand])).toEqual([[DB, 'g1', undefined], [CABLE, 'g1', 'Life Fitness']])
     expect(withLabels(saved, [{}, {}])).toBe(saved)
@@ -141,5 +142,44 @@ describe('hevier gyms and machine labels (D28)', () => {
     const a = state({ _ts: 2, workouts: [w] }), b = state({ _ts: 1, workouts: [] })
     expect(mergeStates(a, b).workouts[0].entries[0]).toMatchObject({ hvGym: 'g1', hvBrand: 'B' })
     expect(mergeStates(b, a).workouts[0].entries[0]).toMatchObject({ hvGym: 'g1', hvBrand: 'B' })
+  })
+})
+
+describe('hevier cable setup (D43)', () => {
+  it('is 1:1 until set, then remembered per exercise and gym; cables only', () => {
+    const S = state()
+    S.active = live([{ id: CABLE, target: {}, sets: [] }, { id: MACHINE, sets: [] }])
+    expect(isCable(CABLE)).toBe(true)
+    expect(isCable(MACHINE)).toBe(false)
+    expect(entryCable(S, S.active, 0)).toBe('1:1')
+    expect(entryCable(S, S.active, 1)).toBe(null)
+    setEntryCable(S, 0, '2:1')
+    expect(S.hvCables).toEqual({ [CABLE]: { g1: '2:1' } })
+    S.active = live([{ id: CABLE, sets: [] }])
+    expect(entryCable(S, S.active, 0)).toBe('2:1')
+    setWorkoutGym(S, 'g2')
+    expect(entryCable(S, S.active, 0)).toBe('1:1')    // another gym, another machine
+  })
+
+  it('two stacks are logged per stack, so upstream counts the volume twice', () => {
+    const S = state()
+    S.active = live([{ id: CABLE, target: { sets: 1, reps: 10 }, sets: [set(15, 10)] }])
+    setEntryCable(S, 0, 'x2')
+    expect(S.active.entries[0].target).toMatchObject({ dbLoad: 'each', reps: 10 })
+    const w = withLabels(buildCompletedWorkout(S.active, { end: 2 }), labelsAtFinish(S, S.active))
+    expect(w.entries[0].hvCable).toBe('x2')
+    expect(workoutVolume(w)).toBe(2 * 15 * 10)
+    setEntryCable(S, 0, '1:1')
+    expect(S.active.entries[0].target.dbLoad).toBeUndefined()
+    expect(workoutVolume(buildCompletedWorkout(S.active, { end: 2 }))).toBe(15 * 10)
+  })
+
+  it('tells sessions apart by setup in exercise details, a cable logged before counted as 1:1', () => {
+    const w = (id, start, c) => ({ id, d: '2026-10-0' + start, start, entries: [{ id: CABLE, sets: [set(10, 10)], hvGym: 'g1', ...(c ? { hvCable: c } : {}) }] })
+    const S = state({ workouts: [w('a', 1), w('b', 2, '1:1'), w('c', 3, 'x2')] })
+    const ls = labelsFor(S, CABLE)
+    expect(ls.map(l => [l.key, l.n])).toEqual([['g1||x2', 1], ['g1|', 2]])
+    expect(ls.map(l => labelText(S, l))).toEqual(['City Gym · ×2', 'City Gym'])
+    expect(withLabelFilter(S, CABLE, labelKey('g1', '', 'x2')).workouts.map(x => x.entries.length)).toEqual([0, 0, 1])
   })
 })

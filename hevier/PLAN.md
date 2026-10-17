@@ -666,7 +666,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
     check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
     write-up) where they miss.
-23. **Cable setup on cable exercises** (user, 2026-10-17, with the user's choices). A cable
+23. ~~**Cable setup on cable exercises**~~ Done 2026-10-17 (D43); the grey "≈ 10 kg at the handle" is left for later. The original note (user, 2026-10-17, with the user's choices). A cable
     exercise carries a **Cable setup** label, as D28 does a brand (a per exercise and gym
     default, changeable in the workout, stored on the logged entry, a stats filter, so a 2:1
     machine's numbers are never compared with a 1:1 machine's):
