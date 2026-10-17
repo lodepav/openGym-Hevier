@@ -7,6 +7,8 @@ import { nav } from '../lib/nav.js'
 import { hooks, installFinishHook } from './hooks.js'
 import { importDone, importExercise } from './lib/hevy-import.js'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
+import * as hevyMore from './lib/hevy-more.js'
+import { HevyMoreRows, moreToast } from './components/HevyMoreRows.jsx'
 import { useStore } from '../store/useStore.js'
 import { initHealthRead } from './lib/health-read-sync.js'
 import { applyForkIcons } from './lib/pwa-icons.js'
@@ -19,6 +21,8 @@ if (HEVIER) installFinishHook(nav)
 if (HEVIER) Object.assign(hooks, { importExercise, importDone })
 // …and its routines their Hevy folders (seam S20, D30).
 if (HEVIER) hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
+// …and the rest of what Hevy's API holds: measurements, rest, rep ranges, notes, routine links (S21, D31).
+if (HEVIER) hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
 // The installed PWA is Hevier, in blue, not upstream's lime openGym.
 if (HEVIER) applyForkIcons()
 // Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).
