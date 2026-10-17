@@ -426,7 +426,8 @@ aren't lost:
   WorkoutMediaSection is on the "Nice work!" page right after Save and in Workout Detail; upstream
   ties a photo to a saved workout, so it cannot sit on the Save page itself without new logic)
 - ~~Live personal-record badge while logging a set~~ (D22, 2026-10-17; no sound, at the user's choice)
-- Monthly report, multi-year calendar, muscle-distribution radar chart
+- Monthly report, muscle-distribution radar chart (~~multi-year calendar~~: covered, 2026-10-17,
+  Profile → Calendar → Year steps back a year at a time)
 - ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
 - ~~Hevy-style warm-up calculator sheet~~ (covered, 2026-10-17: openGym ramps warm-ups itself,
   `rerampWarmups`, from the routine's warm-up count and ⋮ → Add warm-up set; a percentage
