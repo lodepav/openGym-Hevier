@@ -1,17 +1,19 @@
 // The review of an import's exercise matches (hevier/DECISIONS.md D33, seam S23): the titles a parse
 // asked about (`hvTitles`, from hevy-import.js), what each becomes, the user's choices in
-// `S.hvImportMap`, and the file read again once a choice changes.
+// `S.hvImportMap`, and the file read again once a choice changes. Beside it, the cable exercises'
+// setups (D43): a title's own tag, else the choice in `S.hvImportCable`, else 1:1, to confirm.
 import { parseHevyWorkouts, parseHevyRoutines } from '../../lib/import-hevy.js'
 import { importDone, outcomeOf, useChoices } from './hevy-import.js'
+import { isCable } from './gym-labels.js'
 import { nameFolders } from './hevy-folders.js'
 
 // One choices object per version of the map and the custom exercises, so hevy-import.js's
 // memo holds for a whole parse.
 let last = null
 export function choicesFor(S) {
-  if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx) {
-    last = { map: S?.hvImportMap, custom: S?.customEx,
-      ctx: { map: S?.hvImportMap || null, known: new Set((S?.customEx || []).map(c => c?.id)) } }
+  if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx || last.cables !== S?.hvImportCable) {
+    last = { map: S?.hvImportMap, custom: S?.customEx, cables: S?.hvImportCable,
+      ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)) } }
   }
   return last.ctx
 }
@@ -34,14 +36,29 @@ export function reviewList(titles, S) {
     .sort((a, b) => (!a.id !== !b.id ? (a.id ? 1 : -1) : a.title.localeCompare(b.title)))
 }
 
-/** Stores a choice (`null` removes it). Mutates the store draft `S`. */
-export function choose(S, key, value) {
-  const map = { ...(S.hvImportMap || {}) }
+/**
+ * The cable exercises among them, A to Z: { key, title, id, cable, tagged, chosen }. `cable` is
+ * the title's tag, else the choice, else 1:1 (`chosen` false: assumed, to confirm).
+ */
+export function cableList(titles, S) {
+  return reviewList(titles, S).filter(x => x.id && isCable(x.id)).map(x => {
+    const own = S?.hvImportCable?.[x.key]
+    return { ...x, cable: x.cable || own || '1:1', tagged: !!x.cable, chosen: !x.cable && !!own }
+  }).sort((a, b) => a.title.localeCompare(b.title))
+}
+
+const put = (S, field, key, value) => {
+  const map = { ...(S[field] || {}) }
   if (value == null) delete map[key]
   else map[key] = value
-  if (Object.keys(map).length) S.hvImportMap = map
-  else delete S.hvImportMap
+  if (Object.keys(map).length) S[field] = map
+  else delete S[field]
 }
+
+/** Stores a choice (`null` removes it). Mutates the store draft `S`. */
+export const choose = (S, key, value) => put(S, 'hvImportMap', key, value)
+/** Stores a cable setup for a title ('1:1', '2:1' or 'x2'; `null` removes it). Mutates `S`. */
+export const chooseCable = (S, key, value) => put(S, 'hvImportCable', key, value)
 
 /** Reads the import again with the choices in `S`, into the same `parsed` object the sheet shows. */
 export function rerun(parsed, S) {

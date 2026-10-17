@@ -29,7 +29,10 @@ import { workoutSplit } from '../lib/muscle-sets.js'
 import { prSetIndex } from '../lib/pr-set.js'
 import { volumeMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
-import { savedGym, gymName } from '../lib/gym-labels.js'
+import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
+
+// A cable's setup shows when it is not the plain 1:1 (D43).
+const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
 import { sanitizeHr } from '../lib/heart-rate.js'
 
 export const DETAIL_PATH = '/workout-detail'
@@ -48,7 +51,8 @@ function ExerciseSets({ w, e, st }) {
       </button>
       {pr && prAt < 0 && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
     </div>
-    {e.hvBrand && <div className="hv-brand has"><Icon name="machine" />{e.hvBrand}</div>}
+    {(e.hvBrand || cableOn(e)) && <div className="hv-brand has"><Icon name="machine" />
+      {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>

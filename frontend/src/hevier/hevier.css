@@ -422,6 +422,11 @@
 :root[data-ui="hevier"] .hv-brand{display:flex;align-items:center;gap:6px;width:100%;text-align:start;background:none;border:0;padding:2px 0 4px;font-size:13px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-brand.has{color:var(--label-2)}
 :root[data-ui="hevier"] .hv-brand .icn{width:15px;height:15px}
+:root[data-ui="hevier"] .hv-labels{display:flex;align-items:center;gap:10px}
+:root[data-ui="hevier"] .hv-labels .hv-brand{flex:1;min-width:0}
+:root[data-ui="hevier"] .hv-cable{display:flex;align-items:center;gap:2px;flex:none;background:none;border:0;padding:2px 0 4px;font-size:13px;color:var(--label-3);white-space:nowrap}
+:root[data-ui="hevier"] .hv-cable.has{color:var(--blue)}
+:root[data-ui="hevier"] .hv-cable .icn{width:13px;height:13px}
 :root[data-ui="hevier"] .hv-xd-label{display:block;margin:10px 16px 0;background:var(--surface-2);color:var(--label);border:0;border-radius:8px;padding:8px 10px;font-size:14px;max-width:calc(100% - 32px)}
 
 /* Heart rate read from Health Connect (DECISIONS.md D27): the session's under the stats, each set's on its row. */

@@ -6,6 +6,11 @@
 // In a live session the workout's gym is S.active.hvGym once it was changed ('' = no gym), else
 // the active profile. An exercise's brand is its own `hvBrand` once changed ('' = none), else what
 // that exercise last had at that gym. The editor of a saved workout reads only what was saved.
+//
+// A cable exercise also has a setup (D43), kept the same way: `hvCable` on the entry, the default
+// per exercise and gym in S.hvCables, 1:1 when nothing says otherwise. Two stacks (×2) are logged
+// per stack, stamped as upstream's dumbbells logged per bell (`target.dbLoad = 'each'`,
+// lib/dumbbells.js), so volume counts both and records compare like with like.
 import { exOr } from '../../lib/exercises.js'
 import { hasCompletedWork } from '../../lib/workout-model.js'
 
@@ -100,6 +105,54 @@ export function knownBrands(S) {
   return [...seen].sort((a, b) => a.localeCompare(b))
 }
 
+// ---------- cable setup (D43)
+
+/** A cable's setups: a single pulley (1:1), a double pulley (2:1), two stacks at once (×2). */
+export const CABLES = ['1:1', '2:1', 'x2']
+const cableOf = v => (CABLES.includes(v) ? v : null)
+/** A setup as the label line shows it. */
+export const cableText = c => (c === 'x2' ? '×2' : c)
+
+/** Whether an exercise (id) has a cable setup: cable exercises only. */
+export const isCable = exId => exOr(exId).eq === 'cable'
+
+/** The setup an exercise last had at a gym (null: none remembered). */
+export const cableDefault = (S, exId, gymId) => cableOf(S?.hvCables?.[exId]?.[gymId || ''])
+
+/** A logged entry's setup: its own, else 1:1 (a cable logged before D43, or imported untagged). */
+export const savedCable = e => (e && isCable(e.id) ? cableOf(e.hvCable) || '1:1' : null)
+
+/** The setup of the session's exercise `idx`, or null for one that is not a cable. */
+export function entryCable(S, A, idx) {
+  const e = A?.entries?.[idx]
+  if (!e || !isCable(e.id)) return null
+  if (cableOf(e.hvCable) || editingOf(A)) return savedCable(e)
+  return cableDefault(S, e.id, workoutGym(S, A)) || '1:1'
+}
+
+/** Whether entry `e`'s weights are stamped per stack, as `cable` needs; else stamps them. */
+export const cableStamped = (e, cable) => (e?.target?.dbLoad === 'each') === (cable === 'x2')
+export function stampCable(e, cable) {
+  if (!e || cableStamped(e, cable)) return
+  if (cable === 'x2') e.target = { ...(e.target || {}), dbLoad: 'each' }
+  else { const { dbLoad: _, ...rest } = e.target; e.target = rest }
+}
+
+/**
+ * Sets the setup of the session's exercise `idx`. In a live session it is also what the exercise
+ * has at this gym from now on; editing a saved workout changes only that workout.
+ */
+export function setEntryCable(s, idx, cable) {
+  const A = s.active
+  const e = A?.entries?.[idx]
+  if (!e || !isCable(e.id) || !cableOf(cable)) return
+  e.hvCable = cable
+  stampCable(e, cable)
+  if (editingOf(A)) return
+  const key = workoutGym(s, A) || ''
+  s.hvCables = { ...(s.hvCables || {}), [e.id]: { ...(s.hvCables?.[e.id] || {}), [key]: cable } }
+}
+
 /**
  * What a live session's finish should write on the saved record: { hvGym?, hvBrand? } for each
  * exercise with a logged set, in order, which is the order upstream's finish keeps them in.
@@ -108,7 +161,8 @@ export function labelsAtFinish(S, A) {
   const gym = workoutGym(S, A)
   return list(A?.entries).map((e, i) => [e, i]).filter(([e]) => list(e?.sets).some(hasCompletedWork)).map(([, i]) => {
     const brand = entryBrand(S, A, i)
-    return { ...(gym ? { hvGym: gym } : {}), ...(brand ? { hvBrand: brand } : {}) }
+    const cable = entryCable(S, A, i)
+    return { ...(gym ? { hvGym: gym } : {}), ...(brand ? { hvBrand: brand } : {}), ...(cable ? { hvCable: cable } : {}) }
   })
 }
 
@@ -120,8 +174,9 @@ export function withLabels(w, labels) {
 
 // ---------- exercise details
 
-/** A label's key: gym id and brand, '' for none. */
-export const labelKey = (g, b) => `${g || ''}|${b || ''}`
+/** A label's key: gym id and brand, '' for none, and a cable setup other than 1:1. */
+export const labelKey = (g, b, c) => `${g || ''}|${b || ''}` + (c && c !== '1:1' ? '|' + c : '')
+const keyOfEntry = e => labelKey(e.hvGym, e.hvBrand, savedCable(e))
 
 /**
  * The labels an exercise was done with, newest first: [{ key, gym, brand, n }]. Only labels that
@@ -132,19 +187,20 @@ export function labelsFor(S, exId) {
   const ws = [...list(S?.workouts)].sort((a, b) => (b?.start || 0) - (a?.start || 0) || String(b?.d).localeCompare(String(a?.d)))
   for (const w of ws) for (const e of list(w?.entries)) {
     if (e?.id !== exId) continue
-    const key = labelKey(e.hvGym, e.hvBrand)
+    const key = keyOfEntry(e)
     const had = byKey.get(key)
     if (had) had.n++
-    else byKey.set(key, { key, gym: e.hvGym || null, brand: e.hvBrand || null, n: 1 })
+    else byKey.set(key, { key, gym: e.hvGym || null, brand: e.hvBrand || null, cable: savedCable(e), n: 1 })
   }
   const out = [...byKey.values()]
   return out.length > 1 ? out : []
 }
 
-/** A label as text: "Gym · Brand", one of them, or "No label". */
+/** A label as text: "Gym · Brand · 2:1", what of it there is, or "No label". */
 export function labelText(S, l, tr = s => s) {
   const g = l.gym ? (gymName(S, l.gym) || tr('Removed gym')) : null
-  return [g, l.brand].filter(Boolean).join(' · ') || tr('No label')
+  const c = l.cable && l.cable !== '1:1' ? cableText(l.cable) : null
+  return [g, l.brand, c].filter(Boolean).join(' · ') || tr('No label')
 }
 
 /** S with only the sessions of `exId` done with label `key` (other exercises untouched). */
@@ -155,7 +211,7 @@ export function withLabelFilter(S, exId, key) {
     workouts: list(S.workouts).map(w => {
       const entries = list(w?.entries)
       if (!entries.some(e => e?.id === exId)) return w
-      return { ...w, entries: entries.filter(e => e?.id !== exId || labelKey(e.hvGym, e.hvBrand) === key) }
+      return { ...w, entries: entries.filter(e => e?.id !== exId || keyOfEntry(e) === key) }
     }),
   }
 }
