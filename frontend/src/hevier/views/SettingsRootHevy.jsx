@@ -52,8 +52,13 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     : id === 'look' ? null : preview[id]?.() || null)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={t(PAGES[id].title)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
+  const own = {
+    'hv:volume': () => <Row key={'hv:volume'} icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />,
+    'hv:muscle': () => <Row key={'hv:muscle'} icon="figureStrength" iconTint="var(--blue)" title={t('Muscle sets')} value={MUSCLE[mMode]} accessory="chevron" onClick={pickMuscle} className="sp-root-row" />,
+    'hv:previous': () => <Row key={'hv:previous'} icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />,
+  }
   return SETTINGS_GROUPS.map(g => {
-    const ids = g.ids.filter(id => pageVisible(id, ctx))
+    const ids = g.ids.filter(id => id.startsWith('hv:') || pageVisible(id, ctx))
     if (!ids.length && !g.account) return null
     return <Section key={g.title} title={t(g.title)}>
       {/* Upstream's account card (views/Settings.jsx SettingsRoot), as a row of its group. */}
@@ -62,10 +67,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
         <span className="lrow-m"><span className="lrow-t">{acct.title}</span><span className="lrow-s">{acct.sub}</span></span>
         <Icon name="chevronRight" className="lrow-c" />
       </button>}
-      {ids.map(row)}
-      {g.volume && <Row icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />}
-      {g.volume && <Row icon="figureStrength" iconTint="var(--blue)" title={t('Muscle sets')} value={MUSCLE[mMode]} accessory="chevron" onClick={pickMuscle} className="sp-root-row" />}
-      {g.volume && <Row icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />}
+      {ids.map(id => own[id] ? own[id]() : row(id))}
     </Section>
   })
 }

@@ -10,9 +10,11 @@ import { fmtPlate } from '../../lib/format.js'
 // The root, top to bottom. `account` puts upstream's account card first in its group.
 export const SETTINGS_GROUPS = [
   { title: 'Account', account: true, ids: ['reminders'] },
-  // `volume` is the fork's own row (DECISIONS.md D18), after upstream's pages.
-  { title: 'Preferences', ids: ['workout', 'alerts', 'plan', 'units', 'equipment', 'look'], volume: true },
-  { title: 'More', ids: ['coach', 'data', 'about'] },
+  // `hv:` ids are the fork's own rows (DECISIONS.md D18, D21, D42), the rest upstream's pages (D16).
+  { title: 'Workout', ids: ['workout', 'alerts', 'hv:previous', 'equipment', 'plan'] },
+  { title: 'Stats', ids: ['hv:volume', 'hv:muscle'] },
+  { title: 'App', ids: ['units', 'look'] },
+  { title: 'Data & more', ids: ['data', 'coach', 'about'] },
 ]
 
 // Rows by their English title (the key upstream passes to t()), per page.
