@@ -3,7 +3,8 @@
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
 // (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume; and its Previous values
-// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious.
+// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious. Data & backup gets the
+// fork's Health Connect read switches (D27) under upstream's Health Connect card.
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
 import { useStore } from '../../store/useStore.js'
@@ -15,7 +16,9 @@ import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
-import { SETTINGS_GROUPS, prunePage, hiddenSetting } from '../lib/settings.js'
+import { MOBILE } from '../../lib/mobile.js'
+import { SETTINGS_GROUPS, prunePage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
+import HealthReadSection from '../components/HealthReadSection.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
@@ -65,7 +68,10 @@ export function installSettings() {
     back: () => <button className="sp-back" aria-label={t('Profile')}
       onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/profile', { replace: true }))}>
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
-    page: (id, tree) => prunePage(id, tree, t),
+    page: (id, tree) => {
+      const out = prunePage(id, tree, t)
+      return id === 'data' && MOBILE ? insertBeforeSection(out, t('Bring data in'), <HealthReadSection key="hv-health-read" />) : out
+    },
     hides: hiddenSetting,
   }
 }

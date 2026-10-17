@@ -23,6 +23,7 @@ git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}' 
 | Settings → Equipment: **Your bars**, plate quick picks, change plates | Nothing to do (upstream pages, D16). |
 | Settings → Account: **Delete account**, **Add another device** | The fork's root repeats the account card (S11): check it still links to these. |
 | Settings → Reminders: **Gym reminder** (1.4.3) | Nothing to do (an upstream page). |
+| Health Connect reads: **heart rate per set, weigh-ins from other apps** (1.4.3, `f9c03474`, #544, #127) | The fork carries a copy now (DECISIONS.md D27). At the merge: delete `HevierHealthReadPlugin.java`, seam S17, `hevier/lib/health-read*.js`, `hevier/lib/heart-rate.js` and the Data-page insert (`HealthReadSection`); S18's backported lines become upstream's own; turn the two switches on again in upstream's rows (the data needs nothing) |
 | Settings → About: **support links** (1.4.3) | Nothing to do. |
 | **Notifications asked for at the start**, a start logo | Onboarding: don't add a fork prompt. |
 | **Running workout saved on every change** and on background | Nothing to do (store logic). |
