@@ -509,7 +509,7 @@ the feature is not Hevy-specific (it would remove fork code).
 
 Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked first.
 
-9. **No screen rotation.** The app stays portrait. The PWA manifest already says
+9. ~~**No screen rotation.**~~ Decided as D24 (2026-10-17), built. The app stays portrait. The PWA manifest already says
    `"orientation": "portrait"`, but the Android activity (`AndroidManifest.xml`, `.MainActivity`)
    sets no `screenOrientation`, so the APK rotates. Fix without a new seam: a fork-owned
    `src/hevier/AndroidManifest.xml` that the manifest merger folds in, adding
@@ -518,7 +518,7 @@ Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked 
    supported orientations in `Info.plist`. Check on the emulator that turning the device leaves
    the workout screen as it is. Upstream may take this too (a gym app rarely wants landscape):
    ask before carrying it.
-10. **Keep the screen on during a workout, as a Settings switch.** Upstream already has it:
+10. ~~**Keep the screen on during a workout, as a Settings switch.**~~ Decided as D25 (2026-10-17): upstream's switch works in the APK, checked on the emulator; no fork code. Upstream already has it:
     Settings → Workout → *Before and during* → **Keep screen awake** (`S.keepAwake`, default
     on; `lib/wakelock.js`, used in `App.jsx` while a workout runs), and the fork's pruning
     (D16) does not hide it. But the row is only drawn when the Screen Wake Lock API exists

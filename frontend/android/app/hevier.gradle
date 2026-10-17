@@ -1,4 +1,4 @@
-// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash.
+// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash, portrait only.
 // Its own application id, so it installs beside the official openGym instead of clashing with it.
 // The debug build keeps upstream's ".test" suffix: ch.duartesantos.opengym.hevier.test.
 // The Java namespace stays ch.duartesantos.opengym; only the id the device sees changes.
@@ -15,5 +15,10 @@ android {
     sourceSets {
         release.res.srcDirs += ['src/hevier-release/res', 'src/hevier/res']
         debug.res.srcDirs = ['src/hevier-debug/res', 'src/hevier/res']
+        // The fork's manifest overlay (D24: portrait only), merged into src/main's. Upstream has no
+        // build-type manifest today; if it ever adds src/debug or src/release/AndroidManifest.xml,
+        // these lines would hide it: move its contents into src/hevier/AndroidManifest.xml.
+        debug.manifest.srcFile 'src/hevier/AndroidManifest.xml'
+        release.manifest.srcFile 'src/hevier/AndroidManifest.xml'
     }
 }

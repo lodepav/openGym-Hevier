@@ -103,3 +103,12 @@ the user's request.
 | # | Decision |
 |---|---|
 | D23 | **A monthly report page, from the log alone.** Profile → Statistics gets a **Monthly report** row → `/report`, Hevy's "October Report": ‹ month › (back to the first logged month, forward to this one, which reads "so far"); it opens on last month when last month has workouts, else on this one. Top to bottom: **Workouts · Duration · Volume** (Sets in place of Volume in D18's sets mode), each with its change against the month before; **Records**, upstream's stored PRs of the month's workouts (`w.prs`), one row per exercise; the month's **calendar** (the Calendar page's grid, trained days filled) with "N of M weeks trained"; the **muscle split**, sets per main muscle as bars (D18's count); **top exercises**, the five with the most work sets, with their heaviest weight. A tap on a day opens it as on the Calendar page; a tap on an exercise opens its details. Nothing is stored and no notification is sent. |
+
+## Android app
+
+Added 2026-10-17, at the user's choice (PLAN.md §5 items 9 and 10).
+
+| # | Decision |
+|---|---|
+| D24 | **Portrait only.** The APK no longer turns with the phone, as the PWA already doesn't (`"orientation": "portrait"`). A fork-owned `frontend/android/app/src/hevier/AndroidManifest.xml` sets `android:screenOrientation="portrait"` on `.MainActivity` and the manifest merger folds it into upstream's; `hevier.gradle` (seam S7) makes it the debug and release source sets' manifest. No upstream file changes. Offering it upstream is left to the user. |
+| D25 | **Keep the screen on: upstream's switch, no fork code.** Upstream keeps the screen on while a workout runs (`S.keepAwake`, default on, `lib/wakelock.js` through the Screen Wake Lock API), switched in Settings → Workout → **Keep screen awake** and in the workout's own ⏱ settings sheet, both of which the fork shows. Checked on the emulator (Android 16, WebView 133) on 2026-10-17: the WebView has `navigator.wakeLock`, the app held a screen wake lock for a running workout past a 15 s screen timeout, and the screen slept once the workout was discarded. No native fallback is built; if a phone's WebView lacks the API, upstream hides the row, and a fallback (`FLAG_KEEP_SCREEN_ON`) would be offered upstream, as it helps its Android build too. |
