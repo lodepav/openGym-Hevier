@@ -422,11 +422,15 @@ Hevy elements that need behaviour openGym doesn't have. Not built in phases 1–
 aren't lost:
 
 - ~~Routine folders~~ (moved into phase 1, D13, 2026-10-16)
-- Workout photos / videos on the Save Workout page
+- ~~Workout photos / videos on the Save Workout page~~ (covered, 2026-10-17: upstream's
+  WorkoutMediaSection is on the "Nice work!" page right after Save and in Workout Detail; upstream
+  ties a photo to a saved workout, so it cannot sit on the Save page itself without new logic)
 - ~~Live personal-record badge while logging a set~~ (D22, 2026-10-17; no sound, at the user's choice)
 - Monthly report, multi-year calendar, muscle-distribution radar chart
 - ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
-- Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
+- ~~Hevy-style warm-up calculator sheet~~ (covered, 2026-10-17: openGym ramps warm-ups itself,
+  `rerampWarmups`, from the routine's warm-up count and ⋮ → Add warm-up set; a percentage
+  calculator would be a second warm-up rule beside upstream's)
 
 ### The user's own features (added 2026-10-16)
 
