@@ -8,12 +8,15 @@ import { HEVY_API, HevyApiError, fetchHevyPages } from '../../lib/import-hevy.js
 import { allExercises } from '../../lib/exercises.js'
 import { baseline, pending, finish, exercisesOf, setsOf, templateFinder, newTemplate } from './hevy-export.js'
 import { getSecret, putSecret, removeSecret } from './secret.js'
+import { within } from './within.js'
 
 export const EXPORT_FILE = 'hevier-hevy-export.json'
 export const KEY_NAME = 'hevy-api-key'
 const OFF = { on: false, since: 0, base: { workouts: [], routines: {} }, out: { w: {}, r: {} }, failed: {}, tpl: {}, folders: {}, last: null }
 const SOON_MS = 10e3            // after a change: one send for a burst of edits
 const RETRY_MS = 60e3           // after an error, not again before this
+const CALL_MS = 20e3            // one call that has not answered by then is taken as offline
+const PASS_MS = 5 * 60e3        // a pass still running then (upstream's page reads have no timeout) is let go
 
 /* -------------------------------------------------------------------------------- calls -- */
 
@@ -21,11 +24,11 @@ const RETRY_MS = 60e3           // after an error, not again before this
 export async function hevyCall(key, method, path, body, get = fetch) {
   let res
   try {
-    res = await get(new URL(path, HEVY_API), {
+    res = await within(get(new URL(path, HEVY_API), {
       method,
       headers: { 'api-key': key, ...(body ? { 'content-type': 'application/json' } : {}) },
       ...(body ? { body: JSON.stringify(body) } : {}),
-    })
+    }), CALL_MS)
   } catch { throw new HevyApiError(0, 'offline') }
   if (res.status === 401) throw new HevyApiError(401, 'auth')
   if (res.status === 429) throw new HevyApiError(429, 'rate-limit')
@@ -185,7 +188,7 @@ export async function enableExport(key, getState, { apply = null, get = fetch, n
 
 /** Turns the export off and forgets the key. What was sent stays in Hevy. */
 export async function disableExport() {
-  if (running) await running.catch(() => {})
+  if (running) await within(running, 3000).catch(() => {})
   await removeSecret(KEY_NAME)
   const st = { ...(await loadExport()), on: false, last: null }
   await saveExport(st)
@@ -201,8 +204,11 @@ export function sendToHevy(getState, { force = false, apply = null, now = Date.n
   if (!MOBILE) return Promise.resolve(cached)
   if (running) return running
   if (!force && lastError && now - lastError < RETRY_MS) return Promise.resolve(cached)
-  running = sendOnce(getState, apply || applyRef, now, force).finally(() => { running = null })
-  return running
+  const pass = within(sendOnce(getState, apply || applyRef, now, force), PASS_MS)
+    .catch(() => cached)
+    .finally(() => { if (running === pass) running = null })
+  running = pass
+  return pass
 }
 
 async function sendOnce(getState, apply, now, force) {

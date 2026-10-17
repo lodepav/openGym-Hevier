@@ -4,6 +4,7 @@
 // parse calls `day`, `exercise`, `workout` and `routineExercise` while it reads; the sheet calls
 // `fetched` after upstream's fetch and `merged` after upstream's merge.
 import { HEVY_API } from '../../lib/import-hevy.js'
+import { within } from './within.js'
 import { importId } from '../../lib/import-csv.js'
 import { normalizeRepRange } from '../../lib/rep-range.js'
 import { normalizeMeasurementEntry, DEFAULT_MEASUREMENT_KEYS } from '../../lib/measurements.js'
@@ -193,7 +194,7 @@ export function linkable(S, parsedWorkouts) {
 /** Hevy's weight unit ('kg' | 'lb'), or null when it can't be read. */
 export async function fetchUnit(key, get = fetch) {
   try {
-    const res = await get(new URL('/v1/user/info', HEVY_API), { headers: { 'api-key': key } })
+    const res = await within(get(new URL('/v1/user/info', HEVY_API), { headers: { 'api-key': key } }), 20e3)
     if (!res.ok) return null
     const u = (await res.json())?.data?.weight_unit
     return u === 'lbs' ? 'lb' : u === 'kg' ? 'kg' : null

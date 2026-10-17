@@ -13,7 +13,7 @@ let last = null
 export function choicesFor(S) {
   if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx || last.cables !== S?.hvImportCable) {
     last = { map: S?.hvImportMap, custom: S?.customEx, cables: S?.hvImportCable,
-      ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)) } }
+      ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)), customEx: S?.customEx || [] } }
   }
   return last.ctx
 }

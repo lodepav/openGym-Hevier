@@ -57,6 +57,13 @@ describe('hevier export to Hevy: the bodies (D34)', () => {
     expect(walk[0]).toMatchObject({ duration_seconds: 1800, distance_meters: 3000, weight_kg: null })
   })
 
+  it('sends a per-side set as the side with more reps, not the heavier one', () => {
+    const d = workoutDraft(workout({ entries: [
+      { id: legCurl, sets: [{ w: 40, r: 18, done: true, sides: { L: { w: 40, r: 10, done: true }, R: { w: 45, r: 8, done: true } } }] },
+    ] }), 'kg')
+    expect(d.exercises[0].sets.map(s => [s.weight_kg, s.reps])).toEqual([[40, 10]])
+  })
+
   it('draws a routine as D15\'s table: warm-ups, a rep range, rest, last set to failure, its folder', () => {
     const r = { id: 'R', name: 'Legs', folder: 'PPL', ex: [
       { id: squat, sets: 3, reps: 5, weight: 100, mode: 'reps', warmupSets: 1, restSec: 180, lastToFailure: true, note: 'deep' },
@@ -91,6 +98,13 @@ describe('hevier export to Hevy: what is pending (D34)', () => {
     expect(pending(s, st).workouts).toEqual([])
     s.workouts[1].note = 'edited'
     expect(pending(s, st).workouts.map(i => [i.id, i.hevyId])).toEqual([['new', 'H1']])
+  })
+
+  it('never sends a workout finished before the switch that reaches the phone later (a sync, a merge)', () => {
+    const s = S()
+    const st = { since: T0 + 7200e3, base: baseline(s), out: { w: {}, r: {} }, failed: {} }
+    s.workouts.push(workout({ id: 'synced' }), workout({ id: 'later', start: T0 + 8000e3, end: T0 + 9000e3 }))
+    expect(pending(s, st).workouts.map(i => i.id)).toEqual(['later'])
   })
 
   it('sends a routine once it changes, to its Hevy twin when it has one; a refused one waits for a change', () => {

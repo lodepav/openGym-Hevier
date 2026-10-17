@@ -55,7 +55,8 @@ const done = s => (isSideSet(s) ? s.sides.L?.done === true || s.sides.R?.done ==
 
 // One logged set → Hevy's rows: the set, then each drop, or each rest-pause burst, as a drop-set row.
 function setRows(s, unit, cardio) {
-  // Hevy logs one side (D29): a per-side set goes as its harder side, its drops and bursts included.
+  // Hevy logs one side (D29): a per-side set goes as the side with more reps (the heavier on a tie),
+  // its drops and bursts included.
   const src = isSideSet(s)
     ? [s.sides.L, s.sides.R].filter(Boolean).sort((a, b) => (Number(b.r) || 0) - (Number(a.r) || 0) || (Number(b.w) || 0) - (Number(a.w) || 0))[0]
     : s
@@ -168,9 +169,13 @@ export function pending(S, st) {
   const before = new Set(base.workouts || [])
   const sentW = st?.out?.w || {}, sentR = st?.out?.r || {}
   const failed = st?.failed || {}
+  // A workout finished before the switch went on never goes, whenever it reaches this phone (a
+  // sync from another device, a backup merged in): Hevy's API cannot delete a duplicate.
+  const since = Number(st?.since) || 0
+  const tooOld = w => since > 0 && (Number(w.end ?? w.start) || 0) < since
   const workouts = [], routines = []
   for (const w of S?.workouts || []) {
-    if (!w?.id || before.has(w.id) || isImported(w)) continue
+    if (!w?.id || before.has(w.id) || isImported(w) || tooOld(w)) continue
     const draft = workoutDraft(w, unit)
     if (!draft) continue
     const h = fingerprint(draft), sent = sentW[w.id]

@@ -17,7 +17,7 @@ describe('gyms nearby (D47)', () => {
 
   it('asks Overpass for fitness centres, gyms and fitness sports centres around the position', () => {
     const q = overpassQuery(here)
-    expect(q).toContain('nwr["leisure"="fitness_centre"](around:2000,47.37690,8.54170)')
+    expect(q).toContain('nwr["leisure"="fitness_centre"](around:2000,47.377,8.542)')
     expect(q).toContain('nwr["amenity"="gym"]')
     expect(q).toContain('["sport"~"fitness')
   })

@@ -39,7 +39,8 @@ public class HevierWidgetPlugin extends Plugin {
     private void keepRoute(Intent intent) {
         if (intent == null) return;
         String r = intent.getStringExtra(ROUTE);
-        if (r == null || !r.startsWith("/")) return;
+        // The launcher activity is exported, so any app can send the extra: only the widget's own route.
+        if (!"/calendar".equals(r)) return;
         route = r;
         intent.removeExtra(ROUTE);
     }

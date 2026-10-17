@@ -7,6 +7,7 @@
 // whole), so the next search puts your own gym first when you are there.
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { nativeFetch } from '../../lib/capacitor-fetch.js'
+import { within } from './within.js'
 import { newProfile, activeProfile, profileEquipment, ALL_EQUIPMENT } from '../../lib/equipment.js'
 
 export const RADIUS = 2000
@@ -32,7 +33,7 @@ export const distanceText = m => (m < 1000 ? `${Math.max(10, Math.round(m / 10) 
 
 /** Overpass QL for the gyms within `radius` metres: fitness centres, and sports centres and gyms tagged for fitness. */
 export function overpassQuery({ lat, lng }, radius = RADIUS) {
-  const at = `(around:${Math.round(radius)},${lat.toFixed(5)},${lng.toFixed(5)})`
+  const at = `(around:${Math.round(radius)},${lat.toFixed(3)},${lng.toFixed(3)})`
   return `[out:json][timeout:15];(nwr["leisure"="fitness_centre"]${at};nwr["amenity"="gym"]${at};` +
     `nwr["leisure"="sports_centre"]["sport"~"fitness|weightlifting|crossfit|bodybuilding"]${at};);out tags center ${MAX * 2};`
 }
@@ -63,7 +64,7 @@ export function parsePlaces(json, here) {
 /** OpenStreetMap's gyms around `here`. Throws when Overpass does not answer. */
 export async function fetchPlaces(here, fetcher = nativeFetch) {
   const url = OVERPASS + '?data=' + encodeURIComponent(overpassQuery(here))
-  const res = await fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } })
+  const res = await within(fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }), 30e3, new Error('overpass timeout'))
   if (!res.ok) throw new Error('overpass ' + res.status)
   return parsePlaces(await res.json(), here)
 }
@@ -106,7 +107,9 @@ export async function currentPosition() {
     if (st?.location !== 'granted') throw fail('denied')
     try {
       const r = await p.L.position()
-      return { lat: r.lat, lng: r.lng, accuracy: num(r.accuracy) }
+      const lat = num(r?.lat), lng = num(r?.lng)
+      if (lat == null || lng == null) throw new Error('no fix')
+      return { lat, lng, accuracy: num(r.accuracy) }
     } catch (e) {
       const m = String(e?.message || e)
       throw fail(/not allowed/.test(m) ? 'denied' : /switched off|no location/.test(m) ? 'off' : 'nofix')
