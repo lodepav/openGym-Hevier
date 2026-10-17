@@ -395,8 +395,11 @@
 :root[data-ui="hevier"] .hv-sl-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-sl-row .grow,:root[data-ui="hevier"] .hv-sl-foot .grow{flex:1;min-width:0}
 :root[data-ui="hevier"] .hv-sl-row .input{width:110px;margin:0;text-align:right}
-:root[data-ui="hevier"] .hv-sl-sheet p{margin:0 0 14px}
-:root[data-ui="hevier"] .hv-sl-sheet .btn.danger{margin-top:8px}
+:root[data-ui="hevier"] .hv-sl-form{margin-top:10px}
+:root[data-ui="hevier"] .hv-sl-form p{margin:0 0 10px}
+:root[data-ui="hevier"] .hv-sl-look{width:100%;margin-bottom:14px}
+:root[data-ui="hevier"] .hv-sl-form .hv-sl-btns .btn{flex:1}
+:root[data-ui="hevier"] .hv-sl-rm{display:block;margin:8px auto 0}
 :root[data-ui="hevier"] .hv-sl-err{color:var(--red)}
 
 /* ---------- Live personal record on a set (hevier/components/HevyExerciseBlock.jsx, D22) ---------- */

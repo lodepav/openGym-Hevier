@@ -72,28 +72,28 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-xd-howto')).toBeTruthy()
   })
 
-  it('Strength level: Enter levels saves them, then the bar places the Best 1RM (D19)', () => {
+  it('Strength level: Compare strength folds the fields open, Save places the Best 1RM (D19, PLAN item 24)', () => {
     open(log)
     const sl = () => container.querySelector('.hv-sl')
-    expect(sl().textContent).toContain('Compare strength')
-    act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Enter levels').click())
-    const sheet = useUI.getState().sheets.at(-1)
-    const sc = document.createElement('div')
-    document.body.appendChild(sc)
-    const sroot = createRoot(sc)
-    act(() => sroot.render(sheet.render(() => {})))
+    expect(sl().querySelector('input')).toBeNull()
+    act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Compare strength').click())
+    expect([...sl().querySelectorAll('button')].some(b => b.textContent === 'Look up on strengthlevel.com')).toBe(true)
     const set = (input, v) => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, v)
       input.dispatchEvent(new Event('input', { bubbles: true }))
     }
-    const inputs = [...sc.querySelectorAll('input')]
+    const inputs = [...sl().querySelectorAll('input')]
+    expect(inputs).toHaveLength(5)
     act(() => ['40', '55', '70', '90', '110'].forEach((v, i) => set(inputs[i], v)))
-    act(() => sc.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-    act(() => sroot.unmount()); sc.remove()
+    act(() => sl().querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
     expect(useStore.getState().S.hvStrength[EX.id]).toMatchObject({ lv: [40, 55, 70, 90, 110], u: 'kg' })
+    expect(sl().querySelector('form')).toBeNull()
     const best = Number(container.textContent.match(/Best 1RM ([\d.]+)/)[1])
     expect(best).toBeGreaterThan(70); expect(best).toBeLessThan(90)
     expect(sl().querySelector('.hv-sl-head').textContent).toMatch(/^Intermediate · [\d.]+ kg to Advanced$/)
+    act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Edit').click())
+    act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Remove levels').click())
+    expect(useStore.getState().S.hvStrength?.[EX.id]).toBeUndefined()
   })
 
   it('without the hook it is upstream’s sheet', () => {
