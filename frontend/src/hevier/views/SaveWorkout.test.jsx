@@ -68,6 +68,17 @@ describe('hevier: Save Workout (seam S9)', () => {
     expect(container.querySelector('.hv-warn').textContent).toContain('1 set still unchecked')
   })
 
+  it('writes the day’s auto-backup again once the gym label is on the saved workout (D20, D28)', () => {
+    render('/workout/save', logged())
+    useStore.setState(st => ({ S: { ...st.S, equipProfiles: [{ id: 'g1', name: 'City Gym', equipment: [] }], activeEquipId: 'g1' } }))
+    const seen = []
+    const spy = vi.spyOn(useStore.getState(), 'autoBackupNow').mockImplementation(() => { seen.push(clone(useStore.getState().S.workouts)) })
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    spy.mockRestore()
+    expect(seen.length).toBeGreaterThan(1)
+    expect(seen.at(-1)[0].entries[0].hvGym).toBe('g1')
+  })
+
   it('saves the title and description through upstream’s finish, then shows Nice work!', () => {
     render('/workout/save', logged())
     typeInto(container.querySelector('.hv-stitle'), 'Heavy legs')
@@ -87,26 +98,15 @@ describe('hevier: Save Workout (seam S9)', () => {
     expect(path).toBe('/home')
   })
 
-  it('a changed When and Duration land on the saved record', () => {
+  it('a changed Duration lands on the saved record; the day stays the session\'s', () => {
     render('/workout/save', logged())
-    const y = new Date(Date.now() - 86400000)
-    typeInto(container.querySelector('input[type="date"]'), iso(y))
-    typeInto(container.querySelector('input[type="time"]'), '07:15')
-    typeInto(container.querySelector('.hv-smin'), '50')
+    expect(container.querySelector('input[type="date"]')).toBeNull()
+    typeInto(container.querySelector('.hv-smin'), '40')
     act(() => byText('.hv-pagebar button', 'Save').click())
     const [w] = useStore.getState().S.workouts
-    expect(w.d).toBe(iso(y))
-    expect(new Date(w.start).getHours()).toBe(7)
-    expect(w.end - w.start).toBe(50 * 60000)
+    expect(w.d).toBe(iso(new Date()))
+    expect(w.end - w.start).toBe(40 * 60000)
     expect(container.textContent).toContain('Nice work!')
-  })
-
-  it('refuses a day ahead and saves nothing', () => {
-    render('/workout/save', logged())
-    typeInto(container.querySelector('input[type="date"]'), iso(new Date(Date.now() + 2 * 86400000)))
-    act(() => byText('.hv-pagebar button', 'Save').click())
-    expect(useStore.getState().S.active).toBeTruthy()
-    expect(useUI.getState().toastMsg).toBe('Pick a day up to today')
   })
 
   it('Discard Workout ends the session after upstream’s confirm', () => {
@@ -149,11 +149,13 @@ describe('hevier: Update routine from the summary (D35)', () => {
     expect(routineIds()).toEqual([EX])
   })
 
-  it('goes by itself after five seconds, and the routine stays as it was', () => {
+  it('goes by itself after ten seconds, and the routine stays as it was', () => {
     vi.useFakeTimers()
     try {
       withRoutine()
-      act(() => vi.advanceTimersByTime(5000))
+      act(() => vi.advanceTimersByTime(9000))
+      expect(container.querySelector('.hv-ru.leaving')).toBeNull()
+      act(() => vi.advanceTimersByTime(1000))
       expect(container.querySelector('.hv-ru.leaving')).toBeTruthy()
       act(() => vi.advanceTimersByTime(500))
       expect(container.querySelector('.hv-ru')).toBeNull()

@@ -45,6 +45,8 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { livePrSetIndex, recordWeight } from '../lib/pr-set.js'
 import { BrandLine } from './GymLabels.jsx'
+import { fieldSig } from '../lib/store-watch.js'
+import { shiftTouched } from '../lib/touched.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 
 const setUI = patch => useUI.setState?.(patch)
@@ -69,17 +71,27 @@ export default function HevyExerciseBlock({
   const touch = (i, f) => setTouched(prev => (prev.has(i + ':' + f) ? prev : new Set(prev).add(i + ':' + f)))
 
   const entry = S.active.entries[entryIdx]
+  // A set added or removed above a row renumbers it: its marks move with it (lib/touched.js).
+  // The rows are kept as they were last drawn, a value typed included, so the comparison finds
+  // the row that went rather than the one typed into.
+  const rowsNow = entry.sets.map(s => JSON.stringify(s))
+  const [rowsSeen, setRowsSeen] = useState(rowsNow)
+  if (rowsNow.join('\n') !== rowsSeen.join('\n')) {
+    setRowsSeen(rowsNow)
+    if (rowsNow.length !== rowsSeen.length) setTouched(prev => shiftTouched(prev, rowsSeen, rowsNow))
+  }
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
   // The history only changes when a workout is saved, not for each set typed: kept, not rebuilt on
-  // every render (battery, PLAN item 29). Only its workouts are read.
+  // every render (battery, PLAN item 29). Only its workouts are read. The store deep-copies S on
+  // every change, so the log is compared by content (fieldSig), not by identity.
   const A = S.active
   const H = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
-    [S.workouts, A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
+    [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   const prev = previousSetsFor(H, entry, previousMode(S))
   // D22: the set that is a weight record so far, by upstream's finish rule.
-  const record = useMemo(() => recordWeight(S, entry), [S.workouts, entry.id, entry.target?.dbLoad]) // eslint-disable-line react-hooks/exhaustive-deps
+  const record = useMemo(() => recordWeight(S, entry), [fieldSig(S, 'workouts'), entry.id, entry.target?.dbLoad]) // eslint-disable-line react-hooks/exhaustive-deps
   const prAt = livePrSetIndex(S, entry, record)
   const last = lastEntryFor(H, entry.id, entry.rid)
   const kind = effortOf(S)

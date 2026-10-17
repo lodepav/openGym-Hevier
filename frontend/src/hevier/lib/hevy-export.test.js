@@ -231,6 +231,15 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     expect((await exportOnce(S, st, { call, pages })).error).toBe('auth')
   })
 
+  it('a create answered without an id is refused, not kept as sent with no id', async () => {
+    const { S, st, call, pages, replies } = setup()
+    S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v1/workouts'] = { workout: [{}] }
+    expect(await exportOnce(S, st, { call, pages })).toEqual({ sent: 0, refused: 1, error: null })
+    expect(st.out.w.a).toBeUndefined()
+    expect(pending(S, st).workouts).toEqual([])
+  })
+
   it('sends a workout again as new when Hevy no longer has it', async () => {
     const { S, st, calls, call, pages, replies } = setup()
     S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))

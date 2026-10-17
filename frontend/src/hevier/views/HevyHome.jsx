@@ -24,6 +24,7 @@ import { Switch } from '../../components/ui.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import { WorkoutFeed } from './Profile.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
+import { fieldSig } from '../lib/store-watch.js'
 import { homeWidgets, storedLayout, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 
 const TITLE = {
@@ -89,7 +90,7 @@ function WeightWidget({ S }) {
 
 function RecoveryWidget({ S }) {
   const nav = useNavigate()
-  const fatigue = useMemo(() => fatigueOf(S.workouts, Date.now(), { unit: S.unit }), [S.workouts, S.unit])
+  const fatigue = useMemo(() => fatigueOf(S.workouts, Date.now(), { unit: S.unit }), [fieldSig(S, 'workouts'), S.unit]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="card tappable" {...tappable(() => nav('/stats'))}>
     <h2>{t('Muscle recovery')}</h2>
     <BodyMap className="hm-fatigue" load={fatigue} thresholds={FATIGUE_LEVELS} body={S.body} />

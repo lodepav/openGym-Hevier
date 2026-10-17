@@ -15,7 +15,7 @@ import {
   CABLES, cableText, entryCable, setEntryCable, cableStamped, stampCable,
 } from '../lib/gym-labels.js'
 import {
-  currentPosition, placesNear, ownHere, gymOfPlace, placeOf, rememberPlace, addGym, distanceText, RADIUS,
+  currentPosition, placesNear, ownHere, gymOfPlace, addGym, distanceText, RADIUS,
 } from '../lib/nearby-gyms.js'
 
 const update = fn => useStore.getState().update(fn, true)
@@ -51,10 +51,9 @@ export function GymRow() {
   </button>
 }
 
-const pickGym = (id, here) => update(s => {
-  if (here && !placeOf(s, id)) rememberPlace(s, id, here)
-  setWorkoutGym(s, id)
-})
+// The phone's own position is never kept as a gym's place (picked at home, it would sync home's
+// coordinates): only a place picked from OpenStreetMap carries one.
+const pickGym = id => update(s => setWorkoutGym(s, id))
 
 const WHY = {
   denied: 'Location isn’t allowed for Go Hevier. Allow it in the phone’s settings, or add the gym by name.',
@@ -97,7 +96,7 @@ export function NearbySheet({ close, locate = currentPosition, places = placesNe
     </>}
     {own.length > 0 && <div className="menu-group grouped">
       <div className="menu-sec">{t('Your gyms here')}</div>
-      <div className="list menu-list">{own.map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: distanceText(g.dist), on: g.id === cur, onClick: choose(() => pickGym(g.id, null)) }))}</div>
+      <div className="list menu-list">{own.map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: distanceText(g.dist), on: g.id === cur, onClick: choose(() => pickGym(g.id)) }))}</div>
     </div>}
     {st.step === 'done' && <div className="menu-group grouped">
       <div className="menu-sec">{t('Nearby')}</div>
@@ -107,27 +106,27 @@ export function NearbySheet({ close, locate = currentPosition, places = placesNe
           if (mine && ownIds.has(mine.id)) return null
           const sub = [mine ? t('Your gym {0}', mine.name || t('Unnamed gym')) : p.sub, distanceText(p.dist)].filter(Boolean).join(' · ')
           return item(p.osm, { label: p.name, sub, on: mine ? mine.id === cur : undefined,
-            onClick: choose(() => mine ? pickGym(mine.id, null) : update(s => setWorkoutGym(s, addGym(s, p.name, p)))) })
+            onClick: choose(() => mine ? pickGym(mine.id) : update(s => setWorkoutGym(s, addGym(s, p.name, p)))) })
         })}</div>
         : <p className="dim">{t('No gyms on OpenStreetMap within {0}.', distanceText(RADIUS))}</p>}
     </div>}
     {here && <div className="menu-group grouped"><div className="list menu-list">
-      {gymsOf(S).filter(g => !ownIds.has(g.id)).map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: t('Your gym, remembered here once picked'), on: g.id === cur, onClick: choose(() => pickGym(g.id, here)) }))}
+      {gymsOf(S).filter(g => !ownIds.has(g.id)).map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: t('Your gym'), on: g.id === cur, onClick: choose(() => pickGym(g.id)) }))}
     </div></div>}
     <button type="button" className="btn ghost" style={{ width: '100%', marginTop: 8 }}
-      onClick={() => { close(); useUI.getState().openSheet(c => <CustomGymSheet close={c} here={here} />) }}><Icon name="plus" /> {t('Custom gym…')}</button>
+      onClick={() => { close(); useUI.getState().openSheet(c => <CustomGymSheet close={c} />) }}><Icon name="plus" /> {t('Custom gym…')}</button>
     <div className="small dim" style={{ marginTop: 8 }}>{t('Gym data © OpenStreetMap contributors')}</div>
   </div>
 }
 
 /** "Custom gym…" (D47): a gym by name, made one of your gyms and picked. */
-export function CustomGymSheet({ close, here = null }) {
+export function CustomGymSheet({ close }) {
   const [v, setV] = useState('')
   const save = () => {
     const name = v.trim()
     if (!name) return
     close()
-    update(s => setWorkoutGym(s, addGym(s, name, here ? { lat: here.lat, lng: here.lng } : null)))
+    update(s => setWorkoutGym(s, addGym(s, name)))
   }
   return <form className="hv-namesheet" onSubmit={e => { e.preventDefault(); save() }}>
     <h3>{t('Custom gym')}</h3>
