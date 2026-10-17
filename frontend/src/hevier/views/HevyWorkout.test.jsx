@@ -113,6 +113,20 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useUI.getState().toastMsg).not.toContain('PR')
   })
 
+  it('an exercise switched to lb shows and takes lb, stored in kg (D41)', () => {
+    const kg45 = 45 * 0.45359237
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(kg45, 8)] }],
+      [{ id: 'w0', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [{ w: kg45, r: 8, done: true }] }] }])
+    act(() => useStore.getState().update(s => { s.hvExUnit = { [EX]: { u: 'lb', step: 5, inc: 5 * 0.45359237 } } }))
+    expect(container.querySelector('.hv-head').textContent).toContain('LB')
+    const w = container.querySelector('.hv-row .hv-num')
+    expect(w.value).toBe('45')
+    expect(container.querySelector('.hv-prev').textContent).toContain('45lb × 8')
+    typeInto(w, '50')
+    expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 9)
+    expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
+  })
+
   it('a timed hold gets KG · SEC and a start button (M1)', () => {
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
     const head = container.querySelector('.hv-head').textContent

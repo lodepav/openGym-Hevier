@@ -9,7 +9,7 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
@@ -45,6 +45,7 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { livePrSetIndex } from '../lib/pr-set.js'
 import { BrandLine } from './GymLabels.jsx'
+import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -81,13 +82,18 @@ export default function HevyExerciseBlock({
   const wc = workoutControls(S)
   const guidance = progressionGuidance(entry.plan)
   const unit = S.unit
+  // D41: the unit this exercise is shown and typed in; stored weights stay in the profile's.
+  const xu = exUnitOf(S, entry.id)
+  const conv = xu !== unit
+  const sw = v => (conv ? shown(v, unit, xu) : v)
   const mode = modeOf(cfg)
   const timed = mode === 'time', cardio = mode === 'cardio'
   const perSide = mode === 'reps' && isPerSide(cfg)
   const speedUnit = speedUnitOf(S)
 
   // The value columns, in upstream's fields (views/Workout.jsx col1–col3), in Hevy's order.
-  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + unit.toUpperCase(), label: t('Weight ({0})', unit) }
+  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase(), label: t('Weight ({0})', xu),
+    ...(conv ? { view: v => shown(v, unit, xu), store: v => convert(v, xu, unit) } : {}) }
   const R = { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }
   const cols = cardio ? [
     { f: 'min', dec: false, hd: t('MIN'), label: t('Duration (min)') },
@@ -182,6 +188,28 @@ export default function HevyExerciseBlock({
     })
   }
 
+  // D41: the exercise's unit and its step, picked from ⋮; switching changes no stored weight.
+  const unitSheet = () => {
+    const { profile, alt, steps } = unitChoices(unit)
+    const pick = (u, step) => update(s => { setExUnit(s, entry.id, u, step) })
+    const cur = exUnitChoice(S, entry.id)
+    menuSheet({
+      title: t('Weight unit'),
+      sections: [
+        { items: [{ label: t('{0}, as the profile', profile), on: !cur, onClick: () => pick(null) }] },
+        { title: t('In {0}, stepping by', alt), items: steps.map(st => ({
+          label: fmtNum(st) + ' ' + alt + (st === defaultStep(entry.id, alt) ? ' · ' + t('Recommended') : ''),
+          on: cur?.step === st, onClick: () => pick(alt, st),
+        })) },
+      ],
+    })
+  }
+  // A session entry added after the switch (freestyle, or a routine added later) takes the step too.
+  const xc = exUnitChoice(S, entry.id)
+  useEffect(() => {
+    if (xc && !(entry.target?.inc > 0)) update(s => { const e = s.active?.entries[entryIdx]; if (e) e.target = { ...(e.target || {}), inc: xc.inc } })
+  }, [xc?.inc, entry.target?.inc])
+
   // D8: everything about the exercise that is not a set lives behind ⋮ — Hevy's five items first,
   // then what openGym adds (progression included), Remove last.
   const ownRest = entry.target?.restSec > 0 ? entry.target.restSec : 0
@@ -207,6 +235,9 @@ export default function HevyExerciseBlock({
         onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => onNoProg(entry.noProg !== true) },
         plateLoading && modeOf(cfg) === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
         routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: routineUpdate.sub, onClick: routineUpdate.run },
+        mode === 'reps' && !bw && { icon: 'ruler', label: t('Weight unit'),
+          sub: conv ? t('{0} · {1} {0} steps', xu, fmtNum(exUnitChoice(S, entry.id)?.step)) : t('{0}, as the profile', unit),
+          onClick: unitSheet },
         { icon: 'history', label: t('History'), sub: last ? t('Last time') + ' ' + fmtDate(last.d) : undefined, onClick: () => exerciseHistorySheet(entry.id) },
         { icon: 'info', label: t('How to do it'), onClick: () => exerciseDetailSheet(ex) },
       ] },
@@ -241,13 +272,13 @@ export default function HevyExerciseBlock({
   const prevLabel = p => {
     if (!p) return '–'
     if (mode !== 'reps' || isSideSet(p)) return setLabel(entry.id, p, last?.target, speedUnit)
-    if (bw) return (p.w > 0 ? `+${fmtNum(p.w)}${unit} × ` : '× ') + (p.r || 0)
-    return `${fmtNum(p.w || 0)}${unit} × ${p.r || 0}`
+    if (bw) return (p.w > 0 ? `+${fmtNum(sw(p.w))}${xu} × ` : '× ') + (p.r || 0)
+    return `${fmtNum(sw(p.w || 0))}${xu} × ${p.r || 0}`
   }
   const sidePrev = (p, side) => {
     const sd = p && isSideSet(p) ? p.sides[side] : null
     if (!sd) return '–'
-    return bw ? (sd.w > 0 ? `+${fmtNum(sd.w)}${unit} × ` : '× ') + (sd.r || 0) : `${fmtNum(sd.w || 0)}${unit} × ${sd.r || 0}`
+    return bw ? (sd.w > 0 ? `+${fmtNum(sw(sd.w))}${xu} × ` : '× ') + (sd.r || 0) : `${fmtNum(sw(sd.w || 0))}${xu} × ${sd.r || 0}`
   }
   // A tap on PREVIOUS copies it into the row, field by field, in the row's own shape.
   const copyPrev = (i, p, side) => {
@@ -307,7 +338,7 @@ export default function HevyExerciseBlock({
     const st = useStore.getState().S
     const e = st.active?.entries[entryIdx]
     if (i !== prAt && e?.sets[i]?.done && livePrSetIndex(st, e) === i)
-      useUI.getState().toast(t('New PR · {0}', fmtNum(e.sets[i].w) + ' ' + st.unit))
+      useUI.getState().toast(t('New PR · {0}', fmtNum(sw(e.sets[i].w)) + ' ' + xu))
   }
   const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up') : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
   // One line of the table: a straight set, one half of a timed per-side pair (`s.side`), or one
@@ -336,7 +367,7 @@ export default function HevyExerciseBlock({
   const subRows = (src, i, side) => <>
     {dropsOf(src).map((d, di) => <div key={'d' + di} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
       <span className="hv-set"><span className="hv-d">D</span></span><span />
-      <NumberField decimal className="hv-num" value={d.w ?? ''} onChange={v => setDropField(i, di, 'w', v, side)} aria-label={t('Drop {0}', di + 1)} />
+      <NumberField decimal className="hv-num" value={sw(d.w) ?? ''} onChange={v => setDropField(i, di, 'w', conv ? convert(v, xu, unit) : v, side)} aria-label={t('Drop {0}', di + 1)} />
       <NumberField decimal={false} className="hv-num" value={d.r ?? ''} onChange={v => setDropField(i, di, 'r', v, side)} aria-label={t('Reps')} />
       <button type="button" className="iconbtn hv-x" aria-label={t('Remove drop')} onClick={() => removeDrop(i, di)}><Icon name="xmark" /></button>
     </div>)}
