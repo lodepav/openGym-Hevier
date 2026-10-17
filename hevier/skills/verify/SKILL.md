@@ -39,3 +39,8 @@ cd ../mcp && npm test                     # only if mcp/ changed since the last 
 
 - A red **upstream** test means a seam or a fork wrapper changed behaviour it shouldn't have.
   Fix the fork, never the test (hevier/README.md, rule 3).
+
+## Before a release
+
+Before building an APK to install or share: the steps above, then the `release-check` skill
+(`hevier/tools/release-check.sh`, D26). Its gates block: a release is not built until they pass.

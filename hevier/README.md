@@ -18,7 +18,8 @@ Everything that belongs only to the fork lives in this `hevier/` folder or in
 | [SEAMS.md](SEAMS.md) | The list of every place the fork edits an upstream file. Keep it current: it is what makes conflicts predictable. |
 | [tools/emulator.sh](tools/emulator.sh) | Builds the debug APK, boots the Android 16 emulator, installs and launches it. |
 | [tools/cdp.mjs](tools/cdp.mjs) | Drives the app's WebView over the Chrome DevTools Protocol: click, read text, screenshot. |
-| [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `hevy-side-by-side`. Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
+| [tools/release-check.sh](tools/release-check.sh) | The security gates for a release build (D26): secrets, vulnerable dependencies, supply chain. Scanners from `tools/install-scanners.sh`, allow-lists in [security/](security/). |
+| [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `hevy-side-by-side`, `release-check`. Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
 
 ## The four rules
 

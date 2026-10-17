@@ -529,7 +529,8 @@ Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked 
     tiny bridge, the way upstream's own Java talks to the page), which also helps upstream's
     Android build, so offer it upstream first. The fork's quick-access copy could also sit on
     the workout's ⏱/⋮ sheet (upstream's `WorkoutSettingsSheet` has the same switch).
-11. **Security gates on release builds.** Before an APK (or image) is called final, check it for
+11. ~~**Security gates on release builds.**~~ Decided as D26 (2026-10-17), built: `hevier/tools/release-check.sh`
+    and the `release-check` skill; local only, no APK checks yet. The original note: Before an APK (or image) is called final, check it for
     leaked secrets and malicious code. Upstream's GitLab CI already Trivy-scans the images (OS
     packages and npm trees, HIGH/CRITICAL fixable fails) and writes SBOMs, but nothing scans the
     APK or the source for secrets, and the fork builds its APK locally

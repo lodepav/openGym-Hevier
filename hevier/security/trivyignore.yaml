@@ -1,0 +1,74 @@
+# Accepted vulnerabilities (D26). `release-check.sh` runs Trivy over every lockfile, dev
+# dependencies included, all severities; anything not listed here fails. Each entry is scoped to
+# the exact package version (purls) and expires, so a new version or a lapsed review fails again.
+#
+# All of these come from @capacitor/assets, upstream's devDependency for regenerating icons and
+# splashes from one source image. It runs only by hand (`npx capacitor-assets generate`), never
+# in a build, and nothing of it ships; the fork recolours upstream's PNGs instead
+# (hevier/tools/recolour-icons.py). Fixing it means dropping the package upstream (the solhren
+# fork did, see PIPELINE.md): ask upstream, and drop these entries when it is gone.
+vulnerabilities:
+  - id: CVE-2026-23745
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-23950
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-24842
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-26960
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-29786
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-31802
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-41907
+    purls: ["pkg:npm/uuid@7.0.3"]
+    statement: MEDIUM, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-53655
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: MEDIUM, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-59871
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: MEDIUM, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-59873
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: CRITICAL, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-59874
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-59875
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: MEDIUM, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: CVE-2026-73566
+    purls: ["pkg:npm/tar@6.2.1"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: GHSA-f88m-g3jw-g9cj
+    purls: ["pkg:npm/sharp@0.32.6"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: GHSA-rgj7-g3m4-5g8c
+    purls: ["pkg:npm/sharp@0.32.6"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
+  - id: GHSA-wq5f-xc86-pv6w
+    purls: ["pkg:npm/sharp@0.32.6"]
+    statement: HIGH, @capacitor/assets dev tool, never run in a build or shipped
+    expired_at: 2027-01-17
