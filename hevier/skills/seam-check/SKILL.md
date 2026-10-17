@@ -19,7 +19,7 @@ markers, with a row in `hevier/SEAMS.md`.
    - every added or changed line sits on, or right next to, a `[hevier] <id>` marker comment;
    - the seam id has a row in `hevier/SEAMS.md` naming this file;
    - nothing is in `frontend/src/lib/`, `frontend/src/store/`, `api/` or `mcp/` (except
-     `lib/update.js`, seam S6, `lib/back.js`, seam S16, and seam S18's unmarked lines in
+     `lib/update.js`, seam S6, `lib/back.js`, seam S16, `lib/import-csv.js` and `lib/import-hevy.js`, seam S19 (hooks only: the logic is in `hevier/lib/hevy-import.js`), and seam S18's unmarked lines in
      `lib/health-connect.js` and `lib/sync-merge.js`, upstream's own v1.4.3 lines backported word for word). Logic changes there break rule 2:
      move them to a wrapper in `frontend/src/hevier/lib/` with a test beside it.
 3. Also flag rows in SEAMS.md whose marker no longer exists:

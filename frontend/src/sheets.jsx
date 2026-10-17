@@ -554,6 +554,9 @@ function HevyImportSheet({ close }) {
     setPayload(null)
     try {
       const data = await importHevyData(key, { unit: st.unit, customEx: st.customEx, onProgress: setProgress })
+      // [hevier] S19: the fork's keys back into ids, brands and per-side sets (D29)
+      if (hooks.importDone) { data.workouts = hooks.importDone(data.workouts); data.routines = hooks.importDone(data.routines) }
+      // [/hevier]
       wipeKey()
       const empty = !data.workouts.workouts.length && !data.routines.routines.length && !data.bodyweight.bodyweight.length
       if (empty) {

@@ -1,10 +1,11 @@
 // The hand-offs of the fork's hook seams: S9, S10, S13 and S14 (frontend/src/sheets.jsx), S11 and
-// S12 (frontend/src/views/Settings.jsx), S16 (frontend/src/lib/back.js). Upstream's code asks this
-// object first: when the fork has filled it in (only with the flag on), Finish opens the fork's
-// Save Workout page instead of upstream's confirm, a saved workout opens the fork's summary instead
-// of upstream's, an exercise's details open the fork's tabbed sheet, a finished workout the fork's
-// Workout Detail page, an exercise picker the fork's Hevy picker, Settings is regrouped, and
-// Android back on a tab screen offers to exit. Empty, as in upstream's own tests, all are
+// S12 (frontend/src/views/Settings.jsx), S16 (frontend/src/lib/back.js), S19 (lib/import-csv.js,
+// lib/import-hevy.js, sheets.jsx). Upstream's code asks this object first: when the fork has filled
+// it in (only with the flag on), Finish opens the fork's Save Workout page instead of upstream's
+// confirm, a saved workout opens the fork's summary instead of upstream's, an exercise's details
+// open the fork's tabbed sheet, a finished workout the fork's Workout Detail page, an exercise
+// picker the fork's Hevy picker, Settings is regrouped, Android back on a tab screen offers to
+// exit, and a Hevy import maps exercises the fork's way. Empty, as in upstream's own tests, all are
 // upstream's. No imports, so the seams add nothing to what the upstream files load.
 export const hooks = {
   finish: null,   // () => void: Finish was asked for (the session is not saved yet)
@@ -14,6 +15,8 @@ export const hooks = {
   exercisePicker: null,   // (onPick, { title, like }) => sheet handle: an exercise picker was asked for (S13)
   backEvent: null,        // (ev) => ev: Android back's event before upstream's handler reads it (S16)
   settings: null,  // { root(props), page(id, tree), hides(hit) }: the Settings root and pages (S11, S12)
+  importExercise: null,  // (title, source) => id | key | null: an imported exercise's match, before upstream's (S19)
+  importDone: null,      // (parsed) => parsed: an import's parse result, keys turned back into ids (S19)
 }
 
 export const SAVE_PATH = '/workout/save'
