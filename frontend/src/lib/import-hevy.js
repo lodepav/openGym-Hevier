@@ -501,7 +501,7 @@ export async function importHevyData(apiKey, { unit = 'kg', onProgress, customEx
     bodyweight: parseHevyBodyweight(bodyMeasurements, { unit }),
     templateCount: templates.length,
     // [hevier] S21: what the fork reads after the parse (D31)
-    ...(hooks.hevyMore ? { hvRaw: { templates, bodyMeasurements } } : {}),
+    ...(hooks.hevyMore ? { hvRaw: { templates, bodyMeasurements, workouts, routines } } : {}),
     // [/hevier]
   }
 }

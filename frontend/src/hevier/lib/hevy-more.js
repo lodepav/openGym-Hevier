@@ -211,6 +211,8 @@ export async function fetched(key, data, get) {
   data.hvTemplates = (raw.templates || []).filter(t => t?.id != null)
     .map(({ id, title, equipment, primary_muscle_group, secondary_muscle_groups }) => ({ id, title, equipment, primary_muscle_group, secondary_muscle_groups }))
   data.hvUnit = await fetchUnit(key, get)
+  // for D33's review, which reads the import again once a match is changed
+  if (raw.workouts || raw.routines) data.hvSource = { workouts: raw.workouts || [], routines: raw.routines || [], templates: raw.templates || [] }
 }
 
 /** Whether the sheet has something new to import besides upstream's three. */
