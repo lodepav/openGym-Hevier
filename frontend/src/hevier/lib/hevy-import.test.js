@@ -37,6 +37,13 @@ describe('hevier Hevy import (D29)', () => {
     expect(importExercise('Squat (Barbell)', 'Hevy')).toBe(null)   // upstream's match stands
   })
 
+  it('the user’s own matches: Nordic curls, deficit push ups, the behind-the-back cable curl', () => {
+    expect(importExercise('Nordic Hamstrings Curls', 'Hevy')).toBe('7746')
+    expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
+    expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('2656')
+    expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
+  })
+
   it('the belt squat and the deficit Smith split squat land on their own exercises (PLAN item 22)', () => {
     const match = t => importExercise(t, 'Hevy') || upstreamMatch(t, 'Hevy')
     expect(match('Belt Squat (Machine)')).toBe('2950')
@@ -60,8 +67,9 @@ describe('hevier Hevy import (D29)', () => {
       row('Triceps Dip (Weighted)', 0, 'normal', 20, 8),
       row('Calf Extension (Machine) (brand: Achilles Rehab)', 0, 'normal', 40, 15),
       row('Behind the Back Curl (Cable) (brand: LifeFitness)', 0, 'normal', 10, 12),
+      row('Qwerty Zorb (brand: LifeFitness)', 0, 'normal', 10, 12),
     ]), { unit: 'kg', customEx: [] })
-    const [ext, press, dip, wdip, calf, curl] = entriesOf(p)
+    const [ext, press, dip, wdip, calf, curl, odd] = entriesOf(p)
     expect(ext.id).toBe('0585')
     expect(ext.sets.every(isSideSet)).toBe(true)
     expect(ext.sets[1]).toMatchObject({ w: 48.75, r: 20, sides: { L: { w: 48.75, r: 10 }, R: { w: 48.75, r: 10 } } })
@@ -71,16 +79,17 @@ describe('hevier Hevy import (D29)', () => {
     expect(wdip.id).toBe('1767')
     expect(calf).toMatchObject({ id: '2289', hvBrand: 'Achilles Rehab' })
     // unmatched with a brand: one custom exercise, named without the brand
-    expect(curl.hvBrand).toBe('LifeFitness')
-    expect(p.customEx.find(c => c.id === curl.id)?.n).toBe('behind the back curl (cable)')
-    expect(p.unmatchedNames).toContain('behind the back curl (cable)')
+    expect(curl).toMatchObject({ id: '2656', hvBrand: 'LifeFitness' })
+    expect(odd.hvBrand).toBe('LifeFitness')
+    expect(p.customEx.find(c => c.id === odd.id)?.n).toBe('qwerty zorb')
+    expect(p.unmatchedNames).toContain('qwerty zorb')
     // volume counts both sides, warm-ups out
-    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15 + 10 * 12)
+    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15 + 10 * 12 + 10 * 12)
     // upstream's merge keeps it all
     const S = { workouts: [], customEx: [], bodyweight: [], exWeights: {} }
     mergeImport(S, p)
     expect(S.workouts[0].entries[1].hvBrand).toBe('LifeFitness')
-    expect(S.customEx.map(c => c.n)).toEqual(['behind the back curl (cable)'])
+    expect(S.customEx.map(c => c.n)).toEqual(['qwerty zorb'])
   })
 
   it('leaves a file from another app to upstream, brands aside', () => {

@@ -61,6 +61,9 @@ export const FIXES = {
   'triceps extension (cable)': '0194',
   'bulgarian split squat (smith machine)': '0768',
   'standing leg curls': '4347',               // the machine, not the body-weight curl
+  'nordic hamstrings curls': '7746',
+  'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
+  'behind the back curl (cable)': '2656',     // the one arm cable curl v. 2, by its artwork
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i

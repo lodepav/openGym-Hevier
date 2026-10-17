@@ -12,7 +12,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 describe('hevier import review row (D33)', () => {
   it('counts the titles and the own exercises, and opens the list', () => {
-    const parsed = { hvTitles: [{ title: 'Seated Leg Curl (Machine)', source: 'Hevy' }, { title: 'Behind the Back Curl (Cable)', source: 'Hevy' }] }
+    const parsed = { hvTitles: [{ title: 'Seated Leg Curl (Machine)', source: 'Hevy' }, { title: 'Qwerty Zorb (Cable)', source: 'Hevy' }] }
     const el = document.createElement('div')
     const root = createRoot(el)
     act(() => root.render(<ReviewRow parsed={parsed} />))
