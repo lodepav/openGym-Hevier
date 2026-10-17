@@ -29,6 +29,9 @@ public class MainActivity extends BridgeActivity {
         // [hevier] S17: the fork's Health Connect reads (D27), until upstream's v1.4.3
         registerPlugin(HevierHealthReadPlugin.class);
         // [/hevier]
+        // [hevier] S24: the fork's encrypted secret, the Hevy API key of the export to Hevy (D34)
+        registerPlugin(HevierSecretPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

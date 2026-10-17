@@ -19,6 +19,7 @@ import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
+import HevyExportSection from '../components/HevyExportSection.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
@@ -70,7 +71,12 @@ export function installSettings() {
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
       const out = prunePage(id, tree, t)
-      return id === 'data' && MOBILE ? insertBeforeSection(out, t('Bring data in'), <HealthReadSection key="hv-health-read" />) : out
+      if (id !== 'data' || !MOBILE) return out
+      // D27's Health Connect reads, then D34's export to Hevy, both before "Bring data in".
+      return insertBeforeSection(out, t('Bring data in'), <>
+        <HealthReadSection key="hv-health-read" />
+        <HevyExportSection key="hv-hevy-export" />
+      </>)
     },
     hides: hiddenSetting,
   }

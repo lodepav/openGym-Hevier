@@ -20,7 +20,8 @@ android {
         // these lines would hide it: move its contents into src/hevier/AndroidManifest.xml.
         debug.manifest.srcFile 'src/hevier/AndroidManifest.xml'
         release.manifest.srcFile 'src/hevier/AndroidManifest.xml'
-        // D27: the fork's Health Connect read plugin, until upstream's v1.4.3 reads in its own.
+        // The fork's Java plugins: D27's Health Connect reads (until upstream's v1.4.3 reads in its
+        // own) and D34's encrypted secret.
         debug.java.srcDirs += ['src/hevier/java']
         release.java.srcDirs += ['src/hevier/java']
     }
