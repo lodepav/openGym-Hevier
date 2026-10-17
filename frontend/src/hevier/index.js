@@ -4,7 +4,8 @@ import { HEVIER } from './flag.js'
 import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
-import { installFinishHook } from './hooks.js'
+import { hooks, installFinishHook } from './hooks.js'
+import { importDone, importExercise } from './lib/hevy-import.js'
 import { useStore } from '../store/useStore.js'
 import { initHealthRead } from './lib/health-read-sync.js'
 import { applyForkIcons } from './lib/pwa-icons.js'
@@ -13,6 +14,8 @@ import { applyForkIcons } from './lib/pwa-icons.js'
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
 // Finish opens the fork's Save Workout page, and a saved workout its summary (seam S9).
 if (HEVIER) installFinishHook(nav)
+// A Hevy import gets the fork's fixed matches, one-limb sets and brand labels (seam S19, D29).
+if (HEVIER) Object.assign(hooks, { importExercise, importDone })
 // The installed PWA is Hevier, in blue, not upstream's lime openGym.
 if (HEVIER) applyForkIcons()
 // Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).

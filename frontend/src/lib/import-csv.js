@@ -22,6 +22,9 @@ import { EXDB, EXIDX, canonicalExId, isCardio as isCardioEx } from './exercises.
 import { uid } from './format.js'
 import { isWarmupRow } from './workout-model.js'
 import { HEVY_TITLE_MAP } from './hevy-id-map.js'
+// [hevier] S19: the fork's step in a Hevy import (hevier/DECISIONS.md D29)
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 import { clampIncline, inclineFrom } from './incline.js'
 
 /* ----------------------------------------------------------------- CSV ---- */
@@ -548,6 +551,9 @@ export function parseWorkoutCSV(text, { unit = 'kg', customEx = [] } = {}) {
       id = own ? own.id : canonicalExId((source === 'Hevy' ? matchHevyTitle(name) : null) || matchExercise(name))
       resolved.set(key, id)
     }
+    // [hevier] S19: the fork's match first, per exact title (`key` is a word bag that drops "weighted")
+    if (hooks.importExercise) id = hooks.importExercise(name, source) || id
+    // [/hevier]
     if (id) matched++
     else {
       let c = created.get(key)
@@ -770,6 +776,9 @@ export function parseImport(text, opts) {
   const s = String(text)
   if (s.includes('HKQuantityTypeIdentifier') || /^\s*</.test(s)) return parseBodyweight(s, opts)
   const asWorkouts = parseWorkoutCSV(s, opts)
+  // [hevier] S19: the fork's keys back into ids, brands and per-side sets
+  if (!asWorkouts.error && hooks.importDone) return hooks.importDone(asWorkouts)
+  // [/hevier]
   if (!asWorkouts.error) return asWorkouts
   const asWeights = parseBodyweight(s, opts)
   return asWeights.error ? asWorkouts : asWeights

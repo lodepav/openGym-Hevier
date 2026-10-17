@@ -555,7 +555,7 @@ Same rule: a decision in DECISIONS.md before each is built, PIPELINE.md checked 
     These are tools run *by* the build, not dependencies *of* the app, so the dependency-light
     rule is kept. A GitHub Actions workflow is fork-owned only if it lives under a new file
     name upstream won't use (`hevier-release.yml`).
-12. **Better import from Hevy (API and CSV): exercises map wrongly.** Upstream imports both:
+12. ~~**Better import from Hevy (API and CSV): exercises map wrongly.**~~ Decided as D29 (2026-10-17), built: a fork fix table, one-limb titles as per-side sets, `(brand: X)` as D28 brands; the fixes written up for upstream in `hevier/upstream/hevy-map-fixes.md`. The review step is not built. The original note: Upstream imports both:
     the API (`lib/import-hevy.js`, Hevy Pro key) and a detected Hevy CSV (`lib/import-csv.js`).
     Both resolve exercises only through the generated table `lib/hevy-id-map.js` (template id
     for the API, English title for the CSV, built by `scripts/build-hevy-id-map.mjs`); a

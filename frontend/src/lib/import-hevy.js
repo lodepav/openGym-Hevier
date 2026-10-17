@@ -10,6 +10,9 @@ import { uid } from './format.js'
 import { isWarmupRow } from './workout-model.js'
 import { HEVY_ID_MAP, HEVY_TITLE_MAP } from './hevy-id-map.js'
 import { daysBetween, importId, priorCustom } from './import-csv.js'
+// [hevier] S19: the fork's step in a Hevy import (hevier/DECISIONS.md D29)
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 export { HEVY_ID_MAP, HEVY_TITLE_MAP }
 export const HEVY_API = 'https://api.hevyapp.com'
@@ -173,6 +176,10 @@ function makeResolver(templates, customEx) {
     const key = templateId || String(fallbackTitle || '').toLowerCase()
     if (!key) return null
     const t = templateId ? byId.get(templateId) : null
+    // [hevier] S19: the fork's match first
+    const hv = hooks.importExercise && hooks.importExercise(t?.title || fallbackTitle, 'Hevy')
+    if (hv) return hv
+    // [/hevier]
     const own = priorCustom(customEx, importId('im', 'Hevy|' + key), t?.title || fallbackTitle)
     if (own) return own.id
     const pinned = templateId && canonicalExId(HEVY_ID_MAP[templateId])
