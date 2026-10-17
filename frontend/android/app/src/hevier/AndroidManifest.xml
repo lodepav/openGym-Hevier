@@ -4,7 +4,9 @@
      src/main one. It locks the app to portrait, as the PWA manifest already is, and (D27) asks for
      the two Health Connect read permissions, each requested only when its switch is turned on.
      Upstream's v1.4.3 declares the same two; the merger keeps one of each. It also declares the
-     home-screen month widget (D44), which needs no permission. -->
+     home-screen month widget (D44), which needs no permission, and (D47) the location permissions
+     the gym picker's "Find gyms nearby" asks for on its first tap, while the app is open (no
+     background location). Upstream's v1.4.3 declares the same two; the merger keeps one of each. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -26,4 +28,6 @@
     </application>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

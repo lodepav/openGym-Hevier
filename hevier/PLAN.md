@@ -616,7 +616,7 @@ session is adding D numbers for the Hevy import).
       membership card"): not offered in the fork. Off the Home widgets (D12, `home-layout.js`'s
       `checkin`) and off Look & Home's "On Home" row (D16's hidden rows). `S.checkIn` and
       `S.gymCards` stay untouched, so upstream's UI reads them as before. D12 changes first.
-    - **A gym picker list**, like Hevy's gym tag (*open: waits for the v1.4.3 merge*): from the workout header (D28's gym chip) and
+    - ~~**A gym picker list**~~ Built as D47 (2026-10-17), ahead of 1.4.3 (its location code ported, the places from Overpass). The original note, like Hevy's gym tag (*open: waits for the v1.4.3 merge*): from the workout header (D28's gym chip) and
       Save Workout, a sheet listing **nearby gyms** first, then the user's own gyms (D28's
       equipment profiles), then **Custom gym…** (type a name). Picking a nearby gym that is
       not yet a profile creates one with that name (equipment copied from the active profile),

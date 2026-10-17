@@ -1,7 +1,8 @@
 # Permissions the release APK may ask for (D38). `release-check.sh --apk` fails on any other
 # `uses-permission` in the merged manifest, so a plugin or an upstream merge that adds one is
 # read before it ships. One per line, the reason after #; `$PKG` stands for the app id.
-# Upstream 1.4.3 adds location permissions (its gym reminder): review them at that merge.
+# Upstream 1.4.3 adds the same two location permissions (its gym reminder) and a background one:
+# review them at that merge.
 
 android.permission.INTERNET                      # sync with the user's own server, Hevy import/export, update check
 android.permission.ACCESS_NETWORK_STATE          # Capacitor plugins: whether the phone is online
@@ -18,4 +19,6 @@ android.permission.health.WRITE_EXERCISE         # upstream: finished workouts t
 android.permission.health.WRITE_WEIGHT           # upstream: weigh-ins to Health Connect, when switched on
 android.permission.health.READ_HEART_RATE        # the fork's heart-rate read (D27), when switched on
 android.permission.health.READ_WEIGHT            # the fork's weigh-in read (D27), when switched on
+android.permission.ACCESS_COARSE_LOCATION        # the gym picker's "Find gyms nearby" (D47): one position, on that tap, app open
+android.permission.ACCESS_FINE_LOCATION          # the same (D47); Android asks for both together and the user may grant approximate only
 $PKG.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION    # added by AndroidX for its own unexported receivers, app-private

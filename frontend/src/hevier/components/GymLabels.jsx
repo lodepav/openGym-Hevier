@@ -1,41 +1,140 @@
 // The workout's gym line and a machine exercise's brand line (hevier/DECISIONS.md D28), a cable's
-// setup beside the brand (D43), with the sheets that change them. The gyms are upstream's equipment profiles, managed in Settings →
+// setup beside the brand (D43), with the sheets that change them, and the gym picker's nearby and
+// custom gyms (D47). The gyms are upstream's equipment profiles, managed in Settings →
 // Equipment; the logic is hevier/lib/gym-labels.js.
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
+import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
   gymsOf, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands, isMachine, BRAND_MAX,
   CABLES, cableText, entryCable, setEntryCable, cableStamped, stampCable,
 } from '../lib/gym-labels.js'
+import {
+  currentPosition, fetchPlaces, ownHere, gymOfPlace, placeOf, rememberPlace, addGym, distanceText, RADIUS,
+} from '../lib/nearby-gyms.js'
 
 const update = fn => useStore.getState().update(fn, true)
 
-/** The session's gym, under the stats row. Shown once there is a gym to pick. */
-export function GymRow() {
-  const nav = useNavigate()
-  const S = useStore(s => s.S)
-  const gyms = gymsOf(S)
+/** The gym sheet (D28, D47): your gyms, gyms nearby on a tap, a custom one, no gym. */
+export function gymSheet(nav) {
+  const S = useStore.getState().S
   const cur = workoutGym(S, S.active)
-  if (!gyms.length && !cur) return null
-  const pick = () => menuSheet({
+  menuSheet({
     title: t('Gym'),
     sections: [
       { items: [
-        ...gyms.map(g => ({ icon: 'figureStrength', label: g.name || t('Unnamed gym'), on: g.id === cur, onClick: () => update(s => setWorkoutGym(s, g.id)) })),
+        ...gymsOf(S).map(g => ({ icon: 'figureStrength', label: g.name || t('Unnamed gym'), on: g.id === cur, onClick: () => update(s => setWorkoutGym(s, g.id)) })),
         { icon: 'xmark', label: t('No gym'), on: !cur, onClick: () => update(s => setWorkoutGym(s, null)) },
+      ] },
+      { items: [
+        { icon: 'pin', label: t('Find gyms nearby'), sub: t('Sends your position to OpenStreetMap, once'), onClick: () => useUI.getState().openSheet(close => <NearbySheet close={close} />) },
+        { icon: 'plus', label: t('Custom gym…'), onClick: () => useUI.getState().openSheet(close => <CustomGymSheet close={close} />) },
       ] },
       { items: [{ icon: 'gear', chevron: true, label: t('Manage gyms'), sub: t('Your equipment profiles'), onClick: () => nav('/settings/equipment') }] },
     ],
   })
-  return <button type="button" className="hv-gym" onClick={pick}>
+}
+
+/** The session's gym, under the stats row. */
+export function GymRow() {
+  const nav = useNavigate()
+  const S = useStore(s => s.S)
+  const cur = workoutGym(S, S.active)
+  return <button type="button" className="hv-gym" onClick={() => gymSheet(nav)}>
     <Icon name="figureStrength" />{cur ? (gymName(S, cur) || t('Removed gym')) : t('No gym')}
     <Icon name="chevronDown" className="hv-gym-chev" />
   </button>
+}
+
+const pickGym = (id, here) => update(s => {
+  if (here && !placeOf(s, id)) rememberPlace(s, id, here)
+  setWorkoutGym(s, id)
+})
+
+const WHY = {
+  denied: 'Location isn’t allowed for Go Hevier. Allow it in the phone’s settings, or add the gym by name.',
+  off: 'Location is switched off. Switch it on, or add the gym by name.',
+  nofix: 'Couldn’t find where you are. Try again outdoors, or add the gym by name.',
+  net: 'OpenStreetMap didn’t answer. Try again in a moment, or add the gym by name.',
+}
+
+/** "Find gyms nearby" (D47): the position once, then OpenStreetMap's gyms around it. */
+export function NearbySheet({ close, locate = currentPosition, places = fetchPlaces }) {
+  const [st, setSt] = useState({ step: 'locating' })
+  const turn = useRef(0)
+  const run = () => {
+    const mine = ++turn.current
+    const set = v => { if (turn.current === mine) setSt(v) }
+    set({ step: 'locating' })
+    locate().then(
+      here => { set({ step: 'searching', here }); return places(here).then(found => set({ step: 'done', here, found }), () => set({ step: 'error', why: 'net', here })) },
+      e => set({ step: 'error', why: WHY[e?.code] ? e.code : 'nofix' }))
+  }
+  useEffect(() => { run(); return () => { turn.current = -1 } }, [])
+  const S = useStore(s => s.S)
+  const cur = workoutGym(S, S.active)
+  const here = st.here
+  const own = here ? ownHere(S, here) : []
+  const ownIds = new Set(own.map(g => g.id))
+  const choose = fn => () => { close(); fn() }
+  const item = (key, { label, sub, on, onClick }) => <div key={key} className="item menu-item" {...tappable(onClick)}>
+    <span className="lrow-i"><Icon name="figureStrength" /></span>
+    <div className="grow"><div className="tt">{label}</div>{sub && <div className="ss">{sub}</div>}</div>
+    {on != null && <span className={'menu-on' + (on ? ' is-on' : '')}><Icon name="check" /></span>}
+  </div>
+  return <div className="hv-nearby">
+    <h3 style={{ marginBottom: 2 }}>{t('Gyms nearby')}</h3>
+    <div className="muted small" style={{ marginBottom: 10 }}>{t('Your position goes to OpenStreetMap for this search only, and isn’t kept.')}</div>
+    {(st.step === 'locating' || st.step === 'searching') && <p className="dim">{st.step === 'locating' ? t('Finding where you are…') : t('Asking OpenStreetMap…')}</p>}
+    {st.step === 'error' && <>
+      <p className="dim">{t(WHY[st.why])}</p>
+      <button type="button" className="btn" style={{ width: '100%' }} onClick={run}>{t('Try again')}</button>
+    </>}
+    {own.length > 0 && <div className="menu-group grouped">
+      <div className="menu-sec">{t('Your gyms here')}</div>
+      <div className="list menu-list">{own.map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: distanceText(g.dist), on: g.id === cur, onClick: choose(() => pickGym(g.id, null)) }))}</div>
+    </div>}
+    {st.step === 'done' && <div className="menu-group grouped">
+      <div className="menu-sec">{t('Nearby')}</div>
+      {st.found.length
+        ? <div className="list menu-list">{st.found.map(p => {
+          const mine = gymOfPlace(S, p.osm)
+          if (mine && ownIds.has(mine.id)) return null
+          const sub = [mine ? t('Your gym {0}', mine.name || t('Unnamed gym')) : p.sub, distanceText(p.dist)].filter(Boolean).join(' · ')
+          return item(p.osm, { label: p.name, sub, on: mine ? mine.id === cur : undefined,
+            onClick: choose(() => mine ? pickGym(mine.id, null) : update(s => setWorkoutGym(s, addGym(s, p.name, p)))) })
+        })}</div>
+        : <p className="dim">{t('No gyms on OpenStreetMap within {0}.', distanceText(RADIUS))}</p>}
+    </div>}
+    {here && <div className="menu-group grouped"><div className="list menu-list">
+      {gymsOf(S).filter(g => !ownIds.has(g.id)).map(g => item(g.id, { label: g.name || t('Unnamed gym'), sub: t('Your gym, remembered here once picked'), on: g.id === cur, onClick: choose(() => pickGym(g.id, here)) }))}
+    </div></div>}
+    <button type="button" className="btn ghost" style={{ width: '100%', marginTop: 8 }}
+      onClick={() => { close(); useUI.getState().openSheet(c => <CustomGymSheet close={c} here={here} />) }}><Icon name="plus" /> {t('Custom gym…')}</button>
+    <div className="small dim" style={{ marginTop: 8 }}>{t('Gym data © OpenStreetMap contributors')}</div>
+  </div>
+}
+
+/** "Custom gym…" (D47): a gym by name, made one of your gyms and picked. */
+export function CustomGymSheet({ close, here = null }) {
+  const [v, setV] = useState('')
+  const save = () => {
+    const name = v.trim()
+    if (!name) return
+    close()
+    update(s => setWorkoutGym(s, addGym(s, name, here ? { lat: here.lat, lng: here.lng } : null)))
+  }
+  return <form className="hv-namesheet" onSubmit={e => { e.preventDefault(); save() }}>
+    <h3>{t('Custom gym')}</h3>
+    <p className="small dim">{t('Added to your gyms, with the equipment of the gym you’re at now. Change it under Manage gyms.')}</p>
+    <input className="input" autoFocus value={v} maxLength={60} placeholder={t('Gym name')} aria-label={t('Gym name')} onChange={e => setV(e.target.value)} />
+    <button type="submit" className="btn primary" disabled={!v.trim()}>{t('Add gym')}</button>
+  </form>
 }
 
 function BrandSheet({ idx, close }) {
