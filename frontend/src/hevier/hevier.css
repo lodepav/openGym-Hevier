@@ -84,6 +84,7 @@
 :root[data-ui="hevier"] .hv-num{width:100%;text-align:center;font-size:16px;font-weight:600;background:none;border:0;padding:8px 0;color:var(--label)}
 /* D2: a value the progression engine filled in and nobody has touched yet */
 :root[data-ui="hevier"] .hv-num.hv-hint{color:var(--label-3);font-weight:500}
+:root[data-ui="hevier"] .hv-num::placeholder{color:var(--label-3);font-weight:500;opacity:1}
 :root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:6px;padding:4px 0;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-eff.empty{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center;background:var(--surface-3);box-shadow:none;color:var(--label-3)}

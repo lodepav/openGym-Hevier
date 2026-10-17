@@ -8,7 +8,7 @@ import { parseHevyWorkouts, parseHevyRoutines } from '../../lib/import-hevy.js'
 
 const HEAD = '"title","start_time","end_time","description","exercise_title","superset_id","exercise_notes","set_index","set_type","weight_kg","reps","distance_km","duration_seconds","rpe"'
 const row = (ex, i, w, r) => `"Lower A","14 Oct 2026, 16:27","14 Oct 2026, 17:44","","${ex}",,"",${i},"normal",${w},${r},,,`
-const CSV = [HEAD, row('Seated Leg Curl (Machine)', 0, 40, 10), row('Behind the Back Curl (Cable)', 0, 10, 12),
+const CSV = [HEAD, row('Seated Leg Curl (Machine)', 0, 40, 10), row('Qwerty Zorb (Cable)', 0, 10, 12),
   row('Single Leg Extensions', 0, 30, 10), row('Leg Press (Machine) (brand: Hammer)', 0, 100, 8)].join('\n')
 const entries = p => p.workouts.flatMap(w => w.entries)
 
@@ -32,7 +32,7 @@ describe('hevier import review (D33)', () => {
     const p = parse()
     const list = reviewList(titlesOf(p), S)
     expect(list.map(x => [x.title, x.id])).toEqual([
-      ['Behind the Back Curl (Cable)', null],
+      ['Qwerty Zorb (Cable)', null],
       ['Leg Press (Machine)', '0739'],
       ['Seated Leg Curl (Machine)', '0599'],
       ['Single Leg Extensions', '0585'],
@@ -43,7 +43,7 @@ describe('hevier import review (D33)', () => {
   it('reads the file again with a choice: a library exercise, one\'s own, or back to automatic', () => {
     const p = parse()
     choose(S, 'Hevy|seated leg curl (machine)', '0586')
-    choose(S, 'Hevy|behind the back curl (cable)', 'cMine')
+    choose(S, 'Hevy|qwerty zorb (cable)', 'cMine')
     choose(S, 'Hevy|leg press (machine)', 'custom')
     choose(S, 'Hevy|single leg extensions', '0599')         // a machine: still per side
     rerun(p, S)
@@ -53,7 +53,7 @@ describe('hevier import review (D33)', () => {
     expect(ext).toMatchObject({ id: '0599', sets: [{ r: 20, sides: { L: { r: 10 }, R: { r: 10 } } }] })
     expect(press.hvBrand).toBe('Hammer')
     expect(p.customEx.find(c => c.id === press.id)?.n).toBe('leg press (machine)')
-    expect(p.customEx.some(c => c.n === 'behind the back curl (cable)')).toBe(false)
+    expect(p.customEx.some(c => c.n === 'qwerty zorb (cable)')).toBe(false)
     expect(reviewList(titlesOf(p), S).find(x => x.title === 'Seated Leg Curl (Machine)')).toMatchObject({ id: '0586', chosen: true })
     // what the import writes follows it
     mergeImport(S, p)

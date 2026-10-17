@@ -6,7 +6,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtDate, fmtDur, fmtVol, exCount } from '../../lib/format.js'
+import { fmtVol, exCount } from '../../lib/format.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { workoutDetailSheet, repeatWorkout, menuSheet, confirmSheet } from '../../sheets.jsx'
 import { editCompletedSession } from '../../lib/session-edit.js'
@@ -18,6 +18,7 @@ import { Thumb } from '../../components/Media.jsx'
 import MuscleLine from './MuscleLine.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
+import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -60,7 +61,6 @@ export default function WorkoutCard({ w }) {
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
-  const ms = Math.max(0, (w.end || w.start) - w.start)
   const prs = w.prs?.length || 0
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
     <div className="hv-wcard-h">
@@ -68,9 +68,9 @@ export default function WorkoutCard({ w }) {
       <button type="button" className="iconbtn" aria-label={t('More')}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
-    <div className="hv-wcard-d">{fmtDate(w.d, true)}</div>
+    <div className="hv-wcard-d">{workoutWhenText(w)}</div>
     <div className="hv-wcard-stats">
-      <div><span>{t('Time')}</span><b>{ms >= 60000 ? fmtDur(ms) : '–'}</b></div>
+      <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'
         ? <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, unit)}</b></div>
         : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}

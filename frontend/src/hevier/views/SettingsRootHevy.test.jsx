@@ -36,13 +36,13 @@ afterEach(() => {
 })
 
 describe('hevier: Settings (seams S11, S12)', () => {
-  it('groups the root under Account, Preferences and More, the account card first', () => {
+  it('groups the root under Account, Workout, Stats, App and Data & more, the account card first', () => {
     render(null)
-    const text = container.textContent
-    expect(text.indexOf('Account')).toBeLessThan(text.indexOf('Preferences'))
-    expect(text.indexOf('Preferences')).toBeLessThan(text.indexOf('More'))
+    expect([...container.querySelectorAll('.sect-t')].map(h => h.textContent)).toEqual(['Account', 'Workout', 'Stats', 'App', 'Data & more'])
     const rows = titles()
     expect(rows.indexOf('Workout')).toBeGreaterThan(-1)
+    expect(rows.indexOf('Previous values')).toBeLessThan(rows.indexOf('Volume'))
+    expect(rows.indexOf('Muscle sets')).toBeLessThan(rows.indexOf('Units & language'))
     expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))
     expect(container.querySelector('.sp-acct')).toBeTruthy()
     expect(container.textContent).not.toContain('Cards')

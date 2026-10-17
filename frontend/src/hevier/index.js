@@ -34,6 +34,8 @@ if (HEVIER) Object.assign(hooks, {
 })
 // …keeping each weight's hundredths (seam S25, D40).
 if (HEVIER) hooks.importWeight = importWeight
+// D48: Hevy's rest and timer wheels go in 5 s steps.
+if (HEVIER) hooks.secondsStep = 5
 // …with the user's own choices from the import review (seam S23, D33).
 if (HEVIER) hooks.importReview = { keep, Row: ReviewRow }
 // …and its routines their Hevy folders (seam S20, D30).
