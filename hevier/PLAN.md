@@ -479,7 +479,7 @@ the feature is not Hevy-specific (it would remove fork code).
    gym and/or an equipment brand label (e.g. "Life Fitness", "my gym"). Exercise stats can show
    either everything, or only the sets done with the current labels, since the same exercise
    on two machines isn't comparable. Machines and cables only, not free weights.
-6. **Gym at workout start picks the backups.** *Waits for upstream 1.4.2's backups (the merge of v1.4.2).* Starting a workout or routine at a tagged gym
+6. **Gym at workout start picks the backups.** *Upstream 1.4.2's backups built ahead as D45 (2026-10-17); this item is D46.* Starting a workout or routine at a tagged gym
    swaps in, straight away, the backup exercise that gym has, using upstream 1.4.2's
    *backups for an exercise* (up to five per routine exercise).
 

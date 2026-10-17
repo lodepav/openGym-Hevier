@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { exOr } from '../../lib/exercises.js'
+import { EXIDX, exOr } from '../../lib/exercises.js'
 import { activeProfile, exAvailable } from '../../lib/equipment.js'
 import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -28,7 +28,9 @@ import {
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { removeRoutineExercise, reorderRoutineUnit } from '../../views/RoutineEdit.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
-import { useSupersetTarget } from './ExercisePickerHevy.jsx'
+import { useSupersetTarget, exercisePickerSheet } from './ExercisePickerHevy.jsx'
+import { BackupsSheet } from '../components/BackupsSheet.jsx'
+import { keepBackups, cleanBackups } from '../lib/routine-backups.js'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
@@ -71,7 +73,8 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
 
   // Upstream's editor's own flows (views/RoutineEdit.jsx): the settings sheet, Replace, the link.
   const openSettings = () => exConfigSheet(ex, e, cfg => editList(x => {
-    x[i] = { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg }
+    // D45: the sheet (upstream's v1.4.1) does not know the slot's backups; they stay.
+    x[i] = keepBackups(x[i], { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg })
     cleanupSg(x)
   }), () => removeRoutineExercise(r.id, i), r, null, replace)
   function replace() {
@@ -79,10 +82,11 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
     const commit = (pick, fn) => {
       picker.close()
       let done = false
-      editList(x => { if (x[i] && x[i].id === openedOn) { x[i] = fn(x[i]); done = true } })
+      // D45: the slot keeps its backups, less the exercise now in it (upstream 1.4.2's rule).
+      editList(x => { if (x[i] && x[i].id === openedOn) { x[i] = keepBackups(x[i], fn(x[i])); done = true } })
       if (done) toast(t('Replaced with “{0}”', exerciseNameText(pick)))
     }
-    const picker = exercisePicker((pick, quick) => {
+    const picker = exercisePickerSheet((pick, quick) => {
       const live = useStore.getState().S
       const slot = live.routines.find(x => x.id === r.id)?.ex[i]
       if (!slot || slot.id !== openedOn) { picker.close(); return }
@@ -90,7 +94,7 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
       if (quick) { commit(pick, current => replaceSlotExercise(current, pick.id, live, r.id)); return }
       const next = replaceSlotExercise(slot, pick.id, live, r.id)
       exConfigSheet(pick, next, cfg => commit(pick, current => ({ id: pick.id, sg: current.sg, ...cfg })), null, r, null, null, t('Replace'))
-    }, { title: t('Replace exercise'), like: openedOn })
+    }, { title: t('Replace exercise'), like: openedOn, backups: e.subs })
   }
   const linked = i > 0 && e.sg && r.ex[i - 1].sg === e.sg
   const toggleLink = () => editList(x => {
@@ -106,6 +110,7 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
       if (next) { x.splice(0, x.length, ...next); cleanupSg(x) }
     })
   }
+  const backupNames = cleanBackups(e.subs, e.id, id => !!EXIDX[id]).map(id => exerciseNameFor(EXIDX[id])).join(', ')
   const openMore = () => menuSheet({
     title: exerciseNameFor(ex),
     titleClass: exerciseNameClass(ex),
@@ -114,6 +119,8 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
         { icon: 'chevronUp', label: t('Move up'), disabled: !moveRoutineEntry(r.ex, i, -1), onClick: () => move(-1) },
         { icon: 'chevronDown', label: t('Move down'), disabled: !moveRoutineEntry(r.ex, i, 1), onClick: () => move(1) },
         { icon: 'swap', label: t('Replace exercise'), onClick: replace },
+        // D45: the slot's planned backups, offered first by a swap mid-workout.
+        { icon: 'shuffle', label: t('Backups'), sub: backupNames || t('None'), onClick: () => useUI.getState().openSheet(close => <BackupsSheet rid={r.id} i={i} exId={e.id} close={close} />) },
         i > 0 && { icon: 'link', label: linked ? t('Remove from superset') : t('Make superset with previous'), onClick: toggleLink },
       ] },
       { items: [

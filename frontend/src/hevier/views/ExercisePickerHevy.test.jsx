@@ -92,6 +92,23 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(container.querySelector('.hv-pk-check')).toBeNull()
   })
 
+  it('a swap of the running workout’s exercise offers its slot’s backups first, until something is typed (D45)', () => {
+    const S = clone(DEF)
+    S.active = { start: Date.now(), entries: [{ id: BENCH.id, target: { subs: [SQUAT.id] }, sets: [] }] }
+    useStore.setState({ S, user: null })
+    exercisePicker(() => {}, { title: 'Swap exercise', like: BENCH.id })
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    const sheet = useUI.getState().sheets.at(-1)
+    act(() => root.render(sheet.render(() => {})))
+    const heads = [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
+    expect(heads[0]).toBe('Your backups')
+    expect(container.querySelector('.list .hv-pk-row .tt').textContent).toBe(SQUAT.n)
+    search('curl')
+    expect(container.textContent).not.toContain('Your backups')
+  })
+
   it('lists recent exercises first', () => {
     open(vi.fn(), {}, [{ id: 'w', d: '2026-10-01', entries: [{ id: SQUAT.id, sets: [] }] }])
     expect(container.textContent).toContain('Recent Exercises')
