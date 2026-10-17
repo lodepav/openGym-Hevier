@@ -6,11 +6,13 @@ openGym's training logic (progression, 1RM, recovery, sync, storage) and staying
 from upstream.
 
 Everything that belongs only to the fork lives in this `hevier/` folder or in
-`frontend/src/hevier/`. Upstream never touches either, so neither ever conflicts.
+`frontend/src/hevier/`, plus a few fork-owned `hevier` folders inside upstream's tree that only
+the build reads (`frontend/android/app/src/hevier*`, `frontend/public/hevier`). Upstream never
+touches any of them, so they never conflict.
 
 | File | What it is |
 |---|---|
-| [DECISIONS.md](DECISIONS.md) | The agreed design decisions (D1–D14). They override the plan and the spec where they differ. |
+| [DECISIONS.md](DECISIONS.md) | The agreed design decisions, numbered D1, D2, … (take the next free number for a new one). They override the plan and the spec where they differ. |
 | [PLAN.md](PLAN.md) | The implementation plan: the pre-work, phase 1 (UX), phase 2 (UI design), and the rules the code follows. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |

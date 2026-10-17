@@ -140,6 +140,11 @@ A clean merge can still break the fork. After every sync, check these:
 5. **New routes or tabs?** Compare `App.jsx` routes and `TabBar.jsx` with `HevyTabBar`'s
    entries. A new screen must be reachable from the three-tab navigation (usually Profile →
    Dashboard).
+6. **Icons or the PWA manifest changed?** `git diff --stat <old>..<new> -- frontend/android/app/src/main/res frontend/public`.
+   New or regenerated icons: rerun `python3 hevier/tools/recolour-icons.py`. A changed
+   `frontend/public/manifest.json`: bring the change into `frontend/public/hevier/manifest.json`,
+   whose `start_url` and `scope` are `../` and whose name is Hevier (`pwa-icons.test.js` checks
+   both resolve the same).
 
 ## Verification (required before landing)
 

@@ -391,8 +391,11 @@ figure for Profile's Measures tile), falling back to upstream's `Icon` for every
 seam in `Icon.jsx`. App icon and splash: upstream's, recoloured from lime to Hevy blue by
 `hevier/tools/recolour-icons.py` into `frontend/android/app/src/hevier/res`, which seam S7's
 `hevier.gradle` adds to both build types; the system splash is dark. Profile's dashboard tiles
-are Hevy's: a line chart for Statistics, the standing figure for Measures. Phase 2 is done; the
-PWA icons in `frontend/public` are still upstream's lime (the fork targets the Android app).
+are Hevy's: a line chart for Statistics, the standing figure for Measures. Phase 2 is done. The
+PWA's icons followed on 2026-10-17: the same script writes blue copies of `frontend/public`'s
+into `frontend/public/hevier/`, beside a manifest named Hevier, and `hevier/lib/pwa-icons.js`
+points index.html's manifest and icon links there at boot (no seam). The web push notification
+icons in upstream's `sw.js` stay lime.
 
 Risk to watch: upstream renames a class or a CSS variable and the override silently stops
 matching. Nothing conflicts; the look just regresses. Guard it with a screenshot pass per
