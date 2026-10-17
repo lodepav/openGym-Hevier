@@ -77,6 +77,7 @@ export default function WorkoutCard({ w }) {
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} />}
+    {entries.length > 0 && <div className="hv-wcard-lh">{t('Workout')}</div>}
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
       const n = e.sets.filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length
