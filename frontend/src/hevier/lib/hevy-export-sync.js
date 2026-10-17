@@ -38,6 +38,9 @@ export async function hevyCall(key, method, path, body, get = fetch) {
 const stops = e => !(e instanceof HevyApiError) || e.status === 0 || e.status === 401 || e.status === 429 || e.status >= 500
 const kindOf = e => (!(e instanceof HevyApiError) ? 'failed' : e.status === 401 ? 'auth' : e.status === 429 ? 'rate' : e.status === 0 ? 'offline' : 'failed')
 const idOf = (res, k) => { const v = Array.isArray(res?.[k]) ? res[k][0] : res?.[k] || res; return v?.id != null ? String(v.id) : null }
+// A create Hevy answered without an id is refused, not kept as sent with no id: the next change
+// would create it again, and Hevy's API cannot delete the extra copy.
+const createdId = (res, k) => { const id = idOf(res, k); if (!id) throw new HevyApiError(422, 'no id'); return id }
 
 /**
  * One export pass over `S`. `st` is the export state, changed in place and saved through `save`
@@ -85,7 +88,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
             id = null                       // gone from Hevy: sent again as a new one
           }
         }
-        if (!id) id = idOf(await call('POST', '/v1/workouts', body), 'workout')
+        if (!id) id = createdId(await call('POST', '/v1/workouts', body), 'workout')
         st.out.w[item.id] = { id, h: item.h }
         delete st.failed[item.id]
         sent++
@@ -120,7 +123,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
             id = null
           }
         }
-        if (!id) id = idOf(await call('POST', '/v1/routines', body), 'routine')
+        if (!id) id = createdId(await call('POST', '/v1/routines', body), 'routine')
         st.out.r[item.id] = { id, h: item.h }
         delete st.failed[item.id]
         sent++
