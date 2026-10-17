@@ -610,7 +610,7 @@ session is adding D numbers for the Hevy import).
     signed with the fork's certificate (its SHA-256 pinned in `hevier/security/`). `aapt2` /
     `apksigner` from the SDK already installed for the emulator, no new tool. Note: upstream
     1.4.3 adds location permissions (gym reminder), so the allow-list changes at that merge.
-17. **Gym tagging as Hevy does it, without membership cards** (user, 2026-10-17; replaces item
+17. ~~**Gym tagging as Hevy does it, without membership cards**~~ Done 2026-10-17 (D12 changed, D47). (user, 2026-10-17; replaces item
     4's "prompt at start"). Two parts:
     - ~~**Drop upstream's Gym check-in**~~ Done 2026-10-17 (D12 changed). (membership QR / barcode cards, "Import a photo of your
       membership card"): not offered in the fork. Off the Home widgets (D12, `home-layout.js`'s
