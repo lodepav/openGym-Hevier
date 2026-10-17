@@ -397,6 +397,9 @@ export function parseHevyRoutines(routines, templates, { unit = 'kg', customEx =
       hevyId: r.id || null,
       ex,
     })
+    // [hevier] S20: the routine's Hevy folder, for the fork (D30)
+    if (hooks.hevyFolders && r.folder_id != null) out[out.length - 1].hvFolderId = r.folder_id
+    // [/hevier]
   }
 
   const used = new Set(out.flatMap(r => r.ex.map(e => e.id)))
