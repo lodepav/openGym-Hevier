@@ -5,6 +5,7 @@
 // so upstream's Settings.jsx keeps every row and the fork edits none of them.
 import { Children, cloneElement, isValidElement } from 'react'
 import { Section } from '../../components/ui.jsx'
+import { fmtPlate } from '../../lib/format.js'
 
 // The root, top to bottom. `account` puts upstream's account card first in its group.
 export const SETTINGS_GROUPS = [
@@ -78,4 +79,23 @@ export function insertBeforeSection(tree, title, el) {
     return done ? cloneElement(node, {}, ...next) : node
   }
   return walk(tree)
+}
+
+// Options relabelled, per page and row title: Weight decimals reads 0.5 / 0.25 upstream, but its
+// second choice shows any weight to the hundredth, 20.41 kg included (DECISIONS.md D40).
+export const RELABELLED = { units: { 'Weight decimals': { 1: 0.1, 2: 0.01 } } }
+
+/** A page's element tree with the options of `RELABELLED`'s rows renamed, values unchanged. */
+export function relabelPage(page, tree, tr) {
+  const rows = Object.entries(RELABELLED[page] || {}).map(([k, v]) => [tr(k), v])
+  if (!rows.length) return tree
+  const walk = (node, labels) => {
+    if (!isValidElement(node)) return node
+    const mine = rows.find(([k]) => k === titleOf(node))?.[1] || labels
+    const opts = mine && Array.isArray(node.props.options)
+      ? { options: node.props.options.map(o => (o.value in mine ? { ...o, label: fmtPlate(mine[o.value]) } : o)) } : null
+    if (node.props.children === undefined) return opts ? cloneElement(node, opts) : node
+    return cloneElement(node, opts || {}, ...Children.toArray(node.props.children).map(k => walk(k, mine)))
+  }
+  return walk(tree, null)
 }
