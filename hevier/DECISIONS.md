@@ -86,3 +86,11 @@ Added 2026-10-17 (PLAN.md §5, Hevy's "Previous Workout Values").
 | # | Decision |
 |---|---|
 | D21 | **Where the PREVIOUS column reads from is a setting.** Settings root → Preferences gets **Previous values: Same routine / Any workout**, stored in `S.hvPrevious` (`'routine'` or `'any'`, a fork-only field upstream ignores), **default Same routine**, which is D3's rule: the same routine's last session, else any workout's. **Any workout** reads the newest workout with the exercise, whatever routine it came from. Only the PREVIOUS column follows the setting: the session's prefilled targets and the progression keep reading upstream's `lastEntryFor`, unchanged. |
+
+## Live personal record
+
+Added 2026-10-17 (PLAN.md §5), at the user's choice: no sound.
+
+| # | Decision |
+|---|---|
+| D22 | **A personal record shows on the set as it is ticked.** While logging, the ticked work set that beats the exercise's heaviest weight gets the **PR** trophy badge, by upstream's own finish rule (`doFinishWorkout`: the session's best ticked working weight beats `bestWeightFor`, read the way the session logs a dumbbell), so it is the same set Workout Detail marks afterwards (`prSetIndex`). The tick that makes a new record also shows a toast, `New PR · 100 kg`. **No sound and no extra vibration**: the tick's own beep and buzz stay upstream's. Weight records only (openGym's PR); a heavier estimated 1RM stays in the finish summary. A workout logged into the past shows none, as upstream's finish awards none live. Derived on screen from the session, nothing stored. |

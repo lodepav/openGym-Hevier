@@ -96,6 +96,23 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
+  it('a tick past the heaviest weight puts the trophy on that set and says so, once (D22)', () => {
+    render([{ id: EX, target: { sets: 3, reps: 8 }, sets: [reps(60, 8), reps(70, 8), reps(70, 8)] }],
+      [{ id: 'w1', d: '2026-10-09', start: 1, end: 2, entries: [{ id: EX, sets: [{ w: 65, r: 8, done: true }] }] }])
+    const chk = i => act(() => container.querySelectorAll('.hv-chk')[i].click())
+    const trophies = () => [...container.querySelectorAll('.hv-set')].map(b => !!b.querySelector('.hv-pr-live'))
+    chk(0)
+    expect(trophies()).toEqual([false, false, false])
+    expect(useUI.getState().toastMsg).not.toContain('PR')
+    chk(1)
+    expect(trophies()).toEqual([false, true, false])
+    expect(useUI.getState().toastMsg).toBe('New PR · 70 kg')
+    useUI.setState({ toastMsg: '' })
+    chk(2)
+    expect(trophies()).toEqual([false, true, false])
+    expect(useUI.getState().toastMsg).not.toContain('PR')
+  })
+
   it('a timed hold gets KG · SEC and a start button (M1)', () => {
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
     const head = container.querySelector('.hv-head').textContent

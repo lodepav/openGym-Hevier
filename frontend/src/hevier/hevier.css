@@ -375,3 +375,7 @@
 :root[data-ui="hevier"] .hv-sl-sheet p{margin:0 0 14px}
 :root[data-ui="hevier"] .hv-sl-sheet .btn.danger{margin-top:8px}
 :root[data-ui="hevier"] .hv-sl-err{color:var(--red)}
+
+/* ---------- Live personal record on a set (hevier/components/HevyExerciseBlock.jsx, D22) ---------- */
+:root[data-ui="hevier"] .hv-set{position:relative}
+:root[data-ui="hevier"] .hv-pr-live{position:absolute;top:50%;left:calc(50% + 9px);transform:translateY(-50%);font-size:13px;color:var(--yellow)}

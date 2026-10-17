@@ -423,7 +423,7 @@ aren't lost:
 
 - ~~Routine folders~~ (moved into phase 1, D13, 2026-10-16)
 - Workout photos / videos on the Save Workout page
-- Live personal-record badge while logging a set, with its notification and sound
+- ~~Live personal-record badge while logging a set~~ (D22, 2026-10-17; no sound, at the user's choice)
 - Monthly report, multi-year calendar, muscle-distribution radar chart
 - ~~"Previous Workout Values: Any workout / Same routine" as a user setting~~ (D21, 2026-10-17)
 - Hevy-style warm-up calculator sheet (if openGym's warm-up generator differs)
