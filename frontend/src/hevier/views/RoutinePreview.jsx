@@ -17,6 +17,8 @@ import { startFlow, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
+import { restTimerText } from '../lib/elapsed.js'
 import { tableShape, routineRows, workCount } from '../lib/routine-table.js'
 import { folderOf } from '../lib/routine-folders.js'
 
@@ -36,14 +38,14 @@ function PreviewExercise({ r, i, units, S }) {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed">{fmtNum(row.w)}</span>
     const v = c.f === 'reps' ? (row.max ? t('Max') : shape.ranged ? `${row.repsMin}–${row.reps}` : row.reps)
-      : c.f === 'w' ? fmtNum(row.w) : c.view && row[c.f] != null ? c.view(row[c.f]) : row[c.f]
+      : c.f === 'w' ? (row.w ? fmtNum(row.w) : '–') : c.view && row[c.f] != null ? c.view(row[c.f]) : row[c.f]
     return <span key={c.f} className="hv-rv-v">{v ?? '–'}</span>
   }
   const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
   const grid = { '--nc': cols.length }
   const unit = units.find(u => u.includes(i))
   const meta = unit?.length > 1 && unit[0] === i ? supersetMeta(r.ex, unit) : null
-  const rest = Number(e.restSec) > 0 ? fmtRest(e.restSec) : t('Default ({0})', fmtRest(S.restSec))
+  const rest = restTimerText(e.restSec, S.restSec, t('Off'))
   return <div className={'hv-ex' + (e.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
       {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(meta.rest))}</span>}</div>}
@@ -77,11 +79,9 @@ export default function RoutinePreview() {
   // A session already open is resumed, as the Workout tab's own Start does (upstream's startFlow).
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))
   return <div className="hv-routine hv-rview">
-    <div className="hv-bar">
-      <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-      <div className="hv-title">{t('Routine')}</div>
+    <PageBar title={t('Routine')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('Edit routine')} onClick={() => nav('/plan/r/' + r.id)}><Icon name="pencil" /></button>
-    </div>
+    </PageBar>
     <h2 className="hv-rv-name">{r.name}</h2>
     <p className="hv-sub">{[folderOf(r), exCount(r.ex.length), r.ex.length ? t('{0} sets', sets) : null].filter(Boolean).join(' · ')}</p>
     <button type="button" className="btn primary hv-rv-start" disabled={!r.ex.length} onClick={start}>

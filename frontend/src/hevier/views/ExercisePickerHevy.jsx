@@ -20,6 +20,7 @@ import { useAutoMore } from '../../lib/use-auto-more.js'
 import { menuSheet, customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import { hooks } from '../hooks.js'
 import { cleanBackups, swapBackups } from '../lib/routine-backups.js'
 import { armSwap } from '../lib/gym-backups-run.js'
@@ -157,12 +158,10 @@ export const exercisePickerSheet = (onPick, { title, like, backups } = {}) => {
 export function Exercises() {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
-  return <ExerciseList browse={({ create }) => <div className="hv-pagebar">
-    <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-    <div className="hv-title">{t('Exercises')}</div>
+  return <ExerciseList browse={({ create }) => <PageBar title={t('Exercises')} onBack={back}>
     <button type="button" className="iconbtn" aria-label={t('By muscle')} onClick={() => nav('/muscles')}><Icon name="figureStrength" /></button>
     <button type="button" className="hv-link" onClick={create}>{t('Create')}</button>
-  </div>} />
+  </PageBar>} />
 }
 
 /** Points upstream's exercisePicker at this sheet (seam S13). */

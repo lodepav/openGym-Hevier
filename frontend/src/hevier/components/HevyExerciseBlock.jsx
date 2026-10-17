@@ -16,6 +16,7 @@ import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { fmtRest } from '../../lib/duration.js'
+import { restTimerText } from '../lib/elapsed.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   canBeWarmup, setSpanAt, lastEntryFor, setLabel, cascadeWeight,
@@ -234,7 +235,7 @@ export default function HevyExerciseBlock({
   // D8: everything about the exercise that is not a set lives behind ⋮ — Hevy's five items first,
   // then what openGym adds (progression included), Remove last.
   const ownRest = entry.target?.restSec > 0 ? entry.target.restSec : 0
-  const restText = ownRest ? fmtRest(ownRest) : t('Default ({0})', fmtRest(S.restSec))
+  const restText = restTimerText(ownRest, S.restSec, t('Off'))
   const plateLoading = !editing
   const openMore = () => menuSheet({
     title: exerciseNameFor(ex),

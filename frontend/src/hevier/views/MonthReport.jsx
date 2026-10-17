@@ -37,7 +37,7 @@ export default function MonthReport() {
   const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + (at.y !== Number(today.slice(0, 4)) ? ' ' + at.y : '')
 
   return <div className="narrow hv-report">
-    <BackTo label={t('Statistics')} to="/stats" />
+    <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')} />
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
       <div><h1>{title}</h1>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>

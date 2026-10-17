@@ -70,7 +70,11 @@
 :root[data-ui="hevier"] .hdr .iconbtn{background:none}
 
 /* Buttons: 15px, a tighter pad, Hevy's 8px corners. */
-:root[data-ui="hevier"] .btn{padding:11px 16px;border-radius:8px;font-size:15px;letter-spacing:0}
+:root[data-ui="hevier"] .btn{padding:9px 14px;border-radius:8px;font-size:15px;letter-spacing:0}
+/* Hevy's small buttons (Log, the header's Finish / Done) are about 30 px tall; this rule
+   above would otherwise make them as big as the full-width ones */
+:root[data-ui="hevier"] .btn.sm{padding:6px 12px;font-size:14px}
+:root[data-ui="hevier"] .btn.hv-finish{padding:0 14px;min-height:32px;font-size:14px;border-radius:6px}
 :root[data-ui="hevier"] .btn .icn{font-size:17px}
 :root[data-ui="hevier"] .btn{font-weight:500}
 :root[data-ui="hevier"] .btn.primary{font-weight:600}
@@ -95,19 +99,23 @@
 :root[data-ui="hevier"] .menu-group.grouped .menu-item + .menu-item::before{inset-inline-start:48px;background:var(--sep)}
 
 /* ---------- Rest timer on the workout screen ----------
-   Hevy's: a flat bar across the bottom under its blue progress line, the clock large and centred,
-   then −15 · +15 · Skip side by side. openGym's pause stays between them. While the keypad is up
-   the fork rides the timer on the keypad row (hevier.css, body.hv-kb), where it stays compact. */
+   Hevy's: one slim bar across the bottom under its blue progress line: −15 · the clock, centred ·
+   +15 · Skip. openGym's pause sits before Skip. While the keypad is up the fork rides the timer on
+   the keypad row (hevier.css, body.hv-kb), where it stays compact. */
 :root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest{
-  flex-wrap:wrap;row-gap:12px;border-radius:0;box-shadow:none;
-  background:var(--bg-el);border-top:var(--hair) solid var(--sep);padding-top:16px;
+  inset-inline:0;bottom:0;gap:8px;border-radius:0;box-shadow:none;
+  background:var(--bg-el);border-top:var(--hair) solid var(--sep);
+  padding:10px var(--pad) calc(10px + var(--sab));
 }
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .tclock{flex:1 0 100%;align-items:center;text-align:center}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .t{font-size:44px;align-items:center}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts{flex:1 0 100%;gap:8px}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > .btn{flex:1 1 0;min-width:0}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > :is(.pause, .pause-slot){flex:none}
-:root[data-ui="hevier"] body.no-tabbar.resting:not(.hv-kb) #app{padding-bottom:calc(170px + var(--sab))}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts{display:contents}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .adj:first-child{order:0}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .tclock{order:1;flex:1 1 auto;flex-direction:column;align-items:center;text-align:center}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > :not(.adj:first-child){order:2}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .pause-slot{display:none}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .t{font-size:24px;align-items:center}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .lbl{align-self:center;font-size:11px}
+:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts .btn{padding-block:8px}
+:root[data-ui="hevier"] body.no-tabbar.resting:not(.hv-kb) #app{padding-bottom:calc(90px + var(--sab))}
 
 /* ---------- Settings (phase 2, step 5) ----------
    Hevy's Settings are edge-to-edge lists under grey section bands, not inset cards, with plain
@@ -122,7 +130,6 @@
 
 /* Icons in list rows are plain outline glyphs, as everywhere in Hevy, not tinted tiles. */
 :root[data-ui="hevier"] .lrow-i{width:24px;background:none;color:var(--label)}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .lbl{align-self:center}
 
 /* ---------- Page bars ----------
    Hevy names a pushed page in its bar: back on the left, the title centred on the same line, as
@@ -136,5 +143,29 @@
 }
 :root[data-ui="hevier"] .hv-back{min-height:44px;padding:0;font-size:17px}
 :root[data-ui="hevier"] .hv-back .icn{font-size:22px;--icon-stroke:2.2}
+/* Hevy's ‹ is a bare white chevron, never "‹ Profile": the word stays for screen readers only */
+:root[data-ui="hevier"] :is(.hv-back, .sp-back){color:var(--label);gap:0}
+:root[data-ui="hevier"] :is(.hv-back, .sp-back) > :not(.icn){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* upstream's pages with their own ‹ in the header (Measurements, Progress photos, Muscles…) get the
+   same bar: ‹ on the left, the title small and centred, its actions on the right, no subtitle */
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child){
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);
+  align-items:center;column-gap:6px;min-height:44px;margin:0 calc(8px - var(--pad)) 12px;
+}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > .iconbtn:first-child{justify-self:start}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > :nth-child(2){margin:0 !important;text-align:center;min-width:0}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > :nth-child(n+3){justify-self:end}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) h1{font-size:17px;font-weight:600;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) .sub{display:none}
+:root[data-ui="hevier"] .hdr > .iconbtn:first-child .icn{font-size:22px;--icon-stroke:2.2}
 :root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)){margin:-44px 0 10px;min-height:44px;justify-content:center;pointer-events:none}
 :root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)) h1{font-size:17px;font-weight:600;letter-spacing:0}
+
+/* Section headings line up with the content's edge, as Hevy's do (upstream indents them 4px).
+   The Settings bands above set their own padding. */
+:root[data-ui="hevier"] :is(h4.sec, .sect-t){padding-inline:0}
+
+/* Danger buttons: Hevy's red on a plain grey fill, not upstream's red tint (which reads brown on
+   the fork's near-black). */
+:root[data-ui="hevier"] .btn.danger{background:var(--surface-2);color:var(--red)}
+:root[data-ui="hevier"] .btn.danger:active{background:var(--surface-3)}

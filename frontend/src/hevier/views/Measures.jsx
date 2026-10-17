@@ -22,14 +22,14 @@ export default function Measures() {
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
   const lastM = (S.measurements || []).at(-1)
+  const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
-    <BackTo label={t('Profile')} to="/profile" />
-    <div className="hdr"><div><h1>{t('Measures')}</h1></div></div>
+    <BackTo label={t('Profile')} to="/profile" title={t('Measures')} />
     <div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
         <div>
           <div className="muted small">{t('Body weight')}</div>
-          <div className="big">{last ? <>{fmtNum(last.w)} <span className="muted" style={{ fontSize: '1rem' }}>{S.unit}</span></> : '–'}</div>
+          {last && <div className="big">{fmtNum(last.w)} <span className="muted" style={{ fontSize: '1rem' }}>{S.unit}</span></div>}
           {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
         </div>
         <div className="row" style={{ gap: 8 }}>
@@ -37,14 +37,21 @@ export default function Measures() {
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
-      {pts.length > 0 && <div className="chart"><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>}
-      {S.bodyweight.length > 0 && <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
-        <Button size="sm" variant="ghost" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>
-      </div>}
+      {pts.length > 0 ? <div className="chart"><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
+        : <div className="hv-ms-empty">{S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN) : t('No weigh-ins yet. Log your weight to start the curve.')}</div>}
     </div>
+    {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
+    {recent.length > 0 && <>
+      <h4 className="sec">{t('History')}</h4>
+      <div className="hv-ms-list">{recent.map(b => <button key={b.d + (b.t || '')} type="button" className="hv-ms-row" onClick={weighInsSheet}>
+        <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
+      </button>)}</div>
+      {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
+    </>}
+    <h4 className="sec">{t('More')}</h4>
     <LinkRow icon="ruler" title={t('Body measurements')}
-      sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : t('Waist, arms, body fat and anything else you measure, each with its own curve.')}
+      sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : undefined}
       onClick={() => nav('/measurements')} />
-    <LinkRow icon="camera" title={t('Progress photos')} sub={t('Every photo you kept with a workout, lined up by date. Plus a before/after slider.')} onClick={() => nav('/progress-photos')} />
+    <LinkRow icon="camera" title={t('Progress photos')} onClick={() => nav('/progress-photos')} />
   </div>
 }

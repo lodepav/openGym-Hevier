@@ -91,11 +91,13 @@ const CHECK = `(() => {
   }
   // A fixed or sticky bar (the tabs, the open workout's bar) floats over the page as it scrolls,
   // and an element painted over by another (a set row's swipe actions) is not seen: neither is
-  // something the user meets. An element whose middle is off the screen counts as seen.
+  // something the user meets. The middle of the element's on-screen part is tested (a swipe action
+  // half past the edge is still under its row); one wholly off the screen counts as seen.
   const layer = el => { for (let p = el; p && p !== document.body; p = p.parentElement) { const pos = getComputedStyle(p).position; if (pos === 'fixed' || pos === 'sticky') return p } return null }
   const onTop = (el, r) => {
-    const x = r.left + r.width / 2, y = r.top + r.height / 2
-    if (x < 0 || x > W || y < 0 || y > H) return true
+    const x0 = Math.max(r.left, 0), x1 = Math.min(r.right, W), y0 = Math.max(r.top, 0), y1 = Math.min(r.bottom, H)
+    if (x1 - x0 < 1 || y1 - y0 < 1) return true
+    const x = (x0 + x1) / 2, y = (y0 + y1) / 2
     const t = document.elementFromPoint(x, y); return !!t && (el.contains(t) || t.contains(el))
   }
   const se = document.scrollingElement

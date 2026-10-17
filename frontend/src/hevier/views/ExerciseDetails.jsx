@@ -29,6 +29,23 @@ import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
+// Hevy's lines under the picture: the name in bold, then "Primary: Chest" and "Secondary: …" as
+// text. Upstream's detailTags marks its parts: the trained muscles carry the figure icon, the
+// equipment the kettlebell, the body part `acc`, the helpers nothing.
+function ExerciseFacts({ ex }) {
+  const tags = detailTags(ex)
+  const of = test => tags.filter(test).map(tg => tg.label).join(', ')
+  const lines = [
+    [t('Primary'), of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
+    [t('Secondary'), of(tg => !tg.icon && !tg.acc)],
+    [t('Equipment'), of(tg => tg.icon === 'kettlebell')],
+  ].filter(([, v]) => v)
+  return <div className="hv-xd-facts">
+    <b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
+    {lines.map(([k, v]) => <span key={k}>{k}: {v}</span>)}
+  </div>
+}
+
 function Summary({ ex, sum, st, e1rmAll }) {
   const [range, setRange] = useState('1y')
   const [curve, setCurve] = useState('main')
@@ -52,9 +69,7 @@ function Summary({ ex, sum, st, e1rmAll }) {
 
   return <div className="hv-xd-summary">
     <Media ex={ex} />
-    <div className="hv-xd-tags">
-      {detailTags(ex).map(tg => <span key={tg.key} className={'tag' + (tg.acc ? ' acc' : '')}>{tg.icon && <Icon name={tg.icon} />}{tg.label}</span>)}
-    </div>
+    <ExerciseFacts ex={ex} />
     {!sum.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div> : <>
       <div className="hv-xd-head">
         <div><b className="hv-xd-big">{last ? fmtNum(last.y) + ' ' + cu : '–'}</b>{last && <span className="muted"> {fmtDate(last.d, true)}</span>}</div>

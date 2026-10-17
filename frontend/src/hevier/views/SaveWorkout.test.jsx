@@ -102,9 +102,10 @@ describe('hevier: Save Workout (seam S9)', () => {
     render('/workout/save', logged())
     expect(container.querySelector('input[type="date"]')).toBeNull()
     typeInto(container.querySelector('.hv-smin'), '40')
+    const day = useStore.getState().S.active.d // yesterday's, when run just after midnight
     act(() => byText('.hv-pagebar button', 'Save').click())
     const [w] = useStore.getState().S.workouts
-    expect(w.d).toBe(iso(new Date()))
+    expect(w.d).toBe(day)
     expect(w.end - w.start).toBe(40 * 60000)
     expect(container.textContent).toContain('Nice work!')
   })

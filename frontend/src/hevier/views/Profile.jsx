@@ -8,6 +8,7 @@ import { t } from '../../lib/i18n.js'
 import { historyRows } from '../../views/History.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
@@ -31,11 +32,11 @@ export default function Profile() {
   const trouble = useConnectionTrouble()
   const tile = (icon, label, onClick) => <button type="button" className="btn hv-tile" onClick={onClick}><HvIcon name={icon} />{label}</button>
   return <div className="narrow hv-profile">
-    <div className="hdr">
-      <div><h1>{user?.name || t('Profile')}</h1><div className="sub">{t('Workouts')} {S.workouts.length}</div></div>
+    <PageBar title={user?.name || t('Profile')}>
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
         <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
-    </div>
+    </PageBar>
+    <div className="hv-pstats"><span>{t('Workouts')}</span><b>{S.workouts.length}</b></div>
     <div className="card"><WeeklyChart /></div>
     <h4 className="sec">{t('Dashboard')}</h4>
     <div className="hv-dash">

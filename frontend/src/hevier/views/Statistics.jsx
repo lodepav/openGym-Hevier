@@ -9,16 +9,16 @@ import { t } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, DAYS } from '../../lib/format.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar, { useBack } from '../components/PageBar.jsx'
 import { muscleSetCounts, lastDays, PERIODS } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
 
-export function BackTo({ label, to }) {
-  const nav = useNavigate()
-  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to, { replace: true }))
-  return <button type="button" className="hv-back" onClick={back}><Icon name="chevronLeft" />{label}</button>
+/** The page bar of a fork page under Profile: ‹ back to `to` (named `label`) and the page's title. */
+export function BackTo({ label, to, title, children }) {
+  return <PageBar title={title} onBack={useBack(to)} backLabel={label}>{children}</PageBar>
 }
 
 export function LinkRow({ icon, title, sub, onClick }) {
@@ -72,8 +72,7 @@ export default function Statistics() {
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   return <div className="narrow hv-statpage">
-    <BackTo label={t('Profile')} to="/profile" />
-    <div className="hdr"><div><h1>{t('Statistics')}</h1></div></div>
+    <BackTo label={t('Profile')} to="/profile" title={t('Statistics')} />
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>

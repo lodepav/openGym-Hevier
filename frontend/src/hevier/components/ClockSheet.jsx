@@ -74,7 +74,7 @@ export function timerSheet() {
   return useUI.getState().openSheet(close => <ClockSheet close={close} session={session} tab={tab} />)
 }
 
-/** The header's ⏱: the stopwatch's time beside it while it has some (spoken as "Stopwatch 1:05"). */
+/** The header's ⏱: the stopwatch's time beside it while it runs (spoken as "Stopwatch 1:05"). */
 export function HeaderClock({ session }) {
   const w = ofSession(useStopwatch(s => s.w), session)
   const [, tick] = useState(0)
@@ -85,6 +85,7 @@ export function HeaderClock({ session }) {
     return () => clearInterval(id)
   }, [on])
   const ms = elapsed(w, Date.now())
-  if (!ms && !on) return null
+  // one clock in the bar: the stopwatch's time shows beside ⏱ only while it runs (D10)
+  if (!on) return null
   return <span className={'hv-swh' + (on ? ' on' : '')}><span className="vh">{t('Stopwatch')} </span>{stopwatchShort(ms)}</span>
 }
