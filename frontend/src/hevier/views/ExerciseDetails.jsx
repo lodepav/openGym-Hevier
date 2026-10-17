@@ -24,11 +24,12 @@ import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
+import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
-function Summary({ ex, sum, st }) {
+function Summary({ ex, sum, st, e1rmAll }) {
   const [range, setRange] = useState('1y')
   const [curve, setCurve] = useState('main')
   const unit = st.unit
@@ -74,7 +75,8 @@ function Summary({ ex, sum, st }) {
           <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true)}</span></span><b>{x.v}</b>
         </div>)}</div>
       </>}
-      {r.e1rm && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
+      {/* D19 reads every set, whichever label the page shows (D28). */}
+      {e1rmAll && <StrengthLevel exId={ex.id} oneRm={e1rmAll.v} st={st} />}
       {sum.reps.length > 0 && <>
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">
@@ -118,7 +120,12 @@ function ExerciseDetails({ ex, close }) {
   useLang()
   const st = useStore(s => s.S)
   const [tab, setTab] = useState('summary')
-  const sum = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
+  const all = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
+  // D28: the gym · brand labels this exercise was done with; the Summary and History follow the one picked.
+  const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
+  const [label, pickLabel] = useState('')
+  const on = labels.some(l => l.key === label) ? label : ''
+  const sum = useMemo(() => (on ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id])
   const fav = isFav(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
@@ -146,7 +153,12 @@ function ExerciseDetails({ ex, close }) {
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />
-    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
+    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on} aria-label={t('Machine label')}
+      onChange={e => pickLabel(e.target.value)}>
+      <option value="">{t('All sets')}</option>
+      {labels.map(l => <option key={l.key} value={l.key}>{labelText(st, l, t)} ({l.n})</option>)}
+    </select>}
+    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} e1rmAll={all.records.e1rm} />}
     {tab === 'history' && <History ex={ex} sum={sum} st={st} />}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}
   </div>

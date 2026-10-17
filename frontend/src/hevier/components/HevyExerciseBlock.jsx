@@ -7,7 +7,8 @@
 // Presentation only. Every change to the session goes through the handlers the workout screen
 // passes in (`blockProps` in views/Workout.jsx) or through upstream's pure helpers in lib/, the
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
-// behave exactly as they do there.
+// behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
+// label fields (components/GymLabels.jsx).
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -43,6 +44,7 @@ import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { livePrSetIndex } from '../lib/pr-set.js'
+import { BrandLine } from './GymLabels.jsx'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -382,6 +384,7 @@ export default function HevyExerciseBlock({
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
       <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
     </div>
+    <BrandLine idx={entryIdx} />
     {ss && <div className="hv-ss"><span className="hv-sspill">{ss.name || t('Superset')}</span>{ss.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(ss.rest))}</span>}</div>}
     {entry.noProg === true && <div className="hv-sub hv-noprog"><Icon name="chartLineSlash" />{t('Not counted for progression')}
       {onNoProg && <button type="button" className="hv-link" onClick={() => onNoProg(false)}>{t('Undo')}</button>}</div>}

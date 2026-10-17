@@ -28,6 +28,7 @@ import { workoutSplit } from '../lib/muscle-sets.js'
 import { prSetIndex } from '../lib/pr-set.js'
 import { volumeMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
+import { savedGym, gymName } from '../lib/gym-labels.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -45,6 +46,7 @@ function ExerciseSets({ w, e, st }) {
       </button>
       {pr && prAt < 0 && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
     </div>
+    {e.hvBrand && <div className="hv-brand has"><Icon name="machine" />{e.hvBrand}</div>}
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
@@ -73,6 +75,7 @@ export function WorkoutDetail() {
   const split = mode === 'sets' ? muscleSets(w.entries) : workoutSplit(w)
   const top = split[0]?.sets || 1
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
+  const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
   const more = () => workoutActions(w, nav, [
     { icon: 'list', label: t('All details'), sub: t('Note, photos, date, duration, copy, share, .fit'), onClick: () => upstreamWorkoutDetailSheet(w) },
   ])
@@ -83,7 +86,7 @@ export function WorkoutDetail() {
       <div className="hv-title">{t('Workout Detail')}</div>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </div>
-    <div className="hv-wd-d">{fmtDate(w.d, true)}</div>
+    <div className="hv-wd-d">{fmtDate(w.d, true)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
       <div><span>{t('Time')}</span><b>{ms >= 60000 ? fmtDur(ms) : '–'}</b></div>

@@ -23,6 +23,7 @@ import KeypadBar from '../components/KeypadBar.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
+import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
@@ -84,6 +85,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <div><span>{t('Sets')}</span><b>{done}</b></div>
       </div>
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} />}
+      <GymRow />
     </div>
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}

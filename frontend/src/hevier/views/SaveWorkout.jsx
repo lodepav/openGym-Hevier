@@ -22,6 +22,7 @@ import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
+import { labelsAtFinish, withLabels } from '../lib/gym-labels.js'
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the Save page.
 const discard = nav => confirmSheet({
@@ -71,10 +72,17 @@ export function SaveWorkout() {
       const text = note.trim().slice(0, NOTE_MAX)
       if (text) s.active.note = text; else delete s.active.note
     })
-    const cur = useStore.getState().S.active
+    const { S: cur0 } = useStore.getState()
+    const cur = cur0.active
     const ref = { id: cur.id, d: cur.d, start: cur.start }
+    // D28: upstream's finish keeps only the fields it knows, so the gym and machine labels are
+    // written onto the saved record here, before it is moved.
+    const labels = labelsAtFinish(cur0, cur)
     doFinishWorkout()
-    update(s => { s.workouts = applyWhen(s.workouts, ref, base, when) })
+    update(s => {
+      s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
+      s.workouts = applyWhen(s.workouts, ref, base, when)
+    })
   }
 
   return <div className="hv-save">
