@@ -182,7 +182,8 @@
 :root[data-ui="hevier"] .hv-rtitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in{width:100%;background:none;border:0;padding:2px 0 6px;font:inherit;font-size:14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in::placeholder{color:var(--label-3)}
-:root[data-ui="hevier"] .hv-rt-row{display:grid;align-items:center;column-gap:8px;grid-template-columns:40px repeat(var(--nc,2),minmax(0,1fr));min-height:44px;padding:0 4px;border-radius:8px}
+:root[data-ui="hevier"] .hv-rt-row{display:grid;align-items:center;column-gap:8px;grid-template-columns:minmax(40px,1fr) repeat(var(--nc,2),minmax(0,1fr));min-height:44px;padding:0 4px;border-radius:8px}
+/* SET takes an equal share, so SET · KG · REPS are evenly spaced and centred on the screen */
 /* the routine editor's rows run edge to edge like the log's (a superset keeps its rule) */
 :root[data-ui="hevier"] .hv-routine .hv-ex:not(.hv-in-ss) > div:not([class]){margin-inline:calc(-1 * var(--pad))}
 :root[data-ui="hevier"] .hv-routine .hv-ex:not(.hv-in-ss) > div:not([class]) .hv-rt-row{padding-inline:calc(var(--pad) + 4px);border-radius:0}
