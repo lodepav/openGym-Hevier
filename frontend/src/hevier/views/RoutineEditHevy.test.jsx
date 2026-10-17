@@ -103,6 +103,35 @@ describe('hevier: routine editor (M3)', () => {
     expect(sheet().textContent).toContain('Progression')
   })
 
+  it('⋮ → Backups lists the slot’s backups and a remove saves at once; Replace offers them first (D45)', () => {
+    const B = EXDB.filter(e => e.id !== EX && /dumbbell/i.test(e.eq || ''))[0]
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60, subs: [B.id] }])
+    act(() => container.querySelector('.hv-ex .hv-more').click())
+    const menu = sheet()
+    const row = [...menu.querySelectorAll('.menu-item')].find(m => m.textContent.includes('Backups'))
+    expect(row.textContent).toContain(B.n.split(' ')[0])
+    act(() => [...menu.querySelectorAll('.menu-item')].find(m => m.textContent.includes('Replace exercise')).click())
+    const picker = sheet()
+    expect(picker.textContent).toContain('Your backups')
+    expect(picker.querySelector('.list .hv-pk-row').textContent.toLowerCase()).toContain(B.n.toLowerCase().split(' ')[0])
+    act(() => row.click())
+    const backups = sheet()
+    expect(backups.textContent).toContain('Backups for')
+    act(() => backups.querySelector('.hv-backups button[aria-label^="Remove"]').click())
+    expect('subs' in slot()).toBe(false)
+  })
+
+  it('a save of upstream’s exercise settings keeps the backups (D45)', () => {
+    const B = EXDB.filter(e => e.id !== EX && /dumbbell/i.test(e.eq || ''))[0]
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60, subs: [B.id] }])
+    act(() => container.querySelector('.hv-ex .hv-more').click())
+    const menu = sheet()
+    act(() => [...menu.querySelectorAll('.menu-item')].find(m => m.textContent.includes('Settings & progression')).click())
+    const settings = sheet()
+    act(() => [...settings.querySelectorAll('button')].filter(b => b.textContent.includes('Save')).at(-1).click())
+    expect(slot().subs).toEqual([B.id])
+  })
+
   it('the routine-wide progression stays, and Done goes back', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
     expect(byText('.hv-rsettings *', 'Deload routine')).toBeTruthy()

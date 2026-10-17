@@ -21,6 +21,7 @@ import { menuSheet, customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
+import { cleanBackups, swapBackups } from '../lib/routine-backups.js'
 import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 
 const PAGE = 50
@@ -34,7 +35,7 @@ export function useSupersetTarget(target) {
   useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
 }
 
-function ExerciseList({ onPick, title, like, close, browse }) {
+function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const st = useStore(s => s.S)
   const all = allExercises(st)
   const profile = activeProfile(st)
@@ -66,6 +67,9 @@ function ExerciseList({ onPick, title, like, close, browse }) {
   const recent = browsing
     ? recentIds(st).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && e.id !== like && !e.missing)
     : []
+
+  // D45: the slot's planned backups first, while nothing is typed (upstream 1.4.2's "Your backups").
+  const backupList = q.trim() ? [] : cleanBackups(backups, like).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && !e.missing)
 
   const isOn = e => picked.some(p => p.id === e.id)
   const tap = e => {
@@ -122,6 +126,7 @@ function ExerciseList({ onPick, title, like, close, browse }) {
       <button className={'btn' + (eq && eq !== MINE ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span></button>
       <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscle) : t('All Muscles')}</button>
     </div>
+    {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
     <h4 className="sec">{browsing ? t('All Exercises') : t('{0} exercises', list.length)}</h4>
     <div className="list">
@@ -136,8 +141,12 @@ function ExerciseList({ onPick, title, like, close, browse }) {
   </div>
 }
 
-export const exercisePickerSheet = (onPick, { title, like } = {}) =>
-  useUI.getState().openSheet(close => <ExerciseList onPick={onPick} title={title} like={like} close={close} />)
+// `backups` (D45): the slot's planned backups. Upstream's v1.4.1 swap does not pass them (1.4.2's
+// does), so a swap of the running workout's exercise reads them from its entry.
+export const exercisePickerSheet = (onPick, { title, like, backups } = {}) => {
+  const list = backups ?? (title === t('Swap exercise') ? swapBackups(useStore.getState().S, like) : null)
+  return useUI.getState().openSheet(close => <ExerciseList onPick={onPick} title={title} like={like} backups={list} close={close} />)
+}
 
 // Profile → Exercises (reference/SCREENS.md §8): the list to browse, Create, and openGym's own
 // By muscle explorer (upstream's /muscles) one tap away.
