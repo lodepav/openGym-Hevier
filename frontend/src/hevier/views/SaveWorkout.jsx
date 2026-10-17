@@ -22,7 +22,8 @@ import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
-import { labelsAtFinish, withLabels } from '../lib/gym-labels.js'
+import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
+import { gymSheet } from '../components/GymLabels.jsx'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
@@ -43,6 +44,7 @@ const discard = nav => confirmSheet({
 export function SaveWorkout() {
   const nav = useNavigate()
   const A = useStore(s => s.S.active)
+  const gym = useStore(s => { const g = workoutGym(s.S, s.S.active); return g ? (gymName(s.S, g) || t('Removed gym')) : '' })
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
   const [base] = useState(() => (A ? whenOf(A) : null))
@@ -120,6 +122,8 @@ export function SaveWorkout() {
             onChange={e => setMin(e.target.value === '' ? 0 : Math.round(Number(e.target.value)))} />
           <span className="muted">{t('min')}</span>
         </span></label>
+      <button type="button" className="hv-srow hv-sgym" onClick={() => gymSheet(nav)}><span>{t('Gym')}</span>
+        <span className="hv-sval">{gym || t('No gym')}<Icon name="chevronRight" className="menu-chev" /></span></button>
     </div>
     <h4 className="sec">{t('Description')}</h4>
     <textarea className="input hv-sdesc" rows={4} maxLength={NOTE_MAX} value={note}

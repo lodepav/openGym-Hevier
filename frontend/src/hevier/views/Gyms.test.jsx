@@ -14,6 +14,7 @@ import { setNav, nav } from '../../lib/nav.js'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks, installFinishHook } from '../hooks.js'
 import { exerciseDetailsSheet } from './ExerciseDetails.jsx'
+import { NearbySheet } from '../components/GymLabels.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -87,9 +88,54 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(container.querySelector('.hv-gym').textContent).toContain('Home')
   })
 
-  it('shows no gym line before any equipment profile exists', () => {
+  it('with no gym yet the line reads No gym, and a custom gym is added and picked from its sheet (D47)', () => {
     render(<Workout />, { entries: [{ id: DB, sets: [] }], extra: { equipProfiles: [], activeEquipId: null } })
-    expect(container.querySelector('.hv-gym')).toBeNull()
+    expect(container.querySelector('.hv-gym').textContent).toContain('No gym')
+    act(() => container.querySelector('.hv-gym').click())
+    const menu = sheet()
+    act(() => byText(menu, '.menu-item', 'Custom gym').click())
+    const host = sheet()
+    typeInto(host.querySelector('input'), 'Iron Barn')
+    act(() => host.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+    expect(S().equipProfiles.map(g => g.name)).toEqual(['Iron Barn'])
+    expect(S().active.hvGym).toBe(S().equipProfiles[0].id)
+    expect(S().equipProfiles[0].equipment.length).toBeGreaterThan(10)
+  })
+
+  it('gyms nearby: your gym there first, a picked place becomes a gym with that place (D47)', async () => {
+    const here = { lat: 47.3769, lng: 8.5417, accuracy: 30 }
+    const places = [
+      { osm: 'node/1', name: 'NonStop Gym', sub: 'Langstrasse 1', lat: 47.3772, lng: 8.5420, dist: 40 },
+      { osm: 'node/2', name: 'Kieser Training', sub: '', lat: 47.3701, lng: 8.5519, dist: 1000 },
+    ]
+    render(null, { entries: [{ id: DB, sets: [] }], extra: { hvGymPlaces: { g2: { lat: 47.3770, lng: 8.5418 } } } })
+    sheetHost = document.createElement('div')
+    document.body.appendChild(sheetHost)
+    sheetRoot = createRoot(sheetHost)
+    const close = vi.fn()
+    await act(async () => sheetRoot.render(<MemoryRouter><NearbySheet close={close} locate={async () => here} places={async () => places} /></MemoryRouter>))
+    const secs = [...sheetHost.querySelectorAll('.menu-sec')].map(x => x.textContent)
+    expect(secs).toEqual(['Your gyms here', 'Nearby'])
+    expect(sheetHost.querySelector('.menu-item').textContent).toContain('Home')
+    act(() => byText(sheetHost, '.menu-item', 'NonStop Gym').click())
+    const made = S().equipProfiles.find(g => g.name === 'NonStop Gym')
+    expect(made).toBeTruthy()
+    expect(S().activeEquipId).toBe(made.id)
+    expect(S().hvGymPlaces[made.id]).toEqual({ lat: 47.3772, lng: 8.5420, osm: 'node/1', name: 'NonStop Gym' })
+    expect(close).toHaveBeenCalled()
+  })
+
+  it('gyms nearby says why when the position is not allowed, and offers a custom gym (D47)', async () => {
+    render(null, { entries: [{ id: DB, sets: [] }] })
+    sheetHost = document.createElement('div')
+    document.body.appendChild(sheetHost)
+    sheetRoot = createRoot(sheetHost)
+    const places = vi.fn()
+    await act(async () => sheetRoot.render(<MemoryRouter><NearbySheet close={() => {}}
+      locate={async () => { throw Object.assign(new Error('denied'), { code: 'denied' }) }} places={places} /></MemoryRouter>))
+    expect(sheetHost.textContent).toContain('Location isn’t allowed')
+    expect(sheetHost.textContent).toContain('Custom gym')
+    expect(places).not.toHaveBeenCalled()
   })
 
   it('a cable exercise gets a brand line filled from this gym, a dumbbell none', () => {

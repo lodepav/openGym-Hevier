@@ -35,6 +35,9 @@ public class MainActivity extends BridgeActivity {
         // [hevier] S26: the fork's home-screen month widget (D44)
         registerPlugin(HevierWidgetPlugin.class);
         // [/hevier]
+        // [hevier] S27: the fork's one-off position, the gym picker's "Find gyms nearby" (D47), until upstream's v1.4.3
+        registerPlugin(HevierLocationPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

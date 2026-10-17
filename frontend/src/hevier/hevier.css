@@ -438,3 +438,6 @@
 :root[data-ui="hevier"] .hv-wd-hr{display:inline-flex;align-items:center;gap:3px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-cardio{background:var(--green)}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-deload{background:var(--orange)}
+:root[data-ui="hevier"] .hv-sgym{width:100%;background:none;border:0;border-top:var(--hair) solid var(--sep);padding:0;color:inherit;font:inherit;text-align:left}
+:root[data-ui="hevier"] .hv-sgym .hv-sval{display:inline-flex;align-items:center;gap:6px;color:var(--label)}
+:root[data-ui="hevier"] .hv-sgym .menu-chev{width:14px;height:14px;opacity:.5}
