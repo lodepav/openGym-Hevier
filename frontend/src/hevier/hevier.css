@@ -195,6 +195,13 @@
 :root[data-ui="hevier"] .hv-rsettings{margin-top:18px}
 :root[data-ui="hevier"] .hv-rsettings-note{margin:6px 2px 16px}
 :root[data-ui="hevier"] .hv-rmap{margin-top:12px}
+/* Routine page (RoutinePreview.jsx, D37): the editor's table, read-only */
+:root[data-ui="hevier"] .hv-rv-name{font-size:22px;font-weight:700;margin:6px 2px 2px}
+:root[data-ui="hevier"] .hv-rview > .hv-sub{margin:0 2px 12px}
+:root[data-ui="hevier"] .hv-rv-start{width:100%;margin-bottom:4px}
+:root[data-ui="hevier"] .hv-rview .hv-rv-rest{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-rv-v{text-align:center;font-size:16px;font-weight:600;color:var(--label)}
+:root[data-ui="hevier"] .hv-rview span.hv-set{display:flex;align-items:center;justify-content:center}
 :root[data-ui="hevier"] .hv-range h3{margin-bottom:14px}
 :root[data-ui="hevier"] .hv-range-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px}
 :root[data-ui="hevier"] .hv-range-row label{flex:1;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--label-2)}

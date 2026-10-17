@@ -16,6 +16,7 @@ import Profile from './views/Profile.jsx'
 import Statistics from './views/Statistics.jsx'
 import Measures from './views/Measures.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
+import RoutinePreview from './views/RoutinePreview.jsx'
 import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
 import { hooks, SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
@@ -85,6 +86,7 @@ export const hevierRoutes = [
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-report" path="/report" element={<MonthReport />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
+  <Route key="hv-routine-view" path="/plan/r/:id/view" element={<RoutinePreview />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
   <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,
   <Route key="hv-detail" path={DETAIL_PATH} element={<WorkoutDetail />} />,

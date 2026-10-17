@@ -18,6 +18,7 @@ import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
 import Icon from '../../components/Icon.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { nameSheet } from '../components/NameSheet.jsx'
+import { previewPath } from './RoutinePreview.jsx'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
   cleanFolderName, readEmptyFolders, writeEmptyFolders, stillEmpty, folderOf, FOLDER_MAX,
@@ -119,7 +120,7 @@ export default function WorkoutTab() {
     return <div className="card hv-rcard">
       <div className="row between">
         {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
-        <button type="button" className="hv-rname" onClick={() => nav('/plan/r/' + r.id)}>{r.name}</button>
+        <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>{r.name}</button>
         <button type="button" className="iconbtn" aria-label={t('More')} onClick={() => more(r)}><Icon name="more" /></button>
       </div>
       <div className="hv-rpreview">{r.ex.length ? preview(r) : exCount(0)}</div>

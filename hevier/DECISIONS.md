@@ -197,3 +197,11 @@ Added 2026-10-17, at the user's choice (PLAN.md §5 item 14).
 | # | Decision |
 |---|---|
 | D36 | **The exercise picker finds an exercise by its machine brand.** A brand label (D28: the defaults in `S.hvMachines` and the `hvBrand` of logged entries) is searchable in the fork's picker (Add Exercise, swap, Replace, Profile → Exercises): the typed text is compared with spaces, punctuation and case left out, so "Life Fitness", "lifefitness" and "life fit" all find an exercise labelled Life Fitness at any gym; words that are part of no brand narrow by the exercise's name with upstream's search ("life fitness press" keeps the presses). A brand word needs two letters. The exercises a brand reaches come first, inside the filters already set, with the brand after the muscle under the name (`Glutes · Life Fitness`); upstream's results follow, unchanged. Upstream's `searchExercises` and its ranking are not touched; nothing is stored. |
+
+## Routine page
+
+Added 2026-10-17, at the user's choice (PLAN.md §5 item 15).
+
+| # | Decision |
+|---|---|
+| D37 | **A tap on a routine's name opens its page, not the editor.** On the Workout tab the routine card's name opens `/plan/r/:id/view` (a fork route), Hevy's routine page: ‹ · Routine · ✎ (→ the editor, D15), the name, its folder (D13) · N exercises · N work sets, a full-width **Start Routine** (upstream's `startFlow`; **Resume** while a session is open, which goes back to it rather than starting another), then each exercise as the editor draws it, read-only: thumbnail and name (→ exercise details), its note, its rest, and the D15 table from the same helper (`hevier/lib/routine-table.js`): W rows with Auto weights, F for "last set to failure", REP RANGE, Max, back-off weights in grey, cardio's MIN and speed. Supersets are grouped as in the editor. Below them, the routine's body map ("What this session hits"), as in the editor. The card's ⋯ → Edit routine still opens the editor, and a new routine still opens straight in it. Nothing is stored. |

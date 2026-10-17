@@ -599,7 +599,7 @@ session is adding D numbers for the Hevy import).
     entries): typing "Life Fitness" lists the exercises done on one. A fork addition to
     `hevier/lib/exercise-picker.js`'s search, with tests. Look at frdc/openGym `940e6f410`
     (search by machine names, +414 lines) for the idea; upstream's `searchExercises` unchanged.
-15. **Routine preview before starting** (user, 2026-10-17). In Hevy a tap on a routine opens a
+15. ~~**Routine preview before starting**~~ Built as D37 (2026-10-17). The original note: (user, 2026-10-17). In Hevy a tap on a routine opens a
     preview (its exercises with sets × reps, the muscles, **Start Routine**, ⋮ → Edit); in the
     fork the name opens the editor. A fork view (`/plan/r/:id/preview` or a sheet) reading the
     routine as `RoutineEditHevy` does, nothing stored. Packebusch/openGym `49c494328` has the
