@@ -445,7 +445,7 @@ the feature is not Hevy-specific (it would remove fork code).
    samples from Health Connect. They arrive late (watches sync minutes after), so retry later:
    on the next app open, back-fill the *previous* workout's heart rate if it is still missing.
    Upstream 1.4.2 has per-set heart rate on the Apple Watch: reuse its data shape.
-3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). The app
+3. **Strength level per exercise, typed in by the user** (user's choice, 2026-10-16). Decided as D19 (2026-10-17), built: all-time best 1RM, no re-enter prompt. The app
    bundles no standards: strengthlevel.com's terms forbid automated access (scraping, scripts),
    and its tables are theirs. Instead, exercise details get a **Compare strength** button that
    opens strengthlevel.com in the browser (the exercise's page if we know its slug, else the site's
