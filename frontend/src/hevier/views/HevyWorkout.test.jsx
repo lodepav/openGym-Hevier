@@ -95,6 +95,28 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[3].className).toContain('hv-hint')       // set 3, untouched
   })
 
+  it('an untouched value is the grey placeholder: typing replaces it, left empty it stays (D2)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
+    let w = container.querySelectorAll('.hv-num')[0]
+    expect(w.value).toBe('')
+    expect(w.placeholder).toBe('60')
+    act(() => w.focus())
+    typeInto(w, '6')
+    typeInto(w, '')
+    act(() => w.blur())
+    w = container.querySelectorAll('.hv-num')[0]
+    expect(sets().map(x => x.w)).toEqual([60, 60])   // the cascade undone too
+    expect(w.placeholder).toBe('60')
+    expect(w.className).toContain('hv-hint')
+    act(() => w.focus())
+    typeInto(w, '70')
+    act(() => w.blur())
+    w = container.querySelectorAll('.hv-num')[0]
+    expect(sets()[0].w).toBe(70)
+    expect(w.value).toBe('70')
+    expect(w.className).not.toContain('hv-hint')
+  })
+
   it('a typed value stays bold on its own set when a set below it goes (D2)', () => {
     render([{ id: EX, target: { sets: 3, reps: 8 }, sets: [reps(60, 8), reps(60, 8), reps(60, 8)] }])
     typeInto(container.querySelectorAll('.hv-num')[1], '10')   // set 1's reps
@@ -138,7 +160,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => useStore.getState().update(s => { s.hvExUnit = { [EX]: { u: 'lb', step: 5, inc: 5 * 0.45359237 } } }))
     expect(container.querySelector('.hv-head').textContent).toContain('LB')
     const w = container.querySelector('.hv-row .hv-num')
-    expect(w.value).toBe('45')
+    expect(w.placeholder).toBe('45')   // untouched: Hevy's grey hint (D2)
     expect(container.querySelector('.hv-prev').textContent).toContain('45lb × 8')
     typeInto(w, '50')
     expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 9)

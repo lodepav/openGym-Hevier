@@ -9,7 +9,7 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
@@ -45,6 +45,7 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { livePrSetIndex, recordWeight } from '../lib/pr-set.js'
 import { BrandLine } from './GymLabels.jsx'
+import HintNumberField from './HintNumberField.jsx'
 import { fieldSig } from '../lib/store-watch.js'
 import { shiftTouched } from '../lib/touched.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
@@ -69,6 +70,9 @@ export default function HevyExerciseBlock({
   // edit is also on the row itself as weightOrigin, which survives a reload; reps have no mark.
   const [touched, setTouched] = useState(() => new Set())
   const touch = (i, f) => setTouched(prev => (prev.has(i + ':' + f) ? prev : new Set(prev).add(i + ':' + f)))
+  const untouch = k => setTouched(prev => { if (!prev.has(k)) return prev; const n = new Set(prev); n.delete(k); return n })
+  // The sets as they were when typing began over a grey value, to put back if it is left empty.
+  const typedOver = useRef(null)
 
   const entry = S.active.entries[entryIdx]
   // A set added or removed above a row renumbers it: its marks move with it (lib/touched.js).
@@ -317,7 +321,18 @@ export default function HevyExerciseBlock({
     const src = side ? (s.sides?.[side] || {}) : s
     const key = (side || '') + col.f
     const firm = src.done || touched.has(i + ':' + key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
-    return <NumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
+    const k = i + ':' + key
+    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
+      hint={!firm}
+      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
+      onRestore={() => {
+        // Left empty: the grey value stays, and so does whatever typing it copied down the sets.
+        const was = typedOver.current
+        typedOver.current = null
+        if (was?.k !== k) return
+        update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
+        untouch(k)
+      }}
       aria-label={side ? col.label + ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : col.label}
       onChange={v => {
         touch(i, key)
