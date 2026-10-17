@@ -75,7 +75,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
           ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit()}><Icon name="xmark" /></button>
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
-        {!editing && !A.backfill && <button className="iconbtn" onClick={timerSheet}>
+        {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={finish}>{editing ? t('Save') : t('Finish')}</button>
       </div>

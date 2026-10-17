@@ -441,7 +441,7 @@
 :root[data-ui="hevier"] .hv-sgym{width:100%;background:none;border:0;border-top:var(--hair) solid var(--sep);padding:0;color:inherit;font:inherit;text-align:left}
 :root[data-ui="hevier"] .hv-sgym .hv-sval{display:inline-flex;align-items:center;gap:6px;color:var(--label)}
 :root[data-ui="hevier"] .hv-sgym .menu-chev{width:14px;height:14px;opacity:.5}
-:root[data-ui="hevier"] .hv-bar .iconbtn:has(.hv-swh){width:auto;padding:0 8px;gap:4px}
+:root[data-ui="hevier"] .hv-bar .iconbtn.hv-clockbtn{width:auto;min-width:36px;padding:0 8px;gap:4px}
 :root[data-ui="hevier"] .hv-swh{font-size:13px;font-variant-numeric:tabular-nums;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-swh.on{color:var(--acc)}
 :root[data-ui="hevier"] .dw-read.hv-sw{font-size:48px;font-variant-numeric:tabular-nums;margin:12px 0 20px}
