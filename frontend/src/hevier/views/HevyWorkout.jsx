@@ -40,9 +40,6 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
     pair: pairAt,
   })
 
-  // Finish: the editor of a saved workout saves at once; a session goes to the Save Workout page
-  // (seam S9 sends upstream's finishWorkout there).
-  const finish = () => finishWorkout()
   // Hevy's footer "Settings": the session's own options, upstream's header ⋯ without Layout (D1).
   const openSettings = () => menuSheet({
     sections: [
@@ -77,7 +74,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
         {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
-        <button className="btn primary pill hv-finish" onClick={finish}>{editing ? t('Save') : t('Finish')}</button>
+        <button className="btn primary pill hv-finish" onClick={() => finishWorkout()}>{editing ? t('Save') : t('Finish')}</button>
       </div>
       <div className="hv-stats">
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} />}</b></div>

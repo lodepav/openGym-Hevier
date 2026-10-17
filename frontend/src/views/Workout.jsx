@@ -1909,7 +1909,7 @@ function ActiveWorkout() {
   // [hevier] S3: in the fork's build the Hevy screen is the only layout. It renders from this
   // screen's own handlers, after every hook above has run, so the session logic stays upstream's.
   if (HEVIER) return <HevyWorkout units={units} editing={editing} done={done} blockProps={blockProps}
-    bindExRef={bindExRef} bindSetRef={bindSetRef} ExerciseBlock={ExerciseBlock}
+    bindExRef={bindExRef} bindSetRef={bindSetRef}
     actions={{ addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg }} />
   // [/hevier]
   return <WorkoutScrollAnchor enabled={collapseOn} collapsed={[...collapsed].join(',')}>

@@ -474,12 +474,9 @@ export function parseHevyBodyweight(measurements, { unit = 'kg' } = {}) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) continue
     let w = Number(m.weight_kg)
     if (!isFinite(w) || w <= 0) continue
-    // [hevier] S25: the fork keeps an imported weight's hundredths (D40)
-    const hvW = hooks.importWeight ? hooks.importWeight(unit === 'lb' ? w / LB_TO_KG : w) : null
-    // [/hevier]
     if (unit === 'lb') w = Math.round(w / LB_TO_KG * 10) / 10
     else w = Math.round(w * 10) / 10
-    if (hvW != null) w = hvW // [hevier] S25
+    if (hooks.importWeight) w = toProfileWeight(Number(m.weight_kg), unit) // [hevier] S25: D40's hundredths
     const t = m.created_at ? new Date(m.created_at).getTime() : new Date(d + 'T12:00:00').getTime()
     out.set(d, { d, w, t: isFinite(t) ? t : new Date(d + 'T12:00:00').getTime() })
   }

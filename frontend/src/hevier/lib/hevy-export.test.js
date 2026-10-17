@@ -232,6 +232,18 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     expect(pending(S, st).routines).toEqual([])
   })
 
+  it('turned off while a pass runs, it makes no further call and its saves keep it off', async () => {
+    const { S, st, calls, call, pages } = setup()
+    st.on = true
+    S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }),
+      workout({ id: 'b', start: T0 + 86400e3, end: T0 + 90000e3, entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    const saved = []
+    const res = await exportOnce(S, st, { call: async (...a) => { const r = await call(...a); st.on = false; return r }, pages, save: async s => saved.push(s.on) })
+    expect(calls.filter(([m, p]) => m === 'POST' && p === '/v1/workouts')).toHaveLength(1)
+    expect(res.sent).toBe(1)
+    expect(saved.at(-1)).toBe(false)
+  })
+
   it('stops at a refused key or the rate limit, keeping what was sent', async () => {
     const { S, st, call, pages, replies } = setup()
     S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }),

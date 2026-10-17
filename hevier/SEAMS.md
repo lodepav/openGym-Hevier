@@ -53,8 +53,7 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
 - `blockProps(idx)` in `views/Workout.jsx`: the handler props an exercise layout receives
   (`onToggle`, `onField`, `onAddSet`, `onRemoveSetAt`, `onRest`, `onSwap`, …).
 - The `ActiveWorkout` locals seam S3 passes to `HevyWorkout`: `units`, `editing`, `done`,
-  `blockProps`, `bindExRef`, `bindSetRef`, `ExerciseBlock` (passed but no longer used: every mode
-  has Hevy rows), `addExercise`, `discardWorkout`, `markAllDone`, `pairAt`, `unpairAt`,
+  `blockProps`, `bindExRef`, `bindSetRef`, `addExercise`, `discardWorkout`, `markAllDone`, `pairAt`, `unpairAt`,
   `noProgSwitchable`, `toggleSessionNoProg`. If upstream renames one, the build fails (an
   undefined identifier) or `src/hevier/views/HevyWorkout.test.jsx` does. Rename it in the seam.
 - The routine editor (`hevier/views/RoutineEditHevy.jsx`) copies upstream's `RoutineEdit.jsx`

@@ -1,16 +1,10 @@
-// The hand-offs of the fork's hook seams: S9, S10, S13 and S14 (frontend/src/sheets.jsx), S11 and
-// S12 (frontend/src/views/Settings.jsx), S16 (frontend/src/lib/back.js), S19, S20 and
-// S21 and S25 (lib/import-csv.js, lib/import-hevy.js, sheets.jsx), S22 and S23 (sheets.jsx), S28 (components/DurationWheel.jsx). Upstream's code asks this object first:
-// when the fork has filled it in (only with the flag on), Finish opens the fork's Save Workout page
-// instead of upstream's confirm, a saved workout opens the fork's summary instead of upstream's, an
-// exercise's details open the fork's tabbed sheet, a finished workout the fork's Workout Detail
-// page, an exercise picker the fork's Hevy picker, Settings is regrouped, Android back on a tab
-// screen offers to exit, and a Hevy import maps exercises, routine folders and the rest of Hevy's data the fork's way.
-// Empty, as in upstream's own tests, all are upstream's. No imports, so the seams add nothing to
-// what the upstream files load.
+// The hand-offs of the fork's hook seams: each entry names its seam (hevier/SEAMS.md lists where it
+// sits). Upstream's code asks this object first; the fork fills it in only with the flag on
+// (hevier/index.js). Empty, as in upstream's own tests, everything is upstream's. No imports, so
+// the seams add nothing to what the upstream files load.
 export const hooks = {
-  finish: null,   // () => void: Finish was asked for (the session is not saved yet)
-  done: null,     // ({ w, prs, e1prs }) => void: upstream saved the session as `w`
+  finish: null,   // () => void: Finish was asked for (the session is not saved yet) (S9)
+  done: null,     // ({ w, prs, e1prs }) => void: upstream saved the session as `w` (S9)
   exerciseDetail: null,   // (ex) => void: an exercise's details were asked for (S10)
   workoutDetail: null,    // (w) => void: a finished workout's details were asked for (S14)
   exercisePicker: null,   // (onPick, { title, like }) => sheet handle: an exercise picker was asked for (S13)
