@@ -40,6 +40,10 @@ The state is in `localStorage.gym_state_v1`. The emulator's data has the routine
   one eval: `localStorage.setItem('gym_state_v1', DATA); Storage.prototype.setItem = () => {};
   location.reload()`. The reload restores the real `setItem`.
 - Afterwards, restore the saved copy so the next check starts from the same data.
+- The APK also keeps the state in a native file (`lib/mobile.js` nativeSave) and reloads from
+  it, so the localStorage trick above may not stick: check `localStorage.gym_state_v1` after the
+  reload. Undo through the app where you can instead: **Discard Workout** for a started workout,
+  Remove / Delete for something added.
 
 ## Report
 
