@@ -604,7 +604,7 @@ session is adding D numbers for the Hevy import).
     fork the name opens the editor. A fork view (`/plan/r/:id/preview` or a sheet) reading the
     routine as `RoutineEditHevy` does, nothing stored. Packebusch/openGym `49c494328` has the
     idea (637 lines across 29 files, partly a workout-screen restyle): take the idea only.
-16. **APK checks in the release gates** (user, 2026-10-17; the part D26 left out). Added to
+16. ~~**APK checks in the release gates**~~ Built as D38 (2026-10-17). The original note: (user, 2026-10-17; the part D26 left out). Added to
     `hevier/tools/release-check.sh` when it is given an APK: the merged manifest's permissions
     against an allow-list in `hevier/security/` (a new one fails), `debuggable` false, the APK
     signed with the fork's certificate (its SHA-256 pinned in `hevier/security/`). `aapt2` /

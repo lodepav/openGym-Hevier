@@ -1,6 +1,6 @@
 ---
 name: release-check
-description: Run the fork's security gates (D26) on a release build — leaked secrets, vulnerable dependencies, new npm packages, and unexpected endpoints or code in the bundle. Use before building a release APK, after an upstream merge, when a lockfile changed, or when asked to check security, secrets or the supply chain.
+description: Run the fork's security gates (D26, D38) on a release build — leaked secrets, vulnerable dependencies, new npm packages, unexpected endpoints or code in the bundle, and the APK's signing certificate, debuggable flag and permissions. Use before building a release APK, after an upstream merge, when a lockfile changed, or when asked to check security, secrets or the supply chain.
 ---
 
 # Release check
@@ -8,7 +8,7 @@ description: Run the fork's security gates (D26) on a release build — leaked s
 ```bash
 hevier/tools/install-scanners.sh        # once per machine: pinned gitleaks + trivy, user-local
 hevier/tools/release-check.sh           # clean tree; builds the mobile bundle, runs every gate
-hevier/tools/release-check.sh --apk frontend/android/app/build/outputs/apk/release/app-release.apk
+hevier/tools/release-check.sh --apk <signed release APK>   # + the APK gates (D38)
 node --test hevier/tools/*.test.mjs     # only if supply-chain.mjs changed
 ```
 
@@ -36,3 +36,14 @@ its reason; accept only with the user's agreement.
 - **supply chain: built bundle**: find the source of the new host or pattern
   (`grep -rn <host> frontend/src node_modules/<pkg>`). Add a host to
   `hevier/security/endpoints.txt` only with what it is and whether the app fetches it.
+- **APK: signing certificate**: an unsigned or debug-signed APK is not a release; sign it
+  (docs/MOBILE.md, "align + sign"). A digest that is not pinned means a different key: never
+  pin a new one without the user saying it is the fork's release key (updates only install
+  over an app signed with the same key). The first time, the list is empty and the user pins
+  their key's digest in `hevier/security/apk-cert.txt`.
+- **APK: release build**: the `.test` app id or `debuggable` means a debug build was given.
+- **APK: permissions**: find who adds it (`app/build/intermediates/merged_manifest*`, the
+  manifest merger's report `app/build/outputs/logs/manifest-merger-*-report.txt`): a plugin, an
+  upstream merge or the fork. Add it to `hevier/security/apk-permissions.txt` only with what
+  uses it, with the user's agreement. A permission listed but no longer asked for is reported
+  and should be removed from the list.
