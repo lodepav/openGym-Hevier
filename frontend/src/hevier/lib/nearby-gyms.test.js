@@ -68,6 +68,8 @@ describe('gyms nearby (D47)', () => {
     rememberPlace(s, 'g2', { lat: 47.3770, lng: 8.5417 })   // ~10 m
     rememberPlace(s, 'g3', { lat: 47.3869, lng: 8.5417 })   // ~1.1 km
     expect(ownHere(s, here).map(g => g.id)).toEqual(['g2', 'g1'])
-    expect(ownHere(s, { ...here, accuracy: 2000 }).map(g => g.id)).toEqual(['g2', 'g1', 'g3'])
+    expect(ownHere(s, { ...here, accuracy: 1500 }).map(g => g.id)).toEqual(['g2', 'g1'])
+    rememberPlace(s, 'g3', { lat: 47.3849, lng: 8.5417 })   // ~890 m
+    expect(ownHere(s, { ...here, accuracy: 1500 }).map(g => g.id)).toEqual(['g2', 'g1', 'g3'])
   })
 })

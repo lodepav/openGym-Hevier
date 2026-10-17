@@ -11,6 +11,7 @@ import { newProfile, activeProfile, profileEquipment, ALL_EQUIPMENT } from '../.
 
 export const RADIUS = 2000
 export const HERE = 250
+const REACH_MAX = 1000
 const MAX = 25
 const OVERPASS = 'https://overpass-api.de/api/interpreter'
 const USER_AGENT = 'GoHevier/' + (typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev') + ' (gym picker; +https://github.com/lodepav/openGym-Hevier)'
@@ -109,9 +110,12 @@ export const placeOf = (S, gymId) => {
   return p && num(p.lat) != null && num(p.lng) != null ? p : null
 }
 
-/** Your own gyms standing within reach of `here` (HERE metres, or the fix's accuracy), nearest first. */
+/**
+ * Your own gyms standing within reach of `here` (HERE metres, or the fix's accuracy up to a
+ * kilometre: an approximate grant answers about 2 km off), nearest first.
+ */
 export function ownHere(S, here) {
-  const reach = Math.max(HERE, num(here?.accuracy) || 0)
+  const reach = Math.max(HERE, Math.min(REACH_MAX, num(here?.accuracy) || 0))
   return list(S?.equipProfiles)
     .map(g => ({ g, at: placeOf(S, g.id) }))
     .filter(x => x.at && distance(here, x.at) <= reach)
