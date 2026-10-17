@@ -672,9 +672,10 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     - **Two stacks (×2)** (a crossover, both sides loaded): logged **per stack**, the way openGym
       logs a dumbbell per hand, shown "15 kg × 2", so volume and the PR rule read it as they read
       dumbbells. (Both handles on one stack is one stack: 1:1 or 2:1.)
-    - **Hevy import** reads it from the title as a ratio, the user's own convention like
-      `(brand: X)` (D29 step 1): `(ratio: 1:1)`, `(ratio: 2:1)`, `(ratio: x2)` (exact spelling
-      fixed in the decision), cut out of the title. **A cable exercise with no ratio is taken as
+    - **Hevy import** reads it from the title, the user's own convention like `(brand: X)`
+      (D29 step 1): a bare bracket with exactly the ratio, `(1:1)`, `(2:1)` or `(x2)`, spaces and
+      case ignored, before or after other brackets: `Lat pulldown (Cable)(x2)`. It is cut out of
+      the title; any other bracket is left as it is. **A cable exercise with no ratio is taken as
       1:1, and the import asks to confirm or change it** before importing (a step beside D33's
       Check exercise matches, one row per cable exercise, remembered like `S.hvImportMap`).
 24. **Compare strength opens a section, not only the browser** (user, 2026-10-17). D19's
