@@ -13,6 +13,7 @@
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
+import { pathToFileURL } from 'node:url'
 
 const ADB = process.env.ADB || homedir() + '/Android/Sdk/platform-tools/adb'
 const APP_ID = process.env.APP_ID || 'ch.duartesantos.opengym.hevier.test'
@@ -24,7 +25,7 @@ function forward() {
   execFileSync(ADB, ['forward', 'tcp:' + PORT, 'localabstract:webview_devtools_remote_' + pid])
 }
 
-async function connect() {
+export async function connect() {
   forward()
   const pages = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json()
   const page = pages.find(p => p.type === 'page')
@@ -45,14 +46,14 @@ async function connect() {
   return { send, close: () => ws.close() }
 }
 
-async function evaluate(cdp, expression) {
+export async function evaluate(cdp, expression) {
   const r = await cdp.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text)
   return r.result.value
 }
 
 // Clicks the smallest visible element whose own text matches (buttons/links preferred).
-const clickJs = needle => `(() => {
+export const clickJs = needle => `(() => {
   const want = ${JSON.stringify(needle)}.toLowerCase()
   const els = [...document.querySelectorAll('button, a, [role=button], label, li, div, span')]
     .filter(el => el.offsetParent !== null && (el.innerText || el.getAttribute('aria-label') || '').trim().toLowerCase().includes(want))
@@ -63,6 +64,8 @@ const clickJs = needle => `(() => {
   return 'clicked: ' + (el.innerText || el.getAttribute('aria-label')).trim().slice(0, 60)
 })()`
 
+// Run as a command; screens.mjs imports the helpers above instead.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 const [cmd, ...args] = process.argv.slice(2)
 const cdp = await connect()
 try {
@@ -80,3 +83,4 @@ try {
     process.exitCode = 2
   }
 } finally { cdp.close() }
+}
