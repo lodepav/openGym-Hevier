@@ -2,7 +2,7 @@
 // SCREENS.md §3). Finish reaches the page through seam S9: upstream's finishWorkout asks the fork
 // first. The title and description are the session's own name and note, written the way
 // upstream's Rename and Session note sheets write them; Save is upstream's doFinishWorkout,
-// unchanged, and a When or Duration changed here is applied to the saved record afterwards, the
+// unchanged, and a Duration changed here is applied to the saved record afterwards, the
 // way upstream's history sheets change them (hevier/lib/save-workout.js).
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -50,8 +50,6 @@ export function SaveWorkout() {
   const [base] = useState(() => (A ? whenOf(A) : null))
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
-  const [date, setDate] = useState(base?.date || '')
-  const [time, setTime] = useState(base?.time || '')
   const [min, setMin] = useState(null)   // null: the session's own length, still running
   const [, tick] = useState(0)
   useEffect(() => { const id = setInterval(() => tick(n => n + 1), 15000); return () => clearInterval(id) }, [])
@@ -68,7 +66,7 @@ export function SaveWorkout() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout', { replace: true }))
 
   const save = () => {
-    const when = { date, time, min }
+    const when = { date: base.date, time: base.time, min }
     const problem = whenProblem(base, when, todayISO())
     if (problem) { useUI.getState().toast(t(problem)); return }
     const update = useStore.getState().update
@@ -114,11 +112,6 @@ export function SaveWorkout() {
       ? t('You haven’t checked off any sets. Finish the workout anyway?')
       : tn('{0} set still unchecked. Finish the workout now?', '{0} sets still unchecked. Finish the workout now?', total - done)}</p>}
     <div className="hv-sgroup">
-      <label className="hv-srow"><span>{t('When')}</span>
-        <span className="hv-sval">
-          <input type="date" className="timef" value={date} max={todayISO()} onChange={e => setDate(e.target.value)} />
-          <input type="time" className="timef" value={time} onChange={e => setTime(e.target.value)} />
-        </span></label>
       <label className="hv-srow"><span>{t('Duration')}</span>
         <span className="hv-sval">
           <input type="number" inputMode="numeric" className="timef hv-smin" min={1} value={min ?? live}
@@ -136,7 +129,7 @@ export function SaveWorkout() {
 }
 
 // The summary, once upstream has saved the workout: the record is read back from the history, so
-// a When or Duration changed on the Save page, and the badges worked out again, are what it shows.
+// a Duration changed on the Save page, and the badges worked out again, are what it shows.
 export function WorkoutDone() {
   const nav = useNavigate()
   const { state } = useLocation()
@@ -199,9 +192,9 @@ export function WorkoutDone() {
 }
 
 
-const SHOWN_MS = 5000
+const SHOWN_MS = 10000
 
-// D35: Hevy's "Update routine?" as a small button in the corner that goes by itself after five
+// D35: Hevy's "Update routine?" as a small button in the corner that goes by itself after ten
 // seconds. Ignored, nothing changes; a tap keeps everything the workout changed, with Undo.
 function RoutineUpdateButton({ updates }) {
   const [state, setState] = useState('shown')   // shown → leaving → gone
