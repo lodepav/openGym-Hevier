@@ -442,7 +442,7 @@ Not Hevy parity: features the user wants on top. Each needs a decision in DECISI
 it is built. Check [PIPELINE.md](PIPELINE.md) first, and prefer contributing upstream where
 the feature is not Hevy-specific (it would remove fork code).
 
-1. ~~**Body weight from Health Connect.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 rules, until that merge; the "only source" part below is not built yet. Read weigh-ins *from* Android Health. Upstream only
+1. ~~**Body weight from Health Connect.**~~ Built as D27 (2026-10-17), upstream's v1.4.3 rules, until that merge; the "only source" part below built as D32 (2026-10-17). Read weigh-ins *from* Android Health. Upstream only
    writes workouts and weigh-ins *to* it (#371). Needs a native read permission, which is fork
    Android code beyond seam S7. **Health Connect becomes the only source** (user, 2026-10-16):
    with it on, the app's own weigh-in entry is turned off (the body-weight card, the check-in's
@@ -471,8 +471,8 @@ the feature is not Hevy-specific (it would remove fork code).
      1RM history), shown in exercise details (M5 Summary).
    - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
      land on the right page. It holds no data from them.
-4. ~~**Gyms.**~~ Decided with item 5 as D28 (2026-10-17). Later: a prompt to pick the gym (an
-   equipment profile) at the start of a workout. The original note: Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
+4. ~~**Gyms.**~~ Decided with item 5 as D28 (2026-10-17). No prompt at the start (the user's choice,
+   2026-10-17): the workout's gym line shows and changes it from the first second. The original note: Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
    for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
    second one.
 5. ~~**Gym and brand labels for machine and cable exercises.**~~ D28 (2026-10-17). A machine exercise can carry a

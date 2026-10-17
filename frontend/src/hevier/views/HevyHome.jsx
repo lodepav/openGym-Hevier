@@ -23,6 +23,7 @@ import Icon from '../../components/Icon.jsx'
 import { Switch } from '../../components/ui.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import { WorkoutFeed } from './Profile.jsx'
+import { useHcOnly } from '../lib/weigh-in-source.js'
 import { homeWidgets, storedLayout, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 
 const TITLE = {
@@ -70,11 +71,12 @@ function TodayWidget({ S }) {
 }
 
 function WeightWidget({ S }) {
+  const hc = useHcOnly()
   const bw = lastBW(S)
   const pts = S.bodyweight.slice(-30).map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d }))
   return <div className="card">
     <div className="row between"><h2 style={{ margin: 0 }}>{t('Body weight')}</h2>
-      <button type="button" className="btn sm" onClick={() => bwSheet()}><Icon name="plus" />{t('Log')}</button></div>
+      {!hc && <button type="button" className="btn sm" onClick={() => bwSheet()}><Icon name="plus" />{t('Log')}</button>}</div>
     {bw ? <>
       <div className="row" style={{ gap: 8, alignItems: 'baseline' }}>
         <div className="big">{fmtNum(bw.w)} <span className="muted" style={{ fontSize: '1rem' }}>{S.unit}</span></div>

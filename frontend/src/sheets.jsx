@@ -347,6 +347,9 @@ function BwSheet({ required, onDone, close }) {
   </>
 }
 export function bwSheet(opts = {}) {
+  // [hevier] S22: weigh-ins from Health Connect only (D32)
+  if (hooks.weighIns && hooks.weighIns(opts)) return null
+  // [/hevier]
   const h = ui().openSheet(close => <BwSheet {...opts} close={close} />, { locked: !!opts.required })
   return h
 }

@@ -45,7 +45,8 @@ export default function HealthReadSection() {
       <Switch checked={!!h.readHr} disabled={busy} onChange={toggle('hr')} aria-label={t('Heart rate from your watch')} />
     </Row>
     <Row icon="scale" iconTint="var(--teal)" title={t('Weigh-ins from other apps')}
-      subtitle={t('Your smart scale’s weigh-ins land here. One you type in yourself always wins.')}>
+      subtitle={h.readWeight ? t('Your smart scale’s weigh-ins land here, and only from there: typing one in is off while this is on.')
+        : t('Your smart scale’s weigh-ins land here. One you type in yourself always wins.')}>
       <Switch checked={!!h.readWeight} disabled={busy} onChange={toggle('weight')} aria-label={t('Weigh-ins from other apps')} />
     </Row>
     {reading && h.readError === 'permission' && <Row icon="warning" iconTint="var(--orange)"
