@@ -638,6 +638,13 @@ session is adding D numbers for the Hevy import).
     stores the profile unit, converted unrounded, so progression, sync and stats see one unit.
     Decide then how increments and plate rounding read on such an exercise.
 
+19. ~~**Export to Hevy.**~~ Decided as D34 (2026-10-17), built (user, 2026-10-17: "if api key is
+    provided, save it securely and use it for exports each time there's something new. There
+    needs to be a toggle"). Settings → Data & backup → **Send to Hevy**, APK only: the key kept
+    encrypted with an Android Keystore key (`HevierSecretPlugin.java`, seam S24); workouts saved
+    and routines changed since the switch went on, edits updated, exercises Hevy lacks created
+    as custom templates. Not done: deleting in Hevy (the API cannot), weigh-ins and measurements.
+
 Items 4–6 share one model (gyms, their equipment and labels), so design them together.
 Items 1–2 share the Health Connect read plumbing.
 
@@ -649,9 +656,3 @@ Items 1–2 share the Health Connect read plumbing.
 | Upstream adds a feature to the workout screen that the Hevy layout doesn't render | Read each sync's CHANGELOG for workout-screen items; add to `HevyWorkout` (CONFLICTS.md, "silent drift"). |
 | `S.workoutView = 'hevy'` reaches an upstream build (the shared server, a backup imported into official openGym) | Upstream reads unknown values as `cards` (LIST_VIEW.md), so it degrades safely. Keep that test. |
 | Locale coverage for fork strings | English only at first. Add a fork overlay pack only if you need another language. |
-13. ~~**Export to Hevy.**~~ Decided as D34 (2026-10-17), built (user, 2026-10-17: "if api key is
-    provided, save it securely and use it for exports each time there's something new. There
-    needs to be a toggle"). Settings → Data & backup → **Send to Hevy**, APK only: the key kept
-    encrypted with an Android Keystore key (`HevierSecretPlugin.java`, seam S24); workouts saved
-    and routines changed since the switch went on, edits updated, exercises Hevy lacks created
-    as custom templates. Not done: deleting in Hevy (the API cannot), weigh-ins and measurements.
