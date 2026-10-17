@@ -392,3 +392,11 @@
 :root[data-ui="hevier"] .hv-report .hv-cal-mt{display:none}
 :root[data-ui="hevier"] .hv-report h4.sec{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-report h4.sec .icn{color:var(--yellow)}
+/* D28: the workout's gym and a machine's brand label */
+:root[data-ui="hevier"] .hv-gym{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:6px 0 2px;font-size:14px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-gym .icn{width:16px;height:16px}
+:root[data-ui="hevier"] .hv-gym-chev{opacity:.6}
+:root[data-ui="hevier"] .hv-brand{display:flex;align-items:center;gap:6px;width:100%;text-align:start;background:none;border:0;padding:2px 0 4px;font-size:13px;color:var(--label-3)}
+:root[data-ui="hevier"] .hv-brand.has{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-brand .icn{width:15px;height:15px}
+:root[data-ui="hevier"] .hv-xd-label{display:block;margin:10px 16px 0;background:var(--surface-2);color:var(--label);border:0;border-radius:8px;padding:8px 10px;font-size:14px;max-width:calc(100% - 32px)}

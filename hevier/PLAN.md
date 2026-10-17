@@ -468,10 +468,11 @@ the feature is not Hevy-specific (it would remove fork code).
      1RM history), shown in exercise details (M5 Summary).
    - An optional slug table (openGym exercise id → strengthlevel.com page) only makes the link
      land on the right page. It holds no data from them.
-4. **Gyms.** Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
+4. ~~**Gyms.**~~ Decided with item 5 as D28 (2026-10-17). Later: a prompt to pick the gym (an
+   equipment profile) at the start of a workout. The original note: Tag each workout with a gym, as Hevy does. Upstream 1.4.3 adds gym *locations*
    for the gym reminder, kept on the phone only: reuse that list if it fits, rather than a
    second one.
-5. **Gym and brand labels for machine and cable exercises.** A machine exercise can carry a
+5. ~~**Gym and brand labels for machine and cable exercises.**~~ D28 (2026-10-17). A machine exercise can carry a
    gym and/or an equipment brand label (e.g. "Life Fitness", "my gym"). Exercise stats can show
    either everything, or only the sets done with the current labels, since the same exercise
    on two machines isn't comparable. Machines and cables only, not free weights.
