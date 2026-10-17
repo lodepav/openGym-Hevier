@@ -6,10 +6,9 @@ import { useStore } from '../../store/useStore.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDur, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
-import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
-import { volumeMode } from '../lib/volume.js'
+import { volumeMode, muscleMode } from '../lib/volume.js'
 import { workoutsByDay } from '../lib/calendar.js'
 import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { Month } from './Calendar.jsx'
@@ -25,7 +24,8 @@ export default function MonthReport() {
   const today = todayISO()
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const ws = weekStartOf(st)
-  const r = useMemo(() => monthReport(st.workouts, at.y, at.mo, ws), [st.workouts, at, ws])
+  const mm = muscleMode(st)
+  const r = useMemo(() => monthReport(st.workouts, at.y, at.mo, ws, mm), [st.workouts, at, ws, mm])
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1
@@ -67,7 +67,7 @@ export default function MonthReport() {
       {r.muscles.length > 0 && <>
         <h4 className="sec">{t('Muscle Split')}</h4>
         <div className="hv-msets">{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
-          <span>{t(MUSCLE_NAME[m.muscle] || m.muscle)}</span>
+          <span>{t(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
           <b>{tn('{0} set', '{0} sets', m.sets)}</b>
         </div>)}</div>

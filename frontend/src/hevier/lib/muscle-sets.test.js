@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts, lastDays, workoutSplit } from './muscle-sets.js'
-import { loadOfWorkouts } from '../../lib/muscles.js'
+import { periodOf, muscleSetCounts, lastDays } from './muscle-sets.js'
+import { loadOfWorkouts, MUSCLE_NAME } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
 const BENCH = EXDB.find(e => /bench press/i.test(e.n) && /barbell/i.test(e.eq || '')).id
@@ -17,20 +17,28 @@ describe('hevier muscle set counts', () => {
     expect(periodOf('year', '2026-10-16')).toEqual({ from: '2026-01-01', to: '2026-12-31' })
   })
 
-  it('counts ticked work sets with upstream’s load, against the previous period', () => {
-    const ws = [
-      W('2026-10-13', [set(), set(), set(false), set(true, { warmup: true })]),
-      W('2026-10-06', [set()]),
-      W('2026-09-01', [set(), set(), set()]),
-    ]
+  const ws = [
+    W('2026-10-13', [set(), set(), set(false), set(true, { warmup: true })]),
+    W('2026-10-06', [set()]),
+    W('2026-09-01', [set(), set(), set()]),
+  ]
+
+  it('counts ticked work sets for the main muscle, against the previous period (D42 default)', () => {
     const { rows, from } = muscleSetCounts(ws, 'week', { today: '2026-10-16', weekStart: 1 })
     expect(from).toBe('2026-10-12')
-    const chest = rows.find(r => r.muscle === 'chest')
+    expect(rows).toEqual([{ muscle: 'Chest', sets: 2, prev: 1 }])
+    expect(muscleSetCounts([], 'year', { today: '2026-10-16' }).rows).toEqual([])
+  })
+
+  it('in share mode counts with upstream’s load, a muscle trained only before kept', () => {
+    const { rows } = muscleSetCounts(ws, 'week', { today: '2026-10-16', weekStart: 1, mode: 'share' })
+    const chest = rows.find(r => r.muscle === MUSCLE_NAME.chest)
     const one = loadOfWorkouts([W('x', [set()])]).chest
     expect(chest.sets).toBeCloseTo(2 * one, 1)
     expect(chest.prev).toBeCloseTo(one, 1)
     expect(rows[0].sets).toBeGreaterThanOrEqual(rows.at(-1).sets)
-    expect(muscleSetCounts([], 'year', { today: '2026-10-16' }).rows).toEqual([])
+    const r = muscleSetCounts([W('2026-10-06', [set()])], 'week', { today: '2026-10-16', weekStart: 1 }).rows
+    expect(r).toEqual([{ muscle: 'Chest', sets: 0, prev: 1 }])
   })
 
   it('marks the trained days of the last week and maps their load', () => {
@@ -39,20 +47,5 @@ describe('hevier muscle set counts', () => {
     expect(r.days.filter(d => d.trained).map(d => d.d)).toEqual(['2026-10-10', '2026-10-16'])
     expect(r.workouts).toHaveLength(2)
     expect(r.load.chest).toBeGreaterThan(0)
-  })
-})
-
-describe('hevier workout muscle split', () => {
-  it('counts one workout’s sets per muscle, most first, as upstream’s load does', () => {
-    const w = W('2026-10-01', [set(), set(), set(false)])
-    const split = workoutSplit(w)
-    const load = loadOfWorkouts([w])
-    expect(split[0].muscle).toBe('chest')
-    expect(split.map(r => r.sets)).toEqual([...split.map(r => r.sets)].sort((a, b) => b - a))
-    for (const r of split) expect(r.sets).toBe(Math.round(load[r.muscle] * 10) / 10)
-  })
-
-  it('is empty for a workout with nothing ticked', () => {
-    expect(workoutSplit(W('2026-10-01', [set(false)]))).toEqual([])
   })
 })

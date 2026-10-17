@@ -1,8 +1,10 @@
 // Hevy's Statistics page (reference/SCREENS.md §6): the last 7 days as a week strip and a body
 // map, and the set count per muscle group for this week, month or year against the one before.
-// Counted with upstream's own load (lib/muscles.js loadOfWorkouts: ticked work sets, a secondary
-// muscle getting its share), so the numbers match upstream's Muscle balance. Nothing is stored.
-import { loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
+// Counted as Settings → Muscle sets says (D42, hevier/lib/volume.js muscleSets): each set for its
+// main muscle, or with upstream's own load, a secondary muscle getting its share. The body map
+// keeps upstream's load. Nothing is stored.
+import { loadOfWorkouts } from '../../lib/muscles.js'
+import { muscleSets } from './volume.js'
 import { workoutDay } from '../../lib/history.js'
 import { isoOf, weekKey } from '../../lib/format.js'
 
@@ -35,19 +37,18 @@ const within = (workouts, { from, to }) => (workouts || []).filter(w => {
   const day = workoutDay(w)
   return day && day >= from && day <= to
 })
-const tenth = v => Math.round((v || 0) * 10) / 10
+const entriesOf = ws => ws.flatMap(w => w.entries || [])
 
-/** Set count per muscle in this period and the previous one, most-trained first. Muscles with
- *  no sets in either are left out. `sets` and `prev` are effective sets, to one decimal. */
-export function muscleSetCounts(workouts, kind, { today, weekStart } = {}) {
+/** Set count per muscle in this period and the previous one, most-trained first, by `mode`
+ *  ('main' or 'share', D42). Muscles with no sets in either are left out. */
+export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main' } = {}) {
   const now = periodOf(kind, today, { weekStart })
   const before = periodOf(kind, today, { weekStart, offset: -1 })
-  const cur = loadOfWorkouts(within(workouts, now))
-  const prev = loadOfWorkouts(within(workouts, before))
-  const rows = MUSCLES
-    .map(muscle => ({ muscle, sets: tenth(cur[muscle]), prev: tenth(prev[muscle]) }))
-    .filter(r => r.sets > 0 || r.prev > 0)
-    .sort((a, b) => b.sets - a.sets || b.prev - a.prev || MUSCLES.indexOf(a.muscle) - MUSCLES.indexOf(b.muscle))
+  const cur = muscleSets(entriesOf(within(workouts, now)), mode)
+  const prev = new Map(muscleSets(entriesOf(within(workouts, before)), mode).map(r => [r.muscle, r.sets]))
+  const rows = cur.map(r => ({ ...r, prev: prev.get(r.muscle) || 0 }))
+  for (const [muscle, sets] of prev) if (!rows.some(r => r.muscle === muscle)) rows.push({ muscle, sets: 0, prev: sets })
+  rows.sort((a, b) => b.sets - a.sets || b.prev - a.prev || a.muscle.localeCompare(b.muscle))
   return { ...now, rows }
 }
 
@@ -59,13 +60,4 @@ export function lastDays(workouts, today, days = 7) {
   const trained = new Set(ws.map(workoutDay))
   const list = Array.from({ length: days }, (_, i) => plusDays(span.from, i)).map(d => ({ d, trained: trained.has(d) }))
   return { days: list, workouts: ws, load: loadOfWorkouts(ws) }
-}
-
-/** Sets per muscle in one workout (Workout Detail's muscle split), most first, to one decimal.
- *  Muscles the workout did not train are left out. */
-export function workoutSplit(w) {
-  return Object.entries(loadOfWorkouts([w]))
-    .map(([muscle, sets]) => ({ muscle, sets: tenth(sets) }))
-    .filter(r => r.sets > 0)
-    .sort((a, b) => b.sets - a.sets || MUSCLES.indexOf(a.muscle) - MUSCLES.indexOf(b.muscle))
 }

@@ -14,7 +14,6 @@ import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtDate, fmtDur, fmtVol } from '../../lib/format.js'
 import { setLabel, sessionSections } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
-import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { sameWorkout } from '../../lib/workout-date.js'
 import { nav as navTo, onSheetEntry } from '../../lib/nav.js'
@@ -25,9 +24,8 @@ import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import { workoutActions } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
-import { workoutSplit } from '../lib/muscle-sets.js'
 import { prSetIndex } from '../lib/pr-set.js'
-import { volumeMode, workSets, muscleSets } from '../lib/volume.js'
+import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName } from '../lib/gym-labels.js'
 import { sanitizeHr } from '../lib/heart-rate.js'
@@ -75,7 +73,7 @@ export function WorkoutDetail() {
   const setN = workSets(w.entries)
   const prs = w.prs || []
   const mode = volumeMode(st)
-  const split = mode === 'sets' ? muscleSets(w.entries) : workoutSplit(w)
+  const split = muscleSets(w.entries, muscleMode(st))
   const top = split[0]?.sets || 1
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
@@ -97,7 +95,7 @@ export function WorkoutDetail() {
       <div><span>{t('Sets')}</span><b>{setN}</b></div>
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
-    {mode === 'sets' && <MuscleLine entries={w.entries} />}
+    {mode === 'sets' && <MuscleLine entries={w.entries} mode={muscleMode(st)} />}
     {sanitizeHr(w.hr) && <div className="hv-wd-hrline"><Icon name="heart" />
       {t('Heart rate {0} avg · {1} max', sanitizeHr(w.hr).avg, sanitizeHr(w.hr).max)}</div>}
     {w.note && <p className="hv-wd-note">{w.note}</p>}
@@ -107,7 +105,7 @@ export function WorkoutDetail() {
       <h4 className="sec">{t('Muscle Split')}</h4>
       <div className="hv-msets">
         {split.map(r => <div key={r.muscle} className="hv-wd-split">
-          <span>{t(MUSCLE_NAME[r.muscle] || r.muscle)}</span>
+          <span>{t(r.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (r.sets / top) * 100 + '%' }} /></span>
           <b>{tn('{0} set', '{0} sets', r.sets)}</b>
         </div>)}

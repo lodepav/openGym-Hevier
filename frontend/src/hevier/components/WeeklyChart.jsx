@@ -7,7 +7,7 @@ import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
 import { fmtNum, fmtDur, fmtDate, todayISO, weekStartOf } from '../../lib/format.js'
 import { weeklySeries, SERIES, inWeek } from '../lib/weekly-series.js'
-import { volumeMode, muscleSets } from '../lib/volume.js'
+import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 const HOUR = 3600000
@@ -15,7 +15,7 @@ const HOUR = 3600000
 /** A week's sets per muscle, from a tap on its bar. */
 function weekSheet(S, week) {
   const ws = (S.workouts || []).filter(w => inWeek(w, week, weekStartOf(S)))
-  const list = muscleSets(ws.flatMap(w => w.entries || []))
+  const list = muscleSets(ws.flatMap(w => w.entries || []), muscleMode(S))
   useUI.getState().openSheet(() => <>
     <h3>{t('Week of {0}', fmtDate(week, true))}</h3>
     {list.length ? <div className="hv-msets">{list.map(m => <div key={m.muscle} className="hv-wd-split">

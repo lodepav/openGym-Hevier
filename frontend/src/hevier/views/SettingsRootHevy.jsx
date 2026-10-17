@@ -3,7 +3,8 @@
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
 // (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume; and its Previous values
-// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious. Data & backup gets the
+// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious; and Muscle sets (D42):
+// a set for its main muscle only, or a secondary muscle in part too, kept in S.hvMuscleSets. Data & backup gets the
 // fork's Health Connect read switches (D27) under upstream's Health Connect card.
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
@@ -14,7 +15,7 @@ import { Section, Row } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
-import { volumeMode } from '../lib/volume.js'
+import { volumeMode, muscleMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
@@ -29,6 +30,13 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     title: t('Volume'),
     items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
       onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })),
+  })
+  const mMode = useStore(s => muscleMode(s.S))
+  const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
+  const pickMuscle = () => menuSheet({
+    title: t('Muscle sets'),
+    items: Object.entries(MUSCLE).map(([v, label]) => ({ label, on: mMode === v,
+      onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })),
   })
   const prevMode = useStore(s => previousMode(s.S))
   const PREVIOUS = { routine: t('Same routine'), any: t('Any workout') }
@@ -56,6 +64,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
       </button>}
       {ids.map(row)}
       {g.volume && <Row icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />}
+      {g.volume && <Row icon="figureStrength" iconTint="var(--blue)" title={t('Muscle sets')} value={MUSCLE[mMode]} accessory="chevron" onClick={pickMuscle} className="sp-root-row" />}
       {g.volume && <Row icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />}
     </Section>
   })
