@@ -18,6 +18,7 @@ ollama.example.com                   # placeholder text in the coach's Ollama UR
 github.com                           # release page link, "report an issue" link, a React polyfill hint
 hevy.com                             # link to Hevy's developer settings, for the import's API key
 gymvisual.com                        # exercise media credit link
+strengthlevel.com                    # D19 "Compare strength": opens its standards page in the browser, never fetched
 react.dev                            # React's minified error messages
 reactrouter.com                      # React Router's error messages
 www.w3.org                           # SVG / XML namespace strings
