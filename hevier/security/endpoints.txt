@@ -1,0 +1,23 @@
+# Hosts the built app may name (D22). `supply-chain.mjs bundle` fails on any other URL host in
+# the bundle. One host per line, the reason after #. A host here is named, not necessarily
+# fetched: say which. Review the list on every upstream merge that adds one.
+
+# Fetched by the app
+api.hevyapp.com                      # upstream's Hevy import (Settings → Data & backup), only with the user's API key
+api.github.com                       # update check: releases/latest of VITE_UPDATE_REPO (lodepav/openGym-Hevier)
+
+# Fetched only by upstream's AI coach, opt-in under Settings and off in the fork (D11)
+api.anthropic.com                    # coach provider, user-supplied key
+api.openai.com                       # coach provider, user-supplied key
+openrouter.ai                        # coach provider, user-supplied key
+generativelanguage.googleapis.com    # coach provider (Gemini), user-supplied key
+localhost                            # React Router's fallback URL base (not fetched)
+ollama.example.com                   # placeholder text in the coach's Ollama URL field
+
+# Links the user opens, or text, never fetched
+github.com                           # release page link, "report an issue" link, a React polyfill hint
+hevy.com                             # link to Hevy's developer settings, for the import's API key
+gymvisual.com                        # exercise media credit link
+react.dev                            # React's minified error messages
+reactrouter.com                      # React Router's error messages
+www.w3.org                           # SVG / XML namespace strings

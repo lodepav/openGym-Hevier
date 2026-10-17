@@ -31,7 +31,9 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    frontend/src/components/ExerciseBlock*` and list what the fork's screens should pick up.
 7. **Verify.** Run the `verify` skill, then the `seam-check` skill, then the `emulator-check`
    skill with the smoke walk: start a routine, log two sets, minimise, resume, finish, see
-   it in history, start it again, see the progressed weights.
+   it in history, start it again, see the progressed weights. Then the `release-check` skill
+   (D22): upstream's new or bumped npm packages and new endpoints fail its gates until they
+   are reviewed, and the accepted baseline is committed with the merge.
 8. **Land.** Commit message body: the conflicted files with the rule used for each, seams
    added, moved or removed, and drift items skipped. `git checkout hevier/main && git merge
    --ff-only sync/$TARGET`, then `git checkout hevier/ux && git merge hevier/main`. Push only

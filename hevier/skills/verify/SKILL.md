@@ -23,3 +23,8 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
   adapt the fork to the new shape.
 - `api/` or `mcp/` changed? Also run `cd api && npm test` and `cd mcp && npm test`.
 - Then run the `seam-check` skill if any upstream file changed.
+
+## Before a release
+
+Before building an APK to install or share: the steps above, then the `release-check` skill
+(`hevier/tools/release-check.sh`, D22). Its gates block: a release is not built until they pass.
