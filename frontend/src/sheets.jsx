@@ -539,6 +539,9 @@ function HevyImportSheet({ close }) {
   const [wantWorkouts, setWantWorkouts] = useState(true)
   const [wantRoutines, setWantRoutines] = useState(true)
   const [wantBody, setWantBody] = useState(true)
+  // [hevier] S21: the body measurements' switch (D31)
+  const [wantMeasures, setWantMeasures] = useState(true)
+  // [/hevier]
   const keyRef = useRef(null)
 
   // Drop the key from memory when the sheet goes away (unmount or successful import).
@@ -559,6 +562,9 @@ function HevyImportSheet({ close }) {
       // [/hevier]
       // [hevier] S20: Hevy's routine folders, with the same key (D30)
       if (hooks.hevyFolders) await hooks.hevyFolders.fetch(key, data)
+      // [/hevier]
+      // [hevier] S21: measurements, templates and Hevy's unit, with the same key (D31)
+      if (hooks.hevyMore) await hooks.hevyMore.fetched(key, data)
       // [/hevier]
       wipeKey()
       const empty = !data.workouts.workouts.length && !data.routines.routines.length && !data.bodyweight.bodyweight.length
@@ -604,6 +610,12 @@ function HevyImportSheet({ close }) {
         addedB = res.added
         parts.push(tn('{0} weigh-in imported', '{0} weigh-ins imported', res.added))
       }
+      // [hevier] S21: measurements, custom exercises' muscles, routine links (D31)
+      if (hooks.hevyMore) {
+        const more = hooks.hevyMore.merged(s, payload, { measures: wantMeasures })
+        if (more.measures || more.linked) { addedB += more.measures + more.linked; parts.push(hooks.hevyMore.toast(more)) }
+      }
+      // [/hevier]
     })
     close()
     if (!addedW && !addedR && !addedB) toast(t('Nothing new to import'))
@@ -651,6 +663,9 @@ function HevyImportSheet({ close }) {
   // Routines are always added as new copies (same as plan import).
   const freshR = r.routines.length
   const canImport = (wantWorkouts && freshW > 0) || (wantRoutines && freshR > 0) || (wantBody && freshB > 0)
+    // [hevier] S21: or the fork's measurements and routine links (D31)
+    || !!(hooks.hevyMore && hooks.hevyMore.hasMore(st, payload, wantMeasures))
+    // [/hevier]
   const unmatched = [...new Set([
     ...(wantWorkouts ? w.unmatchedNames : []),
     ...(wantRoutines ? r.unmatchedNames : []),
@@ -691,6 +706,9 @@ function HevyImportSheet({ close }) {
       </div>
       <Switch checked={wantBody} onChange={setWantBody} />
     </div>}
+    {/* [hevier] S21: the fork's rows (D31) */}
+    {hooks.hevyMore && <hooks.hevyMore.Rows data={payload} st={st} want={wantMeasures} setWant={setWantMeasures} />}
+    {/* [/hevier] */}
     {!b.bodyweight.length && <div style={{ borderBottom: '1px solid var(--sep)', marginBottom: 8 }} />}
 
     {(w.converted || r.converted) && <div className="small" style={{ color: 'var(--yellow)', marginBottom: 10 }}>
