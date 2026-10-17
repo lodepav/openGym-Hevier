@@ -7,8 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const apply = vi.fn()
 vi.mock('../../components/RestTimer.jsx', () => ({ applyRestLeft: (...a) => apply(...a) }))
-const { timerSheet } = await import('./TimerButton.js')
-const { HeaderClock } = await import('./ClockSheet.jsx')
+const { HeaderClock, timerSheet } = await import('./ClockSheet.jsx')
 const { useUI } = await import('../../store/useUI.js')
 const { useStore } = await import('../../store/useStore.js')
 const { useStopwatch, elapsed, startW, stopW, resetW, ofSession, stopwatchText } = await import('../lib/stopwatch.js')
@@ -77,7 +76,7 @@ describe('hevier workout clock', () => {
     useStopwatch.setState({ w: { session: 1000, since: 10_000 - 65_000, acc: 0 } })
     host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host)
     act(() => root.render(<HeaderClock session={1000} />))
-    expect(host.textContent).toBe('1:05')
+    expect(host.textContent).toBe('Stopwatch 1:05')   // "Stopwatch" is for screen readers only (.vh)
     act(() => root.render(<HeaderClock session={2000} />))
     expect(host.textContent).toBe('')
   })

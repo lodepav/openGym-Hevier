@@ -1,6 +1,9 @@
 // [hevier] The workout header's clock (hevier/DECISIONS.md D10): Timer · Stopwatch, as Hevy's.
 // The Timer is the wheel the ⏱ always opened (upstream's adjustRestSheet / applyRestLeft, drawn
-// here so the two tabs share one sheet); the Stopwatch only counts (hevier/lib/stopwatch.js).
+// here so the two tabs share one sheet): a running rest's "Time left", or with none a countdown
+// at the rest set in Settings, with the rest's alert (`applyRestLeft` starts one when no rest
+// runs). The Stopwatch only counts (hevier/lib/stopwatch.js); the sheet opens on it while it has
+// time on it.
 import { useEffect, useRef, useState } from 'react'
 import { useUI } from '../../store/useUI.js'
 import { useStore } from '../../store/useStore.js'
@@ -9,7 +12,7 @@ import { REST_MAX, fmtDuration } from '../../lib/duration.js'
 import DurationWheel from '../../components/DurationWheel.jsx'
 import { applyRestLeft } from '../../components/RestTimer.jsx'
 import { Button, Segmented } from '../../components/ui.jsx'
-import { elapsed, running, startW, stopW, resetW, ofSession, stopwatchText, stopwatchShort, useStopwatch } from '../lib/stopwatch.js'
+import { elapsed, running, startW, stopW, resetW, ofSession, showing, stopwatchText, stopwatchShort, useStopwatch } from '../lib/stopwatch.js'
 
 function TimerTab({ close }) {
   // What the ⏱ opened before the tabs: a running rest's time left, else a new countdown.
@@ -64,7 +67,14 @@ export function ClockSheet({ close, session, tab: first = 'timer' }) {
   </>
 }
 
-/** The header's ⏱: the stopwatch's time beside it while it has some. */
+/** Opens the clock sheet from the header's ⏱. */
+export function timerSheet() {
+  const session = useStore.getState().S.active?.start ?? null
+  const tab = showing(ofSession(useStopwatch.getState().w, session)) ? 'stopwatch' : 'timer'
+  return useUI.getState().openSheet(close => <ClockSheet close={close} session={session} tab={tab} />)
+}
+
+/** The header's ⏱: the stopwatch's time beside it while it has some (spoken as "Stopwatch 1:05"). */
 export function HeaderClock({ session }) {
   const w = ofSession(useStopwatch(s => s.w), session)
   const [, tick] = useState(0)
@@ -76,5 +86,5 @@ export function HeaderClock({ session }) {
   }, [on])
   const ms = elapsed(w, Date.now())
   if (!ms && !on) return null
-  return <span className={'hv-swh' + (on ? ' on' : '')}>{stopwatchShort(ms)}</span>
+  return <span className={'hv-swh' + (on ? ' on' : '')}><span className="vh">{t('Stopwatch')} </span>{stopwatchShort(ms)}</span>
 }
