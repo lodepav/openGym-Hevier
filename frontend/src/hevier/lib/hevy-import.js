@@ -46,6 +46,7 @@ export const FIXES = {
   'walking': '2258',                            // not the walking lunge
   // upstream leaves these unmatched
   'seated cable row - bar wide grip': '0218',
+  'seated cable row - bar wide grip (cable)': '0218',
   'iso-lateral high row (machine)': '2662',
   'iso-lateral low row': '4214',
   'band pullaparts': '1503',
@@ -95,7 +96,8 @@ export function splitCable(name) {
 const partsOf = title => { const { name, brand } = splitBrand(title); return { ...splitCable(name), brand } }
 
 function fixOf(name) {
-  const f = FIXES[clean(name).toLowerCase()]
+  // "Grip(Cable)" and "Grip (Cable)" are one title.
+  const f = FIXES[clean(String(name || '').replace(/\s*\(/g, ' (')).toLowerCase()]
   if (!f) return null
   const { id, side = false } = typeof f === 'string' ? { id: f } : f
   return EXIDX[id] ? { id, side } : null

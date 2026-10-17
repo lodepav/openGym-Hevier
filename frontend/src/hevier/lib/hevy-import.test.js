@@ -42,6 +42,8 @@ describe('hevier Hevy import (D29)', () => {
     expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
     expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('2656')
     expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
+    expect(importExercise('Seated Cable Row - Bar Wide Grip(Cable)', 'Hevy')).toBe('0218')
+    expect(importExercise('Seated Cable Row - Bar Wide Grip (Cable)', 'Hevy')).toBe('0218')
   })
 
   it('the API import finds by name what its template map lacks, and keeps your own exercises', () => {
