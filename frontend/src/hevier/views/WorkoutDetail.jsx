@@ -11,7 +11,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtDate, fmtDur, fmtVol } from '../../lib/format.js'
+import { fmtVol } from '../../lib/format.js'
 import { setLabel, sessionSections } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -32,6 +32,7 @@ import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
 // A cable's setup shows when it is not the plain 1:1 (D43).
 const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
 import { sanitizeHr } from '../lib/heart-rate.js'
+import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -73,7 +74,6 @@ export function WorkoutDetail() {
   // Deleted (here or in All details) or opened without a workout: back to where it came from.
   if (!w) return <Navigate to="/home" replace />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
-  const ms = Math.max(0, (w.end || w.start) - w.start)
   const setN = workSets(w.entries)
   const prs = w.prs || []
   const mode = volumeMode(st)
@@ -91,10 +91,10 @@ export function WorkoutDetail() {
       <div className="hv-title">{t('Workout Detail')}</div>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </div>
-    <div className="hv-wd-d">{fmtDate(w.d, true)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>
+    <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
-      <div><span>{t('Time')}</span><b>{ms >= 60000 ? fmtDur(ms) : '–'}</b></div>
+      <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, st.unit)}</b></div>}
       <div><span>{t('Sets')}</span><b>{setN}</b></div>
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
