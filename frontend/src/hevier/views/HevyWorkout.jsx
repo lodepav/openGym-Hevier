@@ -16,6 +16,7 @@ import {
 } from '../../sheets.jsx'
 import { workoutSettingsSheet } from '../../components/WorkoutSettingsSheet.jsx'
 import { timerSheet } from '../components/TimerButton.js'
+import { HeaderClock } from '../components/ClockSheet.jsx'
 import Elapsed from '../../components/Elapsed.jsx'
 import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
@@ -76,7 +77,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
         {!editing && !A.backfill && <button className="iconbtn" aria-label={resting ? t('Rest timer') : t('Timer')}
-          onClick={timerSheet}><HvIcon name="alarm" /></button>}
+          onClick={timerSheet}><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={finish}>{editing ? t('Save') : t('Finish')}</button>
       </div>
       <div className="hv-stats">
