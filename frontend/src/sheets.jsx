@@ -557,6 +557,9 @@ function HevyImportSheet({ close }) {
       // [hevier] S19: the fork's keys back into ids, brands and per-side sets (D29)
       if (hooks.importDone) { data.workouts = hooks.importDone(data.workouts); data.routines = hooks.importDone(data.routines) }
       // [/hevier]
+      // [hevier] S20: Hevy's routine folders, with the same key (D30)
+      if (hooks.hevyFolders) await hooks.hevyFolders.fetch(key, data)
+      // [/hevier]
       wipeKey()
       const empty = !data.workouts.workouts.length && !data.routines.routines.length && !data.bodyweight.bodyweight.length
       if (empty) {
@@ -590,6 +593,9 @@ function HevyImportSheet({ close }) {
       }
       if (wantRoutines && payload.routines.routines.length) {
         const res = mergeHevyRoutines(s, payload.routines)
+        // [hevier] S20: the routines into their Hevy folders (D30)
+        if (hooks.hevyFolders) hooks.hevyFolders.merged(s, payload.routines, res)
+        // [/hevier]
         addedR = res.added
         parts.push(tn('{0} routine imported', '{0} routines imported', res.added))
       }
