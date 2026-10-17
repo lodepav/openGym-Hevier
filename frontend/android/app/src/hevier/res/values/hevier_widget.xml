@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [hevier] The month widget's words (D44). Shown before the app has handed it a month; after
+     that, every word on it comes from the app, in the app's language. -->
+<resources>
+    <string name="hevier_widget_name">Go Hevier month</string>
+    <string name="hevier_widget_desc">This month\'s workouts and sets</string>
+    <string name="hevier_widget_empty">Open Go Hevier once to fill in your month</string>
+</resources>

@@ -18,6 +18,8 @@ import { initWeighInSource, weighInBlocked } from './lib/weigh-in-source.js'
 import { useUI } from '../store/useUI.js'
 import { t } from '../lib/i18n.js'
 import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
+import { initMonthWidget } from './lib/month-widget.js'
+import { todayISO } from '../lib/format.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -47,5 +49,10 @@ if (HEVIER) { initWeighInSource(); hooks.weighIns = opts => weighInBlocked(opts,
 // New workouts and changed routines go to Hevy, when switched on with a key (DECISIONS.md D34).
 if (HEVIER) initHevyExport(() => useStore.getState().S, fn => useStore.getState().update(fn),
   cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
+
+// The home-screen month widget gets the log's month as it changes; a tap on it opens the Calendar
+// (DECISIONS.md D44, Android only).
+if (HEVIER) initMonthWidget(() => useStore.getState().S,
+  cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }), route => nav(route), todayISO)
 
 export { HEVIER }

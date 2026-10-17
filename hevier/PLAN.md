@@ -653,7 +653,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
 20. ~~**Themed Android icon**~~ Done 2026-10-17: the fork's `mipmap-anydpi-v26/ic_launcher(_round).xml` (in `src/hevier/res`, which overrides upstream's) add a `<monochrome>` layer, the dumbbell in white from the fork's foreground (`ic_launcher_monochrome.png` per density); checked in the built APK with aapt2. The original note (user, 2026-10-17): Android 13+'s themed (monochrome) launcher icon,
     so Go Hevier follows the wallpaper colours like other apps: a `<monochrome>` layer in the
     fork's adaptive icon (`frontend/android/app/src/hevier*` resources, D39's icon set).
-21. **Home-screen widget: a compact month calendar** (user, 2026-10-17). An Android app widget
+21. ~~**Home-screen widget: a compact month calendar**~~ Done 2026-10-17 (D44). The original note (user, 2026-10-17): An Android app widget
     with this month's calendar, trained days marked, and the month's **number of workouts** and
     **sets**. Native fork code (an `AppWidgetProvider` in the fork's Java source set), fed from
     the app when it saves (nothing read in the background). Check upstream / PIPELINE.md for
