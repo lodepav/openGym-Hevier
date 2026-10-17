@@ -208,6 +208,22 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(p.workouts[1].vol).toBe(50 * 10)
   })
 
+  it('a parse that never finished leaves no titles for the next import’s review', async () => {
+    importExercise('Qwerty Zorb', 'Hevy')
+    await Promise.resolve()
+    const p = parseImport(csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)]), { unit: 'kg', customEx: [] })
+    expect(p.hvTitles.map(x => x.title)).toEqual(['Seated Leg Curl (Machine)'])
+  })
+
+  it('your own exercise from an earlier import stays yours over a fix row, unless the review chose', () => {
+    const customEx = [{ id: 'imOld', n: 'seated leg curl (machine)', custom: true, eq: 'custom', tg: '' }]
+    const rows = csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)])
+    useChoices({ map: null, cables: null, known: new Set(['imOld']), customEx })
+    expect(entriesOf(parseImport(rows, { unit: 'kg', customEx }))[0].id).toBe('imOld')
+    useChoices({ map: { 'Hevy|seated leg curl (machine)': '0599' }, cables: null, known: new Set(['imOld']), customEx })
+    expect(entriesOf(parseImport(rows, { unit: 'kg', customEx }))[0].id).toBe('0599')
+  })
+
   it('a cable the review set is imported with that setup; the title’s own tag wins', () => {
     useChoices({ map: null, cables: { 'Hevy|lat pulldown (cable)': '2:1' }, known: new Set() })
     const p = parseImport(csv([

@@ -85,7 +85,7 @@ export async function takeWidgetRoute() {
   const p = await plugin()
   if (!p) return null
   const { route } = await p.W.takeRoute().catch(() => ({ route: null }))
-  return route || null
+  return route === '/calendar' ? route : null      // the widget's only route (the plugin checks too)
 }
 
 /**

@@ -9,7 +9,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDur, todayISO } from '../../lib/format.js'
+import { fmtNum, fmtDur } from '../../lib/format.js'
 import { workoutVolume, setsDoneActive, setUnitsTotal, NOTE_MAX } from '../../lib/history.js'
 import { loadOfWorkouts } from '../../lib/muscles.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -21,7 +21,7 @@ import Icon from '../../components/Icon.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
-import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
+import { sessionMin, durationProblem, applyDuration, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
 import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
 import { gymSheet } from '../components/GymLabels.jsx'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
@@ -47,7 +47,6 @@ export function SaveWorkout() {
   const gym = useStore(s => { const g = workoutGym(s.S, s.S.active); return g ? (gymName(s.S, g) || t('Removed gym')) : '' })
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
-  const [base] = useState(() => (A ? whenOf(A) : null))
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
   const [min, setMin] = useState(null)   // null: the session's own length, still running
@@ -56,18 +55,17 @@ export function SaveWorkout() {
   // Reached with no session to save (a reload after saving, a link): back to the Workout tab. A
   // session that ends while the page is open (Save, Discard) leaves through its own navigation,
   // which a redirect from here would overtake.
-  const opened = useRef(!!base && !A?.editingWorkoutId)
+  const opened = useRef(!!A && !A.editingWorkoutId)
   if (!opened.current) return <Navigate to="/workout" replace />
   if (!A) return null
 
   const done = setsDoneActive(A)
   const total = setUnitsTotal(A.entries)
-  const live = whenOf(A).min
+  const live = sessionMin(A)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout', { replace: true }))
 
   const save = () => {
-    const when = { date: base.date, time: base.time, min }
-    const problem = whenProblem(base, when, todayISO())
+    const problem = durationProblem(A, min)
     if (problem) { useUI.getState().toast(t(problem)); return }
     const update = useStore.getState().update
     update(s => {
@@ -87,7 +85,7 @@ export function SaveWorkout() {
     doFinishWorkout()
     update(s => {
       s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
-      s.workouts = applyWhen(s.workouts, ref, base, when)
+      s.workouts = applyDuration(s.workouts, ref, min)
     })
     // doFinishWorkout wrote the day's auto-backup before the labels and the date above: again,
     // so the backup holds the workout as saved (D20).

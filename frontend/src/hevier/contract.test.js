@@ -13,6 +13,7 @@ import * as workoutView from '../views/Workout.jsx'
 import * as routineEdit from '../views/RoutineEdit.jsx'
 import * as routines from '../lib/routines.js'
 import * as muscles from '../lib/muscles.js'
+import { mergeHevyRoutines } from '../lib/import-hevy.js'
 import { HEVIER } from './flag.js'
 
 describe('hevier: upstream contract', () => {
@@ -22,7 +23,7 @@ describe('hevier: upstream contract', () => {
       'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
       'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet',
       'upstreamExerciseDetailSheet', 'detailTags', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
-      'bwSheet', 'goalSheet', 'weighInsSheet']) {
+      'goalSheet', 'weighInsSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
   })
@@ -53,6 +54,15 @@ describe('hevier: upstream contract', () => {
     expect(typeof muscles.loadOfWorkouts).toBe('function')
     expect(Array.isArray(muscles.MUSCLES)).toBe(true)
     expect(muscles.MUSCLE_NAME.chest).toBeTruthy()
+  })
+
+  it('mergeHevyRoutines replaces a known Hevy routine in place and appends the new ones in order', () => {
+    // hevy-folders.js's applyHevyFolders takes the last `added` routines as the new ones (D30).
+    const S = { routines: [{ id: 'mine', name: 'Mine', ex: [] }, { id: 'old', name: 'Old', hevyId: 'a', ex: [] }] }
+    const res = mergeHevyRoutines(S, { routines: [{ name: 'B', hevyId: 'b', ex: [] }, { name: 'A', hevyId: 'a', ex: [] }, { name: 'C', hevyId: 'c', ex: [] }] })
+    expect(res.added).toBe(2)
+    expect(S.routines.map(r => r.hevyId || r.id)).toEqual(['mine', 'a', 'b', 'c'])
+    expect(S.routines[1].id).toBe('old')
   })
 
   it('the fork UI is off unless the build asks for it', () => {

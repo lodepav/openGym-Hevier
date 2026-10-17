@@ -3,6 +3,7 @@ package ch.duartesantos.opengym;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 import com.getcapacitor.JSObject;
@@ -12,6 +13,8 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
+import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -92,9 +95,12 @@ public class HevierSecretPlugin extends Plugin {
             Cipher c = Cipher.getInstance(CIPHER);
             c.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(TAG_BITS, Base64.decode(iv, Base64.NO_WRAP)));
             out.put("value", new String(c.doFinal(Base64.decode(sealed, Base64.NO_WRAP)), StandardCharsets.UTF_8));
-        } catch (Exception e) {
+        } catch (KeyPermanentlyInvalidatedException | UnrecoverableKeyException | AEADBadTagException e) {
             // A Keystore key lost (a restore to another phone, a reset lock screen): the secret is gone.
             prefs().edit().remove(name + ".iv").remove(name + ".v").apply();
+            out.put("value", JSObject.NULL);
+        } catch (Exception e) {
+            // Anything else may pass (a busy Keystore): the secret is kept for the next read.
             out.put("value", JSObject.NULL);
         }
         call.resolve(out);

@@ -10,7 +10,7 @@
 // a machine or cable exercise: that exercise, per side; (5) upstream's match, untouched. Every
 // title asked about is noted, and `importDone` hands the list on as `hvTitles` for the review.
 import { EXIDX, canonicalExId } from '../../lib/exercises.js'
-import { importId, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
+import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
 import { volumeFactor } from '../../lib/dumbbells.js'
 import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
@@ -132,7 +132,7 @@ export function readKey(id) {
 export const choiceKey = (title, source) => source + '|' + partsOf(title).name.toLowerCase()
 
 /**
- * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist }`, or null.
+ * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist, customEx }`, or null.
  * Kept until the next call, so one parse reads one set of choices.
  */
 let ctx = null
@@ -150,8 +150,13 @@ const choiceOf = (title, source) => {
 const memos = new WeakMap()
 const noCtx = {}
 const seen = new Map()
+// A parse asks about all its titles in one go, with no await between: the first title of a later
+// turn starts a new list, so a parse that never reached importDone (a failed file, one read as
+// weigh-ins) leaves nothing in the next import's review.
+let asking = false
 export function importExercise(title, source) {
   const { name, cable } = partsOf(title)
+  if (!asking) { seen.clear(); asking = true; queueMicrotask(() => { asking = false }) }
   seen.set(choiceKey(title, source), { title: name, source, cable })
   return resolved(title, source)
 }
@@ -186,7 +191,11 @@ function answer(title, source) {
   const own = choiceOf(title, source)
   if (own === 'custom') return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side: false, brand, cable, n: name.toLowerCase() })
   let id = null, side = false
-  const fix = own ? { id: own, side: LIMB.test(name) && isMachineId(own) } : hevy ? fixOf(name) : null
+  // An exercise of your own an earlier import made stays yours (upstream's priorCustom), unless the
+  // review chose otherwise: a fix row added later would split its history across two ids (D29).
+  const mine = own ? null : priorCustom(ctx?.customEx, importId('im', source + '|' + name.toLowerCase()), name)?.id
+  const pick = own || mine
+  const fix = pick ? { id: pick, side: LIMB.test(name) && isMachineId(pick) } : hevy ? fixOf(name) : null
   if (fix) ({ id, side } = fix)
   else if (hevy) { id = oneLimbOf(name); side = !!id }
   if (!id && !brand && !cable) return null
