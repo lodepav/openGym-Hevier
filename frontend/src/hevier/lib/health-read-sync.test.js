@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // object and an `apply` that runs the change on it (as useStore's update does).
 const h = vi.hoisted(() => {
   vi.stubEnv('VITE_MOBILE', '1')
-  return { files: new Map(), calls: [], platform: 'android', granted: { heartRate: true, weight: true }, hr: [], weights: [], fail: null }
+  return { files: new Map(), calls: [], platform: 'android', granted: { heartRate: true, weight: true }, hr: [], weights: [], fail: null, writes: 0 }
 })
 
 vi.mock('@capacitor/filesystem', () => ({
@@ -19,7 +19,7 @@ vi.mock('@capacitor/filesystem', () => ({
       if (!h.files.has(path)) throw new Error('File does not exist')
       return { data: h.files.get(path) }
     },
-    writeFile: async ({ path, data }) => { h.files.set(path, data) },
+    writeFile: async ({ path, data }) => { h.writes++; h.files.set(path, data) },
   },
 }))
 vi.mock('@capacitor/app', () => ({ App: { addListener: () => ({ remove() {} }) } }))
@@ -58,7 +58,7 @@ beforeEach(async () => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOW)
   vi.resetModules()
-  h.files.clear(); h.calls = []; h.platform = 'android'; h.granted = { heartRate: true, weight: true }; h.hr = []; h.weights = []; h.fail = null
+  h.files.clear(); h.calls = []; h.platform = 'android'; h.granted = { heartRate: true, weight: true }; h.hr = []; h.weights = []; h.fail = null; h.writes = 0
   S = { unit: 'kg', workouts: [workout('w1')], bodyweight: [] }
   applied = 0
   hs = await import('./health-read-sync.js')
@@ -160,6 +160,15 @@ describe('weigh-ins', () => {
     expect(applied).toBe(1)
     await hs.readHealth(getState, { force: true, now: NOW + 3 * 60e3, apply })
     expect(applied).toBe(1)
+  })
+
+  it('a pass that brings nothing new writes no file (battery, item 29)', async () => {
+    h.weights = [rec(2, 80.4)]
+    await hs.enableRead('weight', getState, { apply })
+    const writes = h.writes
+    await hs.readHealth(getState, { now: NOW + 60e3, apply })
+    await hs.readHealth(getState, { now: NOW + 90e3, apply })
+    expect(h.writes).toBe(writes)
   })
 
   it('leaves a day with a weigh-in typed into openGym alone', async () => {

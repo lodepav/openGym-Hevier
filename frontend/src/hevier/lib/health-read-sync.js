@@ -112,6 +112,7 @@ async function readOnce(getState, force, now, applyFn) {
   const src = SRC
   const every = force ? RESUME_EVERY_MS : READ_EVERY_MS
   let h = { ...(await loadRead()) }
+  const was = JSON.stringify(h)
   let error = null
   // `decide` runs on a copy first: an update that changes nothing would still stamp and push.
   const apply = (decide, fn = decide) => {
@@ -160,6 +161,8 @@ async function readOnce(getState, force, now, applyFn) {
   }
 
   h.readError = error
+  // A pass that changed nothing writes nothing (battery, item 29).
+  if (JSON.stringify(h) === was) return cached
   await saveRead(h)
   told(h)
   return h
