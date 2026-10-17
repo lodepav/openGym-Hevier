@@ -666,7 +666,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
     machine Bulgarian split squat* in openGym's library, and probably a *belt squat machine*:
     check what Hevy's titles for those land on now and add D29 fix rows (and the upstream
     write-up) where they miss.
-23. ~~**Cable setup on cable exercises**~~ Done 2026-10-17 (D43); the grey "≈ 10 kg at the handle" is left for later. The original note (user, 2026-10-17, with the user's choices). A cable
+23. ~~**Cable setup on cable exercises**~~ Done 2026-10-17 (D43); the grey "≈ 10 kg at the handle" was dismissed by the user (2026-10-17). The original note (user, 2026-10-17, with the user's choices). A cable
     exercise carries a **Cable setup** label, as D28 does a brand (a per exercise and gym
     default, changeable in the workout, stored on the logged entry, a stats filter, so a 2:1
     machine's numbers are never compared with a 1:1 machine's):
@@ -693,7 +693,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
       **strength** when it has any strength exercise, **deload** when "deload" is in the
       workout's title or notes (deload wins). A legend; the same colours in the monthly report's
       calendar (D23).
-26. ~~**Bug: the workout header's timer button does nothing**~~ Fixed 2026-10-17 (D10): a countdown when no rest runs; a stopwatch not added. (user, 2026-10-17). The button
+26. ~~**Bug: the workout header's timer button does nothing**~~ Fixed 2026-10-17 (D10): a countdown when no rest runs; the stopwatch added 2026-10-17 (D10). (user, 2026-10-17). The button
     beside **Finish** (D10's ⏱) should open Hevy's timer setup (rest timer / stopwatch).
 27. ~~**Save Workout page**~~ Done 2026-10-17, on the "Nice work!" summary (the page with the two Done buttons): the header's Done hides while the bottom one shows; the closing could not be reproduced on the emulator (3 min idle, lock, background), so the page now keeps its workout once shown instead of going Home when the record changes under it (a sync, a Health Connect stamp). If it still closes, note what was on (signed in, Health Connect, Send to Hevy). The original note (user, 2026-10-17):
     - The header's **Save** / Done button hides once the same button at the bottom is scrolled

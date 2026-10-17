@@ -1,19 +1,16 @@
-// [hevier] The workout header's ⏱ (hevier/DECISIONS.md D10), Hevy's clock: with a rest running it
-// opens upstream's "Time left" wheel; with none, a wheel that starts a countdown of its own, at
-// the rest set in Settings, with the rest's alert (upstream's `startRest`, through
-// `applyRestLeft`, which starts one when no rest runs).
+// [hevier] The workout header's ⏱ (hevier/DECISIONS.md D10), Hevy's clock: a sheet with a Timer
+// and a Stopwatch (ClockSheet.jsx). On the Timer, a running rest shows upstream's "Time left"
+// wheel; with none, a wheel that starts a countdown of its own, at the rest set in Settings, with
+// the rest's alert (upstream's `startRest`, through `applyRestLeft`, which starts one when no rest
+// runs). The sheet opens on the Stopwatch while it has time on it.
+import { createElement } from 'react'
 import { useUI } from '../../store/useUI.js'
 import { useStore } from '../../store/useStore.js'
-import { t } from '../../lib/i18n.js'
-import { REST_MAX } from '../../lib/duration.js'
-import { durationSheet } from '../../components/DurationWheel.jsx'
-import { adjustRestSheet, applyRestLeft } from '../../components/RestTimer.jsx'
+import { ofSession, showing, useStopwatch } from '../lib/stopwatch.js'
+import { ClockSheet } from './ClockSheet.jsx'
 
 export function timerSheet() {
-  if (useUI.getState().timer) return adjustRestSheet()
-  const sec = useStore.getState().S.restSec
-  return durationSheet({
-    title: t('Timer'), value: sec > 0 ? Math.min(sec, REST_MAX) : 90, min: 5, max: REST_MAX,
-    onDone: v => applyRestLeft(v),
-  })
+  const session = useStore.getState().S.active?.start ?? null
+  const tab = showing(ofSession(useStopwatch.getState().w, session)) ? 'stopwatch' : 'timer'
+  return useUI.getState().openSheet(close => createElement(ClockSheet, { close, session, tab }))
 }
