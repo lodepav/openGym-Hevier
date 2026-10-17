@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import {
-  distance, distanceText, overpassQuery, parsePlaces, fetchPlaces, ownHere, gymOfPlace, rememberPlace, addGym, placeOf,
+  distance, distanceText, overpassQuery, parsePlaces, fetchPlaces, placesNear, forgetPlaces, ownHere, gymOfPlace, rememberPlace, addGym, placeOf,
 } from './nearby-gyms.js'
 
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -71,5 +71,18 @@ describe('gyms nearby (D47)', () => {
     expect(ownHere(s, { ...here, accuracy: 1500 }).map(g => g.id)).toEqual(['g2', 'g1'])
     rememberPlace(s, 'g3', { lat: 47.3849, lng: 8.5417 })   // ~890 m
     expect(ownHere(s, { ...here, accuracy: 1500 }).map(g => g.id)).toEqual(['g2', 'g1', 'g3'])
+  })
+
+  it('a second search soon after, close by, is answered from the first; far or late asks again', async () => {
+    forgetPlaces()
+    const fetcher = vi.fn(async () => ({ ok: true, json: async () => ({ elements: [{ type: 'node', id: 1, lat: 47.3772, lon: 8.542, tags: { name: 'A' } }] }) }))
+    await placesNear(here, { fetcher, now: 0 })
+    const again = await placesNear({ lat: 47.3770, lng: 8.5417 }, { fetcher, now: 5 * 60e3 })
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(again[0].dist).toBeLessThan(60)
+    await placesNear(here, { fetcher, now: 11 * 60e3 })
+    expect(fetcher).toHaveBeenCalledTimes(2)
+    await placesNear({ lat: 47.3869, lng: 8.5417 }, { fetcher, now: 12 * 60e3 })
+    expect(fetcher).toHaveBeenCalledTimes(3)
   })
 })

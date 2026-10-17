@@ -15,7 +15,7 @@ import {
   CABLES, cableText, entryCable, setEntryCable, cableStamped, stampCable,
 } from '../lib/gym-labels.js'
 import {
-  currentPosition, fetchPlaces, ownHere, gymOfPlace, placeOf, rememberPlace, addGym, distanceText, RADIUS,
+  currentPosition, placesNear, ownHere, gymOfPlace, placeOf, rememberPlace, addGym, distanceText, RADIUS,
 } from '../lib/nearby-gyms.js'
 
 const update = fn => useStore.getState().update(fn, true)
@@ -64,7 +64,7 @@ const WHY = {
 }
 
 /** "Find gyms nearby" (D47): the position once, then OpenStreetMap's gyms around it. */
-export function NearbySheet({ close, locate = currentPosition, places = fetchPlaces }) {
+export function NearbySheet({ close, locate = currentPosition, places = placesNear }) {
   const [st, setSt] = useState({ step: 'locating' })
   const turn = useRef(0)
   const run = () => {

@@ -68,6 +68,23 @@ export async function fetchPlaces(here, fetcher = nativeFetch) {
   return parsePlaces(await res.json(), here)
 }
 
+// The last answer, in memory only: Overpass refuses a second request from the same phone soon
+// after the first, and a gym's sheet is often opened twice in a visit.
+const CACHE_MS = 10 * 60e3
+const CACHE_M = 200
+let cache = null
+
+/** fetchPlaces, answered from the last search while it is under 10 minutes old and within 200 m. */
+export async function placesNear(here, { fetcher, now = Date.now() } = {}) {
+  if (cache && now - cache.at < CACHE_MS && distance(cache.here, here) <= CACHE_M) {
+    return cache.found.map(p => ({ ...p, dist: distance(here, p) })).sort((a, b) => a.dist - b.dist)
+  }
+  const found = await fetchPlaces(here, fetcher)
+  cache = { here, at: now, found }
+  return found
+}
+export const forgetPlaces = () => { cache = null }
+
 // Wrapped in an object: a Capacitor plugin proxy answers `then` (as in lib/health-sync.js).
 let pluginP = null
 async function plugin() {
