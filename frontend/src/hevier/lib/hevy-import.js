@@ -218,7 +218,33 @@ export function importDone(parsed) {
   const hvTitles = [...seen.values()]
   seen.clear()
   if (!parsed || parsed.error) return parsed
-  return { ...done(parsed), hvTitles }
+  return { ...byName(parsed, done(parsed)), hvTitles }
+}
+
+// Upstream's Hevy API import matches by Hevy's template id alone, never by name, so a title its
+// CSV import finds by name (Belt Squat (Machine) → lever belt squat) became one of your own
+// exercises (2026-10-17). A custom exercise upstream made in this parse gets that name match.
+// Yours stay yours: one an earlier import made, and one the review was told to keep (D33), never
+// pass through here. A CSV's customs were already asked by name, so it changes nothing there.
+function byName(input, out) {
+  if (input.source !== 'Hevy') return out
+  const to = new Map()
+  for (const c of input.customEx || []) {
+    const id = upstreamMatch(c.n, 'Hevy')
+    if (id && EXIDX[id]) to.set(c.id, id)
+  }
+  if (!to.size) return out
+  const swap = e => (to.has(e.id) ? { ...e, id: to.get(e.id) } : e)
+  const gone = new Set([...to.keys()])
+  const names = new Set((input.customEx || []).filter(c => gone.has(c.id)).map(c => c.n))
+  const res = { ...out, customEx: out.customEx.filter(c => !gone.has(c.id)) }
+  res.unmatchedNames = (out.unmatchedNames || []).filter(n => !names.has(String(n).toLowerCase()))
+  if (out.kind === 'routines') res.routines = out.routines.map(r => ({ ...r, ex: r.ex.map(swap) }))
+  else res.workouts = out.workouts.map(w => ({ ...w, entries: w.entries.map(swap) }))
+  const used = new Set(out.kind === 'routines' ? res.routines.flatMap(r => r.ex.map(e => e.id)) : res.workouts.flatMap(w => w.entries.map(e => e.id)))
+  res.matched = [...used].filter(id => EXIDX[id]).length
+  res.created = res.customEx.length
+  return res
 }
 
 function done(parsed) {
