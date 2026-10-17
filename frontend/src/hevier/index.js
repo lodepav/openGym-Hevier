@@ -5,7 +5,7 @@ import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
 import { hooks, installFinishHook } from './hooks.js'
-import { importDone, importExercise, useChoices } from './lib/hevy-import.js'
+import { importDone, importExercise, importWeight, useChoices } from './lib/hevy-import.js'
 import { choicesFor, keep } from './lib/import-review.js'
 import { ReviewRow } from './components/ImportReview.jsx'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
@@ -28,6 +28,8 @@ if (HEVIER) Object.assign(hooks, {
   importExercise: (title, source) => { useChoices(choicesFor(useStore.getState().S)); return importExercise(title, source) },
   importDone,
 })
+// …keeping each weight's hundredths (seam S25, D40).
+if (HEVIER) hooks.importWeight = importWeight
 // …with the user's own choices from the import review (seam S23, D33).
 if (HEVIER) hooks.importReview = { keep, Row: ReviewRow }
 // …and its routines their Hevy folders (seam S20, D30).

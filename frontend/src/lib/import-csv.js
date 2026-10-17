@@ -648,11 +648,15 @@ export function parseWorkoutCSV(text, { unit = 'kg', customEx = [] } = {}) {
   const mixedUnits = sawLb && sawKg
   const toKg = x => Math.round(x * LB_TO_KG * 10) / 10
   const toLb = x => Math.round(x / LB_TO_KG * 10) / 10
+  // [hevier] S25: the fork keeps a converted weight's hundredths (hevier/DECISIONS.md D40)
+  const hvRound = hooks.importWeight
+  // [/hevier]
   // A row without its own unit follows the file's, and a file that says nothing is taken
   // to already be in the profile's unit.
   const convRow = s => {
     const u = s.u || fileUnit
     if (!u || u === unit) return s.w
+    if (hvRound) return hvRound(u === 'lb' ? s.w * LB_TO_KG : s.w / LB_TO_KG) // [hevier] S25
     return u === 'lb' ? toKg(s.w) : toLb(s.w)
   }
   const converted = (!!fileUnit && fileUnit !== unit) || mixedUnits
@@ -758,6 +762,7 @@ export function parseBodyweight(text, { unit = 'kg' } = {}) {
     const w = sourceUnit && sourceUnit !== unit
       ? (sourceUnit === 'lb' ? b.w * LB_TO_KG : b.w / LB_TO_KG)
       : b.w
+    if (hooks.importWeight) return hooks.importWeight(w) // [hevier] S25
     return Math.round(w * 10) / 10
   }
   const dates = [...out.keys()].sort()

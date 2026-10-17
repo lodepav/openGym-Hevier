@@ -65,6 +65,10 @@ const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i
 const LIMB = /\b(single|one)[\s-]+(arm|leg)\b/i
 const clean = s => String(s || '').replace(/\s+/g, ' ').trim()
 
+/** An imported weight to the hundredth, not upstream's tenth (D40): Hevy's 20.41 kg stays 20.41,
+ *  and 45 lb read into a kg profile is 20.41 kg, not 20.4. */
+export const importWeight = w => Math.round(w * 100) / 100
+
 /** A title without its "(brand: X)", and X ('' for none). */
 export function splitBrand(title) {
   const m = String(title || '').match(BRAND)
