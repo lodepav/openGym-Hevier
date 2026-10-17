@@ -693,7 +693,7 @@ PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
       **strength** when it has any strength exercise, **deload** when "deload" is in the
       workout's title or notes (deload wins). A legend; the same colours in the monthly report's
       calendar (D23).
-26. **Bug: the workout header's timer button does nothing** (user, 2026-10-17). The button
+26. ~~**Bug: the workout header's timer button does nothing**~~ Fixed 2026-10-17 (D10): a countdown when no rest runs; a stopwatch not added. (user, 2026-10-17). The button
     beside **Finish** (D10's ⏱) should open Hevy's timer setup (rest timer / stopwatch).
 27. **Save Workout page** (user, 2026-10-17).
     - The header's **Save** / Done button hides once the same button at the bottom is scrolled
