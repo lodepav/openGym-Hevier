@@ -35,7 +35,7 @@ describe('hevier import review (D33)', () => {
       ['Qwerty Zorb (Cable)', null],
       ['Leg Press (Machine)', '0739'],
       ['Seated Leg Curl (Machine)', '0599'],
-      ['Single Leg Extensions', '0585'],
+      ['Single Leg Extensions', '7108'],
     ])
     expect(list.every(x => !x.chosen)).toBe(true)
   })
