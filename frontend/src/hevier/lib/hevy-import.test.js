@@ -51,8 +51,9 @@ describe('hevier Hevy import (D29)', () => {
       row('Triceps Dip', 0, 'normal', 0, 12),
       row('Triceps Dip (Weighted)', 0, 'normal', 20, 8),
       row('Calf Extension (Machine) (brand: Achilles Rehab)', 0, 'normal', 40, 15),
+      row('Behind the Back Curl (Cable) (brand: LifeFitness)', 0, 'normal', 10, 12),
     ]), { unit: 'kg', customEx: [] })
-    const [ext, press, dip, wdip, calf] = entriesOf(p)
+    const [ext, press, dip, wdip, calf, curl] = entriesOf(p)
     expect(ext.id).toBe('0585')
     expect(ext.sets.every(isSideSet)).toBe(true)
     expect(ext.sets[1]).toMatchObject({ w: 48.75, r: 20, sides: { L: { w: 48.75, r: 10 }, R: { w: 48.75, r: 10 } } })
@@ -60,17 +61,18 @@ describe('hevier Hevy import (D29)', () => {
     expect(press).toMatchObject({ id: '0739', hvBrand: 'LifeFitness' })
     expect(dip.id).toBe('0814')
     expect(wdip.id).toBe('1767')
+    expect(calf).toMatchObject({ id: '2289', hvBrand: 'Achilles Rehab' })
     // unmatched with a brand: one custom exercise, named without the brand
-    expect(calf.hvBrand).toBe('Achilles Rehab')
-    expect(p.customEx.find(c => c.id === calf.id)?.n).toBe('calf extension (machine)')
-    expect(p.unmatchedNames).toContain('calf extension (machine)')
+    expect(curl.hvBrand).toBe('LifeFitness')
+    expect(p.customEx.find(c => c.id === curl.id)?.n).toBe('behind the back curl (cable)')
+    expect(p.unmatchedNames).toContain('behind the back curl (cable)')
     // volume counts both sides, warm-ups out
-    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15)
+    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15 + 10 * 12)
     // upstream's merge keeps it all
     const S = { workouts: [], customEx: [], bodyweight: [], exWeights: {} }
     mergeImport(S, p)
     expect(S.workouts[0].entries[1].hvBrand).toBe('LifeFitness')
-    expect(S.customEx.map(c => c.n)).toEqual(['calf extension (machine)'])
+    expect(S.customEx.map(c => c.n)).toEqual(['behind the back curl (cable)'])
   })
 
   it('leaves a file from another app to upstream, brands aside', () => {

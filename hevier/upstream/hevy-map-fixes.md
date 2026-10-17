@@ -56,3 +56,10 @@ Fix: cache by the exact lower-cased title (the word bag is still right for `matc
 | Single Arm Tricep Extension (Dumbbell) | 4343 |
 | Pull Up (Close Neutral Grip) | 0651 |
 | Single Leg Standing Calf Raise | 3712 |
+| Calf Extension (Machine) | 2289 |
+| Iso-Lateral Chest Press (Machine) | 1029 |
+| Triceps Extension (Cable) | 0194 (left out of upstream's map on purpose, as a lever machine; the cable overhead extension fits) |
+| Bulgarian Split Squat (Smith Machine) | 0768 |
+
+And one more wrong match: **Standing Leg Curls** gives 0795 standing single leg curl (body weight,
+against a wall); Hevy's is the machine, 4347 lever standing leg curl.

@@ -53,6 +53,11 @@ export const FIXES = {
   'single arm tricep extension (dumbbell)': '4343',
   'pull up (close neutral grip)': '0651',
   'single leg standing calf raise': '3712',
+  'calf extension (machine)': '2289',
+  'iso-lateral chest press (machine)': '1029',
+  'triceps extension (cable)': '0194',
+  'bulgarian split squat (smith machine)': '0768',
+  'standing leg curls': '4347',               // the machine, not the body-weight curl
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i
