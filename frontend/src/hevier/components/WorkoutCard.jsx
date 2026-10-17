@@ -25,6 +25,11 @@ const toast = msg => useUI.getState().toast(msg)
 
 // The actions of upstream's WorkoutDetail (sheets.jsx), with its wording and its confirms. `extra`
 // items go last (Workout Detail's All details).
+/** Opens a saved workout in upstream's editor (Workout Detail's Edit Workout, the ⋯ menu's Edit). */
+export function editWorkout(w, nav) {
+  try { useStore.getState().update(s => { editCompletedSession(s, w) }); nav('/workout') } catch (e) { toast(t(e.message)) }
+}
+
 export function workoutActions(w, nav, extra = []) {
   const update = useStore.getState().update
   const media = workoutMediaOf(w, Infinity).length
@@ -42,9 +47,7 @@ export function workoutActions(w, nav, extra = []) {
         },
       }) },
       { icon: 'reset', label: t('Repeat today'), onClick: () => repeatWorkout(w) },
-      { icon: 'pencil', label: t('Edit workout'), onClick: () => {
-        try { update(s => { editCompletedSession(s, w) }); nav('/workout') } catch (e) { toast(t(e.message)) }
-      } },
+      { icon: 'pencil', label: t('Edit workout'), onClick: () => editWorkout(w, nav) },
       { icon: 'trash', label: t('Delete workout'), danger: true, onClick: () => confirmSheet({
         title: t('Delete workout?'),
         message: t('This removes it from your history for good.') + (media ? ' ' + tn('Its photo or video is deleted with it.', 'Its {0} photos or videos are deleted with it.', media) : ''),
@@ -62,13 +65,16 @@ export default function WorkoutCard({ w }) {
   const mode = useStore(s => volumeMode(s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   const prs = w.prs?.length || 0
+  const who = useStore(s => s.user?.name) || ''
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
+    {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
-      <div className="hv-wcard-t">{w.name || t('Workout')}</div>
+      <span className="hv-avatar" aria-hidden="true">{who ? who.trim()[0].toUpperCase() : <Icon name="person" />}</span>
+      <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
       <button type="button" className="iconbtn" aria-label={t('More')}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
-    <div className="hv-wcard-d">{workoutWhenText(w)}</div>
+    <div className="hv-wcard-t">{w.name || t('Workout')}</div>
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'
@@ -83,7 +89,7 @@ export default function WorkoutCard({ w }) {
       const n = e.sets.filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length
       return <div key={i} className="hv-wcard-ex">
         <span className="hv-thumb sm">{ex && <Thumb ex={ex} />}</span>
-        <span className={'grow ' + exerciseNameClass(ex)}><b>{tn('{0} set', '{0} sets', n)}</b> {ex ? exerciseNameFor(ex) : (e.n || e.id)}</span>
+        <span className="grow"><b>{tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
       </div>
     })}
     {entries.length > SHOWN && <div className="hv-wcard-more">{t('See more: {0}', exCount(entries.length - SHOWN))}</div>}

@@ -39,3 +39,21 @@ export function weeklySeries(workouts, kind, { today, weeks = 12, weekStart } = 
   }
   return out
 }
+
+const HOUR = 3600000
+/** The chart's top line, a round number at or above `max`: whole hours for a duration (at least
+ *  one), else 1, 2 or 5 × a power of ten (at least 1), so the axis reads "2 h" or "5,000 kg". */
+export function niceMax(max, kind) {
+  const v = Math.max(0, Number(max) || 0)
+  if (kind === 'duration') return Math.max(1, Math.ceil(v / HOUR)) * HOUR
+  if (v <= 1) return 1
+  const p = 10 ** Math.floor(Math.log10(v))
+  return [1, 2, 5, 10].map(k => k * p).find(n => n >= v)
+}
+
+/** Which bars carry a date under them: four, evenly spread, the newest always among them. */
+export function labelledWeeks(n, count = 4) {
+  if (n <= count) return Array.from({ length: n }, (_, i) => i)
+  const step = (n - 1) / (count - 1)
+  return Array.from({ length: count }, (_, i) => Math.round(i * step))
+}

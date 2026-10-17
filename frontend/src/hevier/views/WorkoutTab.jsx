@@ -1,6 +1,6 @@
 // Hevy's Workout tab (hevier/DECISIONS.md D13; reference/SCREENS.md §1), shown on /workout when no
-// session is open: Quick Start, a Today card from openGym's schedule or rotation, then the
-// routines with Start Routine, in folders (lib/routine-folders.js), each dragged by its handle.
+// session is open, and on /routines (the Workout tab's button) while one is: Quick Start, a Today card from openGym's schedule or rotation, then the
+// routines with Start Routine, in folders (lib/routine-folders.js), each lifted by a long press.
 // Starting goes through upstream's startFlow, and the schedule stays on upstream's Plan screen.
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,9 +13,10 @@ import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { pinState } from '../../lib/queue.js'
 import { copyRoutine, deleteRoutine } from '../../lib/routines.js'
 import { DEFAULT_GLYPH } from '../../lib/glyphs.js'
-import { startFlow, starterPlanSheet, menuSheet } from '../../sheets.jsx'
+import { startFlow as upstreamStart, starterPlanSheet, menuSheet, confirmSheet } from '../../sheets.jsx'
 import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
@@ -28,14 +29,30 @@ import {
 const CLOSED_KEY = 'hevier_folders_closed'
 const readClosed = () => { try { const v = JSON.parse(localStorage.getItem(CLOSED_KEY)); return Array.isArray(v) ? v : [] } catch { return [] } }
 const writeClosed = v => { try { localStorage.setItem(CLOSED_KEY, JSON.stringify(v)) } catch { /* device-local only */ } }
+// Starting with a session open would replace it: Hevy asks first, and the open one is discarded
+// the way the resume bar's Discard does it.
+function startFlow(ids) {
+  const A = useStore.getState().S.active
+  if (!A) return upstreamStart(ids)
+  confirmSheet({
+    title: t('Workout in progress'), message: t('Starting a new workout discards the one you have open.'),
+    confirmText: t('Discard and start'), danger: true,
+    onConfirm: () => {
+      useStore.getState().update(s => { s.active = null })
+      useUI.getState().stopRest()
+      useUI.getState().stopWork()
+      upstreamStart(ids)
+    },
+  })
+}
 const MINE = '\u0000mine'   // My Routines' key in the folded list: no folder name can be it
 
-// One folder's routines, reordered by their handles among themselves.
+// One folder's routines, reordered among themselves by a long press on a card (or its handle).
 function FolderList({ name, ids, card }) {
   const update = useStore(s => s.update)
   const reorder = useDragReorder(ids.length, (from, to) => update(s => { s.routines = reorderInGroup(s.routines, name, from, to) }))
   return <div ref={reorder.listRef} className={'hv-rlist' + (reorder.drag ? ' is-reordering' : '')}>
-    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{card(id, ids.length > 1 ? reorder.handle(i) : null)}</div>)}
+    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{card(id, ids.length > 1 ? reorder.handle(i) : null, reorder.press(i))}</div>)}
   </div>
 }
 
@@ -115,9 +132,9 @@ export default function WorkoutTab() {
     ],
   })
   const byId = new Map(S.routines.map(r => [r.id, r]))
-  const card = (id, grip) => {
+  const card = (id, grip, press) => {
     const r = byId.get(id)
-    return <div className="card hv-rcard">
+    return <div className="card hv-rcard" {...press}>
       <div className="row between">
         {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
         <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>{r.name}</button>
@@ -136,10 +153,10 @@ export default function WorkoutTab() {
     // Empty folders keep their place among the others on this device.
     setEmpty(order.filter(n => empty.includes(n)))
   })
-  const head = (g, grip) => {
+  const head = (g, grip, press) => {
     const key = g.name ?? MINE
     const open = !closed.includes(key)
-    return <div className="hv-fhead">
+    return <div className="hv-fhead" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', g.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-ftoggle" aria-expanded={open} onClick={() => toggle(key)}>
         <Icon name={open ? 'chevronDown' : 'chevronRight'} />
@@ -156,7 +173,7 @@ export default function WorkoutTab() {
     {i ? ', ' : ''}{EXIDX[e.id] ? exerciseNameFor(EXIDX[e.id]) : e.n || e.id}</span>)
 
   return <div className="narrow hv-wtab">
-    <div className="hdr"><h1>{t('Workout')}</h1></div>
+    <PageBar title={t('Workout')} />
 
     <h4 className="sec">{t('Quick Start')}</h4>
     <button type="button" className="btn hv-quick" onClick={() => startFlow([])}><Icon name="plus" />{t('Start Empty Workout')}</button>
@@ -169,20 +186,20 @@ export default function WorkoutTab() {
       <button type="button" className="btn primary pill" onClick={() => startFlow(todayIds)}>{t('Start')}</button>
     </div>}
 
-    <div className="row between hv-rhead"><h4 className="sec">{t('Routines')}</h4>
+    <div className="hv-rhead"><h4 className="sec">{t('Routines')}</h4>
+      <button type="button" className="iconbtn" aria-label={t('Schedule')} title={t('Schedule')} onClick={() => nav('/plan')}><Icon name="calendar" /></button>
       <button type="button" className="iconbtn" aria-label={t('New folder')} title={t('New folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
     </div>
     <div className="hv-rbtns">
       <button type="button" className="btn" onClick={() => newRoutine()}><Icon name="clipboard" />{t('New Routine')}</button>
       <button type="button" className="btn" onClick={starterPlanSheet}><Icon name="magnifier" />{t('Explore')}</button>
-      <button type="button" className="btn" onClick={() => nav('/plan')}><Icon name="calendar" />{t('Schedule')}</button>
     </div>
 
     {(S.routines.length > 0 || folders.length > 0) && <>
       <section className="hv-folder">{head(groups[0])}{body(groups[0])}</section>
       <div ref={folderReorder.listRef} className={'hv-folders' + (folderReorder.drag ? ' is-reordering' : '')}>
         {folders.map((g, i) => <section key={g.name} data-reorder-row className="hv-folder" style={folderReorder.rowStyle(i)}>
-          {head(g, folders.length > 1 ? folderReorder.handle(i) : null)}{body(g)}
+          {head(g, folders.length > 1 ? folderReorder.handle(i) : null, folderReorder.press(i))}{body(g)}
         </section>)}
       </div>
     </>}

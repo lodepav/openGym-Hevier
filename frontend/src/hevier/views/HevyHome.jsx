@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { effectiveRoutines, effectiveRoutineIds, streakWeeks, lastBW } from '../../lib/history.js'
 import { fmtNum, fmtDate, todayISO, isoOf, weekStartOf, weekDayOffset, DAYS } from '../../lib/format.js'
-import { t, tn, dateLocale } from '../../lib/i18n.js'
+import { t, tn } from '../../lib/i18n.js'
 import { weekTally, queueView, queueOf } from '../../lib/queue.js'
 import { scheduleModeOf } from '../../lib/rotation.js'
 import { fatigueOf } from '../../lib/recovery.js'
@@ -20,6 +20,7 @@ import LineChart from '../../components/LineChart.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import QueueRow from '../../components/QueueRow.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import { Switch } from '../../components/ui.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import { WorkoutFeed } from './Profile.jsx'
@@ -65,7 +66,7 @@ function TodayWidget({ S }) {
         <div className="lbl2">{t('Today')}</div>
         <div className="ttl">{S.active ? t('{0} (in progress)', S.active.name) : routines.length ? name : t('Rest day')}</div>
       </div>
-      {S.active ? <span className="tag">{t('Resume')}</span> : done ? <span className="tag">{t('Done')}</span>
+      {S.active ? <span className="tag acc">{t('Resume')}</span> : done ? <span className="tag">{t('Done')}</span>
         : routines.length ? <span className="tag acc">{t('Start')}</span> : <Icon name="plus" className="chev" />}
     </div>
   </div>
@@ -137,7 +138,6 @@ function EditHome({ widgets, setWidgets }) {
 export default function HevyHome() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
-  const user = useStore(s => s.user)
   const trouble = useConnectionTrouble()
   const [editing, setEditing] = useState(false)
   const [stored, setStored] = useState(readHome)
@@ -149,15 +149,11 @@ export default function HevyHome() {
     return storedLayout(next)
   })
   return <div className="narrow hv-home">
-    <div className="hdr">
-      <div><h1>{user ? t('Hi {0}', user.name) : t('Home')}</h1>
-        <div className="sub">{new Date().toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
-      <div className="hdr-actions">
-        <button type="button" className="plan-textbtn" aria-pressed={editing} onClick={() => setEditing(e => !e)}>{editing ? t('Done') : t('Edit Home')}</button>
-        <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
-          <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
-      </div>
-    </div>
+    <PageBar title={t('Home')}
+      start={<button type="button" className="hv-link" aria-pressed={editing} onClick={() => setEditing(e => !e)}>{editing ? t('Done') : t('Edit Home')}</button>}>
+      <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
+        <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
+    </PageBar>
     {editing ? <>
       <p className="sect-f">{t('Drag to reorder. Switch a widget off to hide it.')}</p>
       <EditHome widgets={widgets} setWidgets={setWidgets} />

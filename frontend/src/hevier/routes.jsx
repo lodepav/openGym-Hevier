@@ -50,7 +50,7 @@ function WithBack({ label = 'Profile', to = '/profile', children }) {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to))
   return <>
-    <button type="button" className="hv-back" onClick={back}><Icon name="chevronLeft" />{t(label)}</button>
+    <button type="button" className="hv-back" onClick={back}><Icon name="chevronLeft" /><span>{t(label)}</span></button>
     {children}
   </>
 }
@@ -75,6 +75,7 @@ function BackWhereFrom({ to, children }) {
 export const hevierRoutes = [
   <Route key="hv-home" path="/home" element={<HevyHome />} />,
   <Route key="hv-workout" path="/workout" element={<WorkoutRoute />} />,
+  <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
   <Route key="hv-stats" path="/stats" element={<Statistics />} />,
   <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats"><Stats /></WithBack>} />,

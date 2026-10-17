@@ -9,6 +9,7 @@ import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
+import HvIcon from './HvIcon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
   gymsOf, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands, isMachine, BRAND_MAX,
@@ -46,7 +47,7 @@ export function GymRow() {
   const S = useStore(s => s.S)
   const cur = workoutGym(S, S.active)
   return <button type="button" className="hv-gym" onClick={() => gymSheet(nav)}>
-    <Icon name="figureStrength" />{cur ? (gymName(S, cur) || t('Removed gym')) : t('No gym')}
+    <HvIcon name="mapPin" />{cur ? (gymName(S, cur) || t('Removed gym')) : t('No gym')}
     <Icon name="chevronDown" className="hv-gym-chev" />
   </button>
 }

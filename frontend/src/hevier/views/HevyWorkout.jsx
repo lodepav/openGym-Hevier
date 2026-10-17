@@ -16,7 +16,7 @@ import {
 } from '../../sheets.jsx'
 import { workoutSettingsSheet } from '../../components/WorkoutSettingsSheet.jsx'
 import { HeaderClock, timerSheet } from '../components/ClockSheet.jsx'
-import Elapsed from '../../components/Elapsed.jsx'
+import Elapsed from '../components/Elapsed.jsx'
 import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import KeypadBar from '../components/KeypadBar.jsx'
@@ -77,11 +77,11 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <button className="btn primary pill hv-finish" onClick={() => finishWorkout()}>{editing ? t('Save') : t('Finish')}</button>
       </div>
       <div className="hv-stats">
-        <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} />}</b></div>
+        <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>
         {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
         <div><span>{t('Sets')}</span><b>{done}</b></div>
       </div>
-      {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} />}
+      {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
       <GymRow />
     </div>
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}

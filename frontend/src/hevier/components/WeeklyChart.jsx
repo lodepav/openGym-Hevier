@@ -4,13 +4,16 @@
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t, tn } from '../../lib/i18n.js'
+import { t, tn, dateLocale } from '../../lib/i18n.js'
 import { fmtNum, fmtDur, fmtDate, todayISO, weekStartOf } from '../../lib/format.js'
-import { weeklySeries, SERIES, inWeek } from '../lib/weekly-series.js'
+import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
+import { menuSheet } from '../../sheets.jsx'
+import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
-const HOUR = 3600000
+// Hevy's range picker over the chart, a view choice that is not kept.
+const RANGES = [{ weeks: 12, label: 'Last 12 weeks' }, { weeks: 26, label: 'Last 6 months' }, { weeks: 52, label: 'Last year' }]
 
 /** A week's sets per muscle, from a tap on its bar. */
 function weekSheet(S, week) {
@@ -29,18 +32,25 @@ function weekSheet(S, week) {
 export default function WeeklyChart() {
   const S = useStore(s => s.S)
   const [pick, setKind] = useState('duration')
+  const [weeks, setWeeks] = useState(12)
   const sets = volumeMode(S) === 'sets'
   // The Volume chip is Sets in sets mode; the choice follows a switch made in Settings.
   const kinds = SERIES.map(k => (k === 'volume' && sets ? 'sets' : k))
   const kind = pick === 'volume' || pick === 'sets' ? (sets ? 'sets' : 'volume') : pick
-  const pts = weeklySeries(S.workouts, kind, { today: todayISO(), weekStart: weekStartOf(S) })
-  const max = Math.max(...pts.map(p => p.value), kind === 'duration' ? HOUR : 1)
+  const pts = weeklySeries(S.workouts, kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
+  const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? fmtDur(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v))
   const cur = pts.at(-1).value
+  const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : kind === 'volume' ? fmtNum(Math.round(v)) : fmtNum(Math.round(v)))
+  const day = iso => new Date(iso + 'T12:00:00').toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
   const head = kind === 'duration' ? t('{0} this week', cur ? fmtDur(cur) : '0 min') : t('{0} this week', fmt(cur))
   return <div className="hv-chart">
-    <div className="hv-chart-h"><b>{head}</b><span className="hv-sub">{t('Last 12 weeks')}</span></div>
+    <div className="hv-chart-h"><b>{head}</b>
+      <button type="button" className="hv-link hv-range" onClick={() => menuSheet({
+        title: t('Period'), items: RANGES.map(o => ({ label: t(o.label), on: o.weeks === weeks, onClick: () => setWeeks(o.weeks) })) })}>
+        {t(RANGES.find(o => o.weeks === weeks).label)}<Icon name="chevronDown" /></button></div>
+    <div className="hv-plot">
     <div className="hv-bars" role="img" aria-label={t(LABEL[kind])}>
       {pts.map(p => {
         const bar = <i style={{ height: Math.round((p.value / max) * 100) + '%' }} className={p.value ? '' : 'zero'} />
@@ -48,6 +58,12 @@ export default function WeeklyChart() {
           ? <button key={p.week} type="button" className="hv-barcol" title={p.week + ': ' + fmt(p.value)} onClick={() => weekSheet(S, p.week)}>{bar}</button>
           : <div key={p.week} className="hv-barcol" title={p.week + ': ' + fmt(p.value)}>{bar}</div>
       })}
+    </div>
+    {/* the axis on the right, Hevy's: the top line and its half */}
+    <div className="hv-yaxis" aria-hidden="true"><span>{axis(max)}</span><span>{axis(max / 2)}</span><span>0</span></div>
+    <div className="hv-xaxis" aria-hidden="true" style={{ '--n': pts.length }}>
+      {labelledWeeks(pts.length).map(i => <span key={i} style={{ '--i': i }}>{day(pts[i].week)}</span>)}
+    </div>
     </div>
     <div className="hv-chips">{kinds.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(LABEL[k])}</button>)}</div>

@@ -18,6 +18,7 @@ import { confirmSheet, doFinishWorkout, LastAndNext, CardioDone } from '../../sh
 import BodyMap from '../../components/BodyMap.jsx'
 import WorkoutMediaSection from '../../components/WorkoutMedia.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
@@ -93,11 +94,9 @@ export function SaveWorkout() {
   }
 
   return <div className="hv-save">
-    <div className="hv-pagebar">
-      <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-      <div className="hv-title">{t('Save Workout')}</div>
+    <PageBar title={t('Save Workout')} onBack={back}>
       <button type="button" className="btn primary pill hv-finish" onClick={save}>{t('Save')}</button>
-    </div>
+    </PageBar>
     <input className="hv-stitle" value={title} maxLength={TITLE_MAX} placeholder={t('Workout title')}
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
@@ -164,10 +163,9 @@ export function WorkoutDone() {
   const finish = () => nav('/home', { replace: true })
 
   return <div className="hv-done">
-    <div className="hv-pagebar">
-      <div className="hv-title">{updates.length > 0 && <RoutineUpdateButton updates={updates} />}</div>
+    <PageBar start={updates.length > 0 && <RoutineUpdateButton updates={updates} />}>
       {!atBottom && <button type="button" className="btn primary pill hv-finish" onClick={finish}>{t('Done')}</button>}
-    </div>
+    </PageBar>
     <div className="hv-done-top">
       <span className="hv-done-ic"><Icon name="trophy" /></span>
       <h2>{t('Nice work!')}</h2>

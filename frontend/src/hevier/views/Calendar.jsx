@@ -12,6 +12,7 @@ import { streakWeeks } from '../../lib/history.js'
 import { workoutDetailSheet, dayOverrideSheet, WorkoutRow } from '../../sheets.jsx'
 import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
 import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle } from '../lib/calendar.js'
 
 const MORE = 6
@@ -69,11 +70,7 @@ export default function Calendar() {
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setView('month') }
 
   return <div className="hv-cal">
-    <div className="hv-pagebar">
-      <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-      <div className="hv-title">{t('Calendar')}</div>
-      <span className="hv-cal-pad" />
-    </div>
+    <PageBar title={t('Calendar')} onBack={back} />
     <div className="hv-cal-streak">
       <Icon name="flame" />
       <span>{t('{0} week streak', streak)}</span>
@@ -84,6 +81,7 @@ export default function Calendar() {
       <span><i className="k-strength" />{t('Strength')}</span>
       <span><i className="k-cardio" />{t('Cardio')}</span>
       <span><i className="k-deload" />{t('Deload')}</span>
+      <span><i className="k-plan" />{t('Planned')}</span>
     </div>
     {view === 'month' ? <>
       {monthsBack(from.y, from.mo, count).map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}

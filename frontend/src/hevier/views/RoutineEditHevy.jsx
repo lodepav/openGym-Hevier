@@ -35,6 +35,8 @@ import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
+import PageBar from '../components/PageBar.jsx'
+import { restTimerText } from '../lib/elapsed.js'
 import { NumberField, Row, SelectRow, Switch } from '../../components/ui.jsx'
 import {
   routineRows, tableShape, setWorkField, setRange, addRow, removeRow, makeWarmup, makeWork, canWarmUp,
@@ -56,7 +58,7 @@ function RangeSheet({ from, to, onDone, close }) {
   </div>
 }
 
-function RoutineExercise({ r, i, unitOf, S, grip }) {
+function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -132,7 +134,7 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
     ],
   })
 
-  const restText = e.restSec > 0 ? fmtRest(e.restSec) : t('Default ({0})', fmtRest(S.restSec))
+  const restText = restTimerText(e.restSec, S.restSec, t('Off'))
   const openRest = () => durationSheet({
     title: t('Rest for this exercise'), value: e.restSec > 0 ? e.restSec : 0, max: REST_MAX,
     off: t('Default ({0})', fmtRest(S.restSec)),
@@ -200,7 +202,9 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
     if (c.f === 'r' && row.max) return <button key={c.f} type="button" className="hv-rt-range" onClick={() => openSetType(row)}>{t('Max')}</button>
     const key = c.f === 'r' ? 'reps' : c.f
     const v = row[key]
-    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.view && v != null ? c.view(v) : v ?? ''}
+    // Hevy's grey dash for a weight not set yet (0); typing one fills it
+    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : c.view && v != null ? c.view(v) : v ?? ''}
+      placeholder={c.f === 'w' ? '–' : undefined}
       aria-label={c.hd + ' ' + t('Set {0}', row.k + 1)}
       onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv) : nv))} />
   }
@@ -220,7 +224,7 @@ function RoutineExercise({ r, i, unitOf, S, grip }) {
       <span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
       {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(meta.rest))}</span>}<Icon name="pencil" />
     </button>}
-    <div className="hv-exhd">
+    <div className="hv-exhd" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
@@ -297,15 +301,13 @@ export default function RoutineEditHevy() {
   const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
   const load = r.ex.length ? loadOfRoutine(r) : null
-  // A superset moves as one: any of its exercises' handles drags the whole unit.
+  // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
   const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
-    <div className="hv-bar">
-      <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-      <div className="hv-title">{t('Edit Routine')}</div>
+    <PageBar title={t('Edit Routine')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
       <button type="button" className="btn primary pill hv-finish" onClick={back}>{t('Done')}</button>
-    </div>
+    </PageBar>
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}
       onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('Routine') }) }} />
 
@@ -313,7 +315,7 @@ export default function RoutineEditHevy() {
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
         className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S}
-          grip={units.length > 1 ? reorder.handle(n) : null} />)}
+          grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
       </section>)}
     </div> : <div className="hv-empty">
       <Icon name="dumbbell" />

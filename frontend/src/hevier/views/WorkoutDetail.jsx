@@ -22,7 +22,9 @@ import { setNumberAt } from '../../views/Workout.jsx'
 import WorkoutMediaSection, { workoutMediaCount } from '../../components/WorkoutMedia.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
-import { workoutActions } from '../components/WorkoutCard.jsx'
+import PageBar from '../components/PageBar.jsx'
+import { hevySetText } from '../lib/set-text.js'
+import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { prSetIndex } from '../lib/pr-set.js'
 import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
@@ -57,7 +59,7 @@ function ExerciseSets({ w, e, st }) {
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
-        <span>{setLabel(e.id, s, e.target, speedUnitOf(st))}</span>
+        <span>{hevySetText(setLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}</span>
         {i === prAt && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}
@@ -86,11 +88,9 @@ export function WorkoutDetail() {
   ])
 
   return <div className="hv-wd">
-    <div className="hv-pagebar">
-      <button type="button" className="iconbtn" aria-label={t('Back')} onClick={back}><Icon name="chevronLeft" /></button>
-      <div className="hv-title">{t('Workout Detail')}</div>
+    <PageBar title={t('Workout Detail')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
-    </div>
+    </PageBar>
     <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
@@ -119,6 +119,7 @@ export function WorkoutDetail() {
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
       {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} />)}
     </div>)}
+    <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>
 }
 

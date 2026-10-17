@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { weeklySeries } from './weekly-series.js'
+import { weeklySeries, niceMax, labelledWeeks } from './weekly-series.js'
 
 const H = 3600000
 const w = (d, extra = {}) => ({ d, start: 1000, end: 1000 + H, vol: 1000, entries: [], ...extra })
@@ -32,5 +32,22 @@ describe('weeklySeries', () => {
     ] }]
     const out = weeklySeries([w('2026-10-14', { entries })], 'reps', { today: '2026-10-16', weeks: 1, weekStart: 1 })
     expect(out[0].value).toBe(8)
+  })
+})
+
+describe('the chart axis', () => {
+  it('rounds the top up to whole hours, or 1 · 2 · 5 × 10ⁿ', () => {
+    expect(niceMax(0, 'duration')).toBe(3600000)
+    expect(niceMax(3600000 * 1.2, 'duration')).toBe(7200000)
+    expect(niceMax(0, 'reps')).toBe(1)
+    expect(niceMax(7, 'sets')).toBe(10)
+    expect(niceMax(130, 'reps')).toBe(200)
+    expect(niceMax(4200, 'volume')).toBe(5000)
+    expect(niceMax(5000, 'volume')).toBe(5000)
+  })
+  it('dates four bars, the first and the newest among them', () => {
+    expect(labelledWeeks(12)).toEqual([0, 4, 7, 11])
+    expect(labelledWeeks(52)).toEqual([0, 17, 34, 51])
+    expect(labelledWeeks(3)).toEqual([0, 1, 2])
   })
 })
