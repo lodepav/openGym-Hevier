@@ -20,6 +20,7 @@ import { t } from '../lib/i18n.js'
 import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
 import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
+import { watchS } from './lib/store-watch.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -41,18 +42,19 @@ if (HEVIER) hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast
 // The installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39).
 if (HEVIER) { applyForkIcons(); applyForkName() }
 // Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).
+// Each of these passes wakes only when what it reads changes, not for every set typed (item 29).
 if (HEVIER) initHealthRead(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
+  watchS(useStore.subscribe, ['workouts']))
 // …and while the weigh-in read is on, weigh-ins come from there only (seam S22, D32).
 if (HEVIER) { initWeighInSource(); hooks.weighIns = opts => weighInBlocked(opts, () => useUI.getState().toast(t('Weigh-ins come from Health Connect'))) }
 
 // New workouts and changed routines go to Hevy, when switched on with a key (DECISIONS.md D34).
 if (HEVIER) initHevyExport(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }))
+  watchS(useStore.subscribe, ['workouts', 'routines', 'customEx', 'unit']))
 
 // The home-screen month widget gets the log's month as it changes; a tap on it opens the Calendar
 // (DECISIONS.md D44, Android only).
 if (HEVIER) initMonthWidget(() => useStore.getState().S,
-  cb => useStore.subscribe((a, b) => { if (a.S !== b.S) cb() }), route => nav(route), todayISO)
+  watchS(useStore.subscribe, ['workouts', 'weekStart', 'lang']), route => nav(route), todayISO)
 
 export { HEVIER }

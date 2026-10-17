@@ -198,13 +198,19 @@ export function sendToHevy(getState, { force = false, apply = null, now = Date.n
   if (!MOBILE) return Promise.resolve(cached)
   if (running) return running
   if (!force && lastError && now - lastError < RETRY_MS) return Promise.resolve(cached)
-  running = sendOnce(getState, apply || applyRef, now).finally(() => { running = null })
+  running = sendOnce(getState, apply || applyRef, now, force).finally(() => { running = null })
   return running
 }
 
-async function sendOnce(getState, apply, now) {
+async function sendOnce(getState, apply, now, force) {
   const st = await loadExport()
   if (!st.on) return st
+  // Nothing new to send (the usual pass): no Keystore read and no file write (battery, item 29).
+  // Send now still goes the whole way, so a lost key shows.
+  if (!force && st.last) {
+    const todo = pending(getState(), st)
+    if (!todo.workouts.length && !todo.routines.length) return st
+  }
   const key = await getSecret(KEY_NAME)
   if (!key) { st.last = { at: now, sent: 0, refused: 0, error: 'nokey' }; await saveExport(st); told(st); return st }
   const res = await exportOnce(getState(), st, {
