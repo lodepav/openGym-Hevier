@@ -3,7 +3,7 @@ import { FIXES, splitBrand, splitCable, oneLimbOf, importExercise, importDone, i
 import { workoutVolume } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
-import { parseImport, mergeImport } from '../../lib/import-csv.js'
+import { parseImport, mergeImport, importId } from '../../lib/import-csv.js'
 import { parseHevyWorkouts, parseHevyRoutines, parseHevyBodyweight } from '../../lib/import-hevy.js'
 import { isSideSet } from '../../lib/workout-model.js'
 
@@ -42,6 +42,24 @@ describe('hevier Hevy import (D29)', () => {
     expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
     expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('2656')
     expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
+  })
+
+  it('the API import finds by name what its template map lacks, and keeps your own exercises', () => {
+    const T = [{ id: 'x1', title: 'Belt Squat (Machine)', type: 'weight_reps', primary_muscle_group: 'quadriceps' },
+      { id: 'x2', title: 'Lying Neck Rotation', type: 'reps_only', primary_muscle_group: 'neck' },
+      { id: 'x3', title: 'Hip Thrust (Machine)', type: 'weight_reps', primary_muscle_group: 'glutes' }]
+    const ex = (id, title) => ({ exercise_template_id: id, title, sets: [{ type: 'normal', weight_kg: 50, reps: 10 }] })
+    const w = { id: 'h1', title: 'Legs', start_time: '2026-10-14T16:00:00Z', end_time: '2026-10-14T17:00:00Z',
+      exercises: [ex('x1', 'Belt Squat (Machine)'), ex('x2', 'Lying Neck Rotation'), ex('x3', 'Hip Thrust (Machine)')] }
+    // An earlier import made Hip Thrust (Machine) your own: it stays so.
+    const mine = { id: importId('im', 'Hevy|x3'), n: 'my hip thrust', custom: true, eq: 'custom' }
+    const p = importDone(parseHevyWorkouts([w], T, { unit: 'kg', customEx: [mine] }))
+    expect(p.workouts[0].entries.map(e => e.id)).toEqual(['2950', importId('im', 'Hevy|x2'), mine.id])
+    expect(p.unmatchedNames).toEqual(['Lying Neck Rotation'])
+    expect(p.customEx.map(c => c.n)).toEqual(['lying neck rotation'])
+    const r = importDone(parseHevyRoutines([{ id: 'r1', title: 'Legs', exercises: [ex('x1', 'Belt Squat (Machine)')] }], T, { unit: 'kg' }))
+    expect(r.routines[0].ex[0].id).toBe('2950')
+    expect(r.customEx).toEqual([])
   })
 
   it('the belt squat and the deficit Smith split squat land on their own exercises (PLAN item 22)', () => {
