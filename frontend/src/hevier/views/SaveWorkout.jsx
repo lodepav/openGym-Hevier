@@ -25,7 +25,7 @@ import { whenOf, whenProblem, applyWhen, workoutNumber, workoutsInDays, TITLE_MA
 import { labelsAtFinish, withLabels } from '../lib/gym-labels.js'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 
-// D34: the session as it stood at Save, for the summary's Update routine button. The saved
+// D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
 let savedSession = null
 
@@ -179,7 +179,7 @@ export function WorkoutDone() {
 
 const SHOWN_MS = 5000
 
-// D34: Hevy's "Update routine?" as a small button in the corner that goes by itself after five
+// D35: Hevy's "Update routine?" as a small button in the corner that goes by itself after five
 // seconds. Ignored, nothing changes; a tap keeps everything the workout changed, with Undo.
 function RoutineUpdateButton({ updates }) {
   const [state, setState] = useState('shown')   // shown → leaving → gone

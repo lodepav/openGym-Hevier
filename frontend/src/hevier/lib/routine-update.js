@@ -1,4 +1,4 @@
-// Hevy's "Update routine?" after a workout, without the prompt (hevier/DECISIONS.md D34). What a
+// Hevy's "Update routine?" after a workout, without the prompt (hevier/DECISIONS.md D35). What a
 // routine workout changed in each routine it was built from: exercises added, removed or swapped,
 // the order, the number of work sets, and what upstream's per-exercise Update routine already
 // copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry). Weights and reps are

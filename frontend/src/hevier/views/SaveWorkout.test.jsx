@@ -124,7 +124,7 @@ describe('hevier: Save Workout (seam S9)', () => {
   })
 })
 
-describe('hevier: Update routine from the summary (D34)', () => {
+describe('hevier: Update routine from the summary (D35)', () => {
   const CURL = EXDB.find(e => /^lever lying leg curl$/i.test(e.n)).id
   const withRoutine = () => {
     render('/workout/save', [

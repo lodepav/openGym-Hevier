@@ -23,7 +23,7 @@ const added = (S, exId, extra = {}) => ({ id: exId, ...buildPlannedEntry(S, { id
 const tick = e => { e.sets.forEach(s => { s.done = true }); return e }
 const one = (S, A) => routineUpdates(S, A)[0]
 
-describe('hevier: keep the workout’s changes in its routine (D34)', () => {
+describe('hevier: keep the workout’s changes in its routine (D35)', () => {
   it('nothing when the workout followed the routine, even with other weights and reps', () => {
     const S = state()
     const A = start(S)
