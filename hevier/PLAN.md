@@ -650,7 +650,7 @@ session is adding D numbers for the Hevy import).
 The user's list, in their order. Same rule: a decision in DECISIONS.md before each is built,
 PIPELINE.md checked first. Items 26 and 27 are bugs to look into first.
 
-20. **Themed Android icon** (user, 2026-10-17). Android 13+'s themed (monochrome) launcher icon,
+20. ~~**Themed Android icon**~~ Done 2026-10-17: the fork's `mipmap-anydpi-v26/ic_launcher(_round).xml` (in `src/hevier/res`, which overrides upstream's) add a `<monochrome>` layer, the dumbbell in white from the fork's foreground (`ic_launcher_monochrome.png` per density); checked in the built APK with aapt2. The original note (user, 2026-10-17): Android 13+'s themed (monochrome) launcher icon,
     so Go Hevier follows the wallpaper colours like other apps: a `<monochrome>` layer in the
     fork's adaptive icon (`frontend/android/app/src/hevier*` resources, D39's icon set).
 21. **Home-screen widget: a compact month calendar** (user, 2026-10-17). An Android app widget
