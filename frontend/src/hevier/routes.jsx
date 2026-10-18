@@ -23,6 +23,7 @@ import { hooks, SAVE_PATH, DONE_PATH } from './hooks.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 import { installExerciseDetails } from './views/ExerciseDetails.jsx'
 import { installSettings } from './views/SettingsRootHevy.jsx'
+import Muscles from '../views/Muscles.jsx'
 import { installExercisePicker, Exercises } from './views/ExercisePickerHevy.jsx'
 import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/WorkoutDetail.jsx'
 import Calendar from './views/Calendar.jsx'
@@ -88,6 +89,8 @@ export const hevierRoutes = [
   <Route key="hv-photos" path="/progress-photos" element={<BackWhereFrom to="/measures"><ProgressPhotos /></BackWhereFrom>} />,
   <Route key="hv-balance" path="/structural-balance" element={<BackWhereFrom to="/stats"><StructuralBalance /></BackWhereFrom>} />,
   <Route key="hv-library" path="/library" element={<Exercises />} />,
+  // Upstream's explorer goes "back" by opening /library anew, so Exercises' back led to it again.
+  <Route key="hv-muscles" path="/muscles" element={<BackWhereFrom to="/library"><Muscles /></BackWhereFrom>} />,
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-report" path="/report" element={<MonthReport />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,

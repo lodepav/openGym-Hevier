@@ -153,4 +153,31 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     open(vi.fn(), {}, [], { equipProfiles })
     expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('Home')   // remembered
   })
+
+  it('filters by a whole group of equipment, or by one kind under its chevron (D63)', () => {
+    const KB = EXDB.find(e => e.eq === 'kettlebell')
+    open(vi.fn())
+    const sheet = () => {
+      click(container.querySelector('.hv-pk-filters .btn'))
+      const host = document.createElement('div')
+      const r = createRoot(host)
+      act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+      return { host, r }
+    }
+    let { host, r } = sheet()
+    const item = label => [...host.querySelectorAll('.menu-item')].find(i => i.querySelector('.tt').textContent === label)
+    expect(item('kettlebell')).toBeUndefined()           // folded under Free weights
+    click(item('Free weights'))
+    act(() => r.unmount())
+    expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('Free weights')
+    const eqs = new Set([...container.querySelectorAll('.hv-pk-row .tt')].map(el => EXDB.find(e => e.n === el.textContent)?.eq).filter(Boolean))
+    expect([...eqs].every(q => ['dumbbell', 'kettlebell', 'weight plate', 'medicine ball', 'sandbag', 'clubbell', 'macebell'].includes(q))).toBe(true)
+    ;({ host, r } = sheet())
+    click(item('Free weights').querySelector('.hv-eqg-x'))
+    click(item('kettlebell'))
+    act(() => r.unmount())
+    expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('kettlebell')
+    expect(rowOf(KB)).toBeTruthy()
+  })
 })
+

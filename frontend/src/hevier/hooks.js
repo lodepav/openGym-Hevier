@@ -22,7 +22,7 @@ export const hooks = {
   durationOpen: null,    // ({ value, off, onDone }) => { value, onDone }: a duration sheet about to open (S33)
   statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)
   chartTicks: null,      // (ticks, t0, t1) => ticks: LineChart's x-axis labels (S30)
-  gymSheet: null,        // { equipment(p), saved(p), note() }: an equipment profile's sheet, a gym's (S36)
+  gymSheet: null,        // { equipment(p), saved(p), note(), Chips }: an equipment profile's sheet, a gym's (S36)
   equipFilter: null,     // (S) => { profile, has(ex) }: the gym upstream's muscle explorer filters by (S37)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }

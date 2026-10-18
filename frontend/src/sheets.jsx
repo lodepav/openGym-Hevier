@@ -1571,11 +1571,11 @@ function EquipmentProfileSheet({ profile, close }) {
     </div>
     <TextField ref={nameRef} defaultValue={profile?.name || ''} placeholder={t('Profile name')} maxLength={40} />
     <div style={{ height: 12 }} />
-    <div className="chips">
+    {hooks.gymSheet ? <hooks.gymSheet.Chips kinds={ALL_EQUIPMENT} checked={checked} setChecked={setChecked} /> /* [hevier] S36 */ : <div className="chips">
       {ALL_EQUIPMENT.map(k => (
         <button key={k} className={'chip' + (checked.has(k) ? ' on' : '')} onClick={() => toggle(k)}>{t(k)}</button>
       ))}
-    </div>
+    </div>}
     <div className="dim small" style={{ marginTop: 10 }}>
       {hooks.gymSheet ? hooks.gymSheet.note() : t('Body-weight exercises are always available, unless they need a pull-up bar or a bench.') /* [hevier] S36 */}
     </div>
