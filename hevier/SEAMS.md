@@ -52,6 +52,7 @@ longer needed gets removed, and so does its row.
 | S34 | `frontend/src/views/Stats.jsx`, `frontend/src/views/StructuralBalance.jsx` (the page's `S`, and the import of `hooks`) | The page reads `S` through `hooks.statsS`; the fork passes the log without the exercises kept out of progression (`hevier/lib/counted.js` `countedS`, D57), so All statistics and Structural balance leave them out. Empty, the page reads `S` as before; its writes go through the store's own `update`. |
 | S35 | `frontend/src/lib/progression.js` (`policyFor`, and the import of `hooks`) | The fallback rule of a reps exercise when neither it nor its routine sets one is `hooks.defaultProg`, else upstream's `'linear'`; the fork sets `'off'` (D61). Upstream could take a default-rule setting. | done |
 | S36 | `frontend/src/sheets.jsx` (`EquipmentProfileSheet`) | A profile's ticks open from `hooks.gymSheet.equipment(p)`, a save calls `hooks.gymSheet.saved(p)`, and the note under the chips is `hooks.gymSheet.note()`: the fork's gyms count body weight as equipment, a gym saved before reading as having it (D62). Upstream could make body weight a profile tick of its own. | done |
+| S37 | `frontend/src/components/MuscleExplorer.jsx` (the import of `hooks`, and its profile and catalogue) | With `hooks.equipFilter` set, the explorer filters by the gym and test it returns (`{ profile, has(ex) }`) instead of upstream's active profile behind its switch: the fork's gym chosen in its picker (D62). Upstream could take a filter from its caller. | done |
 
 ## Upstream contracts the overlay depends on
 
