@@ -2,6 +2,23 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.4.0 · 2026-10-18
+
+Based on openGym 1.4.1.
+
+### New
+
+- equipment groups (D63); the muscle explorer's back goes back
+- gym filter in the picker, body weight as equipment (D62)
+- progression off by default (D61); no gap under settings groups
+
+### Fixes and changes
+
+- the muscle explorer's equipment by group (D63)
+- the muscle explorer follows the picker's gym (D62)
+- an edited workout goes back where its edit was opened
+- the Calendar's months oldest first, opening on this one
+
 ## 1.3.0 · 2026-10-18
 
 Based on openGym 1.4.1.
