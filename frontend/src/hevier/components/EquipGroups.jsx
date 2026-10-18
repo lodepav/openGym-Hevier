@@ -5,7 +5,7 @@ import { Fragment, useState } from 'react'
 import { t } from '../../lib/i18n.js'
 import Icon from '../../components/Icon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
-import { groupKinds, groupState, toggleGroup, groupValue, groupIdOf, groupOf } from '../lib/equip-groups.js'
+import { groupKinds, groupState, toggleGroup, groupValue, groupIdOf, groupOf, eqOnAmong, eqMatches } from '../lib/equip-groups.js'
 
 const Chevron = ({ open, label, onClick, className }) => <button type="button" className={className}
   aria-expanded={open} aria-label={open ? t('Hide {0}', label) : t('Show {0}', label)}
@@ -85,3 +85,37 @@ export function EquipFilterSheet({ value, gyms, gymId, kinds, onAll, onGym, onEq
     </div>
   </>
 }
+
+/**
+ * The muscle explorer's equipment strip (seam S38): Any equipment, then a chip per group, its
+ * chevron opening a second strip of its kinds. `value` is '' (any), a kind or a group's value.
+ */
+export function EquipChipStrip({ kinds, value, onChange }) {
+  const groups = groupKinds(kinds)
+  // A kind chosen opens its group's strip, so the choice is in sight.
+  const [open, setOpen] = useState(() => (value && !groupIdOf(value) ? groupOf(value) : null))
+  const shut = open && groups.find(g => g.id === open)?.kinds.length > 1 ? open : null
+  const sub = shut ? groups.find(g => g.id === shut) : null
+  const inGroup = id => value === groupValue(id) || (!groupIdOf(value) && value && groupOf(value) === id)
+  return <>
+    <div className="chips" style={{ marginBottom: sub ? 6 : 12 }}>
+      <button className={'chip nocap' + (!value ? ' on' : '')} onClick={() => onChange('')}>{t('Any equipment')}</button>
+      {groups.map(g => {
+        const many = g.kinds.length > 1
+        const v = many ? groupValue(g.id) : g.kinds[0]
+        const label = t(g.label)
+        return <span key={g.id} className={'chip hv-eqg-chip' + (value === v ? ' on' : inGroup(g.id) ? ' some' : '')}>
+          <button type="button" className="hv-eqg-t" aria-pressed={value === v} onClick={() => onChange(value === v ? '' : v)}>{label}</button>
+          {many && <Chevron open={shut === g.id} label={label} className="hv-eqg-x" onClick={() => setOpen(o => (o === g.id ? null : g.id))} />}
+        </span>
+      })}
+    </div>
+    {sub && <div className="chips hv-eqg-strip" style={{ marginBottom: 12 }}>
+      {sub.kinds.map(k => <button key={k} className={'chip' + (value === k ? ' on' : '')} aria-pressed={value === k}
+        onClick={() => onChange(value === k ? groupValue(sub.id) : k)}>{t(k)}</button>)}
+    </div>}
+  </>
+}
+
+/** Seam S38's hand-off. */
+export const equipChips = { on: eqOnAmong, has: eqMatches, Chips: EquipChipStrip }
