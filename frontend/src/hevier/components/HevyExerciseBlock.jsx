@@ -1,8 +1,8 @@
 // One exercise in the Hevy workout screen (hevier/DECISIONS.md D2–D9, reference/SCREENS.md §2):
 // thumbnail · blue name · ⋮, the notes, "Rest Timer: …", then the SET · PREVIOUS · KG · REPS · ✓
 // table and a full-width "+ Add Set". The columns follow the exercise's mode as upstream's block
-// does: KG · REPS, KG · SEC with a start button for a timed hold, MIN · speed (· incline) for
-// cardio, and an L and an R line under one set number for a per-side exercise.
+// does: KG · REPS, KG · TIME for a timed hold, TIME · speed (· incline) for cardio, the last two
+// with Hevy's count-up timer (D53), and an L and an R line under one set number for a per-side exercise.
 //
 // Presentation only. Every change to the session goes through the handlers the workout screen
 // passes in (`blockProps` in views/Workout.jsx) or through upstream's pure helpers in lib/, the
@@ -19,7 +19,7 @@ import { fmtRest } from '../../lib/duration.js'
 import { restTimerText } from '../lib/elapsed.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
-  canBeWarmup, setSpanAt, lastEntryFor, setLabel, cascadeWeight,
+  canBeWarmup, setSpanAt, lastEntryFor, cascadeWeight,
 } from '../../lib/history.js'
 import {
   isWarmupRow, isFailureSet, toggleFailure, isDropSet, isRestPauseSet, dropsOf, clustersOf, addDrop,
@@ -47,6 +47,11 @@ import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
+import DurationField from './DurationField.jsx'
+import Elapsed from './Elapsed.jsx'
+import HvIcon from './HvIcon.jsx'
+import { RUN, secOf, fieldValue, stopped, startRun } from '../lib/set-timer.js'
+import { hevySetLabel } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { shiftTouched } from '../lib/touched.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
@@ -57,7 +62,7 @@ const setUI = patch => useUI.setState?.(patch)
 const viewOf = (col, v) => (col.view && v != null && v !== '' ? col.view(v) : v)
 
 export default function HevyExerciseBlock({
-  entryIdx, editing, busy, superset, onToggle, onToggleSide, onStartTimed, onField, onAddSet, onAddWarmup, onRemoveSetAt, onCopySetAt,
+  entryIdx, editing, busy, superset, onToggle, onToggleSide, onField, onAddSet, onAddWarmup, onRemoveSetAt, onCopySetAt,
   onProgressionSettings, onRest, onNoProg, routineUpdate, onSwap, onMoveUp, onMoveDown, canMoveUp, canMoveDown,
   onRemoveExercise, onPairPrev, onPairNext, onUnpair, onSetRowRef,
 }) {
@@ -116,15 +121,19 @@ export default function HevyExerciseBlock({
   const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase(), label: t('Weight ({0})', xu),
     ...(conv ? { view: v => shown(v, unit, xu), store: v => convert(v, xu, unit) } : {}) }
   const R = { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }
+  // D53: a cardio set's minutes and a hold's seconds are one TIME column, typed and shown as a clock.
   const cols = cardio ? [
-    { f: 'min', dec: false, hd: t('MIN'), label: t('Duration (min)') },
+    { f: 'min', dur: true, hd: t('TIME'), label: t('Duration') },
     { f: 'speed', dec: true, hd: speedUnit === 'mph' ? t('MPH') : t('KM/H'), label: speedUnit === 'mph' ? t('Speed (mph)') : t('Speed (km/h)'),
       view: v => toSpeed(v, speedUnit), store: v => fromSpeed(v, speedUnit) },
     (inclineFits(ex) || entry.sets.some(hasIncline)) && { f: 'incline', dec: true, opt: true, hd: t('INCL %'), label: t('Incline (%)'), store: clampIncline },
-  ].filter(Boolean) : timed ? [W, { f: 'sec', dec: false, hd: t('SEC'), label: t('Seconds') }] : [W, R]
+  ].filter(Boolean) : timed ? [W, { f: 'sec', dur: true, hd: t('TIME'), label: t('Time') }] : [W, R]
   const effOn = mode === 'reps' && !!eff
-  const playOn = timed && !editing
-  const grid = { '--nc': cols.length + (effOn ? 1 : 0) + (playOn ? 1 : 0) }
+  // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown.
+  const playOn = (timed || cardio) && !editing
+  const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
+  // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
+  const goGrid = playOn ? ' hv-go-grid' : ''
 
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), over the same
   // lib helpers: a set's phase, its failure mark, its drops and bursts.
@@ -292,7 +301,7 @@ export default function HevyExerciseBlock({
 
   const prevLabel = p => {
     if (!p) return '–'
-    if (mode !== 'reps' || isSideSet(p)) return setLabel(entry.id, p, last?.target, speedUnit)
+    if (mode !== 'reps' || isSideSet(p)) return hevySetLabel(entry.id, p, last?.target, speedUnit)
     if (bw) return (p.w > 0 ? `+${fmtNum(sw(p.w))}${xu} × ` : '× ') + (p.r || 0)
     return `${fmtNum(sw(p.w || 0))}${xu} × ${p.r || 0}`
   }
@@ -322,6 +331,18 @@ export default function HevyExerciseBlock({
     const key = (side || '') + col.f
     const firm = src.done || touched.has(i + ':' + key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
     const k = i + ':' + key
+    if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={col.label}><Elapsed start={src[RUN]} /></span>
+    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} hint={!firm}
+      aria-label={col.label}
+      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
+      onRestore={() => {
+        const was = typedOver.current
+        typedOver.current = null
+        if (was?.k !== k) return
+        update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
+        untouch(k)
+      }}
+      onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(mode, sec)) }} />
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
       hint={!firm}
       onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
@@ -368,7 +389,15 @@ export default function HevyExerciseBlock({
   // this exercise's own unit (D41).
   const prText = r => (!conv || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
     : r.kind === 'setVol' ? `${fmtNum(sw(r.w))} ${xu} × ${r.r}` : fmtNum(sw(r.v)) + ' ' + xu)
+  // D53: ▶ starts the set's count-up timer (stopping any other), ■ writes its time in.
+  const timeCol = cols.find(c => c.dur)
+  const startTimer = i => update(st => startRun(st.active, entryIdx, i), true)
+  const stopTimer = i => {
+    update(st => { const e = st.active?.entries[entryIdx]; if (e?.sets[i]) e.sets[i] = stopped(e.sets[i], mode) }, true)
+    if (timeCol) touch(i, timeCol.f)
+  }
   const tick = (i, side) => {
+    if (!side && entry.sets[i]?.[RUN]) stopTimer(i)
     const had = recordsAt(liveRecords(useStore.getState().S), entryIdx, i).map(r => r.kind)
     if (side) onToggleSide(i, side); else onToggle(i)
     const st = useStore.getState().S
@@ -386,15 +415,17 @@ export default function HevyExerciseBlock({
     const prevText = side ? sidePrev(p, side) : prevLabel(p)
     const canCopy = side ? !!(p && isSideSet(p)) : !!p
     return <div ref={side === 'R' ? undefined : el => onSetRowRef?.(i, el)} style={grid}
-      className={'hv-row' + (src.done ? ' done' : '') + (side ? ' hv-side' : '')}>
+      className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '')}>
       {side === 'R' ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {cols.map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && effortCell(s, i, side)}
-      {playOn && <button type="button" className="iconbtn hv-go" aria-label={t('Start set')} disabled={s.done || !!working}
-        onClick={() => onStartTimed(i)}><Icon name="play" /></button>}
+      {playOn && (s[RUN]
+        ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop')} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
+        : <button type="button" className="iconbtn hv-go" aria-label={t('Start set')} disabled={s.done}
+          onClick={() => startTimer(i)}><Icon name="play" /></button>)}
       <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
         onChange={() => tick(i, side)} />
     </div>
@@ -462,7 +493,7 @@ export default function HevyExerciseBlock({
       {entry.note || t('Add notes here…')}
     </button>
     {onRest && <button type="button" className="hv-rest" onClick={onRest}><Icon name="timer" />{t('Rest Timer: {0}', restText)}</button>}
-    <div className="hv-head" style={grid} aria-hidden="true">
+    <div className={'hv-head' + goGrid} style={grid} aria-hidden="true">
       <span>{t('SET')}</span><span>{t('PREVIOUS')}</span>
       {cols.map(c => <span key={c.f}>{c.hd}</span>)}
       {effOn && <span>{t(eff.hd).toUpperCase()}</span>}{playOn && <span />}<span><Icon name="check" /></span>

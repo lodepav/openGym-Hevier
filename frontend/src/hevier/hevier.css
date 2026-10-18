@@ -61,6 +61,9 @@
   /* --nc: the value columns of the exercise's mode, plus effort or the start button */
   grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,58px)) 36px;
 }
+/* a cardio set or a hold: ▶ / ■ of its count-up timer (D53) in a narrow track before the tick */
+:root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,62px)) 34px 36px}
+:root[data-ui="hevier"] .hv-go-grid .hv-go{width:34px;height:34px;min-width:0;padding:0}
 :root[data-ui="hevier"] .hv-head{font-size:11px;letter-spacing:.04em;color:var(--label-2);padding:0 4px 4px;text-align:center}
 
 :root[data-ui="hevier"] .hv-head .icn{font-size:13px}
@@ -573,3 +576,9 @@
    Upstream's line names the build "openGym" with the fork's version; the fork's root draws its own
    line, Go Hevier's version and upstream's, so upstream's is hidden. */
 :root[data-ui="hevier"] .sp-root-title ~ .sp-version:not(.hv-version){display:none}
+
+/* ---------- a set's count-up timer (D53) ---------- */
+/* the running time stands where the TIME field was, in Hevy blue, and ■ beside it */
+:root[data-ui="hevier"] .hv-running{display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-go.on{color:var(--blue)}
+:root[data-ui="hevier"] .hv-dur{font-variant-numeric:tabular-nums}

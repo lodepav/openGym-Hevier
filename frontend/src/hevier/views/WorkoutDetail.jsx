@@ -12,7 +12,7 @@ import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtVol } from '../../lib/format.js'
-import { setLabel, sessionSections } from '../../lib/history.js'
+import { sessionSections } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { sameWorkout } from '../../lib/workout-date.js'
@@ -23,7 +23,7 @@ import WorkoutMediaSection, { workoutMediaCount } from '../../components/Workout
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
-import { hevySetText } from '../lib/set-text.js'
+import { hevySetText, hevySetLabel } from '../lib/set-text.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
@@ -60,7 +60,7 @@ function ExerciseSets({ w, e, st, recs }) {
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
-        <span>{hevySetText(setLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}</span>
+        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}</span>
         <PrBadge recs={recs.filter(r => r.set === i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}

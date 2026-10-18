@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hevySetText } from './set-text.js'
+import { hevySetText, hevySetLabel } from './set-text.js'
 
 describe('hevySetText', () => {
   it('writes the plain weight × reps out in full', () => {
@@ -12,5 +12,14 @@ describe('hevySetText', () => {
     expect(hevySetText('20 each × 8', 'kg')).toBe('20 each × 8')
     expect(hevySetText('60×10+4+2', 'kg')).toBe('60×10+4+2')
     expect(hevySetText('30 min @ 10 km/h', 'kg')).toBe('30 min @ 10 km/h')
+  })
+})
+
+describe('hevier cardio time as a clock (D53)', () => {
+  it('writes a cardio set’s minutes as h:mm:ss, every other set as upstream does', () => {
+    const cardio = { mode: 'cardio' }
+    expect(hevySetLabel('x', { min: 754 / 60, speed: 8 }, cardio, 'kmh')).toMatch(/^12:34 @ 8/)
+    expect(hevySetLabel('x', { min: 90, speed: 8 }, cardio, 'kmh')).toMatch(/^1:30:00 @ /)
+    expect(hevySetLabel('x', { sec: 75 }, { mode: 'time' })).toBe('1:15')
   })
 })
