@@ -14,18 +14,24 @@ export const versionLine = (tr = s => s, mine = own(), theirs = upstream()) =>
 
 const VERSION_RE = /\d+\.\d+\.\d+[^\s)]*/
 
+/** A debug build (hevier/tools/emulator.sh): it never checks for updates (seam S6). */
+export const DEBUG_BUILD = import.meta.env.VITE_HEVIER_DEBUG === '1'
+
 /**
  * Upstream's About page with both versions: the Version row's value, the update row's title (a
- * newer Go Hevier, not openGym) and the footer's first line. Anything else, or a page whose shape
- * changed in a merge, is left as it is.
+ * newer Go Hevier, not openGym) and the footer's first line. In a debug build the update row says
+ * updates come with the release app instead. Anything else, or a page whose shape changed in a
+ * merge, is left as it is.
  */
-export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream()) {
+export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream(), debug = DEBUG_BUILD) {
   const versionTitle = tr('Version')
   const updateTitle = tr('Update to openGym v{0}', '\u0000').split('\u0000')
   const walk = node => {
     if (!isValidElement(node)) return node
     const p = node.props
     if (node.type === Row && p.title === versionTitle) return cloneElement(node, { value: 'v' + mine, subtitle: tr('based on openGym {0}', 'v' + theirs) })
+    if (debug && node.type === Row && p.icon === 'download' && p.onClick)
+      return cloneElement(node, { title: tr('Updates'), subtitle: tr('A test build: updates come with the release app.'), onClick: undefined, accessory: 'none' })
     if (node.type === Row && typeof p.title === 'string' && p.title.startsWith(updateTitle[0]) && p.title.endsWith(updateTitle[1] || '')) {
       const v = p.title.match(VERSION_RE)?.[0]
       if (v) return cloneElement(node, { title: tr('Update to Go Hevier v{0}', v) })

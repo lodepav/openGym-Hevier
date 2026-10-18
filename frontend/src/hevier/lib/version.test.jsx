@@ -39,3 +39,13 @@ describe('hevier version (D52)', () => {
     expect(footer(out)[0]).toBe('openGym v')
   })
 })
+
+describe('hevier version in a debug build (D52)', () => {
+  it('the update row says updates come with the release app, and does nothing', () => {
+    const tree = <Section><Row icon="download" title="Check for updates" subtitle="You have v1.0.0" accessory="chevron" onClick={() => {}} /></Section>
+    const [row] = rows(aboutPage(tree, tr, '1.0.0+abc', '1.4.1', true))
+    expect(row).toMatchObject({ title: 'Updates', subtitle: 'A test build: updates come with the release app.', accessory: 'none' })
+    expect(row.onClick).toBeUndefined()
+    expect(rows(aboutPage(tree, tr, '1.0.0', '1.4.1', false))[0].title).toBe('Check for updates')
+  })
+})

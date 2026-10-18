@@ -15,6 +15,8 @@ import { MOBILE } from './mobile.js'
 const REPO = import.meta.env.VITE_UPDATE_REPO || 'DuarteSantos8/openGym'
 // and read their tags, gohevier-vX.Y.Z (upstream's vX.Y.Z tags share the fork's repo)
 const tagVersion = tag => String(tag || '').replace(/^gohevier-/, '').replace(/^v/, '')
+// A debug build (another app id, the debug key) never checks: a release would install beside it
+const NO_CHECK = import.meta.env.VITE_HEVIER_DEBUG === '1'
 // [/hevier]
 const LATEST_URL = `https://api.github.com/repos/${REPO}/releases/latest`
 export const RELEASES_PAGE = `https://github.com/${REPO}/releases/latest`
@@ -59,6 +61,7 @@ export async function checkForUpdate() {
   return cached
 }
 async function fetchLatest() {
+  if (NO_CHECK) return { hasUpdate: false, latestVersion: __APP_VERSION__, apkUrl: null, hashUrl: null } // [hevier] S6
   const res = await fetch(LATEST_URL, { headers: { Accept: 'application/vnd.github+json' } })
   // 404: the repository has no published release yet
   if (res.status === 404) return { hasUpdate: false, latestVersion: __APP_VERSION__, apkUrl: null, hashUrl: null }
