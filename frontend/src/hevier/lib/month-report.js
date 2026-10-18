@@ -5,6 +5,7 @@ import { workoutDay, workoutDuration, workoutAt, bestWeightForEntry } from '../.
 import { betterWeight } from '../../lib/exercises.js'
 import { muscleSets, workSets } from './volume.js'
 import { monthCells } from './calendar.js'
+import { signed } from './delta.js'
 
 const pad = n => String(n).padStart(2, '0')
 const keyOf = (y, mo) => `${y}-${pad(mo + 1)}`
@@ -70,14 +71,8 @@ export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = 
   }
 }
 
-/** A change against the month before: { up, text } with text like '+3' or '−20%', or null. */
-export function change(now, before, pct = false) {
-  if (!before && !now) return null
-  if (pct) {
-    if (!before) return null
-    const p = Math.round((now - before) / before * 100)
-    return p ? { up: p > 0, text: (p > 0 ? '+' : '−') + Math.abs(p) + '%' } : null
-  }
-  const d = now - before
-  return d ? { up: d > 0, text: (d > 0 ? '+' : '−') + Math.abs(d) } : null
+/** A change against the month before, absolute as Hevy's report writes it: { up, text } with text
+ *  like '+3' or '−1h 30min' (`fmt` writes the size), or null for none. */
+export function change(now, before, fmt) {
+  return signed((Number(now) || 0) - (Number(before) || 0), fmt)
 }

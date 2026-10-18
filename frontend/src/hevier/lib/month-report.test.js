@@ -56,11 +56,11 @@ describe('hevier monthly report (D23)', () => {
     expect(firstMonth([])).toBeNull()
   })
 
-  it('says a change as a count or a percentage', () => {
+  it('says a change as an absolute amount', () => {
     expect(change(5, 3)).toEqual({ up: true, text: '+2' })
     expect(change(3, 5)).toEqual({ up: false, text: '−2' })
     expect(change(3, 3)).toBeNull()
-    expect(change(80, 100, true)).toEqual({ up: false, text: '−20%' })
-    expect(change(5, 0, true)).toBeNull()
+    expect(change(80, 100, n => n + ' kg')).toEqual({ up: false, text: '−20 kg' })
+    expect(change(5, 0)).toEqual({ up: true, text: '+5' })
   })
 })

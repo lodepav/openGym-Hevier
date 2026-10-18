@@ -9,7 +9,8 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDur } from '../../lib/format.js'
+import { fmtNum } from '../../lib/format.js'
+import { durationWords } from '../lib/elapsed.js'
 import { workoutVolume, setsDoneActive, setUnitsTotal, NOTE_MAX } from '../../lib/history.js'
 import { loadOfWorkouts } from '../../lib/muscles.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -101,7 +102,7 @@ export function SaveWorkout() {
     <input className="hv-stitle" value={title} maxLength={TITLE_MAX} placeholder={t('Workout title')}
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
-      <div><span>{t('Duration')}</span><b className="acc">{fmtDur((min ?? live) * 60000)}</b></div>
+      <div><span>{t('Duration')}</span><b className="acc">{durationWords((min ?? live) * 60000)}</b></div>
       {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>}
       <div><span>{t('Sets')}</span><b>{done}</b></div>
     </div>

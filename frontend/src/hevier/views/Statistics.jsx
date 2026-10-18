@@ -7,6 +7,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, DAYS } from '../../lib/format.js'
+import { signed } from '../lib/delta.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
@@ -52,12 +53,12 @@ function SetCounts({ S, today }) {
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
     {rows.length ? <div className="hv-msets">{rows.map(r => {
-      const delta = Math.round((r.sets - r.prev) * 10) / 10
+      const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
       return <div key={r.muscle} className="hv-mset">
         <span className="hv-mset-n">{t(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>
         <b>{fmtNum(r.sets)}</b>
-        <span className={'hv-mset-d' + (delta > 0 ? ' up' : delta < 0 ? ' down' : '')}>{delta ? (delta > 0 ? '+' : '') + fmtNum(delta) : '–'}</span>
+        <span className={'hv-mset-d' + (d ? (d.up ? ' up' : ' down') : '')}>{d?.text}</span>
       </div>
     })}
       <div className="small dim">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>

@@ -4,12 +4,13 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDur, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
+import { fmtNum, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { workoutsByDay } from '../lib/calendar.js'
+import { durationWords } from '../lib/elapsed.js'
 import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
@@ -67,10 +68,10 @@ export default function MonthReport() {
     {!r.workouts ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
       <div className="hv-stats hv-report-stats">
         <Stat label={t('Workouts')} value={r.workouts} delta={change(r.workouts, r.prev.workouts)} />
-        <Stat label={t('Duration')} value={fmtDur(r.duration)} delta={change(r.duration, r.prev.duration, true)} />
+        <Stat label={t('Duration')} value={durationWords(r.duration)} delta={change(r.duration, r.prev.duration, durationWords)} />
         {sets
           ? <Stat label={t('Sets')} value={r.sets} delta={change(r.sets, r.prev.sets)} />
-          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(r.volume, r.prev.volume, true)} />}
+          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit))} />}
       </div>
       <div className="hv-sub hv-report-vs">{t('Against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))}</div>
 

@@ -10,7 +10,6 @@ import { fmtNum, exCount } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, isBw } from '../../lib/history.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
-import { fmtRest } from '../../lib/duration.js'
 import { speedUnitOf, toSpeed } from '../../lib/speed.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { startFlow, exerciseDetailSheet } from '../../sheets.jsx'
@@ -48,7 +47,7 @@ function PreviewExercise({ r, i, units, S }) {
   const rest = restTimerText(e.restSec, S.restSec, t('Off'))
   return <div className={'hv-ex' + (e.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
-      {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(meta.rest))}</span>}</div>}
+      {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(meta.rest, 0, ''))}</span>}</div>}
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>

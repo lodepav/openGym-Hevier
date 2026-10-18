@@ -370,7 +370,7 @@
 :root[data-ui="hevier"] .hv-mset-bar i{display:block;height:100%;background:var(--acc);border-radius:4px}
 :root[data-ui="hevier"] .hv-mset-d{text-align:end;font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-mset-d.up{color:var(--green)}
-:root[data-ui="hevier"] .hv-mset-d.down{color:var(--orange)}
+:root[data-ui="hevier"] .hv-mset-d.down{color:var(--red)}
 :root[data-ui="hevier"] .hv-linkrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-linkrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 

@@ -7,7 +7,7 @@
 // a set for its main muscle only, or a secondary muscle in part too, kept in S.hvMuscleSets. Data & backup gets the
 // fork's Health Connect read switches (D27) under upstream's Health Connect card.
 import { t } from '../../lib/i18n.js'
-import { fmtRest } from '../../lib/duration.js'
+import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
 import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
@@ -49,7 +49,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
   // fork pins (D17), so that row shows none.
-  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', fmtRest(restSec)) : t('No rest timer'))
+  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
     : id === 'look' ? null : preview[id]?.() || null)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={t(PAGES[id].title)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />

@@ -61,7 +61,7 @@ describe('hevier: monthly report (D23)', () => {
   it('weight mode shows Volume in place of Sets', () => {
     render('/report', log, { hvVolume: 'weight' })
     expect(stat('Sets')).toBeUndefined()
-    expect(stat('Volume').textContent).toContain('+100%')
+    expect(stat('Volume').textContent).toContain('+500 kg')
   })
 
   it('steps back to the first logged month and no further, and that month is empty of records', () => {

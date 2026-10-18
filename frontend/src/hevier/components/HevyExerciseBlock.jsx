@@ -15,7 +15,6 @@ import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
-import { fmtRest } from '../../lib/duration.js'
 import { restTimerText } from '../lib/elapsed.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
@@ -479,7 +478,7 @@ export default function HevyExerciseBlock({
       <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
     </div>
     <BrandLine idx={entryIdx} />
-    {ss && <div className="hv-ss"><span className="hv-sspill">{ss.name || t('Superset')}</span>{ss.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(ss.rest))}</span>}</div>}
+    {ss && <div className="hv-ss"><span className="hv-sspill">{ss.name || t('Superset')}</span>{ss.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(ss.rest, 0, ''))}</span>}</div>}
     {entry.noProg === true && <div className="hv-sub hv-noprog"><Icon name="chartLineSlash" />{t('Not counted for progression')}
       {onNoProg && <button type="button" className="hv-link" onClick={() => onNoProg(false)}>{t('Undo')}</button>}</div>}
     {cfg.note && <div className="hv-note">{cfg.note}</div>}
