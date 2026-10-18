@@ -679,6 +679,13 @@ function HevyImportSheet({ close }) {
     ...(wantWorkouts ? w.unmatchedNames : []),
     ...(wantRoutines ? r.unmatchedNames : []),
   ])].sort()
+  // [hevier] S31: each custom exercise once (one in both the workouts and the routines is one
+  // exercise, the same id), from the parts switched on, as the list below
+  const createdCount = new Set([
+    ...(wantWorkouts ? w.customEx : []),
+    ...(wantRoutines ? r.customEx : []),
+  ].map(c => c.id)).size
+  // [/hevier]
 
   return <>
     <h3>{t('Import from Hevy')}</h3>
@@ -691,7 +698,7 @@ function HevyImportSheet({ close }) {
       <div className="tile"><div className="l">{t('Workouts')}</div><div className="v" style={{ fontSize: '1.1rem' }}>{w.workouts.length}</div></div>
       <div className="tile"><div className="l">{t('Routines')}</div><div className="v" style={{ fontSize: '1.1rem' }}>{r.routines.length}</div></div>
       <div className="tile"><div className="l">{t('Exercises matched')}</div><div className="v" style={{ fontSize: '1.1rem' }}>{w.matched + r.matched}</div></div>
-      <div className="tile"><div className="l">{t('Added as your own')}</div><div className="v" style={{ fontSize: '1.1rem' }}>{w.created + r.created}</div></div>
+      <div className="tile"><div className="l">{t('Added as your own')}</div><div className="v" style={{ fontSize: '1.1rem' }}>{/* [hevier] S31 */createdCount}</div></div>
     </div>
 
     {w.workouts.length > 0 && <div className="row between" style={{ padding: '10px 2px', borderTop: '1px solid var(--sep)', gap: 12 }}>

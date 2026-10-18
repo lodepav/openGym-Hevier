@@ -46,6 +46,7 @@ longer needed gets removed, and so does its row.
 | S28 | `frontend/src/components/DurationWheel.jsx` | The seconds column in rows of `hooks.secondsStep` seconds (the fork sets 5, D48): its count, index, labels, pick and read-back, and the import of `hooks`. Unset, as in upstream's tests, it is one second a row, unchanged. |
 | S29 | `frontend/vite.config.js` | With `VITE_HEVIER=1`, `__APP_VERSION__` is Go Hevier's version from `hevier/VERSION` (plus `+APP_BUILD`, as upstream's), and `__UPSTREAM_VERSION__` is `package.json`'s in every build (D52). Unset, `__APP_VERSION__` is upstream's, unchanged. |
 | S30 | `frontend/src/components/LineChart.jsx` | The x-axis ticks pass through `hooks.chartTicks` before they are thinned and drawn, and the import of `hooks`. The fork's `hevier/lib/chart-ticks.js` drops a date that repeats the one before (a span of a day or two read "16 Oct · 17 Oct · 17 Oct") and adds the year to month labels over more than a year ("Apr '25"). Unset, as in upstream's tests, the ticks are upstream's. A fix worth offering upstream; delete the seam when upstream has it. |
+| S31 | `frontend/src/sheets.jsx` (the Hevy import sheet's summary) | **Added as your own** counts each custom exercise once, by id, from the parts switched on (`createdCount`), instead of `w.created + r.created`, which counted an exercise in both the workouts and the routines twice (one exercise, one id). An upstream bug, offered upstream; drop the seam when upstream has the fix. |
 
 ## Upstream contracts the overlay depends on
 
