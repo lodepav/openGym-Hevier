@@ -387,3 +387,11 @@ Added 2026-10-18, at the user's request.
 | # | Decision |
 |---|---|
 | D58 | **Each row of the Add Exercise picker has Hevy's chart button, which opens the exercise's details without adding it.** In the picker (Add Exercise, Replace, a routine's add and backups), a plain chart icon before the ✓ circle opens exercise details (Summary · History · How to) over the picker; back returns to the picker with its search, filters and ticks as they were. The thumbnail, which already did the same, still does. Profile → Exercises has no button: a tap on its row opens the details already. |
+
+## Training streak
+
+Added 2026-10-18, at the user's request.
+
+| # | Decision |
+|---|---|
+| D59 | **The streak says how long you have been training: weeks, and years once it is a year long.** The Calendar page's streak line (D14, Hevy's "N week streak") and Home's streak widget (D12) read `hevier/lib/streak.js` in place of upstream's `streakWeeks`, which a single week off resets. **Weeks:** the weeks from the first to the last trained week of the run, a week off inside it counted, since **one week off does not break it**; two weeks in a row with no workout do. It is still alive while at most one whole week has passed since the last trained week (this week may still be trained), else it reads 0. **Years:** a second, longer run that only **two months off** break (a workout more than two calendar months after the one before starts a new run; alive until two months after the last). Once that run spans a year, the line shows it instead, in years to a tenth, rounded down: `1.6 year streak`, from the run's first workout to its last. So six weeks off end the week streak but not the years. The weeks follow the profile's first weekday. Every logged workout counts (D57's kept-out ones too: it is about training, not statistics), and the rest days beside it are unchanged. Nothing is stored. |

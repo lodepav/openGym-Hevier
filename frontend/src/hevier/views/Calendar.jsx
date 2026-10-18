@@ -1,4 +1,4 @@
-// Hevy's Calendar (reference/SCREENS.md §11), Profile → Calendar: "N week streak · N rest days",
+// Hevy's Calendar (reference/SCREENS.md §11), Profile → Calendar: "N week streak · N rest days" (the streak D59's),
 // Month (the months back from this one, trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
@@ -8,11 +8,11 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
 import { fmtDate, todayISO, weekStartOf, weekOrder, DAYS, MONTHS_LONG } from '../../lib/format.js'
-import { streakWeeks } from '../../lib/history.js'
 import { workoutDetailSheet, dayOverrideSheet, WorkoutRow } from '../../sheets.jsx'
 import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
+import { streakLabel } from '../lib/streak.js'
 import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle } from '../lib/calendar.js'
 
 const MORE = 6
@@ -63,7 +63,6 @@ export default function Calendar() {
   const [count, setCount] = useState(MORE)
   const [year, setYear] = useState(now.getFullYear())
   const byDay = workoutsByDay(st.workouts)
-  const streak = streakWeeks(st)
   const rest = restDays(st.workouts, today)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
   // A month tapped in the year view opens the month view on it.
@@ -73,7 +72,7 @@ export default function Calendar() {
     <PageBar title={t('Calendar')} onBack={back} />
     <div className="hv-cal-streak">
       <Icon name="flame" />
-      <span>{t('{0} week streak', streak)}</span>
+      <span>{streakLabel(st)}</span>
       {rest != null && <span className="muted">· {rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
