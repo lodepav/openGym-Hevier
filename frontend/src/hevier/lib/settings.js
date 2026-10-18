@@ -12,7 +12,7 @@ export const SETTINGS_GROUPS = [
   { title: 'Account', account: true, ids: ['reminders'] },
   // `hv:` ids are the fork's own rows (DECISIONS.md D18, D21, D42), the rest upstream's pages (D16).
   { title: 'Workout', ids: ['workout', 'alerts', 'hv:previous', 'equipment', 'plan'] },
-  { title: 'Stats', ids: ['hv:volume', 'hv:muscle'] },
+  { title: 'Stats', ids: ['hv:volume'] },
   { title: 'App', ids: ['units', 'look'] },
   { title: 'Data & more', ids: ['data', 'coach', 'about'] },
 ]
