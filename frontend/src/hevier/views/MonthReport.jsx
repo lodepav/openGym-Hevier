@@ -15,6 +15,14 @@ import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 
+// The month's records grouped by exercise and day, in order: [{ id, d, recs }].
+const byDayEx = records => records.reduce((out, x) => {
+  const last = out.at(-1)
+  if (last && last.id === x.id && last.d === x.d) last.recs.push(x)
+  else out.push({ id: x.id, d: x.d, recs: [x] })
+  return out
+}, [])
+
 function Stat({ label, value, delta }) {
   return <div><span>{label}</span><b>{value}</b>
     {delta && <em className={delta.up ? 'up' : 'down'}>{delta.text}</em>}</div>
@@ -56,9 +64,10 @@ export default function MonthReport() {
 
       {r.records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h4>
-        <div className="list">{r.records.map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
+        {/* One row per exercise and day, its records under the name; the count above is every record. */}
+        <div className="list">{byDayEx(r.records).map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-            <span className="hv-sub">{t(KINDS[x.kind])} · {recordValue(x, unit, t)}</span></span>
+            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}</span>)}</span>
           <span className="dim">{fmtDate(x.d, true)}</span>
         </button>)}</div>
       </>}
