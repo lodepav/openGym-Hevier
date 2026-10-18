@@ -69,7 +69,23 @@ export const FIXES = {
   'standing leg curls': '4347',               // the machine, not the body-weight curl
   'nordic hamstrings curls': '7746',
   'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
-  'behind the back curl (cable)': '4838',     // the cable unilateral curl
+  'behind the back curl (cable)': { id: '4838', side: true },   // the cable unilateral curl, one arm at a time
+  // Hevy's own picture, chosen by the user from their history's review (2026-10-18); not offered upstream yet
+  'bent over row (dumbbell)': '0293',         // both arms, not one
+  'butterfly (pec deck)': '1030',
+  'calf press (machine)': '0738',             // the 45° sled's calf press
+  'chest press (band)': '3780',               // standing
+  'face pull': '7744',
+  'lat pulldown (cable)': '0150',
+  'lat pulldown - close grip (cable)': '6392',
+  'preacher curl (dumbbell)': '0402',
+  'rear delt reverse fly (dumbbell)': '0380',
+  'single arm curl (cable)': { id: '0190', side: true },
+  'single arm triceps extension (cable)': { id: '0149', side: true },
+  'sissy squat (weighted)': '0851',
+  'standing calf raise (smith)': '1164',
+  'triceps pushdown': '0201',
+  'upright row (barbell)': '0121',
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i

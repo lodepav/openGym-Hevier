@@ -40,7 +40,7 @@ describe('hevier Hevy import (D29)', () => {
   it('the user’s own matches: Nordic curls, deficit push ups, the behind-the-back cable curl', () => {
     expect(importExercise('Nordic Hamstrings Curls', 'Hevy')).toBe('7746')
     expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
-    expect(importExercise('Behind the Back Curl (Cable)', 'Hevy')).toBe('4838')
+    expect(readKey(importExercise('Behind the Back Curl (Cable)', 'Hevy'))).toEqual({ id: '4838', side: true, brand: '' })   // one arm at a time
     expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip(Cable)', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip (Cable)', 'Hevy')).toBe('0218')
@@ -100,11 +100,12 @@ describe('hevier Hevy import (D29)', () => {
     expect(calf).toMatchObject({ id: '2315', hvBrand: 'Achilles Rehab' })
     // unmatched with a brand: one custom exercise, named without the brand
     expect(curl).toMatchObject({ id: '4838', hvBrand: 'LifeFitness' })
+    expect(curl.sets.every(isSideSet)).toBe(true)
     expect(odd.hvBrand).toBe('LifeFitness')
     expect(p.customEx.find(c => c.id === odd.id)?.n).toBe('qwerty zorb')
     expect(p.unmatchedNames).toContain('qwerty zorb')
     // volume counts both sides, warm-ups out
-    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15 + 10 * 12 + 10 * 12)
+    expect(p.workouts[0].vol).toBe(48.75 * 20 + 100 * 8 + 20 * 8 + 40 * 15 + 10 * 24 + 10 * 12)
     // upstream's merge keeps it all
     const S = { workouts: [], customEx: [], bodyweight: [], exWeights: {} }
     mergeImport(S, p)
@@ -206,6 +207,18 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(p.workouts[0].vol).toBe(2 * 30 * 10)
     expect(workoutVolume(p.workouts[0])).toBe(2 * 30 * 10)   // upstream's own count agrees
     expect(p.workouts[1].vol).toBe(50 * 10)
+  })
+
+  it('follows Hevy’s own picture for the titles the user reviewed, brands and one arm included', () => {
+    const id = t => { const a = importExercise(t, 'Hevy'); return readKey(a) || { id: a } }
+    expect(id('Lat Pulldown (Cable)').id).toBe('0150')
+    expect(id('Lat Pulldown (Cable) (x2) (brand:LifeFitness)')).toMatchObject({ id: '0150', brand: 'LifeFitness', cable: 'x2' })
+    expect(id('Lat Pulldown (Cable) (LifeFitness)')).toMatchObject({ id: '0150', brand: 'LifeFitness' })
+    expect(id('Face Pull (brand:LifeFitness)')).toMatchObject({ id: '7744', brand: 'LifeFitness' })
+    expect(id('Single Arm Curl (Cable)')).toMatchObject({ id: '0190', side: true })
+    expect(id('Single Arm Triceps Extension (Cable) (brand:LifeFitness)')).toMatchObject({ id: '0149', side: true })
+    expect(id('Standing Calf Raise (Smith) (brand:Achilles Rehab)').id).toBe('1164')
+    for (const [, f] of Object.entries(FIXES)) expect(EXIDX[typeof f === 'string' ? f : f.id]).toBeTruthy()
   })
 
   it('reads a Hevy title’s second bracket as the brand, as it was written before "(brand: X)"', () => {
