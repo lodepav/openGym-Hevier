@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { FIXES, splitBrand, splitCable, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch, useChoices } from './hevy-import.js'
+import { FIXES, splitBrand, splitCable, bareBrand, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch, useChoices } from './hevy-import.js'
 import { workoutVolume } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -206,6 +206,25 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(p.workouts[0].vol).toBe(2 * 30 * 10)
     expect(workoutVolume(p.workouts[0])).toBe(2 * 30 * 10)   // upstream's own count agrees
     expect(p.workouts[1].vol).toBe(50 * 10)
+  })
+
+  it('reads a Hevy title’s second bracket as the brand, as it was written before "(brand: X)"', () => {
+    expect(bareBrand('Lat Pulldown (Cable) (LifeFitness)')).toEqual({ name: 'Lat Pulldown (Cable)', brand: 'LifeFitness' })
+    expect(bareBrand('Lat Pulldown (Cable)')).toBeNull()
+    expect(bareBrand('Lat Pulldown (Cable) (LifeFitness) extra')).toBeNull()
+    const p = parseImport(csv([
+      row('Lat Pulldown (Cable) (LifeFitness)', 0, 'normal', 30, 10),
+      row('Lat Pulldown (Cable)', 0, 'normal', 60, 10, '16 Oct 2026, 16:27'),
+      row('Reverse Fly Single Arm (Cable) (LifeFitness)', 0, 'normal', 5, 12, '17 Oct 2026, 16:27'),
+    ]), { unit: 'kg', customEx: [] })
+    const [branded, plain, fly] = entriesOf(p)
+    expect(branded).toMatchObject({ id: plain.id, hvBrand: 'LifeFitness' })
+    expect(plain.hvBrand).toBeUndefined()
+    expect(fly).toMatchObject({ id: '9868', hvBrand: 'LifeFitness' })
+    expect(isSideSet(fly.sets[0])).toBe(true)
+    expect(p.customEx).toEqual([])
+    // Only Hevy's titles: another app's second bracket is its own name.
+    expect(readKey(importExercise('Lat Pulldown (Cable) (LifeFitness)', 'Strong'))).toBeNull()
   })
 
   it('a parse that never finished leaves no titles for the next import’s review', async () => {

@@ -44,6 +44,9 @@ export function ReviewRow({ parsed }) {
   </>
 }
 
+// A brand's setup is its own: "Lat Pulldown (Cable) · LifeFitness".
+const named = x => x.title + (x.brand ? ' · ' + x.brand : '')
+
 function CableSheet({ parsed, close }) {
   const S = useStore(s => s.S)
   const [, bump] = useState(0)
@@ -54,17 +57,17 @@ function CableSheet({ parsed, close }) {
     bump(n => n + 1)
   }
   const pick = x => menuSheet({
-    title: x.title,
-    items: CABLES.map(c => ({ label: cableText(c), on: c === x.cable, onClick: () => set(x.key, c) })),
+    title: named(x),
+    items: CABLES.map(c => ({ label: cableText(c), on: c === x.cable, onClick: () => set(x.cableKey, c) })),
   })
   return <>
     <h3>{t('Check cable setups')}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>{t('A title without (1:1), (2:1) or (x2) is taken as 1:1. Tap one to confirm or change it; your choice is remembered for the next import.')}</div>
     <div className="list" style={{ gap: 0 }}>
-      {list.map(x => <button type="button" key={x.key} className="row between hv-cable-item" disabled={x.tagged}
+      {list.map(x => <button type="button" key={x.cableKey} className="row between hv-cable-item" disabled={x.tagged}
         onClick={() => pick(x)} style={rowStyle}>
         <div style={{ minWidth: 0 }}>
-          <div className="tt capitalize" style={{ fontSize: 15 }}>{x.title}</div>
+          <div className="tt capitalize" style={{ fontSize: 15 }}>{named(x)}</div>
           <div className="small" style={{ color: x.tagged || x.chosen ? 'var(--label-2)' : 'var(--yellow)' }}>
             {t('Cable')} {cableText(x.cable)} · {x.tagged ? t('from the title') : x.chosen ? t('your choice') : t('assumed')}
           </div>

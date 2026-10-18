@@ -21,30 +21,43 @@ export function choicesFor(S) {
 /** The CSV path: how to read the same file again (S23, `importFromApp`). */
 export function keep(parsed, redo) { parsed.hvRedo = redo }
 
-/** Every title the import asked about, once: the CSV's, or the API's workouts and routines. */
+/**
+ * Every title the import asked about, once per brand: the CSV's, or the API's workouts and
+ * routines. `key` is the title's without its brand (the review's), `cableKey` with it (D43).
+ */
 export function titlesOf(parsed) {
   const all = [...(parsed?.hvTitles || []), ...(parsed?.workouts?.hvTitles || []), ...(parsed?.routines?.hvTitles || [])]
   const out = new Map()
-  for (const t of all) { const k = t.source + '|' + t.title.toLowerCase(); if (!out.has(k)) out.set(k, { ...t, key: k }) }
+  for (const t of all) {
+    const key = t.source + '|' + t.title.toLowerCase()
+    const cableKey = key + (t.brand ? '|' + t.brand.toLowerCase() : '')
+    if (!out.has(cableKey)) out.set(cableKey, { ...t, key, cableKey })
+  }
   return [...out.values()]
 }
 
-/** The list the review shows: { key, title, source, id, chosen }, the user's own exercises first. */
-export function reviewList(titles, S) {
+const outcomes = (titles, S) => {
   useChoices(choicesFor(S))
   return titles.map(t => ({ ...t, ...outcomeOf(t.title, t.source) }))
+}
+
+/** The list the review shows: { key, title, source, id, chosen }, once per title, the user's own exercises first. */
+export function reviewList(titles, S) {
+  const once = [...new Map(titles.map(t => [t.key, t])).values()]
+  return outcomes(once, S)
     .sort((a, b) => (!a.id !== !b.id ? (a.id ? 1 : -1) : a.title.localeCompare(b.title)))
 }
 
 /**
- * The cable exercises among them, A to Z: { key, title, id, cable, tagged, chosen }. `cable` is
- * the title's tag, else the choice, else 1:1 (`chosen` false: assumed, to confirm).
+ * The cable exercises among them, one per brand, A to Z: { cableKey, title, brand, id, cable,
+ * tagged, chosen }. `cable` is the title's tag, else the choice (its brand's, else the title's
+ * without a brand, as kept before brands had their own), else 1:1 (`chosen` false: assumed, to confirm).
  */
 export function cableList(titles, S) {
-  return reviewList(titles, S).filter(x => x.id && isCable(x.id)).map(x => {
-    const own = S?.hvImportCable?.[x.key]
+  return outcomes(titles, S).filter(x => x.id && isCable(x.id)).map(x => {
+    const own = S?.hvImportCable?.[x.cableKey] || S?.hvImportCable?.[x.key]
     return { ...x, cable: x.cable || own || '1:1', tagged: !!x.cable, chosen: !x.cable && !!own }
-  }).sort((a, b) => a.title.localeCompare(b.title))
+  }).sort((a, b) => a.title.localeCompare(b.title) || (a.brand || '').localeCompare(b.brand || ''))
 }
 
 const put = (S, field, key, value) => {

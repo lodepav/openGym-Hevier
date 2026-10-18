@@ -4,7 +4,8 @@
 // entry's D28 brand (`hvBrand`) and upstream's per-side sets once the parse is finished.
 //
 // In order: (1) "(brand: X)" anywhere in a title is the user's own convention for a D28 brand,
-// from any app, and so is a bare "(1:1)", "(2:1)" or "(x2)" for a cable's D43 setup (else the
+// from any app, and so is, in a Hevy title, a second bracket after the equipment's ("Lat Pulldown
+// (Cable) (LifeFitness)", the older way), and a bare "(1:1)", "(2:1)" or "(x2)" for a cable's D43 setup (else the
 // review's choice, `S.hvImportCable`; none is 1:1); (2) the user's own choice from the review (D33, `S.hvImportMap`), any app; (3) the
 // fix table below, Hevy's English titles only; (4) a Hevy "Single/One Arm/Leg" title whose rest is
 // a machine or cable exercise: that exercise, per side; (5) upstream's match, untouched. Every
@@ -26,6 +27,7 @@ export const FIXES = {
   'seated leg curl (machine)': '0599',          // not the lying leg curl
   'single leg extensions': { id: '7108', side: true },   // not the floor knee extension
   'single arm cable row': { id: '7564', side: true },    // a horizontal row, not a high row
+  'single arm cable row (cable)': { id: '7564', side: true },
   'reverse grip lat pulldown (cable)': '0208',  // a cable, not the machine
   'lat pulldown (machine)': '0579',             // not the reverse grip
   'skullcrusher (dumbbell)': '0351',            // not the barbell
@@ -95,8 +97,23 @@ export function splitCable(name) {
   return { name: clean(String(name).replace(CABLE, ' ')), cable: c === '×2' ? 'x2' : c }
 }
 
+// Hevy's own titles have one bracket at most, the equipment (none in its title map has two), so a
+// second one, last, is the user's own: a brand as it was written before "(brand: X)", which Hevy's
+// CSV still carries for sets logged before the exercise was renamed.
+const LAST = /\(([^()]*)\)\s*$/
+export function bareBrand(name) {
+  const m = String(name || '').match(LAST)
+  if (!m || (name.match(/\([^()]*\)/g) || []).length < 2) return null
+  return { name: clean(name.slice(0, m.index)), brand: clean(m[1]).slice(0, BRAND_MAX) }
+}
+
 /** A title's parts: the name to match, the brand and the cable tag. */
-const partsOf = title => { const { name, brand } = splitBrand(title); return { ...splitCable(name), brand } }
+function partsOf(title, source) {
+  const { name, brand } = splitBrand(title)
+  const c = splitCable(name)
+  const bare = !brand && source === 'Hevy' ? bareBrand(c.name) : null
+  return bare ? { ...c, ...bare } : { ...c, brand }
+}
 
 function fixOf(name) {
   // "Grip(Cable)" and "Grip (Cable)" are one title.
@@ -132,7 +149,12 @@ export function readKey(id) {
 }
 
 /** The review's key for a title: the app and the title without its brand and cable tag, lower case (D33). */
-export const choiceKey = (title, source) => source + '|' + partsOf(title).name.toLowerCase()
+export const choiceKey = (title, source) => source + '|' + partsOf(title, source).name.toLowerCase()
+/** The cable review's key: the review's, and the brand when there is one, so a brand's setup is its own (D43). */
+export function cableKey(title, source) {
+  const { brand } = partsOf(title, source)
+  return choiceKey(title, source) + (brand ? '|' + brand.toLowerCase() : '')
+}
 
 /**
  * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist, customEx }`, or null.
@@ -158,9 +180,9 @@ const seen = new Map()
 // weigh-ins) leaves nothing in the next import's review.
 let asking = false
 export function importExercise(title, source) {
-  const { name, cable } = partsOf(title)
+  const { name, cable, brand } = partsOf(title, source)
   if (!asking) { seen.clear(); asking = true; queueMicrotask(() => { asking = false }) }
-  seen.set(choiceKey(title, source), { title: name, source, cable })
+  seen.set(cableKey(title, source), { title: name, source, cable, brand })
   return resolved(title, source)
 }
 function resolved(title, source) {
@@ -180,15 +202,17 @@ export function outcomeOf(title, source) {
   const chosen = !!choiceOf(title, source)
   const a = resolved(title, source)
   const k = readKey(a) || { id: a }
-  const id = k.id ?? upstreamMatch(partsOf(title).name, source)
+  const id = k.id ?? upstreamMatch(partsOf(title, source).name, source)
   return { id: id && !k.n ? id : null, chosen }
 }
 
-/** The cable setup a title is imported with: its tag, else the review's choice, else '' (1:1). */
-export const cableFor = (title, source) => partsOf(title).cable || ctx?.cables?.[choiceKey(title, source)] || ''
+/** The cable setup a title is imported with: its tag, else the review's choice (its brand's, else
+ *  the title's without a brand, as it was kept before), else '' (1:1). */
+export const cableFor = (title, source) =>
+  partsOf(title, source).cable || ctx?.cables?.[cableKey(title, source)] || ctx?.cables?.[choiceKey(title, source)] || ''
 
 function answer(title, source) {
-  const { name, brand } = partsOf(title)
+  const { name, brand } = partsOf(title, source)
   const cable = cableFor(title, source)
   const hevy = source === 'Hevy'
   const own = choiceOf(title, source)
