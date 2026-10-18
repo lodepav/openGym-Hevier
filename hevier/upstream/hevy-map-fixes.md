@@ -12,10 +12,14 @@ upstream merges #672, delete those 40 rows there. Four rows stay, because they a
 titles, not Hevy's: `bulgarian split squat (smith machine)`, `deficit push up`,
 `pull up (close neutral grip)` and `seated cable row - bar wide grip (cable)`.
 
-## Not offered yet: 16 more of Hevy's pictures
+## Offered in #672 too: 15 more of Hevy's pictures
 
 The user's review of their own history (2026-10-18, D29) added 16 rows to `FIXES` under "Hevy's own
-picture", each the catalogue exercise Hevy's thumbnail names. They could go to #672 or a follow-up.
+picture", each the catalogue exercise Hevy's thumbnail names. The user sent all of them upstream;
+15 went into #672 (commit "15 more Hevy titles follow Hevy's own artwork"), and its description's
+table lists them. The close-grip pulldown's fixtures in upstream's tests moved with it (2616 → 6392).
+**Single Arm Triceps Extension (Cable)** stays fork-only: it is a custom exercise in the user's
+Hevy account, not one of Hevy's titles, so upstream's map has no place for it.
 
 ## Not offered yet: a review of the matches before an import
 
