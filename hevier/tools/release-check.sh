@@ -15,6 +15,8 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SEC="$ROOT/hevier/security"
+# The release key's pinned certificate lives beside the keystore, never in the repo (D38).
+CERT="${HEVIER_CERT:-$HOME/.config/hevier/apk-cert.txt}"
 export PATH="$HOME/.local/opt/node/bin:$HOME/.local/opt/gitleaks:$HOME/.local/opt/trivy:$PATH"
 BUILD=1 APK=""
 while [[ $# -gt 0 ]]; do
@@ -86,7 +88,7 @@ if [[ -n "$APK" ]]; then
 fi
 
 # The APK itself (D38). The lists' lines are "value  # reason"; blank lines and comments skip.
-listed() { sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "$1"; }
+listed() { [[ -f "$1" ]] || return 0; sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "$1"; }
 APP_ID=ch.duartesantos.opengym.hevier
 # Signed by the fork's own key: a valid signature, not the debug key, the pinned certificate.
 apk_signature() {
@@ -95,9 +97,9 @@ apk_signature() {
   if echo "$out" | grep -q 'CN=Android Debug'; then echo "signed with the debug key"; return 1; fi
   if [[ "$(echo "$out" | grep -c '^Signer #[0-9]* certificate DN:')" -ne 1 ]]; then echo "not exactly one signer"; return 1; fi
   digest="$(echo "$out" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
-  if listed "$SEC/apk-cert.txt" | grep -qx "$digest"; then echo "certificate $digest"; return 0; fi
-  echo "certificate $digest is not pinned in hevier/security/apk-cert.txt"
-  listed "$SEC/apk-cert.txt" | grep -q . || echo "(the list is empty: if this is the fork's release key, add the digest there with its reason)"
+  if listed "$CERT" | grep -qx "$digest"; then echo "certificate $digest"; return 0; fi
+  echo "certificate $digest is not pinned in $CERT"
+  listed "$CERT" | grep -q . || echo "(nothing pinned yet: if this is the fork's release key, add the digest there with its reason)"
   return 1
 }
 # A release build: the fork's app id (not the .test one) and not debuggable.

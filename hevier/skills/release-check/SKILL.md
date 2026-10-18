@@ -39,8 +39,9 @@ its reason; accept only with the user's agreement.
 - **APK: signing certificate**: an unsigned or debug-signed APK is not a release; sign it
   (docs/MOBILE.md, "align + sign"). A digest that is not pinned means a different key: never
   pin a new one without the user saying it is the fork's release key (updates only install
-  over an app signed with the same key). The first time, the list is empty and the user pins
-  their key's digest in `hevier/security/apk-cert.txt`.
+  over an app signed with the same key). The first time, nothing is pinned and the user pins
+  their key's digest in `~/.config/hevier/apk-cert.txt` (beside the keystore, never in the repo;
+  `HEVIER_CERT` points elsewhere).
 - **APK: release build**: the `.test` app id or `debuggable` means a debug build was given.
 - **APK: permissions**: find who adds it (`app/build/intermediates/merged_manifest*`, the
   manifest merger's report `app/build/outputs/logs/manifest-merger-*-report.txt`): a plugin, an
