@@ -13,6 +13,8 @@ import { MOBILE } from './mobile.js'
 
 // [hevier] S6: the fork's builds check the fork's releases (VITE_UPDATE_REPO), not upstream's
 const REPO = import.meta.env.VITE_UPDATE_REPO || 'DuarteSantos8/openGym'
+// and read their tags, gohevier-vX.Y.Z (upstream's vX.Y.Z tags share the fork's repo)
+const tagVersion = tag => String(tag || '').replace(/^gohevier-/, '').replace(/^v/, '')
 // [/hevier]
 const LATEST_URL = `https://api.github.com/repos/${REPO}/releases/latest`
 export const RELEASES_PAGE = `https://github.com/${REPO}/releases/latest`
@@ -62,7 +64,7 @@ async function fetchLatest() {
   if (res.status === 404) return { hasUpdate: false, latestVersion: __APP_VERSION__, apkUrl: null, hashUrl: null }
   if (!res.ok) throw new Error(`GitHub API ${res.status}`)
   const latest = await res.json()
-  const latestVersion = String(latest.tag_name || '').replace(/^v/, '')
+  const latestVersion = tagVersion(latest.tag_name) // [hevier] S6
   if (!latestVersion) return { hasUpdate: false, latestVersion: __APP_VERSION__, apkUrl: null, hashUrl: null }
   const hasUpdate = compareSemver(latestVersion, __APP_VERSION__) > 0
   const assets = latest.assets || []
