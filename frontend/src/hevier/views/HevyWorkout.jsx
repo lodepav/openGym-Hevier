@@ -3,7 +3,7 @@
 // has run, passing this screen its own handlers. Nothing here writes the session except through
 // those handlers and upstream's sheets, so finishing, discarding, rest and progression are
 // upstream's, unchanged.
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
@@ -11,7 +11,7 @@ import { fmtNum, fmtDate } from '../../lib/format.js'
 import { workoutVolume } from '../../lib/history.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
 import {
-  finishWorkout, exitWorkoutEdit, menuSheet, sessionNoteSheet, renameWorkoutSheet,
+  finishWorkout, exitWorkoutEdit, saveWorkoutEdits, menuSheet, sessionNoteSheet, renameWorkoutSheet,
   addRoutineToSessionSheet,
 } from '../../sheets.jsx'
 import { workoutSettingsSheet } from '../../components/WorkoutSettingsSheet.jsx'
@@ -29,6 +29,7 @@ import { anyRunning, stopAll } from '../lib/set-timer.js'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
+  const opened = useLocation().key !== 'default'   // a page before this one to go back to
   const S = useStore(s => s.S)
   const resting = useUI(s => !!s.timer)
   const A = S.active
@@ -65,11 +66,15 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
       onSetRowRef={(i, el) => bindSetRef(entry, i, el)} />
   }
 
+  // An edited workout goes back where its edit was opened (the feed, its detail page), not to
+  // upstream's History page, which is where upstream's save and close go by default.
+  const leave = () => (opened ? nav(-1) : nav('/home'))
+
   return <div className="hv-workout">
     <div className="hv-whdr">
       <div className="hv-bar">
         {editing
-          ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit()}><Icon name="xmark" /></button>
+          ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit(leave)}><Icon name="xmark" /></button>
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
         {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
@@ -77,7 +82,8 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <button className="btn primary pill hv-finish" onClick={() => {
           // A set's count-up timer still running stops here, its time written in (D53).
           if (anyRunning(useStore.getState().S.active)) useStore.getState().update(st => { stopAll(st.active) }, true)
-          finishWorkout()
+          if (editing) saveWorkoutEdits(leave)
+          else finishWorkout()
         }}>{editing ? t('Save') : t('Finish')}</button>
       </div>
       <div className="hv-stats">
