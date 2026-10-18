@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts, lastDays } from './muscle-sets.js'
+import { periodOf, muscleSetCounts, lastDays, WEEK_HEAT } from './muscle-sets.js'
+import { levelsOf } from '../../lib/muscles.js'
 import { loadOfWorkouts, MUSCLE_NAME } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -47,5 +48,11 @@ describe('hevier muscle set counts', () => {
     expect(r.days.filter(d => d.trained).map(d => d.d)).toEqual(['2026-10-10', '2026-10-16'])
     expect(r.workouts).toHaveLength(2)
     expect(r.load.chest).toBeGreaterThan(0)
+  })
+
+  it('shades the week in fixed steps, not against the busiest muscle (review T2)', () => {
+    const lv = levelsOf({ chest: 14, 'upper-back': 12, triceps: 9, biceps: 5, calves: 2, abs: 0 }, WEEK_HEAT)
+    expect([lv.chest, lv['upper-back'], lv.triceps, lv.biceps, lv.calves, lv.abs]).toEqual([4, 4, 3, 2, 1, 0])
+    expect(levelsOf({ chest: 0.5 }, WEEK_HEAT).chest).toBe(1)
   })
 })

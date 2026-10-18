@@ -11,7 +11,7 @@ import { signed } from '../lib/delta.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
-import { muscleSetCounts, lastDays, PERIODS } from '../lib/muscle-sets.js'
+import { muscleSetCounts, lastDays, PERIODS, WEEK_HEAT } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 import { countedS } from '../lib/counted.js'
 
@@ -39,7 +39,7 @@ function LastSevenDays({ S, today }) {
       <span>{t(DAYS[new Date(d.d + 'T12:00:00').getDay()])}</span><b>{Number(d.d.slice(8))}</b>
     </div>)}</div>
     {workouts.length
-      ? <BodyMap load={load} body={S.body} />
+      ? <BodyMap load={load} thresholds={WEEK_HEAT} body={S.body} />
       : <div className="muted small">{t('No workouts in the last 7 days.')}</div>}
   </div>
 }
