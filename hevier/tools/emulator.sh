@@ -27,6 +27,8 @@ APK="$ROOT/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
 export VITE_MOBILE=1 VITE_HEVIER="${VITE_HEVIER:-1}" VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}"
 # A debug build names its commit after the version (D52): Go Hevier 1.0.0+abc1234.
 export APP_BUILD="${APP_BUILD:-$(git -C "$ROOT" rev-parse --short HEAD)}"
+# and never checks for updates: a release (another app id and key) would install beside it.
+export VITE_HEVIER_DEBUG=1
 
 if [[ "${1:-}" != "--no-build" ]]; then
   cd "$ROOT/frontend"
