@@ -2,6 +2,21 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.3.0 · 2026-10-18
+
+Based on openGym 1.4.1.
+
+### New
+
+- Still training? after five hours (D60)
+- the training streak in weeks, then years, at the top of the calendar (D59)
+
+### Fixes and changes
+
+- the 2026-10-18 review's remaining fixes (2.7, 4.3, 4.4, 5.1, 5.5, 5.6, S4, S6, T2, T12, G1; 2.2 noted)
+- the 2026-10-18 review's code, security and UI/UX fixes
+- code, dependency-security and UI/UX review since 3557ad47
+
 ## 1.2.0 · 2026-10-18
 
 Based on openGym 1.4.1.
