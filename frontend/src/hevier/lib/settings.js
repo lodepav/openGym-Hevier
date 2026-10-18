@@ -22,6 +22,8 @@ export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Exercise animations'],
   // One look (D17): no light theme, no accent choice. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Gym check-in'],
+  // The gym filter is the picker's (D62): no switch, no active profile here.
+  equipment: ['Filter by equipment', 'Active profile'],
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise'],
 }
@@ -100,4 +102,20 @@ export function relabelPage(page, tree, tr) {
     return cloneElement(node, opts || {}, ...Children.toArray(node.props.children).map(k => walk(k, mine)))
   }
   return walk(tree, null)
+}
+
+// Equipment's page is upstream's EquipmentCard, whose rows only show once it renders. The fork's
+// gyms page renders it in its own place (so a hook upstream adds there stays this component's) and
+// edits the rows: D62's hidden ones out, its footer and its add row in the words of gyms.
+export function GymsPage({ card, tr }) {
+  const tree = typeof card?.type === 'function' ? card.type(card.props) : card
+  const footer = tr('Each gym’s equipment. The exercise picker shows what the workout’s gym has; outside a workout, choose a gym in its equipment filter.')
+  const walk = node => {
+    if (!isValidElement(node)) return node
+    const extra = node.type === Section ? { footer }
+      : node.props.title === tr('Add equipment profile') ? { title: tr('Add gym') } : {}
+    if (node.props.children === undefined) return Object.keys(extra).length ? cloneElement(node, extra) : node
+    return cloneElement(node, extra, ...Children.toArray(node.props.children).map(walk))
+  }
+  return walk(prunePage('equipment', tree, tr))
 }

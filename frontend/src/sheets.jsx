@@ -1543,7 +1543,8 @@ export function swapActiveWorkoutExercise(index) {
 function EquipmentProfileSheet({ profile, close }) {
   const update = useStore(s => s.update)
   const nameRef = useRef(null)
-  const [checked, setChecked] = useState(new Set(profile ? profileEquipment(profile) : []))
+  // [hevier] S36: the fork's gyms count body weight as equipment (D62)
+  const [checked, setChecked] = useState(new Set(profile ? (hooks.gymSheet ? hooks.gymSheet.equipment(profile) : profileEquipment(profile)) : []))
   const toggle = k => setChecked(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n })
   const save = () => {
     const name = (nameRef.current.value || '').trim()
@@ -1553,9 +1554,10 @@ function EquipmentProfileSheet({ profile, close }) {
       const equipment = [...checked]
       if (profile) {
         const p = s.equipProfiles.find(x => x.id === profile.id)
-        if (p) { p.name = name; p.equipment = equipment; p.accV = ACC_V }
+        if (p) { p.name = name; p.equipment = equipment; p.accV = ACC_V; hooks.gymSheet?.saved(p) /* [hevier] S36 */ }
       } else {
         const p = newProfile(name); p.equipment = equipment
+        hooks.gymSheet?.saved(p) // [hevier] S36
         s.equipProfiles.push(p)
         if (!s.activeEquipId) s.activeEquipId = p.id
       }
@@ -1575,7 +1577,7 @@ function EquipmentProfileSheet({ profile, close }) {
       ))}
     </div>
     <div className="dim small" style={{ marginTop: 10 }}>
-      {t('Body-weight exercises are always available, unless they need a pull-up bar or a bench.')}
+      {hooks.gymSheet ? hooks.gymSheet.note() : t('Body-weight exercises are always available, unless they need a pull-up bar or a bench.') /* [hevier] S36 */}
     </div>
     <div style={{ height: 14 }} /><Button variant="primary" onClick={save}>{t('Save')}</Button>
   </>

@@ -19,8 +19,8 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
 let root, container
 
-function render(page) {
-  useStore.setState({ S: clone(DEF), user: null, isGuest: () => true })
+function render(page, extra = {}) {
+  useStore.setState({ S: Object.assign(clone(DEF), extra), user: null, isGuest: () => true })
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
@@ -79,6 +79,21 @@ describe('hevier: Settings (seams S11, S12)', () => {
     render(null)
     const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
     expect(look.textContent).toBe('Look & HomeMale') // the body diagram, not the theme (review S5)
+  })
+
+  it('Gyms & equipment: the gyms, no filter switch or active profile (D62)', () => {
+    const equipProfiles = [{ id: 'g1', name: 'City Gym', equipment: ['dumbbell'], accV: 1 }]
+    render(null, { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
+    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Gyms & equipment'))
+    expect(row.textContent).toBe('Gyms & equipmentCity Gym')
+    act(() => root.unmount()); container.remove()
+    render('equipment', { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
+    const rows = titles()
+    expect(rows).not.toContain('Filter by equipment')
+    expect(rows).not.toContain('Active profile')
+    expect(rows).toEqual(expect.arrayContaining(['Plates', 'Dumbbells', 'City Gym', 'Add gym']))
+    expect(container.textContent).toContain('Each gym’s equipment')
+    expect(hiddenSetting({ page: 'equipment', title: 'Active profile' })).toBe(true)
   })
 
   it('a search never offers a row the page leaves out', () => {

@@ -74,7 +74,9 @@ describe('gyms nearby (D47)', () => {
     const id = addGym(s, '  NonStop Gym ', { osm: 'node/1', name: 'NonStop Gym', lat: 47.3772, lng: 8.542, dist: 40, sub: 'x' })
     const g = s.equipProfiles.find(x => x.id === id)
     expect(g.name).toBe('NonStop Gym')
-    expect(g.equipment).toEqual(['dumbbell'])
+    // A gym saved before D62 has body weight; the copy says so, and from now on its ticks decide.
+    expect(g.equipment).toEqual(['dumbbell', 'body weight'])
+    expect(g.hvBw).toBe(1)
     expect(placeOf(s, id)).toEqual({ lat: 47.3772, lng: 8.542, osm: 'node/1', name: 'NonStop Gym' })
     expect(gymOfPlace(s, 'node/1').id).toBe(id)
     s.activeEquipId = null
