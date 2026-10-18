@@ -136,11 +136,12 @@ function ExerciseDetails({ ex, close }) {
   const st = useStore(s => s.S)
   const [tab, setTab] = useState('summary')
   const all = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
-  // D28: the gym · brand labels this exercise was done with; the Summary and History follow the one picked.
+  // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
+  // the Summary and History follow the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
-  const [label, pickLabel] = useState('')
-  const on = labels.some(l => l.key === label) ? label : ''
-  const sum = useMemo(() => (on ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id])
+  const [label, pickLabel] = useState(null)
+  const on = labels.some(l => l.key === label) ? label : null
+  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id])
   const fav = isFav(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
@@ -168,10 +169,10 @@ function ExerciseDetails({ ex, close }) {
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />
-    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on} aria-label={t('Machine label')}
-      onChange={e => pickLabel(e.target.value)}>
+    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Machine label')}
+      onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
       <option value="">{t('All sets')}</option>
-      {labels.map(l => <option key={l.key} value={l.key}>{labelText(st, l, t)} ({l.n})</option>)}
+      {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
     </select>}
     {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} e1rmAll={all.records.e1rm} />}
     {tab === 'history' && <History ex={ex} sum={sum} st={st} />}

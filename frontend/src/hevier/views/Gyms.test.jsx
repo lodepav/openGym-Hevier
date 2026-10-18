@@ -187,16 +187,16 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(brands[0].textContent).toBe('Life Fitness')
   })
 
-  it('exercise details narrows to a picked gym · brand, and lists them only when they differ', () => {
+  it('exercise details narrows to a picked brand, not a gym, and lists them only when they differ', () => {
     const w = (id, day, kg, g, b) => ({ id, d: `2026-10-0${day}`, start: Date.parse(`2026-10-0${day}T10:00`), end: Date.parse(`2026-10-0${day}T11:00`),
       entries: [{ id: CABLE, sets: [done(kg, 10)], hvGym: g, hvBrand: b }] })
-    render(<div />, { extra: { workouts: [w('a', 1, 40, 'g1', 'Life Fitness'), w('b', 2, 25, 'g2', 'Matrix'), w('c', 3, 45, 'g1', 'Life Fitness')] } })
+    render(<div />, { extra: { workouts: [w('a', 1, 40, 'g1', 'Life Fitness'), w('b', 2, 25, 'g2', 'Matrix'), w('c', 3, 45, 'g2', 'Life Fitness')] } })
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
     const sel = host.querySelector('.hv-xd-label')
-    expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'City Gym · Life Fitness (2)', 'Home · Matrix (1)'])
+    expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
     expect(host.querySelector('.hv-xd-big').textContent).toContain('45')
-    act(() => { sel.value = 'g2|Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
     expect(host.querySelector('.hv-xd-big').textContent).toContain('25')
   })
 })

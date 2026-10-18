@@ -19,6 +19,7 @@ import MuscleLine from './MuscleLine.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
+import { workoutRecords } from '../lib/records.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -64,7 +65,10 @@ export default function WorkoutCard({ w }) {
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
-  const prs = w.prs?.length || 0
+  // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
+  const recs = useStore(s => workoutRecords(s.S, w))
+  const prs = recs.length
+  const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
   const who = useStore(s => s.user?.name) || ''
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
@@ -90,6 +94,7 @@ export default function WorkoutCard({ w }) {
       return <div key={i} className="hv-wcard-ex">
         <span className="hv-thumb sm">{ex && <Thumb ex={ex} />}</span>
         <span className="grow"><b>{tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
+        {prOf(e) > 0 && <span className="hv-pr" aria-label={t('Records')}><Icon name="trophy" />{prOf(e)}</span>}
       </div>
     })}
     {entries.length > SHOWN && <div className="hv-wcard-more">{t('See more: {0}', exCount(entries.length - SHOWN))}</div>}

@@ -110,22 +110,23 @@ describe('hevier gyms and machine labels (D28)', () => {
     const w = (id, start, g, b) => ({ id, d: '2026-10-0' + start, start, entries: [{ id: CABLE, sets: [set(10, 10)], hvGym: g, hvBrand: b }] })
     const S = state({ workouts: [w('a', 1, 'g1', 'Life Fitness'), w('b', 2, 'g2', undefined), w('c', 3, 'g1', 'Life Fitness'), w('d', 4, 'gone', 'X')] })
     const ls = labelsFor(S, CABLE)
-    expect(ls.map(l => [l.key, l.n])).toEqual([['gone|X', 1], ['g1|Life Fitness', 2], ['g2|', 1]])
-    expect(ls.map(l => labelText(S, l))).toEqual(['Removed gym · X', 'City Gym · Life Fitness', 'Home'])
-    expect(labelText(S, { gym: null, brand: null })).toBe('No label')
+    expect(ls.map(l => [l.key, l.n])).toEqual([['X', 1], ['Life Fitness', 2], ['', 1]])
+    expect(ls.map(l => labelText(l))).toEqual(['X', 'Life Fitness', 'No brand'])
     expect(labelsFor(state({ workouts: [w('a', 1, 'g1', 'B'), w('b', 2, 'g1', 'B')] }), CABLE)).toEqual([])
+    // The gym is only where: the same brand at two gyms is one label.
+    expect(labelsFor(state({ workouts: [w('a', 1, 'g1', 'B'), w('b', 2, 'g2', 'B')] }), CABLE)).toEqual([])
   })
 
   it('narrows exercise details to one label, other exercises untouched', () => {
     const w = (id, start, kg, b) => ({ id, d: '2026-10-0' + start, start: start * 1e9, end: start * 1e9 + 1,
       entries: [{ id: CABLE, sets: [set(kg, 10)], hvGym: 'g1', hvBrand: b }, { id: DB, sets: [set(20, 8)] }] })
     const S = state({ workouts: [w('a', 1, 40, 'Life Fitness'), w('b', 2, 25, 'Matrix'), w('c', 3, 45, 'Life Fitness')] })
-    const lf = withLabelFilter(S, CABLE, labelKey('g1', 'Life Fitness'))
+    const lf = withLabelFilter(S, CABLE, labelKey('Life Fitness'))
     expect(lf.workouts.map(x => x.entries.length)).toEqual([2, 1, 2])
     expect(exerciseSummary(lf, CABLE).sessions.length).toBe(2)
-    expect(exerciseSummary(withLabelFilter(S, CABLE, labelKey('g1', 'Matrix')), CABLE).records.best).toMatchObject({ v: 25 })
+    expect(exerciseSummary(withLabelFilter(S, CABLE, labelKey('Matrix')), CABLE).records.best).toMatchObject({ v: 25 })
     expect(exerciseSummary(lf, DB).sessions.length).toBe(3)
-    expect(withLabelFilter(S, CABLE, '')).toBe(S)
+    expect(withLabelFilter(S, CABLE, null)).toBe(S)
   })
 
   it('syncs the remembered brands as a whole, the newer copy\'s', () => {
@@ -178,8 +179,8 @@ describe('hevier cable setup (D43)', () => {
     const w = (id, start, c) => ({ id, d: '2026-10-0' + start, start, entries: [{ id: CABLE, sets: [set(10, 10)], hvGym: 'g1', ...(c ? { hvCable: c } : {}) }] })
     const S = state({ workouts: [w('a', 1), w('b', 2, '1:1'), w('c', 3, 'x2')] })
     const ls = labelsFor(S, CABLE)
-    expect(ls.map(l => [l.key, l.n])).toEqual([['g1||x2', 1], ['g1|', 2]])
-    expect(ls.map(l => labelText(S, l))).toEqual(['City Gym · ×2', 'City Gym'])
-    expect(withLabelFilter(S, CABLE, labelKey('g1', '', 'x2')).workouts.map(x => x.entries.length)).toEqual([0, 0, 1])
+    expect(ls.map(l => [l.key, l.n])).toEqual([['|x2', 1], ['', 2]])
+    expect(ls.map(l => labelText(l))).toEqual(['×2', 'No brand'])
+    expect(withLabelFilter(S, CABLE, labelKey('', 'x2')).workouts.map(x => x.entries.length)).toEqual([0, 0, 1])
   })
 })

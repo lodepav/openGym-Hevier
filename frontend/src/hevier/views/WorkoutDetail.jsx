@@ -26,7 +26,7 @@ import PageBar from '../components/PageBar.jsx'
 import { hevySetText } from '../lib/set-text.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
-import { prSetIndex } from '../lib/pr-set.js'
+import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
 import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
@@ -38,11 +38,12 @@ import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
-function ExerciseSets({ w, e, st }) {
+// A record's badge: the trophy and what it is a record of (D51).
+const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
+
+function ExerciseSets({ w, e, st, recs }) {
   const ex = EXIDX[e.id]
-  // The record sits on the set that made it, as in Hevy; on the exercise when no set can be named.
-  const prAt = prSetIndex(w, e)
-  const pr = !!w.prs?.includes(e.id)
+  // A record sits on the set that made it, as in Hevy; a session's (its volume) on the exercise.
   const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
@@ -50,7 +51,7 @@ function ExerciseSets({ w, e, st }) {
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button>
-      {pr && prAt < 0 && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
+      <PrBadge recs={recs.filter(r => r.set < 0)} />
     </div>
     {(e.hvBrand || cableOn(e)) && <div className="hv-brand has"><Icon name="machine" />
       {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
@@ -60,7 +61,7 @@ function ExerciseSets({ w, e, st }) {
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         <span>{hevySetText(setLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}</span>
-        {i === prAt && <span className="hv-pr"><Icon name="trophy" />{t('PR')}</span>}
+        <PrBadge recs={recs.filter(r => r.set === i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
@@ -77,7 +78,7 @@ export function WorkoutDetail() {
   if (!w) return <Navigate to="/home" replace />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
-  const prs = w.prs || []
+  const prs = workoutRecords(st, w)
   const mode = volumeMode(st)
   const split = muscleSets(w.entries, muscleMode(st))
   const top = split[0]?.sets || 1
@@ -117,7 +118,7 @@ export function WorkoutDetail() {
     </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} />)}
+      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

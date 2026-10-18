@@ -26,8 +26,8 @@ let root, container, path
 
 function Bridge() { const n = useNavigate(); setNav(n); path = useLocation().pathname; return null }
 
-function render(at, entries) {
-  const S = Object.assign(clone(DEF), { weighIn: false })
+function render(at, entries, workouts = []) {
+  const S = Object.assign(clone(DEF), { weighIn: false, workouts })
   const start = Date.now() - 45 * 60000
   S.active = { id: 'hv1', d: iso(new Date(start)), start, name: 'Leg Day', cur: 0, entries }
   useStore.setState({ S, user: null, isGuest: () => true })
@@ -93,9 +93,20 @@ describe('hevier: Save Workout (seam S9)', () => {
     expect(container.textContent).toContain('Nice work!')
     expect(container.textContent).toContain('That’s workout number 1.')
     expect(container.querySelector('.hv-wcard').textContent).toContain('Heavy legs')
-    expect(container.textContent).toContain('New PR:')
+    expect(container.querySelector('.hv-done-prs')).toBeNull()   // a first time sets the bar (D51)
     act(() => byText('.hv-done-btn', 'Done').click())
     expect(path).toBe('/home')
+  })
+
+  it('Nice work! lists every record the workout set (D51)', () => {
+    const past = [{ id: 'p1', d: '2026-01-05', start: Date.parse('2026-01-05T10:00:00'), end: Date.parse('2026-01-05T11:00:00'),
+      entries: [{ id: EX, sets: [{ w: 55, r: 8, done: true }] }] }]
+    render('/workout/save', logged(), past)
+    act(() => byText('.hv-pagebar button', 'Save').click())
+    const rows = [...container.querySelectorAll('.hv-done-pr')].map(r => r.textContent)
+    expect(rows).toHaveLength(4)
+    expect(rows[0]).toContain('Heaviest Weight · 60 kg')
+    expect(container.querySelector('.hv-wcard').textContent).toContain('Records4')
   })
 
   it('a changed Duration lands on the saved record; the day stays the session\'s', () => {

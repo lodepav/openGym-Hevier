@@ -1,7 +1,7 @@
 // Hevy's monthly report (hevier/DECISIONS.md D23), read from the log alone: the month's totals
 // against the month before, its records, weeks trained, sets per muscle and top exercises.
-// Nothing here is stored. Records are upstream's own (`w.prs`, set at the finish).
-import { workoutDay, workoutDuration, bestWeightForEntry } from '../../lib/history.js'
+// Nothing here is stored. Records are the fork's, worked out from the log (hevier/lib/records.js, D51).
+import { workoutDay, workoutDuration, workoutAt, bestWeightForEntry } from '../../lib/history.js'
 import { betterWeight } from '../../lib/exercises.js'
 import { muscleSets, workSets } from './volume.js'
 import { monthCells } from './calendar.js'
@@ -38,15 +38,16 @@ export function firstMonth(workouts) {
 
 /**
  * The report for month (y, mo): { ...totals, prev (the month before's totals), records
- * [{ id, d }], weeks { trained, total }, muscles [{ muscle, sets }], top [{ id, sets, best }] }.
+ * [{ id, kind, v, w?, r?, d }] (every record of the month, oldest first, from `recordsOf(w)`), weeks { trained, total }, muscles [{ muscle, sets }], top [{ id, sets, best }] }.
  * `ws` is the week's first day, for the weeks the month's calendar rows show; `mode` counts the
  * muscles (D42).
  */
-export function monthReport(workouts, y, mo, ws = 1, mode = 'main') {
+export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = () => []) {
   const list = monthWorkouts(workouts, y, mo)
   const before = shift(y, mo, -1)
   const records = []
-  for (const w of list) for (const id of w.prs || []) records.push({ id, d: workoutDay(w) })
+  const dated = [...list].sort((a, b) => workoutAt(a) - workoutAt(b))
+  for (const w of dated) for (const r of recordsOf(w)) records.push({ ...r, d: workoutDay(w) })
   const cells = monthCells(y, mo, ws)
   const trainedRows = new Set(list.map(w => Math.floor(cells.indexOf(workoutDay(w)) / 7)))
   const byEx = new Map()

@@ -22,7 +22,7 @@ const clone = v => JSON.parse(JSON.stringify(v))
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n))
 const start = new Date('2026-10-10T18:00:00').getTime()
 const W = {
-  id: 'w1', d: '2026-10-10', start, end: start + 3600000, name: 'Push Day', note: 'Felt strong', vol: 1440, prs: [BENCH.id],
+  id: 'w1', d: '2026-10-10', start, end: start + 3600000, name: 'Push Day', note: 'Felt strong', vol: 1440,
   entries: [{ id: BENCH.id, target: { sets: 3, reps: 8 }, sets: [
     { w: 40, r: 10, done: true, phase: 'warmup' }, { w: 60, r: 8, done: true }, { w: 60, r: 8, done: true }, { w: 60, r: 8, done: false },
   ] }],
@@ -33,7 +33,8 @@ function Bridge() { const n = useNavigate(); setNav(n); path = useLocation().pat
 
 function render() {
   const S = clone(DEF)
-  S.workouts = [clone(W)]
+  // The week before sets the bar the workout beats (D51).
+  S.workouts = [{ id: 'w0', d: '2026-10-03', start: start - 7 * 86400000, entries: [{ id: BENCH.id, sets: [{ w: 55, r: 8, done: true }] }] }, clone(W)]
   useStore.setState({ S, user: null })
   container = document.createElement('div')
   document.body.appendChild(container)
@@ -70,10 +71,12 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(W))
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')].map(r => r.firstChild.textContent)
     expect(rows).toEqual(['W', '1', '2'])
-    // The record is on the set that made it (the first at 60), not on the exercise.
+    // Each record is on the set that made it (the first at 60), named; the session's volume on the exercise.
     const prRows = [...container.querySelectorAll('.hv-wd-row')].filter(r => r.querySelector('.hv-pr'))
     expect(prRows.map(r => r.firstChild.textContent)).toEqual(['1'])
-    expect(container.querySelector('.hv-exhd .hv-pr')).toBeNull()
+    expect(prRows[0].querySelector('.hv-pr').textContent).toBe('Heaviest Weight · Best 1RM · Best Set Volume')
+    expect(container.querySelector('.hv-exhd .hv-pr').textContent).toBe('Best Session Volume')
+    expect([...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Records')).textContent).toBe('Records4')
     const sets = [...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Sets'))
     expect(sets.querySelector('b').textContent).toBe('2')
   })

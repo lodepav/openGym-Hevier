@@ -136,7 +136,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
-  it('a tick past the heaviest weight puts the trophy on that set and says so, once (D22)', () => {
+  it('a tick that sets records puts the trophy on that set and says so, once (D22, D51)', () => {
     render([{ id: EX, target: { sets: 3, reps: 8 }, sets: [reps(60, 8), reps(70, 8), reps(70, 8)] }],
       [{ id: 'w1', d: '2026-10-09', start: 1, end: 2, entries: [{ id: EX, sets: [{ w: 65, r: 8, done: true }] }] }])
     const chk = i => act(() => container.querySelectorAll('.hv-chk')[i].click())
@@ -146,7 +146,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useUI.getState().toastMsg).not.toContain('PR')
     chk(1)
     expect(trophies()).toEqual([false, true, false])
-    expect(useUI.getState().toastMsg).toBe('New PR · 70 kg')
+    expect(useUI.getState().toastMsg).toBe('New PR · Heaviest Weight 70 kg +2')
     useUI.setState({ toastMsg: '' })
     chk(2)
     expect(trophies()).toEqual([false, true, false])

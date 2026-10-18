@@ -44,7 +44,7 @@ import Icon from '../../components/Icon.jsx'
 import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
-import { livePrSetIndex, recordWeight } from '../lib/pr-set.js'
+import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import { fieldSig } from '../lib/store-watch.js'
@@ -95,9 +95,8 @@ export default function HevyExerciseBlock({
   const H = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
     [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   const prev = previousSetsFor(H, entry, previousMode(S))
-  // D22: the set that is a weight record so far, by upstream's finish rule.
-  const record = useMemo(() => recordWeight(S, entry), [fieldSig(S, 'workouts'), entry.id, entry.target?.dbLoad]) // eslint-disable-line react-hooks/exhaustive-deps
-  const prAt = livePrSetIndex(S, entry, record)
+  // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.
+  const prSets = new Set(recordsAt(liveRecords(S), entryIdx).map(r => r.set))
   const last = lastEntryFor(H, entry.id, entry.rid)
   const kind = effortOf(S)
   const eff = EFFORT[kind]
@@ -363,15 +362,19 @@ export default function HevyExerciseBlock({
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span> : workNumber(i))
   const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
     aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
-      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (i === prAt ? ', ' + t('PR') : '')}>
-    {markOf(s, i)}{i === prAt && <Icon name="trophy" className="hv-pr-live" />}</button>
-  // A tick that makes this set the record says so (D22): a toast, no sound of its own.
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (prSets.has(i) ? ', ' + t('PR') : '')}>
+    {markOf(s, i)}{prSets.has(i) && <Icon name="trophy" className="hv-pr-live" />}</button>
+  // A tick that gives this set a record says so (D22): a toast, no sound of its own. A weight in
+  // this exercise's own unit (D41).
+  const prText = r => (!conv || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
+    : r.kind === 'setVol' ? `${fmtNum(sw(r.w))} ${xu} × ${r.r}` : fmtNum(sw(r.v)) + ' ' + xu)
   const tick = (i, side) => {
+    const had = recordsAt(liveRecords(useStore.getState().S), entryIdx, i).map(r => r.kind)
     if (side) onToggleSide(i, side); else onToggle(i)
     const st = useStore.getState().S
-    const e = st.active?.entries[entryIdx]
-    if (i !== prAt && e?.sets[i]?.done && livePrSetIndex(st, e) === i)
-      useUI.getState().toast(t('New PR · {0}', fmtNum(sw(e.sets[i].w)) + ' ' + xu))
+    if (!st.active?.entries[entryIdx]?.sets[i]?.done) return
+    const got = recordsAt(liveRecords(st), entryIdx, i).filter(r => !had.includes(r.kind))
+    if (got.length) useUI.getState().toast(t('New PR · {0}', t(KINDS[got[0].kind]) + ' ' + prText(got[0])) + (got.length > 1 ? ' +' + (got.length - 1) : ''))
   }
   const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up') : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
   // One line of the table: a straight set, one half of a timed per-side pair (`s.side`), or one
