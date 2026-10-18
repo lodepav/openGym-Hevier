@@ -14,6 +14,8 @@ import { useUI } from '../../store/useUI.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
+import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
+import { EquipFilterSheet } from '../components/EquipGroups.jsx'
 import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../../lib/favourites.js'
 import { useSheetKeyboard, tappable } from '../../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../../lib/use-auto-more.js'
@@ -57,8 +59,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const onSearchFocus = useSheetKeyboard(searchRef)
   const moreRef = useAutoMore(() => setShown(s => s + PAGE))
 
-  const avail = eq === GYM && profile ? e => gymHas(profile, e) : null
-  const base = filterPicker(all, { muscle, eq: eq === GYM ? '' : eq, avail }).filter(e => e.id !== like)
+  // A gym, or a kind or a whole group of kinds (D63).
+  const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
+  const base = filterPicker(all, { muscle, avail }).filter(e => e.id !== like)
   let list = searchExercises(base, q)
   list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
@@ -100,14 +103,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     if (!inWorkout(st, path)) rememberGym(id)
   }
   const gyms = (st.equipProfiles || []).filter(p => p?.id != null)
-  const openEquipment = () => menuSheet({
-    title: t('Equipment'),
-    sections: [
-      { items: [{ label: t('All Equipment'), on: eq === '', onClick: () => chooseGym(null) }] },
-      gyms.length > 0 && { title: t('Gyms'), items: gyms.map(g => ({ icon: 'house', label: g.name, on: eq === GYM && gymId === g.id, onClick: () => chooseGym(g.id) })) },
-      { title: t('Equipment'), items: equipmentOf(all).map(x => ({ label: <span className="capitalize">{t(x)}</span>, on: eq === x, onClick: () => reset(setEq)(x) })) },
-    ].filter(Boolean),
-  })
+  const openEquipment = () => useUI.getState().openSheet(close => <EquipFilterSheet close={close}
+    value={eq === GYM ? '' : eq} gymId={eq === GYM ? gymId : null} gyms={gyms} kinds={equipmentOf(all)}
+    onAll={() => chooseGym(null)} onGym={chooseGym} onEq={v => reset(setEq)(v)} />)
   const openMuscles = () => menuSheet({
     title: t('Muscles'),
     items: [
@@ -129,7 +127,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>
 
-  const eqLabel = eq === GYM ? profile?.name : eq ? t(eq) : t('All Equipment')
+  const eqLabel = eq === GYM ? profile?.name : groupIdOf(eq) ? t(EQUIP_GROUPS.find(g => g.id === groupIdOf(eq)).label) : eq ? t(eq) : t('All Equipment')
   return <div className="hv-pk">
     {browse ? browse({ create }) : <div className="hv-pk-hd">
       <h3>{title || t('Add Exercise')}</h3>
