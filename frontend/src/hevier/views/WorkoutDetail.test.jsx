@@ -53,6 +53,20 @@ afterEach(() => {
 })
 
 describe('hevier: Workout Detail (seam S14)', () => {
+  it('Edit Workout, then Save or ✕, comes back to this page, not upstream’s History', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    act(() => container.querySelector('.hv-wd-edit').click())
+    expect(path).toBe('/workout')
+    act(() => container.querySelector('.hv-finish').click())
+    expect(useStore.getState().S.active).toBeNull()
+    expect(path).toBe(DETAIL_PATH)
+    act(() => container.querySelector('.hv-wd-edit').click())
+    act(() => container.querySelector('[aria-label="Close editor"]').click())
+    expect(useStore.getState().S.active).toBeNull()
+    expect(path).toBe(DETAIL_PATH)
+  })
+
   it('opens the fork’s page instead of upstream’s sheet', () => {
     render()
     act(() => workoutDetailSheet(W))
