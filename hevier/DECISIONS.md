@@ -379,3 +379,11 @@ Added 2026-10-18, at the user's request.
 | # | Decision |
 |---|---|
 | D57 | **An exercise kept out of progression is kept out of the records and the statistics too; its numbers show only on its workout's pages and in its history.** Upstream's "Don't count for progression" (an exercise's ⋮, the workout's Settings, a routine's own setting) stamps the logged entry `noProg`, or the whole workout `excludeFromProgression` (`entryExcluded`), and upstream reads it only for progression and "last time". The fork reads its statistics through `hevier/lib/counted.js`: those entries are left out, a workout with nothing left is left out whole, and a workout that lost one has its volume worked out again. **Left out of:** the records (D51: such an entry sets none and raises no bar, live and saved, so neither the trophies, the feed card's and Workout Detail's Records nor "Nice work!" count it), exercise details' Summary (chart, personal records, set records, the strength level, D19), Statistics (last 7 days, sets per muscle), Profile's weekly chart and its week sheet, the monthly report (D23, all of it but its calendar), the month widget's line (D44, not its days), and upstream's All statistics and Structural balance (seam S34, so their recovery view too). **Still shown:** the live workout, Save Workout, Workout Detail and the feed card's Time · Volume · Sets (the workout's own numbers), exercise details' History tab, the Calendar, Home's recovery map and the PREVIOUS column. Deloads are not `noProg` and count as before. Nothing stored changes. |
+||||||| cc529b4b
+## Exercise details from the picker
+
+Added 2026-10-18, at the user's request.
+
+| # | Decision |
+|---|---|
+| D58 | **Each row of the Add Exercise picker has Hevy's chart button, which opens the exercise's details without adding it.** In the picker (Add Exercise, Replace, a routine's add and backups), a plain chart icon before the ✓ circle opens exercise details (Summary · History · How to) over the picker; back returns to the picker with its search, filters and ticks as they were. The thumbnail, which already did the same, still does. Profile → Exercises has no button: a tap on its row opens the details already. |

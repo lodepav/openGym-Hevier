@@ -106,12 +106,15 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   })
   const create = () => customExSheet(null, ex => { if (!ex) return; if (browse) exerciseDetailSheet(ex); else if (multi) setPicked(cur => [...cur, ex]); else onPick(ex, true) }, q.trim())
 
+  // The thumbnail and Hevy's chart button open the exercise's details without picking it.
+  const details = (ev, e) => { ev.stopPropagation(); exerciseDetailSheet(e) }
   const row = (e, key) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}>
-    <button className="hv-thumb" aria-label={t('Details')} onClick={ev => { ev.stopPropagation(); exerciseDetailSheet(e) }}><Thumb ex={e} /></button>
+    <button className="hv-thumb" aria-label={t('Details')} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
     <div className="grow">
       <div className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div>
       <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id)].filter(Boolean).join(' · ')}</div>
     </div>
+    {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details')} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>
 

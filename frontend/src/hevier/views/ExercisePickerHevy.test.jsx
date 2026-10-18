@@ -72,6 +72,20 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(useUI.getState().sheets).toHaveLength(0)
   })
 
+  it('the chart button opens the exercise without picking or ticking it', () => {
+    const onPick = vi.fn()
+    open(onPick)
+    search(BENCH.n)
+    const opened = []
+    hooks.exerciseDetail = ex => opened.push(ex.id)
+    click(rowOf(BENCH).querySelector('.hv-pk-info'))
+    hooks.exerciseDetail = null
+    expect(opened).toEqual([BENCH.id])
+    expect(onPick).not.toHaveBeenCalled()
+    expect(container.querySelector('.hv-pk-add')).toBeNull()
+    expect(useUI.getState().sheets).toHaveLength(1)
+  })
+
   it('a second tap unticks', () => {
     open(vi.fn())
     search(BENCH.n)
