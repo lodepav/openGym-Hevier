@@ -4,7 +4,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
-import { effectiveRoutines, effectiveRoutineIds, streakWeeks, lastBW } from '../../lib/history.js'
+import { streakLabel } from '../lib/streak.js'
+import { effectiveRoutines, effectiveRoutineIds, lastBW } from '../../lib/history.js'
 import { fmtNum, fmtDate, todayISO, isoOf, weekStartOf, weekDayOffset, DAYS } from '../../lib/format.js'
 import { t, tn } from '../../lib/i18n.js'
 import { weekTally, queueView, queueOf } from '../../lib/queue.js'
@@ -107,7 +108,7 @@ function Widget({ id, S }) {
   if (id === 'streak') {
     const { done, planned } = weekTally(S, todayISO())
     return <div className="card tappable" {...tappable(() => calendarSheet())}>
-      <div className="row" style={{ gap: 7, fontSize: 20, fontWeight: 600 }}><Icon name="flame" style={{ color: 'var(--orange)' }} />{t('{0} week streak', streakWeeks(S))}</div>
+      <div className="row" style={{ gap: 7, fontSize: 20, fontWeight: 600 }}><Icon name="flame" style={{ color: 'var(--orange)' }} />{streakLabel(S)}</div>
       <div className="muted small">{done}{planned ? ' / ' + planned : ''} {t('this week')} · {tn('{0} workout total', '{0} workouts total', S.workouts.length)}</div>
     </div>
   }
