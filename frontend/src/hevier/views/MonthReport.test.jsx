@@ -10,6 +10,7 @@ import { setNav } from '../../lib/nav.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO, MONTHS_LONG } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
+import { byExercise } from './MonthReport.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -60,7 +61,7 @@ describe('hevier: monthly report (D23)', () => {
   it('weight mode shows Volume in place of Sets', () => {
     render('/report', log, { hvVolume: 'weight' })
     expect(stat('Sets')).toBeUndefined()
-    expect(stat('Volume').textContent).toContain('+100%')
+    expect(stat('Volume').textContent).toContain('+500 kg')
   })
 
   it('steps back to the first logged month and no further, and that month is empty of records', () => {
@@ -71,5 +72,17 @@ describe('hevier: monthly report (D23)', () => {
     expect(stat('Workouts').textContent).toBe('Workouts1+1')
     expect(prev.disabled).toBe(true)
     expect(container.textContent).not.toContain('PRs')
+  })
+
+  it('lists the records one row per exercise, each kind once with how often it was beaten', () => {
+    const rec = (id, kind, v, d) => ({ id, kind, v, d })
+    const rows = byExercise([
+      rec('a', 'weight', 80, '2026-09-02'), rec('b', 'reps', 10, '2026-09-03'),
+      rec('a', 'e1rm', 90, '2026-09-02'), rec('a', 'weight', 85, '2026-09-09'),
+    ])
+    expect(rows.map(x => [x.id, x.n, x.recs.map(r => [r.kind, r.v, r.times, r.d])])).toEqual([
+      ['a', 3, [['weight', 85, 2, '2026-09-09'], ['e1rm', 90, 1, '2026-09-02']]],
+      ['b', 1, [['reps', 10, 1, '2026-09-03']]],
+    ])
   })
 })

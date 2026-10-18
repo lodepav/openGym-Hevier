@@ -87,5 +87,5 @@ export function HeaderClock({ session }) {
   const ms = elapsed(w, Date.now())
   // one clock in the bar: the stopwatch's time shows beside ⏱ only while it runs (D10)
   if (!on) return null
-  return <span className={'hv-swh' + (on ? ' on' : '')}><span className="vh">{t('Stopwatch')} </span>{stopwatchShort(ms)}</span>
+  return <span className="hv-swh on"><span className="vh">{t('Stopwatch')} </span>{stopwatchShort(ms)}</span>
 }

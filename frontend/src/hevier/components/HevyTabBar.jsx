@@ -30,6 +30,13 @@ function Tab({ active, icon, label, onClick, dot }) {
   </button>
 }
 
+/** Upstream's own discard (views/Workout.jsx discardWorkout): the open session goes, with its rest and clock. */
+export function discardActive() {
+  useStore.getState().update(s => { s.active = null })
+  useUI.getState().stopRest()
+  useUI.getState().stopWork()
+}
+
 export default function HevyTabBar() {
   const nav = useNavigate()
   const loc = useLocation()
@@ -54,11 +61,7 @@ export default function HevyTabBar() {
   // Upstream's own discard (views/Workout.jsx discardWorkout), from outside the workout screen.
   const discard = () => confirmSheet({
     title: t('Discard workout?'), message: t('The sets you logged in this session will be lost.'), confirmText: t('Discard'), danger: true,
-    onConfirm: () => {
-      useStore.getState().update(s => { s.active = null })
-      useUI.getState().stopRest()
-      useUI.getState().stopWork()
-    },
+    onConfirm: discardActive,
   })
 
   return <nav id="tabbar" className="hv-tabbar">

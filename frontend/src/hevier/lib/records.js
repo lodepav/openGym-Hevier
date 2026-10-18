@@ -15,7 +15,8 @@ import { beatsWeight, isAssisted } from '../../lib/exercises.js'
 import { estimate1RM, formulaOf } from '../../lib/onerm.js'
 import { completedVolumeOf, isSideSet } from '../../lib/workout-model.js'
 import { currentDbLoad, volumeFactor, workoutAs } from '../../lib/dumbbells.js'
-import { fmtNum, fmtVol, fmtDur } from '../../lib/format.js'
+import { fmtNum, fmtVol } from '../../lib/format.js'
+import { elapsedClock } from './elapsed.js'
 import { fieldSig } from './store-watch.js'
 import { entryLabelKey, entryBrand, entryCable, labelKey, isCable } from './gym-labels.js'
 
@@ -68,7 +69,7 @@ function entryBests(e, formula) {
         put('setVol', w * r, i, { w, r })
       }
     })
-    if (loaded && !isAssisted(exId)) put('sessionVol', vol * volumeFactor(e), -1)
+    if (loaded && !assisted) put('sessionVol', vol * volumeFactor(e), -1)
     if (!loaded) put('sessionReps', reps, -1)
   } else if (mode === 'time') {
     sets.forEach((s, i) => { if (rows.has(s)) put('sec', Number(s.sec) || 0, i) })
@@ -184,10 +185,16 @@ function priorBests(S, A) {
  * once it is saved, the labels read as the session shows them. None in a workout logged into the past.
  */
 export function liveRecords(S, A = S?.active) {
-  if (!A || A.backfill) return []
+  if (!A || A.backfill) return NONE
+  // Every exercise block asks for the same copy of S on a render: worked out once per copy.
+  const own = A === S?.active
+  if (own && liveMemo.has(S)) return liveMemo.get(S)
   const scope = (e, i) => e.id + '#' + labelKey(entryBrand(S, A, i), entryCable(S, A, i))
-  return sessionRecords(A.entries, new Map(priorBests(S, A)), scope, asFor(S), formulaOf(S), e => e.noProg === true)
+  const recs = sessionRecords(A.entries, new Map(priorBests(S, A)), scope, asFor(S), formulaOf(S), e => e.noProg === true)
+  if (own) liveMemo.set(S, recs)
+  return recs
 }
+const liveMemo = new WeakMap()
 
 /** The records on set `set` of entry `i`, or on the entry itself with set -1. */
 export const recordsAt = (recs, i, set) => recs.filter(r => r.i === i && (set == null || r.set === set))
@@ -199,8 +206,8 @@ export function recordValue(r, unit, tr = s => s) {
     case 'setVol': return `${fmtNum(r.w)} ${unit} × ${r.r}`
     case 'sessionVol': return fmtVol(r.v, unit)
     case 'reps': case 'sessionReps': return tr('{0} reps', r.v)
-    case 'sec': return Math.floor(r.v / 60) + ':' + String(Math.round(r.v % 60)).padStart(2, '0')
-    case 'min': return fmtDur(r.v * 60000)
+    case 'sec': return elapsedClock(Math.round(r.v))
+    case 'min': return elapsedClock(Math.round(r.v * 60))
     default: return fmtNum(r.v)
   }
 }

@@ -15,8 +15,8 @@ import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
-import { fmtRest } from '../../lib/duration.js'
 import { restTimerText } from '../lib/elapsed.js'
+import { isCable } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   canBeWarmup, setSpanAt, lastEntryFor, cascadeWeight,
@@ -118,7 +118,10 @@ export default function HevyExerciseBlock({
   const speedUnit = speedUnitOf(S)
 
   // The value columns, in upstream's fields (views/Workout.jsx col1–col3), in Hevy's order.
-  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase(), label: t('Weight ({0})', xu),
+  // D43: a cable on two stacks is typed per stack; the header says so (review F1).
+  const perStack = isCable(entry.id) && entry.target?.dbLoad === 'each'
+  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase() + (perStack ? ' ×2' : ''),
+    label: perStack ? t('Weight per stack ({0})', xu) : t('Weight ({0})', xu),
     ...(conv ? { view: v => shown(v, unit, xu), store: v => convert(v, xu, unit) } : {}) }
   const R = { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }
   // D53: a cardio set's minutes and a hold's seconds are one TIME column, typed and shown as a clock.
@@ -129,8 +132,9 @@ export default function HevyExerciseBlock({
     (inclineFits(ex) || entry.sets.some(hasIncline)) && { f: 'incline', dec: true, opt: true, hd: t('INCL %'), label: t('Incline (%)'), store: clampIncline },
   ].filter(Boolean) : timed ? [W, { f: 'sec', dur: true, hd: t('TIME'), label: t('Time') }] : [W, R]
   const effOn = mode === 'reps' && !!eff
-  // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown.
-  const playOn = (timed || cardio) && !editing
+  // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown;
+  // not for a workout logged into the past, which is typed in.
+  const playOn = (timed || cardio) && !editing && !A?.backfill
   const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
   // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
   const goGrid = playOn ? ' hv-go-grid' : ''
@@ -332,28 +336,23 @@ export default function HevyExerciseBlock({
     const firm = src.done || touched.has(i + ':' + key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
     const k = i + ':' + key
     if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={col.label}><Elapsed start={src[RUN]} /></span>
-    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} hint={!firm}
-      aria-label={col.label}
-      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
-      onRestore={() => {
+    // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
+    const hintProps = {
+      hint: !firm,
+      onTypeOver: () => { typedOver.current = { k, sets: structuredClone(entry.sets) } },
+      onRestore: () => {
         const was = typedOver.current
         typedOver.current = null
         if (was?.k !== k) return
         update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
         untouch(k)
-      }}
+      },
+    }
+    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} {...hintProps}
+      aria-label={col.label}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(mode, sec)) }} />
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
-      hint={!firm}
-      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
-      onRestore={() => {
-        // Left empty: the grey value stays, and so does whatever typing it copied down the sets.
-        const was = typedOver.current
-        typedOver.current = null
-        if (was?.k !== k) return
-        update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
-        untouch(k)
-      }}
+      {...hintProps}
       aria-label={side ? col.label + ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : col.label}
       onChange={v => {
         touch(i, key)
@@ -483,7 +482,7 @@ export default function HevyExerciseBlock({
       <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
     </div>
     <BrandLine idx={entryIdx} />
-    {ss && <div className="hv-ss"><span className="hv-sspill">{ss.name || t('Superset')}</span>{ss.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(ss.rest))}</span>}</div>}
+    {ss && <div className="hv-ss"><span className="hv-sspill">{ss.name || t('Superset')}</span>{ss.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(ss.rest, 0, ''))}</span>}</div>}
     {entry.noProg === true && <div className="hv-sub hv-noprog"><Icon name="chartLineSlash" />{t('Not counted for progression')}
       {onNoProg && <button type="button" className="hv-link" onClick={() => onNoProg(false)}>{t('Undo')}</button>}</div>}
     {cfg.note && <div className="hv-note">{cfg.note}</div>}

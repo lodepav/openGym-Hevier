@@ -222,7 +222,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   return <div className={'hv-ex' + (e.sg ? ' hv-in-ss' : '')}>
     {meta && <button type="button" className="hv-ss hv-ss-btn" onClick={() => supersetSheet(meta, m => editList(x => { setSupersetMeta(x, e.sg, m) }))}>
       <span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
-      {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', fmtRest(meta.rest))}</span>}<Icon name="pencil" />
+      {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(meta.rest, 0, ''))}</span>}<Icon name="pencil" />
     </button>}
     <div className="hv-exhd" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}

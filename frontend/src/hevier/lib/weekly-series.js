@@ -54,6 +54,8 @@ export function niceMax(max, kind) {
 /** Which bars carry a date under them: four, evenly spread, the newest always among them. */
 export function labelledWeeks(n, count = 4) {
   if (n <= count) return Array.from({ length: n }, (_, i) => i)
-  const step = (n - 1) / (count - 1)
-  return Array.from({ length: count }, (_, i) => Math.round(i * step))
+  // One even step, counted back from this week, so the labelled bars are the same distance apart
+  // (review T13).
+  const step = Math.floor((n - 1) / (count - 1))
+  return Array.from({ length: count }, (_, i) => n - 1 - (count - 1 - i) * step)
 }

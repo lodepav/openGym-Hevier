@@ -169,8 +169,18 @@ if [[ -n "$APK" ]]; then
   gate "APK: exported components" apk_exported
 fi
 
-gate "dependencies: known vulnerabilities" trivy fs . --scanners vuln --include-dev-deps \
-  --skip-dirs '**/node_modules' --ignorefile "$SEC/trivyignore.yaml" --exit-code 1 --quiet
+# Trivy refreshes its database when it is due, but a stale one would pass in silence: say how old
+# it is, and fail past a week.
+vulns() {
+  trivy fs . --scanners vuln --include-dev-deps --skip-dirs '**/node_modules' \
+    --ignorefile "$SEC/trivyignore.yaml" --exit-code 1 --quiet || return 1
+  local meta="${TRIVY_CACHE_DIR:-$HOME/.cache/trivy}/db/metadata.json" at age
+  at="$(node -p "JSON.parse(require('fs').readFileSync('$meta', 'utf8')).UpdatedAt" 2>/dev/null)" || { echo "no database metadata at $meta"; return 1; }
+  age=$(( ( $(date +%s) - $(date -d "$at" +%s) ) / 86400 ))
+  echo "vulnerability database updated $at ($age days ago)"
+  (( age <= 7 )) || { echo "older than a week"; return 1; }
+}
+gate "dependencies: known vulnerabilities" vulns
 
 gate "supply chain: npm packages" node hevier/tools/supply-chain.mjs packages
 gate "supply chain: built bundle" node hevier/tools/supply-chain.mjs bundle frontend/dist

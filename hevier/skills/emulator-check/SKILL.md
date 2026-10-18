@@ -38,7 +38,7 @@ page scrolling sideways, anything past the screen edge, cut-off text, overlappin
 tap targets under 24 px). Exits 1 on a finding. `--only small,fold` and `--screens /home,/stats`
 narrow it. The display is reset afterwards, also on an error. Run it with `nice -n 19` after a UI
 change, and look at the screenshots of the screens you changed, not only the report. An open
-workout on the emulator is left alone (then the Workout tab's hub is not checked); without one,
+workout on the emulator is left alone (the Workout tab's hub is checked on /routines); without one,
 an empty workout is started, checked and discarded.
 
 ## Test data

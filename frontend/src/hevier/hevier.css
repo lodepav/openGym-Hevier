@@ -53,7 +53,7 @@
 :root[data-ui="hevier"] .hv-notes{display:block;width:100%;text-align:start;background:none;padding:2px 0 6px;font-size:14px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-notes.has{color:var(--label)}
 :root[data-ui="hevier"] .hv-note,:root[data-ui="hevier"] .hv-notes{white-space:pre-wrap}
-:root[data-ui="hevier"] .hv-wnote{padding:4px 0 10px}
+:root[data-ui="hevier"] .hv-wnote{padding:10px 0 12px;margin-bottom:8px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-rest{display:inline-flex;align-items:center;gap:6px;background:none;padding:2px 0 8px;color:var(--acc);font-size:14px}
 
 /* SET · PREVIOUS · KG · REPS · (RPE) · ✓ */
@@ -218,7 +218,6 @@
 }
 
 /* Routine editor (RoutineEditHevy.jsx): SET · KG · REPS, no PREVIOUS and no ✓ (D15) */
-:root[data-ui="hevier"] .hv-routine .hv-bar{gap:6px}
 :root[data-ui="hevier"] .hv-rtitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in{width:100%;background:none;border:0;padding:2px 0 6px;font:inherit;font-size:14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in::placeholder{color:var(--label-3)}
@@ -331,7 +330,6 @@
 :root[data-ui="hevier"] .seg.hv-xd-tabs .seg-sel{top:auto;bottom:-1px;height:2px;inset-inline-start:0;width:calc(100% / var(--n));border-radius:0;background:var(--acc);box-shadow:none}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button{min-height:40px;font-size:15px}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button.on{color:var(--acc)}
-:root[data-ui="hevier"] .hv-xd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
 :root[data-ui="hevier"] .hv-xd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-xd-big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-range{appearance:none;-webkit-appearance:none;background:none;color:var(--acc);border:0;padding:6px 18px 6px 4px;font-size:14px;font-weight:500;
@@ -372,7 +370,7 @@
 :root[data-ui="hevier"] .hv-mset-bar i{display:block;height:100%;background:var(--acc);border-radius:4px}
 :root[data-ui="hevier"] .hv-mset-d{text-align:end;font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-mset-d.up{color:var(--green)}
-:root[data-ui="hevier"] .hv-mset-d.down{color:var(--orange)}
+:root[data-ui="hevier"] .hv-mset-d.down{color:var(--red)}
 :root[data-ui="hevier"] .hv-linkrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-linkrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 
@@ -515,9 +513,7 @@
 :root[data-ui="hevier"] .hv-sw-btns .btn{flex:1}
 
 /* Profile's counts under its bar, as Hevy's "Workouts 12" beside the avatar. */
-:root[data-ui="hevier"] .hv-pstats{display:flex;flex-direction:column;gap:2px;margin:0 0 14px}
-:root[data-ui="hevier"] .hv-pstats span{font-size:13px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-pstats b{font-size:17px;font-weight:600}
+:root[data-ui="hevier"] .hv-pstats{margin:-4px 0 14px;font-size:13px;color:var(--label-2)}
 
 /* One body-map palette, Hevy's blue: the recovery map shades as the muscle maps do (deeper is
    more fatigued), not upstream's red-to-yellow. */
@@ -586,3 +582,6 @@
 :root[data-ui="hevier"] .hv-running{display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-go.on{color:var(--blue)}
 :root[data-ui="hevier"] .hv-dur{font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-report-more{width:100%;margin-top:8px}
+:root[data-ui="hevier"] .hv-msets-cap{margin:6px 0 2px}
+:root[data-ui="hevier"] .hv-allstats + .hdr{display:none}

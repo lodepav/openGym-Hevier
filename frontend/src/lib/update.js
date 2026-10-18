@@ -13,8 +13,11 @@ import { MOBILE } from './mobile.js'
 
 // [hevier] S6: the fork's builds check the fork's releases (VITE_UPDATE_REPO), not upstream's
 const REPO = import.meta.env.VITE_UPDATE_REPO || 'DuarteSantos8/openGym'
-// and read their tags, gohevier-vX.Y.Z (upstream's vX.Y.Z tags share the fork's repo)
-const tagVersion = tag => String(tag || '').replace(/^gohevier-/, '').replace(/^v/, '')
+// and read only their tags, gohevier-vX.Y.Z: upstream's vX.Y.Z tags share the fork's repo, and a
+// release made from one would offer upstream's higher number as an update
+const tagVersion = tag => (import.meta.env.VITE_UPDATE_REPO
+  ? (/^gohevier-v/.test(tag || '') ? tag.slice('gohevier-v'.length) : '')
+  : String(tag || '').replace(/^v/, ''))
 // A debug build (another app id, the debug key) never checks: a release would install beside it
 const NO_CHECK = import.meta.env.VITE_HEVIER_DEBUG === '1'
 // [/hevier]

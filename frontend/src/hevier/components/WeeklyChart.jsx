@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn, dateLocale } from '../../lib/i18n.js'
-import { fmtNum, fmtDur, fmtDate, todayISO, weekStartOf } from '../../lib/format.js'
+import { fmtNum, fmtDate, todayISO, weekStartOf } from '../../lib/format.js'
+import { durationWords } from '../lib/elapsed.js'
 import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -41,12 +42,12 @@ export default function WeeklyChart() {
   // Exercises kept out of progression are kept out of the chart (D57).
   const pts = weeklySeries(countedWorkouts(S.workouts), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
-  const fmt = v => (kind === 'duration' ? (v ? fmtDur(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
+  const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v))
   const cur = pts.at(-1).value
-  const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : kind === 'volume' ? fmtNum(Math.round(v)) : fmtNum(Math.round(v)))
+  const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
   const day = iso => new Date(iso + 'T12:00:00').toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
-  const head = kind === 'duration' ? t('{0} this week', cur ? fmtDur(cur) : '0 min') : t('{0} this week', fmt(cur))
+  const head = kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))
   return <div className="hv-chart">
     <div className="hv-chart-h"><b>{head}</b>
       <button type="button" className="hv-link hv-range" onClick={() => menuSheet({

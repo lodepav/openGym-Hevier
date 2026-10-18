@@ -7,7 +7,7 @@
 // a set for its main muscle only, or a secondary muscle in part too, kept in S.hvMuscleSets. Data & backup gets the
 // fork's Health Connect read switches (D27) under upstream's Health Connect card.
 import { t } from '../../lib/i18n.js'
-import { fmtRest } from '../../lib/duration.js'
+import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
 import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
@@ -25,6 +25,7 @@ import HevyExportSection from '../components/HevyExportSection.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
+  const body = useStore(s => s.S.body)
   const mode = useStore(s => volumeMode(s.S))
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
   const pickVolume = () => menuSheet({
@@ -48,10 +49,12 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   })
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
-  // fork pins (D17), so that row shows none.
-  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', fmtRest(restSec)) : t('No rest timer'))
-    : id === 'look' ? null : preview[id]?.() || null)
-  const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={t(PAGES[id].title)}
+  // fork pins (D17), so that row names the body diagram instead (review S5).
+  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
+    : id === 'look' ? t(body === 'female' ? 'Female' : 'Male') : preview[id]?.() || null)
+  // The Workout group's first row is not called Workout too (review S3); its page keeps upstream's title.
+  const title = id => t(id === 'workout' ? 'During a workout' : PAGES[id].title)
+  const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {
     'hv:volume': () => <Row key={'hv:volume'} icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />,

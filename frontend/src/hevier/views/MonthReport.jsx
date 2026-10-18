@@ -4,25 +4,34 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDur, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
+import { fmtNum, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { workoutsByDay } from '../lib/calendar.js'
+import { durationWords } from '../lib/elapsed.js'
 import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedWorkouts } from '../lib/counted.js'
 
-// The month's records grouped by exercise and day, in order: [{ id, d, recs }].
-const byDayEx = records => records.reduce((out, x) => {
-  const last = out.at(-1)
-  if (last && last.id === x.id && last.d === x.d) last.recs.push(x)
-  else out.push({ id: x.id, d: x.d, recs: [x] })
-  return out
-}, [])
+// The month's records, one row per exercise, most records first: [{ id, n, recs }], each kind once
+// with its last (so best) record of the month and how many times it was beaten, `times`.
+export function byExercise(records) {
+  const rows = new Map()
+  for (const x of records) {
+    const row = rows.get(x.id) || { id: x.id, n: 0, kinds: new Map() }
+    row.n++
+    row.kinds.set(x.kind, { ...x, times: (row.kinds.get(x.kind)?.times || 0) + 1 })
+    rows.set(x.id, row)
+  }
+  const order = Object.keys(KINDS)
+  return [...rows.values()].sort((a, b) => b.n - a.n)
+    .map(({ id, n, kinds }) => ({ id, n, recs: [...kinds.values()].sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)) }))
+}
+const PR_ROWS = 5
 
 function Stat({ label, value, delta }) {
   return <div><span>{label}</span><b>{value}</b>
@@ -33,6 +42,7 @@ export default function MonthReport() {
   const st = useStore(s => s.S)
   const today = todayISO()
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
+  const [allPrs, setAllPrs] = useState(false)
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
@@ -41,7 +51,8 @@ export default function MonthReport() {
   const first = firstMonth(st.workouts)
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1
   const canBack = !!first && (at.y > first.y || (at.y === first.y && at.mo > first.mo))
-  const step = by => setAt(({ y, mo }) => { const d = new Date(y, mo + by, 1); return { y: d.getFullYear(), mo: d.getMonth() } })
+  const step = by => { setAllPrs(false); setAt(({ y, mo }) => { const d = new Date(y, mo + by, 1); return { y: d.getFullYear(), mo: d.getMonth() } }) }
+  const prRows = byExercise(r.records)
   const unit = st.unit
   const sets = volumeMode(st) === 'sets'
   const topMuscle = r.muscles[0]?.sets || 1
@@ -57,21 +68,22 @@ export default function MonthReport() {
     {!r.workouts ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
       <div className="hv-stats hv-report-stats">
         <Stat label={t('Workouts')} value={r.workouts} delta={change(r.workouts, r.prev.workouts)} />
-        <Stat label={t('Duration')} value={fmtDur(r.duration)} delta={change(r.duration, r.prev.duration, true)} />
+        <Stat label={t('Duration')} value={durationWords(r.duration)} delta={change(r.duration, r.prev.duration, durationWords)} />
         {sets
           ? <Stat label={t('Sets')} value={r.sets} delta={change(r.sets, r.prev.sets)} />
-          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(r.volume, r.prev.volume, true)} />}
+          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit))} />}
       </div>
       <div className="hv-sub hv-report-vs">{t('Against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))}</div>
 
       {r.records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h4>
-        {/* One row per exercise and day, its records under the name; the count above is every record. */}
-        <div className="list">{byDayEx(r.records).map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
+        {/* One row per exercise: each kind of record once, its best this month, ×N when it was beaten
+            N times, so the rows add up to the count above. The first five, then all on a tap. */}
+        <div className="list">{(allPrs ? prRows : prRows.slice(0, PR_ROWS)).map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}</span>)}</span>
-          <span className="dim">{fmtDate(x.d, true)}</span>
+            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}{rec.times > 1 && ' ×' + rec.times} · {fmtDate(rec.d)}</span>)}</span>
         </button>)}</div>
+        {!allPrs && prRows.length > PR_ROWS && <button type="button" className="btn hv-report-more" onClick={() => setAllPrs(true)}>{t('Show all ({0})', prRows.length)}</button>}
       </>}
 
       <h4 className="sec">{t('{0} of {1} weeks trained', r.weeks.trained, r.weeks.total)}</h4>

@@ -40,7 +40,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
     render(null)
     expect([...container.querySelectorAll('.sect-t')].map(h => h.textContent)).toEqual(['Account', 'Workout', 'Stats', 'App', 'Data & more'])
     const rows = titles()
-    expect(rows.indexOf('Workout')).toBeGreaterThan(-1)
+    expect(rows.indexOf('During a workout')).toBeGreaterThan(-1)
+    expect(rows).not.toContain('Workout')
     expect(rows.indexOf('Previous values')).toBeLessThan(rows.indexOf('Volume'))
     expect(rows.indexOf('Muscle sets')).toBeLessThan(rows.indexOf('Units & language'))
     expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))
@@ -76,7 +77,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     act(() => root.unmount()); container.remove()
     render(null)
     const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
-    expect(look.textContent).toBe('Look & Home')
+    expect(look.textContent).toBe('Look & HomeMale') // the body diagram, not the theme (review S5)
   })
 
   it('a search never offers a row the page leaves out', () => {

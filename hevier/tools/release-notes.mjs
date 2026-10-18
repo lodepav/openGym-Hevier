@@ -77,8 +77,7 @@ const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8'
 
 /** The newest Go Hevier tag reachable from `ref`, or null. */
 export function lastTag(ref = 'HEAD') {
-  const tags = git('tag', '-l', TAG + '*', '--sort=-v:refname', '--merged', ref).split('\n').filter(Boolean)
-  return tags.find(t => t !== ref) || null
+  return git('tag', '-l', TAG + '*', '--sort=-v:refname', '--merged', ref).split('\n').find(Boolean) || null
 }
 
 /** The first-parent merges in from..to, newest first, each with its DECISIONS.md diff. */

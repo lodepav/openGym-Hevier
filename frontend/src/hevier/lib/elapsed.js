@@ -29,3 +29,10 @@ export function restTimerText(own, fallback, off) {
   const m = Math.floor(n / 60), s = n % 60
   return m ? m + 'min ' + s + 's' : s + 's'
 }
+
+/** A logged total as Hevy writes it, to the minute: "45min", "1h 15min", "24h 17min"; under a
+ *  minute its seconds. Takes ms, as upstream's fmtDur does. */
+export function durationWords(ms) {
+  const sec = secsOf(Number(ms) / 1000)
+  return sec < 60 ? elapsedWords(sec) : elapsedWords(Math.round(sec / 60) * 60)
+}

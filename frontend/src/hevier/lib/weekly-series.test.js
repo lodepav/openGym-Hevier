@@ -46,7 +46,8 @@ describe('the chart axis', () => {
     expect(niceMax(5000, 'volume')).toBe(5000)
   })
   it('dates four bars, the first and the newest among them', () => {
-    expect(labelledWeeks(12)).toEqual([0, 4, 7, 11])
+    expect(labelledWeeks(12)).toEqual([2, 5, 8, 11])
+    expect(labelledWeeks(26)).toEqual([1, 9, 17, 25])
     expect(labelledWeeks(52)).toEqual([0, 17, 34, 51])
     expect(labelledWeeks(3)).toEqual([0, 1, 2])
   })

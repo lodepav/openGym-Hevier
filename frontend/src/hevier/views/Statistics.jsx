@@ -7,6 +7,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, DAYS } from '../../lib/format.js'
+import { signed } from '../lib/delta.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
@@ -51,16 +52,17 @@ function SetCounts({ S, today }) {
     <h2>{t('Set count per muscle group')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
+    {/* What the numbers count, under the chips where it is read first (review T1, T6). */}
+    <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     {rows.length ? <div className="hv-msets">{rows.map(r => {
-      const delta = Math.round((r.sets - r.prev) * 10) / 10
+      const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
       return <div key={r.muscle} className="hv-mset">
         <span className="hv-mset-n">{t(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>
         <b>{fmtNum(r.sets)}</b>
-        <span className={'hv-mset-d' + (delta > 0 ? ' up' : delta < 0 ? ' down' : '')}>{delta ? (delta > 0 ? '+' : '') + fmtNum(delta) : '–'}</span>
+        <span className={'hv-mset-d' + (d ? (d.up ? ' up' : ' down') : '')}>{d?.text}</span>
       </div>
     })}
-      <div className="small dim">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     </div> : <div className="muted small" style={{ marginTop: 10 }}>{t('No sets in this period yet.')}</div>}
   </div>
 }
@@ -69,8 +71,7 @@ export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
-  const all = useStore(s => s.S)
-  const S = countedS(all)
+  const S = countedS(useStore(s => s.S))
   const today = todayISO()
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
@@ -79,7 +80,7 @@ export default function Statistics() {
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>
-    {all.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
+    {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

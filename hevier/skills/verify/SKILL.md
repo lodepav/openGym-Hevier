@@ -16,6 +16,8 @@ cd frontend
 npx vitest run src/hevier                 # fork tests, fast
 VITE_HEVIER=1 npx vite build              # the fork build
 node scripts/check-locales.mjs            # only if a locale or t() key was touched
+# no conflict marker left behind by a merge (one shipped in DECISIONS.md once, 658d4cab):
+! git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- .. ':!../hevier/CONFLICTS.md'
 ```
 
 - A red upstream `src/lib/i18n-plural.test.js` naming a fork string means a fork file calls

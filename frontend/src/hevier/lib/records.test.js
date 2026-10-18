@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { EXDB, isAssisted } from '../../lib/exercises.js'
-import { workoutRecords, recordsIn, liveRecords, recordsAt } from './records.js'
+import { EXDB, EXIDX, isAssisted, isCardio } from '../../lib/exercises.js'
+import { workoutRecords, recordsIn, liveRecords, recordsAt, recordValue } from './records.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
-const PULLUP = EXDB.find(e => /^pull-?up$/i.test(e.n))?.id || EXDB.find(e => e.eq === 'body weight' && /pull/i.test(e.n)).id
+const PULLUP = '0652'     // pull-up
+const PLANK = '0463'      // front plank
+const BIKE = '10729'      // aquabike, a cardio exercise
 const CABLE = '8878'      // cable 45 degrees reverse fly
 const ASSISTED = EXDB.find(e => isAssisted(e.id)).id
 
@@ -74,11 +76,31 @@ describe('hevier personal records (D51)', () => {
     expect(kinds({ workouts: [a, b] }, b)).toEqual(['weight'])
   })
 
-  it('holds and cardio: the longest', () => {
-    const PLANK = EXDB.find(e => /^plank$/i.test(e.n))?.id || 'plank'
+  it('looks its exercises up in the catalogue', () => {
+    expect(EXIDX[PULLUP]?.n).toBe('pull-up')
+    expect(EXIDX[PLANK]?.n).toBe('front plank')
+    expect(isCardio(BIKE)).toBe(true)
+  })
+
+  it('holds: the longest set', () => {
     const a = wk(1, [{ id: PLANK, target: { mode: 'time' }, sets: [{ sec: 60, done: true }] }])
     const b = wk(2, [{ id: PLANK, target: { mode: 'time' }, sets: [{ sec: 45, done: true }, { sec: 75, done: true }] }])
     expect(workoutRecords({ workouts: [a, b] }, b).map(r => [r.kind, r.set])).toEqual([['sec', 1]])
+  })
+
+  it('writes a hold and a cardio session as a clock', () => {
+    expect(recordValue({ kind: 'sec', v: 119.6 }, 'kg')).toBe('2:00')
+    expect(recordValue({ kind: 'sec', v: 3700 }, 'kg')).toBe('1:01:40')
+    expect(recordValue({ kind: 'min', v: 21 }, 'kg')).toBe('21:00')
+  })
+
+  it('cardio: the longest session, its sets added up', () => {
+    const a = wk(1, [{ id: BIKE, sets: [{ min: 20, done: true }] }])
+    const b = wk(2, [{ id: BIKE, sets: [{ min: 15, done: true }, { min: 10, done: true }] }])
+    const c = wk(3, [{ id: BIKE, sets: [{ min: 24, done: true }] }])
+    const S = { workouts: [a, b, c] }
+    expect(workoutRecords(S, b).map(r => [r.kind, r.set, r.v])).toEqual([['min', -1, 25]])
+    expect(workoutRecords(S, c)).toEqual([])
   })
 
   it('lists a month’s records with their workouts', () => {
