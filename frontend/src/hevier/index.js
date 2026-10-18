@@ -42,6 +42,8 @@ if (HEVIER) Object.assign(hooks, {
 if (HEVIER) hooks.importWeight = importWeight
 // D48: Hevy's rest and timer wheels go in 5 s steps.
 if (HEVIER) hooks.secondsStep = 5
+// D61: a routine or exercise with no progression rule of its own does not progress.
+if (HEVIER) hooks.defaultProg = 'off'
 // A plank or a wall sit starts as a timed hold (seam S32, D55).
 if (HEVIER) hooks.defaultMode = id => holdMode(useStore.getState().S, id)
 // An exercise's rest wheel opens on the default rest (seam S33, D56).

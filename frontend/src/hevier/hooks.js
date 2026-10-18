@@ -17,6 +17,7 @@ export const hooks = {
   weighIns: null,        // (opts) => true when upstream's weigh-in sheet is not to open (S22)
   importWeight: null,    // (w) => w: an imported weight, in the profile's unit, rounded the fork's way (S25)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
+  defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   durationOpen: null,    // ({ value, off, onDone }) => { value, onDone }: a duration sheet about to open (S33)
   statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)
