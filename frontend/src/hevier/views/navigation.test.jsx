@@ -105,6 +105,13 @@ describe('hevier: navigation (seam S2)', () => {
     expect(path).toBe('/profile')
   })
 
+  it('the By muscle explorer goes back where it came from, else to Exercises without a new page', () => {
+    render('/muscles')
+    expect(container.textContent).toContain('Explore muscles')
+    act(() => container.querySelector('.hdr .iconbtn').click())
+    expect(path).toBe('/library')
+  })
+
   it('a feed card’s ⋯ deletes the workout after upstream’s confirm', () => {
     render('/profile', { workouts: [workout('2026-10-14')] })
     act(() => container.querySelector('.hv-wcard .iconbtn').click())
