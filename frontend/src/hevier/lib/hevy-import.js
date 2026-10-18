@@ -70,7 +70,8 @@ export const FIXES = {
   'nordic hamstrings curls': '7746',
   'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
   'behind the back curl (cable)': { id: '4838', side: true },   // the cable unilateral curl, one arm at a time
-  // Hevy's own picture, chosen by the user from their history's review (2026-10-18); not offered upstream yet
+  // Hevy's own picture, chosen by the user from their history's review (2026-10-18); offered in #672,
+  // but for the one-arm triceps extension, a custom exercise in the user's Hevy, not a Hevy title
   'bent over row (dumbbell)': '0293',         // both arms, not one
   'butterfly (pec deck)': '1030',
   'chest dip (weighted)': '1755',             // no weighted chest dip in the catalogue: Hevy's, shared with Triceps Dip (Weighted)
