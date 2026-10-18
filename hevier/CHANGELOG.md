@@ -2,6 +2,20 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.2.0 · 2026-10-18
+
+Based on openGym 1.4.1.
+
+### New
+
+- a chart button in the exercise picker opens the exercise without adding it (D58)
+- workout notes at the top and on feed cards, timed holds, rest wheel on the default, no-progression exercises out of records and stats (D54–D57)
+
+### Fixes and changes
+
+- upstream's roadmap and milestones in PIPELINE
+- the Hevy import counts an exercise added as your own once (S31)
+
 ## 1.1.1 · 2026-10-18
 
 Based on openGym 1.4.1.
