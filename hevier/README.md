@@ -16,7 +16,7 @@ touches any of them, so they never conflict.
 | [RULES.md](RULES.md) | How the fork is built and kept mergeable: scope, branches, the build flag, the test rig, the rules every change follows, and the risks. The finished implementation plan is in git history. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |
-| [PIPELINE.md](PIPELINE.md) | What upstream's unreleased `release-*` branches already bring, and what it means for the fork. Check it before starting a milestone. |
+| [PIPELINE.md](PIPELINE.md) | What upstream's unreleased `release-*` branches already bring and its milestones plan, and what it means for the fork. Check it before starting a milestone. |
 | [SEAMS.md](SEAMS.md) | The list of every place the fork edits an upstream file. Keep it current: it is what makes conflicts predictable. |
 | [tools/emulator.sh](tools/emulator.sh) | Builds the debug APK, boots the Android 16 emulator, installs and launches it. |
 | [tools/cdp.mjs](tools/cdp.mjs) | Drives the app's WebView over the Chrome DevTools Protocol: click, read text, screenshot. |

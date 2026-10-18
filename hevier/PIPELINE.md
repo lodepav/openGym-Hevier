@@ -1,7 +1,7 @@
 # Upstream pipeline
 
-What upstream has finished but not yet tagged, so the fork doesn't build something that is
-already coming. Read this before starting a milestone, and refresh it after each `git fetch upstream`.
+What upstream has finished but not yet tagged, and what its roadmap plans, so the fork doesn't
+build something that is already coming. Read this before starting a milestone, and refresh it after each `git fetch upstream`.
 
 Saved 2026-10-16 from `upstream/release-1.4.2` (3bf5a1ce, 243 commits past v1.4.1) and
 `upstream/release-1.4.3` (0f8e46ee, 367 commits, which contains 1.4.2). The full notes are
@@ -35,6 +35,42 @@ git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}' 
 | Android targets 16, minSdk 24, Standard/Plus/HD APKs | `hevier/tools/emulator.sh` and seam S7 (gradle): check the flavours on merge. |
 | iOS app, Watch, widgets, Apple Health | Out of scope for the fork (Android). |
 | Security fixes, owner role, CSP | Server side: take as is. CSP: the fork loads nothing external, but check it on merge. |
+
+## Upstream's roadmap (ROADMAP.md, read 2026-10-18)
+
+`ROADMAP.md` on upstream's main (last changed 2026-10-09) describes the themes; its version numbers
+have slipped. The **GitHub milestones** are the live plan, a release every two weeks on a Sunday:
+1.4.2 App Store & Watch (2026-10-18) · 1.4.3 gym reminder, health data (11-01) · **1.4.4 Programmes
+& phases** (11-15) · 1.4.5 Google Play & progression I (11-29) · 1.4.6 progression II (12-13) ·
+1.4.7 cardio, alternatives, groups (12-27) · 1.4.8 search & catalogue (2027-01-10) · 1.4.9
+accounts · 1.4.10 trainer & MCP write · 1.4.11 wearables · 1.4.12 looks, social · later: database
+storage. Refresh:
+
+```bash
+for n in $(gh api repos/DuarteSantos8/openGym/milestones --jq '.[].number'); do
+  gh api "repos/DuarteSantos8/openGym/issues?milestone=$n&state=open&per_page=50" \
+    --jq '.[]|"\(.milestone.title|split(":")[0])\t#\(.number)\t\(.title)"'; done
+```
+
+What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADMAP.md only, no issue):
+
+| Roadmap item | Fork impact |
+|---|---|
+| **Database storage** (#191, later, the one compatibility break): tables per kind of record, a migration, the state file kept as the backup format | **The biggest risk.** The fork keeps its own fields in `S` and on records (`hvVolume`, `hvMachines`, `hvStrength`, `hvImportMap`, `folder`, `hvGym`/`hvBrand`/`hvCable` on entries, `hvHevyRoutine`, …), relying on upstream carrying unknown fields through sync and backups (D20). A table schema would drop them. Before that merge: list every fork field, and ask upstream for a pass-through (a JSON column, or an "extra" map per record), better before the schema is fixed. |
+| **"Different gyms"** (roadmap only, no issue): a location on a logged set, separate histories and PRs per location | Overlaps D28 / D47 / D51. The fork decided the gym is only where and splits nothing, while the **brand** splits records. If upstream's lands: map D28's gyms onto its locations, keep the brand label as the fork's, and decide again whether a location splits records (upstream's yes against D51's no). |
+| **Programmes** (1.4.4, #159): routines grouped into named blocks over weeks, "folders" in its Discord thread | Overlaps D13's routine folders (`folder` field). If upstream adds its own grouping, move the fork's folders onto it rather than keeping two. |
+| **Session phases** and completion-only stretching kept out of volume and PRs (1.4.4, #57, #140; open PR #610) | `HevyWorkout` must follow; D18 / D42 counts and D51 records must leave those exercises out as upstream does. |
+| **Progression engine I and II** (1.4.5, 1.4.6): a v2 training engine (#186, open PR #312), per-set rep/set ranges and AMRAP (#154), %1RM with a training max and target RPE/RIR (#153), 5/3/1 waves (#70), a warm-up generator (#156) | D15's table is drawn from today's single prescription: per-set ranges would need the table to edit rows one by one. D35's routine update, D34's routine export and D37's routine page read the same prescription. Expect the largest drift in `routine-table.js`. |
+| **Assisted exercises as negative weight** (roadmap, #176) | D51 treats the help as the weight (least help is the record) and D34 sends it as weight: follow upstream's sign at that merge. |
+| **Cardio** (1.4.7): intervals, C25k, rucking, **distance for cardio** (#177, #169; roadmap) | D53's TIME column and set timer: add the distance column as upstream stores it; intervals may replace the count-up timer for those sets. |
+| **Alternatives per routine slot** (1.4.4, #649, "when the machine is taken") | 1.4.2's backups already store them: D45 / D46. #649 may add more (a per-gym choice would meet D46): read it before that merge. |
+| **Search your history, import aliases by name** (roadmap; open PR #624) | D33's import map and D36's brand search: take upstream's aliases if they cover D33's choices. |
+| **kg ↔ lb switching converts stored values** (roadmap, #22) | D41 (per-exercise unit, stored in the profile's), D19 (`hvStrength` entries keep their own unit) and D28's labels: check the conversion leaves the fork's fields right, and that D41's `inc` is converted with upstream's. |
+| **Android & health**: Health Connect sessions, an Android **home-screen widget** (1.4.5, #125; PR #299), logging a set from the lock screen, the **timer rework** (#165), **media cached for offline** (#123) | Widget: D44 is the fork's; if upstream ships one, keep one. Timer rework: D10's Timer / Stopwatch and D53's set timer. Offline media: D50 left the media (90% of the APK) alone; upstream's cache may let the fork stop bundling it. |
+| **Looks** (1.4.12): skins, wallpapers, a big-screen layout (#129, #134, #135); **social** (PR #180) | D17 (one dark look) and D49's page bars: skins stay unoffered, like the accent. Social: D14's Profile and Hevy's feed. |
+| **Body composition** in measurements: fat %, muscle mass and more (1.4.4, #648) | D31 maps Hevy's `fat_percent` to body fat and leaves lean mass out for want of a field: add it to the Hevy import when #648 brings one. |
+| **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
+| Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
 ## Open pull requests (2026-10-16)
 
