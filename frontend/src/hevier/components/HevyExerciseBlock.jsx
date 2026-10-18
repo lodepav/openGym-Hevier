@@ -16,6 +16,7 @@ import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { restTimerText } from '../lib/elapsed.js'
+import { isCable } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   canBeWarmup, setSpanAt, lastEntryFor, cascadeWeight,
@@ -117,7 +118,10 @@ export default function HevyExerciseBlock({
   const speedUnit = speedUnitOf(S)
 
   // The value columns, in upstream's fields (views/Workout.jsx col1–col3), in Hevy's order.
-  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase(), label: t('Weight ({0})', xu),
+  // D43: a cable on two stacks is typed per stack; the header says so (review F1).
+  const perStack = isCable(entry.id) && entry.target?.dbLoad === 'each'
+  const W = { f: 'w', dec: true, hd: (bw ? '+' : '') + xu.toUpperCase() + (perStack ? ' ×2' : ''),
+    label: perStack ? t('Weight per stack ({0})', xu) : t('Weight ({0})', xu),
     ...(conv ? { view: v => shown(v, unit, xu), store: v => convert(v, xu, unit) } : {}) }
   const R = { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }
   // D53: a cardio set's minutes and a hold's seconds are one TIME column, typed and shown as a clock.
