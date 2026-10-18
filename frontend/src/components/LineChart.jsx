@@ -1,6 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { fmtNum, fmtDate, MONTHS, isoOf } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
+// [hevier] S30
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 const W = 340   // viewBox width; the svg stretches to its container, height comes from `h`
 
@@ -90,8 +93,11 @@ export default function LineChart({ points, h = 150, unit = '', color = 'var(--a
         ticks.push({ t: tv, txt: dd.getDate() + ' ' + t(MONTHS[dd.getMonth()]), anchor: i === 0 ? 'start' : i === 2 ? 'end' : 'middle' })
       }
     }
-    const every = Math.max(1, Math.ceil(ticks.length / 7))
-    ticks.forEach((tk, i) => {
+    // [hevier] S30: the fork's labels never repeat (a day twice, a month name across years)
+    const shown = hooks.chartTicks ? hooks.chartTicks(ticks, t0, t1) : ticks
+    // [/hevier]
+    const every = Math.max(1, Math.ceil(shown.length / 7))
+    shown.forEach((tk, i) => {
       if (i % every) return
       const x = X(tk.t)
       gridlines.push(<g key={'x' + i}>
