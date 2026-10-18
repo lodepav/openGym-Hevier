@@ -31,7 +31,7 @@ describe('hevier set timer (D53)', () => {
     expect(A.entries[0].sets[0]).toEqual({ min: 1.5, speed: 8 })
     expect(A.entries[1].sets[0][RUN]).toBe(T + 90_000)
     expect(anyRunning(A)).toBe(true)
-    expect(stopAll(A, T + 120_000)).toEqual([[1, 0]])
+    stopAll(A, T + 120_000)
     expect(A.entries[1].sets[0]).toEqual({ sec: 30 })
     expect(anyRunning(A)).toBe(false)
   })

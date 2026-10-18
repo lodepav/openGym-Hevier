@@ -2,7 +2,7 @@
 // no Coach. A session you stepped away from rides above the tabs as a "Workout in progress" bar
 // that takes you back to it — the same rule upstream's Start/Resume button uses (TabBar.jsx) — or
 // discards it.
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -45,9 +45,11 @@ export default function HevyTabBar() {
   const isGuest = useStore(s => s.isGuest())
   const trouble = useConnectionTrouble()
   // A page reached from more than one tab (a workout's details) keeps the tab you came from.
-  const last = useRef('home')
-  const tab = tabOf(loc.pathname) || last.current
-  last.current = tab
+  // Kept as state, set while rendering as React's derived-state pattern allows (review 2.7).
+  const [last, setLast] = useState('home')
+  const own = tabOf(loc.pathname)
+  if (own && own !== last) setLast(own)
+  const tab = own || last
   // Upstream's condition for a live session away from its screen; a saved workout being edited
   // or one logged after the fact has no clock, and resumes through the Workout tab instead.
   const running = !!A && !A.editingWorkoutId && !A.backfill && A.start > 0

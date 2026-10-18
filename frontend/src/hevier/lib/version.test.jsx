@@ -24,14 +24,14 @@ describe('hevier version (D52)', () => {
   it('names both versions', () => {
     expect(versionLine(tr, '1.0.0+abc1234', '1.4.1')).toBe('Go Hevier 1.0.0+abc1234 · based on openGym 1.4.1')
   })
-  it('About: the Version row, the update row and the footer name Go Hevier and openGym', () => {
+  it('About: the Version row names Go Hevier and openGym, the update row Go Hevier, the footer no version', () => {
     const out = aboutPage(page('Update to openGym v1.1.0'), tr, '1.0.0', '1.4.1')
     const [ver, upd] = rows(out)
     expect(ver).toMatchObject({ value: 'v1.0.0', subtitle: 'based on openGym v1.4.1' })
     expect(upd.title).toBe('Update to Go Hevier v1.1.0')
     const kids = footer(out)
-    expect(kids[0]).toBe('Go Hevier 1.0.0 · based on openGym 1.4.1')
-    expect(kids[1]).toBe(' · ')
+    expect(kids[0]).toBe('free & open source (AGPL v3)')
+    expect(kids.join('')).not.toContain('1.0.0')
   })
   it('leaves "Check for updates" and a footer of another shape alone', () => {
     const out = aboutPage(page(), tr, '2.0.0', '1.4.1')

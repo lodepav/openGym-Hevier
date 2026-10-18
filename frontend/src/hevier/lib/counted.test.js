@@ -25,11 +25,11 @@ describe('countedWorkouts (D57)', () => {
     ]
     expect(countedWorkouts(ws).map(w => w.d)).toEqual(['2026-10-03'])
   })
-  it('keeps one answer per log and per S', () => {
+  it('gives the statistics the counted log and keeps the rest of S', () => {
     const S = { unit: 'kg', workouts: [{ d: '2026-10-01', entries: [bench, curl] }] }
-    expect(countedS(S)).toBe(countedS(S))
-    expect(countedS(S).unit).toBe('kg')
-    const plain = { workouts: [{ d: '2026-10-01', entries: [bench] }] }
-    expect(countedS(plain)).toBe(plain)
+    const out = countedS(S)
+    expect(out.unit).toBe('kg')
+    expect(out.workouts[0].entries.map(e => e.id)).toEqual(['0025'])
+    expect(S.workouts[0].entries).toHaveLength(2)
   })
 })

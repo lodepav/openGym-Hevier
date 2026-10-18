@@ -19,7 +19,7 @@ export const DEBUG_BUILD = import.meta.env.VITE_HEVIER_DEBUG === '1'
 
 /**
  * Upstream's About page with both versions: the Version row's value, the update row's title (a
- * newer Go Hevier, not openGym) and the footer's first line. In a debug build the update row says
+ * newer Go Hevier, not openGym), and the footer's version, left out as the row shows it. In a debug build the update row says
  * updates come with the release app instead. Anything else, or a page whose shape changed in a
  * merge, is left as it is.
  */
@@ -40,7 +40,10 @@ export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream(), 
       const kids = Children.toArray(p.children)
       const at = kids.findIndex((k, i) => k === mine && kids[i - 1] === 'openGym v')
       if (at < 1) return node
-      return cloneElement(node, {}, ...kids.slice(0, at - 1), versionLine(tr, mine, theirs), ...kids.slice(at + 1))
+      // The Version row above names both versions; the footer keeps the licence and source only
+      // (review S6: one place for the version, as Hevy has).
+      const after = kids[at + 1] === ' · ' ? at + 2 : at + 1
+      return cloneElement(node, {}, ...kids.slice(0, at - 1), ...kids.slice(after))
     }
     if (p.children === undefined) return node
     const kids = Children.toArray(p.children)
