@@ -126,11 +126,21 @@ export function bareBrand(name) {
   return { name: clean(name.slice(0, m.index)), brand: clean(m[1]).slice(0, BRAND_MAX) }
 }
 
+// A last bracket that is one of your own brands (D28's labels, `ctx.brands`, compared without
+// case, spaces or punctuation) is that brand, even when it is the title's only bracket, from any
+// app: "Face Pull (LifeFitness)" (review T12). It takes your brand's own spelling.
+export const brandNorm = s => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+function knownBrand(name) {
+  const m = ctx?.brands && String(name || '').match(LAST)
+  const own = m && ctx.brands.get(brandNorm(m[1]))
+  return own ? { name: clean(name.slice(0, m.index)), brand: own } : null
+}
+
 /** A title's parts: the name to match, the brand and the cable tag. */
 function partsOf(title, source) {
   const { name, brand } = splitBrand(title)
   const c = splitCable(name)
-  const bare = !brand && source === 'Hevy' ? bareBrand(c.name) : null
+  const bare = !brand ? (source === 'Hevy' && bareBrand(c.name)) || knownBrand(c.name) : null
   return bare ? { ...c, ...bare } : { ...c, brand }
 }
 

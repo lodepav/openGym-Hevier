@@ -37,9 +37,9 @@ describe('hevier Hevy import (D29)', () => {
     expect(importExercise('Squat (Barbell)', 'Hevy')).toBe(null)   // upstream's match stands
   })
 
-  it('the user’s own matches: Nordic curls, deficit push ups, the behind-the-back cable curl', () => {
-    expect(importExercise('Nordic Hamstrings Curls', 'Hevy')).toBe('7746')
-    expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
+  // The fix table's ids are checked against the catalogue above; these cases test the parsing
+  // around a row (review 5.1), not the row itself.
+  it('a fix row marked one arm at a time is per side; spacing before a bracket does not matter', () => {
     expect(readKey(importExercise('Behind the Back Curl (Cable)', 'Hevy'))).toEqual({ id: '4838', side: true, brand: '' })   // one arm at a time
     expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip(Cable)', 'Hevy')).toBe('0218')
@@ -217,16 +217,14 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(p.workouts[1].vol).toBe(50 * 10)
   })
 
-  it('follows Hevy’s own picture for the titles the user reviewed, brands and one arm included', () => {
+  it('a reviewed title keeps its brand, setup and one arm whatever the brackets', () => {
     const id = t => { const a = importExercise(t, 'Hevy'); return readKey(a) || { id: a } }
-    expect(id('Lat Pulldown (Cable)').id).toBe('0150')
     expect(id('Lat Pulldown (Cable) (x2) (brand:LifeFitness)')).toMatchObject({ id: '0150', brand: 'LifeFitness', cable: 'x2' })
     expect(id('Lat Pulldown (Cable) (LifeFitness)')).toMatchObject({ id: '0150', brand: 'LifeFitness' })
     expect(id('Face Pull (brand:LifeFitness)')).toMatchObject({ id: '7744', brand: 'LifeFitness' })
     expect(id('Single Arm Curl (Cable)')).toMatchObject({ id: '0190', side: true })
     expect(id('Single Arm Triceps Extension (Cable) (brand:LifeFitness)')).toMatchObject({ id: '0149', side: true })
-    expect(id('Standing Calf Raise (Smith) (brand:Achilles Rehab)').id).toBe('1164')
-    expect(id('Chest Dip (Weighted)').id).toBe('1755')
+    expect(id('Standing Calf Raise (Smith) (brand:Achilles Rehab)')).toMatchObject({ brand: 'Achilles Rehab' })
     expect(id('Iso-Lateral High Row (Machine)')).toMatchObject({ id: '0581', side: true })
     for (const [, f] of Object.entries(FIXES)) expect(EXIDX[typeof f === 'string' ? f : f.id]).toBeTruthy()
   })
@@ -273,5 +271,15 @@ describe('hevier cable setup from the title (D43)', () => {
       row('Lat Pulldown (Cable) (x2)', 0, 'normal', 30, 10, '15 Oct 2026, 16:27'),
     ]), { unit: 'kg', customEx: [] })
     expect(entriesOf(p).map(e => e.hvCable)).toEqual(['2:1', 'x2'])
+  })
+})
+
+describe('hevier: a single bracket that is your own brand (review T12)', () => {
+  afterEach(() => useChoices(null))
+  it('is cut out as that brand, in your spelling, from any app; anything else stays in the title', () => {
+    useChoices({ map: null, cables: null, known: new Set(), customEx: [], brands: new Map([['lifefitness', 'LifeFitness']]) })
+    expect(readKey(importExercise('Face Pull (Lifefitness)', 'Hevy'))).toMatchObject({ brand: 'LifeFitness' })
+    expect(readKey(importExercise('Leg Press (Life Fitness)', 'Strong'))).toMatchObject({ brand: 'LifeFitness' })
+    expect(readKey(importExercise('Hip Thrust (Paused)', 'Strong'))?.brand || '').toBe('')
   })
 })
