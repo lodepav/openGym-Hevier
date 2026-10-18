@@ -17,6 +17,7 @@ export const hooks = {
   weighIns: null,        // (opts) => true when upstream's weigh-in sheet is not to open (S22)
   importWeight: null,    // (w) => w: an imported weight, in the profile's unit, rounded the fork's way (S25)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
+  chartTicks: null,      // (ticks, t0, t1) => ticks: LineChart's x-axis labels (S30)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 

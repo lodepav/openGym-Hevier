@@ -22,6 +22,7 @@ import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
 import { watchS } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
+import { chartTicks } from './lib/chart-ticks.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -36,6 +37,8 @@ if (HEVIER) Object.assign(hooks, {
 if (HEVIER) hooks.importWeight = importWeight
 // D48: Hevy's rest and timer wheels go in 5 s steps.
 if (HEVIER) hooks.secondsStep = 5
+// Chart labels that never repeat (seam S30).
+if (HEVIER) hooks.chartTicks = chartTicks
 // …with the user's own choices from the import review (seam S23, D33).
 if (HEVIER) hooks.importReview = { keep, Row: ReviewRow }
 // …and its routines their Hevy folders (seam S20, D30).
