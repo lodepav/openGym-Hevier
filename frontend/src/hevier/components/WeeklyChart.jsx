@@ -10,6 +10,7 @@ import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/wee
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
+import { countedWorkouts } from '../lib/counted.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
@@ -17,7 +18,7 @@ const RANGES = [{ weeks: 12, label: 'Last 12 weeks' }, { weeks: 26, label: 'Last
 
 /** A week's sets per muscle, from a tap on its bar. */
 function weekSheet(S, week) {
-  const ws = (S.workouts || []).filter(w => inWeek(w, week, weekStartOf(S)))
+  const ws = countedWorkouts(S.workouts).filter(w => inWeek(w, week, weekStartOf(S)))
   const list = muscleSets(ws.flatMap(w => w.entries || []), muscleMode(S))
   useUI.getState().openSheet(() => <>
     <h3>{t('Week of {0}', fmtDate(week, true))}</h3>
@@ -37,7 +38,8 @@ export default function WeeklyChart() {
   // The Volume chip is Sets in sets mode; the choice follows a switch made in Settings.
   const kinds = SERIES.map(k => (k === 'volume' && sets ? 'sets' : k))
   const kind = pick === 'volume' || pick === 'sets' ? (sets ? 'sets' : 'volume') : pick
-  const pts = weeklySeries(S.workouts, kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
+  // Exercises kept out of progression are kept out of the chart (D57).
+  const pts = weeklySeries(countedWorkouts(S.workouts), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? fmtDur(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v))

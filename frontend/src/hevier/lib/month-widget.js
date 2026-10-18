@@ -11,6 +11,7 @@ import { DAYS, MONTHS_LONG, weekStartOf, weekOrder } from '../../lib/format.js'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { workSets } from './volume.js'
 import { dayKind } from './calendar.js'
+import { countedWorkouts } from './counted.js'
 
 export const WIDGET_SNAPSHOT_VERSION = 1
 
@@ -41,6 +42,11 @@ export function widgetSnapshot(S, today) {
     if (!d || !keep.has(d.slice(0, 7))) continue
     if (!byDay.has(d)) byDay.set(d, [])
     byDay.get(d).push(w)
+  }
+  // The days show every workout; the line counts as the monthly report does (D57).
+  for (const w of countedWorkouts(S?.workouts)) {
+    const d = workoutDay(w)
+    if (!d || !keep.has(d.slice(0, 7))) continue
     const m = totals.get(d.slice(0, 7)) || { n: 0, sets: 0 }
     m.n++
     m.sets += workSets(w.entries)

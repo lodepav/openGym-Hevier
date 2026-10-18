@@ -14,6 +14,7 @@ import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-repo
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
+import { countedWorkouts } from '../lib/counted.js'
 
 // The month's records grouped by exercise and day, in order: [{ id, d, recs }].
 const byDayEx = records => records.reduce((out, x) => {
@@ -34,7 +35,8 @@ export default function MonthReport() {
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
-  const r = useMemo(() => monthReport(st.workouts, at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [st.workouts, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
+  const r = useMemo(() => monthReport(countedWorkouts(st.workouts), at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [st.workouts, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1

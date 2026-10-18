@@ -25,6 +25,17 @@ describe('hevier personal records (D51)', () => {
     expect(recordsAt(recs, 0, -1).map(r => r.kind)).toEqual(['sessionVol'])
   })
 
+  it('an exercise kept out of progression sets no record and raises no bar (D57)', () => {
+    const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
+    const b = wk(2, [{ id: BENCH, sets: [s(120, 5)], noProg: true }])
+    const c = wk(3, [{ id: BENCH, sets: [s(90, 5)] }])
+    const d = { ...wk(4, [{ id: BENCH, sets: [s(130, 5)] }]), excludeFromProgression: true }
+    const S = { workouts: [a, b, c, d] }
+    expect(kinds(S, b)).toEqual([])
+    expect(kinds(S, c)).toContain('weight')
+    expect(kinds(S, d)).toEqual([])
+  })
+
   it('a tie is no record, and a worse session does not lower the bar', () => {
     const a = wk(1, [{ id: BENCH, sets: [s(100, 5)] }])
     const b = wk(2, [{ id: BENCH, sets: [s(90, 5)] }])
@@ -90,6 +101,11 @@ describe('hevier personal records (D51)', () => {
     it('a new brand in the session is a first time', () => {
       const st = S([s(45, 10)])
       st.active.entries[0].hvBrand = 'Matrix'
+      expect(liveRecords(st)).toEqual([])
+    })
+    it('none on an exercise kept out of progression (D57)', () => {
+      const st = S([s(50, 10)])
+      st.active.entries[0].noProg = true
       expect(liveRecords(st)).toEqual([])
     })
     it('none in a workout logged into the past', () => {

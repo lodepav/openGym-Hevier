@@ -10,7 +10,7 @@
 // session reps; a hold in the longest hold; cardio in the longest duration. Warm-ups never count.
 // Dumbbells are read in the exercise's own meaning (lib/dumbbells.js), as exercise details reads them;
 // a cable's two stacks (×2) are their own label and are compared as logged.
-import { metricModeForEntry, metricRowsForEntry, completedRepsOf, workoutAt } from '../../lib/history.js'
+import { metricModeForEntry, metricRowsForEntry, completedRepsOf, workoutAt, entryExcluded } from '../../lib/history.js'
 import { beatsWeight, isAssisted } from '../../lib/exercises.js'
 import { estimate1RM, formulaOf } from '../../lib/onerm.js'
 import { completedVolumeOf, isSideSet } from '../../lib/workout-model.js'
@@ -82,11 +82,13 @@ function entryBests(e, formula) {
  * A session's records against `bests` (Map scope → { kind: v }), which it then raises.
  * `entries` are read with `scopeOf(e, i)` and `asOf(exId)`. Returns [{ i, id, kind, set, v, w?, r? }]
  * in the session's order, each kind of each label once: on the entry and set that first reached it.
+ * `skip(e)`: an entry kept out of progression, which neither sets nor raises a record.
  */
-function sessionRecords(entries, bests, scopeOf, asOf, formula) {
+function sessionRecords(entries, bests, scopeOf, asOf, formula, skip) {
   const byScope = new Map()
   list(entries).forEach((e, i) => {
-    if (!e?.id) return
+    // An exercise kept out of progression sets no record and raises no bar (D57).
+    if (!e?.id || skip(e)) return
     const as = asOf(e.id)
     const read = as ? workoutAs({ entries: [e] }, e.id, as).entries[0] : e
     const scope = scopeOf(e, i)
@@ -137,7 +139,7 @@ function walk(S, workouts) {
   const bests = new Map()
   const byWorkout = new Map()
   for (const { w } of order) {
-    const recs = sessionRecords(w?.entries, bests, savedScope, asOf, formula)
+    const recs = sessionRecords(w?.entries, bests, savedScope, asOf, formula, e => entryExcluded(w, e))
     if (recs.length) byWorkout.set(keyOf(w), recs)
   }
   return { bests, byWorkout }
@@ -184,7 +186,7 @@ function priorBests(S, A) {
 export function liveRecords(S, A = S?.active) {
   if (!A || A.backfill) return []
   const scope = (e, i) => e.id + '#' + labelKey(entryBrand(S, A, i), entryCable(S, A, i))
-  return sessionRecords(A.entries, new Map(priorBests(S, A)), scope, asFor(S), formulaOf(S))
+  return sessionRecords(A.entries, new Map(priorBests(S, A)), scope, asFor(S), formulaOf(S), e => e.noProg === true)
 }
 
 /** The records on set `set` of entry `i`, or on the entry itself with set -1. */

@@ -19,6 +19,7 @@ export const hooks = {
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   durationOpen: null,    // ({ value, off, onDone }) => { value, onDone }: a duration sheet about to open (S33)
+  statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)
   chartTicks: null,      // (ticks, t0, t1) => ticks: LineChart's x-axis labels (S30)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }

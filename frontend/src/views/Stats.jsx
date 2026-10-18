@@ -27,6 +27,9 @@ import { anchorsByWorkout, resolveSetRir } from '../lib/recovery.js'
 import { Button, Segmented, SelectRow } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { isWarmupRow } from '../lib/workout-model.js'
+// [hevier] S34
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 // Set 1 to 5 on the per-set chart — system colours, so each line keeps its hue in dark mode.
 const SET_COLORS = ['var(--blue)', 'var(--green)', 'var(--orange)', 'var(--purple)', 'var(--pink)']
@@ -406,7 +409,9 @@ export function WeeklyPlanVolume({ S }) {
 
 export default function Stats() {
   const nav = useNavigate()
-  const S = useStore(s => s.S)
+  // [hevier] S34: exercises kept out of progression are kept out of the statistics (D57)
+  const S = (hooks.statsS || (x => x))(useStore(s => s.S))
+  // [/hevier]
   const [range, setRange] = useState(90)
   // Plan's "Weekly muscle volume" row lands here (/stats?focus=weekly-volume). The router is a
   // HashRouter, so the query sits in the hash; the scroll waits a frame for the page's own

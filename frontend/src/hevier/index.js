@@ -26,6 +26,7 @@ import { chartTicks } from './lib/chart-ticks.js'
 import { initNoteFix } from './lib/note-text.js'
 import { holdMode } from './lib/hold-mode.js'
 import { restOpen } from './lib/rest-default.js'
+import { countedS } from './lib/counted.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -44,6 +45,8 @@ if (HEVIER) hooks.secondsStep = 5
 if (HEVIER) hooks.defaultMode = id => holdMode(useStore.getState().S, id)
 // An exercise's rest wheel opens on the default rest (seam S33, D56).
 if (HEVIER) hooks.durationOpen = o => restOpen(o, useStore.getState().S.restSec)
+// Upstream's All statistics and Structural balance leave out exercises kept out of progression (S34, D57).
+if (HEVIER) hooks.statsS = countedS
 // Chart labels that never repeat (seam S30).
 if (HEVIER) hooks.chartTicks = chartTicks
 // …with the user's own choices from the import review (seam S23, D33).
