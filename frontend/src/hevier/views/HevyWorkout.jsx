@@ -25,6 +25,7 @@ import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
+import { anyRunning, stopAll } from '../lib/set-timer.js'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -74,7 +75,11 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
         {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
-        <button className="btn primary pill hv-finish" onClick={() => finishWorkout()}>{editing ? t('Save') : t('Finish')}</button>
+        <button className="btn primary pill hv-finish" onClick={() => {
+          // A set's count-up timer still running stops here, its time written in (D53).
+          if (anyRunning(useStore.getState().S.active)) useStore.getState().update(st => { stopAll(st.active) }, true)
+          finishWorkout()
+        }}>{editing ? t('Save') : t('Finish')}</button>
       </div>
       <div className="hv-stats">
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>

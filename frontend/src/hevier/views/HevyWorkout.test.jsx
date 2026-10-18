@@ -167,28 +167,43 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
   })
 
-  it('a timed hold gets KG · SEC and a start button (M1)', () => {
+  it('a timed hold gets KG · TIME, typed as a clock, with a count-up timer (M1, D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
     const head = container.querySelector('.hv-head').textContent
-    expect(head).toContain('SEC')
+    expect(head).toContain('TIME')
     expect(head).not.toContain('REPS')
-    const go = container.querySelector('.hv-go')
-    expect(go).toBeTruthy()
-    act(() => go.click())
-    expect(useUI.getState().work).toBeTruthy()
-    typeInto(container.querySelectorAll('.hv-num')[1], '45')
-    expect(sets()[0].sec).toBe(45)
+    typeInto(container.querySelectorAll('.hv-num')[1], '130')
+    expect(sets()[0].sec).toBe(90)
+    act(() => container.querySelector('.hv-go').click())
+    expect(sets()[0].hvRun).toBe(Date.now())
+    expect(useUI.getState().work).toBeFalsy()      // not upstream's countdown
+    expect(container.querySelector('.hv-running')).toBeTruthy()
+    vi.setSystemTime(Date.now() + 75_000)
+    act(() => container.querySelector('.hv-go.on').click())
+    expect(sets()[0]).toMatchObject({ sec: 75 })
+    expect(sets()[0].hvRun).toBeUndefined()
   })
 
-  it('cardio gets MIN · speed, stored in km/h (M1)', () => {
+  it('cardio gets TIME · speed, its time in minutes and its speed in km/h (M1, D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
     render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, speed: 10, done: false }] }])
     const head = container.querySelector('.hv-head').textContent
-    expect(head).toContain('MIN')
+    expect(head).toContain('TIME')
     expect(head).not.toContain('REPS')
-    expect(container.querySelector('.hv-go')).toBeNull()
+    expect(container.querySelector('.hv-num').placeholder).toBe('20:00')
     typeInto(container.querySelectorAll('.hv-num')[1], '12')
     expect(sets()[0].speed).toBe(12)
+    typeInto(container.querySelectorAll('.hv-num')[0], '1234')
+    expect(sets()[0].min).toBeCloseTo(754 / 60)
+    // ▶, then the tick: the timer stops and its time is what is logged
+    act(() => container.querySelector('.hv-go').click())
+    vi.setSystemTime(Date.now() + (30 * 60 + 5) * 1000)
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0].done).toBe(true)
+    expect(sets()[0].min).toBeCloseTo(1805 / 60)
+    expect(sets()[0].hvRun).toBeUndefined()
   })
 
   it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
