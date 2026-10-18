@@ -387,6 +387,7 @@
 :root[data-ui="hevier"] .hv-pk .item.hv-pk-row.on{box-shadow:none}
 :root[data-ui="hevier"] .hv-pk-check{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--label-3);color:var(--on-acc);font-size:13px}
 :root[data-ui="hevier"] .hv-pk-check.on{background:var(--acc);border-color:var(--acc)}
+:root[data-ui="hevier"] .hv-pk-info{flex:none;background:none;color:var(--label-2);margin-inline-end:-4px}
 :root[data-ui="hevier"] .hv-pk-more{width:100%;margin-top:8px}
 /* Sticks over the sheet's own bottom padding (index.css .sheet), so nothing shows below it. */
 :root[data-ui="hevier"] .hv-pk-add{position:sticky;bottom:calc(-20px - var(--sab));margin:0 -18px;padding:12px 18px calc(20px + var(--sab));background:var(--bg-el);box-shadow:0 -8px 16px var(--bg-el)}
