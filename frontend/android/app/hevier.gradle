@@ -1,4 +1,4 @@
-// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash, portrait only.
+// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash, portrait only, and a smaller release APK (D50).
 // Its own application id, so it installs beside the official openGym instead of clashing with it.
 // The debug build keeps upstream's ".test" suffix: ch.duartesantos.opengym.hevier.test.
 // The Java namespace stays ch.duartesantos.opengym; only the id the device sees changes.
@@ -24,5 +24,22 @@ android {
         // own) and D34's encrypted secret.
         debug.java.srcDirs += ['src/hevier/java']
         release.java.srcDirs += ['src/hevier/java']
+    }
+    // D50: a smaller APK. Upstream's barcode scanner (ML Kit, with CameraX) only serves its gym
+    // check-in, which the fork does not offer (D12): its native libraries and models are left out,
+    // so a scan, were one ever started, would fail rather than run. With them gone the APK ships no
+    // native code at all, so no ABI filter is needed and 32-bit phones keep installing it.
+    packagingOptions {
+        jniLibs.excludes += ['**/libbarhopper_v3.so', '**/libimage_processing_util_jni.so']
+    }
+    androidResources.ignoreAssetsPattern = androidResources.ignoreAssetsPattern + ':<dir>mlkit_barcode_models'
+    // The release build's Java is shrunk by R8. Capacitor's own rules keep every plugin's methods;
+    // the fork's rules (src/hevier/proguard-rules.pro) add what is reached by name. Resources are
+    // not shrunk: Capacitor finds notification icons by name, which R8 cannot see.
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles 'src/hevier/proguard-rules.pro'
+        }
     }
 }

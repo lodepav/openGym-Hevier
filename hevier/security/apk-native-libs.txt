@@ -2,5 +2,7 @@
 # `release-check.sh --apk` fails on any other, so native code a plugin or an upstream merge
 # brings in is read before it ships. One per line, the reason after #.
 
-libbarhopper_v3.so                # Google ML Kit's barcode scanner: upstream's camera scan (its gym check-in, hidden in the fork, D12)
-libimage_processing_util_jni.so   # CameraX's image conversion, under the same camera scan
+#
+# None since D50: the only two, ML Kit's barcode scanner (libbarhopper_v3.so) and CameraX's image
+# conversion under it (libimage_processing_util_jni.so), served upstream's gym check-in, which the
+# fork hides (D12), and hevier.gradle leaves them out.
