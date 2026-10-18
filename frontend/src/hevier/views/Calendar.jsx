@@ -3,8 +3,8 @@
 // page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
-import { useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useNavigate, useNavigationType } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -68,10 +68,26 @@ export default function Calendar() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setView('month') }
-  // The month view opens on its newest month, at the bottom; earlier months added above it keep
-  // the page where it was (the browser's scroll anchoring).
-  const last = useRef(null)
-  useLayoutEffect(() => { if (view === 'month') last.current?.scrollIntoView?.({ block: 'end' }) }, [view, from])
+  // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's
+  // App has put a new page at the top; coming back (POP) keeps the place App restores. Earlier
+  // months go in above: the page is moved down by what they add, so what was in view stays.
+  const back0 = useNavigationType() === 'POP'
+  const mounted = useRef(false)
+  const grow = useRef(null)
+  const pageH = () => document.documentElement.scrollHeight
+  useEffect(() => {
+    const first = !mounted.current
+    mounted.current = true
+    if (view !== 'month' || (first && back0)) return
+    const f = requestAnimationFrame(() => window.scrollTo(0, pageH()))
+    return () => cancelAnimationFrame(f)
+  }, [view, from])   // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    if (grow.current == null) return
+    window.scrollBy(0, pageH() - grow.current)
+    grow.current = null
+  }, [count])
+  const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
   return <div className="hv-cal">
     <PageBar title={t('Calendar')} onBack={back} />
@@ -88,9 +104,8 @@ export default function Calendar() {
       <span><i className="k-plan" />{t('Planned')}</span>
     </div>
     {view === 'month' ? <>
-      <button type="button" className="btn hv-cal-more" onClick={() => setCount(c => c + MORE)}>{t('Show earlier months')}</button>
+      <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
       {monthsBack(from.y, from.mo, count).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
-      <div ref={last} />
     </> : <>
       <div className="hv-cal-yr">
         <button type="button" className="iconbtn" aria-label={t('Previous year')} onClick={() => setYear(y => y - 1)}><Icon name="chevronLeft" /></button>
