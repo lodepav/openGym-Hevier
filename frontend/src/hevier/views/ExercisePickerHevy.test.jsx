@@ -20,8 +20,8 @@ const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n))
 const SQUAT = EXDB.find(e => /^barbell (full )?squat$/i.test(e.n))
 let root, container
 
-function open(onPick, opts, workouts = []) {
-  const S = clone(DEF)
+function open(onPick, opts, workouts = [], extra = {}) {
+  const S = Object.assign(clone(DEF), extra)
   S.workouts = workouts
   useStore.setState({ S, user: null })
   exercisePicker(onPick, opts)
@@ -127,5 +127,30 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     open(vi.fn(), {}, [{ id: 'w', d: '2026-10-01', entries: [{ id: SQUAT.id, sets: [] }] }])
     expect(container.textContent).toContain('Recent Exercises')
     expect(container.querySelector('.list .hv-pk-row .tt').textContent).toBe(SQUAT.n)
+  })
+
+  it('filters by a gym chosen outside a workout, remembered, body weight one of its ticks (D62)', () => {
+    localStorage.clear()
+    const PUSHUP = EXDB.find(e => e.eq === 'body weight' && /^push-up$/i.test(e.n))
+    const CURL = EXDB.find(e => e.eq === 'dumbbell' && /^dumbbell biceps curl$/i.test(e.n))
+    const equipProfiles = [{ id: 'g1', name: 'Home', equipment: ['dumbbell'], accV: 1, hvBw: 1 }]
+    open(vi.fn(), {}, [], { equipProfiles, activeEquipId: 'g1', equipFilterOn: false })
+    const filter = container.querySelector('.hv-pk-filters .btn')
+    expect(filter.textContent).toBe('All Equipment')
+    click(filter)
+    const menu = useUI.getState().sheets.at(-1)
+    const host = document.createElement('div')
+    const r2 = createRoot(host)
+    act(() => r2.render(menu.render(() => {})))
+    click([...host.querySelectorAll('.menu-item')].find(i => i.textContent === 'Home'))
+    act(() => r2.unmount())
+    expect(filter.textContent).toBe('Home')
+    search('curl')
+    expect(rowOf(CURL)).toBeTruthy()
+    search('push-up')
+    expect(rowOf(PUSHUP)).toBeUndefined()      // Home has no body weight ticked
+    act(() => root.unmount()); container.remove()
+    open(vi.fn(), {}, [], { equipProfiles })
+    expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('Home')   // remembered
   })
 })

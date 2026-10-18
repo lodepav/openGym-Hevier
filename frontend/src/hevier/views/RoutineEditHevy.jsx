@@ -8,7 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX, exOr } from '../../lib/exercises.js'
-import { activeProfile, exAvailable } from '../../lib/equipment.js'
+import { gymById, gymHas, rememberedGym } from '../lib/gym-filter.js'
 import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
@@ -218,8 +218,9 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   </div>
 
   const meta = unitOf.get(i)?.length > 1 && unitOf.get(i)[0] === i ? supersetMeta(r.ex, unitOf.get(i)) : null
-  const profile = activeProfile(S)
-  const noEquip = profile && !exAvailable(S, ex)
+  // D62: checked against the gym last chosen in the exercise picker.
+  const profile = gymById(S, rememberedGym(S))
+  const noEquip = profile && !gymHas(profile, ex)
   return <div className={'hv-ex' + (e.sg ? ' hv-in-ss' : '')}>
     {meta && <button type="button" className="hv-ss hv-ss-btn" onClick={() => supersetSheet(meta, m => editList(x => { setSupersetMeta(x, e.sg, m) }))}>
       <span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
@@ -229,7 +230,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
-      {noEquip && <span className="hv-warn" title={t('Needs {0}, which isn’t in your active profile', t(ex.eq))}><Icon name="warning" /></span>}
+      {noEquip && <span className="hv-warn" title={t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name)}><Icon name="warning" /></span>}
       <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
     </div>
     <input className="hv-notes hv-notes-in" value={note} maxLength={NOTE_MAX} placeholder={t('Add routine notes here')}

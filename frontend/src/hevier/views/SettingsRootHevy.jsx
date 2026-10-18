@@ -19,7 +19,7 @@ import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
-import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
@@ -27,6 +27,7 @@ import HevyExportSection from '../components/HevyExportSection.jsx'
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
   const body = useStore(s => s.S.body)
+  const gyms = useStore(s => s.S.equipProfiles)
   const mode = useStore(s => volumeMode(s.S))
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
   const mMode = useStore(s => muscleMode(s.S))
@@ -53,9 +54,12 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
   // fork pins (D17), so that row names the body diagram instead (review S5).
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
-    : id === 'look' ? t(body === 'female' ? 'Female' : 'Male') : preview[id]?.() || null)
+    : id === 'look' ? t(body === 'female' ? 'Female' : 'Male')
+    // D62: the gyms, not upstream's filter switch.
+    : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
+    : preview[id]?.() || null)
   // The Workout group's first row is not called Workout too (review S3); its page keeps upstream's title.
-  const title = id => t(id === 'workout' ? 'During a workout' : PAGES[id].title)
+  const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms & equipment' : PAGES[id].title)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {
@@ -88,6 +92,7 @@ export function installSettings() {
       onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/profile', { replace: true }))}>
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
+      if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t), t)
       if (id === 'about') return aboutPage(out, t)
       if (id !== 'data' || !MOBILE) return out

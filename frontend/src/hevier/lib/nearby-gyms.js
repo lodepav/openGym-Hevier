@@ -9,7 +9,8 @@
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { nativeFetch } from '../../lib/capacitor-fetch.js'
 import { within } from './within.js'
-import { newProfile, activeProfile, profileEquipment, ALL_EQUIPMENT } from '../../lib/equipment.js'
+import { newProfile, activeProfile, ALL_EQUIPMENT } from '../../lib/equipment.js'
+import { gymEquipment } from './gym-filter.js'
 
 export const RADIUS = 2000
 export const HERE = 250
@@ -190,7 +191,8 @@ export function rememberPlace(s, gymId, place) {
 export function addGym(s, name, place = null) {
   const g = newProfile(String(name || '').trim().slice(0, 60))
   const from = activeProfile({ ...s, equipFilterOn: true })
-  g.equipment = from ? [...profileEquipment(from)] : [...ALL_EQUIPMENT]
+  g.equipment = from ? [...gymEquipment(from)] : [...ALL_EQUIPMENT]
+  g.hvBw = 1   // body weight is one of its ticks (D62)
   s.equipProfiles = [...list(s.equipProfiles), g]
   rememberPlace(s, g.id, place)
   return g.id
