@@ -70,7 +70,19 @@ describe('hevier: Calendar', () => {
     click(byText('.seg button', 'Year'))
     expect(container.querySelectorAll('.hv-cal-m.small')).toHaveLength(12)
     click(container.querySelectorAll('.hv-cal-mt')[0])
-    expect(container.querySelector('.hv-cal-m:not(.small) .hv-cal-mt b').textContent).toMatch(/^January /)
+    expect([...container.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-mt b')].at(-1).textContent).toMatch(/^January /)
+  })
+
+  it('lists the months oldest first, this one last, with earlier months above', () => {
+    render('/calendar', [w])
+    const titles = () => [...container.querySelectorAll('.hv-cal-m .hv-cal-mt b')].map(b => b.textContent)
+    const now = new Date()
+    expect(titles()).toHaveLength(6)
+    expect(titles().at(-1)).toMatch(new RegExp(' ' + now.getFullYear() + '$'))
+    const first = titles()[0]
+    click(container.querySelector('.hv-cal-more'))
+    expect(titles()).toHaveLength(12)
+    expect(titles()[6]).toBe(first)
   })
 
   it('Profile’s Calendar tile opens it', () => {
