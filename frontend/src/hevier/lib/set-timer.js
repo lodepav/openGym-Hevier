@@ -31,15 +31,11 @@ export function stopped(s, mode, now = Date.now()) {
 
 const entryMode = e => modeOf({ ...(e?.target || {}), id: e?.id })
 
-/** Stops every running set of the session `active` in place. Returns the [entry, set] it stopped. */
+/** Stops every running set of the session `active` in place. */
 export function stopAll(active, now = Date.now()) {
-  const out = []
-  ;(active?.entries || []).forEach((e, ei) => (e?.sets || []).forEach((s, si) => {
-    if (!s?.[RUN]) return
-    e.sets[si] = stopped(s, entryMode(e), now)
-    out.push([ei, si])
-  }))
-  return out
+  for (const e of active?.entries || []) (e?.sets || []).forEach((s, si) => {
+    if (s?.[RUN]) e.sets[si] = stopped(s, entryMode(e), now)
+  })
 }
 
 /** Starts set `si` of entry `ei` at `now`, stopping any other first (in place). */

@@ -3,17 +3,20 @@
 // `S.hvImportMap`, and the file read again once a choice changes. Beside it, the cable exercises'
 // setups (D43): a title's own tag, else the choice in `S.hvImportCable`, else 1:1, to confirm.
 import { parseHevyWorkouts, parseHevyRoutines } from '../../lib/import-hevy.js'
-import { importDone, outcomeOf, useChoices } from './hevy-import.js'
-import { isCable } from './gym-labels.js'
+import { importDone, outcomeOf, useChoices, brandNorm } from './hevy-import.js'
+import { isCable, knownBrands } from './gym-labels.js'
 import { nameFolders } from './hevy-folders.js'
 
 // One choices object per version of the map and the custom exercises, so hevy-import.js's
 // memo holds for a whole parse.
 let last = null
 export function choicesFor(S) {
-  if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx || last.cables !== S?.hvImportCable) {
-    last = { map: S?.hvImportMap, custom: S?.customEx, cables: S?.hvImportCable,
-      ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)), customEx: S?.customEx || [] } }
+  if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx || last.cables !== S?.hvImportCable
+    || last.machines !== S?.hvMachines || last.workouts !== S?.workouts) {
+    // Your own brands, by their letters and digits, for a title's single bracket (review T12).
+    const brands = new Map(knownBrands(S).map(b => [brandNorm(b), b]).filter(([k]) => k.length >= 2))
+    last = { map: S?.hvImportMap, custom: S?.customEx, cables: S?.hvImportCable, machines: S?.hvMachines, workouts: S?.workouts,
+      ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)), customEx: S?.customEx || [], brands } }
   }
   return last.ctx
 }

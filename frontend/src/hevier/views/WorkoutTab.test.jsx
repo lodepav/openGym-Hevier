@@ -20,13 +20,13 @@ const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
 const R = (id, folder) => ({ id, name: 'R ' + id, emoji: 'dumbbell', ex: [{ id: EX, sets: 3, reps: 8, weight: 0 }], ...(folder ? { folder } : {}) })
 let root, container
 
-function render(routines) {
-  const S = Object.assign(clone(DEF), { weighIn: false, routines })
+function render(routines, extra = {}, at = '/workout') {
+  const S = Object.assign(clone(DEF), { weighIn: false, routines }, extra)
   useStore.setState({ S, user: null, isGuest: () => true })
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
-  act(() => root.render(<MemoryRouter initialEntries={['/workout']}><Routes>{hevierRoutes}</Routes></MemoryRouter>))
+  act(() => root.render(<MemoryRouter initialEntries={[at]}><Routes>{hevierRoutes}</Routes></MemoryRouter>))
 }
 const ids = () => useStore.getState().S.routines.map(r => r.id)
 const heads = () => [...container.querySelectorAll('.hv-ftoggle')].map(b => b.textContent)
@@ -109,5 +109,36 @@ describe('hevier: routine folders and reordering', () => {
     act(() => item(menu, 'Delete folder').click())
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
     expect(ids()).toEqual(['p1'])
+  })
+})
+
+describe('hevier: starting with a workout open (D13)', () => {
+  const open = { id: 'open', d: '2026-10-18', start: Date.now() - 60000, name: 'Open one', routineIds: [], entries: [], cur: 0 }
+  const startRoutine = () => [...container.querySelectorAll('button')].find(b => b.textContent === 'Start Routine')
+
+  it('starts at once when no workout is open', () => {
+    render([R('a')])
+    act(() => startRoutine().click())
+    expect(useUI.getState().sheets).toHaveLength(0)
+    expect(useStore.getState().S.active.routineIds).toEqual(['a'])
+  })
+
+  it('asks first, and Cancel keeps the open workout', () => {
+    render([R('a')], { active: clone(open) }, '/routines')
+    act(() => startRoutine().click())
+    const host = sheet()
+    expect(host.textContent).toContain('Starting a new workout discards the one you have open.')
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Cancel').click())
+    expect(useStore.getState().S.active.id).toBe('open')
+  })
+
+  it('Discard and start replaces the open workout with the routine', () => {
+    render([R('a')], { active: clone(open) }, '/routines')
+    act(() => startRoutine().click())
+    const host = sheet()
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Discard and start').click())
+    const A = useStore.getState().S.active
+    expect(A.id).not.toBe('open')
+    expect(A.routineIds).toEqual(['a'])
   })
 })

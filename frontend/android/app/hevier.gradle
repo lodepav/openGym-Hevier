@@ -50,3 +50,16 @@ android {
         }
     }
 }
+
+// The APK's Java dependencies are locked (review G1), so Trivy can scan them as it scans the npm
+// lockfiles (D26): every library that reaches the APK, Capacitor's, the plugins' and AndroidX's,
+// is pinned in src/hevier/gradle.lockfile, and a build whose libraries differ from it fails until
+// the lock is written again and its diff read (an upstream merge or a plugin bump does that):
+//   cd frontend/android && ./gradlew :app:dependencies --write-locks
+// Only the two runtime classpaths, which are what the APK ships.
+dependencyLocking {
+    lockFile = file('src/hevier/gradle.lockfile')
+}
+configurations.matching { it.name in ['debugRuntimeClasspath', 'releaseRuntimeClasspath'] }.configureEach {
+    resolutionStrategy.activateDependencyLocking()
+}

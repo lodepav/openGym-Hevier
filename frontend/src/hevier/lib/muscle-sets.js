@@ -52,6 +52,12 @@ export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main
   return { ...now, rows }
 }
 
+/** The week's body map shades by sets in fixed steps (review T2): upstream's map scales to the
+ *  busiest muscle, so a balanced week of six workouts painted nearly every muscle full. 1–3 sets
+ *  in the week is the lightest, 4–7, 8–11, and 12 or more full, roughly the weekly volumes a
+ *  muscle is trained with. Upstream's `thresholds` prop takes them; its map is not changed. */
+export const WEEK_HEAT = [{ at: 0, level: 1, exclusive: true }, { at: 4, level: 2 }, { at: 8, level: 3 }, { at: 12, level: 4 }]
+
 /** The last `days` days up to `today`, oldest first, each marked trained or not, with the
  *  muscle load of the workouts in them (for the body map). */
 export function lastDays(workouts, today, days = 7) {

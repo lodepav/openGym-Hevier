@@ -3,8 +3,9 @@
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
 // (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume; and its Previous values
-// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious; and Muscle sets (D42):
-// a set for its main muscle only, or a secondary muscle in part too, kept in S.hvMuscleSets. Data & backup gets the
+// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious. The Volume row's sheet also
+// holds Muscle sets (D42): a set for its main muscle only, or a secondary muscle in part too, kept
+// in S.hvMuscleSets. Data & backup gets the
 // fork's Health Connect read switches (D27) under upstream's Health Connect card.
 import { t } from '../../lib/i18n.js'
 import { restTimerText } from '../lib/elapsed.js'
@@ -28,18 +29,19 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const body = useStore(s => s.S.body)
   const mode = useStore(s => volumeMode(s.S))
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
-  const pickVolume = () => menuSheet({
-    title: t('Volume'),
-    items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
-      onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })),
-  })
   const mMode = useStore(s => muscleMode(s.S))
   const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
-  const pickMuscle = () => menuSheet({
-    title: t('Muscle sets'),
-    items: Object.entries(MUSCLE).map(([v, label]) => ({ label, on: mMode === v,
-      onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })),
+  // D18's volume and D42's muscle count are one question, so one row and one sheet (review S4).
+  const pickVolume = () => menuSheet({
+    title: t('Volume'),
+    sections: [
+      { items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
+        onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })) },
+      { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label, on: mMode === v,
+        onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
+    ],
   })
+  const volumeValue = mode === 'weight' ? VOLUME.weight : t('Sets') + ' · ' + (mMode === 'share' ? t('secondary too') : t('main muscle'))
   const prevMode = useStore(s => previousMode(s.S))
   const PREVIOUS = { routine: t('Same routine'), any: t('Any workout') }
   const pickPrevious = () => menuSheet({
@@ -57,8 +59,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {
-    'hv:volume': () => <Row key={'hv:volume'} icon="chart" iconTint="var(--blue)" title={t('Volume')} value={VOLUME[mode]} accessory="chevron" onClick={pickVolume} className="sp-root-row" />,
-    'hv:muscle': () => <Row key={'hv:muscle'} icon="figureStrength" iconTint="var(--blue)" title={t('Muscle sets')} value={MUSCLE[mMode]} accessory="chevron" onClick={pickMuscle} className="sp-root-row" />,
+    'hv:volume': () => <Row key={'hv:volume'} icon="chart" iconTint="var(--blue)" title={t('Volume')} value={volumeValue} accessory="chevron" onClick={pickVolume} className="sp-root-row" />,
     'hv:previous': () => <Row key={'hv:previous'} icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />,
   }
   return SETTINGS_GROUPS.map(g => {
