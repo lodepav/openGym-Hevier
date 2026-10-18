@@ -56,3 +56,9 @@ export const gymSheet = tr => ({
   saved: p => { p.hvBw = 1 },
   note: () => tr('Untick body weight to hide body-weight exercises at this gym. One that needs a pull-up bar or a bench also needs it ticked.'),
 })
+
+/** Seam S37: upstream's muscle explorer filters by the gym chosen in the picker outside a workout. */
+export function explorerFilter(S) {
+  const profile = gymById(S, rememberedGym(S))
+  return { profile, has: ex => gymHas(profile, ex) }
+}

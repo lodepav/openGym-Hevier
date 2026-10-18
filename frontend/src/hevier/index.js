@@ -28,7 +28,7 @@ import { holdMode } from './lib/hold-mode.js'
 import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { initStillTraining } from './lib/still-training-run.js'
-import { gymSheet } from './lib/gym-filter.js'
+import { gymSheet, explorerFilter } from './lib/gym-filter.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -53,6 +53,8 @@ if (HEVIER) hooks.durationOpen = o => restOpen(o, useStore.getState().S.restSec)
 if (HEVIER) hooks.statsS = countedS
 // A gym's sheet: body weight is equipment like the rest (seam S36, D62).
 if (HEVIER) hooks.gymSheet = gymSheet(t)
+// …and the By muscle explorer filters by the gym chosen in the picker (seam S37, D62).
+if (HEVIER) hooks.equipFilter = explorerFilter
 // Chart labels that never repeat (seam S30).
 if (HEVIER) hooks.chartTicks = chartTicks
 // …with the user's own choices from the import review (seam S23, D33).

@@ -9,6 +9,9 @@ import { t, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
 import BodyMap from './BodyMap.jsx'
 import { Thumb } from './Media.jsx'
 import Icon from './Icon.jsx'
+// [hevier] S37
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 import ExerciseViewToggle from './ExerciseViewToggle.jsx'
 import { Button } from './ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
@@ -28,11 +31,14 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
   const moreRef = useAutoMore(() => setShown(s => s + 40))
   // Same rule as the Library and the picker: the active equipment profile narrows the catalogue
   // (and the per-muscle counts) unless the user asks for everything.
-  const profile = activeProfile(S)
+  // [hevier] S37: the fork's gym filter, the gym chosen in its picker (D62)
+  const gym = hooks.equipFilter ? hooks.equipFilter(S) : null
+  const profile = hooks.equipFilter ? gym.profile : activeProfile(S)
+  const has = hooks.equipFilter ? gym.has : e => exAvailable(S, e)
   const catalog = useMemo(() => {
     const all = allExercises(S)
-    return (profile && !showAll) ? all.filter(e => exAvailable(S, e)) : all
-  }, [S.customEx, S.equipFilterOn, S.activeEquipId, S.equipProfiles, showAll])
+    return (profile && !showAll) ? all.filter(has) : all
+  }, [S.customEx, S.equipFilterOn, S.activeEquipId, S.equipProfiles, showAll, profile?.id])
   const counts = useMemo(() => Object.fromEntries(MUSCLES.map(m => [m,
     catalog.filter(e => musclesOf(e)[m]).length
   ])), [catalog])
