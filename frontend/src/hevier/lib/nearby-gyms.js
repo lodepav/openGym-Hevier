@@ -1,7 +1,8 @@
 // The gym picker's nearby gyms (hevier/DECISIONS.md D47). Only on a tap of
 // "Find gyms nearby": the phone's position, once (HevierLocationPlugin.java, seam S27, or the
-// browser's geolocation in the PWA), then OpenStreetMap's gyms around it from the Overpass API.
-// The position goes to Overpass in that one request and is kept nowhere. A gym picked from the
+// browser's geolocation in the PWA), then OpenStreetMap's gyms around it from komoot's Photon,
+// which answers in a fraction of a second, or from the Overpass API when Photon fails. The
+// position goes out in that request (two when Photon fails) and is kept nowhere. A gym picked from the
 // list becomes one of upstream's equipment profiles (D28's gyms), and the place it stands on is
 // kept in S.hvGymPlaces ({ [gymId]: { lat, lng, osm, name } }, a fork-only field synced as a
 // whole), so the next search puts your own gym first when you are there.
@@ -14,7 +15,10 @@ export const RADIUS = 2000
 export const HERE = 250
 const REACH_MAX = 1000
 const MAX = 25
+const PHOTON = 'https://photon.komoot.io/reverse'
 const OVERPASS = 'https://overpass-api.de/api/interpreter'
+const PHOTON_MS = 5e3
+const OVERPASS_MS = 12e3
 const USER_AGENT = 'GoHevier/' + (typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev') + ' (gym picker; +https://github.com/lodepav/openGym-Hevier)'
 
 const num = v => (typeof v === 'number' && Number.isFinite(v) ? v : null)
@@ -30,6 +34,22 @@ export function distance(a, b) {
 
 /** "350 m", "1.2 km". */
 export const distanceText = m => (m < 1000 ? `${Math.max(10, Math.round(m / 10) * 10)} m` : `${(m / 1000).toFixed(1)} km`)
+
+/** Photon's reverse search for fitness centres within `radius` metres, the position rounded as for Overpass. */
+export function photonUrl({ lat, lng }, radius = RADIUS) {
+  return PHOTON + `?lat=${lat.toFixed(3)}&lon=${lng.toFixed(3)}&radius=${radius / 1000}&osm_tag=leisure:fitness_centre&limit=${MAX}`
+}
+
+const OSM_TYPE = { N: 'node', W: 'way', R: 'relation' }
+
+/** Photon's GeoJSON as Overpass's elements, so parsePlaces reads both (the same `node/123` keys). */
+export function photonElements(json) {
+  return list(json?.features).map(f => {
+    const p = f?.properties || {}, [lon, lat] = list(f?.geometry?.coordinates)
+    return { type: OSM_TYPE[p.osm_type] || 'node', id: p.osm_id, lat, lon,
+      tags: { name: p.name, 'addr:street': p.street, 'addr:housenumber': p.housenumber } }
+  })
+}
 
 /** Overpass QL for the gyms within `radius` metres: fitness centres, and sports centres and gyms tagged for fitness. */
 export function overpassQuery({ lat, lng }, radius = RADIUS) {
@@ -61,12 +81,22 @@ export function parsePlaces(json, here) {
   return out.sort((a, b) => a.dist - b.dist).slice(0, MAX)
 }
 
-/** OpenStreetMap's gyms around `here`. Throws when Overpass does not answer. */
-export async function fetchPlaces(here, fetcher = nativeFetch) {
-  const url = OVERPASS + '?data=' + encodeURIComponent(overpassQuery(here))
-  const res = await within(fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }), 30e3, new Error('overpass timeout'))
+const ask = async (fetcher, url, ms) => {
+  const res = await within(fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }), ms, new Error('overpass timeout'))
   if (!res.ok) throw new Error('overpass ' + res.status)
-  return parsePlaces(await res.json(), here)
+  return within(res.json(), ms, new Error('overpass timeout'))
+}
+
+/**
+ * OpenStreetMap's gyms around `here`: Photon's, or Overpass's when Photon fails or finds none
+ * (Overpass also knows gyms tagged only `amenity=gym`). Throws when neither answers.
+ */
+export async function fetchPlaces(here, fetcher = nativeFetch) {
+  try {
+    const found = parsePlaces({ elements: photonElements(await ask(fetcher, photonUrl(here), PHOTON_MS)) }, here)
+    if (found.length) return found
+  } catch { /* Overpass next */ }
+  return parsePlaces(await ask(fetcher, OVERPASS + '?data=' + encodeURIComponent(overpassQuery(here)), OVERPASS_MS), here)
 }
 
 // The last answer, in memory only: Overpass refuses a second request from the same phone soon
