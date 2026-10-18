@@ -50,7 +50,7 @@ conflict on every upstream edit to them).
 - **Version** Go Hevier's own, in `hevier/VERSION` (D52), shown beside upstream's openGym
   version ("Go Hevier 1.0.0 · based on openGym 1.4.1"); it is the APK's `versionName`/`versionCode`
   (S7), the build's `__APP_VERSION__` (S29) and the updater's, whose releases are tagged
-  `gohevier-vX.Y.Z`. `release-apk.sh` raises it, commits, tags and, asked, publishes the GitHub release the updater reads; debug builds add their commit and never check for updates.
+  `gohevier-vX.Y.Z`. `release-apk.sh` raises it, commits, tags and publishes the GitHub release the updater reads (the APK is kept nowhere else); debug builds add their commit and never check for updates.
 - **Signing key**: updates install only over an app signed with the same key. The keystore lives
   outside the repo; its certificate's SHA-256 is pinned beside it, in `~/.config/hevier/apk-cert.txt`, also
   outside the repo (D38).
