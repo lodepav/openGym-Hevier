@@ -27,6 +27,7 @@ import { initNoteFix } from './lib/note-text.js'
 import { holdMode } from './lib/hold-mode.js'
 import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
+import { initStillTraining } from './lib/still-training-run.js'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -82,3 +83,5 @@ if (HEVIER) initNoteFix(() => useStore.getState().S, fn => useStore.getState().u
   watchS(useStore.subscribe, ['workouts']))
 
 export { HEVIER }
+// Still training? after five hours (D60).
+if (HEVIER) initStillTraining(() => useStore.getState().S)

@@ -395,3 +395,11 @@ Added 2026-10-18, at the user's request.
 | # | Decision |
 |---|---|
 | D59 | **The streak says how long you have been training: weeks, and years once it is a year long.** The Calendar page's streak line (D14, Hevy's "N week streak") and Home's streak widget (D12) read `hevier/lib/streak.js` in place of upstream's `streakWeeks`, which a single week off resets. **Weeks:** the weeks from the first to the last trained week of the run, a week off inside it counted, since **one week off does not break it**; two weeks in a row with no workout do. It is still alive while at most one whole week has passed since the last trained week (this week may still be trained), else it reads 0. **Years:** a second, longer run that only **two months off** break (a workout more than two calendar months after the one before starts a new run; alive until two months after the last). Once that run spans a year, the line shows it instead, in years to a tenth, rounded down: `1.6 year streak`, from the run's first workout to its last. So six weeks off end the week streak but not the years. The weeks follow the profile's first weekday. Every logged workout counts (D57's kept-out ones too: it is about training, not statistics), and the rest days beside it are unchanged. Nothing is stored. |
+
+## Still training?
+
+Added 2026-10-18, at the user's choice (the review's F2): after five hours.
+
+| # | Decision |
+|---|---|
+| D60 | **A workout open for five hours asks "Still training?"**, as Hevy does. While the app is open (checked every minute and on coming back to it), a live workout, not an edited or past one, that started five hours ago or more opens a sheet: "This workout has been going for 6h 12min", **Keep going**, **Finish workout** and **Discard workout** (upstream's discard question). **Finish** opens Save Workout with the length ending at the last ticked set (`Ends at your last set, 42min`), which can still be changed there; with no ticked set, the length is the running one. Any answer, a tap outside the sheet too, asks again five hours later, for that workout only. Kept on the device (`hevier_still`, `hevier/lib/still-training.js`), nothing in `S`. **Not done:** a phone notification while the app is closed. |
