@@ -403,3 +403,12 @@ Added 2026-10-18, at the user's choice (the review's F2): after five hours.
 | # | Decision |
 |---|---|
 | D60 | **A workout open for five hours asks "Still training?"**, as Hevy does. While the app is open (checked every minute and on coming back to it), a live workout, not an edited or past one, that started five hours ago or more opens a sheet: "This workout has been going for 6h 12min", **Keep going**, **Finish workout** and **Discard workout** (upstream's discard question). **Finish** opens Save Workout with the length ending at the last ticked set (`Ends at your last set, 42min`), which can still be changed there; with no ticked set, the length is the running one. Any answer, a tap outside the sheet too, asks again five hours later, for that workout only. Kept on the device (`hevier_still`, `hevier/lib/still-training.js`), nothing in `S`. **Not done:** a phone notification while the app is closed. |
+
+## Progression off by default
+
+Added 2026-10-18, at the user's choice: a neck routine imported from Hevy went from 19 reps to 20.
+
+| # | Decision |
+|---|---|
+| D61 | **An exercise with no progression rule of its own, in a routine with none, does not progress.** Upstream falls back to **linear** for every reps exercise (`policyFor`): a full session adds weight, or a rep at 0 kg. Hevy has no progression, so a routine imported from it, or a freestyle exercise, climbed by itself. In the fork the fallback is **Off** (seam S35, `hooks.defaultProg`): targets stay at what was logged last time. A rule set on the routine (routine editor → Progression) or on an exercise (⋮ → Settings & progression), and D31's double progression from a Hevy rep range, apply as before. The routine editor shows Off for a routine with no rule. Nothing stored changes: a routine whose progression was upstream's default now reads Off, and choosing Linear there turns it back on. |
+

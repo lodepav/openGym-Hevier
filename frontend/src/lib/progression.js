@@ -18,6 +18,9 @@
 
 import { modeOf, repStep, rerampWarmups, isBw, isPerSide, entryExcluded, entryRoutineId } from './history.js'
 import { EXIDX, isAssisted, isLoadedEq, defaultIncrement } from './exercises.js'
+// [hevier] S35: the hook the default rule comes from
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 import { isWarmupRow, isSideSet, syncSideAggregate, makeSideSet } from './workout-model.js'
 import { normalizeRepRange } from './rep-range.js'
 import { isPyramid } from './pyramid.js'
@@ -100,7 +103,9 @@ export function policyFor(cfg, routine, mode) {
   if (isPyramid(cfg)) return 'off'
   const m = mode || modeOf(cfg || {})
   const allowed = POLICIES_FOR[m] || ['off']
-  const pick = (cfg && cfg.prog) || (routine && routine.prog) || (m === 'reps' ? 'linear' : 'off')
+  // [hevier] S35: the fork's default rule when neither the exercise nor the routine sets one (D61)
+  const pick = (cfg && cfg.prog) || (routine && routine.prog) || (m === 'reps' ? (hooks.defaultProg || 'linear') : 'off')
+  // [/hevier]
   return allowed.includes(pick) ? pick : 'off'
 }
 

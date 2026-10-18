@@ -35,6 +35,7 @@ import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
+import { hooks } from '../hooks.js'
 import PageBar from '../components/PageBar.jsx'
 import { restTimerText } from '../lib/elapsed.js'
 import { NumberField, Row, SelectRow, Switch } from '../../components/ui.jsx'
@@ -328,7 +329,7 @@ export default function RoutineEditHevy() {
         whether its workouts count at all. */}
     <div className="sect-b hv-rsettings">
       <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
-        value={r.prog || 'linear'} onChange={v => setR(x => { x.prog = v })}
+        value={r.prog || hooks.defaultProg || 'linear'} onChange={v => setR(x => { x.prog = v })}
         options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>
@@ -341,7 +342,7 @@ export default function RoutineEditHevy() {
     <div className="small dim hv-rsettings-note">
       {r.excludeFromProgression
         ? t('A deload routine opens at the numbers set here, so the progression above does not apply to it.') + ' ' + t('The next regular target continues from the last included workout.')
-        : t(POLICY_DESC[r.prog || 'linear'] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
+        : t(POLICY_DESC[r.prog || hooks.defaultProg || 'linear'] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
     </div>
     {load && <div className="card hv-rmap">
       <h2>{t('What this session hits')}</h2>
