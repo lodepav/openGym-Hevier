@@ -35,6 +35,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
   it('leaves out exercises it cannot place and empty sessions', () => {
     expect(muscleSets([{ id: 'nope', sets: [done()] }])).toEqual([])
     expect(muscleSets(undefined)).toEqual([])
+    expect(muscleSets([{ id: '10729', sets: [done()] }])).toEqual([]) // cardio is no muscle (review T4)
     expect(workSets([])).toBe(0)
   })
 })

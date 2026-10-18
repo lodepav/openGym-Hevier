@@ -52,6 +52,8 @@ function SetCounts({ S, today }) {
     <h2>{t('Set count per muscle group')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
+    {/* What the numbers count, under the chips where it is read first (review T1, T6). */}
+    <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     {rows.length ? <div className="hv-msets">{rows.map(r => {
       const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
       return <div key={r.muscle} className="hv-mset">
@@ -61,7 +63,6 @@ function SetCounts({ S, today }) {
         <span className={'hv-mset-d' + (d ? (d.up ? ' up' : ' down') : '')}>{d?.text}</span>
       </div>
     })}
-      <div className="small dim">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     </div> : <div className="muted small" style={{ marginTop: 10 }}>{t('No sets in this period yet.')}</div>}
   </div>
 }
