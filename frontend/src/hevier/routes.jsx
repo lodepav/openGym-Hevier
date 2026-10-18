@@ -10,6 +10,7 @@ import Measurements from '../views/Measurements.jsx'
 import ProgressPhotos from '../views/ProgressPhotos.jsx'
 import StructuralBalance from '../views/StructuralBalance.jsx'
 import Icon from '../components/Icon.jsx'
+import PageBar from './components/PageBar.jsx'
 import HevyHome from './views/HevyHome.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
 import Profile from './views/Profile.jsx'
@@ -44,13 +45,16 @@ function WorkoutRoute() {
   return active ? <Workout /> : <WorkoutTab />
 }
 
-// Upstream's Stats was a tab and has no way back; in the fork it opens from Statistics, so it gets
-// a back row above its own header.
-function WithBack({ label = 'Profile', to = '/profile', children }) {
+// Upstream's Stats was a tab and has no way back; in the fork it opens from Statistics as All
+// statistics, so it gets the fork's page bar (D49) with upstream's History button, and its own
+// "Stats / Progress & history" header is hidden (hevier.css, review T15).
+function WithBack({ label = 'Profile', to = '/profile', title, children }) {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to))
   return <>
-    <button type="button" className="hv-back" onClick={back}><Icon name="chevronLeft" /><span>{t(label)}</span></button>
+    <PageBar title={t(title)} onBack={back} backLabel={t(label)} className="hv-allstats">
+      <button type="button" className="iconbtn" aria-label={t('History')} onClick={() => nav('/history')}><Icon name="history" /></button>
+    </PageBar>
     {children}
   </>
 }
@@ -78,7 +82,7 @@ export const hevierRoutes = [
   <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
   <Route key="hv-stats" path="/stats" element={<Statistics />} />,
-  <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats"><Stats /></WithBack>} />,
+  <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><Stats /></WithBack>} />,
   <Route key="hv-measures" path="/measures" element={<Measures />} />,
   <Route key="hv-measurements" path="/measurements" element={<BackWhereFrom to="/measures"><Measurements /></BackWhereFrom>} />,
   <Route key="hv-photos" path="/progress-photos" element={<BackWhereFrom to="/measures"><ProgressPhotos /></BackWhereFrom>} />,

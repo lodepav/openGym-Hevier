@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
-import { t } from '../../lib/i18n.js'
+import { t, tn } from '../../lib/i18n.js'
 import { historyRows } from '../../views/History.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -36,7 +36,8 @@ export default function Profile() {
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
         <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
     </PageBar>
-    <div className="hv-pstats"><span>{t('Workouts')}</span><b>{S.workouts.length}</b></div>
+    {/* One grey line under the bar, apart from the week chart's headline (review T14). */}
+    <div className="hv-pstats">{tn('{0} workout', '{0} workouts', S.workouts.length)}</div>
     <div className="card"><WeeklyChart /></div>
     <h4 className="sec">{t('Dashboard')}</h4>
     <div className="hv-dash">

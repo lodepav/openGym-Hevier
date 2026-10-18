@@ -52,7 +52,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(byText('.hv-mset', 'Chest')).toBeTruthy()
     act(() => byText('.hv-linkrow', 'All statistics').click())
     expect(path).toBe('/stats/all')
-    expect(byText('.hv-back', 'Statistics')).toBeTruthy()
+    expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
+    expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
   })
 
   it('an empty history says so instead of an empty map', () => {

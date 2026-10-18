@@ -53,7 +53,7 @@
 :root[data-ui="hevier"] .hv-notes{display:block;width:100%;text-align:start;background:none;padding:2px 0 6px;font-size:14px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-notes.has{color:var(--label)}
 :root[data-ui="hevier"] .hv-note,:root[data-ui="hevier"] .hv-notes{white-space:pre-wrap}
-:root[data-ui="hevier"] .hv-wnote{padding:4px 0 10px}
+:root[data-ui="hevier"] .hv-wnote{padding:10px 0 12px;margin-bottom:8px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-rest{display:inline-flex;align-items:center;gap:6px;background:none;padding:2px 0 8px;color:var(--acc);font-size:14px}
 
 /* SET · PREVIOUS · KG · REPS · (RPE) · ✓ */
@@ -513,9 +513,7 @@
 :root[data-ui="hevier"] .hv-sw-btns .btn{flex:1}
 
 /* Profile's counts under its bar, as Hevy's "Workouts 12" beside the avatar. */
-:root[data-ui="hevier"] .hv-pstats{display:flex;flex-direction:column;gap:2px;margin:0 0 14px}
-:root[data-ui="hevier"] .hv-pstats span{font-size:13px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-pstats b{font-size:17px;font-weight:600}
+:root[data-ui="hevier"] .hv-pstats{margin:-4px 0 14px;font-size:13px;color:var(--label-2)}
 
 /* One body-map palette, Hevy's blue: the recovery map shades as the muscle maps do (deeper is
    more fatigued), not upstream's red-to-yellow. */
@@ -586,3 +584,4 @@
 :root[data-ui="hevier"] .hv-dur{font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-report-more{width:100%;margin-top:8px}
 :root[data-ui="hevier"] .hv-msets-cap{margin:6px 0 2px}
+:root[data-ui="hevier"] .hv-allstats + .hdr{display:none}
