@@ -37,12 +37,33 @@ describe('gyms nearby (D47)', () => {
     expect(parsePlaces(null, here)).toEqual([])
   })
 
-  it('fetches with a GET that names the app, and throws on a failed answer', async () => {
-    const fetcher = vi.fn(async () => ({ ok: true, json: async () => ({ elements: [{ type: 'node', id: 1, lat: 47.377, lon: 8.542, tags: { name: 'A' } }] }) }))
-    expect((await fetchPlaces(here, fetcher)).map(p => p.name)).toEqual(['A'])
+  const photon = { ok: true, json: async () => ({ features: [
+    { properties: { osm_type: 'W', osm_id: 7, name: 'B', street: 'Weinbergstrasse', housenumber: '5' }, geometry: { coordinates: [8.5415, 47.3772] } },
+    { properties: { osm_type: 'N', osm_id: 8 }, geometry: { coordinates: [8.54, 47.377] } },   // no name
+  ] }) }
+  const overpass = { ok: true, json: async () => ({ elements: [{ type: 'node', id: 1, lat: 47.377, lon: 8.542, tags: { name: 'A' } }] }) }
+  const host = u => new URL(u).host
+
+  it('asks Photon first, with a GET that names the app, and reads its places as Overpass’s', async () => {
+    const fetcher = vi.fn(async () => photon)
+    expect(await fetchPlaces(here, fetcher)).toMatchObject([{ osm: 'way/7', name: 'B', sub: 'Weinbergstrasse 5' }])
     const [url, init] = fetcher.mock.calls[0]
-    expect(url.startsWith('https://overpass-api.de/api/interpreter?data=')).toBe(true)
+    expect(url).toMatch(/^https:\/\/photon\.komoot\.io\/reverse\?lat=47\.377&lon=8\.542&radius=2&osm_tag=leisure:fitness_centre/)
     expect(init.headers['User-Agent']).toMatch(/^GoHevier\//)
+    expect(fetcher).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks Overpass when Photon fails, keeps silent or finds none, and throws when both fail', async () => {
+    vi.useFakeTimers()
+    try {
+      for (const first of [async () => ({ ok: false, status: 500 }), () => new Promise(() => {}), async () => ({ ok: true, json: async () => ({ features: [] }) })]) {
+        const fetcher = vi.fn().mockImplementationOnce(first).mockImplementationOnce(async () => overpass)
+        const p = fetchPlaces(here, fetcher)
+        await vi.advanceTimersByTimeAsync(5e3)
+        expect((await p).map(x => x.name)).toEqual(['A'])
+        expect(fetcher.mock.calls.map(([u]) => host(u))).toEqual(['photon.komoot.io', 'overpass-api.de'])
+      }
+    } finally { vi.useRealTimers() }
     await expect(fetchPlaces(here, async () => ({ ok: false, status: 429 }))).rejects.toThrow('429')
   })
 
@@ -75,7 +96,7 @@ describe('gyms nearby (D47)', () => {
 
   it('a second search soon after, close by, is answered from the first; far or late asks again', async () => {
     forgetPlaces()
-    const fetcher = vi.fn(async () => ({ ok: true, json: async () => ({ elements: [{ type: 'node', id: 1, lat: 47.3772, lon: 8.542, tags: { name: 'A' } }] }) }))
+    const fetcher = vi.fn(async () => photon)
     await placesNear(here, { fetcher, now: 0 })
     const again = await placesNear({ lat: 47.3770, lng: 8.5417 }, { fetcher, now: 5 * 60e3 })
     expect(fetcher).toHaveBeenCalledTimes(1)

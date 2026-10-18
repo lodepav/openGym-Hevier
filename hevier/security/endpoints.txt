@@ -5,7 +5,8 @@
 # Fetched by the app
 api.hevyapp.com                      # upstream's Hevy import (Settings → Data & backup), only with the user's API key
 api.github.com                       # update check: releases/latest of VITE_UPDATE_REPO (lodepav/openGym-Hevier)
-overpass-api.de                      # D47 "Find gyms nearby": OpenStreetMap's gyms around the position, only on that tap
+photon.komoot.io                     # D47 "Find gyms nearby": OpenStreetMap's fitness centres around the position, only on that tap
+overpass-api.de                      # D47: the same search, only when Photon fails or finds none
 
 # Fetched only by upstream's AI coach, opt-in under Settings and off in the fork (D11)
 api.anthropic.com                    # coach provider, user-supplied key
