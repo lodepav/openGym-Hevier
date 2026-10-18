@@ -1,4 +1,4 @@
-// A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, date, Time · Volume ·
+// A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, its note, date, Time · Volume ·
 // Records, then the first exercises with their set counts. Tapping it opens the workout's details
 // (the fork's Workout Detail, seam S14); ⋯ offers Hevy's four actions, each the one upstream's details sheet runs.
 import { useNavigate } from 'react-router-dom'
@@ -79,6 +79,7 @@ export default function WorkoutCard({ w }) {
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
     <div className="hv-wcard-t">{w.name || t('Workout')}</div>
+    {w.note && <p className="hv-wcard-note">{w.note}</p>}
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'

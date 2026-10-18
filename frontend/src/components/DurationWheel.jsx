@@ -256,6 +256,9 @@ function DurationSheet({ title, value, min, max, off, footer, onDone, close }) {
 
 /** Opens the wheel in a bottom sheet; `onDone(sec)` runs on Done with the clamped value. */
 export function durationSheet({ title, value, min = 0, max = REST_MAX, off = null, footer = null, onDone }) {
+  // [hevier] S33: an exercise's rest opens on the default rest, not on 0:00 (D56)
+  if (hooks.durationOpen) ({ value, onDone } = hooks.durationOpen({ value, off, onDone }))
+  // [/hevier]
   return useUI.getState().openSheet(close =>
     <DurationSheet title={title} value={value} min={min} max={max} off={off} footer={footer} onDone={onDone} close={close} />)
 }

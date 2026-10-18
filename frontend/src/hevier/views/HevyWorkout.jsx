@@ -48,7 +48,6 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
       { items: [
         !editing && { icon: 'clipboard', label: t('Add routine'), sub: t('Bring another routine into this session'), onClick: addRoutineToSessionSheet },
         { icon: 'pencil', label: t('Rename workout'), onClick: renameWorkoutSheet },
-        { icon: 'note', label: A.note ? t('Edit session note') : t('Add session note'), onClick: sessionNoteSheet },
         noProgSwitchable && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('Every exercise in this workout'), on: sessionNoProg(A), onClick: toggleSessionNoProg },
         A.backfill && A.entries.length > 0 && { icon: 'checkCircle', label: t('Mark all sets done'), onClick: markAllDone },
       ] },
@@ -91,6 +90,10 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
     </div>
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
+    {/* The workout's note, at the top as each exercise's is under its name (D54); Save Workout opens with it. */}
+    <button type="button" className={'hv-notes hv-wnote' + (A.note ? ' has' : '')} onClick={sessionNoteSheet}>
+      {A.note || t('Add workout notes here…')}
+    </button>
 
     {A.entries.length ? units.map(u => <section key={u.join('-')} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
       {u.map(idx => <div key={idx} ref={el => bindExRef(A.entries[idx], el)} data-exidx={idx}>{block(idx, u)}</div>)}

@@ -24,6 +24,9 @@ const workRowsForMode = (entry = {}, mode = 'reps') => {
 import { t } from './i18n-core.js'
 import { queueNext, pinState, queueLiveOn } from './queue.js'
 import { isPyramid, pyramidLabel, pyramidTargetAt, pyramidWeightAt, PYRAMID_MAX } from './pyramid.js'
+// [hevier] S32: the hook a hold's default mode comes from
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 // When a workout happened, as epoch ms: its own recorded start, else noon on its calendar day.
 // Noon rather than midnight because `new Date('2026-09-22')` parses as UTC midnight, which any
@@ -206,7 +209,9 @@ export function setLabel(id, s, cfg, speedUnit) {
 }
 // Default config for a freshly added exercise.
 export function defaultConfig(id, mode) {
-  const m = mode || modeOf({ id })
+  // [hevier] S32: a hold starts as a timed hold (D55)
+  const m = mode || hooks.defaultMode?.(id) || modeOf({ id })
+  // [/hevier]
   if (m === 'cardio') return { sets: 1, min: 20, speed: 8 }
   // Written only when it is true, so a barbell config is byte-for-byte what it was before
   // the flag existed and a plan file gains nothing it does not need.

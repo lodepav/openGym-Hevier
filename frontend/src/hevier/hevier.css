@@ -52,6 +52,8 @@
 :root[data-ui="hevier"] .hv-note{font-size:14px;margin-bottom:4px}
 :root[data-ui="hevier"] .hv-notes{display:block;width:100%;text-align:start;background:none;padding:2px 0 6px;font-size:14px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-notes.has{color:var(--label)}
+:root[data-ui="hevier"] .hv-note,:root[data-ui="hevier"] .hv-notes{white-space:pre-wrap}
+:root[data-ui="hevier"] .hv-wnote{padding:4px 0 10px}
 :root[data-ui="hevier"] .hv-rest{display:inline-flex;align-items:center;gap:6px;background:none;padding:2px 0 8px;color:var(--acc);font-size:14px}
 
 /* SET · PREVIOUS · KG · REPS · (RPE) · ✓ */
@@ -160,6 +162,7 @@
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
 :root[data-ui="hevier"] .hv-wcard-t{margin-bottom:8px}
+:root[data-ui="hevier"] .hv-wcard-note{margin:-4px 0 8px;font-size:14px;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* Hevy spreads the stats over the card's width: equal columns, not packed to the left */
 :root[data-ui="hevier"] .hv-wcard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 :root[data-ui="hevier"] .hv-wcard-stats span{font-size:11px}
