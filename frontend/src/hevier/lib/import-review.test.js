@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { importExercise, importDone, useChoices } from './hevy-import.js'
-import { titlesOf, reviewList, choose, rerun, keep, choicesFor } from './import-review.js'
+import { titlesOf, reviewList, cableList, chooseCable, choose, rerun, keep, choicesFor } from './import-review.js'
 import { nameFolders, importHevyFolders } from './hevy-folders.js'
 import { hooks } from '../hooks.js'
 import { parseImport, mergeImport } from '../../lib/import-csv.js'
@@ -92,5 +92,33 @@ describe('hevier import review (D33)', () => {
       expect(data.workouts.workouts[0].entries[0].id).toBe('0586')
       expect(data.routines.routines[0]).toMatchObject({ hvFolder: 'Lower', ex: [{ id: '0586' }] })
     } finally { hooks.hevyFolders = null }
+  })
+})
+
+describe('hevier cable review per brand (D43)', () => {
+  const CABLES = [HEAD, row('Lat Pulldown (Cable)', 0, 60, 10), row('Lat Pulldown (Cable) (LifeFitness)', 0, 30, 10)].join('\n')
+  beforeEach(() => {
+    S = { unit: 'kg', customEx: [], workouts: [], bodyweight: [], exWeights: {} }
+    hooks.importExercise = (title, source) => { useChoices(choicesFor(S)); return importExercise(title, source) }
+    hooks.importDone = importDone
+  })
+  afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
+
+  it('lists a brand’s setup on its own, and a choice for it leaves the plain title 1:1', () => {
+    const read = () => parseImport(CABLES, { unit: 'kg', customEx: S.customEx })
+    const list = cableList(titlesOf(read()), S)
+    expect(list.map(x => [x.title, x.brand, x.cable])).toEqual([['Lat Pulldown (Cable)', '', '1:1'], ['Lat Pulldown (Cable)', 'LifeFitness', '1:1']])
+    expect(reviewList(titlesOf(read()), S)).toHaveLength(1)
+    chooseCable(S, list[1].cableKey, 'x2')
+    const [plain, branded] = entries(read())
+    expect(plain.hvCable).toBeUndefined()
+    expect(branded).toMatchObject({ hvBrand: 'LifeFitness', hvCable: 'x2', target: { dbLoad: 'each' } })
+  })
+
+  it('a choice kept before brands had their own still covers the branded title', () => {
+    S.hvImportCable = { 'Hevy|lat pulldown (cable)': '2:1' }
+    const [plain, branded] = entries(parseImport(CABLES, { unit: 'kg', customEx: S.customEx }))
+    expect(plain.hvCable).toBe('2:1')
+    expect(branded.hvCable).toBe('2:1')
   })
 })
