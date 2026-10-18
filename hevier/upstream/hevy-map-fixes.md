@@ -12,9 +12,9 @@ upstream merges #672, delete those 40 rows there. Four rows stay, because they a
 titles, not Hevy's: `bulgarian split squat (smith machine)`, `deficit push up`,
 `pull up (close neutral grip)` and `seated cable row - bar wide grip (cable)`.
 
-## Not offered yet: 15 more of Hevy's pictures
+## Not offered yet: 16 more of Hevy's pictures
 
-The user's review of their own history (2026-10-18, D29) added 15 rows to `FIXES` under "Hevy's own
+The user's review of their own history (2026-10-18, D29) added 16 rows to `FIXES` under "Hevy's own
 picture", each the catalogue exercise Hevy's thumbnail names. They could go to #672 or a follow-up.
 
 ## Not offered yet: a review of the matches before an import

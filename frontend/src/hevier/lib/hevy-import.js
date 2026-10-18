@@ -52,7 +52,7 @@ export const FIXES = {
   // upstream leaves these unmatched
   'seated cable row - bar wide grip': '0218',
   'seated cable row - bar wide grip (cable)': '0218',
-  'iso-lateral high row (machine)': '0581',
+  'iso-lateral high row (machine)': { id: '0581', side: true },   // the user rows it one arm at a time
   'iso-lateral low row': '4214',
   'band pullaparts': '4568',
   'triceps rope pushdown': '0200',
@@ -73,6 +73,7 @@ export const FIXES = {
   // Hevy's own picture, chosen by the user from their history's review (2026-10-18); not offered upstream yet
   'bent over row (dumbbell)': '0293',         // both arms, not one
   'butterfly (pec deck)': '1030',
+  'chest dip (weighted)': '1755',             // no weighted chest dip in the catalogue: Hevy's, shared with Triceps Dip (Weighted)
   'calf press (machine)': '0738',             // the 45° sled's calf press
   'chest press (band)': '3780',               // standing
   'face pull': '7744',
