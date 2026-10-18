@@ -347,3 +347,35 @@ holds too.
 | # | Decision |
 |---|---|
 | D53 | **A cardio set and a timed hold have Hevy's TIME column and a count-up timer.** **TIME** replaces cardio's MIN and a hold's SEC in the workout's rows, shown as a clock (`12:34`, `1:30:00`), the progression's prefilled time grey as D2's. **Typing** is Hevy's: the number pad, digits filling the clock from the right (`1234` is 12:34, `13000` 1:30:00, backspace takes the last digit off), up to h:mm:ss (`hevier/lib/duration-entry.js`, `components/DurationField.jsx`). **The timer:** each unticked set has **▶** before its tick; it counts up in the TIME cell, in blue, and **■** stops it and writes the time in. Ticking the set, or **Finish**, stops it the same way, and starting another set's stops the one running: one at a time. It keeps counting in the background and across an app restart, because the set carries when it started (`hvRun`, ms, a fork-only field of the running session that a stop removes). It neither ticks the set nor sounds. **Stored where upstream keeps it** (`hevier/lib/set-timer.js`): a hold's seconds in `sec`, whole; a cardio set's in its minutes, `min` = seconds ÷ 60 unrounded (12:34 is 12.5666… min), so upstream's duration, distance, FIT export, records and the export to Hevy (D34) count the seconds. Upstream's countdown ▶ for a hold (which counted down from the target and ticked the set) is no longer offered in the fork; the code stays. **Shown as a clock** in the fork's PREVIOUS, Workout Detail and exercise history (`hevySetLabel`); upstream's own screens write a cardio set's minutes as they are, with decimals. Unchanged: the routine editor and routine page (a plan's whole minutes, D15, D37), the speed and incline columns, the rest timer. Not done: a timer while editing a past workout (typing only, as upstream's). |
+
+## Workout notes
+
+Added 2026-10-18, at the user's request, with the user's choices.
+
+| # | Decision |
+|---|---|
+| D54 | **The workout's note shows at the top of the workout and on the feed cards, and Hevy's CSV keeps its line breaks.** The note is upstream's session note (`A.note`, saved as the workout's `note`); nothing new is stored. **Live workout:** a line under the header, above the first exercise, as each exercise's "Add notes here…" is under its name: "Add workout notes here…", or the note, opening upstream's session note sheet; the Settings sheet's "Add session note" row goes, so there is one place. Hevy has no note in the live workout (its description is on Save only); this is the user's choice. **Save Workout** opens with the same text in its description, as before (D10). **Feed cards** show the note under the title, three lines at most, as Hevy's feed does. **Line breaks:** Hevy's CSV writes a note's line break as the two characters `\n`, which upstream's CSV import keeps; the fork's `importDone` (S19) turns them back into line breaks in a Hevy file's workout and exercise notes (`hevier/lib/note-text.js`), and a workout an earlier import brought (an `iw` id) whose note or exercise notes still hold `\n` is fixed in place once, at launch or when a sync brings it, stamped as an edit so the fix syncs. A note typed in the app is never touched. Notes show their line breaks wherever the fork shows them. |
+
+## Holds start as holds
+
+Added 2026-10-18, at the user's request: a plank asked for reps.
+
+| # | Decision |
+|---|---|
+| D55 | **A plank, a wall sit or another static hold is added as a timed hold, with D53's TIME column.** Upstream logs every catalogue exercise that is not cardio as weight × reps until its settings say otherwise, so a plank added to a workout or a routine asked for reps, although a Hevy import had brought its history as seconds. Seam S32 asks the fork for a freshly added exercise's mode (`defaultConfig`, `hevier/lib/hold-mode.js`): **'time'** for a catalogue exercise that is only ever held (a reviewed id list: planks without a movement in them, hollow and L-sit holds, hangs and levers, wall sits, isometric and loaded holds), and for **any exercise whose last logged work sets were timed** (seconds, no reps), as an imported Hevy plank's are. Everything else is upstream's. **Only a new entry:** a routine exercise or a session entry that already has a mode keeps it, and upstream's exercise settings still switch one either way; a routine whose plank already asks for reps is changed there. |
+
+## Rest wheel on the default
+
+Added 2026-10-18, at the user's request.
+
+| # | Decision |
+|---|---|
+| D56 | **An exercise's rest wheel opens on the default rest.** Upstream's "Rest for this exercise" (the workout's, the exercise settings', and the fork's routine editor's) opens at 0:00, read out as "Default (1:30)", so the dials sat at zero. With no rest of its own, the wheel now opens at the default (Settings' rest time), as Hevy's rest wheel opens on the rest in force; **Done on the default still saves "no rest of its own"**, so the exercise keeps following the default when it changes, and 0:00 still means the default. An exercise with its own rest opens on it, as before. Seam S33 in `durationSheet` (`hevier/lib/rest-default.js`); every other wheel is upstream's. |
+
+## Kept out of progression, kept out of the statistics
+
+Added 2026-10-18, at the user's request.
+
+| # | Decision |
+|---|---|
+| D57 | **An exercise kept out of progression is kept out of the records and the statistics too; its numbers show only on its workout's pages and in its history.** Upstream's "Don't count for progression" (an exercise's ⋮, the workout's Settings, a routine's own setting) stamps the logged entry `noProg`, or the whole workout `excludeFromProgression` (`entryExcluded`), and upstream reads it only for progression and "last time". The fork reads its statistics through `hevier/lib/counted.js`: those entries are left out, a workout with nothing left is left out whole, and a workout that lost one has its volume worked out again. **Left out of:** the records (D51: such an entry sets none and raises no bar, live and saved, so neither the trophies, the feed card's and Workout Detail's Records nor "Nice work!" count it), exercise details' Summary (chart, personal records, set records, the strength level, D19), Statistics (last 7 days, sets per muscle), Profile's weekly chart and its week sheet, the monthly report (D23, all of it but its calendar), the month widget's line (D44, not its days), and upstream's All statistics and Structural balance (seam S34, so their recovery view too). **Still shown:** the live workout, Save Workout, Workout Detail and the feed card's Time · Volume · Sets (the workout's own numbers), exercise details' History tab, the Calendar, Home's recovery map and the PREVIOUS column. Deloads are not `noProg` and count as before. Nothing stored changes. |

@@ -148,6 +148,14 @@ describe('hevier Hevy import (D29)', () => {
     expect(r.routines[0].ex[0]).toMatchObject({ id: '7108', side: true })
   })
 
+  it('turns Hevy\'s escaped line breaks in notes back into line breaks (D54)', () => {
+    const p = parseImport(csv([
+      `"Lower A","14 Oct 2026, 16:27","14 Oct 2026, 17:44","Tired\\nNext week","Squat (Barbell)",,"Deep\\nslow",0,"normal",60,5,,,`,
+    ]), { unit: 'kg', customEx: [] })
+    expect(p.workouts[0].note).toBe('Tired\nNext week')
+    expect(entriesOf(p)[0].note).toBe('Deep\nslow')
+  })
+
   it('changes nothing with the hooks empty, as in upstream\'s build', () => {
     Object.assign(hooks, { importExercise: null, importDone: null })
     const p = parseImport(csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)]), { unit: 'kg', customEx: [] })

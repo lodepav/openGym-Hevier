@@ -9,6 +9,9 @@ import { exercisePicker, bwSheet } from '../sheets.jsx'
 import { computeBalance, overrideKey, withOverride } from '../lib/structuralBalance.js'
 import { balanceStatusView } from '../lib/structuralBalance-view.js'
 import { TEMPLATES, TEMPLATE_LIST, DEFAULT_TEMPLATE_ID, EVALUATION_MODES } from '../lib/structuralBalanceTemplates.js'
+// [hevier] S34
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 const STATUS_COLOR = {
   balanced: 'var(--green)',
@@ -23,7 +26,9 @@ const exerciseName = id => (id ? exerciseNameFor(exOr(id)) : null)
 
 export default function StructuralBalance() {
   const nav = useNavigate()
-  const S = useStore(s => s.S)
+  // [hevier] S34: exercises kept out of progression are kept out of the statistics (D57)
+  const S = (hooks.statsS || (x => x))(useStore(s => s.S))
+  // [/hevier]
   const update = useStore(s => s.update)
   // Own keys only: a synced or imported id such as "constructor" would otherwise find an
   // Object.prototype member and take the screen down.

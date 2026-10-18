@@ -12,6 +12,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
 import { muscleSetCounts, lastDays, PERIODS } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
+import { countedS } from '../lib/counted.js'
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
@@ -67,7 +68,9 @@ function SetCounts({ S, today }) {
 export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
-  const S = useStore(s => s.S)
+  // Exercises kept out of progression are kept out of these numbers too (D57).
+  const all = useStore(s => s.S)
+  const S = countedS(all)
   const today = todayISO()
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
@@ -76,7 +79,7 @@ export default function Statistics() {
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>
-    {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
+    {all.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

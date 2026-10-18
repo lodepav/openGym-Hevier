@@ -26,6 +26,7 @@ import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
 import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
+import { countedS } from '../lib/counted.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -136,13 +137,17 @@ function ExerciseDetails({ ex, close }) {
   useLang()
   const st = useStore(s => s.S)
   const [tab, setTab] = useState('summary')
-  const all = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
+  // The Summary leaves out sessions kept out of progression (D57); the History lists every one.
+  const counted = countedS(st)
+  const all = useMemo(() => exerciseSummary(counted, ex.id), [st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const logged = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
   // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
   // the Summary and History follow the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
   const on = labels.some(l => l.key === label) ? label : null
-  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id])
+  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hist = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : logged), [logged, on, st.workouts, st.dbLoad, ex.id])
   const fav = isFav(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
@@ -176,7 +181,7 @@ function ExerciseDetails({ ex, close }) {
       {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
     </select>}
     {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} e1rmAll={all.records.e1rm} />}
-    {tab === 'history' && <History ex={ex} sum={sum} st={st} />}
+    {tab === 'history' && <History ex={ex} sum={hist} st={st} />}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}
   </div>
 }
