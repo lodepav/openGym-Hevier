@@ -28,6 +28,7 @@ export function installFinishHook(nav) {
   hooks.finish = () => nav(SAVE_PATH)
   // The summary takes the Save page's history entry, so back from it does not land on a page
   // whose session is gone.
-  hooks.done = ({ w, e1prs }) =>
-    nav(DONE_PATH, { replace: true, state: { ref: { id: w.id, d: w.d, start: w.start }, e1prs } })
+  // Its records are the fork's, read from the log (D51), not upstream's `prs` / `e1prs`.
+  hooks.done = ({ w }) =>
+    nav(DONE_PATH, { replace: true, state: { ref: { id: w.id, d: w.d, start: w.start } } })
 }

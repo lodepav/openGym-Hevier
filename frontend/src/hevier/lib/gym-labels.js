@@ -174,12 +174,16 @@ export function withLabels(w, labels) {
 
 // ---------- exercise details
 
-/** A label's key: gym id and brand, '' for none, and a cable setup other than 1:1. */
-export const labelKey = (g, b, c) => `${g || ''}|${b || ''}` + (c && c !== '1:1' ? '|' + c : '')
-const keyOfEntry = e => labelKey(e.hvGym, e.hvBrand, savedCable(e))
+// A gym is only where a session was done (changed 2026-10-18): statistics and records are told apart
+// by the brand and, on a cable, the setup, never by the gym.
+
+/** A label's key: the brand, '' for none, and a cable setup other than 1:1. */
+export const labelKey = (b, c) => (b || '') + (c && c !== '1:1' ? '|' + c : '')
+/** The label a logged entry was done with, as a key. */
+export const entryLabelKey = e => labelKey(e?.hvBrand, savedCable(e))
 
 /**
- * The labels an exercise was done with, newest first: [{ key, gym, brand, n }]. Only labels that
+ * The labels an exercise was done with, newest first: [{ key, brand, cable, n }]. Only labels that
  * tell sessions apart: an exercise never labelled, or always the same, has nothing to choose.
  */
 export function labelsFor(S, exId) {
@@ -187,31 +191,30 @@ export function labelsFor(S, exId) {
   const ws = [...list(S?.workouts)].sort((a, b) => (b?.start || 0) - (a?.start || 0) || String(b?.d).localeCompare(String(a?.d)))
   for (const w of ws) for (const e of list(w?.entries)) {
     if (e?.id !== exId) continue
-    const key = keyOfEntry(e)
+    const key = entryLabelKey(e)
     const had = byKey.get(key)
     if (had) had.n++
-    else byKey.set(key, { key, gym: e.hvGym || null, brand: e.hvBrand || null, cable: savedCable(e), n: 1 })
+    else byKey.set(key, { key, brand: e.hvBrand || null, cable: savedCable(e), n: 1 })
   }
   const out = [...byKey.values()]
   return out.length > 1 ? out : []
 }
 
-/** A label as text: "Gym · Brand · 2:1", what of it there is, or "No label". */
-export function labelText(S, l, tr = s => s) {
-  const g = l.gym ? (gymName(S, l.gym) || tr('Removed gym')) : null
+/** A label as text: "Brand · 2:1", what of it there is, or "No brand". */
+export function labelText(l, tr = s => s) {
   const c = l.cable && l.cable !== '1:1' ? cableText(l.cable) : null
-  return [g, l.brand, c].filter(Boolean).join(' · ') || tr('No label')
+  return [l.brand, c].filter(Boolean).join(' · ') || tr('No brand')
 }
 
 /** S with only the sessions of `exId` done with label `key` (other exercises untouched). */
 export function withLabelFilter(S, exId, key) {
-  if (!key) return S
+  if (key == null) return S
   return {
     ...S,
     workouts: list(S.workouts).map(w => {
       const entries = list(w?.entries)
       if (!entries.some(e => e?.id === exId)) return w
-      return { ...w, entries: entries.filter(e => e?.id !== exId || keyOfEntry(e) === key) }
+      return { ...w, entries: entries.filter(e => e?.id !== exId || entryLabelKey(e) === key) }
     }),
   }
 }

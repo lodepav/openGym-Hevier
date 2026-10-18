@@ -27,10 +27,13 @@ describe('hevier monthly report (D23)', () => {
     expect(r.prev).toMatchObject({ workouts: 1, duration: H, volume: 1000, sets: 1 })
   })
 
-  it('lists upstream’s stored records, one per exercise per workout', () => {
-    expect(monthReport(log, 2026, 9).records).toEqual([
-      { id: BENCH, d: '2026-10-01' }, { id: BENCH, d: '2026-10-20' }, { id: SQUAT, d: '2026-10-20' },
+  it('lists every record of the month, oldest first, from the records it is given (D51)', () => {
+    const recs = { '2026-10-20': [{ id: SQUAT, kind: 'weight', v: 105 }], '2026-10-01': [{ id: BENCH, kind: 'weight', v: 80 }, { id: BENCH, kind: 'e1rm', v: 93.3 }] }
+    expect(monthReport([...log].reverse(), 2026, 9, 1, 'main', w => recs[w.d] || []).records).toEqual([
+      { id: BENCH, kind: 'weight', v: 80, d: '2026-10-01' }, { id: BENCH, kind: 'e1rm', v: 93.3, d: '2026-10-01' },
+      { id: SQUAT, kind: 'weight', v: 105, d: '2026-10-20' },
     ])
+    expect(monthReport(log, 2026, 9).records).toEqual([])
   })
 
   it('counts the calendar rows with a workout as weeks trained', () => {

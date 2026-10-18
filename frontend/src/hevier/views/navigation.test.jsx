@@ -125,13 +125,16 @@ describe('hevier: navigation (seam S2)', () => {
   })
 
   it('Profile: dashboard, weekly chart and the workouts as feed cards', () => {
-    render('/profile', { workouts: [workout('2026-10-14', { prs: [EX] })] })
+    // Records are worked out from the log (D51): the week before sets the bar, this one beats it.
+    const before = workout('2026-10-07', { start: 0.5, entries: [{ id: EX, sets: [{ w: 50, r: 8, done: true }] }] })
+    render('/profile', { workouts: [before, workout('2026-10-14')] })
     expect(container.querySelectorAll('.hv-dash .btn')).toHaveLength(4)
     expect(container.querySelectorAll('.hv-barcol')).toHaveLength(12)
     const card = container.querySelector('.hv-wcard')
     expect(card.textContent).toContain('Leg Day')
     expect(card.textContent).toContain('2 sets')
-    expect(card.querySelector('.hv-pr').textContent).toBe('1')
+    expect(card.querySelector('.hv-wcard-stats .hv-pr').textContent).toBe('4')
+    expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4')
     act(() => byText('.hv-chip', 'Reps').click())
     expect(byText('.hv-chip', 'Reps').getAttribute('aria-pressed')).toBe('true')
     act(() => byText('.hv-dash .btn', 'Statistics').click())

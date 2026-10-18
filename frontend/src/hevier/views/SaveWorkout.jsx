@@ -26,6 +26,7 @@ import { sessionMin, durationProblem, applyDuration, workoutNumber, workoutsInDa
 import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
 import { gymSheet } from '../components/GymLabels.jsx'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
+import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
@@ -157,8 +158,8 @@ export function WorkoutDone() {
   if (!w) return <Navigate to="/home" replace />
   const n = workoutNumber(st.workouts, w)
   const week = workoutsInDays(st.workouts, w, 7)
-  const prs = w.prs || []
-  const e1prs = (state.e1prs || []).filter(p => !prs.includes(p.id))
+  // D51: every record the workout set, as Workout Detail shows them (a better 1RM is one of them).
+  const prs = workoutRecords(st, w)
   const name = id => (EXIDX[id] ? exerciseNameFor(EXIDX[id]) : id)
   const finish = () => nav('/home', { replace: true })
 
@@ -172,9 +173,9 @@ export function WorkoutDone() {
       {n > 0 && <p>{t('That’s workout number {0}.', n)}</p>}
     </div>
     <WorkoutCard w={w} />
-    {(prs.length > 0 || e1prs.length > 0) && <div className="card hv-done-prs">
-      {prs.map(id => <div key={id} className="hv-done-pr"><Icon name="trophy" />{t('New PR:')} <b className={exerciseNameClass(EXIDX[id])}>{name(id)}</b></div>)}
-      {e1prs.map(p => <div key={p.id} className="hv-done-pr"><Icon name="chartLine" />{t('Best estimated 1RM:')} <b className={exerciseNameClass(EXIDX[p.id])}>{name(p.id)}</b> · {fmtNum(p.est)} {st.unit}</div>)}
+    {prs.length > 0 && <div className="card hv-done-prs">
+      {prs.map((r, i) => <div key={i} className="hv-done-pr"><Icon name="trophy" /><b className={exerciseNameClass(EXIDX[r.id])}>{name(r.id)}</b>
+        <span className="hv-sub">{t(KINDS[r.kind])} · {recordValue(r, st.unit, t)}</span></div>)}
     </div>}
     <p className="hv-done-week">{t('Workouts in the last 7 days: {0}', week)}</p>
     <h4 className="sec">{t('What you just trained')}</h4>

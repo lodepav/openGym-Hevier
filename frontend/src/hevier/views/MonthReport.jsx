@@ -11,8 +11,17 @@ import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { workoutsByDay } from '../lib/calendar.js'
 import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
+import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
+
+// The month's records grouped by exercise and day, in order: [{ id, d, recs }].
+const byDayEx = records => records.reduce((out, x) => {
+  const last = out.at(-1)
+  if (last && last.id === x.id && last.d === x.d) last.recs.push(x)
+  else out.push({ id: x.id, d: x.d, recs: [x] })
+  return out
+}, [])
 
 function Stat({ label, value, delta }) {
   return <div><span>{label}</span><b>{value}</b>
@@ -25,7 +34,7 @@ export default function MonthReport() {
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
-  const r = useMemo(() => monthReport(st.workouts, at.y, at.mo, ws, mm), [st.workouts, at, ws, mm])
+  const r = useMemo(() => monthReport(st.workouts, at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [st.workouts, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1
@@ -55,8 +64,10 @@ export default function MonthReport() {
 
       {r.records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h4>
-        <div className="list">{r.records.map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
-          <span className={'grow ' + exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
+        {/* One row per exercise and day, its records under the name; the count above is every record. */}
+        <div className="list">{byDayEx(r.records).map((x, i) => <button key={i} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
+          <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
+            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}</span>)}</span>
           <span className="dim">{fmtDate(x.d, true)}</span>
         </button>)}</div>
       </>}

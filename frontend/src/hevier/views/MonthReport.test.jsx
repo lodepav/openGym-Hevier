@@ -51,7 +51,9 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.querySelector('.hv-report-bar h1').textContent).toContain(MONTHS_LONG[last.mo] + ' Report')
     expect(stat('Workouts').textContent).toBe('Workouts2+1')
     expect(stat('Sets').textContent).toBe('Sets5+4')
-    expect([...container.querySelectorAll('h4.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 1')
+    expect([...container.querySelectorAll('h4.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')
+    // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
+    expect(container.textContent).toContain('Heaviest Weight · 75 kg')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
   })
 
