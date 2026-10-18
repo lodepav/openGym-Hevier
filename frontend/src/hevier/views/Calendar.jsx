@@ -1,8 +1,9 @@
 // Hevy's Calendar (reference/SCREENS.md §11), Profile → Calendar: "N week streak · N rest days" (the streak D59's),
-// Month (the months back from this one, trained days filled) or Year (twelve small months). The
+// Month (the months back from this one, oldest at the top and this one at the bottom, where the
+// page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -67,6 +68,10 @@ export default function Calendar() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setView('month') }
+  // The month view opens on its newest month, at the bottom; earlier months added above it keep
+  // the page where it was (the browser's scroll anchoring).
+  const last = useRef(null)
+  useLayoutEffect(() => { if (view === 'month') last.current?.scrollIntoView?.({ block: 'end' }) }, [view, from])
 
   return <div className="hv-cal">
     <PageBar title={t('Calendar')} onBack={back} />
@@ -83,8 +88,9 @@ export default function Calendar() {
       <span><i className="k-plan" />{t('Planned')}</span>
     </div>
     {view === 'month' ? <>
-      {monthsBack(from.y, from.mo, count).map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
       <button type="button" className="btn hv-cal-more" onClick={() => setCount(c => c + MORE)}>{t('Show earlier months')}</button>
+      {monthsBack(from.y, from.mo, count).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      <div ref={last} />
     </> : <>
       <div className="hv-cal-yr">
         <button type="button" className="iconbtn" aria-label={t('Previous year')} onClick={() => setYear(y => y - 1)}><Icon name="chevronLeft" /></button>

@@ -428,7 +428,7 @@
 :root[data-ui="hevier"] .hv-cal-d.plan::after,:root[data-ui="hevier"] .hv-cal-d.ovr::after,:root[data-ui="hevier"] .hv-cal-d.noted::after{content:"";position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--label-3)}
 :root[data-ui="hevier"] .hv-cal-d.ovr::after{background:var(--orange)}
 :root[data-ui="hevier"] .hv-cal-d.noted::after{background:var(--indigo)}
-:root[data-ui="hevier"] .hv-cal-more{width:100%;margin-top:18px}
+:root[data-ui="hevier"] .hv-cal-more{width:100%;margin:6px 0 18px}
 :root[data-ui="hevier"] .hv-cal-yr{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:12px;font-size:17px}
 :root[data-ui="hevier"] .hv-cal-year{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 14px}
 :root[data-ui="hevier"] .hv-cal-m.small{margin-top:12px}
