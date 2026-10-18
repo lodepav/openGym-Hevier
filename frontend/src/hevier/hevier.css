@@ -584,3 +584,4 @@
 :root[data-ui="hevier"] .hv-running{display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-go.on{color:var(--blue)}
 :root[data-ui="hevier"] .hv-dur{font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-report-more{width:100%;margin-top:8px}
