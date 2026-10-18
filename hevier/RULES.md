@@ -47,6 +47,10 @@ conflict on every upstream edit to them).
   `frontend/android/app/hevier.gradle` (seam S7), so it installs beside the official openGym.
   Its data is separate: move it across with Settings → Data & backup → Export / Import.
 - **Name** Go Hevier (D39). **Updater** reads `VITE_UPDATE_REPO=lodepav/openGym-Hevier` (S6).
+- **Version** Go Hevier's own, in `hevier/VERSION` (D52), shown beside upstream's openGym
+  version ("Go Hevier 1.0.0 · based on openGym 1.4.1"); it is the APK's `versionName`/`versionCode`
+  (S7), the build's `__APP_VERSION__` (S29) and the updater's, whose releases are tagged
+  `gohevier-vX.Y.Z`. `release-apk.sh` raises it, commits and tags; debug builds add their commit.
 - **Signing key**: updates install only over an app signed with the same key. The keystore lives
   outside the repo; its certificate's SHA-256 is pinned beside it, in `~/.config/hevier/apk-cert.txt`, also
   outside the repo (D38).

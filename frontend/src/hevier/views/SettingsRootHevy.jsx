@@ -19,6 +19,7 @@ import { volumeMode, muscleMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection } from '../lib/settings.js'
+import { aboutPage, versionLine } from '../lib/version.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 
@@ -69,7 +70,9 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
       </button>}
       {ids.map(id => own[id] ? own[id]() : row(id))}
     </Section>
-  })
+  }).concat(
+    // Both versions under the groups (D52); upstream's own line after it is hidden (hevier.css).
+    <div key="hv-version" className="dim small sp-version hv-version">{versionLine(t)}</div>)
 }
 
 /** Seams S11 and S12's hand-off. */
@@ -82,6 +85,7 @@ export function installSettings() {
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
       const out = relabelPage(id, prunePage(id, tree, t), t)
+      if (id === 'about') return aboutPage(out, t)
       if (id !== 'data' || !MOBILE) return out
       // D27's Health Connect reads, then D34's export to Hevy, both before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>

@@ -1,10 +1,17 @@
-// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, launcher name, icon and splash, portrait only, and a smaller release APK (D50).
+// [hevier] The fork's Android identity (seam S7: applied from the last line of build.gradle): its id, version, launcher name, icon and splash, portrait only, and a smaller release APK (D50).
 // Its own application id, so it installs beside the official openGym instead of clashing with it.
 // The debug build keeps upstream's ".test" suffix: ch.duartesantos.opengym.hevier.test.
 // The Java namespace stays ch.duartesantos.opengym; only the id the device sees changes.
+// Go Hevier's own version (D52), from hevier/VERSION, in place of upstream's: versionName as written,
+// versionCode major·10000 + minor·100 + patch, so each fork release installs over the one before
+// (minor and patch stay below 100).
+def hevierVersion = file("$rootDir/../../hevier/VERSION").text.trim()
+def hevierParts = hevierVersion.tokenize('.').collect { it as int }
 android {
     defaultConfig {
         applicationId "ch.duartesantos.opengym.hevier"
+        versionName hevierVersion
+        versionCode hevierParts[0] * 10000 + hevierParts[1] * 100 + hevierParts[2]
     }
     // The launcher name. Build-type resources override src/main/res (that is how upstream's
     // src/debug names its test build), so app_name changes without editing upstream's strings.xml.

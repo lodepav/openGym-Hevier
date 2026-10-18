@@ -568,3 +568,8 @@
 :root[data-ui="hevier"] .hv-ms-row + .hv-ms-row{border-top:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-ms-row b{font-weight:500}
 :root[data-ui="hevier"] .hv-ms-all{width:100%;justify-content:center}
+
+/* ---------- Settings root's version line (D52) ----------
+   Upstream's line names the build "openGym" with the fork's version; the fork's root draws its own
+   line, Go Hevier's version and upstream's, so upstream's is hidden. */
+:root[data-ui="hevier"] .sp-root-title ~ .sp-version:not(.hv-version){display:none}

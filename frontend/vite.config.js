@@ -98,10 +98,13 @@ const flavor = {
 // answer from inside the app. Unset (the ordinary case, and every upstream build) it changes
 // nothing: the string is exactly package.json's version.
 const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
-const appVersion = process.env.APP_BUILD ? `${pkgVersion}+${process.env.APP_BUILD}` : pkgVersion
+// [hevier] S29: the fork's build carries Go Hevier's own version (hevier/VERSION); upstream's stays readable as __UPSTREAM_VERSION__
+const ownVersion = process.env.VITE_HEVIER === '1' ? readFileSync(new URL('../hevier/VERSION', import.meta.url), 'utf8').trim() : pkgVersion
+const appVersion = process.env.APP_BUILD ? `${ownVersion}+${process.env.APP_BUILD}` : ownVersion
+// [/hevier]
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(appVersion) },
+  define: { __APP_VERSION__: JSON.stringify(appVersion), __UPSTREAM_VERSION__: JSON.stringify(pkgVersion) }, // [hevier] S29
   plugins: [react(), umami, flavor, swStamp, catalogueMedia],
   base: './',
   server: {
