@@ -33,6 +33,11 @@ import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
 let savedSession = null
 
+// D60: Still training?'s Finish opens the page with the length ending at the last ticked set.
+let preset = null
+export const presetDuration = min => { preset = min }
+const takePreset = () => { const m = preset; preset = null; return m }
+
 // Upstream's discard (views/Workout.jsx discardWorkout), from the Save page.
 const discard = nav => confirmSheet({
   title: t('Discard workout?'), message: t('The sets you logged in this session will be lost.'), confirmText: t('Discard'), danger: true,
@@ -52,7 +57,7 @@ export function SaveWorkout() {
   const mode = useStore(s => volumeMode(s.S))
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
-  const [min, setMin] = useState(null)   // null: the session's own length, still running
+  const [min, setMin] = useState(takePreset)   // null: the session's own length, still running
   const [, tick] = useState(0)
   useEffect(() => { const id = setInterval(() => tick(n => n + 1), 15000); return () => clearInterval(id) }, [])
   // Reached with no session to save (a reload after saving, a link): back to the Workout tab. A
