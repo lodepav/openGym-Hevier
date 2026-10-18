@@ -4,7 +4,7 @@
 // the seams add nothing to what the upstream files load.
 export const hooks = {
   finish: null,   // () => void: Finish was asked for (the session is not saved yet) (S9)
-  done: null,     // ({ w, prs, e1prs }) => void: upstream saved the session as `w` (S9)
+  done: null,     // ({ w, prs, e1prs }) => void: upstream saved the session as `w`; the fork reads `w` only (S9)
   exerciseDetail: null,   // (ex) => void: an exercise's details were asked for (S10)
   workoutDetail: null,    // (w) => void: a finished workout's details were asked for (S14)
   exercisePicker: null,   // (onPick, { title, like }) => sheet handle: an exercise picker was asked for (S13)

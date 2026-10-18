@@ -81,10 +81,10 @@ export function parsePlaces(json, here) {
   return out.sort((a, b) => a.dist - b.dist).slice(0, MAX)
 }
 
-const ask = async (fetcher, url, ms) => {
-  const res = await within(fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }), ms, new Error('overpass timeout'))
-  if (!res.ok) throw new Error('overpass ' + res.status)
-  return within(res.json(), ms, new Error('overpass timeout'))
+const ask = async (name, fetcher, url, ms) => {
+  const res = await within(fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }), ms, new Error(name + ' timeout'))
+  if (!res.ok) throw new Error(name + ' ' + res.status)
+  return within(res.json(), ms, new Error(name + ' timeout'))
 }
 
 /**
@@ -93,10 +93,10 @@ const ask = async (fetcher, url, ms) => {
  */
 export async function fetchPlaces(here, fetcher = nativeFetch) {
   try {
-    const found = parsePlaces({ elements: photonElements(await ask(fetcher, photonUrl(here), PHOTON_MS)) }, here)
+    const found = parsePlaces({ elements: photonElements(await ask('photon', fetcher, photonUrl(here), PHOTON_MS)) }, here)
     if (found.length) return found
   } catch { /* Overpass next */ }
-  return parsePlaces(await ask(fetcher, OVERPASS + '?data=' + encodeURIComponent(overpassQuery(here)), OVERPASS_MS), here)
+  return parsePlaces(await ask('overpass', fetcher, OVERPASS + '?data=' + encodeURIComponent(overpassQuery(here)), OVERPASS_MS), here)
 }
 
 // The last answer, in memory only: Overpass refuses a second request from the same phone soon

@@ -69,11 +69,11 @@ export default function WorkoutCard({ w }) {
   const recs = useStore(s => workoutRecords(s.S, w))
   const prs = recs.length
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
-  const who = useStore(s => s.user?.name) || ''
+  const who = (useStore(s => s.user?.name) || '').trim()
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
-      <span className="hv-avatar" aria-hidden="true">{who ? who.trim()[0].toUpperCase() : <Icon name="person" />}</span>
+      <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
       <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
       <button type="button" className="iconbtn" aria-label={t('More')}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>

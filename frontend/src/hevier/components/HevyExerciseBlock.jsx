@@ -129,8 +129,9 @@ export default function HevyExerciseBlock({
     (inclineFits(ex) || entry.sets.some(hasIncline)) && { f: 'incline', dec: true, opt: true, hd: t('INCL %'), label: t('Incline (%)'), store: clampIncline },
   ].filter(Boolean) : timed ? [W, { f: 'sec', dur: true, hd: t('TIME'), label: t('Time') }] : [W, R]
   const effOn = mode === 'reps' && !!eff
-  // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown.
-  const playOn = (timed || cardio) && !editing
+  // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown;
+  // not for a workout logged into the past, which is typed in.
+  const playOn = (timed || cardio) && !editing && !A?.backfill
   const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
   // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
   const goGrid = playOn ? ' hv-go-grid' : ''
@@ -332,28 +333,23 @@ export default function HevyExerciseBlock({
     const firm = src.done || touched.has(i + ':' + key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
     const k = i + ':' + key
     if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={col.label}><Elapsed start={src[RUN]} /></span>
-    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} hint={!firm}
-      aria-label={col.label}
-      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
-      onRestore={() => {
+    // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
+    const hintProps = {
+      hint: !firm,
+      onTypeOver: () => { typedOver.current = { k, sets: structuredClone(entry.sets) } },
+      onRestore: () => {
         const was = typedOver.current
         typedOver.current = null
         if (was?.k !== k) return
         update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
         untouch(k)
-      }}
+      },
+    }
+    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} {...hintProps}
+      aria-label={col.label}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(mode, sec)) }} />
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
-      hint={!firm}
-      onTypeOver={() => { typedOver.current = { k, sets: structuredClone(entry.sets) } }}
-      onRestore={() => {
-        // Left empty: the grey value stays, and so does whatever typing it copied down the sets.
-        const was = typedOver.current
-        typedOver.current = null
-        if (was?.k !== k) return
-        update(st => { const e = st.active?.entries[entryIdx]; if (e) e.sets = was.sets }, true)
-        untouch(k)
-      }}
+      {...hintProps}
       aria-label={side ? col.label + ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : col.label}
       onChange={v => {
         touch(i, key)

@@ -69,8 +69,7 @@ export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
-  const all = useStore(s => s.S)
-  const S = countedS(all)
+  const S = countedS(useStore(s => s.S))
   const today = todayISO()
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
@@ -79,7 +78,7 @@ export default function Statistics() {
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>
-    {all.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
+    {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

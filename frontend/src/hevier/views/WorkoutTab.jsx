@@ -20,6 +20,7 @@ import PageBar from '../components/PageBar.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
+import { discardActive } from '../components/HevyTabBar.jsx'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
   cleanFolderName, readEmptyFolders, writeEmptyFolders, stillEmpty, folderOf, FOLDER_MAX,
@@ -38,9 +39,7 @@ function startFlow(ids) {
     title: t('Workout in progress'), message: t('Starting a new workout discards the one you have open.'),
     confirmText: t('Discard and start'), danger: true,
     onConfirm: () => {
-      useStore.getState().update(s => { s.active = null })
-      useUI.getState().stopRest()
-      useUI.getState().stopWork()
+      discardActive()
       upstreamStart(ids)
     },
   })

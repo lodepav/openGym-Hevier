@@ -218,7 +218,6 @@
 }
 
 /* Routine editor (RoutineEditHevy.jsx): SET · KG · REPS, no PREVIOUS and no ✓ (D15) */
-:root[data-ui="hevier"] .hv-routine .hv-bar{gap:6px}
 :root[data-ui="hevier"] .hv-rtitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in{width:100%;background:none;border:0;padding:2px 0 6px;font:inherit;font-size:14px;color:var(--label)}
 :root[data-ui="hevier"] .hv-notes-in::placeholder{color:var(--label-3)}
@@ -331,7 +330,6 @@
 :root[data-ui="hevier"] .seg.hv-xd-tabs .seg-sel{top:auto;bottom:-1px;height:2px;inset-inline-start:0;width:calc(100% / var(--n));border-radius:0;background:var(--acc);box-shadow:none}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button{min-height:40px;font-size:15px}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button.on{color:var(--acc)}
-:root[data-ui="hevier"] .hv-xd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
 :root[data-ui="hevier"] .hv-xd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-xd-big{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-range{appearance:none;-webkit-appearance:none;background:none;color:var(--acc);border:0;padding:6px 18px 6px 4px;font-size:14px;font-weight:500;

@@ -32,7 +32,7 @@ const PROFILES = [
   { name: 'fold', size: '1812x2176', dpi: 420, note: 'foldable inner screen, about 5:6, 690×829 dp' },
   { name: 'bigfont', size: '1080x2340', dpi: 420, font: 1.3, note: 'Xperia 1 VI with the font at 130%' },
 ]
-const SCREENS = ['/home', '/workout', '/profile', '/stats', '/calendar', '/report', '/measures', '/library', '/settings']
+const SCREENS = ['/home', '/workout', '/routines', '/profile', '/stats', '/calendar', '/report', '/measures', '/library', '/settings']
 
 const args = process.argv.slice(2)
 const opt = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined }
@@ -165,10 +165,10 @@ try {
       if (withWorkout) {
         await evaluate(cdp, "location.hash = '#/workout'")
         await sleep(800)
-        // With a workout open, /workout is that workout (checked above) and the Workout tab's
-        // hub cannot be reached; the open workout is left as it is.
+        // With a workout open, /workout is that workout (checked above; the Workout tab's hub is
+        // /routines, D13); the open workout is left as it is.
         const open = await evaluate(cdp, "!!document.body.innerText.match(/Discard Workout/)")
-        if (open) results.push({ screen: 'live workout', out: [{ note: true, check: 'flow', detail: 'a workout is open on the emulator, so /workout showed it and the Workout tab was not checked' }] })
+        if (open) results.push({ screen: 'live workout', out: [{ note: true, check: 'flow', detail: 'a workout is open on the emulator, so /workout showed it (the Workout tab was checked on /routines)' }] })
         else if ((await evaluate(cdp, clickJs('Start Empty Workout'))).startsWith('NOT FOUND'))
           results.push({ screen: 'live workout', out: [{ check: 'flow', detail: 'no Start Empty Workout button' }] })
         else {

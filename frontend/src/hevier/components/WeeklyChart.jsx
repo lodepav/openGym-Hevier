@@ -44,7 +44,7 @@ export default function WeeklyChart() {
   const fmt = v => (kind === 'duration' ? (v ? fmtDur(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v))
   const cur = pts.at(-1).value
-  const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : kind === 'volume' ? fmtNum(Math.round(v)) : fmtNum(Math.round(v)))
+  const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
   const day = iso => new Date(iso + 'T12:00:00').toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
   const head = kind === 'duration' ? t('{0} this week', cur ? fmtDur(cur) : '0 min') : t('{0} this week', fmt(cur))
   return <div className="hv-chart">

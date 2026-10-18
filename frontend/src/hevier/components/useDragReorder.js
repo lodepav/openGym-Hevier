@@ -36,7 +36,7 @@ export function useDragReorder(count, onMove) {
     const hold = e => { if (gesture.current) e.preventDefault() }
     el.addEventListener('touchmove', hold, { passive: false })
     return () => el.removeEventListener('touchmove', hold)
-  })
+  }, [listRef])
 
   const rowsOf = () => [...(listRef.current?.children || [])].filter(el => el.hasAttribute('data-reorder-row'))
   // Where the held row is now, in page coordinates, and the slot that puts it at.

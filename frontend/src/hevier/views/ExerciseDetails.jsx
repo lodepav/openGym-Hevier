@@ -140,14 +140,16 @@ function ExerciseDetails({ ex, close }) {
   // The Summary leaves out sessions kept out of progression (D57); the History lists every one.
   const counted = countedS(st)
   const all = useMemo(() => exerciseSummary(counted, ex.id), [st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const logged = useMemo(() => exerciseSummary(st, ex.id), [st.workouts, st.dbLoad, ex.id])
+  // With nothing kept out (the usual case), countedS hands back `st` itself: one summary serves both.
+  const same = counted === st
+  const logged = useMemo(() => (same ? all : exerciseSummary(st, ex.id)), [all, same, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
   // the Summary and History follow the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
   const on = labels.some(l => l.key === label) ? label : null
   const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const hist = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(st, ex.id, on), ex.id) : logged), [logged, on, st.workouts, st.dbLoad, ex.id])
+  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(st, ex.id, on), ex.id)), [logged, sum, same, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const fav = isFav(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
