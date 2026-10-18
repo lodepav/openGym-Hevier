@@ -55,3 +55,10 @@ export function toggleGroup(have, kinds) {
   for (const k of kinds) on ? next.add(k) : next.delete(k)
   return next
 }
+
+/** The filter value `v` while the list holds `kinds`: kept when something falls under it, else '' (issue #71's rule). */
+export function eqOnAmong(v, kinds) {
+  const g = groupIdOf(v)
+  if (g) return (kinds || []).some(k => groupOf(k) === g) ? v : ''
+  return (kinds || []).includes(v) ? v : ''
+}

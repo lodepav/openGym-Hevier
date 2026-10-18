@@ -9,7 +9,7 @@ import { t, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
 import BodyMap from './BodyMap.jsx'
 import { Thumb } from './Media.jsx'
 import Icon from './Icon.jsx'
-// [hevier] S37
+// [hevier] S37, S38
 import { hooks } from '../hevier/hooks.js'
 // [/hevier]
 import ExerciseViewToggle from './ExerciseViewToggle.jsx'
@@ -46,9 +46,10 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
   const targeted = selected ? catalog.filter(e => musclesOf(e)[selected]) : []
   const base = searchExercises(targeted.filter(e => !bp || e.bp === bp), q)
   const eqOpts = equipmentOf(base)
-  const eqOn = eqOpts.includes(eq) ? eq : ''
+  // [hevier] S38: the fork's equipment groups (D63), a group or one kind
+  const eqOn = hooks.equipChips ? hooks.equipChips.on(eq, eqOpts) : eqOpts.includes(eq) ? eq : ''
   // Favourites float to the top of whatever the filters left (issue #6), the rest keeps its order.
-  const exercises = sortFavouritesFirst(eqOn ? base.filter(e => e.eq === eqOn) : base, S)
+  const exercises = sortFavouritesFirst(eqOn ? base.filter(e => (hooks.equipChips ? hooks.equipChips.has(eqOn, e) : e.eq === eqOn)) : base, S)
   const choose = ex => onPick ? onPick(ex) : onDetail(ex)
   // The live count and the × of the Library's search (#338): the count while a search or a
   // filter narrows the muscle's list, the × while there is text.
@@ -91,7 +92,8 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
         <button className={'chip nocap' + (!bp ? ' on' : '')} onClick={() => { setBp(''); setEq(''); setShown(40) }}>{t('All')}</button>
         {BODYPARTS.map(b => <button key={b} className={'chip' + (bp === b ? ' on' : '')} onClick={() => { setBp(b); setShown(40) }}>{t(b)}</button>)}
       </div>
-      {eqOpts.length > 1 && <div className="chips" style={{ marginBottom: 12 }}>
+      {eqOpts.length > 1 && hooks.equipChips && <hooks.equipChips.Chips kinds={eqOpts} value={eqOn} onChange={x => { setEq(x); setShown(40) }} /> /* [hevier] S38 */}
+      {eqOpts.length > 1 && !hooks.equipChips && <div className="chips" style={{ marginBottom: 12 }}>
         <button className={'chip nocap' + (!eqOn ? ' on' : '')} onClick={() => { setEq(''); setShown(40) }}>{t('Any equipment')}</button>
         {eqOpts.map(x => <button key={x} className={'chip' + (eqOn === x ? ' on' : '')} onClick={() => { setEq(x); setShown(40) }}>{t(x)}</button>)}
       </div>}

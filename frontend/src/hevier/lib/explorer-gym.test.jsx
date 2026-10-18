@@ -8,6 +8,9 @@ import { DEF, useStore } from '../../store/useStore.js'
 import MuscleExplorer from '../../components/MuscleExplorer.jsx'
 import { hooks } from '../hooks.js'
 import { explorerFilter, rememberGym } from './gym-filter.js'
+import { equipChips } from '../components/EquipGroups.jsx'
+import { EQUIP_GROUPS } from './equip-groups.js'
+import { EXDB } from '../../lib/exercises.js'
 
 vi.setConfig({ testTimeout: 15000 })
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -27,6 +30,7 @@ afterEach(() => {
   act(() => root.unmount())
   host.remove()
   hooks.equipFilter = null
+  hooks.equipChips = null
   localStorage.clear()
 })
 
@@ -47,4 +51,28 @@ describe('hevier: muscle explorer by gym (seam S37)', () => {
     render({ equipProfiles: [{ ...equipProfiles[0], equipment: ['dumbbell', 'body weight'] }] })
     expect(chestCount()).toBeGreaterThan(home)                        // push-ups are back
   })
+
+  it('its equipment strip is by group, a chevron opening a group’s kinds (D63, seam S38)', () => {
+    hooks.equipChips = equipChips
+    render({})
+    act(() => [...host.querySelectorAll('.chips .chip')].find(b => b.textContent.startsWith('Chest')).click())
+    const strip = () => [...host.querySelectorAll('.hv-eqg-chip')]
+    const group = label => strip().find(c => c.textContent === label)
+    expect(group('Free weights')).toBeTruthy()
+    expect(host.querySelector('.hv-eqg-strip')).toBeNull()
+    const eqs = () => new Set([...host.querySelectorAll('.list .item .tt')].map(el => EXDB.find(e => e.n === el.textContent)?.eq).filter(Boolean))
+    act(() => group('Free weights').querySelector('.hv-eqg-t').click())
+    const free = EQUIP_GROUPS.find(g => g.id === 'free').kinds
+    expect([...eqs()].every(q => free.includes(q))).toBe(true)
+    const count = () => Number(host.querySelector('.search-count').textContent.replace(/\D/g, ''))
+    const all = count()
+    act(() => group('Free weights').querySelector('.hv-eqg-x').click())
+    const kinds = [...host.querySelectorAll('.hv-eqg-strip .chip')]
+    expect(kinds.map(k => k.textContent)).toContain('dumbbell')
+    act(() => kinds.find(k => k.textContent === 'dumbbell').click())
+    expect([...eqs()]).toEqual(['dumbbell'])
+    expect(count()).toBeLessThan(all)             // the group held more than its dumbbells
+    expect(group('Free weights').className).toContain('some')
+  })
 })
+

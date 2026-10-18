@@ -602,3 +602,7 @@
 /* …and the picker's filter: a group's kinds indented under it, its chevron after the tick. */
 :root[data-ui="hevier"] .menu-item .hv-eqg-x{margin-inline-end:-8px;color:var(--label-2)}
 :root[data-ui="hevier"] .menu-item.hv-eqg-kind .tt{padding-inline-start:20px;color:var(--label-2)}
+/* …and the muscle explorer's strip: the open group's kinds in a second strip, set in a little. */
+:root[data-ui="hevier"] .chips .hv-eqg-chip{flex:none}
+:root[data-ui="hevier"] .hv-eqg-strip{padding-inline-start:14px}
+:root[data-ui="hevier"] .hv-eqg-strip .chip{font-size:13px;padding:5px 11px}
