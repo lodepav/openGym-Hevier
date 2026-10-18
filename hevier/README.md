@@ -23,6 +23,7 @@ touches any of them, so they never conflict.
 | [tools/screens.mjs](tools/screens.mjs) | Checks every main screen on phones of different sizes and ratios (the emulator resized, not extra AVDs): screenshots plus a layout report. |
 | [tools/release-notes.mjs](tools/release-notes.mjs) | Numbers the next Go Hevier release and writes its notes from the merges since the last one (D52); the release script uses it, and [CHANGELOG.md](CHANGELOG.md) collects them. |
 | [tools/release-check.sh](tools/release-check.sh) | The security gates for a release build (D26): secrets, vulnerable dependencies, supply chain, and with `--apk` the APK's certificate and signature scheme, debuggable flag, permissions, native libraries and exported components (D38). Scanners from `tools/install-scanners.sh`, allow-lists in [security/](security/). |
+| [reviews/](reviews/) | Code, security and UI/UX reviews, one folder per review (`<date>-<from commit>/`), each with its report and screenshots. |
 | [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `hevy-side-by-side`, `release-check`. Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
 
 ## The four rules
