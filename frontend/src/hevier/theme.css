@@ -126,6 +126,9 @@
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow:has(.lrow-i) + .lrow:has(.lrow-i)::before{inset-inline-start:calc(var(--pad) + 36px)}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-t{margin-inline:calc(-1 * var(--pad));padding:8px var(--pad);background:var(--surface);font-size:14px}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-f{padding-inline:0}
+/* The grey title bands are the gap between groups, as Hevy's: upstream's margin under each group read as an empty row. */
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect{margin-bottom:0}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-f{padding-bottom:12px}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .lrow-t{font-size:16px}
 
 /* Icons in list rows are plain outline glyphs, as everywhere in Hevy, not tinted tiles. */
