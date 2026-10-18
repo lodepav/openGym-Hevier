@@ -48,7 +48,8 @@ conflict on every upstream edit to them).
   Its data is separate: move it across with Settings → Data & backup → Export / Import.
 - **Name** Go Hevier (D39). **Updater** reads `VITE_UPDATE_REPO=lodepav/openGym-Hevier` (S6).
 - **Signing key**: updates install only over an app signed with the same key. The keystore lives
-  outside the repo; its certificate's SHA-256 is pinned in `hevier/security/apk-cert.txt` (D38).
+  outside the repo; its certificate's SHA-256 is pinned beside it, in `~/.config/hevier/apk-cert.txt`, also
+  outside the repo (D38).
 
 ## The build flag and the overlay
 
