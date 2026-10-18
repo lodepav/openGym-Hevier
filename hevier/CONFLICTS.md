@@ -152,6 +152,12 @@ A clean merge can still break the fork. After every sync, check these:
    failing (review 2026-10-18, item 2.2). Open an exercise's details on the emulator and check
    the three lines; when that code is next touched, read the exercise's own muscles and
    equipment instead.
+8. **Android libraries changed?** The APK's Java dependencies are locked
+   (`frontend/android/app/src/hevier/gradle.lockfile`, review G1), so an upstream merge that
+   bumps Capacitor, a plugin or an AndroidX library fails the Android build with "dependency lock
+   state" errors, though nothing conflicted. Write the lock again
+   (`cd frontend/android && ./gradlew :app:dependencies --write-locks`), read its diff, run
+   `hevier/tools/release-check.sh` (Trivy scans the lockfile) and commit it with the merge.
 
 ## Verification (required before landing)
 
