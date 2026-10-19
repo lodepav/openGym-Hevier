@@ -89,6 +89,9 @@ export const FIXES = {
   'standing calf raise (smith)': '1164',
   'triceps pushdown': '0201',
   'upright row (barbell)': '0121',
+  // Hevy's own picture, the user's choice (2026-10-19): upstream left the title out as a wrong
+  // match, so it imported as your own; #672 maps it the same way
+  'rear delt reverse fly (cable)': '0225',   // standing, high cables crossing
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i
