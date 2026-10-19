@@ -48,7 +48,7 @@ function WorkoutRoute() {
 
 // Upstream's Stats was a tab and has no way back; in the fork it opens from Statistics as All
 // statistics, so it gets the fork's page bar (D49) with upstream's History button, and its own
-// "Stats / Progress & history" header is hidden (hevier.css, review T15).
+// "Stats / Progress & history" header is hidden (hevier.css).
 function WithBack({ label = 'Profile', to = '/profile', title, children }) {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to))

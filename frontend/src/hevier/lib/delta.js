@@ -1,4 +1,4 @@
-// One way to write a change (review T3): "+3", "−2" with a true minus (U+2212), nothing for none.
+// One way to write a change: "+3", "−2" with a true minus (U+2212), nothing for none.
 import { fmtNum } from '../../lib/format.js'
 
 /** { up, text } for a signed change `n`, its size written by `fmt`; null when it is zero. */

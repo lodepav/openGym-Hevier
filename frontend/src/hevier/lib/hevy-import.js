@@ -69,7 +69,7 @@ export const FIXES = {
   'nordic hamstrings curls': '7746',
   'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
   'behind the back curl (cable)': { id: '4838', side: true },   // the cable unilateral curl, one arm at a time
-  // Hevy's own picture, chosen by the user from their history's review (2026-10-18); offered in #672,
+  // Hevy's own picture, chosen by the user from their history's review; offered in #672,
   // but for the one-arm triceps extension, a custom exercise in the user's Hevy, not a Hevy title
   'bent over row (dumbbell)': '0293',         // both arms, not one
   'butterfly (pec deck)': '1030',
@@ -87,7 +87,7 @@ export const FIXES = {
   'standing calf raise (smith)': '1164',
   'triceps pushdown': '0201',
   'upright row (barbell)': '0121',
-  // Hevy's own picture, the user's choice (2026-10-19): upstream left the title out as a wrong
+  // Hevy's own picture, the user's choice: upstream left the title out as a wrong
   // match, so it imported as your own; #672 maps it the same way
   'rear delt reverse fly (cable)': '0225',   // standing, high cables crossing
 }

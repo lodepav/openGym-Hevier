@@ -224,7 +224,7 @@ export function sendToHevy(getState, { force = false, apply = null, now = Date.n
 async function sendOnce(getState, apply, now, force) {
   const st = await loadExport()
   if (!st.on) return st
-  // Nothing new to send (the usual pass): no Keystore read and no file write (battery, item 29).
+  // Nothing new to send (the usual pass): no Keystore read and no file write (battery).
   // Send now still goes the whole way, so a lost key shows.
   if (!force && st.last) {
     const todo = pending(getState(), st)

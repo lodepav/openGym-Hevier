@@ -1,4 +1,4 @@
-// D2, as Hevy does it (changed 2026-10-17): a prefilled value nobody has touched is the field's
+// D2, as Hevy does it: a prefilled value nobody has touched is the field's
 // grey placeholder, not its text, so a tap neither selects it nor opens the copy/paste menu.
 // Typing replaces it; leaving the field empty keeps it (`onRestore`). Once the value is firm the
 // field behaves as upstream's NumberField (components/ui.jsx): focus selects the number, so

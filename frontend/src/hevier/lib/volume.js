@@ -34,7 +34,7 @@ export function muscleSets(entries, mode = 'main') {
       const load = loadOf([{ id: e.id, ex: e.exercise || e, sets: n }])
       for (const slug in load) add(MUSCLE_NAME[slug] || slug, load[slug])
     } else {
-      // Cardio is no muscle group (review T4): its sets are left out of the main-muscle count.
+      // Cardio is no muscle group: its sets are left out of the main-muscle count.
       const ex = EXIDX[e.id]
       const muscle = ex?.tg === 'cardiovascular system' ? '' : muscleOf(ex)
       if (muscle) add(muscle, n)

@@ -40,7 +40,7 @@ const needsFix = S => (S?.workouts || []).some(w => String(w?.id || '').startsWi
   && [w, ...(w.entries || [])].some(o => typeof o?.note === 'string' && o.note.includes('\\n')))
 
 /** Runs the fix at launch and whenever the log changes (a sync can bring an unfixed copy). */
-// Only a log that gained imported workouts is scanned again, not every edit (review 4.4). The
+// Only a log that gained imported workouts is scanned again, not every edit. The
 // whole fix is for imports made before D54 (Go Hevier 1.1.0): drop it, launch pass included, once
 // no such copy can come back by a sync (a release or two after 1.3.0).
 const importedCount = S => (S?.workouts || []).reduce((n, w) => n + (String(w?.id || '').startsWith('iw') ? 1 : 0), 0)

@@ -161,7 +161,7 @@ async function readOnce(getState, force, now, applyFn) {
   }
 
   h.readError = error
-  // A pass that changed nothing writes nothing (battery, item 29).
+  // A pass that changed nothing writes nothing (battery).
   if (JSON.stringify(h) === was) return cached
   await saveRead(h)
   told(h)

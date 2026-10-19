@@ -1,5 +1,5 @@
 // Android back on a tab screen (Home, Workout, Profile) offers to exit, as in Hevy, instead of
-// walking back through every tab visited (user, 2026-10-16). Inside a tab, back still goes up a
+// walking back through every tab visited. Inside a tab, back still goes up a
 // page. Seam S16 passes the back event through `atTabRoot`: on a tab screen it says there is no
 // history left, and upstream's own handler (lib/back.js) shows "Press back again to exit".
 

@@ -1,7 +1,7 @@
 // The home-screen month widget's data (hevier/DECISIONS.md D44). A widget
 // draws without the app, so the page hands the fork's native widget (HevierWidgetPlugin.java) a
 // small snapshot whenever the log changes: the trained days of this month and the last one, each
-// with its calendar kind (item 25's colours), each month's "N workouts · N sets" in the app's
+// with its calendar kind (the Calendar page's colours), each month's "N workouts · N sets" in the app's
 // language, the month names and weekday letters, and the week's first day. The widget draws the
 // month the phone is in, so it turns the page at midnight on its own; a month the snapshot does not
 // have yet has no workouts. The planned days of this month and the next ride along (D68), dotted in
