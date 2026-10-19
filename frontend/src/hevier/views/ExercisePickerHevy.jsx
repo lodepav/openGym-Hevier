@@ -15,11 +15,12 @@ import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
 import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
-import { EquipFilterSheet } from '../components/EquipGroups.jsx'
+import { EquipFilterSheet, MuscleFilterSheet } from '../components/EquipGroups.jsx'
+import { muscleValueLabel } from '../lib/muscle-groups.js'
 import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../../lib/favourites.js'
 import { useSheetKeyboard, tappable } from '../../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../../lib/use-auto-more.js'
-import { menuSheet, customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
+import { customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
@@ -106,13 +107,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const openEquipment = () => useUI.getState().openSheet(close => <EquipFilterSheet close={close}
     value={eq === GYM ? '' : eq} gymId={eq === GYM ? gymId : null} gyms={gyms} kinds={equipmentOf(all)}
     onAll={() => chooseGym(null)} onGym={chooseGym} onEq={v => reset(setEq)(v)} />)
-  const openMuscles = () => menuSheet({
-    title: t('Muscles'),
-    items: [
-      { label: t('All Muscles'), on: !muscle, onClick: () => reset(setMuscle)('') },
-      ...muscleOptions(all).map(m => ({ label: t(m), on: muscle === m, onClick: () => reset(setMuscle)(m) })),
-    ],
-  })
+  const openMuscles = () => useUI.getState().openSheet(close => <MuscleFilterSheet close={close}
+    value={muscle} names={muscleOptions(all)} onPick={v => reset(setMuscle)(v)} />)
   const create = () => customExSheet(null, ex => { if (!ex) return; if (browse) exerciseDetailSheet(ex); else if (multi) setPicked(cur => [...cur, ex]); else onPick(ex, true) }, q.trim())
 
   // The thumbnail and Hevy's chart button open the exercise's details without picking it.
@@ -138,7 +134,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       {q && <button className="clear" onClick={() => reset(setQ)('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
     <div className="hv-pk-filters">
       <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span></button>
-      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscle) : t('All Muscles')}</button>
+      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}</button>
     </div>
     {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
