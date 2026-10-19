@@ -149,6 +149,13 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(rowOf(CURL)).toBeTruthy()
     search('push-up')
     expect(rowOf(PUSHUP)).toBeUndefined()      // Home has no body weight ticked
+    // D67: what the gym hid is counted, and shown on a tap with its equipment.
+    const more = container.querySelector('.hv-pk-hidden')
+    expect(more.textContent).toMatch(/^\d+ hidden at HomeShow$/)
+    click(more)
+    expect(container.textContent).toContain('Not at Home')
+    expect(rowOf(PUSHUP).querySelector('.ss').textContent).toContain('body weight')
+    expect(container.querySelector('.hv-pk-hidden')).toBeNull()
     act(() => root.unmount()); container.remove()
     open(vi.fn(), {}, [], { equipProfiles })
     expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('Home')   // remembered

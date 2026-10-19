@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
 import { EXDB as DB, searchExercises } from '../../lib/exercises.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from './exercise-picker.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches, hiddenByGym } from './exercise-picker.js'
 
 describe('hevier: exercise picker list', () => {
   it('files the catalogue’s and a custom exercise’s spellings under one muscle', () => {
@@ -40,6 +40,21 @@ describe('hevier: exercise picker list', () => {
     expect(filterPicker(list, { eq: 'barbell' }).map(e => e.id)).toEqual([1, 3])
     expect(filterPicker(list, { muscle: 'Chest', avail: e => e.eq === 'dumbbell' }).map(e => e.id)).toEqual([2])
     expect(filterPicker(list)).toEqual(list)
+  })
+
+  it('counts what a gym hid from a search, by the muscle filter, none without a gym or a search (D67)', () => {
+    const list = [
+      { id: 1, n: 'Cable Fly', tg: 'pectorals', eq: 'cable' },
+      { id: 2, n: 'Dumbbell Fly', tg: 'pectorals', eq: 'dumbbell' },
+      { id: 3, n: 'Cable Row', tg: 'lats', eq: 'cable' },
+    ]
+    const avail = e => e.eq === 'dumbbell'
+    const search = (l, q) => l.filter(e => e.n.toLowerCase().includes(q.toLowerCase()))
+    expect(hiddenByGym(list, { avail }, 'cable', search).map(e => e.id)).toEqual([1, 3])
+    expect(hiddenByGym(list, { avail, muscle: 'Chest' }, 'cable', search).map(e => e.id)).toEqual([1])
+    expect(hiddenByGym(list, { avail }, 'fly', search).map(e => e.id)).toEqual([1])
+    expect(hiddenByGym(list, { avail }, ' ', search)).toEqual([])
+    expect(hiddenByGym(list, {}, 'cable', search)).toEqual([])
   })
 })
 
