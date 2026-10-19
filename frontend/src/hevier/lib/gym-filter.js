@@ -3,7 +3,7 @@
 // what the workout's gym has (D28's gym line); outside one it shows the gym last chosen in the
 // picker itself, kept on the device (`hevier_ex_gym`). Body weight is a piece of equipment like
 // any other here: a gym that does not tick it hides the body-weight exercises.
-import { eqAvailable, profileEquipment } from '../../lib/equipment.js'
+import { eqAvailable, profileEquipment, accessoriesOf } from '../../lib/equipment.js'
 import { workoutGym } from './gym-labels.js'
 
 const KEY = 'hevier_ex_gym'
@@ -28,6 +28,17 @@ export function gymHas(p, ex) {
   const have = gymEquipment(p)
   if (ex?.eq === BW && !have.includes(BW)) return false
   return eqAvailable(have, ex)
+}
+
+/**
+ * What exercise `ex` needs that gym `p` lacks (D67): its equipment and the bench or bar it needs,
+ * as gymHas reads them. Empty when the gym has it all.
+ */
+export function gymLacks(p, ex) {
+  if (!p) return []
+  const have = gymEquipment(p)
+  const kit = ex?.eq && (ex.eq === BW ? !have.includes(BW) : !eqAvailable(have, { ...ex, n: '' })) ? [ex.eq] : []
+  return [...kit, ...accessoriesOf(ex).filter(a => !have.includes(a))]
 }
 
 /** The gym the picker remembers for outside a workout, while it is still one of yours. */
