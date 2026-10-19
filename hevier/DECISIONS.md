@@ -451,3 +451,11 @@ Added 2026-10-19, at the user's request (after the bodybuilding research: Dorian
 | # | Decision |
 |---|---|
 | D66 | **Workout Detail marks each work set against the same set last time: ↑ better (green), = the same (grey), ↓ less (red).** Last time is the PREVIOUS column's (D3, D21: the same routine first, or any workout, as Settings → Previous values says; work set N against last time's work set N), read from the log as it stood before this workout, so an old workout is held against what came before it, never after (`hevier/lib/set-trend.js`). **Better:** a hold or cardio set by its time; a set without load by its reps; a loaded set by weight and reps when they agree (more of one, no less of the other), else by upstream's estimated 1RM with the profile's formula (70 × 6 beats 60 × 8; 62.5 × 5 does not); on an assistance machine less help is more, and a mixed one is left unmarked. A warm-up, a set with no counterpart last time, or a timed set against a rep set shows nothing. **A set that holds a record** (D51) shows only its record badge, no arrow (added 2026-10-19, at the user's request); the records themselves are D51's, untouched. **Only on finished workouts' Workout Detail**; the live workout keeps its PREVIOUS column. Nothing is stored. |
+
+## Hidden by the gym
+
+Added 2026-10-19, at the user's request.
+
+| # | Decision |
+|---|---|
+| D67 | **A search the gym filter narrows says how many it hid, and shows them on a tap.** While the picker filters by a gym (D62) and something is typed, the exercises that match the search and the muscle filter but need equipment the gym lacks are counted under the results: **2 hidden at Home · Show** (the results' "No exercises found" above it when every match was hidden). **Show** lists them below, under **Not at Home**, each with its equipment under its name, pickable as any other; the gym filter stays as it was, and they stay shown for the rest of that picker unless the gym is changed. Only while searching: with nothing typed, a gym hides too many for a count to help. Nothing is stored. |

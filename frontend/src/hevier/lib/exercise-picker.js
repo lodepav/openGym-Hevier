@@ -60,6 +60,15 @@ export const filterPicker = (list, { muscle = '', eq = '', avail = null } = {}) 
   muscleMatches(muscle, e) && (!eq || e.eq === eq) && (!avail || avail(e)))
 
 /**
+ * What a gym filter hid from a search (D67): the matches of `q`, kept by the muscle filter, that
+ * `avail` (the gym's test) leaves out. None with no gym or nothing typed. `search` is upstream's.
+ */
+export function hiddenByGym(list, { muscle = '', avail = null } = {}, q, search) {
+  if (!avail || !q?.trim()) return []
+  return search(filterPicker(list, { muscle }).filter(e => !avail(e)), q)
+}
+
+/**
  * Where the exercises just added sit, for "Add superset": the index of the first, when the
  * `ids.length` items ending at `end` are those exercises in that order; else -1, and nothing is
  * linked (the caller placed them some other way).

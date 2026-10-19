@@ -27,7 +27,7 @@ import PageBar from '../components/PageBar.jsx'
 import { hooks } from '../hooks.js'
 import { cleanBackups, swapBackups } from '../lib/routine-backups.js'
 import { armSwap } from '../lib/gym-backups-run.js'
-import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
+import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches, hiddenByGym } from '../lib/exercise-picker.js'
 
 const PAGE = 50
 const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym is `gymId`
@@ -56,6 +56,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const [eq, setEq] = useState(profile ? GYM : '')
   const [picked, setPicked] = useState([])
   const [shown, setShown] = useState(PAGE)
+  const [showHidden, setShowHidden] = useState(false)
   const searchRef = useRef(null)
   const onSearchFocus = useSheetKeyboard(searchRef)
   const moreRef = useAutoMore(() => setShown(s => s + PAGE))
@@ -63,6 +64,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // A gym, or a kind or a whole group of kinds (D63).
   const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
   const base = filterPicker(all, { muscle, avail }).filter(e => e.id !== like)
+  // D67: what the gym hid from the search, counted, and listed on a tap.
+  const hidden = eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []
   let list = searchExercises(base, q)
   list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
@@ -100,6 +103,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // choice is this picker's only, as the workout's gym line is where the gym is changed.
   const chooseGym = id => {
     setGymId(id)
+    setShowHidden(false)
     reset(setEq)(id ? GYM : '')
     if (!inWorkout(st, path)) rememberGym(id)
   }
@@ -113,11 +117,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // The thumbnail and Hevy's chart button open the exercise's details without picking it.
   const details = (ev, e) => { ev.stopPropagation(); exerciseDetailSheet(e) }
-  const row = (e, key) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}>
+  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}>
     <button className="hv-thumb" aria-label={t('Details')} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
     <div className="grow">
       <div className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div>
-      <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id)].filter(Boolean).join(' · ')}</div>
+      <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</div>
     </div>
     {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details')} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
@@ -144,6 +148,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       {list.length === 0 && <div className="empty">{t('No exercises found')}</div>}
     </div>
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}
+    {hidden.length > 0 && (showHidden
+      ? <><h4 className="sec">{t('Not at {0}', profile?.name)}</h4><div className="list">{hidden.slice(0, PAGE).map(e => row(e, 'h', e.eq && t(e.eq)))}</div></>
+      : <button className="hv-pk-hidden" onClick={() => setShowHidden(true)}>
+        <span>{t('{0} hidden at {1}', hidden.length, profile?.name)}</span><span className="hv-link">{t('Show')}</span>
+      </button>)}
     {multi && picked.length > 0 && <div className="hv-pk-add">
       {canLink && <button className="btn" onClick={addSuperset}>{t('Add superset')}</button>}
       <button className="btn primary" onClick={addPicked}>{picked.length === 1 ? t('Add 1 exercise') : t('Add {0} exercises', picked.length)}</button>
