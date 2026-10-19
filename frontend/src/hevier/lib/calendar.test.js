@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle } from './calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, routineKind } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -57,5 +57,24 @@ describe('hevier: calendar kinds and titles', () => {
     expect(dayKind(undefined)).toBe('')
     expect(dayTitle([run, push])).toBe('Push')
     expect(dayTitle(undefined)).toBe('')
+  })
+
+  it('a planned day from today on, not trained, takes its routines\' kind (D68)', () => {
+    const S = structuredClone(DEF)
+    S.routines = [
+      { id: 'push', name: 'Push', ex: [{ id: LIFT }] },
+      { id: 'run', name: 'Run', ex: [{ id: RUN }] },
+      { id: 'dl', name: 'Deload legs', ex: [{ id: LIFT }] },
+    ]
+    S.week = { 1: ['push'], 2: ['run'], 3: ['run', 'push'], 6: ['dl'] }   // 2026-10-19 is a Monday
+    const today = '2026-10-19'
+    expect(routineKind(S.routines[1])).toBe('cardio')
+    expect(planKind(S, '2026-10-19', {}, today)).toBe('strength')
+    expect(planKind(S, '2026-10-20', {}, today)).toBe('cardio')
+    expect(planKind(S, '2026-10-21', {}, today)).toBe('strength')
+    expect(planKind(S, '2026-10-24', {}, today)).toBe('deload')
+    expect(planKind(S, '2026-10-22', {}, today)).toBe('')                       // nothing planned
+    expect(planKind(S, '2026-10-12', {}, today)).toBe('')                       // past
+    expect(planKind(S, '2026-10-19', { '2026-10-19': [{}] }, today)).toBe('')   // trained
   })
 })

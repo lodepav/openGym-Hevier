@@ -85,6 +85,25 @@ describe('hevier: Calendar', () => {
     expect(titles()[6]).toBe(first)
   })
 
+  it('a planned day from today on has its dot, a past one none; Show next month adds months below (D68)', () => {
+    const S = structuredClone(DEF)
+    S.routines = [{ id: 'r', name: 'Push', ex: [] }]
+    S.week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
+    render('/calendar')
+    act(() => useStore.setState({ S: { ...useStore.getState().S, routines: S.routines, week: S.week } }))
+    const planned = [...container.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-d.planned')]
+    expect(planned.length).toBeGreaterThan(0)
+    expect(planned[0].classList.contains('pk-strength')).toBe(true)
+    expect(container.querySelector('.hv-cal-d.today').classList.contains('planned')).toBe(true)
+    const titles = () => [...container.querySelectorAll('.hv-cal-m .hv-cal-mt b')].map(b => b.textContent)
+    const now = new Date()
+    click(byText('button', 'Show next month'))
+    expect(titles()).toHaveLength(7)
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+    expect(titles().at(-1)).toMatch(new RegExp(next.getFullYear() + '$'))
+    expect(container.querySelectorAll('.hv-cal-m').item(6).querySelectorAll('.hv-cal-d.planned').length).toBe(new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())
+  })
+
   it('Profile’s Calendar tile opens it', () => {
     render('/profile')
     click([...container.querySelectorAll('button')].find(b => b.textContent.includes('Calendar')))

@@ -431,7 +431,14 @@
 :root[data-ui="hevier"] .hv-cal-d.plan::after,:root[data-ui="hevier"] .hv-cal-d.ovr::after,:root[data-ui="hevier"] .hv-cal-d.noted::after{content:"";position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--label-3)}
 :root[data-ui="hevier"] .hv-cal-d.ovr::after{background:var(--orange)}
 :root[data-ui="hevier"] .hv-cal-d.noted::after{background:var(--indigo)}
+/* D68: a planned day from today on is a dot in its routine's colour; a past one has none */
+:root[data-ui="hevier"] .hv-cal-d.plan:not(.planned)::after,:root[data-ui="hevier"] .hv-cal-d.ovr:not(.planned)::after{display:none}
+:root[data-ui="hevier"] .hv-cal-d.planned::after{width:6px;height:6px;bottom:2px;background:var(--acc)}
+:root[data-ui="hevier"] .hv-cal-d.planned.pk-cardio::after{background:var(--green)}
+:root[data-ui="hevier"] .hv-cal-d.planned.pk-deload::after{background:var(--orange)}
+:root[data-ui="hevier"] .hv-cal-d.planned.today::after{bottom:5px}
 :root[data-ui="hevier"] .hv-cal-more{width:100%;margin:6px 0 18px}
+:root[data-ui="hevier"] .hv-cal-more.next{margin:18px 0 6px}
 /* The Calendar keeps its place itself when earlier months go in above (Calendar.jsx). */
 :root[data-ui="hevier"] .hv-cal{overflow-anchor:none}
 :root[data-ui="hevier"] .hv-cal-yr{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:12px;font-size:17px}
@@ -566,7 +573,7 @@
 /* A big font cuts "Workout in progress" short rather than wrapping the bar to two lines. */
 :root[data-ui="hevier"] #tabbar .hv-resumebar .hv-resume-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* the grey dot under a day the schedule plans, in the legend too */
-:root[data-ui="hevier"] .hv-cal-key .k-plan{width:5px;height:5px;margin-inline:2px;background:var(--label-3)}
+:root[data-ui="hevier"] .hv-cal-key .k-plan{width:6px;height:6px;margin-inline:2px;background:var(--label-2)}
 
 /* Measures: the weight card flat, then the latest weigh-ins as rows. */
 :root[data-ui="hevier"] .hv-measures > .card{background:none;padding-inline:0;border-radius:0}

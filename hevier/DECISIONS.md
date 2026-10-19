@@ -459,3 +459,11 @@ Added 2026-10-19, at the user's request.
 | # | Decision |
 |---|---|
 | D67 | **A search the gym filter narrows says how many it hid, and shows them on a tap.** While the picker filters by a gym (D62) and something is typed, the exercises that match the search and the muscle filter but need equipment the gym lacks are counted under the results: **2 hidden at Home · Show** (the results' "No exercises found" above it when every match was hidden). **Show** lists them below, under **Not at Home**, fifty at a time, each with what the gym lacks for it under its name (`Chest · Needs cable, bench`: its equipment, or the bench or pull-up bar it needs, D62), pickable as any other; the gym filter stays as it was, and they stay shown for the rest of that picker unless the gym is changed. Only while searching: with nothing typed, a gym hides too many for a count to help. Nothing is stored. |
+
+## Planned days
+
+Added 2026-10-19, at the user's request.
+
+| # | Decision |
+|---|---|
+| D68 | **A planned day is a dot in its workout's colour, on the Calendar page and the month widget, and the Calendar shows the months ahead one at a time.** A day from today on, not trained yet, with a routine planned (upstream's plan: the weekly plan, the rotation, a session moved to the day, `effectiveRoutineIds`) gets a dot under its number in the colour its routine would fill it with (`calendar.js`'s kinds: deload when its name or note says so, cardio when every exercise is, else strength; a day of several takes deload over strength over cardio), in place of upstream's grey dot. **A past day planned and not trained has no dot** (it had the grey one): past days show only what was trained. A day note keeps its own dot. Today keeps its blue ring. Rings for planned days and other marks for today were tried in mock-ups and dropped (2026-10-19, at the user's choice). **The widget** gets the planned days of this month and the next in its snapshot (`plans`, from the day it is sent), so it draws the same dots without the app; a day that passes loses its dot at midnight. **Show next month**, under the newest month, adds the next month below, one per tap, as far ahead as wanted; the Year view stays as it was. Nothing is stored. |
