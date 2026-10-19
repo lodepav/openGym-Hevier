@@ -226,6 +226,7 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(id('Single Arm Triceps Extension (Cable) (brand:LifeFitness)')).toMatchObject({ id: '0149', side: true })
     expect(id('Standing Calf Raise (Smith) (brand:Achilles Rehab)')).toMatchObject({ brand: 'Achilles Rehab' })
     expect(id('Iso-Lateral High Row (Machine)')).toMatchObject({ id: '0581', side: true })
+    expect(id('Rear Delt Reverse Fly (Cable) (brand:LifeFitness)')).toMatchObject({ id: '0225', brand: 'LifeFitness' })
     for (const [, f] of Object.entries(FIXES)) expect(EXIDX[typeof f === 'string' ? f : f.id]).toBeTruthy()
   })
 
