@@ -3,6 +3,8 @@
 // dumbbells "20 each × 8", drops, bursts, timed and cardio sets) keeps upstream's words.
 
 import { setLabel } from '../../lib/history.js'
+import { isSideSet } from '../../lib/workout-model.js'
+import { fmtNum } from '../../lib/format.js'
 import { elapsedClock } from './elapsed.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
@@ -23,4 +25,22 @@ const CARDIO = /^(\d[\d.]*) min @ /
 export function hevySetLabel(id, s, cfg, speedUnit) {
   const label = setLabel(id, s, cfg, speedUnit)
   return label.replace(CARDIO, (_, min) => elapsedClock(Math.round(Number(min) * 60)) + ' @ ')
+}
+
+/**
+ * The workout's PREVIOUS cell for last time's set `p`, or for one side of it (`side`): "60kg × 8",
+ * "+10kg × 8" or "× 12" on body weight, '–' for none. A weight is written in the exercise's own
+ * unit (`unit`, `show` converting a stored weight to it, D41). A timed, cardio or per-side set
+ * (without `side`) reads as Workout Detail writes it.
+ */
+export function previousText(p, { side, mode, bw, unit, show = w => w, id, target, speedUnit }) {
+  const weightReps = x => (bw ? (x.w > 0 ? `+${fmtNum(show(x.w))}${unit} × ` : '× ') + (x.r || 0)
+    : `${fmtNum(show(x.w || 0))}${unit} × ${x.r || 0}`)
+  if (side) {
+    const one = p && isSideSet(p) ? p.sides[side] : null
+    return one ? weightReps(one) : '–'
+  }
+  if (!p) return '–'
+  if (mode !== 'reps' || isSideSet(p)) return hevySetLabel(id, p, target, speedUnit)
+  return weightReps(p)
 }

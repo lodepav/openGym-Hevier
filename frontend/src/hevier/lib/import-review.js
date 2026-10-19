@@ -3,17 +3,18 @@
 // `S.hvImportMap`, and the file read again once a choice changes. Beside it, the cable exercises'
 // setups (D43): a title's own tag, else the choice in `S.hvImportCable`, else 1:1, to confirm.
 import { parseHevyWorkouts, parseHevyRoutines } from '../../lib/import-hevy.js'
-import { importDone, outcomeOf, useChoices, brandNorm } from './hevy-import.js'
+import { outcomeOf, brandNorm } from './hevy-import.js'
+import { hooks } from '../hooks.js'
 import { isCable, knownBrands } from './gym-labels.js'
 import { nameFolders } from './hevy-folders.js'
 
 // One choices object per version of the map and the custom exercises, so hevy-import.js's
-// memo holds for a whole parse.
+// memo holds for a whole parse (its `choices`).
 let last = null
 export function choicesFor(S) {
   if (!last || last.map !== S?.hvImportMap || last.custom !== S?.customEx || last.cables !== S?.hvImportCable
     || last.machines !== S?.hvMachines || last.workouts !== S?.workouts) {
-    // Your own brands, by their letters and digits, for a title's single bracket (review T12).
+    // Your own brands, by their letters and digits, for a title's single bracket.
     const brands = new Map(knownBrands(S).map(b => [brandNorm(b), b]).filter(([k]) => k.length >= 2))
     last = { map: S?.hvImportMap, custom: S?.customEx, cables: S?.hvImportCable, machines: S?.hvMachines, workouts: S?.workouts,
       ctx: { map: S?.hvImportMap || null, cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)), customEx: S?.customEx || [], brands } }
@@ -40,8 +41,8 @@ export function titlesOf(parsed) {
 }
 
 const outcomes = (titles, S) => {
-  useChoices(choicesFor(S))
-  return titles.map(t => ({ ...t, ...outcomeOf(t.title, t.source) }))
+  const choices = choicesFor(S)
+  return titles.map(t => ({ ...t, ...outcomeOf(t.title, t.source, choices) }))
 }
 
 /** The list the review shows: { key, title, source, id, chosen }, once per title, the user's own exercises first. */
@@ -76,15 +77,17 @@ export const choose = (S, key, value) => put(S, 'hvImportMap', key, value)
 /** Stores a cable setup for a title ('1:1', '2:1' or 'x2'; `null` removes it). Mutates `S`. */
 export const chooseCable = (S, key, value) => put(S, 'hvImportCable', key, value)
 
-/** Reads the import again with the choices in `S`, into the same `parsed` object the sheet shows. */
+/**
+ * Reads the import again, into the same `parsed` object the sheet shows. The import hooks read the
+ * choices from the store, where the sheet has just written them; `S` is for the unit and exercises.
+ */
 export function rerun(parsed, S) {
-  useChoices(choicesFor(S))
   if (parsed.hvRedo) { Object.assign(parsed, parsed.hvRedo(), { hvRedo: parsed.hvRedo }); return }
   const src = parsed.hvSource
   if (!src) return
   const opts = { unit: S.unit, customEx: S.customEx }
-  const workouts = importDone(parseHevyWorkouts(src.workouts, src.templates, opts))
-  const routines = importDone(parseHevyRoutines(src.routines, src.templates, opts))
+  const workouts = hooks.importDone(parseHevyWorkouts(src.workouts, src.templates, opts))
+  const routines = hooks.importDone(parseHevyRoutines(src.routines, src.templates, opts))
   if (parsed.hvFolders) nameFolders(routines, parsed.hvFolders)
   Object.assign(parsed, { workouts, routines })
 }

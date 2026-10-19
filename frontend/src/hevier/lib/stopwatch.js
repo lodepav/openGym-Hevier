@@ -1,4 +1,4 @@
-// The workout's stopwatch (hevier/DECISIONS.md D10, changed 2026-10-17): Hevy's clock has a
+// The workout's stopwatch (hevier/DECISIONS.md D10): Hevy's clock has a
 // Timer and a Stopwatch, for a plank or a carry timed outside a timed set. Nothing is logged: it
 // only counts. Its state is `{ session, since, acc }`: the session it belongs to (the workout's
 // start), when it was last started (null while stopped) and the milliseconds counted before that.

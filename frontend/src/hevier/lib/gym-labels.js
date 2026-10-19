@@ -174,7 +174,7 @@ export function withLabels(w, labels) {
 
 // ---------- exercise details
 
-// A gym is only where a session was done (changed 2026-10-18): statistics and records are told apart
+// A gym is only where a session was done (D28): statistics and records are told apart
 // by the brand and, on a cable, the setup, never by the gym.
 
 /** A label's key: the brand, '' for none, and a cable setup other than 1:1. */

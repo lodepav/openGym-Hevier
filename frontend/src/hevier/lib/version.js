@@ -41,7 +41,7 @@ export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream(), 
       const at = kids.findIndex((k, i) => k === mine && kids[i - 1] === 'openGym v')
       if (at < 1) return node
       // The Version row above names both versions; the footer keeps the licence and source only
-      // (review S6: one place for the version, as Hevy has).
+      // (one place for the version, as Hevy has).
       const after = kids[at + 1] === ' · ' ? at + 2 : at + 1
       return cloneElement(node, {}, ...kids.slice(0, at - 1), ...kids.slice(after))
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hevySetText, hevySetLabel } from './set-text.js'
+import { hevySetText, hevySetLabel, previousText } from './set-text.js'
 
 describe('hevySetText', () => {
   it('writes the plain weight × reps out in full', () => {
@@ -21,5 +21,23 @@ describe('hevier cardio time as a clock (D53)', () => {
     expect(hevySetLabel('x', { min: 754 / 60, speed: 8 }, cardio, 'kmh')).toMatch(/^12:34 @ 8/)
     expect(hevySetLabel('x', { min: 90, speed: 8 }, cardio, 'kmh')).toMatch(/^1:30:00 @ /)
     expect(hevySetLabel('x', { sec: 75 }, { mode: 'time' })).toBe('1:15')
+  })
+})
+
+describe('previousText', () => {
+  const opts = { mode: 'reps', unit: 'kg' }
+  it('writes last time’s weight and reps, body weight with its added load', () => {
+    expect(previousText({ w: 60, r: 8 }, opts)).toBe('60kg × 8')
+    expect(previousText({ w: 10, r: 12 }, { ...opts, bw: true })).toBe('+10kg × 12')
+    expect(previousText({ w: 0, r: 12 }, { ...opts, bw: true })).toBe('× 12')
+    expect(previousText(null, opts)).toBe('–')
+  })
+  it('in the exercise’s own unit', () => {
+    expect(previousText({ w: 20.41165665, r: 8 }, { ...opts, unit: 'lb', show: w => Math.round(w / 0.45359237) })).toBe('45lb × 8')
+  })
+  it('one side of a per-side set, or none when last time had no sides', () => {
+    const p = { w: 20, r: 20, sides: { L: { w: 20, r: 10 }, R: { w: 22, r: 9 } } }
+    expect(previousText(p, { ...opts, side: 'R' })).toBe('22kg × 9')
+    expect(previousText({ w: 20, r: 10 }, { ...opts, side: 'L' })).toBe('–')
   })
 })

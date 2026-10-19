@@ -45,7 +45,7 @@ export default function HevyTabBar() {
   const isGuest = useStore(s => s.isGuest())
   const trouble = useConnectionTrouble()
   // A page reached from more than one tab (a workout's details) keeps the tab you came from.
-  // Kept as state, set while rendering as React's derived-state pattern allows (review 2.7).
+  // Kept as state, set while rendering as React's derived-state pattern allows.
   const [last, setLast] = useState('home')
   const own = tabOf(loc.pathname)
   if (own && own !== last) setLast(own)

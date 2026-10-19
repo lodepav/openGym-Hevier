@@ -36,7 +36,7 @@ export default function Profile() {
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
         <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
     </PageBar>
-    {/* One grey line under the bar, apart from the week chart's headline (review T14). */}
+    {/* One grey line under the bar, apart from the week chart's headline. */}
     <div className="hv-pstats">{tn('{0} workout', '{0} workouts', S.workouts.length)}</div>
     <div className="card"><WeeklyChart /></div>
     <h4 className="sec">{t('Dashboard')}</h4>

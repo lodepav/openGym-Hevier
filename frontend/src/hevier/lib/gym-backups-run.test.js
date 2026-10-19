@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { EXDB } from '../../lib/exercises.js'
 import { initGymBackups, armSwap } from './gym-backups-run.js'
+import { storeAdapter } from './store-watch.js'
 
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 
@@ -13,7 +14,7 @@ const tick = () => new Promise(r => setTimeout(r, 5))
 
 const toast = vi.fn()
 const getState = () => useStore.getState().S
-initGymBackups(getState, fn => useStore.getState().update(fn), fn => useStore.subscribe(fn), toast)
+initGymBackups(storeAdapter(useStore, toast))
 
 function base(swaps) {
   const S = clone(DEF)

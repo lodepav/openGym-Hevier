@@ -161,7 +161,7 @@ async function readOnce(getState, force, now, applyFn) {
   }
 
   h.readError = error
-  // A pass that changed nothing writes nothing (battery, item 29).
+  // A pass that changed nothing writes nothing (battery).
   if (JSON.stringify(h) === was) return cached
   await saveRead(h)
   told(h)
@@ -173,8 +173,11 @@ async function readOnce(getState, force, now, applyFn) {
  * after the log is saved (a workout just finished), as upstream's v1.4.3 does from useStore.
  */
 let started = false
-export function initHealthRead(getState, apply, subscribe) {
+export function initHealthRead(store) {
   if (!MOBILE || started) return
+  const { get: getState, update: apply } = store
+  // Wakes when the log changes (a workout saved), not for every set typed.
+  const subscribe = store.watch(['workouts'])
   started = true
   applyRef = apply
   import('@capacitor/app').then(({ App }) => {

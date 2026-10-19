@@ -32,7 +32,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
   const mMode = useStore(s => muscleMode(s.S))
   const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
-  // D18's volume and D42's muscle count are one question, so one row and one sheet (review S4).
+  // D18's volume and D42's muscle count are one question, so one row and one sheet.
   const pickVolume = () => menuSheet({
     title: t('Volume'),
     sections: [
@@ -52,13 +52,13 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   })
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
-  // fork pins (D17), so that row names the body diagram instead (review S5).
+  // fork pins (D17), so that row names the body diagram instead.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
     : id === 'look' ? t(body === 'female' ? 'Female' : 'Male')
     // D62: the gyms, not upstream's filter switch.
     : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
     : preview[id]?.() || null)
-  // The Workout group's first row is not called Workout too (review S3); its page keeps upstream's title.
+  // The Workout group's first row is not called Workout too; its page keeps upstream's title.
   const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms & equipment' : PAGES[id].title)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />

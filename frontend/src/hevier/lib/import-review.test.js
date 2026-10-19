@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { importExercise, importDone, useChoices } from './hevy-import.js'
+import { importHooks } from './hevy-import.js'
 import { titlesOf, reviewList, cableList, chooseCable, choose, rerun, keep, choicesFor } from './import-review.js'
 import { nameFolders, importHevyFolders } from './hevy-folders.js'
 import { hooks } from '../hooks.js'
@@ -23,10 +23,9 @@ const parse = () => {
 describe('hevier import review (D33)', () => {
   beforeEach(() => {
     S = { unit: 'kg', customEx: [{ id: 'cMine', n: 'my curl', custom: true }], workouts: [], bodyweight: [], exWeights: {} }
-    hooks.importExercise = (title, source) => { useChoices(choicesFor(S)); return importExercise(title, source) }
-    hooks.importDone = importDone
+    Object.assign(hooks, importHooks(() => choicesFor(S)))
   })
-  afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
+  afterEach(() => Object.assign(hooks, { importExercise: null, importDone: null }))
 
   it('lists every title once, own exercises first, with what each becomes', () => {
     const p = parse()
@@ -80,11 +79,11 @@ describe('hevier import review (D33)', () => {
     hooks.hevyFolders = {}
     try {
       const data = {
-        workouts: importDone(parseHevyWorkouts(src.workouts, T, { unit: 'kg', customEx: S.customEx })),
+        workouts: hooks.importDone(parseHevyWorkouts(src.workouts, T, { unit: 'kg', customEx: S.customEx })),
         routines: parseHevyRoutines(src.routines, T, { unit: 'kg', customEx: S.customEx }),
         hvSource: src,
       }
-      data.routines = importDone(data.routines)
+      data.routines = hooks.importDone(data.routines)
       await importHevyFolders('k', data, async () => [{ id: 7, title: 'Lower', index: 0 }])
       expect(titlesOf(data).map(x => x.title)).toEqual(['Seated Leg Curl (Machine)'])
       choose(S, 'Hevy|seated leg curl (machine)', '0586')
@@ -99,10 +98,9 @@ describe('hevier cable review per brand (D43)', () => {
   const CABLES = [HEAD, row('Lat Pulldown (Cable)', 0, 60, 10), row('Lat Pulldown (Cable) (LifeFitness)', 0, 30, 10)].join('\n')
   beforeEach(() => {
     S = { unit: 'kg', customEx: [], workouts: [], bodyweight: [], exWeights: {} }
-    hooks.importExercise = (title, source) => { useChoices(choicesFor(S)); return importExercise(title, source) }
-    hooks.importDone = importDone
+    Object.assign(hooks, importHooks(() => choicesFor(S)))
   })
-  afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
+  afterEach(() => Object.assign(hooks, { importExercise: null, importDone: null }))
 
   it('lists a brand’s setup on its own, and a choice for it leaves the plain title 1:1', () => {
     const read = () => parseImport(CABLES, { unit: 'kg', customEx: S.customEx })

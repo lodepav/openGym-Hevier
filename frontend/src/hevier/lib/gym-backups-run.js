@@ -29,11 +29,12 @@ export function armSwap(getState, like, onPick) {
 const sessionKey = A => (A ? `${A.start}|${A.backfill ? 'b' : ''}|${A.editingWorkoutId ?? ''}` : '')
 const nameOf = id => exerciseNameFor(exOr(id))
 
-/** At launch (hevier/index.js). `subscribe` gets (state, previous) of the whole store. */
+/** At launch (hevier/index.js). It watches the whole store: the session's gym and start. */
 let started = false
-export function initGymBackups(getState, update, subscribe, toast) {
+export function initGymBackups(store) {
   if (started) return
   started = true
+  const { get: getState, update, subscribe, toast } = store
   const swapNow = () => {
     const S = getState()
     if (!plannedSwaps(S).length) return

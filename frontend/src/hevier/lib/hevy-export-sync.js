@@ -224,7 +224,7 @@ export function sendToHevy(getState, { force = false, apply = null, now = Date.n
 async function sendOnce(getState, apply, now, force) {
   const st = await loadExport()
   if (!st.on) return st
-  // Nothing new to send (the usual pass): no Keystore read and no file write (battery, item 29).
+  // Nothing new to send (the usual pass): no Keystore read and no file write (battery).
   // Send now still goes the whole way, so a lost key shows.
   if (!force && st.last) {
     const todo = pending(getState(), st)
@@ -248,8 +248,10 @@ async function sendOnce(getState, apply, now, force) {
 
 /** At launch (hevier/index.js): a pass after start-up, on each return to the app, and after changes. */
 let started = false
-export function initHevyExport(getState, apply, subscribe) {
+export function initHevyExport(store) {
   if (!MOBILE || started) return
+  const { get: getState, update: apply } = store
+  const subscribe = store.watch(['workouts', 'routines', 'customEx', 'unit'])
   started = true
   applyRef = apply
   import('@capacitor/app').then(({ App }) => {

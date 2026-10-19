@@ -1,7 +1,7 @@
 // The configurable Home (hevier/DECISIONS.md D12): which widgets show, in which order. Order and
 // the fork's own switches are device-local (localStorage `hevier_home`), never in S, so sync and
 // exports are untouched. The body-weight card reuses upstream's synced switch instead
-// (S.showWeightCard). Upstream's gym check-in (membership cards) is not a widget (D12, 2026-10-17).
+// (S.showWeightCard). Upstream's gym check-in (membership cards) is not a widget (D12).
 // A stored layout that still names it drops it as an unknown id; S.checkIn is left as it is.
 
 export const HOME_KEY = 'hevier_home'
