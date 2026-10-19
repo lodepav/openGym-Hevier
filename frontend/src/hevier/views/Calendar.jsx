@@ -14,7 +14,7 @@ import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { streakLabel } from '../lib/streak.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
 
 const MORE = 6
 
@@ -43,12 +43,13 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
         const plan = planKind(st, iso, byDay, today)
         const cls = 'hv-cal-d ' + mark + (kind ? ' k-' + kind : '') + (plan ? ' planned pk-' + plan : '') + (iso === today ? ' today' : '')
         const day = Number(iso.slice(8))
-        const title = dayTitle(byDay[iso])
+        // D68: a planned day names its routine, in its colour, where a trained day names its workout.
+        const title = dayTitle(byDay[iso]) || (plan && !small ? planTitle(st, iso, byDay, today) : '')
         return small
           ? <span key={iso} className={cls} />
           : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
-            {title && <span className="hv-cal-tl">{title}</span>}
+            {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{title}</span>}
           </button>
       })}
     </div>

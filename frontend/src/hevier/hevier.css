@@ -437,6 +437,11 @@
 :root[data-ui="hevier"] .hv-cal-d.planned.pk-cardio::after{background:var(--green)}
 :root[data-ui="hevier"] .hv-cal-d.planned.pk-deload::after{background:var(--orange)}
 :root[data-ui="hevier"] .hv-cal-d.planned.today::after{bottom:5px}
+/* the month view names a planned day's routine in its colour, in place of the dot (D68) */
+:root[data-ui="hevier"] .hv-cal-c .hv-cal-d.planned::after{display:none}
+:root[data-ui="hevier"] .hv-cal-tl.pk-strength{color:var(--acc)}
+:root[data-ui="hevier"] .hv-cal-tl.pk-cardio{color:var(--green)}
+:root[data-ui="hevier"] .hv-cal-tl.pk-deload{color:var(--orange)}
 :root[data-ui="hevier"] .hv-cal-more{width:100%;margin:6px 0 18px}
 :root[data-ui="hevier"] .hv-cal-more.next{margin:18px 0 6px}
 /* The Calendar keeps its place itself when earlier months go in above (Calendar.jsx). */
