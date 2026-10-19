@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { FIXES, splitBrand, splitCable, bareBrand, oneLimbOf, importExercise, importDone, importWeight, readKey, upstreamMatch, useChoices } from './hevy-import.js'
+import { FIXES, splitBrand, splitCable, bareBrand, oneLimbOf, importHooks, importWeight, readKey, upstreamMatch } from './hevy-import.js'
 import { workoutVolume } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -12,6 +12,9 @@ const row = (ex, i, type, w, r, start = '14 Oct 2026, 16:27') =>
   `"Lower A","${start}","${start.replace('16:27', '17:44')}","","${ex}",,"",${i},"${type}",${w},${r},,,`
 const csv = rows => [HEAD, ...rows].join('\n')
 const entriesOf = p => p.workouts.flatMap(w => w.entries)
+let choices = null
+const useChoices = next => { choices = next || null }
+const { importExercise, importDone } = importHooks(() => choices)
 
 describe('hevier Hevy import (D29)', () => {
   beforeEach(() => Object.assign(hooks, { importExercise, importDone }))

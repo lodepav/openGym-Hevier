@@ -1,15 +1,13 @@
 // The fork's step in upstream's Hevy import (hevier/DECISIONS.md D29, seam S19). Upstream's importers
 // ask `importExercise(title, source)` before their own match; an answer is an exercise id, or a key
-// that also carries a brand and one-limb sets, which `importDone` turns back into the id, the
-// entry's D28 brand (`hvBrand`) and upstream's per-side sets once the parse is finished.
+// that also carries a brand, a cable setup and one-limb sets, which `importDone` turns back into the
+// id, the entry's D28 brand (`hvBrand`), its D43 setup (`hvCable`) and upstream's per-side sets once
+// the parse is finished.
 //
-// In order: (1) "(brand: X)" anywhere in a title is the user's own convention for a D28 brand,
-// from any app, and so is, in a Hevy title, a second bracket after the equipment's ("Lat Pulldown
-// (Cable) (LifeFitness)", the older way), and a bare "(1:1)", "(2:1)" or "(x2)" for a cable's D43 setup (else the
-// review's choice, `S.hvImportCable`; none is 1:1); (2) the user's own choice from the review (D33, `S.hvImportMap`), any app; (3) the
-// fix table below, Hevy's English titles only; (4) a Hevy "Single/One Arm/Leg" title whose rest is
-// a machine or cable exercise: that exercise, per side; (5) upstream's match, untouched. Every
-// title asked about is noted, and `importDone` hands the list on as `hvTitles` for the review.
+// A title is first cut into its parts (`partsOf`): "(brand: X)" anywhere is the user's own
+// convention for a brand, from any app; in a Hevy title so is a second bracket after the
+// equipment's, the older way; and a bare "(1:1)", "(2:1)" or "(x2)" is a cable's setup. What is left
+// is matched by the steps in `STEPS`, the first answer winning, else by upstream.
 import { EXIDX, canonicalExId } from '../../lib/exercises.js'
 import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
@@ -129,21 +127,21 @@ export function bareBrand(name) {
   return { name: clean(name.slice(0, m.index)), brand: clean(m[1]).slice(0, BRAND_MAX) }
 }
 
-// A last bracket that is one of your own brands (D28's labels, `ctx.brands`, compared without
+// A last bracket that is one of your own brands (D28's labels, `choices.brands`, compared without
 // case, spaces or punctuation) is that brand, even when it is the title's only bracket, from any
-// app: "Face Pull (LifeFitness)" (review T12). It takes your brand's own spelling.
+// app: "Face Pull (LifeFitness)". It takes your brand's own spelling.
 export const brandNorm = s => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
-function knownBrand(name) {
-  const m = ctx?.brands && String(name || '').match(LAST)
-  const own = m && ctx.brands.get(brandNorm(m[1]))
+function knownBrand(name, brands) {
+  const m = brands && String(name || '').match(LAST)
+  const own = m && brands.get(brandNorm(m[1]))
   return own ? { name: clean(name.slice(0, m.index)), brand: own } : null
 }
 
 /** A title's parts: the name to match, the brand and the cable tag. */
-function partsOf(title, source) {
+function partsOf(title, source, choices) {
   const { name, brand } = splitBrand(title)
   const c = splitCable(name)
-  const bare = !brand ? (source === 'Hevy' && bareBrand(c.name)) || knownBrand(c.name) : null
+  const bare = !brand ? (source === 'Hevy' && bareBrand(c.name)) || knownBrand(c.name, choices?.brands) : null
   return bare ? { ...c, ...bare } : { ...c, brand }
 }
 
@@ -160,6 +158,8 @@ const matchOf = name => canonicalExId(fixOf(name)?.id || matchHevyTitle(name) ||
 export const upstreamMatch = (name, source) =>
   canonicalExId((source === 'Hevy' ? matchHevyTitle(name) : null) || matchExercise(name)) || null
 const isMachineId = id => !!id && MACHINE_EQ.has(EXIDX[id]?.eq)
+/** The id upstream gives a custom exercise it makes from a title, so a later import finds it again. */
+const customId = (source, name) => importId('im', source + '|' + name.toLowerCase())
 
 /** The machine or cable exercise a one-limb title is done on, or null ("Single Leg Press (Machine)"). */
 export function oneLimbOf(name) {
@@ -174,96 +174,126 @@ export function oneLimbOf(name) {
 
 const KEY = 'hv:'
 const keyOf = ({ cable, ...v }) => KEY + JSON.stringify(cable ? { ...v, cable } : v)
-/** What a key carries: { id, side, brand, n } (n: the name of a custom exercise to make), or null. */
+/** What a key carries: { id, side, brand, cable, n } (n: the name of a custom exercise to make), or null. */
 export function readKey(id) {
   if (typeof id !== 'string' || !id.startsWith(KEY)) return null
   try { return JSON.parse(id.slice(KEY.length)) } catch { return null }
 }
 
+/*
+ * `choices` is the user's say over an import, `{ map: S.hvImportMap, cables: S.hvImportCable,
+ * known: Set of the custom exercise ids, customEx, brands }` (import-review.js's `choicesFor`), or
+ * null for none. Every function below that reads it takes it as its last argument.
+ */
+
 /** The review's key for a title: the app and the title without its brand and cable tag, lower case (D33). */
-export const choiceKey = (title, source) => source + '|' + partsOf(title, source).name.toLowerCase()
+export const choiceKey = (title, source, choices) => source + '|' + partsOf(title, source, choices).name.toLowerCase()
 /** The cable review's key: the review's, and the brand when there is one, so a brand's setup is its own (D43). */
-export function cableKey(title, source) {
-  const { brand } = partsOf(title, source)
-  return choiceKey(title, source) + (brand ? '|' + brand.toLowerCase() : '')
+export function cableKey(title, source, choices) {
+  const { brand } = partsOf(title, source, choices)
+  return choiceKey(title, source, choices) + (brand ? '|' + brand.toLowerCase() : '')
 }
 
-/**
- * The user's choices, `{ map: S.hvImportMap, known: Set of exercise ids that exist, customEx }`, or null.
- * Kept until the next call, so one parse reads one set of choices.
- */
-let ctx = null
-export function useChoices(next) { ctx = next || null }
-const choiceOf = (title, source) => {
-  const v = ctx?.map?.[choiceKey(title, source)]
+/** The review's choice for a title: an exercise that still exists, 'custom', or null. */
+function choiceOf(title, source, choices) {
+  const v = choices?.map?.[choiceKey(title, source, choices)]
   if (v === 'custom') return v
-  return v && (EXIDX[v] || ctx.known?.has(v)) ? v : null
-}
-
-/**
- * The fork's answer for an exercise title, or null to leave it to upstream. A plain catalogue id
- * when there is nothing else to carry, else a key for `importDone`.
- */
-const memos = new WeakMap()
-const noCtx = {}
-const seen = new Map()
-// A parse asks about all its titles in one go, with no await between: the first title of a later
-// turn starts a new list, so a parse that never reached importDone (a failed file, one read as
-// weigh-ins) leaves nothing in the next import's review.
-let asking = false
-export function importExercise(title, source) {
-  const { name, cable, brand } = partsOf(title, source)
-  if (!asking) { seen.clear(); asking = true; queueMicrotask(() => { asking = false }) }
-  seen.set(cableKey(title, source), { title: name, source, cable, brand })
-  return resolved(title, source)
-}
-function resolved(title, source) {
-  const c = ctx || noCtx
-  if (!memos.has(c)) memos.set(c, new Map())
-  const memo = memos.get(c)
-  const k = source + '|' + title
-  if (!memo.has(k)) memo.set(k, answer(title, source))
-  return memo.get(k)
-}
-
-/**
- * What a title becomes: { id, custom, chosen }, `id` null for an exercise of the user's own that an
- * import makes. For the review's list.
- */
-export function outcomeOf(title, source) {
-  const chosen = !!choiceOf(title, source)
-  const a = resolved(title, source)
-  const k = readKey(a) || { id: a }
-  const id = k.id ?? upstreamMatch(partsOf(title, source).name, source)
-  return { id: id && !k.n ? id : null, chosen }
+  return v && (EXIDX[v] || choices.known?.has(v)) ? v : null
 }
 
 /** The cable setup a title is imported with: its tag, else the review's choice (its brand's, else
  *  the title's without a brand, as it was kept before), else '' (1:1). */
-export const cableFor = (title, source) =>
-  partsOf(title, source).cable || ctx?.cables?.[cableKey(title, source)] || ctx?.cables?.[choiceKey(title, source)] || ''
+export const cableFor = (title, source, choices) =>
+  partsOf(title, source, choices).cable || choices?.cables?.[cableKey(title, source, choices)]
+    || choices?.cables?.[choiceKey(title, source, choices)] || ''
 
-function answer(title, source) {
-  const { name, brand } = partsOf(title, source)
-  const cable = cableFor(title, source)
-  const hevy = source === 'Hevy'
-  const own = choiceOf(title, source)
-  if (own === 'custom') return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side: false, brand, cable, n: name.toLowerCase() })
-  let id = null, side = false
-  // An exercise of your own an earlier import made stays yours (upstream's priorCustom), unless the
-  // review chose otherwise: a fix row added later would split its history across two ids (D29).
-  const mine = own ? null : priorCustom(ctx?.customEx, importId('im', source + '|' + name.toLowerCase()), name)?.id
-  const pick = own || mine
-  const fix = pick ? { id: pick, side: LIMB.test(name) && isMachineId(pick) } : hevy ? fixOf(name) : null
-  if (fix) ({ id, side } = fix)
-  else if (hevy) { id = oneLimbOf(name); side = !!id }
+// An exercise picked for a one-limb title is done one side at a time when it is a machine or cable.
+const picked = (id, name) => (id ? { id, side: LIMB.test(name) && isMachineId(id) } : null)
+
+/** How a title is matched, in order, the first answer winning: each step gives { id, side } or null. */
+const STEPS = [
+  // The user's own choice from the review (D33), any app.
+  t => picked(t.own, t.name),
+  // An exercise of your own an earlier import made stays yours (upstream's priorCustom): a fix row
+  // added later would split its history across two ids (D29).
+  t => picked(priorCustom(t.choices?.customEx, customId(t.source, t.name), t.name)?.id, t.name),
+  // The fix table, Hevy's English titles only.
+  t => (t.hevy ? fixOf(t.name) : null),
+  // A Hevy "Single/One Arm/Leg" title whose rest is a machine or cable exercise: that one, per side.
+  t => { const id = t.hevy && oneLimbOf(t.name); return id ? { id, side: true } : null },
+]
+
+function answer(title, source, choices) {
+  const { name, brand } = partsOf(title, source, choices)
+  const cable = cableFor(title, source, choices)
+  const own = choiceOf(title, source, choices)
+  if (own === 'custom') return keyOf({ id: customId(source, name), side: false, brand, cable, n: name.toLowerCase() })
+  const t = { name, source, hevy: source === 'Hevy', own, choices }
+  let found = null
+  for (const step of STEPS) if ((found = step(t))) break
+  let { id = null, side = false } = found || {}
   if (!id && !brand && !cable) return null
   id = id || matchOf(name)
   if (!side && !brand && !cable) return id
   // A brand on an exercise nobody matched: a custom exercise named without the brand, the id
   // upstream would give it, so a later import finds the same one.
-  if (!id) return keyOf({ id: importId('im', source + '|' + name.toLowerCase()), side, brand, cable, n: name.toLowerCase() })
+  if (!id) return keyOf({ id: customId(source, name), side, brand, cable, n: name.toLowerCase() })
   return keyOf({ id, side, brand, cable })
+}
+
+// One parse asks about many titles with the same choices: the answers are kept per choices object.
+const memos = new WeakMap()
+const NONE = {}
+/**
+ * The fork's answer for an exercise title, or null to leave it to upstream: a plain catalogue id
+ * when there is nothing else to carry, else a key for `importDone`.
+ */
+export function matchTitle(title, source, choices = null) {
+  const c = choices || NONE
+  if (!memos.has(c)) memos.set(c, new Map())
+  const memo = memos.get(c)
+  const k = source + '|' + title
+  if (!memo.has(k)) memo.set(k, answer(title, source, choices))
+  return memo.get(k)
+}
+
+/**
+ * What a title becomes: { id, chosen }, `id` null for an exercise of the user's own that an
+ * import makes. For the review's list.
+ */
+export function outcomeOf(title, source, choices) {
+  const chosen = !!choiceOf(title, source, choices)
+  const a = matchTitle(title, source, choices)
+  const k = readKey(a) || { id: a }
+  const id = k.id ?? upstreamMatch(partsOf(title, source, choices).name, source)
+  return { id: id && !k.n ? id : null, chosen }
+}
+
+/**
+ * Upstream's two hooks (seam S19), reading the user's choices from `getChoices()` for each title.
+ * The titles a parse asks about are collected, and `importDone` hands them on as `hvTitles` for
+ * the review.
+ */
+export function importHooks(getChoices) {
+  let titles = new Map()
+  // A parse asks about all its titles in one go, with no await between: the first title of a later
+  // turn starts a new list, so a parse that never reached importDone (a failed file, one read as
+  // weigh-ins) leaves nothing in the next import's review.
+  let asking = false
+  return {
+    importExercise(title, source) {
+      const choices = getChoices()
+      const { name, cable, brand } = partsOf(title, source, choices)
+      if (!asking) { titles = new Map(); asking = true; queueMicrotask(() => { asking = false }) }
+      titles.set(cableKey(title, source, choices), { title: name, source, cable, brand })
+      return matchTitle(title, source, choices)
+    },
+    importDone(parsed) {
+      const hvTitles = [...titles.values()]
+      titles = new Map()
+      return finishImport(parsed, hvTitles)
+    },
+  }
 }
 
 const both = s => {
@@ -283,10 +313,8 @@ const fresh = (parsed, made) => [...made.values()].filter(c => !parsed.customEx.
 // Two stacks (×2) count both, as upstream counts a dumbbell logged per bell.
 const workVol = entries => entries.reduce((a, e) => a + volumeFactor(e) * e.sets.reduce((b, s) => b + (isWarmupRow(s) ? 0 : (s.w || 0) * (s.r || 0)), 0), 0)
 
-/** A parse result with the fork's keys turned back into ids, brands and per-side sets. */
-export function importDone(parsed) {
-  const hvTitles = [...seen.values()]
-  seen.clear()
+/** A parse result with the fork's keys turned back into ids, brands and per-side sets, and the titles it asked about. */
+function finishImport(parsed, hvTitles) {
   if (!parsed || parsed.error) return parsed
   const out = { ...byName(parsed, done(parsed)), hvTitles }
   // Hevy's CSV writes a note's line breaks as `\n` (D54).
@@ -296,7 +324,7 @@ export function importDone(parsed) {
 
 // Upstream's Hevy API import matches by Hevy's template id alone, never by name, so a title its
 // CSV import finds by name (Belt Squat (Machine) → lever belt squat) became one of your own
-// exercises (2026-10-17). A custom exercise upstream made in this parse gets that name match.
+// exercises. A custom exercise upstream made in this parse gets that name match.
 // Yours stay yours: one an earlier import made, and one the review was told to keep (D33), never
 // pass through here. A CSV's customs were already asked by name, so it changes nothing there.
 function byName(input, out) {

@@ -5,7 +5,7 @@ import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
 import { hooks, installFinishHook } from './hooks.js'
-import { importDone, importExercise, importWeight, useChoices } from './lib/hevy-import.js'
+import { importHooks, importWeight } from './lib/hevy-import.js'
 import { choicesFor, keep } from './lib/import-review.js'
 import { ReviewRow } from './components/ImportReview.jsx'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
@@ -36,10 +36,7 @@ if (HEVIER) document.documentElement.dataset.ui = 'hevier'
 // Finish opens the fork's Save Workout page, and a saved workout its summary (seam S9).
 if (HEVIER) installFinishHook(nav)
 // A Hevy import gets the fork's fixed matches, one-limb sets and brand labels (seam S19, D29).
-if (HEVIER) Object.assign(hooks, {
-  importExercise: (title, source) => { useChoices(choicesFor(useStore.getState().S)); return importExercise(title, source) },
-  importDone,
-})
+if (HEVIER) Object.assign(hooks, importHooks(() => choicesFor(useStore.getState().S)))
 // …keeping each weight's hundredths (seam S25, D40).
 if (HEVIER) hooks.importWeight = importWeight
 // D48: Hevy's rest and timer wheels go in 5 s steps.

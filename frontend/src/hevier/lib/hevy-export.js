@@ -14,6 +14,7 @@ import { isPerSide } from '../../lib/history.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
 import { FIXES, choiceKey } from './hevy-import.js'
+import { choicesFor } from './import-review.js'
 
 const LB_TO_KG = 0.45359237
 const NOTE_MAX = 280
@@ -211,7 +212,9 @@ export function templateFinder(templates, S) {
   const found = new Map()
   const put = (exId, t) => { if (exId && !found.has(exId)) found.set(exId, { id: String(t.id), type: t.type || null }) }
   const choices = S?.hvImportMap || {}
-  for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy')]; if (v && v !== 'custom') put(canonicalExId(v), t) }
+  // Keyed as the import keys a title, your own brands cut off it the same way.
+  const own = choicesFor(S)
+  for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy', own)]; if (v && v !== 'custom') put(canonicalExId(v), t) }
   for (const t of list) {
     const f = FIXES[String(t.title || '').toLowerCase().trim()]
     if (f) put(canonicalExId(typeof f === 'string' ? f : f.id), t)
