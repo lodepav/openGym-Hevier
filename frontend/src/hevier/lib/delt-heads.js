@@ -30,13 +30,19 @@ const isShoulder = ex => ['delts', 'deltoids', 'shoulders'].includes(ex?.tg)
 
 /**
  * The explorer's share of a head (as upstream's `musclesOf` reads a muscle): the exercise's
- * shoulder load when it is that head's, and for the rear also a secondary "rear deltoids"
- * (rows, pull-downs) at the part the shoulder gets.
+ * shoulder load when it is that head's; for the rear also a secondary "rear deltoids" (rows,
+ * pull-downs), and for the front a chest exercise's or a triceps press's or dip's secondary
+ * shoulders (the catalogue names no head there, but pressing and flys work the front), each at
+ * the part the shoulder gets.
  */
 export function headShare(head, ex, load) {
   const d = load?.deltoids
   if (!d) return undefined
   if (headOf(ex) === head) return d
-  if (head === 'rear' && !isShoulder(ex) && smOf(ex).includes('rear deltoids')) return d
+  if (isShoulder(ex)) return undefined
+  if (head === 'rear') return smOf(ex).includes('rear deltoids') ? d : undefined
+  if (head === 'front') return frontSecondary(ex) ? d : undefined
   return undefined
 }
+const frontSecondary = ex => !smOf(ex).includes('rear deltoids')
+  && (['pectorals', 'chest'].includes(ex.tg) || (ex.tg === 'triceps' && /press|dip|push[- ]?up/i.test(String(ex.n || ex.name || ''))))
