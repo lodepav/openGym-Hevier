@@ -2,6 +2,23 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.6.0 · 2026-10-19
+
+Based on openGym 1.4.1.
+
+### New
+
+- planned days dotted, on the widget too; Show next month (D68)
+- N hidden at the gym, Show (D67)
+
+### Fixes and changes
+
+- planned days named in their colour (D68)
+- what the gym lacks, fifty at a time (D67)
+- gyms found nearby named with their address (D47)
+- Rear Delt Reverse Fly (Cable) as Hevy's picture (D29)
+- decide what each upstream release brings
+
 ## 1.5.0 · 2026-10-19
 
 Based on openGym 1.4.1.
