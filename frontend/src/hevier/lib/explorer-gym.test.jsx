@@ -8,7 +8,7 @@ import { DEF, useStore } from '../../store/useStore.js'
 import MuscleExplorer from '../../components/MuscleExplorer.jsx'
 import { hooks } from '../hooks.js'
 import { explorerFilter, rememberGym } from './gym-filter.js'
-import { equipChips } from '../components/EquipGroups.jsx'
+import { equipChips, muscleChips } from '../components/EquipGroups.jsx'
 import { EQUIP_GROUPS } from './equip-groups.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -31,6 +31,7 @@ afterEach(() => {
   host.remove()
   hooks.equipFilter = null
   hooks.equipChips = null
+  hooks.muscleChips = null
   localStorage.clear()
 })
 
@@ -73,6 +74,24 @@ describe('hevier: muscle explorer by gym (seam S37)', () => {
     expect([...eqs()]).toEqual(['dumbbell'])
     expect(count()).toBeLessThan(all)             // the group held more than its dumbbells
     expect(group('Free weights').className).toContain('some')
+  })
+
+  it('its muscle chips are by group, a chevron opening a group’s muscles (D64, seam S39)', () => {
+    hooks.muscleChips = muscleChips
+    render({})
+    const chip = label => [...host.querySelectorAll('.hv-eqg-chip')].find(c => c.querySelector('.hv-eqg-t').firstChild.textContent === label)
+    const n = c => Number(c.querySelector('.dim').textContent)
+    expect(chip('Biceps')).toBeUndefined()
+    const arms = chip('Arms')
+    act(() => arms.querySelector('.hv-eqg-t').click())
+    expect(host.textContent).toContain('Exercises for Arms')
+    act(() => chip('Arms').querySelector('.hv-eqg-x').click())
+    const biceps = [...host.querySelectorAll('.hv-eqg-strip .chip')].find(c => c.firstChild.textContent === 'Biceps')
+    expect(n(biceps)).toBeLessThan(n(chip('Arms')))
+    act(() => biceps.click())
+    expect(host.textContent).toContain('Exercises for Biceps')
+    expect(chip('Arms').className).toContain('some')
+    expect(chip('Shoulders').querySelector('.hv-eqg-x')).toBeNull()      // a group of one
   })
 })
 

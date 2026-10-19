@@ -39,11 +39,14 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
     const all = allExercises(S)
     return (profile && !showAll) ? all.filter(has) : all
   }, [S.customEx, S.equipFilterOn, S.activeEquipId, S.equipProfiles, showAll, profile?.id])
+  // [hevier] S39: the fork's muscle groups (D64), a muscle or a whole group selected
+  const mc = hooks.muscleChips
+  const share = e => (mc ? mc.share(selected, e) : musclesOf(e)[selected])
   const counts = useMemo(() => Object.fromEntries(MUSCLES.map(m => [m,
     catalog.filter(e => musclesOf(e)[m]).length
   ])), [catalog])
   const pick = muscle => { setSelected(muscle === selected ? null : muscle); setEq(''); setShown(40) }
-  const targeted = selected ? catalog.filter(e => musclesOf(e)[selected]) : []
+  const targeted = selected ? catalog.filter(share) : []
   const base = searchExercises(targeted.filter(e => !bp || e.bp === bp), q)
   const eqOpts = equipmentOf(base)
   // [hevier] S38: the fork's equipment groups (D63), a group or one kind
@@ -64,20 +67,21 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
       </button>
     </div>}
     <div className="card">
-      <BodyMap className="tappable" body={S.body} selected={selected} onMuscle={pick} />
-      <div className="chips" style={{ marginTop: 10 }}>
+      <BodyMap className="tappable" body={S.body} {...(mc ? mc.map(selected) : { selected })} onMuscle={pick} />
+      {mc && <mc.Chips value={selected} catalog={catalog} onChange={m => { setSelected(m); setEq(''); setShown(40) }} /> /* [hevier] S39 */}
+      {!mc && <div className="chips" style={{ marginTop: 10 }}>
         {MUSCLES.map(m => <button key={m} className={'chip' + (selected === m ? ' on' : '')}
           aria-pressed={selected === m} onClick={() => pick(m)}>
           {t(MUSCLE_NAME[m])} <span className="dim">{counts[m]}</span>
         </button>)}
-      </div>
+      </div>}
     </div>
 
     {!selected && onPick && <div className="empty"><div className="ico"><Icon name="figureStrength" /></div>{t('Choose a muscle to see exercises that train it.')}</div>}
 
     {selected && <>
       <div className="row between" style={{ margin: '2px 0 10px' }}>
-        <h4 className="sec" style={{ margin: 0 }}>{t('Exercises for {0}', t(MUSCLE_NAME[selected]))}</h4>
+        <h4 className="sec" style={{ margin: 0 }}>{t('Exercises for {0}', mc ? mc.name(selected) : t(MUSCLE_NAME[selected]))}</h4>
         <Button size="sm" variant="ghost" onClick={() => pick(selected)}>{t('Clear selection')}</Button>
       </div>
       <div className="search-row" style={{ marginBottom: 10 }}><div className={'search' + (narrowed ? ' has-count' : '') + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
@@ -100,7 +104,7 @@ export default function MuscleExplorer({ onPick, onDetail, onPlan }) {
       <div className={'list' + (S.exerciseView === 'cards' ? ' ex-grid' : '')}>
         {exercises.slice(0, shown).map(e => {
           const best = bestWeightFor(S, e.id)
-          const primary = musclesOf(e)[selected] === 1
+          const primary = share(e) === 1
           return <div key={e.id} className="item" {...tappable(() => choose(e))}>
             <Thumb ex={e} />
             <div className="grow"><div className={`tt ${exerciseNameClass(e)}`}>{isFav(S, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div><div className="ss">{t(primary ? 'Primary target' : 'Also trains')} · <span className="capitalize">{t(MUSCLE_NAME[e.tg] || e.tg || e.bp)} · {t(e.eq)}</span></div></div>

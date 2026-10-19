@@ -179,5 +179,33 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(container.querySelector('.hv-pk-filters .btn').textContent).toBe('kettlebell')
     expect(rowOf(KB)).toBeTruthy()
   })
-})
 
+  it('filters by a muscle group, or by one muscle under its chevron (D64)', () => {
+    open(vi.fn())
+    const btn = () => [...container.querySelectorAll('.hv-pk-filters .btn')].find(b => /Muscle|Arms|Biceps/.test(b.textContent))
+    const sheet = () => {
+      click(btn())
+      const host = document.createElement('div')
+      const r = createRoot(host)
+      act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+      return { host, r }
+    }
+    let { host, r } = sheet()
+    const item = label => [...host.querySelectorAll('.menu-item')].find(i => i.querySelector('.tt').textContent === label)
+    expect(item('Biceps')).toBeUndefined()               // folded under Arms
+    expect(item('Shoulders')).toBeTruthy()               // a group of one is the muscle
+    click(item('Arms'))
+    act(() => r.unmount())
+    expect(btn().textContent).toBe('Arms')
+    const muscles = new Set([...container.querySelectorAll('.hv-pk-row .ss')].map(el => el.textContent.split(' · ')[0]))
+    expect([...muscles].every(m => ['Biceps', 'Triceps', 'Forearms'].includes(m))).toBe(true)
+    expect(muscles.size).toBeGreaterThan(1)
+    ;({ host, r } = sheet())
+    expect(item('Biceps')).toBeUndefined()
+    click(item('Arms').querySelector('.hv-eqg-x'))
+    click(item('Biceps'))
+    act(() => r.unmount())
+    expect(btn().textContent).toBe('Biceps')
+    expect(new Set([...container.querySelectorAll('.hv-pk-row .ss')].map(el => el.textContent.split(' · ')[0]))).toEqual(new Set(['Biceps']))
+  })
+})

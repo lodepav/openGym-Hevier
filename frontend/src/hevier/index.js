@@ -29,7 +29,7 @@ import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
-import { GymEquipmentChips, equipChips } from './components/EquipGroups.jsx'
+import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
 
 // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
 if (HEVIER) document.documentElement.dataset.ui = 'hevier'
@@ -59,6 +59,7 @@ if (HEVIER) hooks.gymSheet = { ...gymSheet(t), Chips: GymEquipmentChips }
 if (HEVIER) hooks.equipFilter = explorerFilter
 // …and its equipment strip by group (seam S38, D63).
 if (HEVIER) hooks.equipChips = equipChips
+if (HEVIER) hooks.muscleChips = muscleChips
 // Chart labels that never repeat (seam S30).
 if (HEVIER) hooks.chartTicks = chartTicks
 // …with the user's own choices from the import review (seam S23, D33).

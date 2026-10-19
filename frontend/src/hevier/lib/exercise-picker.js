@@ -5,6 +5,8 @@
 
 // Hevy's muscle list over the catalogue's `tg` spellings and the ones a custom exercise stores
 // (MUSCLES in lib/muscles.js). These labels are the filter's keys and its English text.
+import { muscleGroupIdOf, groupOfName } from './muscle-groups.js'
+
 const MUSCLE_LABEL = {
   abs: 'Abdominals', obliques: 'Obliques', abductors: 'Abductors', adductors: 'Adductors',
   biceps: 'Biceps', calves: 'Calves', 'cardiovascular system': 'Cardio',
@@ -21,6 +23,14 @@ const MUSCLE_LABEL = {
 export const muscleOf = ex => {
   const tg = ex && typeof ex.tg === 'string' ? ex.tg : ''
   return MUSCLE_LABEL[tg] || tg
+}
+
+/** Whether exercise `ex` falls under the muscle filter `v`: '' any, a muscle, or a whole group (D64). */
+export function muscleMatches(v, ex) {
+  if (!v) return true
+  const g = muscleGroupIdOf(v)
+  const name = muscleOf(ex)
+  return g ? !!name && groupOfName(name) === g : name === v
 }
 
 /** The muscle filter's options: every muscle `list` has an exercise for, A to Z. */
@@ -44,7 +54,7 @@ export function recentIds(S, n = 10) {
  * equipment profile's test (null = show everything).
  */
 export const filterPicker = (list, { muscle = '', eq = '', avail = null } = {}) => list.filter(e =>
-  (!muscle || muscleOf(e) === muscle) && (!eq || e.eq === eq) && (!avail || avail(e)))
+  muscleMatches(muscle, e) && (!eq || e.eq === eq) && (!avail || avail(e)))
 
 /**
  * Where the exercises just added sit, for "Add superset": the index of the first, when the
