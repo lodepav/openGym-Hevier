@@ -16,7 +16,7 @@ import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exe
 import { gymById, gymHas, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
 import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
 import { EquipFilterSheet, MuscleFilterSheet } from '../components/EquipGroups.jsx'
-import { muscleValueLabel } from '../lib/muscle-groups.js'
+import { muscleValueLabel, muscleFilterValue } from '../lib/muscle-groups.js'
 import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../../lib/favourites.js'
 import { useSheetKeyboard, tappable } from '../../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../../lib/use-auto-more.js'
@@ -52,7 +52,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const multi = !title && !browse
   const [q, setQ] = useState('')
   // A swap opens on what trains the same muscle, as upstream's does (#473).
-  const [muscle, setMuscle] = useState(() => muscleOf(likeEx))
+  const [muscle, setMuscle] = useState(() => muscleFilterValue(muscleOf(likeEx), likeEx))
   const [eq, setEq] = useState(profile ? GYM : '')
   const [picked, setPicked] = useState([])
   const [shown, setShown] = useState(PAGE)

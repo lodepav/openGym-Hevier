@@ -5,7 +5,8 @@
 
 // Hevy's muscle list over the catalogue's `tg` spellings and the ones a custom exercise stores
 // (MUSCLES in lib/muscles.js). These labels are the filter's keys and its English text.
-import { muscleGroupIdOf, groupOfName } from './muscle-groups.js'
+import { muscleGroupIdOf, groupOfName, headOfName } from './muscle-groups.js'
+import { headOf } from './delt-heads.js'
 
 const MUSCLE_LABEL = {
   abs: 'Abdominals', obliques: 'Obliques', abductors: 'Abductors', adductors: 'Adductors',
@@ -30,7 +31,9 @@ export function muscleMatches(v, ex) {
   if (!v) return true
   const g = muscleGroupIdOf(v)
   const name = muscleOf(ex)
-  return g ? !!name && groupOfName(name) === g : name === v
+  if (g) return !!name && groupOfName(name) === g
+  const head = headOfName(v)
+  return head ? headOf(ex) === head : name === v
 }
 
 /** The muscle filter's options: every muscle `list` has an exercise for, A to Z. */

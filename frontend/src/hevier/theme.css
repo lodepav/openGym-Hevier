@@ -8,11 +8,11 @@
 
    Hevy blue, warm-up yellow and failure red are measured from Hevy's own screenshots
    (hevier/reference/web). Hevy's site shows only its light mode, so the dark surfaces are an
-   estimate: near-black page, slightly lifted cards, cool grey secondary text. Tune them here. */
+   estimate: a black page (AMOLED, D17), slightly lifted cards, cool grey secondary text. */
 
 :root[data-ui="hevier"] {
-  --bg:        #0e0f12;
-  --bg-el:     #131418;   /* sheets, bars */
+  --bg:        #000000;   /* AMOLED black page (D17, 2026-10-19) */
+  --bg-el:     #000000;   /* sheets, bars */
   --surface:   #1b1d22;   /* cards, grouped lists */
   --surface-2: #262930;   /* pressed, nested, input fills */
   --surface-3: #353941;   /* controls: segmented track, switch off */

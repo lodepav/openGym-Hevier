@@ -91,7 +91,12 @@ describe('hevier: muscle explorer by gym (seam S37)', () => {
     act(() => biceps.click())
     expect(host.textContent).toContain('Exercises for Biceps')
     expect(chip('Arms').className).toContain('some')
-    expect(chip('Shoulders').querySelector('.hv-eqg-x')).toBeNull()      // a group of one
+    act(() => chip('Shoulders').querySelector('.hv-eqg-x').click())        // its heads (D65)
+    const heads = [...host.querySelectorAll('.hv-eqg-strip .chip')]
+    expect(heads.map(c => c.firstChild.textContent)).toEqual(['Front Delts', 'Side Delts', 'Rear Delts'])
+    act(() => heads[2].click())
+    expect(host.textContent).toContain('Exercises for Rear Delts')
+    expect(host.textContent).toContain('Also trains')                      // rows, by their rear delts
   })
 })
 
