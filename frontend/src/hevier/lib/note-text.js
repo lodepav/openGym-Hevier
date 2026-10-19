@@ -45,7 +45,9 @@ const needsFix = S => (S?.workouts || []).some(w => String(w?.id || '').startsWi
 // no such copy can come back by a sync (a release or two after 1.3.0).
 const importedCount = S => (S?.workouts || []).reduce((n, w) => n + (String(w?.id || '').startsWith('iw') ? 1 : 0), 0)
 
-export function initNoteFix(getState, apply, subscribe) {
+export function initNoteFix(store) {
+  const { get: getState, update: apply } = store
+  const subscribe = store.watch(['workouts'])
   let seen = -1
   const run = () => {
     const S = getState()

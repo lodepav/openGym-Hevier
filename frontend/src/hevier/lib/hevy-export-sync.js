@@ -248,8 +248,10 @@ async function sendOnce(getState, apply, now, force) {
 
 /** At launch (hevier/index.js): a pass after start-up, on each return to the app, and after changes. */
 let started = false
-export function initHevyExport(getState, apply, subscribe) {
+export function initHevyExport(store) {
   if (!MOBILE || started) return
+  const { get: getState, update: apply } = store
+  const subscribe = store.watch(['workouts', 'routines', 'customEx', 'unit'])
   started = true
   applyRef = apply
   import('@capacitor/app').then(({ App }) => {

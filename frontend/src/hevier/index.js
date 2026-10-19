@@ -20,7 +20,7 @@ import { t } from '../lib/i18n.js'
 import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
 import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
-import { watchS } from './lib/store-watch.js'
+import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
 import { chartTicks } from './lib/chart-ticks.js'
 import { initNoteFix } from './lib/note-text.js'
@@ -31,66 +31,58 @@ import { initStillTraining } from './lib/still-training-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
 
-// hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
-if (HEVIER) document.documentElement.dataset.ui = 'hevier'
-// Finish opens the fork's Save Workout page, and a saved workout its summary (seam S9).
-if (HEVIER) installFinishHook(nav)
-// A Hevy import gets the fork's fixed matches, one-limb sets and brand labels (seam S19, D29).
-if (HEVIER) Object.assign(hooks, importHooks(() => choicesFor(useStore.getState().S)))
-// …keeping each weight's hundredths (seam S25, D40).
-if (HEVIER) hooks.importWeight = importWeight
-// D48: Hevy's rest and timer wheels go in 5 s steps.
-if (HEVIER) hooks.secondsStep = 5
-// D61: a routine or exercise with no progression rule of its own does not progress.
-if (HEVIER) hooks.defaultProg = 'off'
-// A plank or a wall sit starts as a timed hold (seam S32, D55).
-if (HEVIER) hooks.defaultMode = id => holdMode(useStore.getState().S, id)
-// An exercise's rest wheel opens on the default rest (seam S33, D56).
-if (HEVIER) hooks.durationOpen = o => restOpen(o, useStore.getState().S.restSec)
-// Upstream's All statistics and Structural balance leave out exercises kept out of progression (S34, D57).
-if (HEVIER) hooks.statsS = countedS
-// A gym's sheet: body weight is equipment like the rest (seam S36, D62).
-// Its checklist in groups, each opening on its kinds (D63).
-if (HEVIER) hooks.gymSheet = { ...gymSheet(t), Chips: GymEquipmentChips }
-// …and the By muscle explorer filters by the gym chosen in the picker (seam S37, D62).
-if (HEVIER) hooks.equipFilter = explorerFilter
-// …and its equipment strip by group (seam S38, D63).
-if (HEVIER) hooks.equipChips = equipChips
-if (HEVIER) hooks.muscleChips = muscleChips
-// Chart labels that never repeat (seam S30).
-if (HEVIER) hooks.chartTicks = chartTicks
-// …with the user's own choices from the import review (seam S23, D33).
-if (HEVIER) hooks.importReview = { keep, Row: ReviewRow }
-// …and its routines their Hevy folders (seam S20, D30).
-if (HEVIER) hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
-// …and the rest of what Hevy's API holds: measurements, rest, rep ranges, notes, routine links (S21, D31).
-if (HEVIER) hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
-// The installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39).
-if (HEVIER) { applyForkIcons(); applyForkName() }
-// Heart rate and weigh-ins read back from Health Connect, when switched on (DECISIONS.md D27).
-// Each of these passes wakes only when what it reads changes, not for every set typed (item 29).
-if (HEVIER) initHealthRead(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  watchS(useStore.subscribe, ['workouts']))
-// …and while the weigh-in read is on, weigh-ins come from there only (seam S22, D32).
-if (HEVIER) { initWeighInSource(); hooks.weighIns = opts => weighInBlocked(opts, () => useUI.getState().toast(t('Weigh-ins come from Health Connect'))) }
+const store = storeAdapter(useStore, (msg, opts) => useUI.getState().toast(msg, opts))
+const state = () => useStore.getState().S
 
-// New workouts and changed routines go to Hevy, when switched on with a key (DECISIONS.md D34).
-if (HEVIER) initHevyExport(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  watchS(useStore.subscribe, ['workouts', 'routines', 'customEx', 'unit']))
+function install() {
+  if (!HEVIER) return
+  // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
+  document.documentElement.dataset.ui = 'hevier'
 
-// The home-screen month widget gets the log's month as it changes; a tap on it opens the Calendar
-// (DECISIONS.md D44, Android only).
-if (HEVIER) initMonthWidget(() => useStore.getState().S,
-  watchS(useStore.subscribe, ['workouts', 'weekStart', 'lang']), route => nav(route), todayISO)
+  // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39); chart labels
+  // never repeat (S30).
+  applyForkIcons()
+  applyForkName()
+  hooks.chartTicks = chartTicks
 
-// A routine started at a gym swaps in the backups that gym took last time; swaps teach it (D46).
-if (HEVIER) initGymBackups(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  fn => useStore.subscribe(fn), (msg, opts) => useUI.getState().toast(msg, opts))
+  // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
+  installFinishHook(nav)
+  hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
+  hooks.durationOpen = o => restOpen(o, state().restSec)     // an exercise's rest wheel opens on the default (S33, D56)
+  hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
+  hooks.defaultProg = 'off'                               // no progression rule of its own: none (D61)
+  hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
+  initStillTraining(store)                                // Still training? after five hours (D60)
+  initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
 
-// Notes imported from Hevy's CSV before D54 get their line breaks back.
-if (HEVIER) initNoteFix(() => useStore.getState().S, fn => useStore.getState().update(fn),
-  watchS(useStore.subscribe, ['workouts']))
+  // Gyms and equipment: body weight is equipment like the rest, the checklist in groups (S36, D62,
+  // D63), and the By muscle explorer filters by the picker's gym, by group (S37–S39).
+  hooks.gymSheet = { ...gymSheet(t), Chips: GymEquipmentChips }
+  hooks.equipFilter = explorerFilter
+  hooks.equipChips = equipChips
+  hooks.muscleChips = muscleChips
+
+  // Imports: the fork's matches, one-limb sets and brand labels (S19, D29), with the user's own
+  // choices from the review (S23, D33); each weight's hundredths (S25, D40); Hevy's routine
+  // folders (S20, D30) and the rest of what its API holds (S21, D31). Notes an earlier Hevy CSV
+  // import left with `\n` get their line breaks back (D54).
+  Object.assign(hooks, importHooks(() => choicesFor(state())))
+  hooks.importReview = { keep, Row: ReviewRow }
+  hooks.importWeight = importWeight
+  hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
+  hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
+  initNoteFix(store)
+
+  // Android: heart rate and weigh-ins from Health Connect (D27), weigh-ins from there only while
+  // that is on (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a
+  // tap on it opening the Calendar (D44).
+  initHealthRead(store)
+  initWeighInSource()
+  hooks.weighIns = opts => weighInBlocked(opts, () => store.toast(t('Weigh-ins come from Health Connect')))
+  initHevyExport(store)
+  initMonthWidget(store, route => nav(route), todayISO)
+}
+
+install()
 
 export { HEVIER }
-// Still training? after five hours (D60).
-if (HEVIER) initStillTraining(() => useStore.getState().S)

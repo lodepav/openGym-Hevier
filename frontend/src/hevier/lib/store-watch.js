@@ -23,3 +23,16 @@ export const fieldsChanged = (a, b, keys) => a !== b && keys.some(k => a?.[k] !=
 export const watchS = (subscribe, keys) => cb => subscribe((a, b) => {
   if (a.S !== b.S && fieldsChanged(a.S, b.S, keys)) cb()
 })
+
+/**
+ * The store as every fork `init*` helper takes it: `get()` the state S, `update(fn)` a change to
+ * it, `watch(keys)` a subscribe that wakes only when one of those fields of S changed,
+ * `subscribe(fn)` to the whole store (`fn(state, previous)`), and `toast(msg, opts)`.
+ */
+export const storeAdapter = (useStore, toast) => ({
+  get: () => useStore.getState().S,
+  update: fn => useStore.getState().update(fn),
+  watch: keys => watchS(useStore.subscribe, keys),
+  subscribe: fn => useStore.subscribe(fn),
+  toast,
+})

@@ -8,8 +8,9 @@ import { stillDue, keepGoing, lastTickMin, readSeen, writeSeen } from './still-t
 import { discardActive } from '../components/HevyTabBar.jsx'
 
 let started = false
-export function initStillTraining(getState) {
+export function initStillTraining(store) {
   if (started) return
+  const getState = store.get
   started = true
   const check = () => {
     const A = getState()?.active
