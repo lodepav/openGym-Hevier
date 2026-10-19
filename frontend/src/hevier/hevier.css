@@ -610,3 +610,8 @@
 :root[data-ui="hevier"] .chips .hv-eqg-chip{flex:none}
 :root[data-ui="hevier"] .hv-eqg-strip{padding-inline-start:14px}
 :root[data-ui="hevier"] .hv-eqg-strip .chip{font-size:13px;padding:5px 11px}
+/* Beat last time (D66): ↑ ↓ = after a finished set, against the same set last time. */
+:root[data-ui="hevier"] .hv-trend{display:inline-block;margin-inline-start:8px;font-weight:700;font-size:.95em}
+:root[data-ui="hevier"] .hv-trend.up{color:var(--green)}
+:root[data-ui="hevier"] .hv-trend.down{color:var(--red)}
+:root[data-ui="hevier"] .hv-trend.eq{color:var(--label-3)}
