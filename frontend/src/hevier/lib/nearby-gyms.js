@@ -60,12 +60,15 @@ export function overpassQuery({ lat, lng }, radius = RADIUS) {
 }
 
 const subOf = tags => {
-  const street = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
   const brand = tags.brand && tags.brand !== tags.name ? tags.brand : ''
-  return [brand, tags.branch, street].filter(Boolean).join(' · ')
+  return [brand, tags.branch].filter(Boolean).join(' · ')
 }
+// A chain's gyms share one name on OpenStreetMap (Riga's Lemon Gyms, two on one street), so a
+// place is named with its address, in the list and on the gym it becomes (D47):
+// "Lemon Gym · Grostonas iela 1".
+const labelOf = p => (p.street ? `${p.name} · ${p.street}` : p.name)
 
-/** Overpass's answer as [{ osm, name, sub, lat, lng, dist }], named places only, nearest first, a place drawn twice once. */
+/** Overpass's answer as [{ osm, name, street, label, sub, lat, lng, dist }], named places only, nearest first, a place drawn twice once. */
 export function parsePlaces(json, here) {
   const out = []
   for (const el of list(json?.elements)) {
@@ -73,13 +76,18 @@ export function parsePlaces(json, here) {
     const name = String(tags.name || '').trim()
     const lat = num(el.lat) ?? num(el.center?.lat), lng = num(el.lon) ?? num(el.center?.lon)
     if (!name || lat == null || lng == null) continue
-    const p = { osm: `${el.type}/${el.id}`, name, sub: subOf(tags), lat, lng, dist: distance(here, { lat, lng }) }
+    const street = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ').trim()
+    const p = { osm: `${el.type}/${el.id}`, name, street, sub: subOf(tags), lat, lng, dist: distance(here, { lat, lng }) }
     // A gym mapped as both a point and its building has one name, metres apart.
     const twin = out.find(o => o.name.toLowerCase() === name.toLowerCase() && distance(o, p) < 120)
-    if (twin) { if (!twin.sub && p.sub) twin.sub = p.sub; continue }
+    if (twin) {
+      if (!twin.sub && p.sub) twin.sub = p.sub
+      if (!twin.street && p.street) twin.street = p.street
+      continue
+    }
     out.push(p)
   }
-  return out.sort((a, b) => a.dist - b.dist).slice(0, MAX)
+  return out.sort((a, b) => a.dist - b.dist).slice(0, MAX).map(p => ({ ...p, label: labelOf(p) }))
 }
 
 const ask = async (name, fetcher, url, ms) => {

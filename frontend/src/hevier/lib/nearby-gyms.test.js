@@ -30,10 +30,13 @@ describe('gyms nearby (D47)', () => {
       { type: 'node', id: 3, lat: 47.3770, lon: 8.5418, tags: { leisure: 'fitness_centre' } },
     ] }
     const out = parsePlaces(json, here)
-    expect(out.map(p => [p.osm, p.name, p.sub])).toEqual([
-      ['node/1', 'NonStop Gym', 'NonStop · Langstrasse 1'],
+    expect(out.map(p => [p.osm, p.label, p.sub])).toEqual([
+      ['node/1', 'NonStop Gym · Langstrasse 1', 'NonStop'],
       ['way/9', 'Far Gym', ''],
     ])
+    // The building's street names the point that had none.
+    const twin = parsePlaces({ elements: [json.elements[2], { ...json.elements[1], tags: { name: 'NonStop Gym', 'addr:street': 'Langstrasse' } }] }, here)
+    expect(twin.map(p => p.label)).toEqual(['nonstop gym · Langstrasse'])
     expect(parsePlaces(null, here)).toEqual([])
   })
 
@@ -46,7 +49,7 @@ describe('gyms nearby (D47)', () => {
 
   it('asks Photon first, with a GET that names the app, and reads its places as Overpass’s', async () => {
     const fetcher = vi.fn(async () => photon)
-    expect(await fetchPlaces(here, fetcher)).toMatchObject([{ osm: 'way/7', name: 'B', sub: 'Weinbergstrasse 5' }])
+    expect(await fetchPlaces(here, fetcher)).toMatchObject([{ osm: 'way/7', name: 'B', label: 'B · Weinbergstrasse 5', sub: '' }])
     const [url, init] = fetcher.mock.calls[0]
     expect(url).toMatch(/^https:\/\/photon\.komoot\.io\/reverse\?lat=47\.377&lon=8\.542&radius=2&osm_tag=leisure:fitness_centre/)
     expect(init.headers['User-Agent']).toMatch(/^GoHevier\//)
