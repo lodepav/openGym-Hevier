@@ -1,10 +1,10 @@
 // D60 at run time: checks the open workout every minute and when the app comes back, and asks.
 import { t } from '../../lib/i18n.js'
-import { menuSheet, confirmSheet, finishWorkout } from '../../sheets.jsx'
+import { menuSheet, confirmSheet } from '../../sheets.jsx'
+import { nav } from '../../lib/nav.js'
 import { SAVE_PATH } from '../hooks.js'
 import { durationWords } from './elapsed.js'
 import { stillDue, keepGoing, lastTickMin, readSeen, writeSeen } from './still-training.js'
-import { presetDuration } from '../views/SaveWorkout.jsx'
 import { discardActive } from '../components/HevyTabBar.jsx'
 
 let started = false
@@ -24,7 +24,7 @@ export function initStillTraining(getState) {
       items: [
         { icon: 'play', label: t('Keep going'), onClick: () => {} },
         { icon: 'check', label: t('Finish workout'), sub: upTo ? t('Ends at your last set, {0}', durationWords(upTo * 60000)) : null,
-          onClick: () => { if (upTo) presetDuration(upTo); finishWorkout() } },
+          onClick: () => nav(SAVE_PATH, { state: { durationMin: upTo || null } }) },
         { icon: 'xmark', label: t('Discard workout'), danger: true, onClick: () => confirmSheet({
           title: t('Discard workout?'), message: t('The sets you logged in this session will be lost.'), confirmText: t('Discard'), danger: true,
           onConfirm: discardActive,
