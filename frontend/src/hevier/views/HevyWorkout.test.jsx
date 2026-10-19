@@ -218,6 +218,40 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sides.R.w).toBe(22.5)
   })
 
+  it('the set type menu adds drops and bursts, edited and removed in their own rows (D5)', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(100, 8)] }])
+    const pick = label => {
+      act(() => container.querySelector('.hv-set').click())
+      const items = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).filter(Boolean)
+      act(() => items.find(x => x.label === label).onClick())
+      useUI.setState({ sheets: [] })
+    }
+    pick('Drop set')
+    expect(sets()[0].drops).toHaveLength(1)
+    expect(sets()[0].drops[0].w).toBeLessThan(100)
+    const drop = container.querySelector('.hv-sub-row')
+    typeInto(drop.querySelectorAll('.hv-num')[0], '70')
+    expect(sets()[0].drops[0].w).toBe(70)
+    act(() => drop.querySelector('.hv-x').click())
+    expect(sets()[0].drops || []).toHaveLength(0)
+    pick('Rest-pause burst')
+    const added = sets()[0].clusters[0].r
+    expect(sets()[0].r).toBe(8 + added)
+    typeInto(container.querySelector('.hv-sub-row .hv-num'), String(added + 1))
+    expect(sets()[0].r).toBe(9 + added)
+    pick('Failure set')
+    expect(sets()[0].failure).toBe(true)
+  })
+
+  it('a per-side weight is carried down to the sets after it (M1)', () => {
+    const side = { w: 20, r: 8, done: false }
+    const row = () => ({ w: 20, r: 16, sides: { L: { ...side }, R: { ...side } } })
+    render([{ id: EX, target: { sets: 2, reps: 16, side: true }, sets: [row(), row()] }])
+    typeInto(container.querySelectorAll('.hv-row.hv-side')[0].querySelectorAll('.hv-num')[0], '25')
+    expect(sets().map(s => s.sides.L.w)).toEqual([25, 25])
+    expect(sets().map(s => s.sides.R.w)).toEqual([20, 20])
+  })
+
   it('a focused field gets the keypad row, and ⌨ hides the keyboard (SCREENS.md §0)', () => {
     vi.spyOn(window, 'matchMedia').mockImplementation(q => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }))
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
