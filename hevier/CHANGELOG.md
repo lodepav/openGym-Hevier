@@ -2,6 +2,23 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.5.0 · 2026-10-19
+
+Based on openGym 1.4.1.
+
+### New
+
+- beat last time (D66)
+- AMOLED black page (D17), shoulder heads (D65)
+- muscles by group (D64)
+
+### Fixes and changes
+
+- records over arrows (D66)
+- front delts from pressing (D65)
+- drop the reviews folder
+- group chips take a tap (D63)
+
 ## 1.4.0 · 2026-10-18
 
 Based on openGym 1.4.1.
