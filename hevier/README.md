@@ -26,6 +26,14 @@ touches any of them, so they never conflict.
 | [tools/release-check.sh](tools/release-check.sh) | The security gates for a release build (D26): secrets, vulnerable dependencies, supply chain, and with `--apk` the APK's certificate and signature scheme, debuggable flag, permissions, native libraries and exported components (D38). Scanners from `tools/install-scanners.sh`, allow-lists in [security/](security/). |
 | [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `hevy-side-by-side`, `release-check`. Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
 
+## Where code goes
+
+- `frontend/src/hevier/lib/x.js` is pure: it decides, and `x.test.js` beside it proves it.
+  `x-run.js` (or an `init*` export) is the wiring around it: timers, listeners, the store.
+- Every `init*` helper takes the same store object (`storeAdapter` in `lib/store-watch.js`), and
+  `index.js` installs them all in one `install()`, grouped by area.
+- `components/` and `views/` draw; a rule they need is a helper in `lib/`.
+
 ## The four rules
 
 1. **Add, don't edit.** New behaviour goes in new files under `frontend/src/hevier/`. An upstream
