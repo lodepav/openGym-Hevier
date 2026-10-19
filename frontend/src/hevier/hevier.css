@@ -591,6 +591,10 @@
 /* Equipment by group (D63): a gym's checklist, each group a chip with its chevron at the right edge. */
 :root[data-ui="hevier"] .hv-eqg{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 6px}
 :root[data-ui="hevier"] .hv-eqg-chip{display:inline-flex;align-items:stretch;padding:0;overflow:hidden}
+/* Upstream's .chip::before hit-area is positioned, so it painted over the chip's two buttons and
+   took every tap; the buttons are the targets here. */
+:root[data-ui="hevier"] .hv-eqg-chip::before{display:none}
+:root[data-ui="hevier"] .hv-eqg-chip>button{position:relative}
 :root[data-ui="hevier"] .hv-eqg-chip.some{box-shadow:inset 0 0 0 1.5px var(--acc)}
 :root[data-ui="hevier"] .hv-eqg-t{padding:6px 4px 6px 13px;color:inherit;font:inherit;text-transform:none}
 :root[data-ui="hevier"] .hv-eqg-chip:not(:has(.hv-eqg-x)) .hv-eqg-t{padding-inline-end:13px}
