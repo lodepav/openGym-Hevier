@@ -100,9 +100,15 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(W))
     const trend = n => [...container.querySelectorAll('.hv-wd-row')].find(r => r.firstChild.textContent === n)?.querySelector('.hv-trend')
     expect(trend('W')).toBeNull()                       // warm-ups are not compared
-    expect(trend('1').className).toContain('up')        // 60 × 8 against 55 × 8
-    expect(trend('1').getAttribute('aria-label')).toBe('Better than last time')
     expect(trend('2')).toBeNull()                       // last time had one set
+    // 60 × 8 beats last week's 55 × 8, but it is a record: the badge says so, no arrow.
+    const row1 = [...container.querySelectorAll('.hv-wd-row')].find(r => r.firstChild.textContent === '1')
+    expect(row1.querySelector('.hv-pr')).toBeTruthy()
+    expect(trend('1')).toBeNull()
+    // Last week's second set, 60 × 9: today's 60 × 8 is less, and no record, so it gets ↓.
+    act(() => useStore.setState(({ S }) => ({ S: { ...S, workouts: S.workouts.map((w, k) => (k ? w : { ...w, entries: [{ ...w.entries[0], sets: [...w.entries[0].sets, { w: 60, r: 9, done: true }] }] })) } })))
+    expect(trend('2').className).toContain('down')
+    expect(trend('2').getAttribute('aria-label')).toBe('Less than last time')
   })
 
   it('⋯ → All details opens upstream’s sheet', () => {
