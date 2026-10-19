@@ -106,8 +106,8 @@ export function NearbySheet({ close, locate = currentPosition, places = placesNe
           const mine = gymOfPlace(S, p.osm)
           if (mine && ownIds.has(mine.id)) return null
           const sub = [mine ? t('Your gym {0}', mine.name || t('Unnamed gym')) : p.sub, distanceText(p.dist)].filter(Boolean).join(' · ')
-          return item(p.osm, { label: p.name, sub, on: mine ? mine.id === cur : undefined,
-            onClick: choose(() => mine ? pickGym(mine.id) : update(s => setWorkoutGym(s, addGym(s, p.name, p)))) })
+          return item(p.osm, { label: p.label, sub, on: mine ? mine.id === cur : undefined,
+            onClick: choose(() => mine ? pickGym(mine.id) : update(s => setWorkoutGym(s, addGym(s, p.label, p)))) })
         })}</div>
         : <p className="dim">{t('No gyms on OpenStreetMap within {0}.', distanceText(RADIUS))}</p>}
     </div>}

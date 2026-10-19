@@ -105,8 +105,8 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
   it('gyms nearby: your gym there first, a picked place becomes a gym with that place (D47)', async () => {
     const here = { lat: 47.3769, lng: 8.5417, accuracy: 30 }
     const places = [
-      { osm: 'node/1', name: 'NonStop Gym', sub: 'Langstrasse 1', lat: 47.3772, lng: 8.5420, dist: 40 },
-      { osm: 'node/2', name: 'Kieser Training', sub: '', lat: 47.3701, lng: 8.5519, dist: 1000 },
+      { osm: 'node/1', name: 'NonStop Gym', street: 'Langstrasse 1', label: 'NonStop Gym · Langstrasse 1', sub: '', lat: 47.3772, lng: 8.5420, dist: 40 },
+      { osm: 'node/2', name: 'Kieser Training', street: '', label: 'Kieser Training', sub: '', lat: 47.3701, lng: 8.5519, dist: 1000 },
     ]
     render(null, { entries: [{ id: DB, sets: [] }], extra: { hvGymPlaces: { g2: { lat: 47.3770, lng: 8.5418 } } } })
     sheetHost = document.createElement('div')
@@ -118,7 +118,8 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(secs).toEqual(['Your gyms here', 'Nearby'])
     expect(sheetHost.querySelector('.menu-item').textContent).toContain('Home')
     act(() => byText(sheetHost, '.menu-item', 'NonStop Gym').click())
-    const made = S().equipProfiles.find(g => g.name === 'NonStop Gym')
+    // Named with its street, as a chain's gyms share one name; the place keeps OpenStreetMap's.
+    const made = S().equipProfiles.find(g => g.name === 'NonStop Gym · Langstrasse 1')
     expect(made).toBeTruthy()
     expect(S().activeEquipId).toBe(made.id)
     expect(S().hvGymPlaces[made.id]).toEqual({ lat: 47.3772, lng: 8.5420, osm: 'node/1', name: 'NonStop Gym' })
