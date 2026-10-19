@@ -94,6 +94,7 @@ describe('hevier: Calendar', () => {
     const planned = [...container.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-d.planned')]
     expect(planned.length).toBeGreaterThan(0)
     expect(planned[0].classList.contains('pk-strength')).toBe(true)
+    expect(planned[0].parentElement.querySelector('.hv-cal-tl.pk-strength').textContent).toBe('Push')
     expect(container.querySelector('.hv-cal-d.today').classList.contains('planned')).toBe(true)
     const titles = () => [...container.querySelectorAll('.hv-cal-m .hv-cal-mt b')].map(b => b.textContent)
     const now = new Date()

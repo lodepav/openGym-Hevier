@@ -71,10 +71,15 @@ export const routineKind = r => workoutKind({ name: r?.name, note: r?.note, entr
  * is not trained; '' otherwise. A day of several takes deload over strength over cardio.
  */
 export function planKind(S, iso, byDay, today) {
-  if (iso < today || byDay?.[iso]) return ''
-  const rs = effectiveRoutineIds(S, iso, today).map(id => S.routines.find(r => r.id === id)).filter(Boolean)
+  const rs = plannedOn(S, iso, byDay, today)
   return rs.length ? dayKind(rs.map(r => ({ name: r.name, note: r.note, entries: r.ex }))) : ''
 }
+
+/** The name a planned day shows under it in the month view (D68): its first routine's. */
+export const planTitle = (S, iso, byDay, today) => plannedOn(S, iso, byDay, today)[0]?.name || ''
+
+const plannedOn = (S, iso, byDay, today) => (iso < today || byDay?.[iso] ? []
+  : effectiveRoutineIds(S, iso, today).map(id => S.routines.find(r => r.id === id)).filter(Boolean))
 
 /** The title a trained day shows, as newer Hevy versions do: its first workout's. */
 export function dayTitle(ws) {
