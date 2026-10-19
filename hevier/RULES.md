@@ -36,7 +36,9 @@ presented Hevy's way. New behaviour gets a decision in DECISIONS.md first.
 Sync is always **upstream → `main` → `hevier/main`**, by merge, never rebase: a merge solves a
 conflict once, and `rerere` (enabled with `merge.conflictStyle zdiff3`) remembers it. Prefer
 upstream's release tags (`git merge v1.4.2`) over the tip of `main`: their CHANGELOG entry
-explains the intent that conflict resolution needs. The procedure is [CONFLICTS.md](CONFLICTS.md).
+explains the intent that conflict resolution needs. **Each release's new features and behaviour
+changes are decided with the user** before it lands: take, show the Hevy way, leave out, or
+keep the fork's way, each recorded in DECISIONS.md. The procedure is [CONFLICTS.md](CONFLICTS.md).
 
 On GitHub, disable the fork's `mirror.yml` and CLA workflows rather than deleting them (deleted files
 conflict on every upstream edit to them).

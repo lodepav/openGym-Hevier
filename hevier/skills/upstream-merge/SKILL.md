@@ -14,6 +14,10 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    the target and how many commits it brings (`git log --oneline hevier/main..$TARGET | wc -l`).
 3. **Read first.** The CHANGELOG between the versions, and `git diff --stat
    hevier/main...$TARGET` for the seam files (`git grep -l '\[hevier\]'`).
+   **Decide with the user.** List the release's new features and behaviour changes, sort out
+   the ones that need a decision and ask the user about each, with options and a
+   recommendation (CONFLICTS.md, "Decide what a release brings"). Record each answer in
+   DECISIONS.md. Never decide one yourself; an open item keeps the merge off `hevier/main`.
 4. **Merge on a throwaway branch.** `git checkout -b sync/$TARGET hevier/main`, then
    `git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"`.
 5. **Resolve.** Classify each file with `git diff --name-only --diff-filter=U` and apply
@@ -34,7 +38,7 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    minimise, resume, finish, see it in history, start it again, see the progressed weights.
    Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed
-   with the merge.
+   with the merge. Anything drift turns up that the user would see is a decision too: ask.
 8. **Land.** Commit message body: the conflicted files with the rule used for each, seams
    added, moved or removed, and drift items skipped. `git checkout hevier/main && git merge
    --ff-only sync/$TARGET`, then `git checkout hevier/ux && git merge hevier/main`. Push only
