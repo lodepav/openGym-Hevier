@@ -24,7 +24,8 @@ import org.json.JSONObject;
 /**
  * [hevier] The home-screen month widget (hevier/DECISIONS.md D44, PLAN.md §5 item 21): this
  * month's calendar, trained days filled in the calendar's colours (strength blue, cardio green,
- * deload orange), today ringed, and the month's "N workouts · N sets". It draws from the snapshot
+ * deload orange), the planned days from today on a dot in their routine's colour (D68), today
+ * ringed, and the month's "N workouts · N sets". It draws from the snapshot
  * the app last handed over (HevierWidgetPlugin), never reads the log itself, and runs no code in
  * the background: it redraws when the app sends a new snapshot, when it is resized, and once after
  * midnight through an inexact alarm that does not wake the phone. A tap opens the Calendar.
@@ -181,6 +182,7 @@ public class HevierMonthWidget extends AppWidgetProvider {
         }
 
         JSONObject kinds = snap.optJSONObject("kinds");
+        JSONObject plans = snap.optJSONObject("plans");
         text.setTextSize(r * 0.95f);
         for (int d = 1; d <= days; d++) {
             int cell = lead + d - 1;
@@ -188,7 +190,9 @@ public class HevierMonthWidget extends AppWidgetProvider {
             float cy = head + ch * (cell / 7) + ch / 2;
             String iso = String.format(Locale.ROOT, "%04d-%02d-%02d", y, mo + 1, d);
             String kind = kinds != null ? kinds.optString(iso, "") : "";
-            int color = "cardio".equals(kind) ? GREEN : "deload".equals(kind) ? ORANGE : "strength".equals(kind) ? BLUE : 0;
+            int color = kindColor(kind);
+            // A day that has passed since the snapshot was sent loses its dot (D68).
+            int plan = color == 0 && d >= today && plans != null ? kindColor(plans.optString(iso, "")) : 0;
             if (color != 0) {
                 fill.setColor(color);
                 c.drawCircle(cx, cy, r, fill);
@@ -197,10 +201,18 @@ public class HevierMonthWidget extends AppWidgetProvider {
                 ring.setColor(color != 0 ? LABEL : BLUE);
                 c.drawCircle(cx, cy, color != 0 ? r - ring.getStrokeWidth() : r, ring);
             }
-            text.setColor(color != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
+            if (plan != 0) {
+                fill.setColor(plan);
+                c.drawCircle(cx, cy + r * 0.62f, Math.max(1.5f * density, r * 0.12f), fill);
+            }
+            text.setColor(color != 0 || plan != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
             Paint.FontMetrics fm = text.getFontMetrics();
             c.drawText(String.valueOf(d), cx, cy - (fm.ascent + fm.descent) / 2, text);
         }
         return b;
+    }
+
+    private static int kindColor(String kind) {
+        return "cardio".equals(kind) ? GREEN : "deload".equals(kind) ? ORANGE : "strength".equals(kind) ? BLUE : 0;
     }
 }

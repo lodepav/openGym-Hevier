@@ -14,7 +14,7 @@ import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { streakLabel } from '../lib/streak.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind } from '../lib/calendar.js'
 
 const MORE = 6
 
@@ -40,7 +40,8 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
         if (!iso) return <span key={'b' + i} />
         const mark = dayMark(st, iso, byDay)
         const kind = dayKind(byDay[iso])
-        const cls = 'hv-cal-d ' + mark + (kind ? ' k-' + kind : '') + (iso === today ? ' today' : '')
+        const plan = planKind(st, iso, byDay, today)
+        const cls = 'hv-cal-d ' + mark + (kind ? ' k-' + kind : '') + (plan ? ' planned pk-' + plan : '') + (iso === today ? ' today' : '')
         const day = Number(iso.slice(8))
         const title = dayTitle(byDay[iso])
         return small
@@ -62,15 +63,17 @@ export default function Calendar() {
   const now = new Date()
   const [from, setFrom] = useState({ y: now.getFullYear(), mo: now.getMonth() })
   const [count, setCount] = useState(MORE)
+  const [ahead, setAhead] = useState(0)
   const [year, setYear] = useState(now.getFullYear())
   const byDay = workoutsByDay(st.workouts)
   const rest = restDays(st.workouts, today)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
   // A month tapped in the year view opens the month view on it.
-  const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setView('month') }
+  const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
   // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's
   // App has put a new page at the top; coming back (POP) keeps the place App restores. Earlier
-  // months go in above: the page is moved down by what they add, so what was in view stays.
+  // months go in above: the page is moved down by what they add, so what was in view stays. Later
+  // months (D68) go in below, one per tap, and the page goes down to the new one.
   const back0 = useNavigationType() === 'POP'
   const mounted = useRef(false)
   const grow = useRef(null)
@@ -81,7 +84,7 @@ export default function Calendar() {
     if (view !== 'month' || (first && back0)) return
     const f = requestAnimationFrame(() => window.scrollTo(0, pageH()))
     return () => cancelAnimationFrame(f)
-  }, [view, from])   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [view, from, ahead])   // eslint-disable-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
     if (grow.current == null) return
     window.scrollBy(0, pageH() - grow.current)
@@ -105,7 +108,8 @@ export default function Calendar() {
     </div>
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
-      {monthsBack(from.y, from.mo, count).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      <button type="button" className="btn hv-cal-more next" onClick={() => setAhead(a => a + 1)}>{t('Show next month')}</button>
     </> : <>
       <div className="hv-cal-yr">
         <button type="button" className="iconbtn" aria-label={t('Previous year')} onClick={() => setYear(y => y - 1)}><Icon name="chevronLeft" /></button>

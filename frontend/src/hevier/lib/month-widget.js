@@ -4,13 +4,14 @@
 // with its calendar kind (item 25's colours), each month's "N workouts · N sets" in the app's
 // language, the month names and weekday letters, and the week's first day. The widget draws the
 // month the phone is in, so it turns the page at midnight on its own; a month the snapshot does not
-// have yet has no workouts. Nothing here is stored in S.
+// have yet has no workouts. The planned days of this month and the next ride along (D68), dotted in
+// their routine's colour. Nothing here is stored in S.
 import { t, tn } from '../../lib/i18n.js'
 import { workoutDay } from '../../lib/history.js'
 import { DAYS, MONTHS_LONG, weekStartOf, weekOrder } from '../../lib/format.js'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { workSets } from './volume.js'
-import { dayKind } from './calendar.js'
+import { dayKind, planKind, monthCells } from './calendar.js'
 import { countedWorkouts } from './counted.js'
 
 export const WIDGET_SNAPSHOT_VERSION = 1
@@ -30,7 +31,8 @@ export const summaryOf = (workouts, sets) => (workouts
 
 /**
  * The snapshot for `today` (ISO): { v, ws, months [12 names], days [7 letters, from ws],
- * kinds { iso: 'strength' | 'cardio' | 'deload' }, totals { 'YYYY-MM': line }, empty }.
+ * kinds { iso: 'strength' | 'cardio' | 'deload' }, plans { iso: kind } (D68: the untrained days from
+ * `today` to the end of next month with a routine planned), totals { 'YYYY-MM': line }, empty }.
  * Sets are ticked work sets (D18's count), as the monthly report counts them.
  */
 export function widgetSnapshot(S, today) {
@@ -53,12 +55,18 @@ export function widgetSnapshot(S, today) {
     totals.set(d.slice(0, 7), m)
   }
   const ws = weekStartOf(S)
+  const y = Number(today.slice(0, 4)), mo = Number(today.slice(5, 7)) - 1
+  const next = new Date(y, mo + 1, 1)
+  const ahead = [...monthCells(y, mo, 0), ...monthCells(next.getFullYear(), next.getMonth(), 0)].filter(d => d && d >= today)
+  const trained = Object.fromEntries([...byDay].map(([d]) => [d, true]))
+  const plans = Object.fromEntries(ahead.map(d => [d, S?.routines && S.week && S.dayPlan ? planKind(S, d, trained, today) : '']).filter(([, k]) => k))
   return {
     v: WIDGET_SNAPSHOT_VERSION,
     ws,
     months: MONTHS_LONG.map(m => t(m)),
     days: weekOrder(ws).map(d => t(DAYS[d])),
     kinds: Object.fromEntries([...byDay].sort(([a], [b]) => a.localeCompare(b)).map(([d, list]) => [d, dayKind(list)])),
+    plans,
     totals: Object.fromEntries([...totals].map(([k, m]) => [k, summaryOf(m.n, m.sets)])),
     empty: summaryOf(0, 0),
   }

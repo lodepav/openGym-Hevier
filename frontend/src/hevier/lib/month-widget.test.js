@@ -25,6 +25,19 @@ describe('hevier month widget snapshot (D44)', () => {
     expect(s.totals).toEqual({ '2026-09': summaryOf(1, 2), '2026-10': summaryOf(3, 4) })
     expect(summaryOf(3, 4)).toBe('3 workouts · 4 sets')
     expect(s.empty).toBe('No workouts this month')
+    expect(s.plans).toEqual({})
+  })
+
+  it('carries the planned days from today to the end of next month, not the trained ones (D68)', () => {
+    const S = { weekStart: 1, dayPlan: {}, queue: null, week: { 2: ['run'], 5: ['push'] },
+      routines: [{ id: 'run', name: 'Run', ex: [{ id: RUN }] }, { id: 'push', name: 'Push', ex: [{ id: BENCH }] }],
+      workouts: [W('2026-10-23', [{ id: BENCH, sets: [set()] }])] }
+    const s = widgetSnapshot(S, '2026-10-19')
+    expect(s.plans['2026-10-20']).toBe('cardio')
+    expect(s.plans['2026-10-23']).toBeUndefined()          // trained already
+    expect(s.plans['2026-10-30']).toBe('strength')
+    expect(s.plans['2026-11-27']).toBe('strength')
+    expect(Object.keys(s.plans).every(d => d >= '2026-10-19' && d < '2026-12-01')).toBe(true)
   })
 
   it('a Sunday week starts the letters on Sunday; January reaches back to December', () => {

@@ -1,6 +1,7 @@
 // Hevy's Calendar page (reference/SCREENS.md §11): month grids with the trained days filled, and
 // the "week streak · rest days" line. A day's mark follows upstream's Calendar (sheets.jsx): a
-// trained day, else a day note, else a rescheduled or a planned session.
+// trained day, else a day note, else a rescheduled or a planned session. A planned day from today on
+// has a dot in its routine's colour (D68).
 import { workoutDay, effectiveRoutineIds } from '../../lib/history.js'
 import { weekDayOffset } from '../../lib/format.js'
 import { pinState } from '../../lib/queue.js'
@@ -60,6 +61,19 @@ export function workoutKind(w) {
 export function dayKind(ws) {
   const kinds = new Set((ws || []).map(workoutKind))
   return kinds.has('deload') ? 'deload' : kinds.has('strength') ? 'strength' : kinds.size ? 'cardio' : ''
+}
+
+/** A routine's kind, read as a workout of its exercises would be (D68). */
+export const routineKind = r => workoutKind({ name: r?.name, note: r?.note, entries: r?.ex })
+
+/**
+ * What a day's planned dot shows (D68): the kind of the routines planned on it, from `today` on, while it
+ * is not trained; '' otherwise. A day of several takes deload over strength over cardio.
+ */
+export function planKind(S, iso, byDay, today) {
+  if (iso < today || byDay?.[iso]) return ''
+  const rs = effectiveRoutineIds(S, iso, today).map(id => S.routines.find(r => r.id === id)).filter(Boolean)
+  return rs.length ? dayKind(rs.map(r => ({ name: r.name, note: r.note, entries: r.ex }))) : ''
 }
 
 /** The title a trained day shows, as newer Hevy versions do: its first workout's. */
