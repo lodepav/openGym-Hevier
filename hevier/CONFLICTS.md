@@ -32,6 +32,9 @@ git show $TARGET:CHANGELOG.md | sed -n '1,80p'
 # which seam files did upstream touch? (these are where conflicts will be)
 git diff --stat hevier/main...$TARGET -- $(git grep -l '\[hevier\]' hevier/main | cut -d: -f2-)
 
+# 3b. List what the release brings and get the user's decisions (see "Decide what a release
+#     brings"). Nothing lands until every item has one.
+
 # 4. Merge on a throwaway branch, so a bad resolution never lands on the trunk
 git checkout -b sync/$TARGET hevier/main
 git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"
@@ -51,6 +54,36 @@ git checkout hevier/ux && git merge hevier/main
 ```
 
 Never `git push --force` a `hevier/*` branch, and never commit to `main`.
+
+## Decide what a release brings
+
+Every upstream release gets a decision round with the user, **before it lands on
+`hevier/main`**. A merge can be clean and still change how the fork's app works, so this is not
+about conflicts: it is about what the user wants. The agent lists and recommends; **the user
+decides**. Don't settle an item yourself because it looks obvious.
+
+1. **List** every new feature and every change of behaviour in the release: its CHANGELOG entry
+   since the last merged version, `git log --oneline hevier/main..$TARGET`, and PIPELINE.md's
+   rows for that version (what the fork built ahead and its "At the merge" notes, D27, D45, …).
+2. **Sort** them. *Nothing to decide:* fixes, server, security, sync and store internals, and
+   anything that only changes upstream's own screens the fork doesn't show. *Needs a decision:*
+   - a new feature, screen, setting or flow the user would see or could reach;
+   - a change in how something works that a decision (D1, D2, …) or a fork screen relies on, or
+     that goes against Hevy's UX (RULES.md, "Scope");
+   - something the fork already built ahead (take upstream's and delete the fork's copy, or
+     keep the fork's);
+   - a new permission, endpoint, dependency or data field.
+3. **Ask**, one item at a time or a short batch: what it is (with the commit id), what the fork
+   does today and which decision it touches, the options, and your recommendation. The usual
+   options are: take it as upstream has it · take it, shown the Hevy way in the fork's UI ·
+   leave it out of the fork's UI (as D16 hides rows; stored values untouched) · keep the fork's
+   way. Keeping old *behaviour* against upstream's logic is a fork wrapper with a test (rule 2),
+   never upstream's code put back.
+4. **Record** each answer before the code that follows it: a new D row in DECISIONS.md, or a
+   dated change to the decision it touches (an "at the merge" decision is closed there). The
+   items with nothing to decide, and the ones left out, go in the merge commit's body; update
+   PIPELINE.md's rows for that version.
+5. An item still open keeps the merge on its `sync/` branch. Don't land it with a guess.
 
 ## Classify every conflicted file first
 
@@ -131,8 +164,8 @@ A clean merge can still break the fork. After every sync, check these:
    prop or behaviour the overlay relies on changed. Fix the overlay.
 2. **New workout-screen features**: `git log --oneline <old>..<new> -- frontend/src/views/Workout.jsx frontend/src/components/` and the CHANGELOG. Anything new that
    upstream's `list` layout renders (a chip, a sheet, a handler) and `HevyWorkout` doesn't is
-   either added to the Hevy layout or consciously skipped. List skipped items in the merge
-   commit body.
+   a decision for the user (see "Decide what a release brings"): added to the Hevy layout or
+   skipped. List skipped items in the merge commit body.
 3. **`build:mobile` changed?** `git diff <old>..<new> -- frontend/package.json | grep build:mobile`.
    If so, mirror it in `hevier/tools/emulator.sh`.
 4. **CSS selectors/variables renamed?** `git diff <old>..<new> -- frontend/src/index.css | grep -E '^[-+](\.|:root|--)'`.
@@ -174,6 +207,9 @@ A clean merge can still break the fork. After every sync, check these:
    silent-drift items skipped.
 
 ## When to stop and ask the human
+
+- A release brings a new feature or changes how something works (see "Decide what a release
+  brings"). Always, every release.
 
 - `main` won't fast-forward.
 - A seam no longer has a hook point (Rule A, step 5).
