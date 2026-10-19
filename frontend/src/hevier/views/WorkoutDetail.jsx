@@ -30,6 +30,7 @@ import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
 import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
+import { workoutTrends } from '../lib/set-trend.js'
 
 // A cable's setup shows when it is not the plain 1:1 (D43).
 const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
@@ -39,9 +40,17 @@ import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 export const DETAIL_PATH = '/workout-detail'
 
 // A record's badge: the trophy and what it is a record of (D51).
+// Beat last time (D66): each work set against the same set last time.
+const TREND = { 1: ['up', '↑', 'Better than last time'], 0: ['eq', '=', 'Same as last time'], '-1': ['down', '↓', 'Less than last time'] }
+const Trend = ({ v }) => {
+  if (v == null) return null
+  const [cls, glyph, label] = TREND[v]
+  return <span className={'hv-trend ' + cls} role="img" aria-label={t(label)} title={t(label)}>{glyph}</span>
+}
+
 const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
 
-function ExerciseSets({ w, e, st, recs }) {
+function ExerciseSets({ w, e, st, recs, trends = [] }) {
   const ex = EXIDX[e.id]
   // A record sits on the set that made it, as in Hevy; a session's (its volume) on the exercise.
   const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
@@ -60,7 +69,7 @@ function ExerciseSets({ w, e, st, recs }) {
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
-        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}</span>
+        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}<Trend v={trends[i]} /></span>
         <PrBadge recs={recs.filter(r => r.set === i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}
@@ -118,7 +127,7 @@ export function WorkoutDetail() {
     </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} />)}
+      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

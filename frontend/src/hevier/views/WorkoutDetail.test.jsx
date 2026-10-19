@@ -95,6 +95,16 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(sets.querySelector('b').textContent).toBe('2')
   })
 
+  it('marks each work set against the same set last time (D66)', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    const trend = n => [...container.querySelectorAll('.hv-wd-row')].find(r => r.firstChild.textContent === n)?.querySelector('.hv-trend')
+    expect(trend('W')).toBeNull()                       // warm-ups are not compared
+    expect(trend('1').className).toContain('up')        // 60 × 8 against 55 × 8
+    expect(trend('1').getAttribute('aria-label')).toBe('Better than last time')
+    expect(trend('2')).toBeNull()                       // last time had one set
+  })
+
   it('⋯ → All details opens upstream’s sheet', () => {
     render()
     act(() => workoutDetailSheet(W))
