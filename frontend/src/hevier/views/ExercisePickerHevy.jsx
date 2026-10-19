@@ -13,7 +13,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
-import { gymById, gymHas, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
+import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
 import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
 import { EquipFilterSheet, MuscleFilterSheet } from '../components/EquipGroups.jsx'
 import { muscleValueLabel, muscleFilterValue } from '../lib/muscle-groups.js'
@@ -56,7 +56,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const [eq, setEq] = useState(profile ? GYM : '')
   const [picked, setPicked] = useState([])
   const [shown, setShown] = useState(PAGE)
-  const [showHidden, setShowHidden] = useState(false)
+  const [showHidden, setShowHidden] = useState(0)   // D67: how many of the hidden are listed
   const searchRef = useRef(null)
   const onSearchFocus = useSheetKeyboard(searchRef)
   const moreRef = useAutoMore(() => setShown(s => s + PAGE))
@@ -103,7 +103,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // choice is this picker's only, as the workout's gym line is where the gym is changed.
   const chooseGym = id => {
     setGymId(id)
-    setShowHidden(false)
+    setShowHidden(0)
     reset(setEq)(id ? GYM : '')
     if (!inWorkout(st, path)) rememberGym(id)
   }
@@ -149,8 +149,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     </div>
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}
     {hidden.length > 0 && (showHidden
-      ? <><h4 className="sec">{t('Not at {0}', profile?.name)}</h4><div className="list">{hidden.slice(0, PAGE).map(e => row(e, 'h', e.eq && t(e.eq)))}</div></>
-      : <button className="hv-pk-hidden" onClick={() => setShowHidden(true)}>
+      ? <><h4 className="sec">{t('Not at {0}', profile?.name)}</h4><div className="list">{hidden.slice(0, showHidden).map(e => row(e, 'h', t('Needs {0}', gymLacks(profile, e).map(k => t(k)).join(', '))))}</div>
+        {hidden.length > showHidden && <button className="btn hv-pk-more" onClick={() => setShowHidden(n => n + PAGE)}>{t('Show more')}</button>}</>
+      : <button className="hv-pk-hidden" onClick={() => setShowHidden(PAGE)}>
         <span>{t('{0} hidden at {1}', hidden.length, profile?.name)}</span><span className="hv-link">{t('Show')}</span>
       </button>)}
     {multi && picked.length > 0 && <div className="hv-pk-add">

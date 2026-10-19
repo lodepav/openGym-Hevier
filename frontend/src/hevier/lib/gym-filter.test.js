@@ -3,7 +3,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { gymEquipment, gymHas, rememberedGym, rememberGym, pickerGym, gymSheet } from './gym-filter.js'
+import { gymEquipment, gymHas, gymLacks, rememberedGym, rememberGym, pickerGym, gymSheet } from './gym-filter.js'
 
 const PUSHUP = EXDB.find(e => e.eq === 'body weight' && /^push-up$/i.test(e.n))
 const PULLUP = EXDB.find(e => e.eq === 'body weight' && /^pull-up$/i.test(e.n))
@@ -43,5 +43,15 @@ describe('hevier: gym filter (D62)', () => {
     expect(pickerGym(live, '/plan/r/x')).toBe('home')   // a routine edited while a workout is open
     rememberGym('gone')
     expect(rememberedGym(S)).toBeNull()                 // a deleted gym is no choice
+  })
+
+  it('names what a gym lacks for an exercise: its equipment, its bench or bar, body weight (D67)', () => {
+    const INCLINE = EXDB.find(e => e.eq === 'dumbbell' && /^dumbbell incline bench press$/i.test(e.n))
+    const db = gym('a', ['dumbbell'], { hvBw: 1 })
+    expect(gymLacks(db, INCLINE)).toEqual(['bench'])
+    expect(gymLacks(db, CURL)).toEqual([])
+    expect(gymLacks(db, PULLUP)).toEqual(['body weight', 'pull-up bar'])
+    expect(gymLacks(gym('b', []), PUSHUP)).toEqual([])    // saved before D62: has body weight
+    expect(gymLacks(null, PULLUP)).toEqual([])
   })
 })
