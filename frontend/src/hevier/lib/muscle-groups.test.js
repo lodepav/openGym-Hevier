@@ -59,7 +59,7 @@ describe('hevier: muscle groups (D64)', () => {
     expect(muscleFilterValue('Biceps', null)).toBe('Biceps')
   })
 
-  it('counts a row’s rear delts in the explorer, not its front or side (D65)', () => {
+  it('counts a row’s rear delts and a press’s front delts in the explorer (D65)', () => {
     const row = EXDB.find(e => e.tg !== 'delts' && smOf(e).includes('rear deltoids'))
     expect(explorerShare('delts-rear', row)).toBeGreaterThan(0)
     expect(explorerShare('delts-front', row)).toBeUndefined()
@@ -67,6 +67,12 @@ describe('hevier: muscle groups (D64)', () => {
     expect(explorerShare('delts-side', raise)).toBe(1)
     expect(explorerShare('delts-rear', raise)).toBeUndefined()
     expect(explorerShare(muscleGroupValue('shoulders'), raise)).toBe(1)
+    const bench = EXDB.find(e => e.n === 'barbell bench press')
+    expect(explorerShare('delts-front', bench)).toBe(0.4)                // pressing works the front
+    expect(explorerShare('delts-side', bench)).toBeUndefined()
+    expect(explorerShare('delts-front', EXDB.find(e => e.n === 'barbell close-grip bench press'))).toBe(0.4)
+    expect(explorerShare('delts-front', EXDB.find(e => e.tg === 'triceps' && /pushdown/.test(e.n)))).toBeUndefined()
+    expect(explorerShare('delts-front', row)).toBeUndefined()
   })
 })
 
