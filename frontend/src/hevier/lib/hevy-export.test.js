@@ -4,6 +4,7 @@ import { exportOnce } from './hevy-export-sync.js'
 import { HevyApiError, HEVY_ID_MAP } from '../../lib/import-hevy.js'
 import { importId } from '../../lib/import-csv.js'
 import { EXIDX } from '../../lib/exercises.js'
+import { makeSideSet } from '../../lib/workout-model.js'
 
 const T0 = Date.parse('2026-10-15T16:00:00Z')
 const squat = '0043'
@@ -149,6 +150,34 @@ describe('hevier export to Hevy: templates (D34)', () => {
     expect(find('nope')).toBe(null)
   })
 
+  it('a template named with a brand goes for that brand only, found as the import finds it', () => {
+    const sq = hevyOf(squat)
+    const templates = [
+      { id: 'B1', title: 'Squat (Barbell) (brand: Eleiko)', type: 'weight_reps', is_custom: true },
+      { id: 'B2', title: 'Squat (Barbell) (Rogue)', type: 'weight_reps', is_custom: true },
+      { id: sq, title: 'Squat (Barbell)', type: 'weight_reps' },
+    ]
+    const find = templateFinder(templates, {})
+    expect(find(squat)).toEqual({ id: sq, type: 'weight_reps' })
+    expect(find(squat, 'Eleiko')).toEqual({ id: 'B1', type: 'weight_reps' })
+    expect(find(squat, 'rogue')).toEqual({ id: 'B2', type: 'weight_reps' })
+    expect(find(squat, 'Life Fitness')).toEqual({ id: sq, type: 'weight_reps' })
+    const d = workoutDraft(workout({ entries: [{ id: squat, hvBrand: 'Eleiko', sets: [{ w: 100, r: 5, done: true }] }] }))
+    expect(finish(d, find).exercises[0].exercise_template_id).toBe('B1')
+  })
+
+  it('a brand\'s cable setup and one-limb title are labels of their own (the user\'s LifeFitness templates)', () => {
+    const titles = ['Lat Pulldown (Cable) (x2) (brand:LifeFitness)', 'Leg Press (Machine) (brand:LifeFitness)', 'Single Leg Press (Machine) (brand:LifeFitness)']
+    const find = templateFinder(titles.map((title, i) => ({ id: 'L' + i, title, type: 'weight_reps', is_custom: true })), {})
+    const tpl = e => finish(workoutDraft(workout({ entries: [e] })), find).exercises[0].exercise_template_id
+    const set = { w: 50, r: 10, done: true }
+    const side = makeSideSet({ w: 50, r: 20 })
+    side.sides.L.done = side.sides.R.done = true
+    expect(tpl({ id: '0150', hvBrand: 'LifeFitness', hvCable: 'x2', sets: [set] })).toBe('L0')
+    expect(tpl({ id: '0739', hvBrand: 'LifeFitness', sets: [set] })).toBe('L1')
+    expect(tpl({ id: '0739', hvBrand: 'LifeFitness', sets: [{ ...side, done: true }] })).toBe('L2')
+  })
+
   it('makes a custom template from the exercise: its name, equipment, muscles and type', () => {
     expect(newTemplate(EXIDX[legCurl], [{ weight_kg: 40, reps: 10 }])).toEqual({
       title: 'Lever Seated Leg Curl', exercise_type: 'weight_reps', equipment_category: 'machine',
@@ -208,6 +237,19 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     await exportOnce(S, st, { call, pages })
     expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['PUT /v1/workouts/HW1'])
     expect(await exportOnce(S, st, { call, pages })).toEqual({ sent: 0, refused: 0, error: null })
+  })
+
+  it('sends a branded set as the brand\'s own template, and the plain one while Hevy has none', async () => {
+    const { S, st, calls, call } = setup()
+    let titles = [{ id: hevyOf(squat), title: 'Squat (Barbell)', type: 'weight_reps' }]
+    const pages = async () => titles
+    S.workouts.push(workout({ id: 'a', entries: [{ id: squat, hvBrand: 'Eleiko', sets: [{ w: 100, r: 5, done: true }] }] }))
+    await exportOnce(S, st, { call, pages })
+    expect(calls.at(-1)[2].workout.exercises[0].exercise_template_id).toBe(hevyOf(squat))
+    titles = [...titles, { id: 'B1', title: 'Squat (Barbell) (brand: Eleiko)', type: 'weight_reps', is_custom: true }]
+    S.workouts.push(workout({ id: 'b', start: T0 + 86400e3, end: T0 + 90000e3, entries: [{ id: squat, hvBrand: 'Eleiko', sets: [{ w: 100, r: 5, done: true }] }] }))
+    await exportOnce(S, st, { call, pages })
+    expect(calls.at(-1)[2].workout.exercises[0].exercise_template_id).toBe('B1')
   })
 
   it('creates a new routine in its folder and gives it its Hevy id; a refused one is set aside', async () => {

@@ -186,6 +186,13 @@ export function readKey(id) {
  * null for none. Every function below that reads it takes it as its last argument.
  */
 
+/** The brand and cable setup a title carries ('' for none), as the import reads them: D29's
+ *  "(brand: X)", a Hevy title's second bracket or one of your own brands; D43's "(x2)". */
+export function titleLabel(title, source, choices) {
+  const { brand, cable } = partsOf(title, source, choices)
+  return { brand: brand || '', cable: cable || '' }
+}
+
 /** The review's key for a title: the app and the title without its brand and cable tag, lower case (D33). */
 export const choiceKey = (title, source, choices) => source + '|' + partsOf(title, source, choices).name.toLowerCase()
 /** The cable review's key: the review's, and the brand when there is one, so a brand's setup is its own (D43). */
