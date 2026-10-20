@@ -52,6 +52,7 @@ import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setColumns, viewOf } from '../lib/set-columns.js'
+import { filledFromLast } from '../lib/plain-routine.js'
 import {
   withDrop, withoutDrop, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField,
 } from '../lib/set-rows.js'
@@ -261,7 +262,7 @@ export default function HevyExerciseBlock({
     const key = (side || '') + col.f
     // A weight filled from last time (D69, `hvLast`) is marked manual only so edits above it do not
     // cascade onto it: it stays grey until it is touched.
-    const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !src.hvLast)
+    const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !filledFromLast(s, side))
     if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
     // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
     const hintProps = {
@@ -285,9 +286,10 @@ export default function HevyExerciseBlock({
         touch(i, key)
         const val = col.store ? col.store(v) : v
         if (side) setSide(i, side, col.f, val); else onField(i, col.f, val)
-        if (col.f === 'w' && src.hvLast) update(st => {
+        if (col.f === 'w' && filledFromLast(s, side)) update(st => {
           const row = st.active?.entries[entryIdx]?.sets[i]
-          if (row) delete (side ? row.sides?.[side] || {} : row).hvLast
+          const left = side ? String(row?.hvLast || '').replace(side, '') : ''
+          if (row) { if (left) row.hvLast = left; else delete row.hvLast }
         }, true)
       }} />
   }
