@@ -40,6 +40,7 @@ import Icon from '../../components/Icon.jsx'
 import { Check, NumberField } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
+import { nextSet } from '../lib/next-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
@@ -82,6 +83,9 @@ export default function HevyExerciseBlock({
   const history = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
     [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   const prev = previousSetsFor(history, entry, previousMode(S))
+  // The set to do next: a lighter row with a blue edge, its values white and bold (lib/next-set.js).
+  const next = S.active && !S.active.editingWorkoutId ? nextSet(S.active) : null
+  const isNext = i => next?.idx === entryIdx && next.i === i
   // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.
   const prSets = new Set(recordsAt(liveRecords(S), entryIdx).map(r => r.set))
   const last = lastEntryFor(history, entry.id, entry.rid)
@@ -341,7 +345,7 @@ export default function HevyExerciseBlock({
     const prevText = previousText(p, { ...prevOpts, side })
     const canCopy = side ? !!(p && isSideSet(p)) : !!p
     return <div ref={side === 'R' ? undefined : el => onSetRowRef?.(i, el)} style={grid}
-      className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '')}>
+      className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
       {side === 'R' ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + ': ' + prevText : undefined}>
