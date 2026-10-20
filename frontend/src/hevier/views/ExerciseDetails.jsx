@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
-import { fmtNum, fmtDate, fmtVol } from '../../lib/format.js'
+import { fmtNum, fmtDate, fmtVol, capWords } from '../../lib/format.js'
 import { lastEntryFor } from '../../lib/history.js'
 import { hevySetLabel } from '../lib/set-text.js'
 import { isCustomEx } from '../../lib/exercises.js'
@@ -156,7 +156,7 @@ function ExerciseDetails({ ex, close }) {
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
-  const aka = shown ? [ex.n, ...aliasesOf(st, ex.id).filter(n => n !== shown)] : aliasesOf(st, ex.id)
+  const aka = shown ? [isCustomEx(ex) ? ex.n : capWords(ex.n), ...aliasesOf(st, ex.id).filter(n => n !== shown)] : aliasesOf(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
     sections: [
