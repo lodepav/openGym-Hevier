@@ -2,6 +2,16 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.7.1 · 2026-10-20
+
+Based on openGym 1.4.1.
+
+### Fixes and changes
+
+- the exercise settings page's rest line reworded
+- the rest wheel's line fits the wheel opening on the default
+- the next set's tick box shows on its highlight
+
 ## 1.7.0 · 2026-10-20
 
 Based on openGym 1.4.1.
