@@ -2,6 +2,27 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.7.0 · 2026-10-20
+
+Based on openGym 1.4.1.
+
+### New
+
+- other names for an exercise, searchable, one shown as its name (D73)
+- a per-side exercise can be done right first (D72)
+- rests after the first side and the last set, Ready goes by itself, the next set highlighted (D70, D71)
+- a routine opens each set as last done, with progression and auto warm-ups a switch per routine (D69)
+
+### Fixes and changes
+
+- Other names sheet layout
+- Home's layout and folders move into S at launch
+- Home's layout and folders in the backup (D12, D13)
+- per-side sets filled from last time stay grey (D69)
+- Hevy's duration on Save, session records on their set, heart rate on the feed, export by brand, the review doc dropped
+- no keypad bar, a field being typed into stays in sight, no copy menu on a tap (D2)
+- PREVIOUS reads a set last time lacked from the last session that had it (D3)
+
 ## 1.6.1 · 2026-10-20
 
 Based on openGym 1.4.1.
