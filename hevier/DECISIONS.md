@@ -493,3 +493,11 @@ Added 2026-10-20, at the user's request.
 | # | Decision |
 |---|---|
 | D72 | **A per-side exercise can be done right first.** The workout's ⋮ on an exercise with per-side sets gets **Side order: Left first / Right first** (`hevier/lib/side-order.js`), stored per exercise in `S.hvSideOrder` (`{ [exId]: 'RL' }`, a fork-only field upstream ignores, so it syncs and is in backups; left first is no entry). Right first draws each set's R line above its L line, the set number on the R line; ticking, D70's rest after the first side and D71's highlight follow the lines as drawn. Nothing logged changes (`sides.L` / `sides.R` stay upstream's). Upstream's timed per-side pairs (two sets, `side: 'L'` then `'R'`), Workout Detail, PREVIOUS's own text and every other screen keep left first. |
+
+## Other names
+
+Added 2026-10-20, at the user's request.
+
+| # | Decision |
+|---|---|
+| D73 | **An exercise can have other names, each found by the search, and one of them shown as its name.** Exercise details' ⋯ → **Other names** opens a sheet: the names given so far, each with a switch, **Show as its name**, and a remove button, and a field to add one. The search (the picker, Profile → Exercises, upstream's library and explorer: everything that goes through upstream's `searchExercises`) finds the exercise by its own name and by every other name, with upstream's typo tolerance. **Switched on** (one at a time), that name is shown in place of the exercise's own everywhere upstream's `exerciseNameFor` names it (the workout, routines, history, stats, the feed, Health Connect's session titles, a shared plan's picture), in the user's own casing. **All off**, the other names show only on the exercise details, as an **Also called** line under the title, which opens the sheet too; while one is shown, that line names the exercise's own name first. Stored in `S.hvAliases` (`{ [exId]: { names, show } }`, a fork-only field upstream ignores, so it syncs and is in backups); seam S41 asks it from upstream's name and search helpers. Nothing logged changes: the id stays, so history, records, exports, the import's matching and the export to Hevy (D34, by template) are as before. |

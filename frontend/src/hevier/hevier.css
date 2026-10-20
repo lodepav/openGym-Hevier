@@ -319,6 +319,15 @@
 :root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;padding-inline-start:44px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-xd-bar .iconbtn{background:none}
+:root[data-ui="hevier"] .hv-xd-aka{display:block;width:100%;margin:-6px 0 10px;padding:0 0 0 44px;background:none;border:0;text-align:start;font:inherit;font-size:13px;color:var(--label-3)}
+:root[data-ui="hevier"] .hv-xd-aka span{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-aliases h3{margin-bottom:6px}
+:root[data-ui="hevier"] .hv-aliases .list{margin:12px 0}
+:root[data-ui="hevier"] .hv-aliases .item{display:flex;align-items:center;gap:10px}
+:root[data-ui="hevier"] .hv-alias-name{flex:1;min-width:0;overflow-wrap:anywhere}
+:root[data-ui="hevier"] .hv-aliases .iconbtn{background:none}
+:root[data-ui="hevier"] .hv-alias-add{display:flex;gap:8px;margin-top:12px}
+:root[data-ui="hevier"] .hv-alias-add .input{flex:1;min-width:0}
 /* the exercise's picture as tall as Hevy's, about 16:9 of the screen's width (upstream's is 320px) */
 :root[data-ui="hevier"] :is(.hv-xd-summary, .hv-xd-howto) > .exmedia :is(img, video, .exmedia-x){height:min(56vw, 320px)}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}

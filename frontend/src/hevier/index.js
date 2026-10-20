@@ -22,6 +22,7 @@ import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
+import { aliasHooks } from './lib/ex-aliases.js'
 import { chartTicks } from './lib/chart-ticks.js'
 import { initNoteFix } from './lib/note-text.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -47,6 +48,7 @@ function install() {
   applyForkIcons()
   applyForkName()
   hooks.chartTicks = chartTicks
+  Object.assign(hooks, aliasHooks(state))                 // an exercise's other names, one shown as its name (S41, D73)
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
   installFinishHook(nav)

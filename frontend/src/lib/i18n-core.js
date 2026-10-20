@@ -12,6 +12,7 @@ export const LANGS = {
 // Languages with exercise instructions / names, generated from catalogue/i18n by
 // scripts/catalogue/build.mjs. A pack can be partial; what it lacks shows in English.
 import { INSTR_LANGS, EXERCISE_NAME_LANGS } from './catalogue-langs.js'
+import { hooks } from '../hevier/hooks.js' // [hevier] S41
 export { INSTR_LANGS, EXERCISE_NAME_LANGS }
 // Languages rendered right-to-left; i18n.js setLang applies the direction from this.
 export const RTL_LANGS = new Set(['ar'])
@@ -201,6 +202,8 @@ export function _setDetails(newEnInstr, newEnDescs, newDescs, forLang = lang) {
 // exercise the pack has no entry for keeps its English title, one exercise at a time.
 // User-created exercises have no entry in the pack and keep their exact chosen name.
 export const exerciseNameFor = ex => {
+  const own = hooks.exName?.(ex) // [hevier] S41: a name the user chose for it
+  if (own) return own
   // A language that chose "English names only" sees the canonical catalogue title, not the
   // translation — and never the parenthetical either. Custom exercises keep their exact name.
   if (enOnly) return ex?.n || ''
@@ -235,13 +238,15 @@ export const CASED_NAME_LANGS = ['de']
 // exercise while "English names only" is on, since exerciseNameFor then shows the English title.
 // Callers spread this onto the element that holds exerciseNameFor(ex)'s output, nothing else —
 // muscle and equipment labels next to it are t() strings and keep their own capitalize.
-export const exerciseNameClass = ex => (!enOnly && exerciseNames && ex && exerciseNames[ex.id]
+// [hevier] S41: a name the user chose keeps the user's casing.
+export const exerciseNameClass = ex => (hooks.exName?.(ex) ? '' : !enOnly && exerciseNames && ex && exerciseNames[ex.id]
   && CASED_NAME_LANGS.includes(baseLang(lang)) ? '' : 'capitalize')
 
 // Search both the localized and canonical English title without changing persisted data.
 export const exerciseNameSearchText = ex => {
   const translated = exerciseNames && ex && exerciseNames[ex.id]
-  return translated ? `${translated} ${ex.n}` : (ex?.n || '')
+  const own = hooks.exAliases?.(ex) // [hevier] S41: the user's other names for it
+  return (translated ? `${translated} ${ex.n}` : (ex?.n || '')) + (own ? ' ' + own : '')
 }
 
 // Called by i18n.js's setLang once the locale pack has been loaded — kept here rather than
