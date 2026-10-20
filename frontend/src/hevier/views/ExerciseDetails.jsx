@@ -28,6 +28,8 @@ import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
 import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
+import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
+import { aliasSheet } from '../components/AliasSheet.jsx'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -152,6 +154,9 @@ function ExerciseDetails({ ex, close }) {
   const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(st, ex.id, on), ex.id)), [logged, sum, same, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const fav = isFav(st, ex.id)
+  // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
+  const shown = shownAlias(st, ex.id)
+  const aka = shown ? [ex.n, ...aliasesOf(st, ex.id).filter(n => n !== shown)] : aliasesOf(st, ex.id)
   const more = () => menuSheet({
     title: exerciseNameFor(ex),
     sections: [
@@ -162,6 +167,7 @@ function ExerciseDetails({ ex, close }) {
           useUI.getState().toast(now ? t('Added to favourites') : t('Removed from favourites'))
         } },
         { icon: 'plus', label: t('Add to my plan'), onClick: () => addToRoutineSheet(ex) },
+        { icon: 'pencil', label: t('Other names'), sub: aliasesOf(st, ex.id).join(', ') || t('Found by the search'), onClick: () => aliasSheet(ex) },
         { icon: 'gear', chevron: true, label: t('All details'), sub: t('Plate loading, estimated 1RM'), onClick: () => upstreamExerciseDetailSheet(ex) },
       ] },
       isCustomEx(ex) && { items: [
@@ -175,6 +181,8 @@ function ExerciseDetails({ ex, close }) {
       <h3 className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</h3>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </div>
+    {aka.length > 0 && <button type="button" className="hv-xd-aka" onClick={() => aliasSheet(ex)}>
+      {t('Also called')} <span>{aka.join(' · ')}</span></button>}
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />

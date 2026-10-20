@@ -11,6 +11,7 @@ import { modeOf } from '../../lib/history.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
+import { aliasHooks } from '../lib/ex-aliases.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -94,6 +95,26 @@ describe('hevier: exercise details (seam S10)', () => {
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Edit').click())
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Remove levels').click())
     expect(useStore.getState().S.hvStrength?.[EX.id]).toBeUndefined()
+  })
+
+  it('other names: the switched-on one is the title, the rest and the own name are “Also called” (D73)', () => {
+    Object.assign(hooks, aliasHooks(() => useStore.getState().S))
+    try {
+      open(log)
+      act(() => useStore.getState().update(s => { s.hvAliases = { [EX.id]: { names: ['Flat bench', 'Bench'], show: 'Bench' } } }))
+      expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
+      expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called ' + EX.n + ' · Flat bench')
+      act(() => container.querySelector('.hv-xd-aka').click())
+      const host = document.createElement('div')
+      const r2 = createRoot(host)
+      act(() => r2.render(useUI.getState().sheets.at(-1).render(() => {})))
+      const sw = host.querySelector('[aria-label="Show “Bench” as its name"]')
+      expect(sw.getAttribute('aria-checked')).toBe('true')
+      act(() => sw.click())
+      expect(container.querySelector('.hv-xd-bar h3').textContent).toBe(EX.n)
+      expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called Flat bench · Bench')
+      act(() => r2.unmount())
+    } finally { hooks.exName = hooks.exAliases = hooks.namesVersion = null }
   })
 
   it('without the hook it is upstream’s sheet', () => {

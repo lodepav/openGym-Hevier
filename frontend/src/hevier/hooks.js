@@ -27,6 +27,9 @@ export const hooks = {
   equipChips: null,      // { on(v, kinds), has(v, ex), Chips }: the muscle explorer's equipment strip (S38)
   muscleChips: null,     // { Chips, share(v, ex), name(v), map(v) }: the muscle explorer's muscles by group (S39)
   plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40)
+  exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
+  exAliases: null,       // (ex) => text: an exercise's other names, for the search (S41)
+  namesVersion: null,    // () => key: changes with those names, so the search's cache is rebuilt (S41)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 
