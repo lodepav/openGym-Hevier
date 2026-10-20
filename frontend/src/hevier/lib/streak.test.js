@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { trainingStreak } from './streak.js'
+import { trainingStreak, streakLabel } from './streak.js'
 
 const MONDAY = 1, SUNDAY = 0
 const ws = (...days) => days.map(d => ({ d }))
@@ -70,5 +70,24 @@ describe('hevier: training streak (D59)', () => {
     // No workout for over two months: back to weeks, and the week streak is gone.
     expect(trainingStreak(every('2024-01-01', 7, 60), '2025-04-18')).toEqual({ unit: 'weeks', n: 0 })
     expect(trainingStreak(every('2024-01-01', 7, 60), '2025-04-17')).toEqual({ unit: 'years', n: 1.1 })
+  })
+
+  it('counts a run of exactly 365 days as a year', () => {
+    const w = [...every('2025-10-13', 7, 53), { d: '2026-10-13' }]
+    expect(trainingStreak(w, '2026-10-13')).toEqual({ unit: 'years', n: 1 })
+  })
+
+  it('two months after the last day of a month is the last day of a shorter one', () => {
+    // 31 Dec 2026 + two months is 28 Feb 2027: a workout that day keeps the run, 2 Mar breaks it.
+    const year = every('2025-12-03', 7, 57)   // weekly to 30 Dec 2026
+    const w = [...year, { d: '2026-12-31' }]
+    expect(trainingStreak([...w, { d: '2027-02-28' }], '2027-03-01').unit).toBe('years')
+    expect(trainingStreak([...w, { d: '2027-03-02' }], '2027-03-02').unit).toBe('weeks')
+  })
+
+  it('writes the line, 0 weeks with no workouts', () => {
+    expect(streakLabel({ workouts: [] }, '2026-10-18')).toBe('0 week streak')
+    expect(streakLabel({ workouts: ws('2026-10-13', '2026-10-15') }, '2026-10-18')).toBe('1 week streak')
+    expect(streakLabel({ workouts: every('2025-03-18', 7, 83) }, '2026-10-18')).toBe('1.5 year streak')
   })
 })

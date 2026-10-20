@@ -76,6 +76,26 @@ describe('hevier personal records (D51)', () => {
     expect(kinds({ workouts: [a, b] }, b)).toEqual(['weight'])
   })
 
+  it('a per-side set counts only its ticked sides', () => {
+    const side = (L, R) => ({ sides: { L: { w: L[0], r: 5, done: L[1] }, R: { w: R[0], r: 5, done: R[1] } }, done: true })
+    const a = wk(1, [{ id: BENCH, sets: [side([80, true], [80, true])] }])
+    const b = wk(2, [{ id: BENCH, sets: [side([100, false], [85, true])] }])
+    const S = { workouts: [a, b] }
+    expect(workoutRecords(S, b).find(r => r.kind === 'weight')).toMatchObject({ v: 85 })
+  })
+
+  it('a weight lifted for no reps is no record', () => {
+    const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
+    const b = wk(2, [{ id: BENCH, sets: [s(100, 0), s(80, 5)] }])
+    expect(kinds({ workouts: [a, b] }, b)).not.toContain('weight')
+  })
+
+  it('an assistance machine has no session volume record', () => {
+    const a = wk(1, [{ id: ASSISTED, sets: [s(30, 8)] }])
+    const b = wk(2, [{ id: ASSISTED, sets: [s(30, 8), s(30, 8), s(30, 8)] }])
+    expect(kinds({ workouts: [a, b] }, b)).toEqual([])
+  })
+
   it('looks its exercises up in the catalogue', () => {
     expect(EXIDX[PULLUP]?.n).toBe('pull-up')
     expect(EXIDX[PLANK]?.n).toBe('front plank')
