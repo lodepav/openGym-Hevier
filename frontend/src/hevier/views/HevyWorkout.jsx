@@ -19,7 +19,6 @@ import { HeaderClock, timerSheet } from '../components/ClockSheet.jsx'
 import Elapsed from '../components/Elapsed.jsx'
 import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
-import KeypadBar from '../components/KeypadBar.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode } from '../lib/volume.js'
@@ -115,6 +114,5 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
       {!editing && <button type="button" className="btn hv-danger" onClick={discardWorkout}>{t('Discard Workout')}</button>}
     </div>
     <div className="workout-end-spacer" />
-    <KeypadBar />
   </div>
 }
