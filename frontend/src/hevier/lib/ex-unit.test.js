@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { exUnitOf, exUnitChoice, convert, shown, setExUnit, defaultStep } from './ex-unit.js'
 import { snapWeight } from '../../lib/progression.js'
+import { convertStateUnit } from '../../lib/units.js'
 import { EXDB } from '../../lib/exercises.js'
 
 const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
@@ -37,6 +38,20 @@ describe('hevier weight unit per exercise (D41)', () => {
     expect(exUnitChoice(s, EX)).toBe(null)
     expect(s.routines[0].ex[0].inc).toBeUndefined()
     expect(s.routines[0].ex[1].inc).toBe(1)
+  })
+
+  it('still knows its own step after the profile changes unit', () => {
+    const s0 = state()
+    setExUnit(s0, EX, 'lb', 5)
+    const s = convertStateUnit(s0, 'lb')
+    expect(exUnitChoice(s, EX)).toBe(null)              // lb is the profile's now
+    const own = s.routines[0].ex[1].inc
+    setExUnit(s, EX, 'kg', 2.5)
+    expect(s.routines[0].ex[0].inc).toBeCloseTo(convert(2.5, 'kg', 'lb'), 9)
+    expect(s.routines[0].ex[1].inc).toBe(own)
+    setExUnit(s, EX, 'lb')
+    expect(s.routines[0].ex[0].inc).toBeUndefined()
+    expect(s.routines[0].ex[1].inc).toBe(own)
   })
 
   it('steps a lb exercise 45 → 50 → 55 lb through upstream\'s snapping', () => {

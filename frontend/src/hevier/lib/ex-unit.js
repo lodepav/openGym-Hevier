@@ -5,6 +5,7 @@
 // unit (45 → 50 → 55 lb) by writing it, converted, into upstream's per-exercise `inc`.
 import { LB_TO_KG } from '../../lib/recovery.js'
 import { defaultIncrement } from '../../lib/exercises.js'
+import { convertWeight } from '../../lib/units.js'
 
 const other = u => (u === 'lb' ? 'kg' : 'lb')
 
@@ -66,8 +67,12 @@ export function setExUnit(s, exId, unit, step) {
   const was = s.hvExUnit?.[exId]
   const back = !unit || unit === s.unit
   const inc = back ? null : convert(step, unit, s.unit)
+  // `was.inc` is in the unit the profile had then, the other one from `was.u`. Switched since,
+  // upstream's unit switch converted the configs' `inc` with its rounding: read it the same way.
+  const from = was?.u && other(was.u)
+  const wasInc = was?.inc == null ? null : from && from !== s.unit ? convertWeight(was.inc, from, s.unit) : was.inc
   for (const c of configs(s, exId)) {
-    const ours = was?.inc != null && Math.abs((c.inc || 0) - was.inc) < 1e-9
+    const ours = wasInc != null && Math.abs((c.inc || 0) - wasInc) < 1e-9
     if (!(c.inc > 0) || ours) {
       if (inc != null) c.inc = inc
       else if (ours) delete c.inc
