@@ -148,13 +148,21 @@ function walk(S, workouts) {
 
 // The store deep-copies S on every change, so the walk is kept by the log's content (fieldSig, one
 // JSON per copy of S), its dumbbell meanings and the 1RM formula: one walk per change of the log.
+// The answer is also kept per copy of S: each feed card asks on every change of the store, and
+// building and comparing the signature costs as much as the log is long.
 const sigOf = (S, extra = '') => fieldSig(S, 'workouts') + '\n' + fieldSig(S, 'dbLoad') + '\n' + formulaOf(S) + '\n' + extra
+const perS = (cache, S, make) => {
+  if (!S || typeof S !== 'object') return make()
+  if (!cache.has(S)) cache.set(S, make())
+  return cache.get(S)
+}
 let last = { sig: null, result: null }
-function walked(S) {
+const walkedOf = new WeakMap()
+const walked = S => perS(walkedOf, S, () => {
   const sig = sigOf(S)
   if (last.sig !== sig) last = { sig, result: walk(S, S?.workouts) }
   return last.result
-}
+})
 
 /** The records saved workout `w` set, as sessionRecords lists them. */
 const NONE = Object.freeze([])
@@ -168,6 +176,12 @@ export const recordsIn = (S, workouts) => list(workouts).flatMap(w => workoutRec
 let lastPrior = { sig: null, bests: null }
 function priorBests(S, A) {
   const editing = A?.editingWorkoutId
+  const byEditing = perS(priorOf, S, () => new Map())
+  if (!byEditing.has(editing)) byEditing.set(editing, priorWalk(S, editing))
+  return byEditing.get(editing)
+}
+const priorOf = new WeakMap()
+function priorWalk(S, editing) {
   const sig = sigOf(S, editing ?? '')
   if (lastPrior.sig === sig) return lastPrior.bests
   let base = list(S?.workouts)

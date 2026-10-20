@@ -32,4 +32,9 @@ describe('countedWorkouts (D57)', () => {
     expect(out.workouts[0].entries.map(e => e.id)).toEqual(['0025'])
     expect(S.workouts[0].entries).toHaveLength(2)
   })
+
+  it('passes no state through as it is', () => {
+    expect(countedS(null)).toBe(null)
+    expect(countedS(undefined)).toBe(undefined)
+  })
 })

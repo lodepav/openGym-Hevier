@@ -14,6 +14,7 @@ import { hevySetLabel } from '../lib/set-text.js'
 import { isCustomEx } from '../../lib/exercises.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { isFav, toggleFav } from '../../lib/favourites.js'
+import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
   menuSheet, detailTags, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
@@ -110,7 +111,7 @@ function History({ ex, sum, st }) {
   const byId = new Map((st.workouts || []).filter(w => w.id != null).map(w => [w.id, w]))
   return <div className="hv-xd-history">{sum.sessions.map((s, i) => {
     const w = byId.get(s.id)
-    return <div key={s.id ?? i} className="card hv-xd-sess" onClick={w ? () => workoutDetailSheet(w) : undefined}>
+    return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
       <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
       <div className="hv-xd-sd">{fmtDate(s.d, true)}</div>
       {s.sets.map((x, k) => <div key={k} className="hv-xd-set"><span className="hv-xd-n">{k + 1}</span>{hevySetLabel(ex.id, x, s.target, speedUnitOf(st))}</div>)}

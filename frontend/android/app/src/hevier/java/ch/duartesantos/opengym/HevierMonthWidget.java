@@ -42,7 +42,8 @@ public class HevierMonthWidget extends AppWidgetProvider {
     // The fork's dark theme (hevier/theme.css) and the calendar's colours (hevier.css).
     private static final int LABEL = 0xFFFFFFFF;
     private static final int LABEL_2 = 0xFF9A9EA7;
-    private static final int LABEL_3 = 0x8C9A9EA7;
+    private static final int LABEL_3 = 0xCC9A9EA7;
+    private static final int ON_LIGHT = 0xFF000000;   // a number on green or orange, as the Calendar page
     private static final int BLUE = 0xFF008CFF;
     private static final int GREEN = 0xFF2FBF5B;
     private static final int ORANGE = 0xFFFF9F0A;
@@ -82,7 +83,9 @@ public class HevierMonthWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context ctx, Intent intent) {
-        if (TICK.equals(intent.getAction())) {
+        // A new timezone or a clock set by hand moves today and the next midnight.
+        String a = intent.getAction();
+        if (TICK.equals(a) || Intent.ACTION_TIMEZONE_CHANGED.equals(a) || Intent.ACTION_TIME_CHANGED.equals(a)) {
             refresh(ctx);
             return;
         }
@@ -205,7 +208,7 @@ public class HevierMonthWidget extends AppWidgetProvider {
                 fill.setColor(plan);
                 c.drawCircle(cx, cy + r * 0.62f, Math.max(1.5f * density, r * 0.12f), fill);
             }
-            text.setColor(color != 0 || plan != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
+            text.setColor(color == GREEN || color == ORANGE ? ON_LIGHT : color != 0 || plan != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
             Paint.FontMetrics fm = text.getFontMetrics();
             c.drawText(String.valueOf(d), cx, cy - (fm.ascent + fm.descent) / 2, text);
         }

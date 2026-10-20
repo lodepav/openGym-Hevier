@@ -14,7 +14,8 @@ import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
 import { fmtRest, REST_MAX } from '../../lib/duration.js'
-import { copyRoutine, deleteRoutine, replaceSlotExercise } from '../../lib/routines.js'
+import { deleteRoutine, replaceSlotExercise } from '../../lib/routines.js'
+import { copyRoutineHere } from '../lib/routine-copy.js'
 import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
 import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
@@ -287,7 +288,7 @@ export default function RoutineEditHevy() {
       { items: [
         { icon: glyphOf(r.emoji), label: t('Pick an icon'), onClick: () => glyphPicker(r.emoji, g => setR(x => { x.emoji = g })) },
         { icon: 'copy', label: t('Copy routine'), onClick: () => {
-          const copy = copyRoutine(r, t('Copy'))
+          const copy = copyRoutineHere(r, t('Copy'))
           update(s => { s.routines.push(copy) })
           nav('/plan/r/' + copy.id, { replace: true })
         } },

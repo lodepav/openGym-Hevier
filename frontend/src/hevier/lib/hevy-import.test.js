@@ -81,6 +81,19 @@ describe('hevier Hevy import (D29)', () => {
     expect(oneLimbOf('Leg Press (Machine)')).toBe(null)
   })
 
+  it('a one-arm cable row is the horizontal row, per side; with two stacks it is not also per stack', () => {
+    const p = parseImport(csv([
+      row('Single Arm Cable Row', 0, 'normal', 20, 10),
+      row('Single Arm Cable Row (x2)', 0, 'normal', 15, 10, '15 Oct 2026, 16:27'),
+    ]), { unit: 'kg', customEx: [] })
+    const [plain, x2] = entriesOf(p)
+    expect(plain.id).toBe('7564')
+    expect(isSideSet(plain.sets[0])).toBe(true)
+    expect(plain.sets[0].sides.L).toMatchObject({ w: 20, r: 10 })
+    expect(x2).toMatchObject({ id: '7564', hvCable: 'x2' })
+    expect(x2.target?.dbLoad).toBeUndefined()
+  })
+
   it('imports a Hevy CSV with per-side sets, brands and its own title for each weighted variant', () => {
     const p = parseImport(csv([
       row('Single Leg Extensions', 0, 'warmup', 30, 4),

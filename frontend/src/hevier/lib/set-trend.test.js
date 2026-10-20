@@ -34,4 +34,23 @@ describe('hevier: beat last time (D66)', () => {
     expect(workoutTrends(S, S.workouts[1], 0)).toEqual([null, 1])
     expect(workoutTrends(S, S.workouts[2], 0)).toEqual([null, -1])
   })
+
+  it('leaves a set without reps, or one gaining load from none, unmarked', () => {
+    expect(setTrend({ w: 60, r: 0 }, { w: 60, r: 8 })).toBeNull()
+    expect(setTrend({ w: 60 }, { w: 60 })).toBeNull()
+    expect(setTrend({ w: 10, r: 8 }, { r: 10 })).toBeNull()
+    expect(setTrend({ r: 10, sec: 30 }, { r: 8, sec: 40 })).toBe(1)   // reps, not the time beside them
+  })
+
+  it('on an assistance machine less help and more reps is better', () => {
+    expect(setTrend({ w: 20, r: 10 }, { w: 30, r: 8 }, { assisted: true })).toBe(1)
+  })
+
+  it('holds a second workout on the same day against the first', () => {
+    const id = EXDB.find(e => e.n === 'barbell bench press').id
+    const at = (d, h, w) => ({ id: d + h, d, start: new Date(d + 'T' + h + ':00:00').getTime(), entries: [{ id, sets: [{ w, r: 8, done: true }] }] })
+    const S = { ...structuredClone(DEF), workouts: [at('2026-10-01', '08', 60), at('2026-10-01', '18', 65)] }
+    expect(workoutTrends(S, S.workouts[1], 0)).toEqual([1])
+    expect(workoutTrends(S, S.workouts[0], 0)).toEqual([null])
+  })
 })

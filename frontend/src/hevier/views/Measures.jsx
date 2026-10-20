@@ -20,7 +20,7 @@ export default function Measures() {
   const hc = useHcOnly()
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
-  const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
+  const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
   const lastM = (S.measurements || []).at(-1)
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">

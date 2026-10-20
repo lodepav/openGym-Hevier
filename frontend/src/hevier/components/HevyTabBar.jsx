@@ -2,7 +2,7 @@
 // no Coach. A session you stepped away from rides above the tabs as a "Workout in progress" bar
 // that takes you back to it — the same rule upstream's Start/Resume button uses (TabBar.jsx) — or
 // discards it.
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -59,6 +59,20 @@ export default function HevyTabBar() {
     document.body.classList.toggle('hv-resume', pending)
     return () => document.body.classList.remove('hv-resume')
   }, [pending])
+  // With large text (or a long translation) the title would be cut to "W..": Resume and Discard
+  // then show only their icons. Once on it stays on for this bar, so it cannot flip back and forth.
+  const bar = useRef(null)
+  const [tight, setTight] = useState(false)
+  useLayoutEffect(() => {
+    const title = bar.current?.querySelector('.hv-resume-t')
+    if (!title || tight) return
+    const check = () => { if (title.scrollWidth > title.clientWidth + 1) setTight(true) }
+    check()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(check)
+    ro.observe(title)
+    return () => ro.disconnect()
+  }, [pending, tight])
   if (!user && !isGuest) return null
   // Upstream's own discard (views/Workout.jsx discardWorkout), from outside the workout screen.
   const discard = () => confirmSheet({
@@ -67,13 +81,13 @@ export default function HevyTabBar() {
   })
 
   return <nav id="tabbar" className="hv-tabbar">
-    {pending && <div className="hv-resumebar">
+    {pending && <div ref={bar} className={'hv-resumebar' + (tight ? ' tight' : '')}>
       <button type="button" className="hv-resume-main" onClick={() => nav('/workout')}>
         <span className="hv-resume-t">{A.editingWorkoutId ? t('Editing workout') : t('Workout in progress')}</span>
         <span className={'hv-resume-s' + (running ? ' tm' : '')}>{running ? <Elapsed start={A.start} /> : A.name}</span>
       </button>
-      <button type="button" className="hv-resume-go" onClick={() => nav('/workout')}><Icon name="play" />{A.editingWorkoutId ? t('Edit') : t('Resume')}</button>
-      {!A.editingWorkoutId && <button type="button" className="hv-resume-x" onClick={discard}><Icon name="xmark" />{t('Discard')}</button>}
+      <button type="button" className="hv-resume-go" aria-label={A.editingWorkoutId ? t('Edit') : t('Resume')} onClick={() => nav('/workout')}><Icon name="play" /><span className="hv-resume-l">{A.editingWorkoutId ? t('Edit') : t('Resume')}</span></button>
+      {!A.editingWorkoutId && <button type="button" className="hv-resume-x" aria-label={t('Discard')} onClick={discard}><Icon name="xmark" /><span className="hv-resume-l">{t('Discard')}</span></button>}
     </div>}
     <Tab active={tab === 'home'} icon="house" label={t('Home')} dot={trouble} onClick={() => nav('/home')} />
     {/* with a session open the tab is still the start screen, its bar above the tabs (D13) */}

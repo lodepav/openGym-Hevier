@@ -147,4 +147,20 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     undoRoutineUpdates(s, before)
     expect(s.routines[0].ex).toEqual(S.routines[0].ex)
   })
+
+  it('counts no added sets for cardio, a pyramid or rest-pause, whose rows are not its sets', () => {
+    const rows = n => Array.from({ length: n }, () => ({ w: 50, r: 8 }))
+    expect(setDelta({ target: { sets: 3 }, sets: rows(4) })).toBe(1)
+    expect(setDelta({ target: { sets: 3, mode: 'cardio' }, sets: rows(4) })).toBe(0)
+    expect(setDelta({ target: { sets: 3, intensifier: { type: 'restpause' } }, sets: rows(4) })).toBe(0)
+    expect(setDelta({ target: { sets: 3, pyramid: [{ r: 12 }, { r: 10 }, { r: 8 }] }, sets: rows(4) })).toBe(0)
+  })
+
+  it('offers nothing for an edited past workout', () => {
+    const S = state()
+    const A = start(S)
+    A.entries.splice(2, 1)
+    A.editingWorkoutId = 'w1'
+    expect(routineUpdates(S, A)).toEqual([])
+  })
 })

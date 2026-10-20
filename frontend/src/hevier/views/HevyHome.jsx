@@ -76,7 +76,7 @@ function TodayWidget({ S }) {
 function WeightWidget({ S }) {
   const hc = useHcOnly()
   const bw = lastBW(S)
-  const pts = S.bodyweight.slice(-30).map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d }))
+  const pts = S.bodyweight.slice(-30).map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d }))
   return <div className="card">
     <div className="row between"><h2 style={{ margin: 0 }}>{t('Body weight')}</h2>
       {!hc && <button type="button" className="btn sm" onClick={() => bwSheet()}><Icon name="plus" />{t('Log')}</button>}</div>
