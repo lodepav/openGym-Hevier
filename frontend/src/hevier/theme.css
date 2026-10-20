@@ -100,22 +100,22 @@
 
 /* ---------- Rest timer on the workout screen ----------
    Hevy's: one slim bar across the bottom under its blue progress line: −15 · the clock, centred ·
-   +15 · Skip. openGym's pause sits before Skip. While the keypad is up the fork rides the timer on
-   the keypad row (hevier.css, body.hv-kb), where it stays compact. */
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest{
+   +15 · Skip. openGym's pause sits before Skip. The keyboard covers it while it is up, as Hevy's
+   does (the keypad row it rode on was dropped 2026-10-20, at the user's request). */
+:root[data-ui="hevier"] body.no-tabbar #timer.rest{
   inset-inline:0;bottom:0;gap:8px;border-radius:0;box-shadow:none;
   background:var(--bg-el);border-top:var(--hair) solid var(--sep);
   padding:10px var(--pad) calc(10px + var(--sab));
 }
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts{display:contents}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .adj:first-child{order:0}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .tclock{order:1;flex:1 1 auto;flex-direction:column;align-items:center;text-align:center}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts > :not(.adj:first-child){order:2}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .pause-slot{display:none}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .t{font-size:24px;align-items:center}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .lbl{align-self:center;font-size:11px}
-:root[data-ui="hevier"] body.no-tabbar:not(.hv-kb) #timer.rest .acts .btn{padding-block:8px}
-:root[data-ui="hevier"] body.no-tabbar.resting:not(.hv-kb) #app{padding-bottom:calc(90px + var(--sab))}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .acts{display:contents}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .adj:first-child{order:0}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .tclock{order:1;flex:1 1 auto;flex-direction:column;align-items:center;text-align:center}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .acts > :not(.adj:first-child){order:2}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .pause-slot{display:none}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .t{font-size:24px;align-items:center}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .lbl{align-self:center;font-size:11px}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .acts .btn{padding-block:8px}
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting #app{padding-bottom:calc(90px + var(--sab))}
 
 /* ---------- Settings (phase 2, step 5) ----------
    Hevy's Settings are edge-to-edge lists under grey section bands, not inset cards, with plain
