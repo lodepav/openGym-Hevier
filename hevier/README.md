@@ -17,7 +17,6 @@ touches any of them, so they never conflict.
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |
 | [reference/SCREENS.md](reference/SCREENS.md) | The UX spec: every Hevy screen, element by element, mapped to what openGym already has. `reference/fetch.sh` downloads the screenshots it cites. |
 | [PIPELINE.md](PIPELINE.md) | What upstream's unreleased `release-*` branches already bring and its milestones plan, and what it means for the fork. Check it before starting a milestone. |
-| [READABILITY.md](READABILITY.md) | A readability review of the fork's code and upstream's (2026-10-19): what to restructure, in what order, and whether upstream's is worth it. |
 | [SEAMS.md](SEAMS.md) | The list of every place the fork edits an upstream file. Keep it current: it is what makes conflicts predictable. |
 | [tools/emulator.sh](tools/emulator.sh) | Builds the debug APK, boots the Android 16 emulator, installs and launches it. |
 | [tools/cdp.mjs](tools/cdp.mjs) | Drives the app's WebView over the Chrome DevTools Protocol: click, read text, screenshot. |
