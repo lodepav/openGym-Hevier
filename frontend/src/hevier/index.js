@@ -29,6 +29,7 @@ import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
+import { initRestExtra } from './lib/rest-extra-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
@@ -56,6 +57,7 @@ function install() {
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
   initStillTraining(store)                                // Still training? after five hours (D60)
+  initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
 
