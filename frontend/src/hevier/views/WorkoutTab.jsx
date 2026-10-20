@@ -11,7 +11,8 @@ import { effectiveRoutines, effectiveRoutineIds } from '../../lib/history.js'
 import { todayISO, uid, exCount } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { pinState } from '../../lib/queue.js'
-import { copyRoutine, deleteRoutine } from '../../lib/routines.js'
+import { deleteRoutine } from '../../lib/routines.js'
+import { copyRoutineHere } from '../lib/routine-copy.js'
 import { DEFAULT_GLYPH } from '../../lib/glyphs.js'
 import { startFlow as upstreamStart, starterPlanSheet, menuSheet, confirmSheet } from '../../sheets.jsx'
 import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
@@ -73,7 +74,7 @@ export default function WorkoutTab() {
   }
   // Plan's swipe actions, from Hevy's ⋯: duplicate right below with an Undo, delete with an Undo.
   const duplicate = r => {
-    const copy = copyRoutine(r, t('Copy'))
+    const copy = copyRoutineHere(r, t('Copy'))
     update(s => {
       const at = s.routines.findIndex(x => x.id === r.id)
       s.routines.splice(at < 0 ? s.routines.length : at + 1, 0, copy)
