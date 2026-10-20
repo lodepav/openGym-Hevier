@@ -370,7 +370,7 @@ Added 2026-10-18, at the user's request.
 
 | # | Decision |
 |---|---|
-| D56 | **An exercise's rest wheel opens on the default rest.** Upstream's "Rest for this exercise" (the workout's, the exercise settings', and the fork's routine editor's) opens at 0:00, read out as "Default (1:30)", so the dials sat at zero. With no rest of its own, the wheel now opens at the default (Settings' rest time), as Hevy's rest wheel opens on the rest in force; **Done on the default still saves "no rest of its own"**, so the exercise keeps following the default when it changes, and 0:00 still means the default. An exercise with its own rest opens on it, as before. Seam S33 in `durationSheet` (`hevier/lib/rest-default.js`); every other wheel is upstream's. |
+| D56 | **An exercise's rest wheel opens on the default rest.** Upstream's "Rest for this exercise" (the workout's, the exercise settings', and the fork's routine editor's) opens at 0:00, read out as "Default (1:30)", so the dials sat at zero. With no rest of its own, the wheel now opens at the default (Settings' rest time), as Hevy's rest wheel opens on the rest in force; **Done on the default still saves "no rest of its own"**, so the exercise keeps following the default when it changes, and 0:00 still means the default. An exercise with its own rest opens on it, as before. The line under the wheel says so, "Left on your default rest (1:30), it follows the default when you change it.", in place of upstream's "0:00 means your default rest" (2026-10-20, at the user's request: the wheel no longer shows 0:00). Seam S33 in `durationSheet` (`hevier/lib/rest-default.js`); every other wheel is upstream's. |
 
 ## Kept out of progression, kept out of the statistics
 

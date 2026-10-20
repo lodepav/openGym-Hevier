@@ -25,6 +25,14 @@ describe('restOpen (D56)', () => {
   })
   // restOpen recognises the default rest by the label the callers give the wheel. If upstream
   // rewords it in one of them, D56 would stop working there without a sound: fail here instead.
+  it('rewords upstream\'s "0:00 means your default rest", whatever the rest, and no other line', () => {
+    const foot = 'Rest after each set of this exercise. 0:00 means your default rest.'
+    const said = 'Rest after each set of this exercise. Left on your default rest (1:30), it follows the default when you change it.'
+    expect(restOpen({ value: 0, off: off(90), footer: foot, onDone: () => {} }, 90).footer).toBe(said)
+    expect(restOpen({ value: 60, off: off(90), footer: foot, onDone: () => {} }, 90).footer).toBe(said)
+    expect(restOpen({ value: 0, off: off(90), footer: 'Other', onDone: () => {} }, 90).footer).toBe('Other')
+  })
+
   it('matches the label every per-exercise rest wheel passes', () => {
     const label = /off: t\('Default \(\{0\}\)', fmtRest\((st|state|S)\.restSec\)\)/g
     expect(sheetsSrc.match(label)).toHaveLength(1)     // the exercise settings' rest
