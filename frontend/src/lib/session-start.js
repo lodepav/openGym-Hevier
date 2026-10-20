@@ -9,6 +9,9 @@ import { nextPrescription, applyPrescription, defaultIncrement, weightIncrement,
 import { dropGrid } from './plates.js'
 import { backoffStepOf, applyBackoff } from './backoff.js'
 import { dbLoadFor, historyAs, ownedWeightsFor } from './dumbbells.js'
+// [hevier] S40: the hook a routine without progression is built through
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 /**
  * Where a planned session's reps come from (Settings → During a workout). 'plan', the default:
@@ -28,6 +31,10 @@ export const startsFromLast = st => st?.startFrom === 'last'
  * `noProg` builds the routine's own numbers with no prescription, as an excluded routine does.
  */
 export function buildPlannedEntry(stored, cfg, routine, { noProg = false } = {}) {
+  // [hevier] S40: a routine without progression opens at its own numbers, then at last time's (D69)
+  const plain = !noProg && !!hooks.plainRoutine?.is(routine)
+  if (plain) noProg = true
+  // [/hevier]
   // What a dumbbell weight means for this exercise today (lib/dumbbells.js): the history it
   // progresses from is read in that meaning, so a switch from "40 total" to per bell opens at
   // 20, not at 40 a hand. Only a switch between the two explicit meanings converts anything.
@@ -47,7 +54,10 @@ export function buildPlannedEntry(stored, cfg, routine, { noProg = false } = {})
   const backoffStep = modeOf(cfg) === 'reps' && backoffStepOf(cfg, st.unit) ? step : 0
   const built = applyPrescription(buildSets(st, cfg, { step: ramp, rid: routine?.id, useTarget: plan.kind === 'off', planReps }), plan, ramp, barFloor(st, cfg.id))
   const rows = backoffStep ? applyBackoff(built, backoffStep) : built
-  const sets = applyIntensifierPlan(rows, cfg, dropGrid(st, cfg))
+  let sets = applyIntensifierPlan(rows, cfg, dropGrid(st, cfg))
+  // [hevier] S40: each set as it was last done (D69)
+  if (plain) sets = hooks.plainRoutine.rows(st, stored, cfg, routine, sets)
+  // [/hevier]
   const target = { ...cfg }
   // Stamped on the session, so the meaning it was logged with stays with it (dumbbells.js).
   if (meaning !== 'as') target.dbLoad = meaning

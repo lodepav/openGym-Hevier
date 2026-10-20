@@ -255,7 +255,9 @@ export default function HevyExerciseBlock({
   const field = (s, i, col, side) => {
     const src = side ? (s.sides?.[side] || {}) : s
     const key = (side || '') + col.f
-    const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
+    // A weight filled from last time (D69, `hvLast`) is marked manual only so edits above it do not
+    // cascade onto it: it stays grey until it is touched.
+    const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !src.hvLast)
     if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
     // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
     const hintProps = {
@@ -279,6 +281,10 @@ export default function HevyExerciseBlock({
         touch(i, key)
         const val = col.store ? col.store(v) : v
         if (side) setSide(i, side, col.f, val); else onField(i, col.f, val)
+        if (col.f === 'w' && src.hvLast) update(st => {
+          const row = st.active?.entries[entryIdx]?.sets[i]
+          if (row) delete (side ? row.sides?.[side] || {} : row).hvLast
+        }, true)
       }} />
   }
   // D6: the effort column, in the profile's scale. Picking a rating ticks the set (upstream #64).
