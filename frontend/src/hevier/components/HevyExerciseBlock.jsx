@@ -53,6 +53,7 @@ import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
+import { sideOrderOf, setSideOrder } from '../lib/side-order.js'
 import {
   withDrop, withoutDrop, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField,
 } from '../lib/set-rows.js'
@@ -102,6 +103,8 @@ export default function HevyExerciseBlock({
   const mode = modeOf(cfg)
   const timed = mode === 'time', cardio = mode === 'cardio'
   const perSide = mode === 'reps' && isPerSide(cfg)
+  // D72: the side done first is drawn first; the set's number and row ref go on it.
+  const [first, second] = sideOrderOf(S, entry.id)
   const speedUnit = speedUnitOf(S)
 
   // D43: a cable on two stacks is typed per stack; the header says so.
@@ -203,6 +206,11 @@ export default function HevyExerciseBlock({
         onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => onNoProg(entry.noProg !== true) },
         plateLoading && modeOf(cfg) === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
         routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: routineUpdate.sub, onClick: routineUpdate.run },
+        perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
+          onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [
+            { label: t('Left first'), on: first === 'L', onClick: () => update(s => { setSideOrder(s, entry.id, false) }) },
+            { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
+          ] }] }) },
         mode === 'reps' && !bw && { icon: 'ruler', label: t('Weight unit'),
           sub: convertsUnit ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice?.step)) : t('{0}, as the profile', unit),
           onClick: unitSheet },
@@ -346,9 +354,9 @@ export default function HevyExerciseBlock({
     const sideTag = side || s.side
     const prevText = previousText(p, { ...prevOpts, side })
     const canCopy = side ? !!(p && isSideSet(p)) : !!p
-    return <div ref={side === 'R' ? undefined : el => onSetRowRef?.(i, el)} style={grid}
+    return <div ref={side === second ? undefined : el => onSetRowRef?.(i, el)} style={grid}
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
-      {side === 'R' ? <span /> : setButton(s, i)}
+      {side === second ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
@@ -385,8 +393,8 @@ export default function HevyExerciseBlock({
     const [from, count] = setSpanAt(entry.sets, i)
     if (count === 2 && from !== i) return null
     if (perSide && isSideSet(s)) return swipe(s, i, <div className={'hv-pair' + (s.done ? ' done' : '')}>
-      {line(s, i, 'L')}{!isWarmupRow(s) && subRows(s.sides.L || {}, i, 'L')}
-      {line(s, i, 'R')}{!isWarmupRow(s) && subRows(s.sides.R || {}, i, 'R')}
+      {line(s, i, first)}{!isWarmupRow(s) && subRows(s.sides[first] || {}, i, first)}
+      {line(s, i, second)}{!isWarmupRow(s) && subRows(s.sides[second] || {}, i, second)}
     </div>)
     if (count === 2) return swipe(s, i, <div className="hv-pair">{line(s, i)}{line(entry.sets[i + 1], i + 1)}</div>)
     return <>{swipe(s, i, line(s, i))}{!isWarmupRow(s) && mode === 'reps' && subRows(s, i)}</>

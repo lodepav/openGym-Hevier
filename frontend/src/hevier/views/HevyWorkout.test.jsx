@@ -218,6 +218,19 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sides.R.w).toBe(22.5)
   })
 
+  it('an exercise set to right first draws R above L, with the set number on R (D72)', () => {
+    const side = { w: 20, r: 8, done: false }
+    render([{ id: EX, target: { sets: 1, reps: 16, side: true }, sets: [{ w: 20, r: 16, sides: { L: { ...side }, R: { ...side } } }] }])
+    act(() => useStore.getState().update(st => { st.hvSideOrder = { [EX]: 'RL' } }))
+    const lines = container.querySelectorAll('.hv-row.hv-side')
+    expect([...lines].map(l => l.querySelector('.hv-lr').textContent)).toEqual(['R', 'L'])
+    expect(lines[0].querySelector('.hv-set')).toBeTruthy()
+    expect(lines[1].querySelector('.hv-set')).toBeNull()
+    act(() => lines[0].querySelector('.hv-chk').click())
+    expect(sets()[0].sides.R.done).toBe(true)
+    expect(sets()[0].sides.L.done).toBe(false)
+  })
+
   it('the set type menu adds drops and bursts, edited and removed in their own rows (D5)', () => {
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(100, 8)] }])
     const pick = label => {
