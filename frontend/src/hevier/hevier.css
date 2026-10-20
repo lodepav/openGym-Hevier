@@ -94,6 +94,8 @@
 :root[data-ui="hevier"] .hv-ex .hv-row.hv-next:not(.done){background:var(--surface-3) !important;box-shadow:inset 4px 0 0 var(--acc)}
 :root[data-ui="hevier"] .hv-row.hv-next :is(.hv-num, .hv-num.hv-hint){color:var(--label);font-weight:700}
 :root[data-ui="hevier"] .hv-row.hv-next .hv-num::placeholder{color:var(--label);font-weight:700}
+/* its tick box a step lighter than the row (which has the box's own grey), with a blue border */
+:root[data-ui="hevier"] .hv-row.hv-next .hv-chk:not(.on){background:#4b505a;color:var(--label-2);box-shadow:inset 0 0 0 2px var(--acc)}
 :root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:6px;padding:4px 0;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-eff.empty{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-chk{border-radius:8px;justify-self:center;background:var(--surface-3);box-shadow:none;color:var(--label-3)}
