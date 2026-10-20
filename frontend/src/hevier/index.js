@@ -25,6 +25,8 @@ import { initGymBackups } from './lib/gym-backups-run.js'
 import { aliasHooks } from './lib/ex-aliases.js'
 import { chartTicks } from './lib/chart-ticks.js'
 import { initNoteFix } from './lib/note-text.js'
+import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
+import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
 import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
@@ -80,6 +82,10 @@ function install() {
   hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
   hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
   initNoteFix(store)
+  // Home's layout and the empty and folded folders, kept on the device until 2026-10-20, move into
+  // S once, so they sync and are backed up (D12, D13).
+  const kept = k => { try { return localStorage.getItem(k) != null } catch { return false } }
+  if ([HOME_KEY, FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveHomeIntoS(s); moveFoldersIntoS(s) })
 
   // Android: heart rate and weigh-ins from Health Connect (D27), weigh-ins from there only while
   // that is on (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a
