@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { restOpen } from './rest-default.js'
+import { restFooter, restOpen } from './rest-default.js'
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
 import sheetsSrc from '../../sheets.jsx?raw'
@@ -31,6 +31,8 @@ describe('restOpen (D56)', () => {
     expect(restOpen({ value: 0, off: off(90), footer: foot, onDone: () => {} }, 90).footer).toBe(said)
     expect(restOpen({ value: 60, off: off(90), footer: foot, onDone: () => {} }, 90).footer).toBe(said)
     expect(restOpen({ value: 0, off: off(90), footer: 'Other', onDone: () => {} }, 90).footer).toBe('Other')
+    expect(restFooter(foot, 90)).toBe(said)
+    expect(restFooter(foot, 0)).toBe(foot)
   })
 
   it('matches the label every per-exercise rest wheel passes', () => {

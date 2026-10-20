@@ -1942,7 +1942,8 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
         })} />
     </div>
     <div className="small dim" style={{ marginBottom: 18 }}>
-      {t('Rest after each set of this exercise. 0:00 means your default rest.')}
+      {/* [hevier] S42: reworded where the wheel opens on the default rest (D56) */}
+      {(hooks.restFooter || (x => x))(t('Rest after each set of this exercise. 0:00 means your default rest.'))}
     </div>
     {/* ---------- bodyweight + per side (issues #31/#32/#33) ---------- */}
     {!cardio && <div className="sect-b" style={{ marginBottom: 8 }}>
