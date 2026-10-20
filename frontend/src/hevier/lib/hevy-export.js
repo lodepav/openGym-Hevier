@@ -13,7 +13,7 @@ import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../..
 import { isPerSide } from '../../lib/history.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
-import { FIXES, choiceKey } from './hevy-import.js'
+import { FIXES, choiceKey, titleLabel, outcomeOf, matchTitle, readKey, brandNorm } from './hevy-import.js'
 import { choicesFor } from './import-review.js'
 
 const LB_TO_KG = 0.45359237
@@ -102,6 +102,9 @@ export function workoutDraft(w, unit = 'kg') {
     end_time: new Date(end).toISOString(),
     exercises: entries.map((e, i) => ({
       ex: canonicalExId(e.id),
+      ...(text(e.hvBrand) ? { brand: text(e.hvBrand) } : {}),
+      ...(text(e.hvBrand) && ['2:1', 'x2'].includes(e.hvCable) ? { cable: e.hvCable } : {}),
+      ...(text(e.hvBrand) && e.sets.some(s => done(s) && isSideSet(s)) ? { side: true } : {}),
       superset_id: ss[i],
       notes: text(e.note) || null,
       sets: e.sets.filter(done).flatMap(s => setRows(s, unit, isCardio(e.id))),
@@ -208,12 +211,26 @@ const norm = s => String(s || '').toLowerCase().replace(/\(brand:[^)]*\)/g, ' ')
  * upstream's map read backwards, then a template of the same title. Returns exId → { id, type } | null.
  */
 export function templateFinder(templates, S) {
-  const list = (templates || []).filter(t => t?.id != null)
+  const all = (templates || []).filter(t => t?.id != null)
   const found = new Map()
   const put = (exId, t) => { if (exId && !found.has(exId)) found.set(exId, { id: String(t.id), type: t.type || null }) }
   const choices = S?.hvImportMap || {}
   // Keyed as the import keys a title, your own brands cut off it the same way.
   const own = choicesFor(S)
+  // A template whose title carries a brand ("Leg Press (Machine) (brand: LifeFitness)", and a
+  // cable's setup, "(x2)") is that exercise with that label, found as the import finds it, and is
+  // used only for an exercise logged with that brand and setup.
+  const branded = new Map()
+  const list = all.filter(t => {
+    const { brand, cable } = titleLabel(t.title, 'Hevy', own)
+    if (!brand) return true
+    const { id } = outcomeOf(t.title, 'Hevy', own)
+    // A one-limb title ("Single Leg Press") is its exercise logged per side (D29), a label of its own.
+    const side = !!readKey(matchTitle(t.title, 'Hevy', own))?.side
+    const k = id && brandKey(canonicalExId(id), brand, cable === '1:1' ? '' : cable, side)
+    if (k && !branded.has(k)) branded.set(k, { id: String(t.id), type: t.type || null })
+    return false
+  })
   for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy', own)]; if (v && v !== 'custom') put(canonicalExId(v), t) }
   for (const t of list) {
     const f = FIXES[String(t.title || '').toLowerCase().trim()]
@@ -228,7 +245,9 @@ export function templateFinder(templates, S) {
   const byTitle = new Map()
   for (const t of list) if (!byTitle.has(norm(t.title))) byTitle.set(norm(t.title), t)
   const exs = new Map(allExercises(S || {}).map(e => [e.id, e]))
-  return exId => {
+  return (exId, brand, cable, side) => {
+    const k = brand && brandKey(exId, brand, cable, side)
+    if (k && branded.has(k)) return branded.get(k)
     if (found.has(exId)) return found.get(exId)
     const t = byTitle.get(norm(exs.get(exId)?.n))
     return t ? { id: String(t.id), type: t.type || null } : null
@@ -291,11 +310,11 @@ const FIELDS = {
 }
 const MEASURES = ['weight_kg', 'reps', 'rep_range', 'distance_meters', 'duration_seconds']
 
-/** A draft with each `ex` replaced by its template (`tplOf(exId)` → { id, type }), as Hevy takes it. */
+/** A draft with each `ex` replaced by its template (`tplOf(exId, brand, cable, side)` → { id, type }), as Hevy takes it. */
 export function finish(draft, tplOf) {
   const { folder, ...body } = draft
-  body.exercises = draft.exercises.map(({ ex, ...e }) => {
-    const tpl = tplOf(ex)
+  body.exercises = draft.exercises.map(({ ex, brand, cable, side, ...e }) => {
+    const tpl = tplOf(ex, brand, cable, side)
     const keep = FIELDS[tpl?.type]
     const sets = e.sets.map(s => {
       const out = { ...s }
@@ -308,7 +327,13 @@ export function finish(draft, tplOf) {
   return body
 }
 
+/** The key a draft's exercise keeps its template under: the exercise, and its brand and setup when it has one. */
+export const brandKey = (exId, brand, cable, side) =>
+  (brand ? exId + '|' + brandNorm(brand) + (cable ? '|' + cable : '') + (side ? '|side' : '') : exId)
+export const tplKey = e => brandKey(e.ex, e.brand, e.cable, e.side)
 /** The exercise ids a draft needs templates for. */
 export const exercisesOf = draft => [...new Set((draft?.exercises || []).map(e => e.ex))]
+/** The branded exercises a draft logs: { key, ex, brand, cable, side }, one per key. */
+export const brandsOf = draft => [...new Map((draft?.exercises || []).filter(e => e.brand).map(e => [tplKey(e), { key: tplKey(e), ex: e.ex, brand: e.brand, cable: e.cable, side: e.side }])).values()]
 /** The rows a draft logs for one exercise, for `newTemplate`'s type. */
 export const setsOf = (draft, exId) => (draft?.exercises || []).filter(e => e.ex === exId).flatMap(e => e.sets)

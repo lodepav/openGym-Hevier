@@ -74,6 +74,12 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(line()).toBe('Chest 3 · Triceps 2')
   })
 
+  it('the feed card shows the workout’s average heart rate when a watch saved one (D27)', () => {
+    render(<WorkoutCard w={{ ...W, hr: { avg: 128, max: 161, src: 'hc', n: 300 } }} />)
+    expect(stats()).toEqual(['Time', 'Sets', 'Heart rate'])
+    expect(container.querySelector('.hv-wcard-hr').textContent).toBe('128')
+  })
+
   it('the weekly chart’s Volume is Sets, and a week lists its muscles', () => {
     render(<WeeklyChart />)
     const chips = [...container.querySelectorAll('.hv-chip')]

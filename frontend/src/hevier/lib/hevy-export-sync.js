@@ -6,7 +6,7 @@
 import { MOBILE, readJsonFile, writeJsonFile } from '../../lib/mobile.js'
 import { HEVY_API, HevyApiError, fetchHevyPages } from '../../lib/import-hevy.js'
 import { allExercises } from '../../lib/exercises.js'
-import { baseline, pending, finish, exercisesOf, setsOf, templateFinder, newTemplate } from './hevy-export.js'
+import { baseline, pending, finish, exercisesOf, brandsOf, brandKey, setsOf, templateFinder, newTemplate } from './hevy-export.js'
 import { getSecret, putSecret, removeSecret } from './secret.js'
 import { within } from './within.js'
 
@@ -61,9 +61,12 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
   try {
     // The templates: what is already known, else the account's, else made in Hevy.
     const need = [...new Set(drafts.flatMap(i => exercisesOf(i.draft)))].filter(ex => !st.tpl[ex])
+    // A brand's own template, when the account has one; looked for again while it has none.
+    const brands = [...new Map(drafts.flatMap(i => brandsOf(i.draft)).map(b => [b.key, b])).values()].filter(b => !st.tpl[b.key])
     const bad = new Set()
-    if (need.length) {
+    if (need.length || brands.length) {
       const find = templateFinder(await pages('/v1/exercise_templates', 'exercise_templates', 100), S)
+      for (const b of brands) { const t = find(b.ex, b.brand, b.cable, b.side); if (t && t.id !== find(b.ex)?.id) st.tpl[b.key] = t }
       const exs = new Map(allExercises(S).map(e => [e.id, e]))
       for (const ex of need) {
         if (off()) break
@@ -79,7 +82,7 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
       }
       await save(st)
     }
-    const tplOf = ex => st.tpl[ex]
+    const tplOf = (ex, brand, cable, side) => (brand && st.tpl[brandKey(ex, brand, cable, side)]) || st.tpl[ex]
     const ready = item => exercisesOf(item.draft).every(ex => !bad.has(ex) && st.tpl[ex])
 
     for (const item of todo.workouts) {

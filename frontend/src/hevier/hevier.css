@@ -293,7 +293,7 @@
 :root[data-ui="hevier"] .hv-srow > span:first-child{color:var(--label-2);font-size:15px}
 :root[data-ui="hevier"] .hv-sval{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-sval .timef{color:var(--acc)}
-:root[data-ui="hevier"] .hv-smin{width:72px;text-align:end}
+:root[data-ui="hevier"] .hv-smin{width:52px;text-align:end}
 :root[data-ui="hevier"] .hv-sdesc{width:100%;min-height:96px;margin-bottom:22px;font-size:15px}
 :root[data-ui="hevier"] .hv-sdiscard{width:100%;margin-bottom:24px;background:none}
 :root[data-ui="hevier"] .hv-done-top{text-align:center;padding:10px 0 18px}
@@ -514,6 +514,8 @@
 :root[data-ui="hevier"] .hv-wd-hrline{display:flex;align-items:center;gap:6px;margin:-6px 0 14px;font-size:13px;color:var(--label-2);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd-hrline .icn,:root[data-ui="hevier"] .hv-wd-hr .icn{color:var(--red);font-size:13px}
 :root[data-ui="hevier"] .hv-wd-hr{display:inline-flex;align-items:center;gap:3px;font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-wcard-hr{display:inline-flex;align-items:center;gap:3px}
+:root[data-ui="hevier"] .hv-wcard-hr .icn{color:var(--red);font-size:13px}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-cardio{background:var(--green)}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-deload{background:var(--orange)}
 :root[data-ui="hevier"] .hv-sgym{width:100%;background:none;border:0;border-top:var(--hair) solid var(--sep);padding:0;color:inherit;font:inherit;text-align:left}
