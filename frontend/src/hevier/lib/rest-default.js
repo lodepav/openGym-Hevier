@@ -10,12 +10,19 @@ import { fmtRest } from '../../lib/duration.js'
 
 const UPSTREAM_FOOT = 'Rest after each set of this exercise. 0:00 means your default rest.'
 
+/** Upstream's "0:00 means your default rest", said as the wheel now works; any other text as it is.
+ *  The wheel's sheet (S33) and the exercise settings page's line (S42) both read it. */
+export function restFooter(text, restSec) {
+  if (text !== t(UPSTREAM_FOOT) || !(restSec > 0)) return text
+  return t('Rest after each set of this exercise. Left on your default rest ({0}), it follows the default when you change it.', fmtRest(restSec))
+}
+
 /** The sheet's `value`, `onDone` and `footer`, moved onto `restSec` when its 0:00 means the
  *  default rest. */
 export function restOpen({ value, off, footer, onDone }, restSec) {
   const def = t('Default ({0})', fmtRest(restSec))
   if (!(restSec > 0) || off !== def) return { value, onDone, footer }
-  if (footer === t(UPSTREAM_FOOT)) footer = t('Rest after each set of this exercise. Left on your default rest ({0}), it follows the default when you change it.', fmtRest(restSec))
+  footer = restFooter(footer, restSec)
   if (value > 0) return { value, onDone, footer }
   return { value: restSec, onDone: v => onDone(v === restSec ? 0 : v), footer }
 }

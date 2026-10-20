@@ -20,6 +20,7 @@ export const hooks = {
   defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   durationOpen: null,    // ({ value, off, onDone }) => { value, onDone }: a duration sheet about to open (S33)
+  restFooter: null,     // (text) => text: the exercise settings page's line under its rest (S42)
   statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)
   chartTicks: null,      // (ticks, t0, t1) => ticks: LineChart's x-axis labels (S30)
   gymSheet: null,        // { equipment(p), saved(p), note(), Chips }: an equipment profile's sheet, a gym's (S36)

@@ -28,7 +28,7 @@ import { initNoteFix } from './lib/note-text.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
-import { restOpen } from './lib/rest-default.js'
+import { restOpen, restFooter } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
@@ -56,6 +56,7 @@ function install() {
   installFinishHook(nav)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
   hooks.durationOpen = o => restOpen(o, state().restSec)     // an exercise's rest wheel opens on the default (S33, D56)
+  hooks.restFooter = text => restFooter(text, state().restSec)  // and the settings page's line says so (S42, D56)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultProg = 'off'                               // no progression rule of its own: none (D61)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
