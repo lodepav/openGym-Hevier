@@ -27,6 +27,7 @@ import { initNoteFix } from './lib/note-text.js'
 import { holdMode } from './lib/hold-mode.js'
 import { restOpen } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
+import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
@@ -51,6 +52,7 @@ function install() {
   hooks.durationOpen = o => restOpen(o, state().restSec)     // an exercise's rest wheel opens on the default (S33, D56)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultProg = 'off'                               // no progression rule of its own: none (D61)
+  hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
   initStillTraining(store)                                // Still training? after five hours (D60)
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)

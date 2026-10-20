@@ -3,6 +3,7 @@
 // SET · KG · REPS table drawn from the exercise's prescription (lib/routine-table.js) — then
 // + Add Exercise, and below it the routine-wide progression, deload and body map upstream's
 // editor has. Every change saves as it is made, as upstream's editor does.
+import { progressionOn } from '../lib/plain-routine.js'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -196,7 +197,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       shape.mode === 'time' ? { f: 'sec', hd: t('SEC'), dec: false } : { f: 'r', hd: shape.ranged ? t('REP RANGE') : t('REPS'), dec: false }]
   const grid = { '--nc': cols.length }
   const cell = (row, c) => {
-    if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' ? t('Auto') : '–'}</span>
+    if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}</span>
     if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range"
       onClick={() => useUI.getState().openSheet(close => <RangeSheet from={row.repsMin} to={row.reps} close={close}
@@ -330,9 +331,17 @@ export default function RoutineEditHevy() {
     {/* Upstream's routine-wide settings (views/RoutineEdit.jsx): how its targets move, and
         whether its workouts count at all. */}
     <div className="sect-b hv-rsettings">
-      <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
+      {/* D69: off, each set opens at what was done the last time that set was done. */}
+      <Row icon="chartLine" title={t('Progression & auto warm-ups')}
+        subtitle={progressionOn(r) ? t('Targets move by the rule below; warm-ups ramp up to the work weight.') : t('Each set opens at what you did the last time that set was done, warm-ups too.')}>
+        <Switch checked={progressionOn(r)} onChange={v => setR(x => {
+          if (v) x.hvProg = true
+          else delete x.hvProg
+        })} />
+      </Row>
+      {progressionOn(r) && <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
         value={r.prog || hooks.defaultProg || 'linear'} onChange={v => setR(x => { x.prog = v })}
-        options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />
+        options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />}
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>
         <Switch checked={r.excludeFromProgression === true} onChange={v => setR(x => {
@@ -344,7 +353,8 @@ export default function RoutineEditHevy() {
     <div className="small dim hv-rsettings-note">
       {r.excludeFromProgression
         ? t('A deload routine opens at the numbers set here, so the progression above does not apply to it.') + ' ' + t('The next regular target continues from the last included workout.')
-        : t(POLICY_DESC[r.prog || hooks.defaultProg || 'linear'] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
+        : progressionOn(r) ? t(POLICY_DESC[r.prog || hooks.defaultProg || 'linear'] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
+        : t('A set never done opens at the numbers set here.')}
     </div>
     {load && <div className="card hv-rmap">
       <h2>{t('What this session hits')}</h2>

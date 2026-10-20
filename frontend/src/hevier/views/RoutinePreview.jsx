@@ -2,6 +2,7 @@
 // holds before it starts — the exercises with their sets as the routine editor's table draws them
 // (D15, hevier/lib/routine-table.js), read-only, Start Routine, and the muscles it hits. Editing is
 // one tap away in the bar. Nothing is stored; starting is upstream's startFlow.
+import { progressionOn } from '../lib/plain-routine.js'
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -34,7 +35,7 @@ function PreviewExercise({ r, i, units, S }) {
       shape.mode === 'time' ? { f: 'sec', hd: t('SEC') } : { f: 'reps', hd: shape.ranged ? t('REP RANGE') : t('REPS') }]
   // The editor's cells (RoutineEditHevy.jsx), as text: warm-ups' weights are worked out at the start.
   const cell = (row, c) => {
-    if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' ? t('Auto') : '–'}</span>
+    if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed">{fmtNum(row.w)}</span>
     const v = c.f === 'reps' ? (row.max ? t('Max') : shape.ranged ? `${row.repsMin}–${row.reps}` : row.reps)
       : c.f === 'w' ? (row.w ? fmtNum(row.w) : '–') : c.view && row[c.f] != null ? c.view(row[c.f]) : row[c.f]

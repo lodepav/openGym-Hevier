@@ -60,7 +60,10 @@ describe('Routine page (D37)', () => {
   it('draws the prescription read-only: warm-ups, work sets, failure', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100, warmupSets: 1, lastToFailure: true }])
     expect(container.querySelector('input')).toBeNull()
-    expect(rows()).toEqual([['W', 'Auto', '–'], ['1', '100', '5'], ['2', '100', '5'], ['F', '100', '5']])
+    expect(rows()).toEqual([['W', '–', '–'], ['1', '100', '5'], ['2', '100', '5'], ['F', '100', '5']])
+    // D69: Auto only for a routine whose progression and warm-up ramp are switched on
+    act(() => useStore.setState(st => ({ S: { ...st.S, routines: st.S.routines.map(r => ({ ...r, hvProg: true })) } })))
+    expect(rows()[0]).toEqual(['W', 'Auto', '–'])
     expect(container.querySelector('.hv-sub').textContent).toContain('3 sets')
   })
 
