@@ -326,6 +326,8 @@
 :root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;padding-inline-start:44px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-xd-bar .iconbtn{background:none}
+/* the exercise's picture as tall as Hevy's, about 16:9 of the screen's width (upstream's is 320px) */
+:root[data-ui="hevier"] :is(.hv-xd-summary, .hv-xd-howto) > .exmedia :is(img, video, .exmedia-x){height:min(56vw, 320px)}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}
 /* Hevy's tabs: plain words over a hairline, the open one blue with a blue underline */
 :root[data-ui="hevier"] .seg.hv-xd-tabs{background:none;border-radius:0;padding:0;border-bottom:var(--hair) solid var(--sep)}
