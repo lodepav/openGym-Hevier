@@ -484,7 +484,7 @@ Added 2026-10-20, at the user's requests, the highlight at the user's choice of 
 | # | Decision |
 |---|---|
 | D70 | **A rest after every set, as Hevy's, and the rest bar goes once it is over.** Upstream starts none after one side of a per-side set (its row is done only with both sides), none after an exercise's last set when the next exercise opens with a warm-up, and none after the workout's last set. The fork starts the set's rest there (`hevier/lib/rest-extra.js`, timed as upstream times it, `restSecFor`): after a side, always (it replaces a running rest, as a tick does); after an exercise's or a superset's last set, only when no rest is running by then. Not in a workout logged into the past or an edited one. **Ready** shows for 3 seconds when the rest runs out, then the bar goes (upstream's waits for Dismiss); the alert, sound and toast are upstream's. |
-| D71 | **The set to do next is highlighted**: a lighter row with a blue edge on the left, its values white and bold even while untouched (D2's grey). It is the first unticked set of the exercise last ticked in, else of the next exercise with a set left, round the end to the first (`hevier/lib/next-set.js`); none while editing a past workout. |
+| D71 | **The set to do next is highlighted**: a lighter row with a blue edge on the left, its values white and bold even while untouched (D2's grey). Its tick box is a step lighter than the row, with a blue border (2026-10-20, at the user's request: it had the row's own grey). It is the first unticked set of the exercise last ticked in, else of the next exercise with a set left, round the end to the first (`hevier/lib/next-set.js`); none while editing a past workout. |
 
 ## Side order
 
