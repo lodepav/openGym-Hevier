@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
-  cleanFolderName, stillEmpty,
+  cleanFolderName, stillEmpty, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders,
+  FOLDERS_KEY, CLOSED_KEY,
 } from './routine-folders.js'
 import { mergeStates, stampChange } from '../../lib/sync-merge.js'
 
@@ -64,5 +65,28 @@ describe('hevier routine folders', () => {
     const laptop = edit(base, s => { s.routines[0].name = 'Bench day' }, 200)
     const merged = mergeStates(phone, laptop)
     expect(merged.routines[0]).toMatchObject({ id: 'a', name: 'Bench day', folder: 'Push' })
+  })
+})
+
+// A Storage stand-in, so the old device-local copy can be read once and forgotten.
+const fakeStorage = init => {
+  const m = new Map(Object.entries(init))
+  return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), has: k => m.has(k) }
+}
+
+describe('the stored empty and folded folders', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('reads S first, else the copy this device kept before, and writing moves it into S', () => {
+    const ls = fakeStorage({ [FOLDERS_KEY]: '["Arms"," "]', [CLOSED_KEY]: '["Push"]' })
+    vi.stubGlobal('localStorage', ls)
+    const s = {}
+    expect(readEmptyFolders(s)).toEqual(['Arms'])
+    expect(readClosedFolders(s)).toEqual(['Push'])
+    writeEmptyFolders(s, ['Arms', 'Legs', 'Arms'])
+    writeClosedFolders(s, [])
+    expect(s).toEqual({ hvFolders: ['Arms', 'Legs'] })
+    expect(ls.has(FOLDERS_KEY) || ls.has(CLOSED_KEY)).toBe(false)
+    expect(readClosedFolders(s)).toEqual([])
   })
 })

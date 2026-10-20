@@ -27,7 +27,7 @@ import WeeklyChart from '../components/WeeklyChart.jsx'
 import { WorkoutFeed } from './Profile.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
 import { fieldSig } from '../lib/store-watch.js'
-import { homeWidgets, storedLayout, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
+import { homeWidgets, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 
 const TITLE = {
   today: 'Today & this week', streak: 'Week streak', weight: 'Body weight',
@@ -141,14 +141,10 @@ export default function HevyHome() {
   const S = useStore(s => s.S)
   const trouble = useConnectionTrouble()
   const [editing, setEditing] = useState(false)
-  const [stored, setStored] = useState(readHome)
-  const widgets = homeWidgets(stored, S)
-  // Functional, so two taps before a re-render both land (each builds on the other's result).
-  const setWidgets = fn => setStored(prev => {
-    const next = fn(homeWidgets(prev, useStore.getState().S))
-    writeHome(next)
-    return storedLayout(next)
-  })
+  const update = useStore(s => s.update)
+  const widgets = homeWidgets(readHome(S), S)
+  // On the store's latest state, so two taps before a re-render both land.
+  const setWidgets = fn => update(s => { writeHome(s, fn(homeWidgets(readHome(s), s))) })
   return <div className="narrow hv-home">
     <PageBar title={t('Home')}
       start={<button type="button" className="hv-link" aria-pressed={editing} onClick={() => setEditing(e => !e)}>{editing ? t('Done') : t('Edit Home')}</button>}>

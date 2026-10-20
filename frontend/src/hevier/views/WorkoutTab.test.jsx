@@ -8,7 +8,6 @@ import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
-import { FOLDERS_KEY } from '../lib/routine-folders.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -66,7 +65,7 @@ describe('hevier: routine folders and reordering', () => {
     expect(heads()).toEqual(['My Routines (1)', 'Push (2)'])
   })
 
-  it('a new folder stays on this device until a routine goes into it', () => {
+  it('a new folder is kept in S until a routine goes into it', () => {
     render([R('a')])
     act(() => container.querySelector('[aria-label="New folder"]').click())
     const host = sheet()
@@ -76,7 +75,7 @@ describe('hevier: routine folders and reordering', () => {
       input.dispatchEvent(new Event('input', { bubbles: true }))
     })
     act(() => host.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-    expect(JSON.parse(localStorage.getItem(FOLDERS_KEY))).toEqual(['Arms'])
+    expect(useStore.getState().S.hvFolders).toEqual(['Arms'])
     expect(heads()).toEqual(['My Routines (1)', 'Arms (0)'])
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
   })
@@ -95,11 +94,11 @@ describe('hevier: routine folders and reordering', () => {
     expect(ids()).toEqual(['l1', 'p1', 'p2'])
   })
 
-  it('folds a folder shut and remembers it on this device', () => {
+  it('folds a folder shut and remembers it in S', () => {
     render([R('p1', 'Push')])
     act(() => [...container.querySelectorAll('.hv-ftoggle')][1].click())
     expect(container.querySelectorAll('.hv-rcard').length).toBe(0)
-    expect(JSON.parse(localStorage.getItem('hevier_folders_closed'))).toEqual(['Push'])
+    expect(useStore.getState().S.hvFoldersClosed).toEqual(['Push'])
   })
 
   it('deleting a folder keeps its routines', () => {

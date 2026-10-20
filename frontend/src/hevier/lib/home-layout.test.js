@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { homeWidgets, storedLayout, WIDGETS } from './home-layout.js'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { homeWidgets, storedLayout, readHome, writeHome, HOME_KEY, WIDGETS } from './home-layout.js'
 
 const S = { showWeightCard: true, checkIn: true }
 const ids = ws => ws.map(w => w.id)
@@ -35,5 +35,27 @@ describe('homeWidgets', () => {
     const stored = storedLayout(ws)
     expect(stored.hidden).toEqual(['weekly', 'recovery'])
     expect(homeWidgets(stored, S)).toEqual(ws)
+  })
+})
+
+// A Storage stand-in, so the old device-local copy can be read once and forgotten.
+const fakeStorage = init => {
+  const m = new Map(Object.entries(init))
+  return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), has: k => m.has(k) }
+}
+
+describe('the stored Home layout', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('reads S first, else the copy this device kept before, and writing moves it into S', () => {
+    const old = { order: ['feed', 'today'], hidden: [] }
+    const ls = fakeStorage({ [HOME_KEY]: JSON.stringify(old) })
+    vi.stubGlobal('localStorage', ls)
+    const s = {}
+    expect(readHome(s)).toEqual(old)
+    writeHome(s, homeWidgets(readHome(s), S))
+    expect(s.hvHome.order.slice(0, 2)).toEqual(['feed', 'today'])
+    expect(ls.has(HOME_KEY)).toBe(false)
+    expect(readHome({ hvHome: { order: ['today'], hidden: [] } })).toEqual({ order: ['today'], hidden: [] })
   })
 })

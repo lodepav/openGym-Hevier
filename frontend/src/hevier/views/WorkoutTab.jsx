@@ -2,7 +2,6 @@
 // session is open, and on /routines (the Workout tab's button) while one is: Quick Start, a Today card from openGym's schedule or rotation, then the
 // routines with Start Routine, in folders (lib/routine-folders.js), each lifted by a long press.
 // Starting goes through upstream's startFlow, and the schedule stays on upstream's Plan screen.
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -24,13 +23,10 @@ import { previewPath } from './RoutinePreview.jsx'
 import { discardActive } from '../components/HevyTabBar.jsx'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
-  cleanFolderName, readEmptyFolders, writeEmptyFolders, stillEmpty, folderOf, FOLDER_MAX,
+  cleanFolderName, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders, stillEmpty, folderOf, FOLDER_MAX,
 } from '../lib/routine-folders.js'
 
 // Which folders are folded shut: a view choice of this device, like Home's layout (D12).
-const CLOSED_KEY = 'hevier_folders_closed'
-const readClosed = () => { try { const v = JSON.parse(localStorage.getItem(CLOSED_KEY)); return Array.isArray(v) ? v : [] } catch { return [] } }
-const writeClosed = v => { try { localStorage.setItem(CLOSED_KEY, JSON.stringify(v)) } catch { /* device-local only */ } }
 // Starting with a session open would replace it: Hevy asks first, and the open one is discarded
 // the way the resume bar's Discard does it.
 function startFlow(ids) {
@@ -83,13 +79,15 @@ export default function WorkoutTab() {
       update(s => { if (s.routines.some(x => x.id === copy.id)) deleteRoutine(s, copy.id) })
     } })
   }
-  // Folders: the name on each routine, plus the empty ones this device keeps.
-  const [emptyRaw, setEmptyRaw] = useState(readEmptyFolders)
-  const empty = stillEmpty(S.routines, emptyRaw)
-  const setEmpty = names => { setEmptyRaw(names); writeEmptyFolders(names) }
+  // Folders: the name on each routine, plus the empty ones kept in S.
+  const empty = stillEmpty(S.routines, readEmptyFolders(S))
+  const setEmpty = names => update(s => { writeEmptyFolders(s, names) })
   const groups = folderGroups(S.routines, empty)
-  const [closed, setClosedRaw] = useState(readClosed)
-  const toggle = key => { const next = closed.includes(key) ? closed.filter(k => k !== key) : [...closed, key]; setClosedRaw(next); writeClosed(next) }
+  const closed = readClosedFolders(S)
+  const toggle = key => update(s => {
+    const was = readClosedFolders(s)
+    writeClosedFolders(s, was.includes(key) ? was.filter(k => k !== key) : [...was, key])
+  })
   const newFolder = then => nameSheet({
     title: t('New folder'), placeholder: t('Folder name'), saveLabel: t('Create'), max: FOLDER_MAX,
     onSave: v => { const name = cleanFolderName(v); if (!name) return; setEmpty([...empty, name]); then?.(name) },
