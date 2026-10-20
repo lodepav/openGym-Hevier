@@ -39,7 +39,7 @@ export function workoutTrends(S, w, i) {
   const e = w?.entries?.[i]
   if (!e) return []
   const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
-  const prev = previousSetsFor(H, e, previousMode(S))
+  const prev = previousSetsFor(H, e, previousMode(S), { walk: false })
   const opts = { assisted: isAssisted(e.id), formula: formulaOf(S) }
   return (e.sets || []).map((s, k) => (s?.done && !isWarmupRow(s) ? setTrend(s, prev[k], opts) : null))
 }
