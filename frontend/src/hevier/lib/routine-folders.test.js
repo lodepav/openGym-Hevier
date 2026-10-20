@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
-  cleanFolderName, stillEmpty, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders,
+  cleanFolderName, stillEmpty, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders, moveFoldersIntoS,
   FOLDERS_KEY, CLOSED_KEY,
 } from './routine-folders.js'
 import { mergeStates, stampChange } from '../../lib/sync-merge.js'
@@ -88,5 +88,14 @@ describe('the stored empty and folded folders', () => {
     expect(s).toEqual({ hvFolders: ['Arms', 'Legs'] })
     expect(ls.has(FOLDERS_KEY) || ls.has(CLOSED_KEY)).toBe(false)
     expect(readClosedFolders(s)).toEqual([])
+  })
+
+  it('moves the device’s folders into S once', () => {
+    const ls = fakeStorage({ [CLOSED_KEY]: '["Push"]' })
+    vi.stubGlobal('localStorage', ls)
+    const s = {}
+    expect(moveFoldersIntoS(s)).toBe(true)
+    expect(s).toEqual({ hvFoldersClosed: ['Push'] })
+    expect(moveFoldersIntoS(s)).toBe(false)
   })
 })

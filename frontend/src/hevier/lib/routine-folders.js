@@ -118,3 +118,15 @@ export const readClosedFolders = S => readList(S, 'hvFoldersClosed', CLOSED_KEY)
 export const writeClosedFolders = (s, keys) => writeList(s, 'hvFoldersClosed', CLOSED_KEY, keys)
 /** The empty folders still worth keeping: a folder a routine now carries is no longer empty. */
 export const stillEmpty = (routines, names) => names.filter(n => !(routines || []).some(r => folderOf(r) === n))
+
+/** Moves the empty and folded folders this device kept before into `s`, once; true when it did. */
+export function moveFoldersIntoS(s) {
+  let moved = false
+  for (const [field, key, read, write] of [['hvFolders', FOLDERS_KEY, readEmptyFolders, writeEmptyFolders], ['hvFoldersClosed', CLOSED_KEY, readClosedFolders, writeClosedFolders]]) {
+    if (Array.isArray(s[field])) continue
+    let had = false
+    try { had = localStorage.getItem(key) != null } catch { /* no storage */ }
+    if (had) { write(s, read(s)); moved = true }
+  }
+  return moved
+}

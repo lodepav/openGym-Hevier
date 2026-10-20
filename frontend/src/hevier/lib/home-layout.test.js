@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { homeWidgets, storedLayout, readHome, writeHome, HOME_KEY, WIDGETS } from './home-layout.js'
+import { homeWidgets, storedLayout, readHome, writeHome, moveHomeIntoS, HOME_KEY, WIDGETS } from './home-layout.js'
 
 const S = { showWeightCard: true, checkIn: true }
 const ids = ws => ws.map(w => w.id)
@@ -57,5 +57,15 @@ describe('the stored Home layout', () => {
     expect(s.hvHome.order.slice(0, 2)).toEqual(['feed', 'today'])
     expect(ls.has(HOME_KEY)).toBe(false)
     expect(readHome({ hvHome: { order: ['today'], hidden: [] } })).toEqual({ order: ['today'], hidden: [] })
+  })
+
+  it('moves the device’s layout into S once, and only once', () => {
+    const ls = fakeStorage({ [HOME_KEY]: JSON.stringify({ order: ['feed'], hidden: ['streak'] }) })
+    vi.stubGlobal('localStorage', ls)
+    const s = {}
+    expect(moveHomeIntoS(s)).toBe(true)
+    expect(s.hvHome).toEqual({ order: ['feed'], hidden: ['streak'] })
+    expect(ls.has(HOME_KEY)).toBe(false)
+    expect(moveHomeIntoS(s)).toBe(false)
   })
 })

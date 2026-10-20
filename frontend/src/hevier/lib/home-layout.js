@@ -50,3 +50,13 @@ export function writeHome(s, widgets) {
   s.hvHome = storedLayout(widgets)
   try { localStorage.removeItem(HOME_KEY) } catch { /* nothing to forget */ }
 }
+
+/** Moves a layout this device kept before into `s` (a draft of S), once; true when it did. */
+export function moveHomeIntoS(s) {
+  if (s.hvHome) return false
+  const old = readHome(s)
+  if (!old) return false
+  s.hvHome = { order: Array.isArray(old.order) ? old.order : [], hidden: Array.isArray(old.hidden) ? old.hidden : [] }
+  try { localStorage.removeItem(HOME_KEY) } catch { /* nothing to forget */ }
+  return true
+}
