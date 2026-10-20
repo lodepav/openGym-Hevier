@@ -2,6 +2,17 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.6.1 · 2026-10-20
+
+Based on openGym 1.4.1.
+
+### Fixes and changes
+
+- the release check's gates in parallel, with the tools' tests
+- the six reviews' findings, and Hevy's exercise media height
+- the fork's hold list matches upstream PR #694 (D55)
+- the readability review's fork fixes (F1–F6)
+
 ## 1.6.0 · 2026-10-19
 
 Based on openGym 1.4.1.
