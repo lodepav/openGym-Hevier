@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
+import { capWords } from '../../lib/format.js'
+import { isCustomEx } from '../../lib/exercises.js'
 import { Switch } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { aliasesOf, shownAlias, addAlias, removeAlias, showAlias, ALIAS_MAX } from '../lib/ex-aliases.js'
@@ -17,7 +19,7 @@ function AliasSheet({ ex }) {
   const add = () => { if (!v.trim()) return; update(s => { addAlias(s, ex.id, v) }); setV('') }
   return <div className="hv-aliases">
     <h3>{t('Other names')}</h3>
-    <p className="sect-f">{t('The search finds the exercise by each of them. Switch one on to show it in place of “{0}”.', ex.n)}</p>
+    <p className="sect-f">{t('The search finds the exercise by each of them. Switch one on to show it in place of “{0}”.', isCustomEx(ex) ? ex.n : capWords(ex.n))}</p>
     {names.length > 0 && <div className="list">
       {names.map(n => <div key={n} className="item">
         <span className="hv-alias-name">{n}</span>

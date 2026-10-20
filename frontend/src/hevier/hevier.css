@@ -327,7 +327,8 @@
 :root[data-ui="hevier"] .hv-alias-name{flex:1;min-width:0;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-aliases .iconbtn{background:none}
 :root[data-ui="hevier"] .hv-alias-add{display:flex;gap:8px;margin-top:12px}
-:root[data-ui="hevier"] .hv-alias-add .input{flex:1;min-width:0}
+:root[data-ui="hevier"] .hv-alias-add .input{flex:1;min-width:0;width:auto}
+:root[data-ui="hevier"] .hv-alias-add .btn{flex:none;width:auto;padding-inline:20px}
 /* the exercise's picture as tall as Hevy's, about 16:9 of the screen's width (upstream's is 320px) */
 :root[data-ui="hevier"] :is(.hv-xd-summary, .hv-xd-howto) > .exmedia :is(img, video, .exmedia-x){height:min(56vw, 320px)}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}

@@ -12,6 +12,7 @@ import { exerciseDetailSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
 import { aliasHooks } from '../lib/ex-aliases.js'
+import { capWords } from '../../lib/format.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -103,7 +104,7 @@ describe('hevier: exercise details (seam S10)', () => {
       open(log)
       act(() => useStore.getState().update(s => { s.hvAliases = { [EX.id]: { names: ['Flat bench', 'Bench'], show: 'Bench' } } }))
       expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
-      expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called ' + EX.n + ' · Flat bench')
+      expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called ' + capWords(EX.n) + ' · Flat bench')
       act(() => container.querySelector('.hv-xd-aka').click())
       const host = document.createElement('div')
       const r2 = createRoot(host)
