@@ -3,12 +3,19 @@
 // wheel names "Default (1:30)", so the dials sat at zero. Seam S33 hands each duration sheet here
 // before it opens: one whose 0:00 is that default opens at the default instead, and Done on the
 // default still saves 0, "no rest of its own", so the exercise keeps following the default.
+// Upstream's line under the wheel ("0:00 means your default rest") is reworded to say so.
 // An exercise with its own rest, and every other wheel, open as upstream's.
 import { t } from '../../lib/i18n.js'
 import { fmtRest } from '../../lib/duration.js'
 
-/** The sheet's `value` and `onDone`, moved onto `restSec` when its 0:00 means the default rest. */
-export function restOpen({ value, off, onDone }, restSec) {
-  if (value > 0 || !(restSec > 0) || off !== t('Default ({0})', fmtRest(restSec))) return { value, onDone }
-  return { value: restSec, onDone: v => onDone(v === restSec ? 0 : v) }
+const UPSTREAM_FOOT = 'Rest after each set of this exercise. 0:00 means your default rest.'
+
+/** The sheet's `value`, `onDone` and `footer`, moved onto `restSec` when its 0:00 means the
+ *  default rest. */
+export function restOpen({ value, off, footer, onDone }, restSec) {
+  const def = t('Default ({0})', fmtRest(restSec))
+  if (!(restSec > 0) || off !== def) return { value, onDone, footer }
+  if (footer === t(UPSTREAM_FOOT)) footer = t('Rest after each set of this exercise. Left on your default rest ({0}), it follows the default when you change it.', fmtRest(restSec))
+  if (value > 0) return { value, onDone, footer }
+  return { value: restSec, onDone: v => onDone(v === restSec ? 0 : v), footer }
 }
