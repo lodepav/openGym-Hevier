@@ -8,9 +8,11 @@
 #                                                 # debuggable flag, permissions, native
 #                                                 # libraries and exported components
 #
-# Every gate runs even when an earlier one fails; exit 1 if any failed. A finding is fixed, or
-# accepted with its reason in hevier/security/ (a reviewed diff). Scanners: install-scanners.sh.
-# Needs the network (Trivy's vulnerability database).
+# Every gate runs even when an earlier one fails; exit 1 if any failed. The gates run at the same
+# time, each into its own log, and the ones that read only the sources start before the bundle is
+# built; the logs are printed in order. A finding is fixed, or accepted with its reason in
+# hevier/security/ (a reviewed diff). Scanners: install-scanners.sh. Needs the network (Trivy's
+# vulnerability database).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -39,12 +41,28 @@ if [[ -n "$APK" ]]; then
   command -v java >/dev/null || { echo "java not found: apksigner needs JDK 21 (\$JAVA_HOME)" >&2; exit 2; }
 fi
 cd "$ROOT"
+[[ $BUILD == 1 || -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
 
-FAILED=()
-gate() {   # name, command...
-  local name=$1; shift
-  echo; echo "── $name"
-  if "$@"; then echo "ok"; else FAILED+=("$name"); fi
+TMP="$(mktemp -d)"
+# A failed build exits early: the gates still running are stopped first, with the scanner each
+# one runs (Trivy does not stop on SIGTERM).
+stop_gates() { local p; for p in $(jobs -p); do pkill -KILL -P "$p"; kill "$p"; done 2>/dev/null; wait; }
+trap 'stop_gates; rm -rf "$TMP"' EXIT
+NAMES=() PIDS=()
+gate() {   # name, command... : started in the background, its output kept for report
+  local n=${#NAMES[@]}
+  NAMES+=("$1"); shift
+  "$@" > "$TMP/gate-$n.log" 2>&1 &
+  PIDS+=($!)
+}
+report() {   # every gate's log in the order they were started, as each one ends
+  local i
+  FAILED=()
+  for i in "${!NAMES[@]}"; do
+    echo; echo "── ${NAMES[$i]}"
+    if wait "${PIDS[$i]}"; then cat "$TMP/gate-$i.log"; echo "ok"
+    else cat "$TMP/gate-$i.log"; FAILED+=("${NAMES[$i]}"); fi
+  done
 }
 
 # A release is built from a commit. Uncommitted changes fail this gate, but the others still
@@ -56,15 +74,9 @@ committed() {
   return 1
 }
 gate "working tree committed" committed
-
-if [[ $BUILD == 1 ]]; then
-  # The bundle the APK ships, flags as in emulator.sh (and upstream's build:mobile).
-  echo "── building the mobile bundle"
-  (cd frontend && { [[ -d node_modules ]] || npm ci --no-audit --no-fund; } &&
-    VITE_MOBILE=1 VITE_HEVIER=1 VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}" \
-      npx vite build --logLevel error) || { echo "build failed" >&2; exit 2; }
-fi
-[[ -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
+# The release script numbers the release and writes its notes with release-notes.mjs, and this
+# check's supply-chain gates are supply-chain.mjs: their own tests are a gate too.
+gate "release tools: tests" node --test hevier/tools/*.test.mjs
 
 GL=(--no-banner --redact --verbose --log-level warn --gitleaks-ignore-path "$SEC/gitleaksignore")
 gate "secrets: git history" gitleaks git . "${GL[@]}"
@@ -79,9 +91,7 @@ worktree_secrets() {
   gitleaks dir "$TMP/untracked" "${GL[@]}" || rc=1
   return $rc
 }
-TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 gate "secrets: working tree" worktree_secrets
-gate "secrets: built bundle" gitleaks dir frontend/dist "${GL[@]}"
 if [[ -n "$APK" ]]; then
   unzip -q "$APK" -d "$TMP/apk"
   gate "secrets: APK" gitleaks dir "$TMP/apk" "${GL[@]}"
@@ -183,8 +193,20 @@ vulns() {
 gate "dependencies: known vulnerabilities" vulns
 
 gate "supply chain: npm packages" node hevier/tools/supply-chain.mjs packages
+
+# The gates that read the bundle, once it is built.
+if [[ $BUILD == 1 ]]; then
+  # The bundle the APK ships, flags as in emulator.sh (and upstream's build:mobile).
+  echo "── building the mobile bundle"
+  (cd frontend && { [[ -d node_modules ]] || npm ci --no-audit --no-fund; } &&
+    VITE_MOBILE=1 VITE_HEVIER=1 VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}" \
+      npx vite build --logLevel error) || { echo "build failed" >&2; exit 2; }
+fi
+[[ -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
+gate "secrets: built bundle" gitleaks dir frontend/dist "${GL[@]}"
 gate "supply chain: built bundle" node hevier/tools/supply-chain.mjs bundle frontend/dist
 
+report
 echo
 if [[ ${#FAILED[@]} -eq 0 ]]; then echo "release-check: all gates passed"; exit 0; fi
 echo "release-check: ${#FAILED[@]} gate(s) failed:"; printf '  ✗ %s\n' "${FAILED[@]}"
