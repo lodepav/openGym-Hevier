@@ -52,15 +52,17 @@ const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-ki
 
 function ExerciseSets({ w, e, st, recs, trends = [] }) {
   const ex = EXIDX[e.id]
-  // A record sits on the set that made it, as in Hevy; a session's (its volume) on the exercise.
+  // A record sits on the set that made it, as in Hevy; a session's (its volume) on the last work set,
+  // the one that took the session past it (changed 2026-10-20: it was on the exercise's header).
   const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
+  const last = sets.filter(({ s }) => !isWarmupRow(s)).at(-1)?.i
+  const at = i => recs.filter(r => r.set === i || (r.set < 0 && i === last))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
       <span className="hv-thumb">{ex && <Thumb ex={ex} />}</span>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button>
-      <PrBadge recs={recs.filter(r => r.set < 0)} />
     </div>
     {(e.hvBrand || cableOn(e)) && <div className="hv-brand has"><Icon name="machine" />
       {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
@@ -70,8 +72,8 @@ function ExerciseSets({ w, e, st, recs, trends = [] }) {
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
-        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}{!recs.some(r => r.set === i) && <Trend v={trends[i]} />}</span>
-        <PrBadge recs={recs.filter(r => r.set === i)} />
+        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}{!at(i).length && <Trend v={trends[i]} />}</span>
+        <PrBadge recs={at(i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}

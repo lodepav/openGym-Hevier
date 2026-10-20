@@ -112,7 +112,10 @@ describe('hevier: Save Workout (seam S9)', () => {
   it('a changed Duration lands on the saved record; the day stays the session\'s', () => {
     render('/workout/save', logged())
     expect(container.querySelector('input[type="date"]')).toBeNull()
-    typeInto(container.querySelector('.hv-smin'), '40')
+    const [h, m] = container.querySelectorAll('.hv-smin')
+    expect([h.value, m.value]).toEqual(['0', '45'])
+    typeInto(m, '40')
+    expect(container.querySelector('.hv-stats').textContent).toContain('40min')
     const day = useStore.getState().S.active.d // yesterday's, when run just after midnight
     act(() => byText('.hv-pagebar button', 'Save').click())
     const [w] = useStore.getState().S.workouts

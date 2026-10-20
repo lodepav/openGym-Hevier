@@ -85,11 +85,12 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(W))
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')].map(r => r.firstChild.textContent)
     expect(rows).toEqual(['W', '1', '2'])
-    // Each record is on the set that made it (the first at 60), named; the session's volume on the exercise.
+    // Each record is on the set that made it (the first at 60), named; the session's volume on the last work set.
     const prRows = [...container.querySelectorAll('.hv-wd-row')].filter(r => r.querySelector('.hv-pr'))
-    expect(prRows.map(r => r.firstChild.textContent)).toEqual(['1'])
+    expect(prRows.map(r => r.firstChild.textContent)).toEqual(['1', '2'])
     expect(prRows[0].querySelector('.hv-pr').textContent).toBe('Heaviest Weight · Best 1RM · Best Set Volume')
-    expect(container.querySelector('.hv-exhd .hv-pr').textContent).toBe('Best Session Volume')
+    expect(prRows[1].querySelector('.hv-pr').textContent).toBe('Best Session Volume')
+    expect(container.querySelector('.hv-exhd .hv-pr')).toBeNull()
     expect([...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Records')).textContent).toBe('Records4')
     const sets = [...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Sets'))
     expect(sets.querySelector('b').textContent).toBe('2')

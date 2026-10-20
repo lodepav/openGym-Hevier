@@ -67,6 +67,9 @@ export function SaveWorkout() {
   const done = setsDoneActive(A)
   const total = setUnitsTotal(A.entries)
   const live = sessionMin(A)
+  const len = min ?? live
+  // The minutes of `h` hours and `m` minutes as typed, a cleared field being 0.
+  const hm = (h, m) => Math.max(0, Math.round(Number(h) || 0) * 60 + Math.round(Number(m) || 0))
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout', { replace: true }))
 
   const save = () => {
@@ -104,7 +107,7 @@ export function SaveWorkout() {
     <input className="hv-stitle" value={title} maxLength={TITLE_MAX} placeholder={t('Workout title')}
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
-      <div><span>{t('Duration')}</span><b className="acc">{durationWords((min ?? live) * 60000)}</b></div>
+      <div><span>{t('Duration')}</span><b className="acc">{durationWords(len * 60000)}</b></div>
       {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>}
       <div><span>{t('Sets')}</span><b>{done}</b></div>
     </div>
@@ -115,8 +118,12 @@ export function SaveWorkout() {
     <div className="hv-sgroup">
       <label className="hv-srow"><span>{t('Duration')}</span>
         <span className="hv-sval">
-          <input type="number" inputMode="numeric" className="timef hv-smin" min={1} value={min ?? live}
-            onChange={e => setMin(e.target.value === '' ? 0 : Math.round(Number(e.target.value)))} />
+          {/* Hevy's "1h 42min": hours and minutes, each typed on its own */}
+          <input type="number" inputMode="numeric" className="timef hv-smin hv-sh" min={0} value={Math.floor(len / 60)}
+            aria-label={t('Hours')} onChange={e => setMin(hm(e.target.value, len % 60))} />
+          <span className="muted">h</span>
+          <input type="number" inputMode="numeric" className="timef hv-smin" min={0} max={59} value={len % 60}
+            aria-label={t('Minutes')} onChange={e => setMin(hm(Math.floor(len / 60), e.target.value))} />
           <span className="muted">{t('min')}</span>
         </span></label>
       <button type="button" className="hv-srow hv-sgym" onClick={() => gymSheet(nav)}><span>{t('Gym')}</span>

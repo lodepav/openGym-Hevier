@@ -18,6 +18,7 @@ import { Thumb } from '../../components/Media.jsx'
 import MuscleLine from './MuscleLine.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
+import { sanitizeHr } from '../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { workoutRecords } from '../lib/records.js'
 
@@ -70,6 +71,7 @@ export default function WorkoutCard({ w }) {
   const prs = recs.length
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
   const who = (useStore(s => s.user?.name) || '').trim()
+  const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
@@ -86,6 +88,7 @@ export default function WorkoutCard({ w }) {
         ? <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, unit)}</b></div>
         : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
+      {hr && <div><span>{t('Heart rate')}</span><b className="hv-wcard-hr"><Icon name="heart" />{hr.avg}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} />}
     {entries.length > 0 && <div className="hv-wcard-lh">{t('Workout')}</div>}
