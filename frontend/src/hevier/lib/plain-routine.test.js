@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { isPlain, progressionOn, plainRows } from './plain-routine.js'
+import { isPlain, progressionOn, plainRows, filledFromLast } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { hooks } from '../hooks.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -70,6 +70,10 @@ describe('hevier plain routines (D69)', () => {
     const rows = plainRows(S0([{ d: '2026-10-13', routineId: upperB.id, entries: [{ id: '1454', sets: [last] }] }]), {}, row, upperB, [makeSideSet({ w: 50, r: 8 })])
     expect(rows[0].sides.L).toMatchObject({ w: 50, r: 7, done: false })
     expect(rows[0].sides.R).toMatchObject({ w: 50, r: 6, done: false })
+    // The mark is on the row, as upstream rebuilds a side from the fields it knows.
+    expect(rows[0].hvLast).toBe('LR')
+    expect(filledFromLast(rows[0], 'L') && filledFromLast(rows[0], 'R')).toBe(true)
+    expect(filledFromLast({ ...rows[0], hvLast: 'R' }, 'L')).toBe(false)
   })
 
   it('fills a timed hold’s seconds and leaves a ticked row alone', () => {

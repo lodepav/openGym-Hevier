@@ -20,6 +20,8 @@ export const isPlain = routine => !!routine && !progressionOn(routine) && routin
 // A row filled from history is marked as a weight of its own, so an edit of the set above does not
 // cascade onto it (upstream's cascadeWeight skips a manual weight), and `hvLast` so the workout
 // still draws it grey until it is touched (D2).
+/** Whether a set's weight (one side's, for `side`) was filled from last time and not yet touched. */
+export const filledFromLast = (s, side) => (side ? String(s?.hvLast || '').includes(side) : !!s?.hvLast)
 const own = row => ({ ...row, weightOrigin: WEIGHT_ORIGIN_MANUAL, hvLast: 1 })
 
 function fill(row, prev, mode) {
@@ -30,8 +32,9 @@ function fill(row, prev, mode) {
   if (mode === 'time') return prev.sec > 0 ? { ...row, sec: prev.sec, w: prev.w || 0 } : row
   if (isSideSet(row)) {
     if (!isSideSet(prev)) return row
-    const side = k => ({ ...row.sides[k], w: prev.sides[k].w || 0, r: prev.sides[k].r || 0, weightOrigin: WEIGHT_ORIGIN_MANUAL, hvLast: 1 })
-    return syncSideAggregate({ ...row, sides: { L: side('L'), R: side('R') } })
+    // Upstream rebuilds a side from the fields it knows, so the sides' mark is on the row: 'LR'.
+    const side = k => ({ ...row.sides[k], w: prev.sides[k].w || 0, r: prev.sides[k].r || 0, weightOrigin: WEIGHT_ORIGIN_MANUAL })
+    return { ...syncSideAggregate({ ...row, sides: { L: side('L'), R: side('R') } }), hvLast: 'LR' }
   }
   if (isSideSet(prev) || !(prev.r > 0)) return row
   return own({ ...row, w: prev.w || 0, r: prev.r })
