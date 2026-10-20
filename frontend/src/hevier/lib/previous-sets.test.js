@@ -48,4 +48,34 @@ describe('hevier previousSetsFor', () => {
   it('is all nulls for an exercise never done before', () => {
     expect(previousSetsFor(H([]), { id: 'new', sets: [{}, {}] })).toEqual([null, null])
   })
+
+  it('reads a set last time lacked from the last session that had it, as Hevy does', () => {
+    const hist = H([
+      { d: '2026-09-01', entries: [{ id: 'row', sets: [warm(20, 10), warm(30, 5), W(40, 10), W(40, 9), W(40, 8)] }] },
+      { d: '2026-10-01', entries: [{ id: 'row', sets: [warm(25, 10), W(45, 10)] }] },
+    ])
+    const entry = { id: 'row', sets: [{ phase: 'warmup' }, { phase: 'warmup' }, {}, {}, {}, {}] }
+    expect(previousSetsFor(hist, entry)).toEqual([warm(25, 10), warm(30, 5), W(45, 10), W(40, 9), W(40, 8), null])
+    // Workout Detail's arrows (D66) keep to the last session.
+    expect(previousSetsFor(hist, entry, 'routine', { walk: false })).toEqual([warm(25, 10), null, W(45, 10), null, null, null])
+  })
+
+  it('walks the same routine’s sessions first, then any other', () => {
+    const hist = H([
+      { d: '2026-09-01', entries: [{ id: 'squat', rid: 'light', sets: [W(70, 10), W(70, 10), W(70, 10)] }] },
+      { d: '2026-09-05', entries: [{ id: 'squat', rid: 'heavy', sets: [W(100, 5), W(100, 5)] }] },
+      { d: '2026-10-01', entries: [{ id: 'squat', rid: 'light', sets: [W(72, 10)] }] },
+      { d: '2026-10-03', entries: [{ id: 'squat', rid: 'heavy', sets: [W(105, 5)] }] },
+    ])
+    const entry = { id: 'squat', rid: 'heavy', sets: [{}, {}, {}] }
+    expect(previousSetsFor(hist, entry)).toEqual([W(105, 5), W(100, 5), W(70, 10)])
+  })
+
+  it('skips sessions kept out of progression', () => {
+    const hist = H([
+      { d: '2026-09-01', entries: [{ id: 'row', sets: [W(40, 10), W(40, 9)] }] },
+      { d: '2026-10-01', entries: [{ id: 'row', noProg: true, sets: [W(20, 10), W(20, 10)] }] },
+    ])
+    expect(previousSetsFor(hist, { id: 'row', sets: [{}, {}] })).toEqual([W(40, 10), W(40, 9)])
+  })
 })
