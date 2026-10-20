@@ -82,7 +82,9 @@ public class HevierMonthWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context ctx, Intent intent) {
-        if (TICK.equals(intent.getAction())) {
+        // A new timezone or a clock set by hand moves today and the next midnight.
+        String a = intent.getAction();
+        if (TICK.equals(a) || Intent.ACTION_TIMEZONE_CHANGED.equals(a) || Intent.ACTION_TIME_CHANGED.equals(a)) {
             refresh(ctx);
             return;
         }
