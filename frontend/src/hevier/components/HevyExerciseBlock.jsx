@@ -249,11 +249,14 @@ export default function HevyExerciseBlock({
       touch(i, c.f)
     })
   }
+  // A screen reader hears which set a field belongs to: "Set 2, KG (Left)".
+  const fieldName = (s, i, col, side) => (isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + ', ' + col.label
+    + (side ? ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : '')
   const field = (s, i, col, side) => {
     const src = side ? (s.sides?.[side] || {}) : s
     const key = (side || '') + col.f
     const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL)
-    if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={col.label}><Elapsed start={src[RUN]} /></span>
+    if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
     // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
     const hintProps = {
       hint: !firm,
@@ -267,11 +270,11 @@ export default function HevyExerciseBlock({
       },
     }
     if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} {...hintProps}
-      aria-label={col.label}
+      aria-label={fieldName(s, i, col, side)}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(mode, sec)) }} />
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
       {...hintProps}
-      aria-label={side ? col.label + ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : col.label}
+      aria-label={fieldName(s, i, col, side)}
       onChange={v => {
         touch(i, key)
         const val = col.store ? col.store(v) : v

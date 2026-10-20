@@ -52,7 +52,7 @@ Added 2026-10-16, before phase 2, at the user's choice.
 
 | # | Decision |
 |---|---|
-| D17 | **Hevy's dark theme with Hevy blue, only.** The fork has one look: Hevy's dark surfaces, grey secondary text, blue accent, green completed rows. **The page is AMOLED black** (changed 2026-10-19, at the user's choice of three mock-ups: it was near-black `#0e0f12`): only the page and its bars and sheets (`--bg`, `--bg-el`) go to `#000`; cards, set rows, buttons and the green ticked rows keep their colours, nothing else is dimmed. No light theme and no accent choice are offered in the fork's UI; upstream's theme settings stay in the code and their stored values are untouched. |
+| D17 | **Hevy's dark theme with Hevy blue, only.** The fork has one look: Hevy's dark surfaces, grey secondary text, blue accent, green completed rows. **The page is AMOLED black** (changed 2026-10-19, at the user's choice of three mock-ups: it was near-black `#0e0f12`): only the page and its bars and sheets (`--bg`, `--bg-el`) go to `#000`; cards, set rows, buttons and the green ticked rows keep their colours, nothing else is dimmed. The faintest grey (`--label-3`: prefilled values, PREVIOUS, the notes and brand lines) is raised to 4.5:1 on the cards, and a day filled green or orange on the Calendar page and the month widget has a black number (2026-10-20, after the accessibility review); Hevy blue stays as measured, white on it 3.4:1. No light theme and no accent choice are offered in the fork's UI; upstream's theme settings stay in the code and their stored values are untouched. |
 
 ## Volume
 

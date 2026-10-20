@@ -19,7 +19,7 @@
 
   --label:     #ffffff;
   --label-2:   #9a9ea7;   /* Hevy's grey secondary text */
-  --label-3:   rgba(154,158,167,.55);
+  --label-3:   rgba(154,158,167,.8);   /* 4.5:1 on the cards, for the grey prefilled values */
   --label-4:   rgba(154,158,167,.25);
 
   --sep:       #2a2d34;
