@@ -5,11 +5,14 @@
 //
 // The folders' order is the order their first routine has in `S.routines`, so there is nothing
 // else to store or sync: moving a folder moves its routines as a block. A folder with no routine
-// yet exists only on this device (`hevier_folders`), until a routine goes into it.
+// yet is kept in `S.hvFolders` until a routine goes into it, and the folded ones in
+// `S.hvFoldersClosed` (fork-only fields, so they sync and are backed up; device-local
+// `hevier_folders` and `hevier_folders_closed` until 2026-10-20, read once more and then forgotten).
 //
 // Every function takes the routines and returns a new list; routines it changes are copies.
 
 export const FOLDERS_KEY = 'hevier_folders'
+export const CLOSED_KEY = 'hevier_folders_closed'
 export const FOLDER_MAX = 40
 
 export const folderOf = r => (typeof r?.folder === 'string' && r.folder.trim() ? r.folder : null)
@@ -96,16 +99,22 @@ export function removeFolder(routines, name) {
   return routines.map(r => (folderOf(r) === name ? withFolder(r, null) : r))
 }
 
-// The empty folders this device keeps, until a routine goes into each. Never required: a
-// private window or a full storage leaves only the folders routines carry.
-export function readEmptyFolders() {
-  try {
-    const v = JSON.parse(localStorage.getItem(FOLDERS_KEY))
-    return Array.isArray(v) ? v.map(cleanFolderName).filter(Boolean) : []
-  } catch { return [] }
+// A list kept in S, else the one this device kept before it moved into S.
+function readList(S, field, key) {
+  if (Array.isArray(S?.[field])) return S[field]
+  try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : [] } catch { return [] }
 }
-export function writeEmptyFolders(names) {
-  try { localStorage.setItem(FOLDERS_KEY, JSON.stringify([...new Set(names)])) } catch { /* device-local only */ }
+function writeList(s, field, key, names) {
+  const v = [...new Set(names)]
+  if (v.length) s[field] = v; else delete s[field]
+  try { localStorage.removeItem(key) } catch { /* nothing to forget */ }
 }
+
+/** The empty folders kept until a routine goes into each. */
+export const readEmptyFolders = S => readList(S, 'hvFolders', FOLDERS_KEY).map(cleanFolderName).filter(Boolean)
+export const writeEmptyFolders = (s, names) => writeList(s, 'hvFolders', FOLDERS_KEY, names)
+/** The folded folders (a folder's name, or My Routines' key). */
+export const readClosedFolders = S => readList(S, 'hvFoldersClosed', CLOSED_KEY).filter(k => typeof k === 'string')
+export const writeClosedFolders = (s, keys) => writeList(s, 'hvFoldersClosed', CLOSED_KEY, keys)
 /** The empty folders still worth keeping: a folder a routine now carries is no longer empty. */
 export const stillEmpty = (routines, names) => names.filter(n => !(routines || []).some(r => folderOf(r) === n))

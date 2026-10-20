@@ -148,7 +148,7 @@ describe('hevier: navigation (seam S2)', () => {
     expect(path).toBe('/stats')
   })
 
-  it('Edit Home switches widgets on and off, device-locally or through upstream’s switch', () => {
+  it('Edit Home switches widgets on and off, in S or through upstream’s switch', () => {
     render('/home')
     expect(container.textContent).not.toContain('week streak')
     act(() => byText('button', 'Edit Home').click())
@@ -162,6 +162,7 @@ describe('hevier: navigation (seam S2)', () => {
     act(() => byText('button', 'Done').click())
     expect(container.textContent).toContain('week streak')
     expect(useStore.getState().S.showWeightCard).toBe(false)
-    expect(JSON.parse(localStorage.getItem(HOME_KEY)).hidden).not.toContain('streak')
+    expect(useStore.getState().S.hvHome.hidden).not.toContain('streak')
+    expect(localStorage.getItem(HOME_KEY)).toBeNull()
   })
 })

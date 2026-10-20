@@ -1,6 +1,7 @@
 // The configurable Home (hevier/DECISIONS.md D12): which widgets show, in which order. Order and
-// the fork's own switches are device-local (localStorage `hevier_home`), never in S, so sync and
-// exports are untouched. The body-weight card reuses upstream's synced switch instead
+// the fork's own switches are kept in `S.hvHome` (a fork-only field, so it syncs and is backed up;
+// it was device-local `hevier_home` until 2026-10-20, read once more and then forgotten).
+// The body-weight card reuses upstream's synced switch instead
 // (S.showWeightCard). Upstream's gym check-in (membership cards) is not a widget (D12).
 // A stored layout that still names it drops it as an unknown id; S.checkIn is left as it is.
 
@@ -39,9 +40,13 @@ export const storedLayout = widgets => ({
   hidden: widgets.filter(w => !w.on && !UPSTREAM_SWITCH[w.id] && !ALWAYS_ON.has(w.id)).map(w => w.id),
 })
 
-export function readHome() {
+/** The stored layout: S's, else the one this device kept before it moved into S. */
+export function readHome(S) {
+  if (S?.hvHome) return S.hvHome
   try { return JSON.parse(localStorage.getItem(HOME_KEY) || 'null') } catch { return null }
 }
-export function writeHome(widgets) {
-  try { localStorage.setItem(HOME_KEY, JSON.stringify(storedLayout(widgets))) } catch { /* private mode: not remembered */ }
+/** Writes the layout into `s` (a draft of S) and forgets the device's old copy. */
+export function writeHome(s, widgets) {
+  s.hvHome = storedLayout(widgets)
+  try { localStorage.removeItem(HOME_KEY) } catch { /* nothing to forget */ }
 }
