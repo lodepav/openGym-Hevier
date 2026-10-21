@@ -32,8 +32,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
 | Holds (plank, wall sit …) start as timed holds | D55 | Offered (#694) |
-| A one-limb exercise starts per side | D75 | Offer |
-| Rest wheel opens on the default rest | D56 | Offer |
+| A one-limb exercise starts per side | D75 | Offered (#736) |
+| Rest wheel opens on the default rest | D56 | Offered (#735) |
 | Duration wheels in 5-second steps | D48 | Fork |
 | "Still training?" after five hours | D60 | Offer |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |

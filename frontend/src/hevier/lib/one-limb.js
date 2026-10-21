@@ -40,6 +40,14 @@ export function sideConfig(S, id) {
   return sideDefault(S, id) ? { reps: { side: true, reps: 20 }, time: { side: true } } : null
 }
 
+/** What upstream's exercise settings save for `id` with per side switched off (seam S32): an
+ *  explicit `side: false` when the exercise would start per side, else nothing. Off is stored
+ *  without the flag, and `defaultConfig` is spread under saved targets (Save as routine, the
+ *  mode switch), so a one-limb lift switched off would get per side back from the defaults. */
+export function sideOff(S, id) {
+  return sideDefault(S, id) ? { side: false } : null
+}
+
 // A rep target that meant one side, as a total of both: Hevy's and an unmarked slot's.
 const doubled = slot => {
   const out = { ...slot, side: true }
@@ -47,7 +55,8 @@ const doubled = slot => {
   for (const k of ['reps', 'repsMin', 'repsMax']) if (slot[k] > 0) out[k] = slot[k] * 2
   return out
 }
-const sideable = slot => slot && !slot.side && slot.mode !== 'cardio' && !slot.pyramid
+// An explicit `side: false` is per side switched off (`sideOff`), and stays off.
+const sideable = slot => slot && slot.side == null && slot.mode !== 'cardio' && !slot.pyramid
 
 /** A routine slot just given exercise `slot.id` (upstream's replaceSlotExercise drops `side`),
  *  per side when that exercise starts per side, its rep target then read as one side's. */

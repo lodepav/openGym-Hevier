@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { EXIDX } from '../../lib/exercises.js'
-import { defaultConfig } from '../../lib/history.js'
+import { defaultConfig, isPerSide } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
-import { isOneLimb, sideDefault, withSide, sideConfig, sideRoutines } from './one-limb.js'
+import { isOneLimb, sideDefault, withSide, sideConfig, sideOff, sideRoutines } from './one-limb.js'
 import { matchTitle, readKey } from './hevy-import.js'
 
 const S0 = (workouts = []) => ({ unit: 'kg', workouts, routines: [] })
@@ -32,6 +32,21 @@ describe('hevier one-limb exercises start per side (D75)', () => {
     hooks.defaultSide = id => sideConfig(S0(), id)
     expect(defaultConfig('1178')).toMatchObject({ mode: 'reps', side: true })
     expect(defaultConfig('0085').side).toBeUndefined()
+  })
+
+  it('per side switched off is saved as off, so the defaults spread under it keep it off', () => {
+    expect(sideOff(S0(), '1178')).toEqual({ side: false })
+    expect(sideOff(S0(), '0085')).toBeNull()
+    hooks.defaultSide = id => sideConfig(S0(), id)
+    // Save as routine and the mode switch spread defaultConfig under the saved target.
+    const saved = { sets: 3, reps: 12, weight: 20, mode: 'reps', ...sideOff(S0(), '1178') }
+    expect(isPerSide({ ...defaultConfig('1178'), ...saved })).toBe(false)
+    hooks.defaultSide = null
+    // Neither the one-time routine pass nor a replace turns it back on.
+    const s = { routines: [{ id: 'r', ex: [{ id: '1178', ...saved }] }] }
+    sideRoutines(s)
+    expect(s.routines[0].ex[0]).toMatchObject({ side: false, reps: 12 })
+    expect(withSide({ id: '1178', ...saved }, S0()).side).toBe(false)
   })
 
   it('a replaced routine slot gets per side back for a one-limb exercise', () => {
