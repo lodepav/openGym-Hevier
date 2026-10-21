@@ -36,7 +36,7 @@ const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym i
 // index of the last one added, pair(i, j) -> links two neighbours }. Set while a screen that adds
 // exercises is open; with none, the picker offers no superset. The workout's also has
 // insertAfter() -> the name of the exercise the picks would go after, or null when that is the
-// end, and toEnd(), which makes them go to the end (D78).
+// end, and placeAt(atEnd), which makes them go there or to the end (D78).
 let supersetTarget = null
 export function useSupersetTarget(target) {
   useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
@@ -95,7 +95,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const [after] = useState(() => (multi && supersetTarget?.insertAfter?.()) || null)
   const addPicked = (atEnd = true) => {
     close()
-    if (atEnd && after) supersetTarget?.toEnd?.()
+    supersetTarget?.placeAt?.(atEnd || !after)
     picked.forEach(e => onPick(e, true))
   }
   const canLink = multi && picked.length > 1 && !!supersetTarget
