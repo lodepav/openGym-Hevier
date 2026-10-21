@@ -2,6 +2,26 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.9.0 · 2026-10-21
+
+Based on openGym 1.4.1.
+
+### New
+
+- A newer Go Hevier offers itself when the app opens (D77)
+- choose an exercise's main muscle (D76)
+- one-limb exercises start per side (D75)
+
+### Fixes and changes
+
+- D74 deadlifts and Olympic lifts stay
+- Update routine is a prompt that stays until answered (D35)
+- exercises reviewed muscle by muscle (D74), FEATURES.md
+- Timer wheel stays upstream's size; only the clock is bigger (D10)
+- the ⏱ Timer remembers its time and counts down on a ring (D10)
+- Update routine survives a redrawn summary (D35)
+- any exercise can carry a label (D28)
+
 ## 1.8.0 · 2026-10-21
 
 Based on openGym 1.4.1.
