@@ -96,7 +96,9 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | #677 | Chart x-axis labels never repeat a date or a month | In `release-1.4.3` |
 | #690 | Imports keep converted weights to the hundredth, Hevy notes keep line breaks (D40, D54) | In `release-1.4.3` |
 | #694 | A plank or a wall sit starts as a timed hold (D55) | Open, no review yet |
-| #638 | Split shoulders into front, side and rear delts (D65) | Issue open; offered to make the PR, no answer yet |
+| #638 | Split shoulders into front, side and rear delts (D65) | Issue open; offered to make the PR, no answer yet. Commented 2026-10-21: the name sort's numbers, omer-go's `muscleRoles`, and D74's target corrections as a separate PR |
+| #735 | An exercise's rest wheel opens on the default rest (D56) | Opened 2026-10-21; at its merge drop seams S33 and S42 and `hevier/lib/rest-default.js` |
+| #736 | A one-arm or one-leg exercise starts per side (`newConfig`, D75) | Opened 2026-10-21; at its merge drop S32's side half and `sideOff`, keep the fork's "last logged per side" rule |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
 

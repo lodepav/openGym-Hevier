@@ -29,7 +29,7 @@ import { initNoteFix } from './lib/note-text.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
-import { sideConfig, initSideRoutines } from './lib/one-limb.js'
+import { sideConfig, sideOff, initSideRoutines } from './lib/one-limb.js'
 import { restOpen, restFooter } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
@@ -63,6 +63,7 @@ function install() {
   hooks.restFooter = text => restFooter(text, state().restSec)  // and the settings page's line says so (S42, D56)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideConfig(state(), id)          // a single-leg calf raise starts per side (S32, D75)
+  hooks.sideOff = id => sideOff(state(), id)                 // and per side switched off stays off
   hooks.defaultProg = 'off'                               // no progression rule of its own: none (D61)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
