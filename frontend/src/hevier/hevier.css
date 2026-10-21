@@ -24,6 +24,46 @@
 :root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
+/* The strap's live heart rate (D79): a red heart while it reads, grey while it connects. */
+:root[data-ui="hevier"] .hv-strap b{display:inline-flex;align-items:center;gap:4px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-strap b svg{width:14px;height:14px;fill:currentColor}
+:root[data-ui="hevier"] .hv-strap b.on{color:var(--label)}
+:root[data-ui="hevier"] .hv-strap b.on svg{color:var(--red)}
+:root[data-ui="hevier"] .hv-strap-list{display:flex;flex-direction:column;gap:8px}
+:root[data-ui="hevier"] .hv-strap-dev{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:12px;background:var(--surface);border:0;color:var(--label);text-align:left}
+:root[data-ui="hevier"] .hv-hrbtn svg{color:var(--red);fill:currentColor}
+/* D80: the strap's heart rate full screen and its zones (Garmin's colours, grey to red). */
+:root[data-ui="hevier"] .hv-z1{--z:#8e9aaf}
+:root[data-ui="hevier"] .hv-z2{--z:#0a84ff}
+:root[data-ui="hevier"] .hv-z3{--z:#30d158}
+:root[data-ui="hevier"] .hv-z4{--z:#ff9f0a}
+:root[data-ui="hevier"] .hv-z5{--z:#ff453a}
+:root[data-ui="hevier"] .hv-hrscreen{position:absolute;inset:0;background:var(--bg);color:var(--label);display:flex;flex-direction:column;align-items:stretch;gap:22px;padding:var(--sat) 16px calc(var(--sab) + 16px);overflow-y:auto;animation:pop-fade .2s var(--ease)}
+:root[data-ui="hevier"] .hv-hrscreen-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
+:root[data-ui="hevier"] .hv-hrscreen-bar .hv-title{flex:1;text-align:center;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-hrscreen-time,:root[data-ui="hevier"] .hv-hrscreen-bpm{display:flex;flex-direction:column;align-items:center;gap:4px}
+:root[data-ui="hevier"] .hv-hrscreen-time b{font-size:84px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-hrscreen-time span,:root[data-ui="hevier"] .hv-hrscreen-bpm span{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-hrscreen-bpm b{display:inline-flex;align-items:center;gap:10px;font-size:96px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-hrscreen-bpm.small b{font-size:56px}
+:root[data-ui="hevier"] .hv-hrscreen-bpm b svg{width:.42em;height:.42em;color:var(--red);fill:currentColor}
+:root[data-ui="hevier"] .hv-hrscreen-bpm[class*="hv-z"] span{color:var(--z);font-weight:600}
+:root[data-ui="hevier"] .hv-hrzones{display:flex;flex-direction:column;gap:12px}
+:root[data-ui="hevier"] .hv-hrzones-bar{position:relative;display:flex;gap:3px;height:10px}
+:root[data-ui="hevier"] .hv-hrzones-bar i{flex:1;border-radius:5px;background:var(--z);opacity:.35}
+:root[data-ui="hevier"] .hv-hrzones-bar i.on{opacity:1}
+:root[data-ui="hevier"] .hv-hrzones-bar em{position:absolute;top:-5px;width:4px;height:20px;margin-left:-2px;border-radius:2px;background:var(--label);transition:left .6s var(--ease)}
+:root[data-ui="hevier"] .hv-hrzones-list > div{display:grid;grid-template-columns:1fr auto 72px;gap:10px;align-items:center;padding:6px 0;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-hrzones-list > div b{text-align:right}
+:root[data-ui="hevier"] .hv-hrzones-list > div.on{font-weight:600}
+:root[data-ui="hevier"] .hv-hrzones-list i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--z);margin-inline-end:8px}
+:root[data-ui="hevier"] .hv-hrscreen-sum{display:flex;justify-content:space-around;border-top:1px solid var(--sep);padding-top:16px;margin-top:auto}
+:root[data-ui="hevier"] .hv-hrscreen-sum div{display:flex;flex-direction:column;align-items:center;gap:2px}
+:root[data-ui="hevier"] .hv-hrscreen-sum b{font-size:32px;font-weight:600;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-hrscreen-sum span{color:var(--label-2);font-size:14px}
+:root[data-ui="hevier"] .hv-field{display:flex;flex-direction:column;gap:6px}
+:root[data-ui="hevier"] .hv-field span{color:var(--label-2);font-size:14px}
+:root[data-ui="hevier"] .hv-namesheet .row .btn{width:auto;flex:1}
 :root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
 :root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd .hv-mline,:root[data-ui="hevier"] .hv-save .hv-mline{margin:-6px 0 14px}

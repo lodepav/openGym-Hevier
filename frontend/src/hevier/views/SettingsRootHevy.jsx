@@ -22,6 +22,7 @@ import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
+import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
@@ -96,9 +97,10 @@ export function installSettings() {
       const out = relabelPage(id, prunePage(id, tree, t), t)
       if (id === 'about') return aboutPage(out, t)
       if (id !== 'data' || !MOBILE) return out
-      // D27's Health Connect reads, then D34's export to Hevy, both before "Bring data in".
+      // D27's Health Connect reads, D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>
         <HealthReadSection key="hv-health-read" />
+        <StrapSection key="hv-hr-strap" />
         <HevyExportSection key="hv-hevy-export" />
       </>)
     },

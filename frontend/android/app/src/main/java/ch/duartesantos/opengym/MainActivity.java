@@ -38,6 +38,9 @@ public class MainActivity extends BridgeActivity {
         // [hevier] S27: the fork's one-off position, the gym picker's "Find gyms nearby" (D47), until upstream's v1.4.3
         registerPlugin(HevierLocationPlugin.class);
         // [/hevier]
+        // [hevier] S43: the fork's Bluetooth heart-rate strap, recorded while a workout runs (D79)
+        registerPlugin(HevierHrStrapPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

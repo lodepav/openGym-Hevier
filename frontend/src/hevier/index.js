@@ -13,6 +13,7 @@ import * as hevyMore from './lib/hevy-more.js'
 import { HevyMoreRows, moreToast } from './components/HevyMoreRows.jsx'
 import { useStore } from '../store/useStore.js'
 import { initHealthRead } from './lib/health-read-sync.js'
+import { initHrStrap } from './lib/hr-strap-run.js'
 import { initHevyExport } from './lib/hevy-export-sync.js'
 import { initWeighInSource, weighInBlocked } from './lib/weigh-in-source.js'
 import { useUI } from '../store/useUI.js'
@@ -99,8 +100,10 @@ function install() {
 
   // Android: heart rate and weigh-ins from Health Connect (D27), weigh-ins from there only while
   // that is on (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a
-  // tap on it opening the Calendar (D44).
+  // tap on it opening the Calendar (D44); a Bluetooth heart-rate strap recorded while a workout
+  // runs (D79).
   initHealthRead(store)
+  initHrStrap(store)
   initWeighInSource()
   hooks.weighIns = opts => weighInBlocked(opts, () => store.toast(t('Weigh-ins come from Health Connect')))
   initHevyExport(store)

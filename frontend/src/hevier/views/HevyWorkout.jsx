@@ -21,6 +21,8 @@ import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
+import StrapBpm from '../components/StrapBpm.jsx'
+import StrapButton from '../components/StrapScreen.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
@@ -81,6 +83,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
           ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit(leave)}><Icon name="xmark" /></button>
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
+        {!editing && !A.backfill && <StrapButton />}
         {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={() => {
@@ -94,6 +97,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>
         {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
         <div><span>{t('Sets')}</span><b>{done}</b></div>
+        {!(A.backfill || editing) && <StrapBpm />}
       </div>
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
       <GymRow />

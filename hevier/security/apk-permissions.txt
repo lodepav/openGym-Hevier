@@ -20,4 +20,9 @@ android.permission.health.READ_HEART_RATE        # the fork's heart-rate read (D
 android.permission.health.READ_WEIGHT            # the fork's weigh-in read (D27), when switched on
 android.permission.ACCESS_COARSE_LOCATION        # the gym picker's "Find gyms nearby" (D47): one position, on that tap, app open
 android.permission.ACCESS_FINE_LOCATION          # the same (D47); Android asks for both together and the user may grant approximate only
+android.permission.BLUETOOTH_SCAN               # the heart-rate strap (D79): finds straps on a tap in Settings, declared neverForLocation
+android.permission.BLUETOOTH_CONNECT            # the same (D79): connects to the strap picked, while a workout runs
+android.permission.BLUETOOTH                     # the same (D79), Android 11 and older only (maxSdkVersion 30)
+android.permission.BLUETOOTH_ADMIN               # the same (D79), Android 11 and older only (maxSdkVersion 30)
+android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE # the strap's recording keeps going with the screen locked (D79)
 $PKG.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION    # added by AndroidX for its own unexported receivers, app-private
