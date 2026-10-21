@@ -6,6 +6,9 @@
      month widget, which needs no permission (D44), and asks for the location permissions "Find
      gyms nearby" requests on its first tap, while the app is open (D47). Upstream's v1.4.3
      declares the same Health Connect and location permissions; the merger keeps one of each.
+     For a Bluetooth heart-rate strap (D79) it asks for Nearby devices, scanning declared not for
+     location (Android 12 on; before, the scan needs the location already asked for), and declares
+     the foreground service that records the strap while a workout runs.
      It removes upstream's camera permission, which only its barcode scan of a gym check-in uses,
      hidden in the fork (D12), whose scanner the fork leaves out (D50). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -28,10 +31,21 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/hevier_widget_month_info" />
         </receiver>
+        <service
+            android:name=".HevierHrStrapService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
     </application>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
 </manifest>

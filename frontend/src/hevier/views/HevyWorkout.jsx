@@ -21,6 +21,7 @@ import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
+import StrapBpm from '../components/StrapBpm.jsx'
 import { volumeMode } from '../lib/volume.js'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
@@ -94,6 +95,7 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>
         {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
         <div><span>{t('Sets')}</span><b>{done}</b></div>
+        {!(A.backfill || editing) && <StrapBpm />}
       </div>
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
       <GymRow />

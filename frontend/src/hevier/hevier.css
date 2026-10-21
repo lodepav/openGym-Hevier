@@ -24,6 +24,13 @@
 :root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-stats b.acc{color:var(--acc)}
+/* The strap's live heart rate (D79): a red heart while it reads, grey while it connects. */
+:root[data-ui="hevier"] .hv-strap b{display:inline-flex;align-items:center;gap:4px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-strap b svg{width:14px;height:14px;fill:currentColor}
+:root[data-ui="hevier"] .hv-strap b.on{color:var(--label)}
+:root[data-ui="hevier"] .hv-strap b.on svg{color:var(--red)}
+:root[data-ui="hevier"] .hv-strap-list{display:flex;flex-direction:column;gap:8px}
+:root[data-ui="hevier"] .hv-strap-dev{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:12px;background:var(--surface);border:0;color:var(--label);text-align:left}
 :root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
 :root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd .hv-mline,:root[data-ui="hevier"] .hv-save .hv-mline{margin:-6px 0 14px}

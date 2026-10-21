@@ -122,6 +122,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Portrait only | D24 | Offer |
 | Heart rate and weigh-ins read from Health Connect | D27 | Ported (1.4.3) |
 | Health Connect as the only source of weigh-ins | D32 | Offer |
+| Heart rate recorded live from a Bluetooth strap | D79 | Offer |
 | Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
 | Smaller APK: no barcode scanner, R8 shrinking | D50 | Fork (the scanner serves the gym check-in the fork hides) |
 | A newer version offers itself in the app, with Install and Not now | D77 | Offer |
