@@ -27,7 +27,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Offer |
-| "Update routine?" prompt after a workout that changed the routine | D35 | Offer |
+| "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Offer |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
@@ -106,12 +106,12 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 
 | Feature | D | Mark |
 |---|---|---|
-| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672) |
+| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672, in 1.4.3) |
 | Routine folders from the Hevy API | D30 | Offer |
 | More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offer |
 | Review of exercise matches before an import, remembered | D33 | Offer |
-| Weights kept to the hundredth on import | D40 | Offer |
-| Hevy CSV notes keep their line breaks | D54 | Offer |
+| Weights kept to the hundredth on import | D40 | Offered (#690, in 1.4.3) |
+| Hevy CSV notes keep their line breaks | D54 | Offered (#690, in 1.4.3) |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
 
 ## Android and phone
