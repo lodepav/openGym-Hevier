@@ -15,6 +15,19 @@ describe('mainMuscleOf (D74)', () => {
     expect(main('0043')).toBe('Quadriceps') // barbell full squat
     expect(main('0743')).toBe('Quadriceps') // sled hack squat
   })
+  it('puts lunges and step-ups on the glutes, split squats on the quads', () => {
+    const named = re => Object.values(EXIDX).find(e => e.tg === 'glutes' && re.test(e.n))
+    expect(mainMuscleOf(named(/^barbell lunge$/))).toBe('Glutes')
+    expect(mainMuscleOf(named(/^dumbbell step-up$/))).toBe('Glutes')
+    expect(main('0410')).toBe('Quadriceps') // dumbbell single leg split squat
+  })
+  it('puts shrugs on the traps, a Kelso shrug on the upper back', () => {
+    const named = re => Object.values(EXIDX).find(e => re.test(e.n))
+    expect(mainMuscleOf(named(/^hanging scapular shrug$/))).toBe('Traps')
+    expect(mainMuscleOf(named(/scapular retraction shrug/))).toBe('Upper Back')
+    registerCustom([{ id: 'k1', n: 'Kelso Shrug (Machine)', custom: true, tg: '' }])
+    expect(main('k1')).toBe('Upper Back')
+  })
   it('keeps hip thrusts on the glutes and puts hinges on the hamstrings', () => {
     expect(main('2146')).toBe('Glutes') // lever hip thrust
     expect(main('0085')).toBe('Hamstrings') // barbell romanian deadlift
