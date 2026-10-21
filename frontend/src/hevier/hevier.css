@@ -437,6 +437,8 @@
 :root[data-ui="hevier"] .hv-cal-d{position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:none;padding:0;font-size:14px;color:var(--label);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-cal-d.done{background:var(--acc);color:var(--on-acc);font-weight:600}
 :root[data-ui="hevier"] .hv-cal-d.today{box-shadow:inset 0 0 0 2px var(--acc)}
+/* A trained today keeps a ring, white inside its fill, as the month widget draws it (D68). */
+:root[data-ui="hevier"] .hv-cal-d.done.today{box-shadow:inset 0 0 0 2px var(--label)}
 :root[data-ui="hevier"] .hv-cal-d.plan::after,:root[data-ui="hevier"] .hv-cal-d.ovr::after,:root[data-ui="hevier"] .hv-cal-d.noted::after{content:"";position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--label-3)}
 :root[data-ui="hevier"] .hv-cal-d.ovr::after{background:var(--orange)}
 :root[data-ui="hevier"] .hv-cal-d.noted::after{background:var(--indigo)}
