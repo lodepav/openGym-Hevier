@@ -50,6 +50,22 @@ describe('mainMuscleOf (D74)', () => {
     const twist = Object.values(EXIDX).find(e => e.tg === 'abs' && /russian twist/.test(e.n))
     expect(mainMuscleOf(twist)).toBe('Obliques')
   })
+  it('files what the review found under another muscle (2026-10-21)', () => {
+    expect(main('0459')).toBe('Abdominals') // flutter kicks, catalogue glutes
+    expect(main('0642')).toBe('Chest') // outside leg kick push-up
+    expect(main('2133')).toBe('Forearms') // farmers walk, catalogue quads
+    expect(main('2910')).toBe('Obliques') // dumbbell suitcase carry
+    expect(main('8191')).toBe('Hip Flexors') // cable standing hip flexion
+    expect(main('5155')).toBe('Glutes') // lateral step up with knee drive stays a step-up
+    expect(main('9803')).toBe('Shins') // standing tibialis raise
+    expect(main('4467')).toBe('Calves') // roll ball tibialis posterior: a calf muscle
+    expect(main('6705')).toBe('Obliques') // supine windshield wipers
+    expect(main('0352')).toBe('Chest') // dumbbell neutral grip bench press
+    expect(main('0471')).toBe('Front Delts') // handstand push-up, catalogue triceps
+    expect(main('2142')).toBe('Cardio') // ski ergometer
+    expect(main('1130')).toBe('Rear Delts') // suspender reverse fly
+    expect(main('2779')).toBe('Shoulders') // shoulder lateral rotation: rotator cuff, no head
+  })
   it('reads a custom exercise’s own primary muscle, or the catalogue exercise its name finds', () => {
     registerCustom([
       { id: 'c1', n: 'My press', custom: true, tg: '', primaries: ['quadriceps'] },
