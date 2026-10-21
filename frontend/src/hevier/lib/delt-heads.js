@@ -24,7 +24,10 @@ const FRONT = /\bfront\b|forward raise|press|arnold|military|pike push|handstand
 export function headOf(ex) {
   if (!isShoulder(ex)) return null
   const n = String(ex.n || ex.name || '')
-  return REAR.test(n) ? 'rear' : SIDE.test(n) ? 'side' : FRONT.test(n) ? 'front' : null
+  if (REAR.test(n)) return 'rear'
+  // Rotator-cuff work (a lateral or external rotation) is no head's, unless it raises or presses too.
+  if (/rotation/i.test(n) && !/raise|press/i.test(n)) return null
+  return SIDE.test(n) ? 'side' : FRONT.test(n) ? 'front' : null
 }
 const isShoulder = ex => ['delts', 'deltoids', 'shoulders'].includes(ex?.tg)
 

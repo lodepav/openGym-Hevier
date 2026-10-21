@@ -34,7 +34,26 @@ export const muscleLabel = tg => (typeof tg === 'string' ? LABEL[tg] || tg : '')
 // matches wins, so the narrower come first (a glute-dominant step-up before step-ups).
 const LEGS = ['glutes', 'quads', 'hamstrings', 'spine']
 const BACK = ['lats', 'upper back', 'traps']
+// Reviewed by hand, group by group, on 2026-10-21: exercises filed under a muscle they are not
+// known for (a flutter kick under glutes, a hip flexion under quads, a tibialis raise under calves).
+const CARRY = [...LEGS, 'traps']
 const RULES = [
+  [[...CARRY, 'quads'], /farmers? (walk|carry)/i, 'Forearms'],
+  [CARRY, /suitcase carry/i, 'Obliques'],
+  [CARRY, /(zercher|goblet|high low) carry|anti rotation|flutter kick|plank march/i, 'Abdominals'],
+  [['glutes'], /superman/i, 'Lower Back'],
+  [['glutes'], /push[- ]?up/i, 'Chest'],
+  [['glutes'], /march sit/i, 'Quadriceps'],
+  [['quads'], /^(?!.*step).*(hip flex(ion|ors?)\b(?!.*(quad|knee))|iliopsoas|knee raise|leg raise|knee drive)/i, 'Hip Flexors'],
+  [['abs'], /rectus femoris/i, 'Quadriceps'],
+  [['calves'], /tibialis (raise|press)|tibialis anterior|anterior calf|toe raise|dorsal? ?flexion|dorsi ?flexion|heel walk|\bshin\b/i, 'Shins'],
+  [['pectorals', 'triceps'], /ergometer|hands bike/i, 'Cardio'],
+  [['pectorals', 'triceps'], /push press|pike push|handstand/i, 'Shoulders'],
+  [['pectorals'], /lateral bent[- ]over/i, HEAD_NAME.rear],
+  [['triceps'], /hammer press|neutral grip bench press|palms in .*bench press|twisting bench press/i, 'Chest'],
+  [['biceps'], /pronation/i, 'Forearms'],
+  [BACK, /rope climb/i, 'Lats'],
+  [BACK, /rear fly|reverse fly/i, HEAD_NAME.rear],
   [LEGS, /hamstring|bridge curl|glute[- ]ham raise|romanian|\brdl\b|stiff[- ]leg|straight[- ]legs? deadlift|good ?morning|(single|one)[- ]leg (romanian )?deadlift|kickstand|leg curl|hamstring curl|nordic/i, 'Hamstrings'],
   [LEGS, /hip thrust|glute(?![- ]ham)|bridge|kick ?back|donkey|clam|hip extension|pull[- ]?through|reverse hyper|reverse leg extension|fire hydrant|rear kick|curt?s[e]?y|sumo\b.*squat|lunge|step[- ]?up/i, 'Glutes'],
   [LEGS, /squat|leg press|hack|sissy|leg extension|wall sit/i, 'Quadriceps'],
@@ -49,7 +68,7 @@ const RULES = [
   [BACK, /\brow\b/i, 'Upper Back'],
   [['biceps'], /wrist curl/i, 'Forearms'],
   [['traps'], /\bneck\b/i, 'Neck'],
-  [['abs'], /oblique|twist|side bend|russian|wood ?chop|windmill|side plank|side bridge|side crunch|side jackknife/i, 'Obliques'],
+  [['abs'], /oblique|twist|side (bend|bent|lean|sit[- ]?up|stretch crunch|hip|swing|floor tap)|hip side raise|russian|wood ?chop|windmill|side plank|side bridge|side crunch|side jackknife|wiper|(torso|trunk|body) rotation|rotational throw|landmine 180|lateral (bend|flexion)|lumbar rotation/i, 'Obliques'],
 ]
 
 // `anyTarget`: for a custom exercise with no muscles, whose name alone is to go by.
