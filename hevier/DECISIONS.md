@@ -526,3 +526,11 @@ Added 2026-10-21, at the user's request.
 | # | Decision |
 |---|---|
 | D76 | **The main muscle of an exercise can be chosen.** Exercise details' ⋯ → **Main muscle** (its row shows the one in force, `· your choice` when chosen) opens a sheet: **Automatic** (D74's, named under it), then every muscle by D64's groups, D65's heads among the shoulders. A choice is kept in `S.hvMainMuscle` (`{ [exId]: 'Lats' }`, a fork-only field upstream ignores, so it syncs and is in backups); Automatic removes it. It steers everything D74's main muscle does: the sets per muscle and every screen that shows them, the picker's muscle filter, exercise details' Primary line. A custom exercise filed as the catalogue exercise its name finds follows that exercise's choice. **Not changed:** upstream's muscle model and the body maps, recovery and Muscle balance, D42's secondary-muscles count, and the Secondary line, which stay upstream's. |
+
+## Update notice
+
+Added 2026-10-21, at the user's request: in the app, when it is opened.
+
+| # | Decision |
+|---|---|
+| D77 | **A newer Go Hevier offers itself when the app is opened.** Upstream's updater (D52, S6) answered only on Settings → About. In the APK, at launch and on each return to the app, upstream's check (`checkForUpdate`, once per app session) that finds a newer release with an APK opens a sheet: **Go Hevier 1.3.0 is available**, **Install** (About's own path: the release's checksum, the download to disk with its progress, Android's installer, which refuses a file that does not match) and **Not now**. **Asked once per version:** Not now or a tap outside is that version's answer, kept on the device (`hevier_update_seen`, `hevier/lib/update-notice.js`), nothing in `S`; the next version asks again, and About still offers the skipped one. **Not while a workout is open**: it waits for the next opening. A debug build never checks (S6), so never asks. No phone notification (the user's choice): the app does no work in the background. |
