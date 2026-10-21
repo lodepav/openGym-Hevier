@@ -40,8 +40,24 @@ describe('hevier workout clock', () => {
     expect(host.querySelector('.seg button.on').textContent).toBe('Timer')
     expect(host.querySelector('.dw-read').textContent).toBe('2:00')
     act(() => btn('Start timer').click())
-    expect(apply).toHaveBeenCalledWith(120, undefined)
-    expect(useUI.getState().sheets).toEqual([])
+    expect(apply).toHaveBeenCalledWith(120)
+    expect(useStore.getState().S.hvTimerSec).toBe(120)
+  })
+
+  it('opens next time on the time it last ran, and shows its countdown as a ring', () => {
+    useStore.setState(st => ({ S: { ...st.S, hvTimerSec: 45 } }))
+    open()
+    expect(host.querySelector('.dw-read').textContent).toBe('45s')
+    expect(host.querySelector('.hv-clock')).toBeTruthy()
+    act(() => useUI.setState({ timer: { left: 40, total: 45, hvClock: true } }))
+    expect(host.querySelector('.hv-ring-t').textContent).toBe('0:40')
+    expect(btn('Skip')).toBeTruthy()
+  })
+
+  it('a rest between sets keeps the wheel, not the ring', () => {
+    useUI.setState({ timer: { left: 40, total: 90 } })
+    open()
+    expect(host.querySelector('.hv-ring')).toBeNull()
   })
 
   it('a running rest opens at its time left, and Done adjusts it', () => {
