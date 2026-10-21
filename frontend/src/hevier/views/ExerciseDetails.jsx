@@ -30,19 +30,23 @@ import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
+import { musclesShown } from '../lib/main-muscle.js'
+import { MUSCLE_NAME } from '../../lib/muscles.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
 // Hevy's lines under the picture: the name in bold, then "Primary: Chest" and "Secondary: …" as
-// text. Upstream's detailTags marks its parts: the trained muscles carry the figure icon, the
-// equipment the kettlebell, the body part `acc`, the helpers nothing.
+// text. The muscles are D74's (the main one, then the others); the equipment is upstream's
+// detailTags', which marks it with the kettlebell (the body part `acc`, read when an exercise has
+// no muscle at all).
 function ExerciseFacts({ ex }) {
   const tags = detailTags(ex)
   const of = test => tags.filter(test).map(tg => tg.label).join(', ')
+  const { primary, secondary } = musclesShown(ex, s => MUSCLE_NAME[s] || s)
   const lines = [
-    [t('Primary'), of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
-    [t('Secondary'), of(tg => !tg.icon && !tg.acc)],
+    [t('Primary'), (primary && t(primary)) || of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
+    [t('Secondary'), secondary.map(m => t(m)).join(', ')],
     [t('Equipment'), of(tg => tg.icon === 'kettlebell')],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">

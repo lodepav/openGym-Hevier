@@ -1,6 +1,6 @@
 // Volume as tonnage or as sets per muscle group (hevier/DECISIONS.md D18). Tonnage is upstream's
 // (`w.vol`, workoutVolume); this adds the sets count: each ticked work set once, for the exercise's
-// main muscle, Hevy's way. Warm-ups are left out; a per-side or drop set is one set. Settings →
+// main muscle (D74), Hevy's way. Warm-ups are left out; a per-side or drop set is one set. Settings →
 // Muscle sets (D42) can count a secondary muscle too, in part, with upstream's load.
 import { EXIDX } from '../../lib/exercises.js'
 import { loadOf, MUSCLE_NAME } from '../../lib/muscles.js'
@@ -34,10 +34,11 @@ export function muscleSets(entries, mode = 'main') {
       const load = loadOf([{ id: e.id, ex: e.exercise || e, sets: n }])
       for (const slug in load) add(MUSCLE_NAME[slug] || slug, load[slug])
     } else {
-      // Cardio is no muscle group: its sets are left out of the main-muscle count.
-      const ex = EXIDX[e.id]
-      const muscle = ex?.tg === 'cardiovascular system' ? '' : muscleOf(ex)
-      if (muscle) add(muscle, n)
+      // Cardio is no muscle group: its sets are left out of the main-muscle count. A deleted
+      // custom exercise is read from the muscles its entries kept.
+      const ex = EXIDX[e.id] || (e.muscleSnapshot && { ...e.muscleSnapshot, custom: true })
+      const muscle = muscleOf(ex)
+      if (muscle && muscle !== 'Cardio') add(muscle, n)
     }
   }
   return [...by].map(([muscle, sets]) => ({ muscle, sets: tenth(sets) })).filter(r => r.sets > 0)

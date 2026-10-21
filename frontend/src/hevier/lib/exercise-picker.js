@@ -3,28 +3,13 @@
 // upstream's (lib/exercises.js searchExercises, lib/favourites.js); this only decides which
 // exercises a filter keeps and what the muscle filter calls them.
 
-// Hevy's muscle list over the catalogue's `tg` spellings and the ones a custom exercise stores
-// (MUSCLES in lib/muscles.js). These labels are the filter's keys and its English text.
-import { muscleGroupIdOf, groupOfName, headOfName } from './muscle-groups.js'
-import { headOf } from './delt-heads.js'
-
-const MUSCLE_LABEL = {
-  abs: 'Abdominals', obliques: 'Obliques', abductors: 'Abductors', adductors: 'Adductors',
-  biceps: 'Biceps', calves: 'Calves', 'cardiovascular system': 'Cardio',
-  pectorals: 'Chest', chest: 'Chest', forearms: 'Forearms', forearm: 'Forearms',
-  glutes: 'Glutes', gluteal: 'Glutes', hamstrings: 'Hamstrings', hamstring: 'Hamstrings',
-  lats: 'Lats', spine: 'Lower Back', 'lower-back': 'Lower Back', 'levator scapulae': 'Neck',
-  quads: 'Quadriceps', quadriceps: 'Quadriceps', delts: 'Shoulders', deltoids: 'Shoulders',
-  traps: 'Traps', trapezius: 'Traps', triceps: 'Triceps', 'upper back': 'Upper Back',
-  'upper-back': 'Upper Back', 'serratus anterior': 'Serratus', serratus: 'Serratus',
-  'hip-flexors': 'Hip Flexors', tibialis: 'Shins',
-}
+// The muscle an exercise is filed under is D74's main muscle (hevier/lib/main-muscle.js), under
+// Hevy's names; these names are the filter's keys and its English text.
+import { muscleGroupIdOf, groupOfName } from './muscle-groups.js'
+import { mainMuscleOf } from './main-muscle.js'
 
 /** The muscle an exercise is filed under, '' when it has no target. */
-export const muscleOf = ex => {
-  const tg = ex && typeof ex.tg === 'string' ? ex.tg : ''
-  return MUSCLE_LABEL[tg] || tg
-}
+export const muscleOf = mainMuscleOf
 
 /** Whether exercise `ex` falls under the muscle filter `v`: '' any, a muscle, or a whole group (D64). */
 export function muscleMatches(v, ex) {
@@ -32,8 +17,7 @@ export function muscleMatches(v, ex) {
   const g = muscleGroupIdOf(v)
   const name = muscleOf(ex)
   if (g) return !!name && groupOfName(name) === g
-  const head = headOfName(v)
-  return head ? headOf(ex) === head : name === v
+  return name === v
 }
 
 /** The muscle filter's options: every muscle `list` has an exercise for, A to Z. */

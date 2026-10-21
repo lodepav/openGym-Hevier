@@ -33,7 +33,7 @@ export function groupBy(items, of) {
 }
 
 // Shoulders opens on its heads (D65): the picker's names stand for the heads, not Shoulders itself.
-const withHeads = names => (names || []).flatMap(n => (n === 'Shoulders' ? HEADS.map(h => HEAD_NAME[h]) : [n]))
+const withHeads = names => [...new Set((names || []).flatMap(n => (n === 'Shoulders' ? HEADS.map(h => HEAD_NAME[h]) : [n])))]
 
 /** The body map's muscles in the explorer's groups: Shoulders as its three heads (D65). */
 export const explorerMuscles = muscles => (muscles || []).flatMap(m => (m === 'deltoids' ? HEADS.map(h => HEAD_SLUG[h]) : [m]))
