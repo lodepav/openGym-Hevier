@@ -2,6 +2,19 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.10.0 · 2026-10-21
+
+Based on openGym 1.4.1.
+
+### New
+
+- Add Exercise asks where, Insert after or Add to end (D78)
+
+### Fixes and changes
+
+- per side switched off stays off (D75)
+- PIPELINE refreshed 2026-10-21
+
 ## 1.9.0 · 2026-10-21
 
 Based on openGym 1.4.1.
