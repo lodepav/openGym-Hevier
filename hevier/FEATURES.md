@@ -27,7 +27,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Offer |
-| "Update routine" button after a workout that changed the routine | D35 | Fork |
+| "Update routine?" prompt after a workout that changed the routine | D35 | Offer |
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Offer |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
