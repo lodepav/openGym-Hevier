@@ -2,6 +2,14 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.11.0 · 2026-10-21
+
+Based on openGym 1.4.1.
+
+### New
+
+- record a Bluetooth heart-rate strap live, full screen with zones (D79, D80)
+
 ## 1.10.0 · 2026-10-21
 
 Based on openGym 1.4.1.
