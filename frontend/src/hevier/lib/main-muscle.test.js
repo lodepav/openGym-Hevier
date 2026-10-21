@@ -21,9 +21,11 @@ describe('mainMuscleOf (D74)', () => {
     expect(mainMuscleOf(named(/^dumbbell step-up$/))).toBe('Glutes')
     expect(main('0410')).toBe('Quadriceps') // dumbbell single leg split squat
   })
-  it('puts shrugs on the traps, a Kelso shrug on the upper back', () => {
+  it('puts shrugs on the traps, a Kelso, horizontal, hanging or dip shrug on the upper back', () => {
     const named = re => Object.values(EXIDX).find(e => re.test(e.n))
-    expect(mainMuscleOf(named(/^hanging scapular shrug$/))).toBe('Traps')
+    expect(mainMuscleOf(named(/^dumbbell shrug$/))).toBe('Traps')
+    expect(mainMuscleOf(named(/^hanging scapular shrug$/))).toBe('Upper Back')
+    expect(mainMuscleOf(named(/^shrug \(on parallel bars\)$/))).toBe('Upper Back')
     expect(mainMuscleOf(named(/scapular retraction shrug/))).toBe('Upper Back')
     registerCustom([{ id: 'k1', n: 'Kelso Shrug (Machine)', custom: true, tg: '' }])
     expect(main('k1')).toBe('Upper Back')
