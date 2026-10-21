@@ -70,8 +70,9 @@ describe('hevier Hevy import (D29)', () => {
   it('the belt squat and the deficit Smith split squat land on their own exercises', () => {
     const match = t => importExercise(t, 'Hevy') || upstreamMatch(t, 'Hevy')
     expect(match('Belt Squat (Machine)')).toBe('2950')
-    expect(match('Deficit Bulgarian Split Squat (Smith Machine)')).toBe('11568')
-    expect(readKey(importExercise('Deficit Bulgarian Split Squat (Smith Machine) (brand: LifeFitness)', 'Hevy'))).toMatchObject({ id: '11568', brand: 'LifeFitness' })
+    // A unilateral exercise, so per side (D75).
+    expect(readKey(match('Deficit Bulgarian Split Squat (Smith Machine)'))).toMatchObject({ id: '11568', side: true })
+    expect(readKey(importExercise('Deficit Bulgarian Split Squat (Smith Machine) (brand: LifeFitness)', 'Hevy'))).toMatchObject({ id: '11568', side: true, brand: 'LifeFitness' })
   })
 
   it('takes a one-limb title to its machine or cable exercise, per side; free weights stay upstream\'s', () => {
@@ -161,7 +162,7 @@ describe('hevier Hevy import (D29)', () => {
       { exercise_template_id: 't1', title: 'Single Leg Extensions', sets: [{ type: 'normal', weight_kg: 40, reps: 10 }] },
     ] }]
     const r = importDone(parseHevyRoutines(routines, templates, { unit: 'kg' }))
-    expect(r.routines[0].ex[0]).toMatchObject({ id: '7108', side: true })
+    expect(r.routines[0].ex[0]).toMatchObject({ id: '7108', side: true, reps: 20 })   // 10 a side (D75)
   })
 
   it('turns Hevy\'s escaped line breaks in notes back into line breaks (D54)', () => {

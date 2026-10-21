@@ -33,6 +33,7 @@ import { useDragReorder } from '../components/useDragReorder.js'
 import { useSupersetTarget, exercisePickerSheet } from './ExercisePickerHevy.jsx'
 import { BackupsSheet } from '../components/BackupsSheet.jsx'
 import { keepBackups, cleanBackups } from '../lib/routine-backups.js'
+import { withSide } from '../lib/one-limb.js'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
@@ -96,8 +97,9 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       const slot = live.routines.find(x => x.id === r.id)?.ex[i]
       if (!slot || slot.id !== openedOn) { picker.close(); return }
       if (quick && pick.id === openedOn) { picker.close(); return }
-      if (quick) { commit(pick, current => replaceSlotExercise(current, pick.id, live, r.id)); return }
-      const next = replaceSlotExercise(slot, pick.id, live, r.id)
+      // D75: upstream's replace drops the slot's per side; a one-limb exercise gets it back.
+      if (quick) { commit(pick, current => withSide(replaceSlotExercise(current, pick.id, live, r.id), live)); return }
+      const next = withSide(replaceSlotExercise(slot, pick.id, live, r.id), live)
       exConfigSheet(pick, next, cfg => commit(pick, current => ({ id: pick.id, sg: current.sg, ...cfg })), null, r, null, null, t('Replace'))
     }, { title: t('Replace exercise'), like: openedOn, backups: e.subs })
   }

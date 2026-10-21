@@ -31,7 +31,12 @@ function fill(row, prev, mode) {
   }
   if (mode === 'time') return prev.sec > 0 ? { ...row, sec: prev.sec, w: prev.w || 0 } : row
   if (isSideSet(row)) {
-    if (!isSideSet(prev)) return row
+    // A set last time logged as one row (a Hevy import's) held one side's reps (D75): both sides.
+    if (!isSideSet(prev)) {
+      if (!(prev.r > 0)) return row
+      const side = k => ({ ...row.sides[k], w: prev.w || 0, r: prev.r, weightOrigin: WEIGHT_ORIGIN_MANUAL })
+      return { ...syncSideAggregate({ ...row, sides: { L: side('L'), R: side('R') } }), hvLast: 'LR' }
+    }
     // Upstream rebuilds a side from the fields it knows, so the sides' mark is on the row: 'LR'.
     const side = k => ({ ...row.sides[k], w: prev.sides[k].w || 0, r: prev.sides[k].r || 0, weightOrigin: WEIGHT_ORIGIN_MANUAL })
     return { ...syncSideAggregate({ ...row, sides: { L: side('L'), R: side('R') } }), hvLast: 'LR' }

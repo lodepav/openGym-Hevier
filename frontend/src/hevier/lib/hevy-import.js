@@ -13,6 +13,7 @@ import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
 import { volumeFactor } from '../../lib/dumbbells.js'
 import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
+import { isOneLimb } from './one-limb.js'
 import { unescapeWorkout } from './note-text.js'
 
 // Hevy's English title (lower case) → catalogue id, `side` for a one-limb title. Each row was
@@ -215,7 +216,8 @@ export const cableFor = (title, source, choices) =>
     || choices?.cables?.[choiceKey(title, source, choices)] || ''
 
 // An exercise picked for a one-limb title is done one side at a time when it is a machine or cable.
-const picked = (id, name) => (id ? { id, side: LIMB.test(name) && isMachineId(id) } : null)
+// So is one whose catalogue name says one arm or leg (D75).
+const picked = (id, name) => (id ? { id, side: (LIMB.test(name) && isMachineId(id)) || isOneLimb(EXIDX[id]) } : null)
 
 /** How a title is matched, in order, the first answer winning: each step gives { id, side } or null. */
 const STEPS = [
@@ -239,8 +241,12 @@ function answer(title, source, choices) {
   let found = null
   for (const step of STEPS) if ((found = step(t))) break
   let { id = null, side = false } = found || {}
+  // A one-limb catalogue exercise, free weights too (D75): each Hevy row holds one side's reps.
+  const limb = !id && !side && !brand && !cable ? matchOf(name) : null
+  if (limb && isOneLimb(EXIDX[limb])) return keyOf({ id: limb, side: true, brand, cable })
   if (!id && !brand && !cable) return null
   id = id || matchOf(name)
+  if (!side && id && isOneLimb(EXIDX[id])) side = true
   if (!side && !brand && !cable) return id
   // A brand on an exercise nobody matched: a custom exercise named without the brand, the id
   // upstream would give it, so a later import finds the same one.
@@ -366,7 +372,11 @@ function done(parsed) {
         if (!k) return e
         take(k)
         const out = { ...e, id: k.id }
-        if (k.side && out.mode === 'reps') out.side = true
+        // Hevy's rep target is one side's; upstream's per-side reps are both sides' (D75).
+        if (k.side && out.mode === 'reps') {
+          out.side = true
+          for (const f of ['reps', 'repsMin', 'repsMax']) if (out[f] > 0) out[f] *= 2
+        }
         return out
       }),
     }))

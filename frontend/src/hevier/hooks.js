@@ -19,6 +19,7 @@ export const hooks = {
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
   defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
+  defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)
   durationOpen: null,    // ({ value, off, onDone }) => { value, onDone }: a duration sheet about to open (S33)
   restFooter: null,     // (text) => text: the exercise settings page's line under its rest (S42)
   statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)

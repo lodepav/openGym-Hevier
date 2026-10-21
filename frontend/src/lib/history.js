@@ -216,8 +216,11 @@ export function defaultConfig(id, mode) {
   // Written only when it is true, so a barbell config is byte-for-byte what it was before
   // the flag existed and a plan file gains nothing it does not need.
   const bw = isBodyweightEq(id) ? { bodyweight: true } : {}
-  if (m === 'time') return { sets: 3, sec: 45, weight: 0, mode: 'time', ...bw }
-  return { sets: 3, reps: 10, weight: 0, mode: 'reps', ...bw }
+  // [hevier] S32: a one-limb exercise starts per side (D75)
+  const side = hooks.defaultSide?.(id) || {}
+  if (m === 'time') return { sets: 3, sec: 45, weight: 0, mode: 'time', ...bw, ...side.time }
+  return { sets: 3, reps: 10, weight: 0, mode: 'reps', ...bw, ...side.reps }
+  // [/hevier]
 }
 // A double-progression range is stored as its top (`reps`) and its bottom (`repsMin`), and
 // reads as the range it is: "8–12". Printing the top alone made "Reps from 10, up to 15" read
