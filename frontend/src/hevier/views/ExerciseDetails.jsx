@@ -55,7 +55,7 @@ function ExerciseFacts({ ex }) {
   </div>
 }
 
-function Summary({ ex, sum, st, e1rmAll }) {
+function Summary({ ex, sum, st }) {
   const [range, setRange] = useState('1y')
   const [curve, setCurve] = useState('main')
   const unit = st.unit
@@ -99,8 +99,8 @@ function Summary({ ex, sum, st, e1rmAll }) {
           <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true)}</span></span><b>{x.v}</b>
         </div>)}</div>
       </>}
-      {/* D19 reads every set, whichever label the page shows (D28). */}
-      {e1rmAll && <StrengthLevel exId={ex.id} oneRm={e1rmAll.v} st={st} />}
+      {/* D19 follows the label the page shows (D28), every set under All. */}
+      {r.e1rm && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
       {sum.reps.length > 0 && <>
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">
@@ -195,7 +195,7 @@ function ExerciseDetails({ ex, close }) {
       <option value="">{t('All sets')}</option>
       {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
     </select>}
-    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} e1rmAll={all.records.e1rm} />}
+    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
     {tab === 'history' && <History ex={ex} sum={hist} st={st} />}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}
   </div>
