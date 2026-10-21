@@ -5,7 +5,7 @@
 // a strap is paired with this phone, not with the account.
 import { MOBILE, isAndroid, readJsonFile, writeJsonFile } from '../../lib/mobile.js'
 import { t } from '../../lib/i18n.js'
-import { parseRecording, mergeStrap, recordable } from './hr-strap.js'
+import { parseRecording, mergeStrap, recordable, decodeHrm, plausible } from './hr-strap.js'
 
 export const STRAP_FILE = 'hevier-hr-strap.json'
 
@@ -46,6 +46,19 @@ export function onLive(cb) { liveListeners.add(cb); return () => liveListeners.d
 const tell = () => { for (const cb of liveListeners) cb(live) }
 
 let started = null    // the workout id the recording is for
+
+// This workout's readings so far, `[ms, bpm]`, for the full-screen view (D80): the recording read
+// once when it is asked for, then each reading as it comes.
+let buf = null
+export async function workoutSamples() {
+  if (buf?.id === started && buf.loaded) return buf.list
+  const id = started
+  const { H } = (await plugin()) || {}
+  const rec = H && id ? await H.recording({ session: id }).catch(() => null) : null
+  if (id !== started) return []
+  buf = { id, loaded: true, list: parseRecording(rec?.text || '') }
+  return buf.list
+}
 let error = null
 export const lastError = () => error
 
@@ -63,7 +76,12 @@ export function initHrStrap(store) {
   ;(async () => {
     const { H } = (await plugin()) || {}
     if (!H) return
-    H.addListener('reading', r => { live.last = { t: Number(r.t), bpm: Number(r.bpm) }; tell() })
+    H.addListener('reading', r => {
+      live.last = { t: Number(r.t), bpm: Number(r.bpm) }
+      const d = decodeHrm(r.hex)
+      if (buf?.loaded && buf.id === started && plausible(d)) buf.list.push([live.last.t, d.bpm])
+      tell()
+    })
     H.addListener('state', r => {
       live.state = r.state
       if (r.state === 'off') live.last = null

@@ -7,6 +7,9 @@ import { useUI } from '../../store/useUI.js'
 import { Section, Row } from '../../components/ui.jsx'
 import { plugin, loadStrap, saveStrap, onStrapChange, liveStrap, onLive, lastError } from '../lib/hr-strap-run.js'
 import { liveBpm } from '../lib/hr-strap.js'
+import { maxHr } from '../lib/hr-zones.js'
+import { zonesSheet } from './StrapScreen.jsx'
+import { useStore } from '../../store/useStore.js'
 
 const toast = msg => useUI.getState().toast(msg)
 
@@ -65,6 +68,7 @@ export default function StrapSection() {
   const [bt, setBt] = useState(null)
   const [strap, setStrap] = useState(null)
   const [live, setLive] = useState(() => ({ ...liveStrap() }))
+  const hrMax = useStore(s => s.S.hvHrMax)
   useEffect(() => {
     let on = true
     plugin().then(p => p?.H.status()).then(s => { if (on) setBt(s || { bluetooth: 'none' }) }).catch(() => on && setBt({ bluetooth: 'none' }))
@@ -82,6 +86,8 @@ export default function StrapSection() {
     <Row icon="heart" iconTint="var(--red)" title={strap ? strap.name || strap.address : t('Pick a strap')} accessory="chevron"
       subtitle={err || now || (strap ? t('Records your workouts') : t('A chest strap, armband or watch that broadcasts its heart rate over Bluetooth'))}
       onClick={scanSheet} />
+    {strap && <Row icon="gauge" title={t('Heart rate zones')} accessory="chevron" onClick={zonesSheet}
+      subtitle={(m => (m ? (m.from === 'set' ? t('Maximum {0} bpm, yours', m.bpm) : t('Maximum {0} bpm, estimated from your age', m.bpm)) : t('Set your age or maximum heart rate')))(maxHr(hrMax))} />}
     {strap && <Row icon="trash" danger title={t('Forget strap')} onClick={async () => { await saveStrap(null); toast(t('Strap forgotten')) }} />}
   </Section>
 }
