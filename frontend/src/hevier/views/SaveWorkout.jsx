@@ -151,6 +151,12 @@ export function WorkoutDone() {
     if (!saved.updates) saved.updates = routineUpdates(useStore.getState().S, saved.session)
     return saved.updates
   })
+  // Asked once: a summary drawn again (a sync, a return to the page) does not ask a second time.
+  useEffect(() => {
+    if (!updates.length || saved.used) return
+    saved.used = true
+    askRoutineUpdate(updates)
+  }, [])
   // Once shown, the page keeps its workout: a sync or a Health Connect read that rewrites the
   // record while the page sits open must not send it Home.
   const found = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
@@ -176,7 +182,7 @@ export function WorkoutDone() {
   const finish = () => nav('/home', { replace: true })
 
   return <div className="hv-done">
-    <PageBar start={updates.length > 0 && <RoutineUpdateButton updates={updates} />}>
+    <PageBar>
       {!atBottom && <button type="button" className="btn primary pill hv-finish" onClick={finish}>{t('Done')}</button>}
     </PageBar>
     <div className="hv-done-top">
@@ -201,18 +207,9 @@ export function WorkoutDone() {
 }
 
 
-const SHOWN_MS = 10000
-
-// D35: Hevy's "Update routine?" as a small button in the corner that goes by itself after ten
-// seconds. Ignored, nothing changes; a tap keeps everything the workout changed, with Undo.
-function RoutineUpdateButton({ updates }) {
-  const [state, setState] = useState('shown')   // shown → leaving → gone
-  useEffect(() => {
-    const ids = [setTimeout(() => setState(s => (s === 'shown' ? 'leaving' : s)), SHOWN_MS),
-      setTimeout(() => { setState('gone'); if (saved) saved.used = true }, SHOWN_MS + 400)]
-    return () => ids.forEach(clearTimeout)
-  }, [])
-  if (state === 'gone') return null
+// D35: Hevy's "Update routine?", a prompt that stays until it is answered. Keep the original
+// changes nothing; Update keeps everything the workout changed, with Undo.
+function askRoutineUpdate(updates) {
   const n = summaryParts(updates)
   const parts = [
     n.added && '+' + n.added,
@@ -221,19 +218,21 @@ function RoutineUpdateButton({ updates }) {
     n.changed && t('{0} changed', n.changed),
     n.moved && t('new order'),
   ].filter(Boolean).join(' · ')
-  const label = updates.length === 1 ? t('Update {0}', updates[0].name) : t('Update {0} routines', updates.length)
+  const one = updates.length === 1
   const run = () => {
-    setState('gone')
-    if (saved) saved.used = true
     const { update } = useStore.getState()
     let before = []
     update(s => { before = applyRoutineUpdates(s, updates) })
-    useUI.getState().toast(updates.length === 1 ? t('“{0}” updated', updates[0].name) : t('Routines updated'), {
+    useUI.getState().toast(one ? t('“{0}” updated', updates[0].name) : t('Routines updated'), {
       action: t('Undo'), onAction: () => update(s => { undoRoutineUpdates(s, before) }),
     })
   }
-  return <button type="button" className={'hv-ru' + (state === 'leaving' ? ' leaving' : '')} onClick={run}>
-    <Icon name="clipboard" />
-    <span><b>{label}</b><small>{parts}</small></span>
-  </button>
+  confirmSheet({
+    title: one ? t('Update “{0}”?', updates[0].name) : t('Update {0} routines?', updates.length),
+    message: <>{t('This workout changed the routine. Weights and reps stay with the progression.')}<br /><b className="hv-ru-parts">{parts}</b></>,
+    confirmText: one ? t('Update routine') : t('Update routines'),
+    cancelText: one ? t('Keep original routine') : t('Keep original routines'),
+    onConfirm: run,
+    locked: true,
+  })
 }

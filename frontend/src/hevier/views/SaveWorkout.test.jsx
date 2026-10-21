@@ -151,54 +151,58 @@ describe('hevier: Update routine from the summary (D35)', () => {
   }
   const routineIds = () => useStore.getState().S.routines[0].ex.map(e => e.id)
 
-  it('a small button keeps the added exercise in the routine, with Undo', () => {
+  // The prompt is the last sheet opened, drawn into its own root as the Modals host would.
+  const prompt = () => {
+    const sheet = useUI.getState().sheets.at(-1)
+    if (!sheet?.locked) return null
+    const div = document.createElement('div')
+    const r = createRoot(div)
+    act(() => r.render(sheet.render(() => useUI.getState().closeSheet?.(sheet.id))))
+    return { div, sheet, done: () => act(() => r.unmount()) }
+  }
+
+  it('asks, and Update keeps the added exercise in the routine, with Undo', () => {
     withRoutine()
-    const btn = container.querySelector('.hv-ru')
-    expect(btn.textContent).toContain('Update Leg Day')
-    expect(btn.textContent).toContain('+1')
-    act(() => btn.click())
+    const p = prompt()
+    expect(p.div.textContent).toContain('Update “Leg Day”?')
+    expect(p.div.textContent).toContain('+1')
+    act(() => byTextIn(p.div, 'button', 'Update routine').click())
+    p.done()
     expect(routineIds()).toEqual([EX, CURL])
-    expect(container.querySelector('.hv-ru')).toBeNull()
     expect(useUI.getState().toastMsg).toBe('“Leg Day” updated')
     act(() => useUI.getState().toastAction.run())
     expect(routineIds()).toEqual([EX])
   })
 
-  it('goes by itself after ten seconds, and the routine stays as it was', () => {
+  it('stays until it is answered: no timer, no tap outside; Keep original changes nothing', () => {
     vi.useFakeTimers()
     try {
       withRoutine()
-      act(() => vi.advanceTimersByTime(9000))
-      expect(container.querySelector('.hv-ru.leaving')).toBeNull()
-      act(() => vi.advanceTimersByTime(1000))
-      expect(container.querySelector('.hv-ru.leaving')).toBeTruthy()
-      act(() => vi.advanceTimersByTime(500))
-      expect(container.querySelector('.hv-ru')).toBeNull()
+      act(() => vi.advanceTimersByTime(60000))
+      const p = prompt()
+      expect(p.sheet.locked).toBe(true)
+      act(() => byTextIn(p.div, 'button', 'Keep original routine').click())
+      p.done()
       expect(routineIds()).toEqual([EX])
     } finally { vi.useRealTimers() }
   })
 
-  it('a summary drawn again still offers it, until it is used', () => {
+  it('a summary drawn again does not ask a second time', () => {
     withRoutine()
-    const again = () => {
-      act(() => root.unmount())
-      root = createRoot(container)
-      act(() => root.render(<MemoryRouter initialEntries={[{ pathname: '/workout/done', state: { ref: { id: 'hv1' } } }]}>
-        <Routes>{hevierRoutes}</Routes>
-      </MemoryRouter>))
-    }
-    again()
-    expect(container.querySelector('.hv-ru')).toBeTruthy()
-    act(() => container.querySelector('.hv-ru').click())
-    again()
-    expect(container.querySelector('.hv-ru')).toBeNull()
+    const count = useUI.getState().sheets.length
+    act(() => root.unmount())
+    root = createRoot(container)
+    act(() => root.render(<MemoryRouter initialEntries={[{ pathname: '/workout/done', state: { ref: { id: 'hv1' } } }]}>
+      <Routes>{hevierRoutes}</Routes>
+    </MemoryRouter>))
+    expect(useUI.getState().sheets.length).toBe(count)
   })
 
-  it('no button after a freestyle workout', () => {
+  it('no prompt after a freestyle workout', () => {
     render('/workout/save', logged())
     act(() => byText('.hv-pagebar button', 'Save').click())
     expect(container.textContent).toContain('Nice work!')
-    expect(container.querySelector('.hv-ru')).toBeNull()
+    expect(useUI.getState().sheets.some(x => x.locked)).toBe(false)
   })
 })
 const byTextIn = (el, sel, text) => [...el.querySelectorAll(sel)].filter(b => b.textContent.includes(text)).at(-1)

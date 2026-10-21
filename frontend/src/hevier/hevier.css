@@ -306,15 +306,10 @@
 :root[data-ui="hevier"] .hv-done-pr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px}
 :root[data-ui="hevier"] .hv-done-pr .icn{color:var(--yellow,#f5c518)}
 :root[data-ui="hevier"] .hv-done-week{color:var(--label-2);margin:14px 0}
-/* D35: the summary's Update routine button, top left, gone after five seconds */
-/* no title: the Update button takes the room up to Done */
+/* no title: Done alone on the right */
 :root[data-ui="hevier"] .hv-done .hv-pagebar{grid-template-columns:minmax(0,1fr) 0 auto}
-:root[data-ui="hevier"] .hv-ru{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:5px 11px 5px 9px;border:0;border-radius:8px;background:var(--fill,rgba(127,127,127,.16));color:var(--acc);text-align:start;transition:opacity .4s ease}
-:root[data-ui="hevier"] .hv-ru.leaving{opacity:0;pointer-events:none}
-:root[data-ui="hevier"] .hv-ru > span{display:flex;flex-direction:column;min-width:0;line-height:1.2}
-:root[data-ui="hevier"] .hv-ru b{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-ui="hevier"] .hv-ru small{font-size:11px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (prefers-reduced-motion: reduce){:root[data-ui="hevier"] .hv-ru{transition:none}}
+/* D35: the Update routine prompt's summary of the changes */
+:root[data-ui="hevier"] .hv-ru-parts{display:block;margin-top:8px;color:var(--label-1,inherit);font-weight:600}
 :root[data-ui="hevier"] .hv-done-btn{width:100%;margin:18px 0 24px}
 
 /* ---------- Exercise details (hevier/views/ExerciseDetails.jsx) ---------- */
