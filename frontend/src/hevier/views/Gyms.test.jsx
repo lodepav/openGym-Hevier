@@ -200,4 +200,18 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
     expect(host.querySelector('.hv-xd-big').textContent).toContain('25')
   })
+
+  it('the strength level follows the picked brand (D19, D28)', () => {
+    const w = (id, day, kg, b) => ({ id, d: `2026-10-0${day}`, start: Date.parse(`2026-10-0${day}T10:00`), end: Date.parse(`2026-10-0${day}T11:00`),
+      entries: [{ id: CABLE, sets: [done(kg, 10)], hvBrand: b }] })
+    const hvStrength = { [CABLE]: { lv: [20, 40, 60, 80, 100], u: 'kg', d: '2026-10-01' } }
+    render(<div />, { extra: { hvStrength, workouts: [w('a', 1, 45, 'Life Fitness'), w('b', 2, 25, 'Matrix')] } })
+    act(() => exerciseDetailsSheet(EXIDX[CABLE]))
+    const host = sheet()
+    const best = () => Number(host.querySelector('.hv-sl').textContent.match(/Best 1RM ([\d.]+)/)[1])
+    const all = best()
+    const sel = host.querySelector('.hv-xd-label')
+    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    expect(best()).toBeLessThan(all)
+  })
 })

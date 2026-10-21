@@ -30,19 +30,23 @@ import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
+import { musclesShown } from '../lib/main-muscle.js'
+import { MUSCLE_NAME } from '../../lib/muscles.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
 // Hevy's lines under the picture: the name in bold, then "Primary: Chest" and "Secondary: …" as
-// text. Upstream's detailTags marks its parts: the trained muscles carry the figure icon, the
-// equipment the kettlebell, the body part `acc`, the helpers nothing.
+// text. The muscles are D74's (the main one, then the others); the equipment is upstream's
+// detailTags', which marks it with the kettlebell (the body part `acc`, read when an exercise has
+// no muscle at all).
 function ExerciseFacts({ ex }) {
   const tags = detailTags(ex)
   const of = test => tags.filter(test).map(tg => tg.label).join(', ')
+  const { primary, secondary } = musclesShown(ex, s => MUSCLE_NAME[s] || s)
   const lines = [
-    [t('Primary'), of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
-    [t('Secondary'), of(tg => !tg.icon && !tg.acc)],
+    [t('Primary'), (primary && t(primary)) || of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
+    [t('Secondary'), secondary.map(m => t(m)).join(', ')],
     [t('Equipment'), of(tg => tg.icon === 'kettlebell')],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">
@@ -51,7 +55,7 @@ function ExerciseFacts({ ex }) {
   </div>
 }
 
-function Summary({ ex, sum, st, e1rmAll }) {
+function Summary({ ex, sum, st }) {
   const [range, setRange] = useState('1y')
   const [curve, setCurve] = useState('main')
   const unit = st.unit
@@ -95,8 +99,8 @@ function Summary({ ex, sum, st, e1rmAll }) {
           <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true)}</span></span><b>{x.v}</b>
         </div>)}</div>
       </>}
-      {/* D19 reads every set, whichever label the page shows (D28). */}
-      {e1rmAll && <StrengthLevel exId={ex.id} oneRm={e1rmAll.v} st={st} />}
+      {/* D19 follows the label the page shows (D28), every set under All. */}
+      {r.e1rm && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
       {sum.reps.length > 0 && <>
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">
@@ -191,7 +195,7 @@ function ExerciseDetails({ ex, close }) {
       <option value="">{t('All sets')}</option>
       {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
     </select>}
-    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} e1rmAll={all.records.e1rm} />}
+    {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
     {tab === 'history' && <History ex={ex} sum={hist} st={st} />}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}
   </div>
