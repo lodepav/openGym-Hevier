@@ -69,16 +69,28 @@ const byName = ex => {
     const bare = n.replace(/\s*\([^)]*\)\s*$/, '')
     const id = matchHevyTitle(n) || matchExercise(n) || (bare !== n ? matchHevyTitle(bare) || matchExercise(bare) : null)
     const hit = id && EXIDX[id]
-    guessed.set(n, hit && !isCustomEx(hit) ? mainMuscleOf(hit) : ruleFor(ex, true))
+    guessed.set(n, hit && !isCustomEx(hit) ? { id: hit.id } : ruleFor(ex, true))
   }
-  return guessed.get(n)
+  const g = guessed.get(n)
+  return typeof g === 'object' ? mainMuscleOf(EXIDX[g.id]) : g
 }
+
+// The main muscle the user chose for an exercise (D76: `S.hvMainMuscle`, `{ [exId]: 'Lats' }`),
+// read through the store the app installs (index.js); none in tests unless one is installed.
+let chosenOf = () => null
+/** Installs the reader of the user's choices: `(exId) => name | null`. */
+export const readChosenMuscles = fn => { chosenOf = typeof fn === 'function' ? fn : () => null }
+/** The main muscle the fork works out for `ex`, the user's choice left aside. */
+export const autoMuscleOf = ex => mainMuscleOf(ex, true)
 
 const first = xs => (Array.isArray(xs) && xs.length ? xs[0] : '')
 
-/** The main muscle of `ex` under Hevy's names ('Quadriceps', 'Side Delts', …), '' when none. */
-export function mainMuscleOf(ex) {
+/** The main muscle of `ex` under Hevy's names ('Quadriceps', 'Side Delts', …), '' when none: the
+ *  user's choice (D76), else the fork's (`auto`: the fork's only). */
+export function mainMuscleOf(ex, auto = false) {
   if (!ex || typeof ex !== 'object') return ''
+  const own = !auto && ex.id != null ? chosenOf(ex.id) : null
+  if (typeof own === 'string' && own) return own
   const custom = ex.custom || isCustomEx(ex)
   const muscle = custom
     ? muscleLabel(first(ex.primaries) || ex.tg) || byName(ex)
@@ -110,4 +122,12 @@ export function musclesShown(ex, other = s => s) {
     if (m && !same(primary, m) && !secondary.includes(m) && secondary.length < 3) secondary.push(m)
   }
   return { primary, secondary }
+}
+
+/** Sets (a name) or clears (null) the main muscle the user chose for `exId`, in the store draft `s`. */
+export function setMainMuscle(s, exId, name) {
+  const all = { ...(s.hvMainMuscle || {}) }
+  if (name) all[exId] = name
+  else delete all[exId]
+  s.hvMainMuscle = all
 }

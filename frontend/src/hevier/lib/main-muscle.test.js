@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect } from 'vitest'
 import { EXIDX, registerCustom } from '../../lib/exercises.js'
-import { mainMuscleOf, musclesShown } from './main-muscle.js'
+import { mainMuscleOf, musclesShown, readChosenMuscles, autoMuscleOf, setMainMuscle } from './main-muscle.js'
 import { muscleSets } from './volume.js'
 
 const main = id => mainMuscleOf(EXIDX[id])
@@ -82,5 +82,20 @@ describe('musclesShown', () => {
   })
   it('does not repeat Shoulders under a head', () => {
     expect(musclesShown(EXIDX['0584']).secondary).not.toContain('Shoulders')
+  })
+})
+
+describe('the main muscle the user chose (D76)', () => {
+  afterEach(() => readChosenMuscles(null))
+  it('wins over the fork’s, in the counts too, and Automatic gives the fork’s back', () => {
+    const s = {}
+    setMainMuscle(s, '0739', 'Glutes')
+    readChosenMuscles(id => s.hvMainMuscle?.[id] || null)
+    expect(main('0739')).toBe('Glutes')
+    expect(autoMuscleOf(EXIDX['0739'])).toBe('Quadriceps')
+    expect(muscleSets([{ id: '0739', sets: done(2) }])).toEqual([{ muscle: 'Glutes', sets: 2 }])
+    setMainMuscle(s, '0739', null)
+    expect(s.hvMainMuscle).toEqual({})
+    expect(main('0739')).toBe('Quadriceps')
   })
 })

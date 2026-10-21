@@ -30,7 +30,8 @@ import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
-import { musclesShown } from '../lib/main-muscle.js'
+import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
+import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
@@ -172,6 +173,8 @@ function ExerciseDetails({ ex, close }) {
         } },
         { icon: 'plus', label: t('Add to my plan'), onClick: () => addToRoutineSheet(ex) },
         { icon: 'pencil', label: t('Other names'), sub: aliasesOf(st, ex.id).join(', ') || t('Found by the search'), onClick: () => aliasSheet(ex) },
+        // D76: the muscle its sets count for, as the user chooses it.
+        { icon: 'figureStrength', label: t('Main muscle'), sub: (t(mainMuscleOf(ex)) || t('None')) + (st.hvMainMuscle?.[ex.id] ? ' · ' + t('your choice') : ''), onClick: () => mainMuscleSheet(ex) },
         { icon: 'gear', chevron: true, label: t('All details'), sub: t('Plate loading, estimated 1RM'), onClick: () => upstreamExerciseDetailSheet(ex) },
       ] },
       isCustomEx(ex) && { items: [
