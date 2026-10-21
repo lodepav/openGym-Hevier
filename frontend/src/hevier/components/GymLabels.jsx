@@ -12,7 +12,7 @@ import Icon from '../../components/Icon.jsx'
 import HvIcon from './HvIcon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
-  gymsOf, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands, isMachine, BRAND_MAX,
+  gymsOf, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands, hasLabel, BRAND_MAX,
   CABLES, cableText, entryCable, setEntryCable, cableStamped, stampCable,
 } from '../lib/gym-labels.js'
 import {
@@ -176,7 +176,7 @@ export function cableSheet(idx) {
   })
 }
 
-/** A machine or cable exercise's brand, under its name; a cable's setup beside it. */
+/** A machine or cable exercise's brand, under its name (any exercise's once it has one); a cable's setup beside it. */
 export function BrandLine({ idx }) {
   const S = useStore(s => s.S)
   const e = S.active?.entries?.[idx]
@@ -184,7 +184,7 @@ export function BrandLine({ idx }) {
   // Two stacks are logged per stack (D43): the session's entry says so, as a dumbbell's does.
   const stale = !!cable && !cableStamped(e, cable)
   useEffect(() => { if (stale) update(s => stampCable(s.active?.entries?.[idx], cable)) }, [stale, idx, cable])
-  if (!e || !isMachine(e.id)) return null
+  if (!e || !hasLabel(S, S.active, idx)) return null
   const b = entryBrand(S, S.active, idx)
   const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} onClick={() => brandSheet(idx)}>
     <Icon name="machine" />{b || t('Add machine label')}

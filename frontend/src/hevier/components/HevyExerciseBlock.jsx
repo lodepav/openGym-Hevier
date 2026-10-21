@@ -16,7 +16,7 @@ import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { restTimerText } from '../lib/elapsed.js'
-import { isCable } from '../lib/gym-labels.js'
+import { isCable, hasLabel } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   canBeWarmup, setSpanAt, lastEntryFor,
@@ -42,7 +42,7 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { nextSet } from '../lib/next-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
-import { BrandLine } from './GymLabels.jsx'
+import { BrandLine, brandSheet } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
 import Elapsed from './Elapsed.jsx'
@@ -205,6 +205,8 @@ export default function HevyExerciseBlock({
           onClick: onProgressionSettings },
         onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => onNoProg(entry.noProg !== true) },
         plateLoading && modeOf(cfg) === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
+        // Any exercise can carry a label (D28), not only a machine, whose line is always there.
+        !hasLabel(S, S.active, entryIdx) && { icon: 'machine', label: t('Add label'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(entryIdx) },
         routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: routineUpdate.sub, onClick: routineUpdate.run },
         perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
           onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [

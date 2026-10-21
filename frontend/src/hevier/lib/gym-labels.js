@@ -47,10 +47,35 @@ export const savedGym = w => list(w?.entries).find(e => e?.hvGym)?.hvGym || null
 /** The brand an exercise last had at a gym (null: none remembered). */
 export const brandDefault = (S, exId, gymId) => S?.hvMachines?.[exId]?.[gymId || ''] || null
 
+// The exercises a label was ever logged on, per log (an exercise found by its label, D36).
+const labelledMemo = new WeakMap()
+const labelledIn = workouts => {
+  if (!labelledMemo.has(workouts)) {
+    const ids = new Set()
+    for (const w of workouts) for (const e of list(w?.entries)) if (e?.hvBrand) ids.add(e.id)
+    labelledMemo.set(workouts, ids)
+  }
+  return labelledMemo.get(workouts)
+}
+
+/**
+ * Whether the session's exercise `idx` has a label line: a machine or cable always; any other
+ * exercise once it has a label, given in this session, remembered, or logged before ("Achilles
+ * Rehab" on a dumbbell calf raise, D28).
+ */
+export function hasLabel(S, A, idx) {
+  const e = A?.entries?.[idx]
+  if (!e) return false
+  if (isMachine(e.id) || e.hvBrand) return true
+  if (typeof e.hvBrand === 'string') return false
+  if (Object.values(S?.hvMachines?.[e.id] || {}).some(Boolean)) return true
+  return Array.isArray(S?.workouts) && labelledIn(S.workouts).has(e.id)
+}
+
 /** The brand of the session's exercise `idx`, or null. */
 export function entryBrand(S, A, idx) {
   const e = A?.entries?.[idx]
-  if (!e || !isMachine(e.id)) return null
+  if (!e || !hasLabel(S, A, idx)) return null
   if (typeof e.hvBrand === 'string') return e.hvBrand || null
   return editingOf(A) ? null : brandDefault(S, e.id, workoutGym(S, A))
 }
