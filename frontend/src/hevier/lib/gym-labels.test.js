@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  isMachine, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands,
+  isMachine, hasLabel, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands,
   labelsAtFinish, withLabels, labelsFor, labelText, labelKey, withLabelFilter, isCable, entryCable, setEntryCable,
 } from './gym-labels.js'
 import { buildCompletedWorkout } from '../../lib/finish-workout.js'
@@ -182,5 +182,21 @@ describe('hevier cable setup (D43)', () => {
     expect(ls.map(l => [l.key, l.n])).toEqual([['|x2', 1], ['', 2]])
     expect(ls.map(l => labelText(l))).toEqual(['×2', 'No brand'])
     expect(withLabelFilter(S, CABLE, labelKey('', 'x2')).workouts.map(x => x.entries.length)).toEqual([0, 0, 1])
+  })
+})
+
+describe('hevier labels on any exercise (D28)', () => {
+  const calf = '1178'   // dumbbell standing single leg calf raise
+  const A = (e = {}) => ({ entries: [{ id: calf, sets: [], ...e }] })
+  it('a free-weight exercise has no label line until it has a label', () => {
+    expect(hasLabel({ workouts: [] }, A(), 0)).toBe(false)
+    expect(hasLabel({ workouts: [] }, A({ hvBrand: 'Achilles Rehab' }), 0)).toBe(true)
+    expect(hasLabel({ workouts: [], hvMachines: { [calf]: { '': 'Achilles Rehab' } } }, A(), 0)).toBe(true)
+  })
+  it('one logged with a label before has the line, with the remembered label', () => {
+    const S = { workouts: [{ d: '2026-10-01', entries: [{ id: calf, hvBrand: 'Achilles Rehab', sets: [] }] }], hvMachines: { [calf]: { '': 'Achilles Rehab' } } }
+    expect(hasLabel(S, A(), 0)).toBe(true)
+    expect(entryBrand(S, A(), 0)).toBe('Achilles Rehab')
+    expect(hasLabel(S, A({ hvBrand: '' }), 0)).toBe(false)   // removed in this session
   })
 })
