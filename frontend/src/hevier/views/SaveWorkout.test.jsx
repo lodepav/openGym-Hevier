@@ -178,6 +178,22 @@ describe('hevier: Update routine from the summary (D35)', () => {
     } finally { vi.useRealTimers() }
   })
 
+  it('a summary drawn again still offers it, until it is used', () => {
+    withRoutine()
+    const again = () => {
+      act(() => root.unmount())
+      root = createRoot(container)
+      act(() => root.render(<MemoryRouter initialEntries={[{ pathname: '/workout/done', state: { ref: { id: 'hv1' } } }]}>
+        <Routes>{hevierRoutes}</Routes>
+      </MemoryRouter>))
+    }
+    again()
+    expect(container.querySelector('.hv-ru')).toBeTruthy()
+    act(() => container.querySelector('.hv-ru').click())
+    again()
+    expect(container.querySelector('.hv-ru')).toBeNull()
+  })
+
   it('no button after a freestyle workout', () => {
     render('/workout/save', logged())
     act(() => byText('.hv-pagebar button', 'Save').click())
