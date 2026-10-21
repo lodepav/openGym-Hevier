@@ -39,6 +39,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
 | The next set to do is highlighted | D71 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offer |
+| Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
 
 ## Routines
 

@@ -6,7 +6,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t } from '../../lib/i18n.js'
+import { t, exerciseNameFor } from '../../lib/i18n.js'
 import { fmtNum, fmtDate } from '../../lib/format.js'
 import { workoutVolume } from '../../lib/history.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
@@ -25,6 +25,8 @@ import { volumeMode } from '../lib/volume.js'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 import { anyRunning, stopAll } from '../lib/set-timer.js'
+import { insertAfter, toEnd } from '../lib/add-at-end.js'
+import { exOr } from '../../lib/exercises.js'
 
 export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -39,6 +41,9 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
     items: () => useStore.getState().S.active?.entries || [],
     end: () => useStore.getState().S.active?.cur ?? -1,
     pair: pairAt,
+    // D78: the exercise Insert puts the picks after, while that is not the end; Add to end.
+    insertAfter: () => { const e = insertAfter(useStore.getState().S.active); return e ? exerciseNameFor(exOr(e.id)) : null },
+    toEnd: () => useStore.getState().update(st => { if (st.active) toEnd(st.active) }),
   })
 
   // Hevy's footer "Settings": the session's own options, upstream's header ⋯ without Layout (D1).

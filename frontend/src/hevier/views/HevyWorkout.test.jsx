@@ -265,7 +265,8 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets().map(s => s.sides.R.w)).toEqual([20, 20])
   })
 
-  it('the picker’s Add superset links the new exercises after the current one', () => {
+  // D78: with the current exercise not the last, the picker offers Insert after it and Add to end.
+  const openPicker = () => {
     installExercisePicker()
     const OTHER = EXDB.find(e => e.id !== EX && /dumbbell/i.test(e.eq || '')).id
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: OTHER, target: { sets: 1, reps: 8 }, sets: [reps(20, 8)] }])
@@ -275,17 +276,40 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const r = createRoot(host)
     act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
     const rows = host.querySelectorAll('.hv-pk-row')
+    const button = text => [...host.querySelectorAll('button')].find(b => b.textContent.startsWith(text))
+    const done = () => { act(() => r.unmount()); host.remove(); hooks.exercisePicker = null }
+    return { OTHER, rows, button, done }
+  }
+
+  it('Add to end puts the picks after the last exercise, and Add superset links them there', () => {
+    const { OTHER, rows, button, done } = openPicker()
     act(() => rows[0].click())
     act(() => rows[1].click())
-    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Add superset').click())
+    expect(button('Insert after')).toBeTruthy()
+    act(() => button('Add superset').click())
     const es = useStore.getState().S.active.entries
     expect(es).toHaveLength(4)
-    expect([es[0].id, es[3].id]).toEqual([EX, OTHER])
-    expect(es[1].sg).toBeTruthy()
-    expect(es[2].sg).toBe(es[1].sg)
-    expect(es[0].sg || es[3].sg).toBeFalsy()
-    act(() => r.unmount())
-    host.remove()
-    hooks.exercisePicker = null
+    expect([es[0].id, es[1].id]).toEqual([EX, OTHER])
+    expect(es[2].sg).toBeTruthy()
+    expect(es[3].sg).toBe(es[2].sg)
+    expect(es[0].sg || es[1].sg).toBeFalsy()
+    done()
+  })
+
+  it('Insert after puts the pick after the current exercise; Add to end after the last one', () => {
+    let p = openPicker()
+    act(() => p.rows[0].click())
+    act(() => p.button('Insert after').click())
+    let es = useStore.getState().S.active.entries
+    expect(es).toHaveLength(3)
+    expect([es[0].id, es[2].id]).toEqual([EX, p.OTHER])
+    p.done()
+    p = openPicker()
+    act(() => p.rows[0].click())
+    act(() => p.button('Add to end').click())
+    es = useStore.getState().S.active.entries
+    expect(es).toHaveLength(3)
+    expect([es[0].id, es[1].id]).toEqual([EX, p.OTHER])
+    p.done()
   })
 })
