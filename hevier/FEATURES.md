@@ -1,0 +1,141 @@
+# What Go Hevier adds to openGym
+
+Each fork feature is listed once, with the decision that describes it in [DECISIONS.md](DECISIONS.md) and one of these marks:
+
+| Mark | Meaning |
+|---|---|
+| **Fork** | Belongs to the fork only. It is Hevy's look, it concerns Hevy, or it is a choice that only suits the fork. |
+| **Offer** | A general improvement that upstream's own UI would benefit from. It could be offered as an issue or a pull request, with the user's go-ahead (RULES.md: `hevier-upstream/<topic>`). |
+| **Offered** | Already offered upstream. The issue or PR number is given. |
+| **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
+
+Upstream's training logic stays as it is: progression, 1RM, recovery, sync and storage. Where the fork behaves differently, it wraps upstream's helpers rather than changing them.
+
+## Workout
+
+| Feature | D | Mark |
+|---|---|---|
+| Hevy's set table as the only workout layout | D1 | Fork |
+| Prefilled values in grey until touched, as placeholders | D2 | Fork |
+| PREVIOUS column: last time's set, tap to copy; a missing set is read from an older session | D3 | Fork |
+| Where PREVIOUS reads from: the same routine or any workout (a setting) | D21 | Fork |
+| No ± steppers; values typed on the number pad | D4 | Fork |
+| Set-type sheet (W / F / D labels), with drops nested under their set | D5 | Fork |
+| Effort column, only when RIR/RPE is on | D6 | Fork |
+| Hevy exercise block: notes, rest line, + Add Set | D7 | Fork |
+| Swipe left deletes a set, with undo | D9 | Fork |
+| Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
+| The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
+| Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Offer |
+| "Update routine" button after a workout that changed the routine | D35 | Fork |
+| Weight unit per exercise (e.g. one machine in lb) | D41 | Offer |
+| TIME column with a count-up timer for cardio and holds | D53 | Offer |
+| Workout note at the top of the workout and on the feed cards | D54 | Fork |
+| Holds (plank, wall sit …) start as timed holds | D55 | Offered (#694) |
+| A one-limb exercise starts per side | D75 | Offer |
+| Rest wheel opens on the default rest | D56 | Offer |
+| Duration wheels in 5-second steps | D48 | Fork |
+| "Still training?" after five hours | D60 | Offer |
+| A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
+| The next set to do is highlighted | D71 | Fork |
+| Per-side exercises can be done right side first, remembered per exercise | D72 | Offer |
+
+## Routines
+
+| Feature | D | Mark |
+|---|---|---|
+| Hevy's routine editor table drawn from openGym's prescription | D15 | Fork |
+| Routine page (read-only) before the editor | D37 | Fork |
+| Routine folders, long-press reorder | D13 | Fork |
+| Planned backups for a routine exercise | D45 | Ported (1.4.2) |
+| A gym's backups: the swap made at a gym is reused there | D46 | Offer (see upstream #649) |
+| Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
+
+## Gyms, machines and labels
+
+| Feature | D | Mark |
+|---|---|---|
+| A gym per workout (an equipment profile); brand labels on machine and cable exercises, any exercise via ⋮ → Add label | D28 | Offer |
+| Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offer |
+| Exercise search by machine brand | D36 | Offer |
+| Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Offer |
+| Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork |
+| Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offer |
+| Equipment chosen by group (Free weights, Machines …) | D63 | Offer |
+
+## Exercises and muscles
+
+| Feature | D | Mark |
+|---|---|---|
+| Muscles chosen by group in the filters | D64 | Offer |
+| Shoulder heads: front, side and rear delts | D65 | Offered (#638) |
+| One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offer |
+| The main muscle can be chosen per exercise | D76 | Offer |
+| Other names for an exercise, searchable, one shown as its name | D73 | Offer (see upstream PR #624) |
+| Chart button in the picker opens exercise details | D58 | Fork |
+| Strength level from thresholds you type in | D19 | Offer |
+| Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
+
+## Statistics and history
+
+| Feature | D | Mark |
+|---|---|---|
+| Volume as sets per muscle or as tonnage | D18 | Offer |
+| Sets per muscle: main muscle only, or secondaries in part too | D42 | Offer |
+| Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer |
+| Monthly report | D23 | Offer |
+| Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Offer |
+| Exercises kept out of progression are kept out of the statistics too | D57 | Offer |
+| Training streak in weeks (one week off allowed), then in years | D59 | Offer |
+| Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
+
+## Home, navigation and look
+
+| Feature | D | Mark |
+|---|---|---|
+| Three tabs (Home · Workout · Profile); no Coach tab | D11 | Fork |
+| Configurable Home of widgets | D12 | Fork |
+| Workout tab: Quick Start, Today card, routine cards | D13 | Fork |
+| Profile: weekly chart, dashboard, workout list | D14 | Fork |
+| Settings root regrouped under five titles; layout-only rows hidden | D16 | Fork |
+| Hevy's dark AMOLED theme with Hevy blue, only | D17 | Fork |
+| One Hevy page bar everywhere | D49 | Fork |
+| App name "Go Hevier" | D39 | Fork |
+
+## Hevy import and export
+
+| Feature | D | Mark |
+|---|---|---|
+| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672) |
+| Routine folders from the Hevy API | D30 | Offer |
+| More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offer |
+| Review of exercise matches before an import, remembered | D33 | Offer |
+| Weights kept to the hundredth on import | D40 | Offer |
+| Hevy CSV notes keep their line breaks | D54 | Offer |
+| Send new workouts and changed routines to Hevy | D34 | Fork |
+
+## Android and phone
+
+| Feature | D | Mark |
+|---|---|---|
+| Portrait only | D24 | Offer |
+| Heart rate and weigh-ins read from Health Connect | D27 | Ported (1.4.3) |
+| Health Connect as the only source of weigh-ins | D32 | Offer |
+| Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
+| Smaller APK: no barcode scanner, R8 shrinking | D50 | Fork (the scanner serves the gym check-in the fork hides) |
+| A newer version offers itself in the app, with Install and Not now | D77 | Offer |
+
+## Release and security (tooling)
+
+| Feature | D | Mark |
+|---|---|---|
+| Local security gates: secrets, vulnerable dependencies, supply chain, run in parallel | D26 | Offer |
+| APK checks: certificate, signature scheme, debuggable flag, permissions, native libraries, exported components | D38 | Offer |
+| Own version and changelog, release script, GitHub release the updater reads | D52 | Fork |
+
+## No fork code
+
+These work through upstream's own features and are listed only because a fork user might look for them here:
+
+- **Backup to Google Drive** (D20): upstream's auto-backup folder, mirrored by a sync app.
+- **Keep the screen on** (D25): upstream's Keep screen awake switch.
