@@ -36,9 +36,12 @@ const LEGS = ['glutes', 'quads', 'hamstrings', 'spine']
 const BACK = ['lats', 'upper back', 'traps']
 const RULES = [
   [LEGS, /hamstring|bridge curl|glute[- ]ham raise|romanian|\brdl\b|stiff[- ]leg|straight[- ]legs? deadlift|good ?morning|(single|one)[- ]leg (romanian )?deadlift|kickstand|leg curl|hamstring curl|nordic/i, 'Hamstrings'],
-  [LEGS, /hip thrust|glute(?![- ]ham)|bridge|kick ?back|donkey|clam|hip extension|pull[- ]?through|reverse hyper|reverse leg extension|fire hydrant|rear kick|curt?s[e]?y|sumo\b.*squat/i, 'Glutes'],
-  [LEGS, /squat|lunge|leg press|step[- ]?up|hack|sissy|leg extension|wall sit/i, 'Quadriceps'],
+  [LEGS, /hip thrust|glute(?![- ]ham)|bridge|kick ?back|donkey|clam|hip extension|pull[- ]?through|reverse hyper|reverse leg extension|fire hydrant|rear kick|curt?s[e]?y|sumo\b.*squat|lunge|step[- ]?up/i, 'Glutes'],
+  [LEGS, /squat|leg press|hack|sissy|leg extension|wall sit/i, 'Quadriceps'],
   [BACK, /rear delt/i, HEAD_NAME.rear],
+  // A Kelso shrug (chest-supported, shoulder blades squeezed together) is the upper back's.
+  [BACK, /kelso|retraction shrug/i, 'Upper Back'],
+  [BACK, /shrug/i, 'Traps'],
   [BACK, /scapul/i, 'Upper Back'],
   [BACK, /high row|lats? focused|kayak|pull[- ]?down|pull[- ]?ups?\b|chin[- ]?up|pull[- ]?over|straight[- ]arm|lat pushdown|muscle[- ]?up/i, 'Lats'],
   [BACK, /\brow\b/i, 'Upper Back'],
@@ -47,14 +50,16 @@ const RULES = [
   [['abs'], /oblique|twist|side bend|russian|wood ?chop|windmill|side plank|side bridge|side crunch|side jackknife/i, 'Obliques'],
 ]
 
-const ruleFor = ex => {
+// `anyTarget`: for a custom exercise with no muscles, whose name alone is to go by.
+const ruleFor = (ex, anyTarget = false) => {
   const n = String(ex.n || ex.name || '')
-  for (const [tgs, re, muscle] of RULES) if (tgs.includes(ex.tg) && re.test(n)) return muscle
+  for (const [tgs, re, muscle] of RULES) if ((anyTarget || tgs.includes(ex.tg)) && re.test(n)) return muscle
   return ''
 }
 
 // A custom exercise made with no muscles (an import's) is filed as the catalogue exercise its
-// name finds, its brand bracket left out; one that finds none has no main muscle.
+// name finds, its brand bracket left out; one that finds none is filed by the name rules alone
+// (a "Kelso Shrug"), else has no main muscle.
 const guessed = new Map()
 const byName = ex => {
   const n = String(ex.n || '')
@@ -62,7 +67,7 @@ const byName = ex => {
     const bare = n.replace(/\s*\([^)]*\)\s*$/, '')
     const id = matchHevyTitle(n) || matchExercise(n) || (bare !== n ? matchHevyTitle(bare) || matchExercise(bare) : null)
     const hit = id && EXIDX[id]
-    guessed.set(n, hit && !isCustomEx(hit) ? mainMuscleOf(hit) : '')
+    guessed.set(n, hit && !isCustomEx(hit) ? mainMuscleOf(hit) : ruleFor(ex, true))
   }
   return guessed.get(n)
 }
