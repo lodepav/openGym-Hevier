@@ -401,6 +401,10 @@
 :root[data-ui="hevier"] .hv-pk-add{position:sticky;bottom:calc(-20px - var(--sab));margin:0 -18px;padding:12px 18px calc(20px + var(--sab));background:var(--bg-el);box-shadow:0 -8px 16px var(--bg-el)}
 :root[data-ui="hevier"] .hv-pk-add{display:flex;gap:10px}
 :root[data-ui="hevier"] .hv-pk-add .btn{flex:1}
+/* D78: Insert after the current exercise beside Add to end; a superset then takes its own row */
+:root[data-ui="hevier"] .hv-pk-add .btn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-pk-add.three{flex-wrap:wrap}
+:root[data-ui="hevier"] .hv-pk-add.three .btn:first-child{flex-basis:100%}
 
 /* Workout Detail (hevier/views/WorkoutDetail.jsx, reference/SCREENS.md §4) */
 :root[data-ui="hevier"] .hv-wd-d{font-size:13px;color:var(--label-2);margin-top:4px}

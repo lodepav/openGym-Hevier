@@ -534,3 +534,12 @@ Added 2026-10-21, at the user's request: in the app, when it is opened.
 | # | Decision |
 |---|---|
 | D77 | **A newer Go Hevier offers itself when the app is opened.** Upstream's updater (D52, S6) answered only on Settings → About. In the APK, at launch and on each return to the app, upstream's check (`checkForUpdate`, once per app session) that finds a newer release with an APK opens a sheet: **Go Hevier 1.3.0 is available**, **Install** (About's own path: the release's checksum, the download to disk with its progress, Android's installer, which refuses a file that does not match) and **Not now**. **Asked once per version:** Not now or a tap outside is that version's answer, kept on the device (`hevier_update_seen`, `hevier/lib/update-notice.js`), nothing in `S`; the next version asks again, and About still offers the skipped one. **Not while a workout is open**: it waits for the next opening. A debug build never checks (S6), so never asks. No phone notification (the user's choice): the app does no work in the background. |
+
+## Where an added exercise goes
+
+Added 2026-10-21, at the user's request: an exercise added to a routine workout landed in the middle.
+
+| # | Decision |
+|---|---|
+| D78 | **Add Exercise asks where: Insert after the current exercise, or Add to end.** Upstream's add puts each pick after the current exercise (`A.cur`), which the Hevy list never moves as sets are ticked (in a routine workout it stays on the first), so an exercise added from the button under the last one landed mid-list. **The current exercise** is the one you are on: the one holding the next set (D71), or with every set done upstream's. In the workout's picker, once something is ticked, the footer has **Insert after Bench Press** (that exercise, a superset counted as one) and **Add to end** (primary), while the two would land in different places; when they would not (the current exercise is the last), it is the one **Add 1 exercise** button, as before. **Add superset** adds at the end. Either button makes the exercise it adds after upstream's current one just before upstream's add runs (`hevier/lib/add-at-end.js`), so the picks follow in the order picked; upstream's add, its routine block (`rid`) and prescription are unchanged. The routine editor's picker, a swap and every titled pick are unchanged. Nothing is stored. |
+

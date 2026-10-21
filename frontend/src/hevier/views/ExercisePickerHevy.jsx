@@ -34,7 +34,9 @@ const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym i
 
 // What "Add superset" links into: { items() -> the list the picks were added to, end() -> the
 // index of the last one added, pair(i, j) -> links two neighbours }. Set while a screen that adds
-// exercises is open; with none, the picker offers no superset.
+// exercises is open; with none, the picker offers no superset. The workout's also has
+// insertAfter() -> the name of the exercise the picks would go after, or null when that is the
+// end, and placeAt(atEnd), which makes them go there or to the end (D78).
 let supersetTarget = null
 export function useSupersetTarget(target) {
   useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
@@ -89,7 +91,13 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     if (!multi) { onPick(e, true); return }
     setPicked(cur => (cur.some(p => p.id === e.id) ? cur.filter(p => p.id !== e.id) : [...cur, e]))
   }
-  const addPicked = () => { close(); picked.forEach(e => onPick(e, true)) }
+  // D78: while the picks would not go to the end, Insert after the current one or Add to end.
+  const [after] = useState(() => (multi && supersetTarget?.insertAfter?.()) || null)
+  const addPicked = (atEnd = true) => {
+    close()
+    supersetTarget?.placeAt?.(atEnd || !after)
+    picked.forEach(e => onPick(e, true))
+  }
   const canLink = multi && picked.length > 1 && !!supersetTarget
   const addSuperset = () => {
     const target = supersetTarget
@@ -154,9 +162,10 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       : <button className="hv-pk-hidden" onClick={() => setShowHidden(PAGE)}>
         <span>{t('{0} hidden at {1}', hidden.length, profile?.name)}</span><span className="hv-link">{t('Show')}</span>
       </button>)}
-    {multi && picked.length > 0 && <div className="hv-pk-add">
+    {multi && picked.length > 0 && <div className={'hv-pk-add' + (after && canLink ? ' three' : '')}>
       {canLink && <button className="btn" onClick={addSuperset}>{t('Add superset')}</button>}
-      <button className="btn primary" onClick={addPicked}>{picked.length === 1 ? t('Add 1 exercise') : t('Add {0} exercises', picked.length)}</button>
+      {after && <button className="btn hv-pk-insert" onClick={() => addPicked(false)}>{t('Insert after {0}', after)}</button>}
+      <button className="btn primary" onClick={() => addPicked()}>{after ? t('Add to end') : picked.length === 1 ? t('Add 1 exercise') : t('Add {0} exercises', picked.length)}</button>
     </div>}
   </div>
 }
