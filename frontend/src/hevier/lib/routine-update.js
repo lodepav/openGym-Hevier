@@ -74,7 +74,10 @@ export function routineUpdate(S, session, routine) {
       free.delete(slotAt)
       summary.swapped++
       // The slot keeps its backups, less the exercise now in it (D45).
-      ex.push(withSets(keepBackups(routine.ex[slotAt], replaceSlotExercise(routine.ex[slotAt], entry.id, S, routine.id)), setDelta(entry)))
+      // Per side as it was done (D75): upstream's replace drops the flag.
+      const slot = replaceSlotExercise(routine.ex[slotAt], entry.id, S, routine.id)
+      if (entry.target?.side && slot.mode !== 'cardio' && !slot.side) { slot.side = true; if (entry.target.reps > 0) slot.reps = entry.target.reps }
+      ex.push(withSets(keepBackups(routine.ex[slotAt], slot), setDelta(entry)))
       return
     }
     if (!entry.sets?.length) return
