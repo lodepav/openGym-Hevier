@@ -2,6 +2,19 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.8.0 · 2026-10-21
+
+Based on openGym 1.4.1.
+
+### New
+
+- main muscle per exercise (D74), strength level by brand, trained today ringed
+
+### Fixes and changes
+
+- shoulder-blade shrugs filed under the upper back (D74)
+- lunges, step-ups and shrugs filed as reviewed (D74)
+
 ## 1.7.1 · 2026-10-20
 
 Based on openGym 1.4.1.
