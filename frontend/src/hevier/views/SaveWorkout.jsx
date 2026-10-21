@@ -31,7 +31,9 @@ import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
-let savedSession = null
+// Kept until the next save, with the updates worked out once, so the summary drawn again (a
+// remount) still offers them; `used` once tapped or gone, so it is offered once.
+let saved = null   // { id, session, updates, used }
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the Save page.
 const discard = nav => confirmSheet({
@@ -89,7 +91,7 @@ export function SaveWorkout() {
     // D28: upstream's finish keeps only the fields it knows, so the gym and machine labels are
     // written onto the saved record here, before it is moved.
     const labels = labelsAtFinish(cur0, cur)
-    savedSession = structuredClone(cur)
+    saved = { id: cur.id, session: structuredClone(cur), updates: null, used: false }
     doFinishWorkout()
     update(s => {
       s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
@@ -145,9 +147,9 @@ export function WorkoutDone() {
   // Read once, against the routines as they are after the save, so a swapped-in exercise starts
   // from today's weight (replaceSlotExercise).
   const [updates] = useState(() => {
-    const session = savedSession?.id === state?.ref?.id ? savedSession : null
-    savedSession = null
-    return session ? routineUpdates(useStore.getState().S, session) : []
+    if (!saved || saved.id !== state?.ref?.id || saved.used) return []
+    if (!saved.updates) saved.updates = routineUpdates(useStore.getState().S, saved.session)
+    return saved.updates
   })
   // Once shown, the page keeps its workout: a sync or a Health Connect read that rewrites the
   // record while the page sits open must not send it Home.
@@ -207,7 +209,7 @@ function RoutineUpdateButton({ updates }) {
   const [state, setState] = useState('shown')   // shown → leaving → gone
   useEffect(() => {
     const ids = [setTimeout(() => setState(s => (s === 'shown' ? 'leaving' : s)), SHOWN_MS),
-      setTimeout(() => setState('gone'), SHOWN_MS + 400)]
+      setTimeout(() => { setState('gone'); if (saved) saved.used = true }, SHOWN_MS + 400)]
     return () => ids.forEach(clearTimeout)
   }, [])
   if (state === 'gone') return null
@@ -222,6 +224,7 @@ function RoutineUpdateButton({ updates }) {
   const label = updates.length === 1 ? t('Update {0}', updates[0].name) : t('Update {0} routines', updates.length)
   const run = () => {
     setState('gone')
+    if (saved) saved.used = true
     const { update } = useStore.getState()
     let before = []
     update(s => { before = applyRoutineUpdates(s, updates) })
