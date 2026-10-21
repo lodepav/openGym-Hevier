@@ -39,8 +39,10 @@ const RULES = [
   [LEGS, /hip thrust|glute(?![- ]ham)|bridge|kick ?back|donkey|clam|hip extension|pull[- ]?through|reverse hyper|reverse leg extension|fire hydrant|rear kick|curt?s[e]?y|sumo\b.*squat|lunge|step[- ]?up/i, 'Glutes'],
   [LEGS, /squat|leg press|hack|sissy|leg extension|wall sit/i, 'Quadriceps'],
   [BACK, /rear delt/i, HEAD_NAME.rear],
-  // A Kelso shrug (chest-supported, shoulder blades squeezed together) is the upper back's.
-  [BACK, /kelso|retraction shrug/i, 'Upper Back'],
+  // A shrug that moves the shoulder blades back or down rather than up is the upper back's: a
+  // Kelso (chest-supported, squeezed together), a horizontal one, and the body-weight ones that
+  // hang or dip (the scapular pull-up's and the scapula dip's movement).
+  [BACK, /kelso|retraction shrug|horizontal shrug|hanging scapular shrug|inverted shrug|shrug \(on parallel bars\)/i, 'Upper Back'],
   [BACK, /shrug/i, 'Traps'],
   [BACK, /scapul/i, 'Upper Back'],
   [BACK, /high row|lats? focused|kayak|pull[- ]?down|pull[- ]?ups?\b|chin[- ]?up|pull[- ]?over|straight[- ]arm|lat pushdown|muscle[- ]?up/i, 'Lats'],
