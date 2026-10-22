@@ -86,20 +86,3 @@ vulnerabilities:
     purls: ["pkg:maven/com.google.guava/guava@31.1-android"]
     statement: LOW, Guava temp dir, Android's tmpdir is the app's private cache
     expired_at: 2027-01-17
-  # Vite's launch-editor (upstream's lockfiles: frontend 8.1.5, mcp 8.2.2; fixed in 8.1.6 / 8.2.4).
-  # It serves only the dev server's open-in-editor endpoint (`vite dev` on the developer's machine);
-  # `vite build` does not use it and nothing of it ships. Two are Windows-only. Upstream's main and
-  # release branches still pin these versions; drop these when an upstream merge brings a fixed
-  # Vite, and the short expiry makes the gate ask again if it has not.
-  - id: CVE-2026-112942
-    purls: ["pkg:npm/vite@8.1.5", "pkg:npm/vite@8.2.2"]
-    statement: HIGH, Windows-only, Vite dev server's open-in-editor, not in a build or shipped
-    expired_at: 2026-11-21
-  - id: CVE-2026-112943
-    purls: ["pkg:npm/vite@8.1.5", "pkg:npm/vite@8.2.2"]
-    statement: MEDIUM, Windows-only, Vite dev server's open-in-editor, not in a build or shipped
-    expired_at: 2026-11-21
-  - id: CVE-2026-112944
-    purls: ["pkg:npm/vite@8.1.5", "pkg:npm/vite@8.2.2"]
-    statement: MEDIUM, Vite dev server's open-in-editor, not in a build or shipped
-    expired_at: 2026-11-21
