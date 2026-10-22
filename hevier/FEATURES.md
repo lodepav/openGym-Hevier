@@ -57,6 +57,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Feature | D | Mark |
 |---|---|---|
 | A gym per workout (an equipment profile); brand labels on machine and cable exercises, any exercise via ⋮ → Add label | D28 | Offer |
+| PREVIOUS and last time's prefilled sets read the machine's brand and cable setup, refilled when the gym or brand changes | D82 | Fork |
 | Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offer |
 | Exercise search by machine brand | D36 | Offer |
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Offer |

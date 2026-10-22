@@ -23,6 +23,7 @@ import { initMonthWidget } from './lib/month-widget.js'
 import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
+import { initLabelRefill } from './lib/label-refill-run.js'
 import { aliasHooks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { chartTicks } from './lib/chart-ticks.js'
@@ -73,6 +74,7 @@ function install() {
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
+  initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)
 
   // Gyms and equipment: body weight is equipment like the rest, the checklist in groups (S36, D62,
   // D63), and the By muscle explorer filters by the picker's gym, by group (S37–S39).
