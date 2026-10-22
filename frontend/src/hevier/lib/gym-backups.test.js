@@ -40,6 +40,7 @@ describe('a gym’s backups (D46)', () => {
 
   it('a routine started at the gym swaps the backup in, built as the routine builds it; Undo puts it back and forgets', () => {
     const S = state({ swaps: { [PRESS]: { g1: HACK } } })
+    Object.assign(S.routines[0].ex[0], { sets: 5, reps: 6, weight: 140, restSec: 180 })
     expect(plannedSwaps(S)).toEqual([{ index: 0, from: PRESS, to: HACK }])
     const done = applyGymSwaps(S)
     expect(done).toHaveLength(1)
@@ -48,6 +49,8 @@ describe('a gym’s backups (D46)', () => {
     expect(S.active.entries[0].sets.length).toBeGreaterThan(0)
     undoGymSwaps(S, done)
     expect(S.active.entries[0].id).toBe(PRESS)
+    expect(S.active.entries[0].target).toMatchObject({ sets: 5, reps: 6, weight: 140, restSec: 180, subs: [HACK, SQUAT] })
+    expect(S.active.entries[0].sets).toHaveLength(5)
     expect(learnedBackup(S, PRESS, 'g1')).toBe(null)
   })
 

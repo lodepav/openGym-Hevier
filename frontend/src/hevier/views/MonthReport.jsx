@@ -49,6 +49,8 @@ export default function MonthReport() {
   const r = useMemo(() => monthReport(countedWorkouts(st.workouts), at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [st.workouts, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
+  const ym = `${at.y}-${String(at.mo + 1).padStart(2, '0')}-`
+  const trained = Object.keys(byDay).some(d => d.startsWith(ym))
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1
   const canBack = !!first && (at.y > first.y || (at.y === first.y && at.mo > first.mo))
   const step = by => { setAllPrs(false); setAt(({ y, mo }) => { const d = new Date(y, mo + by, 1); return { y: d.getFullYear(), mo: d.getMonth() } }) }
@@ -65,7 +67,7 @@ export default function MonthReport() {
       <div><h1>{title}</h1>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
       <button type="button" className="iconbtn" aria-label={t('Next month')} disabled={isNow} onClick={() => step(1)}><Icon name="chevronRight" /></button>
     </div>
-    {!r.workouts ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
+    {!trained ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
       <div className="hv-stats hv-report-stats">
         <Stat label={t('Workouts')} value={r.workouts} delta={change(r.workouts, r.prev.workouts)} />
         <Stat label={t('Duration')} value={durationWords(r.duration)} delta={change(r.duration, r.prev.duration, durationWords)} />
