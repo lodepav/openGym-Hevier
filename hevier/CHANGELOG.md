@@ -2,6 +2,14 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.13.0 · 2026-10-22
+
+Based on openGym 1.4.1.
+
+### New
+
+- PREVIOUS and last time's sets read the machine's brand and setup (D82)
+
 ## 1.12.0 · 2026-10-22
 
 Based on openGym 1.4.1.
