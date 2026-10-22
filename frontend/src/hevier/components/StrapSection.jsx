@@ -9,6 +9,7 @@ import { plugin, loadStrap, saveStrap, onStrapChange, liveStrap, onLive, lastErr
 import { liveBpm } from '../lib/hr-strap.js'
 import { maxHr } from '../lib/hr-zones.js'
 import { zonesSheet } from './StrapScreen.jsx'
+import { readStatus, loadRead, onReadChange } from '../lib/health-read-sync.js'
 import { useStore } from '../../store/useStore.js'
 
 const toast = msg => useUI.getState().toast(msg)
@@ -69,20 +70,27 @@ export default function StrapSection() {
   const [strap, setStrap] = useState(null)
   const [live, setLive] = useState(() => ({ ...liveStrap() }))
   const hrMax = useStore(s => s.S.hvHrMax)
+  const [hcHr, setHcHr] = useState(false)
+  const [hc, setHc] = useState(false)
   useEffect(() => {
     let on = true
+    readStatus().then(x => { if (on) setHc(x?.status === 'available') }).catch(() => {})
+    loadRead().then(x => { if (on) setHcHr(!!x?.readHr) }).catch(() => {})
+    const c = onReadChange(x => on && setHcHr(!!x?.readHr))
     plugin().then(p => p?.H.status()).then(s => { if (on) setBt(s || { bluetooth: 'none' }) }).catch(() => on && setBt({ bluetooth: 'none' }))
     loadStrap().then(s => { if (on) setStrap(s) })
     const a = onStrapChange(s => on && setStrap(s))
     const b = onLive(l => on && setLive({ ...l }))
-    return () => { on = false; a(); b() }
+    return () => { on = false; a(); b(); c() }
   }, [])
   if (!bt || bt.bluetooth === 'none') return null
   const bpm = liveBpm(live.last)
   const now = live.state === 'connected' ? (bpm ? t('Connected · {0} bpm', bpm) : t('Connected')) : live.state === 'connecting' ? t('Connecting…') : null
   const err = lastError() === 'permission' ? t('Nearby devices is not allowed, so nothing is recorded.') : null
   return <Section title={t('Heart rate strap')}
-    footer={t('While a workout runs, the phone records the strap every second, also with the screen locked, and the saved workout gets each set’s heart rate. It replaces what Health Connect has for that workout.')}>
+    footer={t('While a workout runs, the phone records the strap every second, also with the screen locked, and the saved workout gets each set’s heart rate. It replaces what Health Connect has for that workout.')
+      + (!hc ? '' : ' ' + (hcHr ? t('A workout or set the strap did not record keeps Health Connect’s heart rate.')
+        : t('Switch on Heart rate from your watch above, and a workout the strap did not record gets Health Connect’s heart rate instead.')))}>
     <Row icon="heart" iconTint="var(--red)" title={strap ? strap.name || strap.address : t('Pick a strap')} accessory="chevron"
       subtitle={err || now || (strap ? t('Records your workouts') : t('A chest strap, armband or watch that broadcasts its heart rate over Bluetooth'))}
       onClick={scanSheet} />
