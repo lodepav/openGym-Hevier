@@ -2,6 +2,19 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 1.12.0 · 2026-10-22
+
+Based on openGym 1.4.1.
+
+### New
+
+- strength levels list (D81), Health Connect as the strap's fallback (D79)
+
+### Fixes and changes
+
+- gym-swap Undo keeps the slot, widget plan dots, report calendar
+- the review's five fixes (export retry, strap links, strap re-pick, live HR, Settings tick)
+
 ## 1.11.0 · 2026-10-21
 
 Based on openGym 1.4.1.
