@@ -28,6 +28,7 @@ import { installExercisePicker, Exercises } from './views/ExercisePickerHevy.jsx
 import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/WorkoutDetail.jsx'
 import Calendar from './views/Calendar.jsx'
 import MonthReport from './views/MonthReport.jsx'
+import StrengthLevels from './views/StrengthLevels.jsx'
 import { atTabRoot } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
@@ -93,6 +94,7 @@ export const hevierRoutes = [
   <Route key="hv-muscles" path="/muscles" element={<BackWhereFrom to="/library"><Muscles /></BackWhereFrom>} />,
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-report" path="/report" element={<MonthReport />} />,
+  <Route key="hv-strength" path="/strength" element={<StrengthLevels />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-routine-view" path="/plan/r/:id/view" element={<RoutinePreview />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,

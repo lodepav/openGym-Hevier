@@ -75,6 +75,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Other names for an exercise, searchable, one shown as its name | D73 | Offer (see upstream PR #624) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
+| Strength levels list, by the level reached | D81 | Offer |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
 
 ## Statistics and history

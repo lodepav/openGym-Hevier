@@ -81,6 +81,7 @@ export default function Statistics() {
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>
     {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
+    {S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

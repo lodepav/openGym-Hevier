@@ -130,6 +130,32 @@ describe('heart rate', () => {
     expect(file().readError).toBe('permission')
   })
 
+  // D79: the strap's recording wins; Health Connect is the fallback for what it did not get.
+  it('a workout the strap recorded is not read again', async () => {
+    S.workouts[0].hr = { avg: 140, max: 160, src: 'strap', n: 600 }
+    S.workouts[0].entries[0].sets[0].hr = { avg: 141, max: 150 }
+    h.hr = dense(0, 600, 130)
+    await hs.enableRead('hr', getState, { apply })
+    expect(reads('readHeartRate')).toEqual([])
+    expect(S.workouts[0].hr.src).toBe('strap')
+  })
+
+  it('a workout the strap got nothing for gets Health Connect’s heart rate', async () => {
+    // A strap picked but silent (a watch found that never broadcast): the workout saved without one.
+    h.hr = dense(0, 600, 128)
+    await hs.enableRead('hr', getState, { apply })
+    expect(S.workouts[0].hr).toMatchObject({ src: 'hc', avg: 128 })
+    expect(S.workouts[0].entries[0].sets[0].hr).toEqual({ avg: 128, max: 128 })
+  })
+
+  it('a set the strap missed gets Health Connect’s, the strap’s session kept', async () => {
+    S.workouts[0].hr = { avg: 140, max: 160, src: 'strap', n: 90 }
+    h.hr = dense(0, 600, 128)
+    await hs.enableRead('hr', getState, { apply })
+    expect(S.workouts[0].entries[0].sets[0].hr).toEqual({ avg: 128, max: 128 })
+    expect(S.workouts[0].hr).toMatchObject({ src: 'strap', avg: 140 })
+  })
+
   it('turning it off stops the reads and keeps what came in', async () => {
     h.hr = dense(0, 600, 130)
     await hs.enableRead('hr', getState, { apply })

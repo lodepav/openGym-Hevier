@@ -57,3 +57,26 @@ export function setLevels(S, exId, lv, unit, d) {
   else delete all[exId]
   S.hvStrength = all
 }
+
+/**
+ * Every exercise with levels (`hvStrength`), grouped by the level its best 1RM reaches, for the
+ * Strength levels page: Elite first, down to Below Beginner (`level` -1), then the exercises with
+ * levels and no 1RM logged yet (`level` null). `oneRmOf(exId)` gives the best estimated 1RM in
+ * `unit`, or nothing. Inside a group, nearest the next level first.
+ */
+export function levelGroups(hvStrength, unit, oneRmOf) {
+  const groups = new Map()
+  for (const [id, entry] of Object.entries(hvStrength || {})) {
+    const lv = levelsIn(entry, unit)
+    if (!lv) continue
+    const oneRm = Number(oneRmOf(id)) || 0
+    const at = oneRm > 0 ? strengthLevel(oneRm, lv) : null
+    const level = at ? at.level : null
+    if (!groups.has(level)) groups.set(level, [])
+    groups.get(level).push({ id, oneRm, next: at?.next ?? null, toNext: at?.toNext ?? 0, pos: at?.pos ?? 0 })
+  }
+  const order = [...LEVELS.keys()].reverse().concat(-1, null)
+  return order.filter(l => groups.has(l)).map(level => ({
+    level, items: groups.get(level).sort((a, b) => b.pos - a.pos || a.id.localeCompare(b.id)),
+  }))
+}
