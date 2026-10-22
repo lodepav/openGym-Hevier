@@ -83,6 +83,14 @@ export default function StrapSection() {
     const b = onLive(l => on && setLive({ ...l }))
     return () => { on = false; a(); b(); c() }
   }, [])
+  // While connected the row re-renders each second, so a strap gone quiet loses its number after LIVE_MS.
+  const [, setClock] = useState(0)
+  const ticking = live.state === 'connected'
+  useEffect(() => {
+    if (!ticking) return
+    const id = setInterval(() => setClock(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [ticking])
   if (!bt || bt.bluetooth === 'none') return null
   const bpm = liveBpm(live.last)
   const now = live.state === 'connected' ? (bpm ? t('Connected · {0} bpm', bpm) : t('Connected')) : live.state === 'connecting' ? t('Connecting…') : null

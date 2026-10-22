@@ -80,6 +80,8 @@ public class HevierHrStrapService extends Service {
     private long connectedAt;
     private long lostAt;
     private ScanCallback finding;
+    // The one pending reconnect, so a second path to connect() (find) can cancel it.
+    private final Runnable reconnect = () -> connect(retries > 1);
     static final long STALL_MS = 30_000;
 
     static File file(Context ctx, String id) {
@@ -138,11 +140,18 @@ public class HevierHrStrapService extends Service {
 
     private void connect(boolean auto) {
         if (!running) return;
+        // Only one client at a time: a reconnect still pending, or a client left open, would leak a
+        // GATT client that keeps reaching for the strap (Android has few of them).
+        main.removeCallbacks(reconnect);
+        if (gatt != null) {
+            gatt.close();
+            gatt = null;
+        }
         BluetoothManager bm = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter adapter = bm == null ? null : bm.getAdapter();
         if (adapter == null || !adapter.isEnabled()) {
             setState("connecting");
-            main.postDelayed(() -> connect(false), 10_000);
+            main.postDelayed(reconnect, 10_000);
             return;
         }
         setState("connecting");
@@ -160,7 +169,8 @@ public class HevierHrStrapService extends Service {
         if (!running) return;
         setState("connecting");
         retries++;
-        main.postDelayed(() -> connect(retries > 1), Math.min(10_000, 1000L * retries));
+        main.removeCallbacks(reconnect);
+        main.postDelayed(reconnect, Math.min(10_000, 1000L * retries));
     }
 
     /**

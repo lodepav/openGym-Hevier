@@ -12,7 +12,7 @@ import { within } from './within.js'
 
 export const EXPORT_FILE = 'hevier-hevy-export.json'
 export const KEY_NAME = 'hevy-api-key'
-const OFF = { on: false, since: 0, base: { workouts: [], routines: {} }, out: { w: {}, r: {} }, failed: {}, tpl: {}, folders: {}, last: null }
+const OFF = { on: false, since: 0, base: { workouts: [], routines: {} }, out: { w: {}, r: {} }, failed: {}, unsure: {}, tpl: {}, folders: {}, last: null }
 const SOON_MS = 10e3            // after a change: one send for a burst of edits
 const RETRY_MS = 60e3           // after an error, not again before this
 const CALL_MS = 20e3            // one call that has not answered by then is taken as offline
@@ -44,6 +44,10 @@ const idOf = (res, k) => { const v = Array.isArray(res?.[k]) ? res[k][0] : res?.
 // A create Hevy answered without an id is refused, not kept as sent with no id: the row then shows
 // it, rather than a later change quietly creating a second copy Hevy's API cannot delete.
 const createdId = (res, k) => { const id = idOf(res, k); if (!id) throw new HevyApiError(422, 'no id'); return id }
+// A workout whose POST got no answer (a timeout, the network gone) may still be in Hevy, which
+// cannot delete a copy: the next pass looks for it among Hevy's newest workouts by its start.
+const RECENT = '/v1/workouts?page=1&pageSize=10'
+const sameStart = (a, b) => a != null && b != null && Date.parse(a) === Date.parse(b)
 
 /**
  * One export pass over `S`. `st` is the export state, changed in place and saved through `save`
@@ -91,15 +95,26 @@ export async function exportOnce(S, st, { call, pages, apply, save = async () =>
       const body = { workout: finish(item.draft, tplOf) }
       try {
         let id = item.hevyId
+        if (!id && st.unsure?.[item.id]) {
+          const res = await call('GET', RECENT)
+          const twin = (Array.isArray(res?.workouts) ? res.workouts : []).find(w => sameStart(w?.start_time, body.workout.start_time))
+          if (twin?.id != null) id = String(twin.id)
+        }
         if (id) {
           try { await call('PUT', `/v1/workouts/${encodeURIComponent(id)}`, body) } catch (e) {
             if (!(e instanceof HevyApiError) || e.status !== 404) throw e
             id = null                       // gone from Hevy: sent again as a new one
           }
         }
-        if (!id) id = createdId(await call('POST', '/v1/workouts', body), 'workout')
+        if (!id) {
+          try { id = createdId(await call('POST', '/v1/workouts', body), 'workout') } catch (e) {
+            if (e instanceof HevyApiError && e.status === 0) { (st.unsure ||= {})[item.id] = 1; await save(st) }
+            throw e
+          }
+        }
         st.out.w[item.id] = { id, h: item.h }
         delete st.failed[item.id]
+        if (st.unsure) delete st.unsure[item.id]
         sent++
         await save(st)
       } catch (e) { if (stops(e)) throw e; await refuse(item) }
@@ -161,7 +176,7 @@ export async function loadExport() {
   const f = await readJsonFile(EXPORT_FILE)
   const map = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
   cached = f && typeof f === 'object'
-    ? { ...OFF, ...f, out: { w: map(f.out?.w), r: map(f.out?.r) }, failed: map(f.failed), tpl: map(f.tpl), folders: map(f.folders) }
+    ? { ...OFF, ...f, out: { w: map(f.out?.w), r: map(f.out?.r) }, failed: map(f.failed), unsure: map(f.unsure), tpl: map(f.tpl), folders: map(f.folders) }
     : JSON.parse(JSON.stringify(OFF))
   return cached
 }

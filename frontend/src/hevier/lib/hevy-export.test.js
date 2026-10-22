@@ -286,6 +286,36 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     expect(saved.at(-1)).toBe(false)
   })
 
+  it('a workout whose POST timed out is looked for in Hevy before it is posted again', async () => {
+    const { S, st, calls, call, pages, replies } = setup()
+    S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }),
+      workout({ id: 'b', start: T0 + 86400e3, end: T0 + 90000e3, entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v1/workouts'] = new HevyApiError(0, 'offline')
+    expect((await exportOnce(S, st, { call, pages })).error).toBe('offline')
+    const start = calls.find(c => c[1] === '/v1/workouts')[2].workout.start_time
+    delete replies['POST /v1/workouts']
+    // The first one reached Hevy after all; the second was never tried.
+    replies['GET /v1/workouts?page=1&pageSize=10'] = { workouts: [{ id: 'HX', start_time: start.replace('.000Z', 'Z') }] }
+    calls.length = 0
+    expect(await exportOnce(S, st, { call, pages })).toEqual({ sent: 2, refused: 0, error: null })
+    expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['GET /v1/workouts?page=1&pageSize=10', 'PUT /v1/workouts/HX', 'POST /v1/workouts'])
+    expect(st.out.w.a.id).toBe('HX')
+    expect(st.unsure).toEqual({})
+  })
+
+  it('a timed-out workout Hevy does not have is posted again', async () => {
+    const { S, st, calls, call, pages, replies } = setup()
+    S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v1/workouts'] = new HevyApiError(0, 'offline')
+    await exportOnce(S, st, { call, pages })
+    delete replies['POST /v1/workouts']
+    replies['GET /v1/workouts?page=1&pageSize=10'] = { workouts: [{ id: 'OTHER', start_time: '2020-01-01T00:00:00Z' }] }
+    calls.length = 0
+    await exportOnce(S, st, { call, pages })
+    expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['GET /v1/workouts?page=1&pageSize=10', 'POST /v1/workouts'])
+    expect(st.out.w.a.id).toMatch(/^HW/)
+  })
+
   it('stops at a refused key or the rate limit, keeping what was sent', async () => {
     const { S, st, call, pages, replies } = setup()
     S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }),

@@ -46,6 +46,7 @@ export function onLive(cb) { liveListeners.add(cb); return () => liveListeners.d
 const tell = () => { for (const cb of liveListeners) cb(live) }
 
 let started = null    // the workout id the recording is for
+let startedAt = null  // the address the service records, kept when it moves to a new private one
 
 // This workout's readings so far, `[ms, bpm]`, for the full-screen view (D80): the recording read
 // once when it is asked for, then each reading as it comes.
@@ -76,10 +77,13 @@ export function initHrStrap(store) {
   ;(async () => {
     const { H } = (await plugin()) || {}
     if (!H) return
+    // Only a reading the saved workout keeps is shown live: off the skin or out of range, the
+    // strap reads as quiet rather than putting a stray 255 into a zone.
     H.addListener('reading', r => {
-      live.last = { t: Number(r.t), bpm: Number(r.bpm) }
       const d = decodeHrm(r.hex)
-      if (buf?.loaded && buf.id === started && plausible(d)) buf.list.push([live.last.t, d.bpm])
+      if (!plausible(d)) return
+      live.last = { t: Number(r.t), bpm: d.bpm }
+      if (buf?.loaded && buf.id === started) buf.list.push([live.last.t, d.bpm])
       tell()
     })
     H.addListener('state', r => {
@@ -87,11 +91,14 @@ export function initHrStrap(store) {
       if (r.state === 'off') live.last = null
       tell()
       // The service found the strap again under a new address (HevierHrStrapService.find): keep it.
-      if (r.state === 'connected' && strap && r.address && r.address !== strap.address) saveStrap({ ...strap, address: r.address })
+      if (r.state === 'connected' && strap && r.address && r.address !== strap.address) {
+        startedAt = r.address
+        saveStrap({ ...strap, address: r.address })
+      }
     })
     const st = await H.status().catch(() => null)
     if (st?.state) { live.state = st.state; tell() }
-    if (st?.session) started = st.session
+    if (st?.session) { started = st.session; startedAt = st.address || null }
 
     // A recording whose workout is still open (the strap forgotten mid-workout, an app restart)
     // waits here until it is saved or discarded.
@@ -113,11 +120,13 @@ export function initHrStrap(store) {
       for (const id of [...pending]) if (A?.id !== id) await settle(id)
       const s = await loadStrap()
       if (recordable(A) && s) {
-        if (started === A.id) return
-        if (started) { const prev = started; started = null; await H.stop(); await settle(prev) }
+        // Another strap picked mid-workout: the service moves to it, into the same recording.
+        if (started === A.id && startedAt === s.address) return
+        if (started && started !== A.id) { const prev = started; started = null; await H.stop(); await settle(prev) }
         started = A.id
+        startedAt = s.address
         try { await H.start({ session: A.id, address: s.address, ...labels(s.name || s.address) }); error = null }
-        catch (e) { started = null; error = e?.code || 'failed' }
+        catch (e) { started = null; startedAt = null; error = e?.code || 'failed' }
         tell()
       } else if (started) {
         const prev = started
