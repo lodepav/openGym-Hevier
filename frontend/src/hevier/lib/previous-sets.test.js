@@ -78,4 +78,31 @@ describe('hevier previousSetsFor', () => {
     ])
     expect(previousSetsFor(hist, { id: 'row', sets: [{}, {}] })).toEqual([W(40, 10), W(40, 9)])
   })
+
+  it('reads last time on the same brand first, then a session with no brand, never another brand (D82)', () => {
+    const hist = H([
+      { d: '2026-09-01', entries: [{ id: 'press', sets: [W(80, 10), W(80, 9)] }] },
+      { d: '2026-09-15', entries: [{ id: 'press', hvBrand: 'Technogym', sets: [W(150, 10)] }] },
+      { d: '2026-10-01', entries: [{ id: 'press', hvBrand: 'Life Fitness', sets: [W(120, 10)] }] },
+      { d: '2026-10-08', entries: [{ id: 'press', hvBrand: 'Technogym', sets: [W(160, 8)] }] },
+    ])
+    const entry = { id: 'press', sets: [{}, {}] }
+    expect(previousSetsFor(hist, entry, 'routine', { label: 'Life Fitness' })).toEqual([W(120, 10), W(80, 9)])
+    expect(previousSetsFor(hist, entry, 'routine', { label: 'Hammer' })).toEqual([W(80, 10), W(80, 9)])
+    // No label: every session, as before.
+    expect(previousSetsFor(hist, entry)).toEqual([W(160, 8), W(80, 9)])
+    // Workout Detail's arrows keep to the last session on the label.
+    expect(previousSetsFor(hist, entry, 'routine', { walk: false, label: 'Technogym' })).toEqual([W(160, 8), null])
+  })
+
+  it('tells a cable’s setups apart: ×2 reads ×2 sessions, then untagged (1:1) ones (D82)', () => {
+    const hist = H([
+      { d: '2026-10-01', entries: [{ id: '0150', sets: [W(40, 10)] }] },
+      { d: '2026-10-08', entries: [{ id: '0150', hvCable: 'x2', sets: [W(20, 10)] }] },
+      { d: '2026-10-15', entries: [{ id: '0150', hvCable: '2:1', sets: [W(70, 10)] }] },
+    ])
+    const entry = { id: '0150', sets: [{}] }
+    expect(previousSetsFor(hist, entry, 'routine', { label: '|x2' })).toEqual([W(20, 10)])
+    expect(previousSetsFor(hist, entry, 'routine', { label: '|2:1' })).toEqual([W(70, 10)])
+  })
 })

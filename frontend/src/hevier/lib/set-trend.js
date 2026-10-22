@@ -7,6 +7,7 @@ import { isWarmupRow } from '../../lib/workout-model.js'
 import { isAssisted } from '../../lib/exercises.js'
 import { estimate1RM, formulaOf } from '../../lib/onerm.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
+import { entryLabelKey } from './gym-labels.js'
 
 const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0)
 const sign = d => (Math.abs(d) < 1e-9 ? 0 : d > 0 ? 1 : -1)
@@ -39,7 +40,7 @@ export function workoutTrends(S, w, i) {
   const e = w?.entries?.[i]
   if (!e) return []
   const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
-  const prev = previousSetsFor(H, e, previousMode(S), { walk: false })
+  const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLabelKey(e) })
   const opts = { assisted: isAssisted(e.id), formula: formulaOf(S) }
   return (e.sets || []).map((s, k) => (s?.done && !isWarmupRow(s) ? setTrend(s, prev[k], opts) : null))
 }

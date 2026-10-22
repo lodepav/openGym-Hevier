@@ -6,6 +6,8 @@
 import { isWarmupRow, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 import { modeOf } from '../../lib/history.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
+import { startLabelKey } from './gym-labels.js'
+import { buildPlannedEntry } from '../../lib/session-start.js'
 
 /** Whether a routine keeps upstream's progression and warm-up ramp. Off unless switched on. */
 export const progressionOn = routine => routine?.hvProg === true
@@ -51,7 +53,8 @@ function fill(row, prev, mode) {
  * (with the exercise's dumbbell meaning, as upstream builds from), `S` the profile (D21's mode).
  */
 export function plainRows(H, S, cfg, routine, rows) {
-  const prev = previousSetsFor(H, { id: cfg.id, rid: routine?.id, sets: rows }, previousMode(S))
+  // D82: last time on the machine the session starts with (its brand, its cable setup).
+  const prev = previousSetsFor(H, { id: cfg.id, rid: routine?.id, sets: rows }, previousMode(S), { label: startLabelKey(S, cfg.id) })
   const mode = modeOf(cfg)
   return rows.map((row, i) => {
     const p = prev[i]
@@ -59,5 +62,42 @@ export function plainRows(H, S, cfg, routine, rows) {
     // A warm-up keeps its own phase mark, and a work set never takes a warm-up's numbers.
     if (isWarmupRow(row) !== isWarmupRow(p)) return row
     return fill(row, p, mode)
+  })
+}
+
+// The numbers a row is filled with, for refillRows: what plainRows and upstream's build write.
+const NUMS = ['w', 'r', 'sec', 'min', 'speed', 'incline', 'sides', 'weightOrigin', 'hvLast']
+const VALS = ['w', 'r', 'sec', 'min', 'speed', 'incline']
+const sameVals = (a, b) => VALS.every(k => (a?.[k] ?? null) === (b?.[k] ?? null))
+const sameRow = (a, b) => sameVals(a, b) && ['L', 'R'].every(k => sameVals(a?.sides?.[k], b?.sides?.[k]))
+
+/**
+ * The session's exercise `e` refilled after its label changed from `was` to `label` (label keys,
+ * D82: the gym, the brand or the cable setup). Each unticked row still showing what the build gave
+ * it, the routine's own numbers or last time's on the old label, takes last time's set on the new
+ * label, else the routine's numbers; a row typed into differs from both and keeps its values, and
+ * so does a set added in the session, which has no routine numbers to go back to. `H` is the
+ * session's history, `S` the profile. Returns the new rows, or null when the exercise is not a
+ * plain routine's.
+ */
+export function refillRows(H, S, e, routine, label, was) {
+  if (!e || !isPlain(routine)) return null
+  const cfg = { ...(e.target || {}), id: e.id }
+  const base = buildPlannedEntry(H, cfg, routine, { noProg: true }).sets
+  const lookup = { ...e, rid: routine.id }
+  const prevOn = l => previousSetsFor(H, lookup, previousMode(S), { label: l })
+  const [prev, old] = [prevOn(label), prevOn(was)]
+  const mode = modeOf(cfg)
+  const filled = (start, p) => (p && isWarmupRow(p) === isWarmupRow(start) ? fill(start, p, mode) : start)
+  return (e.sets || []).map((row, i) => {
+    const b = base[i]
+    if (row.done || !b || isWarmupRow(b) !== isWarmupRow(row)) return row
+    const start = { ...row }
+    for (const k of NUMS) {
+      if (b[k] !== undefined) start[k] = b[k]
+      else delete start[k]
+    }
+    if (!sameRow(row, start) && !sameRow(row, filled(start, old[i]))) return row
+    return filled(start, prev[i])
   })
 }

@@ -206,6 +206,13 @@ export function withLabels(w, labels) {
 export const labelKey = (b, c) => (b || '') + (c && c !== '1:1' ? '|' + c : '')
 /** The label a logged entry was done with, as a key. */
 export const entryLabelKey = e => labelKey(e?.hvBrand, savedCable(e))
+/** The label the session's exercise `idx` is done with, as a key. */
+export const sessionLabelKey = (S, A, idx) => labelKey(entryBrand(S, A, idx), entryCable(S, A, idx))
+/** The label exercise `exId` starts with in the session (none open: one about to start), as a key. */
+export function startLabelKey(S, exId) {
+  const gym = workoutGym(S, S?.active || {})
+  return labelKey(brandDefault(S, exId, gym), isCable(exId) ? cableDefault(S, exId, gym) || '1:1' : null)
+}
 
 /**
  * The labels an exercise was done with, newest first: [{ key, brand, cable, n }]. Only labels that

@@ -16,7 +16,7 @@ import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { restTimerText } from '../lib/elapsed.js'
-import { isCable, hasLabel } from '../lib/gym-labels.js'
+import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   canBeWarmup, setSpanAt, lastEntryFor,
@@ -84,7 +84,8 @@ export default function HevyExerciseBlock({
   const A = S.active
   const history = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
     [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
-  const prev = previousSetsFor(history, entry, previousMode(S))
+  // D82: last time on this machine (its brand and cable setup), else with none.
+  const prev = previousSetsFor(history, entry, previousMode(S), { label: sessionLabelKey(S, A, entryIdx) })
   // The set to do next: a lighter row with a blue edge, its values white and bold (lib/next-set.js).
   const next = S.active && !S.active.editingWorkoutId ? nextSet(S.active) : null
   const isNext = i => next?.idx === entryIdx && next.i === i

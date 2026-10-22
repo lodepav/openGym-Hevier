@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { isPlain, progressionOn, plainRows, filledFromLast } from './plain-routine.js'
+import { isPlain, progressionOn, plainRows, filledFromLast, refillRows } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { hooks } from '../hooks.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -81,5 +81,39 @@ describe('hevier plain routines (D69)', () => {
     const H = S0([{ d: '2026-10-13', routineId: upperB.id, entries: [{ id: 'plank', sets: [W(0, 0, { sec: 75 }), W(0, 0, { sec: 60 })] }] }])
     const out = plainRows(H, {}, plank, upperB, [{ sec: 30, w: 0, done: true }, { sec: 30, w: 0, done: false }])
     expect(out.map(s => s.sec)).toEqual([30, 60])
+  })
+
+  // D82: the user's leg press, Life Fitness at City Gym and Technogym at Home.
+  const press = { id: 'press', sets: 2, reps: 10, weight: 100, mode: 'reps', warmupSets: 0 }
+  const legs = { id: 'r-legs', name: 'Legs', ex: [press] }
+  const pressDay = (d, brand, sets) => ({ d, routineId: legs.id, entries: [{ id: 'press', ...(brand ? { hvBrand: brand } : {}), sets }] })
+  const labelled = (gym, active) => ({
+    ...S0([
+      pressDay('2026-09-01', null, [W(90, 10), W(90, 10)]),
+      pressDay('2026-10-01', 'Life Fitness', [W(140, 10)]),
+      pressDay('2026-10-08', 'Technogym', [W(180, 8), W(180, 7)]),
+    ]),
+    equipProfiles: [{ id: 'city' }, { id: 'home' }], activeEquipId: gym, active,
+    hvMachines: { press: { city: 'Life Fitness', home: 'Technogym' } },
+  })
+
+  it('opens at last time on the brand the gym has, then at a session with no brand (D82)', () => {
+    expect(pick(buildPlannedEntry(labelled('city'), press, legs).sets)).toEqual([['S', 140, 10], ['S', 90, 10]])
+    expect(pick(buildPlannedEntry(labelled('home'), press, legs).sets)).toEqual([['S', 180, 8], ['S', 180, 7]])
+    // A session already open reads its own gym.
+    expect(pick(buildPlannedEntry(labelled('city', { start: 1, hvGym: 'home', entries: [] }), press, legs).sets)).toEqual([['S', 180, 8], ['S', 180, 7]])
+  })
+
+  it('refills the untouched sets when the brand changes, and keeps a typed or ticked one (D82)', () => {
+    const S = labelled('city')
+    const e = { id: 'press', rid: legs.id, target: press, sets: buildPlannedEntry(S, press, legs).sets }
+    // To Technogym: both rows were last time's on Life Fitness or with no brand.
+    expect(pick(refillRows(S, S, e, legs, 'Technogym', 'Life Fitness'))).toEqual([['S', 180, 8], ['S', 180, 7]])
+    // A brand never done: last time with no brand, else the routine's own numbers.
+    expect(pick(refillRows(S, S, e, legs, 'Hammer', 'Life Fitness'))).toEqual([['S', 90, 10], ['S', 90, 10]])
+    const typed = { ...e, sets: [{ ...e.sets[0], r: 12 }, { ...e.sets[1], done: true }] }
+    expect(pick(refillRows(S, S, typed, legs, 'Technogym', 'Life Fitness'))).toEqual([['S', 140, 12], ['S', 90, 10]])
+    // Not a plain routine's: upstream's rows stay.
+    expect(refillRows(S, S, e, { ...legs, hvProg: true }, 'Technogym', 'Life Fitness')).toBe(null)
   })
 })
