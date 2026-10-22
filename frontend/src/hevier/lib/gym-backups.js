@@ -75,15 +75,16 @@ export function plannedSwaps(S) {
 /**
  * Swaps the live session's exercise `index` for `toId` as upstream's swap does with a quick pick
  * (sheets.jsx swapActiveWorkoutExercise: the exercise's default settings, built the way its
- * routine builds it). Only an exercise with nothing ticked. Mutates the store draft `s`.
+ * routine builds it), or from the routine slot `slot` when given. Only an exercise with nothing
+ * ticked. Mutates the store draft `s`.
  */
-export function swapEntry(s, index, toId) {
+export function swapEntry(s, index, toId, slot = null) {
   const A = s.active
   const current = A?.entries?.[index]
   if (!current || list(current.sets).some(x => x?.done === true)) return false
   const routine = routineOf(s, current.rid)
   if (!routine) return false
-  const full = { ...defaultConfig(toId), id: toId }
+  const full = { ...(slot || defaultConfig(toId)), id: toId }
   const built = buildPlannedEntry(sessionHistory(s), full, routine, { noProg: builtOutOfProgression(current, routine) })
   const replacement = { id: toId, ...built, rid: current.rid, ...(current.noProg === true ? { noProg: true } : {}) }
   return !!swapActiveExercise(A, index, replacement)
@@ -102,6 +103,7 @@ export function undoGymSwaps(s, done) {
   const gymId = workoutGym(s, A)
   for (const p of done) {
     if (A?.entries?.[p.index]?.id !== p.to) continue
-    if (swapEntry(s, p.index, p.from) && gymId) remember(s, p.from, gymId, null)
+    const slot = list(routineOf(s, A.entries[p.index].rid)?.ex).find(x => x?.id === p.from)
+    if (swapEntry(s, p.index, p.from, slot) && gymId) remember(s, p.from, gymId, null)
   }
 }

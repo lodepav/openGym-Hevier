@@ -110,7 +110,7 @@ let started = false
 export function initMonthWidget(store, go, todayOf) {
   if (!MOBILE || started) return
   const getState = store.get
-  const subscribe = store.watch(['workouts', 'weekStart', 'lang'])
+  const subscribe = store.watch(['workouts', 'weekStart', 'lang', 'routines', 'week', 'dayPlan', 'queue'])
   started = true
   const push = () => pushWidget(getState(), todayOf()).catch(() => {})
   const route = () => takeWidgetRoute().then(r => { if (r) go(r) }).catch(() => {})
