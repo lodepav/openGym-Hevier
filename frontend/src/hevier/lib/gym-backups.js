@@ -4,6 +4,8 @@
 // in S.hvGymSwaps ({ [exId]: { [gymId]: backupExId } }, a fork-only field synced as a whole):
 // swapping back to the routine's own exercise there forgets it. Only a live routine session at a
 // gym (D28's workoutGym) swaps, and only an exercise with nothing ticked yet.
+// An exercise can also be marked missing at a gym (D86, S.hvGymMissing: { [exId]: [gymId] }): a slot
+// whose exercise a gym lacks starts there with its first backup, in the slot's order, the gym has.
 import { EXIDX, allExercises } from '../../lib/exercises.js'
 import { defaultConfig } from '../../lib/history.js'
 import { sessionHistory } from '../../lib/backfill.js'
@@ -23,6 +25,32 @@ const live = A => !!A && !A.backfill && A.editingWorkoutId == null
 
 /** The backup exercise `exId` took at gym `gymId` last time, or null. */
 export const learnedBackup = (S, exId, gymId) => (gymId && S?.hvGymSwaps?.[exId]?.[gymId]) || null
+
+/** Whether exercise `exId` is marked missing at gym `gymId` (D86). */
+export const missingAt = (S, exId, gymId) => !!gymId && list(S?.hvGymMissing?.[exId]).includes(gymId)
+
+/** Marks exercise `exId` missing at gym `gymId`, or there again. Mutates the store draft `s`. */
+export function setMissing(s, exId, gymId, missing) {
+  if (!exId || !gymId || missingAt(s, exId, gymId) === !!missing) return false
+  const map = s.hvGymMissing && typeof s.hvGymMissing === 'object' ? s.hvGymMissing : (s.hvGymMissing = {})
+  const now = list(map[exId]).filter(g => g !== gymId)
+  if (missing) now.push(gymId)
+  if (now.length) map[exId] = now
+  else delete map[exId]
+  return true
+}
+
+/**
+ * What slot `slot` takes at gym `gymId`, or null for its own exercise: the backup learned there
+ * (D46), else, when the gym lacks the slot's exercise, its first backup the gym does not lack (D86).
+ */
+export function gymPick(S, slot, gymId) {
+  if (!slot || !gymId) return null
+  const there = backupsOf(S, slot).filter(id => !missingAt(S, id, gymId))
+  const learned = learnedBackup(S, slot.id, gymId)
+  if (learned && there.includes(learned)) return learned
+  return missingAt(S, slot.id, gymId) ? there[0] || null : null
+}
 
 function remember(s, exId, gymId, to) {
   const map = s.hvGymSwaps && typeof s.hvGymSwaps === 'object' ? s.hvGymSwaps : (s.hvGymSwaps = {})
@@ -47,9 +75,10 @@ export function learnSwap(s, { rid, from, to, gymId }) {
   if (own) { remember(s, own.id, gymId, to); return true }
   const back = slots.find(x => x?.id === to && backupsOf(s, x).includes(from))
   if (back) {
-    if (!learnedBackup(s, back.id, gymId)) return false
-    remember(s, back.id, gymId, null)
-    return true
+    // Back to the routine's own exercise: done here after all, so neither learned nor missing.
+    const had = !!learnedBackup(s, back.id, gymId)
+    if (had) remember(s, back.id, gymId, null)
+    return setMissing(s, back.id, gymId, false) || had
   }
   const via = slots.find(x => { const b = backupsOf(s, x); return b.includes(from) && b.includes(to) })
   if (via) { remember(s, via.id, gymId, to); return true }
@@ -66,8 +95,8 @@ export function plannedSwaps(S) {
   list(A.entries).forEach((e, index) => {
     if (!e?.rid || list(e.sets).some(x => x?.done === true)) return
     const slot = list(routineOf(S, e.rid)?.ex).find(x => x?.id === e.id)
-    const to = learnedBackup(S, e.id, gymId)
-    if (slot && to && backupsOf(S, slot).includes(to)) out.push({ index, from: e.id, to })
+    const to = gymPick(S, slot, gymId)
+    if (to) out.push({ index, from: e.id, to })
   })
   return out
 }

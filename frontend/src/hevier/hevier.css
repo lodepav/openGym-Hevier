@@ -697,3 +697,7 @@
 :root[data-ui="hevier"] .hv-upd{text-align:center;padding:8px 0}
 :root[data-ui="hevier"] .hv-upd-bar{margin:16px 0;height:6px;border-radius:3px;background:var(--fill-3);overflow:hidden}
 :root[data-ui="hevier"] .hv-upd-bar>div{height:100%;background:var(--acc);border-radius:3px;transition:width .2s}
+/* D86: the backups sheet's gyms, on where the exercise is, struck through where it is missing. */
+:root[data-ui="hevier"] .hv-bk-gyms{margin-top:6px;flex-wrap:wrap}
+:root[data-ui="hevier"] .hv-bk-gyms .chip{font-size:13px;padding:4px 10px}
+:root[data-ui="hevier"] .hv-bk-gyms .chip:not(.on){text-decoration:line-through;color:var(--label-3)}

@@ -594,3 +594,12 @@ Added 2026-10-23, at the user's request: "Nice work!" read "Next time: 0 kg × 8
 | # | Decision |
 |---|---|
 | D85 | **"Next time" shows only for a routine whose progression is on.** The "Nice work!" summary's **Last time and next time** (upstream's `finishCompare`) forecasts each lift's next target from the progression (`buildPlannedEntry`), and upstream leaves it out for a routine kept out of progression. A routine with D69's switch off (the fork's default) is read the same way for that summary only (`withoutForecast`, `hevier/lib/plain-routine.js`), so it shows **Last time** alone; with the switch on, as before. Nothing stored changes. |
+
+## Missing at a gym
+
+Added 2026-10-23, at the user's choice (of three: per-gym marks, the gym's equipment, or both): a
+lever machine one gym has and another lacks cannot be told apart by equipment.
+
+| # | Decision |
+|---|---|
+| D86 | **An exercise can be marked missing at a gym, and a routine started there swaps in the first backup the gym has.** The routine editor's ⋮ → **Backups** (D45) shows the routine's exercise first (**In the routine**), then its backups, each with a chip per gym (D28's), on where the exercise is; a tap marks it missing at that gym (struck through), a second tap there again. Kept per exercise, not per routine, in `S.hvGymMissing` (`{ [exId]: [gymId] }`, a fork-only field upstream ignores, so it syncs and is in backups). **The backups' order is their priority:** a long press on a backup (or its hidden handle, by keyboard) moves it, saved in the slot's `subs` as upstream stores it. **Swapped** as D46 swaps (a routine starting, or the session's gym changing; nothing ticked on the exercise; its toast and Undo): the backup D46 learned at that gym comes first, unless the gym lacks it; else, when the gym lacks the routine's exercise, its first backup the gym does not lack; else nothing. **Swapping back** to the routine's exercise at a gym, by hand, unmarks it there, as it forgets D46's learned backup. Without gyms the sheet shows no chips. Nothing else changes; the routine itself is never edited by a swap. |
