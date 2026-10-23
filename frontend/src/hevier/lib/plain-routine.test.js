@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { isPlain, progressionOn, plainRows, filledFromLast, refillRows } from './plain-routine.js'
+import { finishCompare } from '../../lib/finish-compare.js'
+import { isPlain, progressionOn, plainRows, filledFromLast, refillRows, withoutForecast } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { hooks } from '../hooks.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -115,5 +116,25 @@ describe('hevier plain routines (D69)', () => {
     expect(pick(refillRows(S, S, typed, legs, 'Technogym', 'Life Fitness'))).toEqual([['S', 140, 12], ['S', 90, 10]])
     // Not a plain routine's: upstream's rows stay.
     expect(refillRows(S, S, e, { ...legs, hvProg: true }, 'Technogym', 'Life Fitness')).toBe(null)
+  })
+})
+
+describe('withoutForecast (D85)', () => {
+  const plain = { id: 'r1', name: 'Leg Day', ex: [{ id: '0043', sets: 3, reps: 8, weight: 0 }] }
+  const prog = { id: 'r2', name: 'Push Day', hvProg: true, ex: [{ id: '0025', sets: 3, reps: 8, weight: 60 }] }
+  const S = { unit: 'kg', routines: [plain, prog], workouts: [] }
+  const w = { id: 'w1', d: '2026-10-23', start: 2, entries: [
+    { id: '0043', rid: 'r1', sets: [{ w: 60, r: 8, done: true }] },
+    { id: '0025', rid: 'r2', sets: [{ w: 60, r: 8, done: true }] },
+  ] }
+  it('drops "Next time" for a routine without progression, keeps it for one with', () => {
+    const rows = finishCompare(withoutForecast(S), w)
+    expect(rows.find(r => r.id === '0043').next).toBeNull()
+    expect(rows.find(r => r.id === '0025').next).not.toBeNull()
+  })
+  it('leaves the profile as it is', () => {
+    withoutForecast(S)
+    expect(plain.excludeFromProgression).toBeUndefined()
+    expect(withoutForecast({ routines: [prog] }).routines[0]).toBe(prog)
   })
 })

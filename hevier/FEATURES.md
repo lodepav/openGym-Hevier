@@ -18,6 +18,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's set table as the only workout layout | D1 | Fork |
 | Prefilled values in grey until touched, as placeholders | D2 | Fork |
 | The plate line under a set off by default, a switch in During a workout | D84 | Fork |
+| "Next time" on the finish summary only for a routine with progression on | D85 | Fork |
 | PREVIOUS column: last time's set, tap to copy; a missing set is read from an older session | D3 | Fork |
 | Where PREVIOUS reads from: the same routine or any workout (a setting) | D21 | Fork |
 | No ± steppers; values typed on the number pad | D4 | Fork |
