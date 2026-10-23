@@ -23,6 +23,7 @@ import WorkoutMediaSection, { workoutMediaCount } from '../../components/Workout
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
+import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
 import { hevySetText, hevySetLabel } from '../lib/set-text.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
@@ -102,6 +103,7 @@ export function WorkoutDetail() {
 
   return <div className="hv-wd">
     <PageBar title={t('Workout Detail')} onBack={back}>
+      <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </PageBar>
     <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>

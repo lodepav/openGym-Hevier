@@ -20,6 +20,7 @@ import BodyMap from '../../components/BodyMap.jsx'
 import WorkoutMediaSection from '../../components/WorkoutMedia.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
+import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
@@ -192,6 +193,8 @@ export function WorkoutDone() {
       {n > 0 && <p>{t('That’s workout number {0}.', n)}</p>}
     </div>
     <WorkoutCard w={w} />
+    {/* D87: Hevy's share cards, to the gallery or the share sheet. */}
+    <button type="button" className="btn hv-done-share" onClick={() => shareWorkoutSheet(w)}><Icon name="share" /><span>{t('Share workout')}</span></button>
     {prs.length > 0 && <div className="card hv-done-prs">
       {prs.map((r, i) => <div key={i} className="hv-done-pr"><Icon name="trophy" /><b className={exerciseNameClass(EXIDX[r.id])}>{name(r.id)}</b>
         <span className="hv-sub">{t(KINDS[r.kind])} · {recordValue(r, st.unit, t)}</span></div>)}

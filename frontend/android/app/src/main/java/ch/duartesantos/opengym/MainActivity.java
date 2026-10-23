@@ -48,6 +48,9 @@ public class MainActivity extends BridgeActivity {
         // [hevier] S43: the fork's Bluetooth heart-rate strap, recorded while a workout runs (D79)
         registerPlugin(HevierHrStrapPlugin.class);
         // [/hevier]
+        // [hevier] S46: the fork's save to the gallery, a workout's share card (D87)
+        registerPlugin(HevierGalleryPlugin.class);
+        // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
     }

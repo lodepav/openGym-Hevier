@@ -701,3 +701,16 @@
 :root[data-ui="hevier"] .hv-bk-gyms{margin-top:6px;flex-wrap:wrap}
 :root[data-ui="hevier"] .hv-bk-gyms .chip{font-size:13px;padding:4px 10px}
 :root[data-ui="hevier"] .hv-bk-gyms .chip:not(.on){text-decoration:line-through;color:var(--label-3)}
+
+/* D87: share cards — a swipeable strip of the cards, Black / Your photo, Save image and Share */
+:root[data-ui="hevier"] .hv-done-share{display:flex;width:100%;justify-content:center;gap:8px;margin:12px 0 4px}
+:root[data-ui="hevier"] .hv-share-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px}
+:root[data-ui="hevier"] .hv-share-strip::-webkit-scrollbar{display:none}
+:root[data-ui="hevier"] .hv-share-card{flex:0 0 100%;scroll-snap-align:center;padding:0 16px;box-sizing:border-box}
+:root[data-ui="hevier"] .hv-share-card img,:root[data-ui="hevier"] .hv-share-card .share-card-ph{display:block;aspect-ratio:4/5;max-height:52vh;width:auto;max-width:100%;margin:0 auto;border-radius:16px;object-fit:contain;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+:root[data-ui="hevier"] .hv-share-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 14px}
+:root[data-ui="hevier"] .hv-share-dots span{width:7px;height:7px;border-radius:50%;background:var(--label-3)}
+:root[data-ui="hevier"] .hv-share-dots span.on{background:var(--acc)}
+:root[data-ui="hevier"] .hv-share-change{display:block;margin:8px auto 0;background:none;border:0;color:var(--acc);font:inherit;font-size:14px}
+:root[data-ui="hevier"] .hv-share-acts{display:flex;gap:10px;margin-top:14px}
+:root[data-ui="hevier"] .hv-share-acts .btn{flex:1}
