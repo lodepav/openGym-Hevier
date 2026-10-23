@@ -5,7 +5,7 @@
 // (or the hidden handle) changes, and each exercise, the slot's own too, can be marked missing at a
 // gym: a workout there starts with the first one it has (D86).
 import { useStore } from '../../store/useStore.js'
-import { t, exerciseNameFor } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX } from '../../lib/exercises.js'
 import Icon from '../../components/Icon.jsx'
 import { Thumb } from '../../components/Media.jsx'
@@ -62,13 +62,13 @@ export function BackupsSheet({ rid, i, exId, close }) {
     }, { title: t('Add a backup'), like: exId })
   }
   return <>
-    <h3>{t('Backups for {0}', ex ? exerciseNameFor(ex) : '')}</h3>
+    <h3 className={ex ? exerciseNameClass(ex) : ''}>{t('Backups for {0}', ex ? exerciseNameFor(ex) : '')}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>{t('Machine taken? Pick what you’d do instead, and a swap mid-workout offers these first.')}</div>
     {gyms.length > 0 && ex && <div className="list hv-backups" style={{ marginBottom: 12 }}>
       <div className="item hv-pk-row">
         <span className="hv-thumb"><Thumb ex={ex} /></span>
         <div className="grow">
-          <div className="tt">{exerciseNameFor(ex)}</div>
+          <div className={'tt ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</div>
           <div className="ss">{t('In the routine')}</div>
           <GymChips exId={exId} gyms={gyms} />
         </div>
@@ -79,7 +79,7 @@ export function BackupsSheet({ rid, i, exId, close }) {
         {subs.length > 1 && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameFor(b))} title={t('Drag to reorder')} {...reorder.handle(k)}><Icon name="grip" /></button>}
         <span className="hv-thumb"><Thumb ex={b} /></span>
         <div className="grow">
-          <div className="tt">{subs.length > 1 ? `${k + 1}. ` : ''}{exerciseNameFor(b)}</div>
+          <div className={'tt ' + exerciseNameClass(b)}>{subs.length > 1 ? `${k + 1}. ` : ''}{exerciseNameFor(b)}</div>
           <div className="ss capitalize">{t(b.eq)}</div>
           <GymChips exId={b.id} gyms={gyms} />
         </div>
