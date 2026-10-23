@@ -84,7 +84,7 @@ api	http_ece@1.2.0
 api	https-proxy-agent@7.0.6
 api	iconv-lite@0.7.3
 api	inherits@2.0.4
-api	ip-address@10.7.3
+api	ip-address@10.7.4
 api	ipaddr.js@1.9.1
 api	is-promise@4.0.0
 api	isexe@2.0.0
@@ -472,7 +472,7 @@ mcp	html-escaper@2.0.2
 mcp	http-errors@2.0.1
 mcp	iconv-lite@0.7.3
 mcp	inherits@2.0.4
-mcp	ip-address@10.7.3
+mcp	ip-address@10.7.4
 mcp	ipaddr.js@1.9.1
 mcp	is-promise@4.0.0
 mcp	isexe@2.0.0

@@ -37,7 +37,7 @@ android {
     // so a scan, were one ever started, would fail rather than run. With them gone the APK ships no
     // native code at all, so no ABI filter is needed and 32-bit phones keep installing it.
     packagingOptions {
-        jniLibs.excludes += ['**/libbarhopper_v3.so', '**/libimage_processing_util_jni.so']
+        jniLibs.excludes += ['**/libbarhopper_v3.so', '**/libimage_processing_util_jni.so', '**/libsurface_util_jni.so']
     }
     androidResources.ignoreAssetsPattern = androidResources.ignoreAssetsPattern + ':<dir>mlkit_barcode_models'
     // The release build's Java is shrunk by R8. Capacitor's own rules keep every plugin's methods;
