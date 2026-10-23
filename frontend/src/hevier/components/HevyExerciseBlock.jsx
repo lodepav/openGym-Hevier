@@ -54,6 +54,7 @@ import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitCho
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { sideOrderOf, setSideOrder } from '../lib/side-order.js'
+import { plateLineOn } from '../lib/settings.js'
 import {
   withDrop, withoutDrop, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField,
 } from '../lib/set-rows.js'
@@ -226,8 +227,9 @@ export default function HevyExerciseBlock({
     ],
   })
 
-  // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes.
-  const loadKind = plateLoading && mode === 'reps' ? loadKindFor(S, cfg) : 'none'
+  // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes;
+  // only with During a workout → Plates to load on (D84).
+  const loadKind = plateLoading && plateLineOn(S) && mode === 'reps' ? loadKindFor(S, cfg) : 'none'
   const loads = loadKind === 'none' ? [] : (() => {
     const inv = inventoryFor(S), base = baseWeightFor(S, entry.id)
     return entry.sets.map(s => {

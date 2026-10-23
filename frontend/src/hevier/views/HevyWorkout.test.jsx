@@ -63,6 +63,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelectorAll('.hv-row')).toHaveLength(2)
   })
 
+  it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
+    expect(container.querySelector('.hv-plates')).toBeNull()
+    act(() => useStore.getState().update(s => { s.hvPlateLine = true }))
+    expect(container.querySelectorAll('.hv-plates')).toHaveLength(1)   // the second set's stack is the same
+    expect(container.querySelector('.hv-plates').textContent).toContain('per side')
+  })
+
   it('ticks a set through upstream’s pipeline: done, timestamped, rest started', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     act(() => container.querySelector('.hv-chk').click())

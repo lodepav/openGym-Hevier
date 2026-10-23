@@ -66,6 +66,16 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.textContent).not.toContain('Everything hidden here stays one tap away')
   })
 
+  it('During a workout has the fork’s Plates to load switch in Logging, off until switched on (D84)', () => {
+    render('workout')
+    const rows = titles()
+    expect(rows.indexOf('Plates to load')).toBe(rows.indexOf('Effort per set') + 1)
+    const sw = [...container.querySelectorAll('.lrow')].find(r => r.textContent.includes('Plates to load')).querySelector('[role="switch"], input[type="checkbox"], button')
+    expect(useStore.getState().S.hvPlateLine).toBeUndefined()
+    act(() => sw.click())
+    expect(useStore.getState().S.hvPlateLine).toBe(true)
+  })
+
   it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
     render('look')
     const rows = titles()

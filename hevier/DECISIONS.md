@@ -578,3 +578,11 @@ Added 2026-10-23, at the user's choice, with the 1.4.2 merge.
 | # | Decision |
 |---|---|
 | D83 | **The boot screen in the fork's look: upstream's barbell in Hevy blue on AMOLED black.** Upstream 1.4.2 paints a boot screen with the HTML, before any script runs (`#boot` in `index.html`: a barbell loading its plates, lime on `#0c0e12`), so the fork's boot-time code (D39's title and icons) comes too late to change it. The fork's build adds a style before upstream's, with a stronger selector (`hevier/build/boot-look.js`, seam S45 in `vite.config.js`): the page `#000`, the barbell and its shadow `#008cff` (D17). Upstream's shape and animation are kept, and `index.html` is not edited. The native splash's background goes `#000` too (the fork's `styles.xml`), so the splash, the boot screen and the first page are one black. Only colours; upstream's build is unchanged. |
+
+## Plate line
+
+Added 2026-10-23, at the user's request: the "20 per side" line under a barbell set was not wanted.
+
+| # | Decision |
+|---|---|
+| D84 | **Upstream's plate line under a set is off, behind a switch.** Upstream draws a line under a set whose bar load changes, `◎ 20 per side` (Settings → Plates, `lib/plates.js`), and the fork's set table drew it too. It now shows only with **Plates to load** on, a switch at the end of upstream's Logging rows in Settings → During a workout (the fork adds it to the page's tree through seam S12, `appendToSection` in `hevier/lib/settings.js`), **off by default**, stored in `S.hvPlateLine` (a fork-only field upstream ignores, so it syncs and is in backups). The exercise's ⋮ → **Plate loading** (the bar and how it loads) stays, and so do upstream's Plates and Your bars pages. Nothing else changes. |

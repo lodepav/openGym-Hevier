@@ -85,6 +85,27 @@ export function insertBeforeSection(tree, title, el) {
   return walk(tree)
 }
 
+/**
+ * A page's element tree with `el` added at the end of the Section titled `title` (`title` already
+ * translated), or the tree as it was when there is none: a fork row among upstream's (D84).
+ */
+export function appendToSection(tree, title, el) {
+  let done = false
+  const walk = node => {
+    if (done || !isValidElement(node) || node.props.children === undefined) return node
+    if (node.type === Section && node.props.title === title) {
+      done = true
+      return cloneElement(node, {}, ...Children.toArray(node.props.children), el)
+    }
+    const next = Children.toArray(node.props.children).map(walk)
+    return done ? cloneElement(node, {}, ...next) : node
+  }
+  return walk(tree)
+}
+
+/** Whether the set table shows upstream's plate line (D84): off unless switched on. */
+export const plateLineOn = S => S?.hvPlateLine === true
+
 // Options relabelled, per page and row title: Weight decimals reads 0.5 / 0.25 upstream, but its
 // second choice shows any weight to the hundredth, 20.41 kg included (DECISIONS.md D40).
 export const RELABELLED = { units: { 'Weight decimals': { 1: 0.1, 2: 0.01 } } }
