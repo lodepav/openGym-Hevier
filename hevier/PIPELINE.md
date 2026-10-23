@@ -20,6 +20,13 @@ git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}' 
 
 ## What touches the fork
 
+**v1.4.2 merged** (2026-10-23, the tag, on `sync/v1.4.2`): the fork's ‹ carries `data-back` for
+upstream's swipe back (iOS only, so it cannot meet D9 on Android); Skip completed exercises is in
+`HIDDEN_ROWS` (D16); per-side warm-ups in the set-type sheet (D5); timed auto-advance is
+Cards/Focus only (D1, skipped); the Apple Watch settings page is iOS only (skipped); the build
+scripts build the `sideload` flavour; D45's port is gone; the boot screen is recoloured (D83). The
+1.4.2 rows below are done; the 1.4.3 ones are kept for that merge.
+
 | Upstream item | Fork impact |
 |---|---|
 | **Swipe from the left edge to go back**, the previous page sliding in | Don't build a fork back gesture. Check that it doesn't fight D9's set swipes or the fork's sheets and drag handles. |

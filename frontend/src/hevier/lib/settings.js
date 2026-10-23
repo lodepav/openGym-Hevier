@@ -19,7 +19,7 @@ export const SETTINGS_GROUPS = [
 
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
-  workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Exercise animations'],
+  workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
   // One look (D17): no light theme, no accent choice. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Gym check-in'],
   // The gym filter is the picker's (D62): no switch, no active profile here.

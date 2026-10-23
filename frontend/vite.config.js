@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { lazyAssets, stampSw } from './scripts/sw-stamp.mjs'
+// [hevier] S45: the fork's boot screen colours (hevier/DECISIONS.md D83)
+import { bootLook } from './src/hevier/build/boot-look.js'
+// [/hevier]
 
 const backend = process.env.API_TARGET || 'http://127.0.0.1:3000'
 // The API refuses a state-changing request that a browser sent from anywhere other than its own
@@ -105,7 +108,7 @@ const appVersion = process.env.APP_BUILD ? `${ownVersion}+${process.env.APP_BUIL
 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(appVersion), __UPSTREAM_VERSION__: JSON.stringify(pkgVersion) }, // [hevier] S29
-  plugins: [react(), umami, flavor, swStamp, catalogueMedia],
+  plugins: [react(), umami, flavor, swStamp, catalogueMedia, bootLook(process.env.VITE_HEVIER === '1')], // [hevier] S45
   base: './',
   server: {
     // The Coach's core (payload, validator, prompts, HTTP adapters) lives in ../api/coach/core

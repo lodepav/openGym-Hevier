@@ -8,7 +8,7 @@ import { EXIDX } from '../../lib/exercises.js'
 import Icon from '../../components/Icon.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import { exercisePickerSheet } from '../views/ExercisePickerHevy.jsx'
-import { cleanBackups, withBackups, MAX_BACKUPS } from '../lib/routine-backups.js'
+import { cleanBackups, withBackups, MAX_BACKUPS } from '../../lib/routine-backups.js'
 
 const known = id => !!EXIDX[id]
 

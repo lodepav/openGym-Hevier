@@ -13,7 +13,6 @@
 // replaceSlotExercise, as the routine editor's Replace does. Anything else unmatched was added
 // and is copied the way upstream's Save as routine copies it (routineFromSession).
 import { routineSlotIndex, routineChangesFromEntry, replaceSlotExercise } from '../../lib/routines.js'
-import { keepBackups } from './routine-backups.js'
 import { routineFromSession } from '../../lib/session-routines.js'
 import { modeOf, setsFromRows, cleanupSg } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
@@ -73,11 +72,10 @@ export function routineUpdate(S, session, routine) {
     if (slotAt != null) {
       free.delete(slotAt)
       summary.swapped++
-      // The slot keeps its backups, less the exercise now in it (D45).
       // Per side as it was done (D75): upstream's replace drops the flag.
       const slot = replaceSlotExercise(routine.ex[slotAt], entry.id, S, routine.id)
       if (entry.target?.side && slot.mode !== 'cardio' && !slot.side) { slot.side = true; if (entry.target.reps > 0) slot.reps = entry.target.reps }
-      ex.push(withSets(keepBackups(routine.ex[slotAt], slot), setDelta(entry)))
+      ex.push(withSets(slot, setDelta(entry)))
       return
     }
     if (!entry.sets?.length) return

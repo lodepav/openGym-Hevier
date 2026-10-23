@@ -9,8 +9,12 @@ import './index.css'
 // [hevier] S1: the fork's overlay (data-ui flag + hevier.css); after index.css so its rules win
 import './hevier/index.js'
 // [/hevier]
+import { hideBoot } from './lib/boot.js'
 
 // App.jsx restores per-route scroll itself; the browser's own attempt races it.
+// A script that dies before the app draws would otherwise leave the boot logo lifting forever.
+window.addEventListener('error', hideBoot, { once: true })
+
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
 createRoot(document.getElementById('root')).render(

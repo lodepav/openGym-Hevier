@@ -17,6 +17,8 @@ localhost                            # React Router's fallback URL base (not fet
 ollama.example.com                   # placeholder text in the coach's Ollama URL field
 
 # Links the user opens, or text, never fetched
+gitlab.com                           # upstream 1.4.2's link to its repo (Login's "Self-host it", Settings), lib/demo.js REPO
+base.invalid                         # upstream 1.4.2's lib/app-base.js: a reserved .invalid origin the URL parser is checked against, never fetched
 github.com                           # release page link, "report an issue" link, a React polyfill hint
 hevy.com                             # link to Hevy's developer settings, for the import's API key
 gymvisual.com                        # exercise media credit link

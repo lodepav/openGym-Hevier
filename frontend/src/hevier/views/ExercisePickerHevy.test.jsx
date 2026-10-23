@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
-import { exercisePicker } from '../../sheets.jsx'
+import { exercisePicker, swapActiveWorkoutExercise } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExercisePicker } from './ExercisePickerHevy.jsx'
 
@@ -110,7 +110,7 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     const S = clone(DEF)
     S.active = { start: Date.now(), entries: [{ id: BENCH.id, target: { subs: [SQUAT.id] }, sets: [] }] }
     useStore.setState({ S, user: null })
-    exercisePicker(() => {}, { title: 'Swap exercise', like: BENCH.id })
+    swapActiveWorkoutExercise(0)
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)

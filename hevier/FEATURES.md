@@ -48,7 +48,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's routine editor table drawn from openGym's prescription | D15 | Fork |
 | Routine page (read-only) before the editor | D37 | Fork |
 | Routine folders, long-press reorder | D13 | Fork |
-| Planned backups for a routine exercise | D45 | Ported (1.4.2) |
+| Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (see upstream #649) |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
 
@@ -104,6 +104,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's dark AMOLED theme with Hevy blue, only | D17 | Fork |
 | One Hevy page bar everywhere | D49 | Fork |
 | App name "Go Hevier" | D39 | Fork |
+| Boot screen in Hevy blue on AMOLED black | D83 | Fork |
 
 ## Hevy import and export
 

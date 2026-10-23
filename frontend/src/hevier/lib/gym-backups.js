@@ -9,7 +9,7 @@ import { defaultConfig } from '../../lib/history.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { buildPlannedEntry, builtOutOfProgression } from '../../lib/session-start.js'
 import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
-import { cleanBackups } from './routine-backups.js'
+import { cleanBackups } from '../../lib/routine-backups.js'
 import { workoutGym } from './gym-labels.js'
 
 const list = v => (Array.isArray(v) ? v : [])

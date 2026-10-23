@@ -144,7 +144,7 @@ export default function HevyExerciseBlock({
           mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && !(mode === 'reps' && canBeWarmup(s) && otherWork),
             onClick: () => { if (!warm) setPhaseAt(i, true) } },
           { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s),
-            onClick: () => { if (warm && !perSide) setPhaseAt(i, false); else if (fail) setFailureAt(i, false) } },
+            onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false) } },
           !cardio && { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
           mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || isRestPauseSet(s), onClick: () => addDropRow(i) },
         ] },

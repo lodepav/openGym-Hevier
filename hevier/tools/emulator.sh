@@ -21,7 +21,8 @@ export JAVA_HOME="${JAVA_HOME:-$HOME/.local/opt/jdk21}"
 export PATH="$HOME/.local/opt/node/bin:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 AVD="${AVD:-xperia1vi_api36}"
 APP_ID="${APP_ID:-ch.duartesantos.opengym.hevier.test}"   # hevier.gradle id + debug .test suffix
-APK="$ROOT/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
+# The sideload flavour (upstream 1.4.2): the APK with the updater; "play" is Google Play's.
+APK="$ROOT/frontend/android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk"
 
 # Fork build flags (hevier/RULES.md, "The build flag"). Harmless before the overlay exists.
 export VITE_MOBILE=1 VITE_HEVIER="${VITE_HEVIER:-1}" VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}"
@@ -37,7 +38,7 @@ if [[ "${1:-}" != "--no-build" ]]; then
   node ../scripts/catalogue/stage-media.mjs dist
   npx cap sync
   node scripts/check-mobile-bundle.mjs
-  (cd android && ./gradlew assembleDebug -q)
+  (cd android && ./gradlew assembleSideloadDebug -q)
 fi
 
 if ! adb get-state >/dev/null 2>&1; then

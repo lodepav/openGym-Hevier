@@ -7,7 +7,7 @@ import Icon from '../../components/Icon.jsx'
 export default function PageBar({ title, onBack, backLabel, start, children, className = '' }) {
   return <div className={('hv-pagebar ' + className).trim()}>
     <div className="hv-pb-side">
-      {onBack && <button type="button" className="iconbtn hv-pb-back" aria-label={backLabel || t('Back')} onClick={onBack}><Icon name="chevronLeft" /></button>}
+      {onBack && <button type="button" className="iconbtn hv-pb-back" data-back="" aria-label={backLabel || t('Back')} onClick={onBack}><Icon name="chevronLeft" /></button>}
       {start}
     </div>
     <div className="hv-title">{title}</div>

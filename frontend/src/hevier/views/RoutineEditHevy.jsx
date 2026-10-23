@@ -32,7 +32,7 @@ import { removeRoutineExercise, reorderRoutineUnit } from '../../views/RoutineEd
 import { useDragReorder } from '../components/useDragReorder.js'
 import { useSupersetTarget, exercisePickerSheet } from './ExercisePickerHevy.jsx'
 import { BackupsSheet } from '../components/BackupsSheet.jsx'
-import { keepBackups, cleanBackups } from '../lib/routine-backups.js'
+import { cleanBackups } from '../../lib/routine-backups.js'
 import { withSide } from '../lib/one-limb.js'
 import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
@@ -79,8 +79,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
 
   // Upstream's editor's own flows (views/RoutineEdit.jsx): the settings sheet, Replace, the link.
   const openSettings = () => exConfigSheet(ex, e, cfg => editList(x => {
-    // D45: the sheet (upstream's v1.4.1) does not know the slot's backups; they stay.
-    x[i] = keepBackups(x[i], { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg })
+    x[i] = { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg }
     cleanupSg(x)
   }), () => removeRoutineExercise(r.id, i), r, null, replace)
   function replace() {
@@ -88,8 +87,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     const commit = (pick, fn) => {
       picker.close()
       let done = false
-      // D45: the slot keeps its backups, less the exercise now in it (upstream 1.4.2's rule).
-      editList(x => { if (x[i] && x[i].id === openedOn) { x[i] = keepBackups(x[i], fn(x[i])); done = true } })
+      editList(x => { if (x[i] && x[i].id === openedOn) { x[i] = fn(x[i]); done = true } })
       if (done) toast(t('Replaced with “{0}”', exerciseNameText(pick)))
     }
     const picker = exercisePickerSheet((pick, quick) => {
