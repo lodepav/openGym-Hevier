@@ -22,7 +22,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
-import { volumeMode } from '../lib/volume.js'
+import { volumeMode, workSets } from '../lib/volume.js'
 import { sessionMin, durationProblem, applyDuration, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
 import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
 import { gymSheet } from '../components/GymLabels.jsx'
@@ -112,7 +112,7 @@ export function SaveWorkout() {
     <div className="hv-stats">
       <div><span>{t('Duration')}</span><b className="acc">{durationWords(len * 60000)}</b></div>
       {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>}
-      <div><span>{t('Sets')}</span><b>{done}</b></div>
+      <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
     </div>
     {mode === 'sets' && <MuscleLine entries={A.entries} />}
     {done < total && <p className="hv-sub hv-warn">{!done
