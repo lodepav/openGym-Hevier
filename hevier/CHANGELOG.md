@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.0.1 · 2026-10-23
+
+Based on openGym 1.4.2.
+
+### Fixes and changes
+
+- a cable's PREVIOUS keeps to its setup, the strap's pairing poll to its link (D82, D79)
+- the Calendar opens on this month again
+
 ## 2.0.0 · 2026-10-23
 
 Based on openGym 1.4.2.
