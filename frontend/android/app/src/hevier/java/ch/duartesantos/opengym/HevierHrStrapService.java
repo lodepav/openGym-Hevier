@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.ParcelUuid;
+import android.util.Log;
 import java.util.Collections;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,6 +53,7 @@ public class HevierHrStrapService extends Service {
     static final String CHANNEL_ID = "hevier-hr-strap";
     static final int NOTIFICATION_ID = 7913;
     static final String DIR = "hevier-hr";
+    static final String TAG = "HevierHrStrap";
 
     static UUID uuid16(int n) {
         return UUID.fromString(String.format("0000%04x-0000-1000-8000-00805f9b34fb", n));
@@ -83,6 +85,11 @@ public class HevierHrStrapService extends Service {
     // The one pending reconnect, so a second path to connect() (find) can cancel it.
     private final Runnable reconnect = () -> connect(retries > 1);
     static final long STALL_MS = 30_000;
+    // A strap that wants to be paired before it notifies (a Garmin watch's broadcast may): the
+    // pairing is asked for once a workout, and the subscription made again once it is done.
+    private boolean bondAsked;
+    private int bondWaits;
+    private final Runnable afterBond = this::subscribeAfterBond;
 
     static File file(Context ctx, String id) {
         return new File(new File(ctx.getFilesDir(), DIR), id.replaceAll("[^A-Za-z0-9_-]", "_") + ".txt");
@@ -120,6 +127,7 @@ public class HevierHrStrapService extends Service {
         }
         running = true;
         retries = 0;
+        bondAsked = false;
         connect(false);
         main.postDelayed(this::watch, STALL_MS / 2);
         return START_NOT_STICKY;
@@ -237,8 +245,11 @@ public class HevierHrStrapService extends Service {
         public void onConnectionStateChange(BluetoothGatt g, int status, int newState) {
             main.post(() -> {
                 if (g != gatt) return;
+                Log.i(TAG, "connection state " + newState + ", status " + status);
                 if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) g.discoverServices();
-                else if (newState == BluetoothProfile.STATE_DISCONNECTED) retry();
+                // A link that came up with an error, or went down, is made again: left as it was, it
+                // stayed "connecting" for good.
+                else if (newState == BluetoothProfile.STATE_DISCONNECTED || status != BluetoothGatt.GATT_SUCCESS) retry();
             });
         }
 
@@ -246,19 +257,8 @@ public class HevierHrStrapService extends Service {
         public void onServicesDiscovered(BluetoothGatt g, int status) {
             main.post(() -> {
                 if (g != gatt) return;
-                BluetoothGattService svc = g.getService(HR_SERVICE);
-                BluetoothGattCharacteristic c = svc == null ? null : svc.getCharacteristic(HR_MEASUREMENT);
-                BluetoothGattDescriptor d = c == null ? null : c.getDescriptor(CCCD);
-                if (d == null) {
-                    g.disconnect();
-                    return;
-                }
-                g.setCharacteristicNotification(c, true);
-                if (Build.VERSION.SDK_INT >= 33) g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                else {
-                    d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    g.writeDescriptor(d);
-                }
+                Log.i(TAG, "services discovered, status " + status);
+                if (!subscribe(g)) g.disconnect();
             });
         }
 
@@ -266,10 +266,13 @@ public class HevierHrStrapService extends Service {
         public void onDescriptorWrite(BluetoothGatt g, BluetoothGattDescriptor d, int status) {
             main.post(() -> {
                 if (g != gatt) return;
+                Log.i(TAG, "subscribe status " + status + ", bond " + g.getDevice().getBondState());
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     retries = 0;
                     connectedAt = System.currentTimeMillis();
                     setState("connected");
+                } else if (needsPairing(status) && g.getDevice().getBondState() != BluetoothDevice.BOND_BONDED && pair(g)) {
+                    // waiting for the pairing; subscribeAfterBond takes it from there
                 } else g.disconnect();
             });
         }
@@ -294,6 +297,55 @@ public class HevierHrStrapService extends Service {
             if (Build.VERSION.SDK_INT < 33 && HR_MEASUREMENT.equals(c.getUuid())) record(c.getValue());
         }
     };
+
+    /** Asks for Heart Rate Measurement's notifications; false when the strap has none. */
+    private boolean subscribe(BluetoothGatt g) {
+        BluetoothGattService svc = g.getService(HR_SERVICE);
+        BluetoothGattCharacteristic c = svc == null ? null : svc.getCharacteristic(HR_MEASUREMENT);
+        BluetoothGattDescriptor d = c == null ? null : c.getDescriptor(CCCD);
+        if (d == null) return false;
+        g.setCharacteristicNotification(c, true);
+        if (Build.VERSION.SDK_INT >= 33) g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        else {
+            d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            g.writeDescriptor(d);
+        }
+        return true;
+    }
+
+    // Refusals that mean "pair first": insufficient authentication or encryption, and the stack's
+    // own GATT_AUTH_FAIL (137), which some phones report instead.
+    static boolean needsPairing(int status) {
+        return status == BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION || status == BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION || status == 137;
+    }
+
+    /** Asks Android to pair with the strap, once a workout; false when it was asked already. */
+    private boolean pair(BluetoothGatt g) {
+        if (bondAsked) return false;
+        bondAsked = true;
+        BluetoothDevice dev = g.getDevice();
+        if (dev.getBondState() == BluetoothDevice.BOND_NONE && !dev.createBond()) return false;
+        Log.i(TAG, "pairing with the strap");
+        bondWaits = 0;
+        main.removeCallbacks(afterBond);
+        main.postDelayed(afterBond, 1000);
+        return true;
+    }
+
+    // Polls the pairing (a minute, for the user to answer Android's prompt), then subscribes again
+    // on the same link; a pairing refused or never answered drops the link, and the reconnect
+    // tries without one.
+    private void subscribeAfterBond() {
+        if (!running || gatt == null) return;
+        int bond = gatt.getDevice().getBondState();
+        if (bond == BluetoothDevice.BOND_BONDED) {
+            Log.i(TAG, "paired, subscribing again");
+            if (!subscribe(gatt)) gatt.disconnect();
+        } else if (bond == BluetoothDevice.BOND_NONE || ++bondWaits > 60) {
+            Log.w(TAG, "not paired (bond " + bond + ")");
+            gatt.disconnect();
+        } else main.postDelayed(afterBond, 1000);
+    }
 
     private void record(byte[] v) {
         if (v == null || v.length < 2) return;
