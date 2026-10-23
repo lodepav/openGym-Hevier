@@ -95,7 +95,7 @@ describe('hevier previousSetsFor', () => {
     expect(previousSetsFor(hist, entry, 'routine', { walk: false, label: 'Technogym' })).toEqual([W(160, 8), null])
   })
 
-  it('tells a cable’s setups apart: ×2 reads ×2 sessions, then untagged (1:1) ones (D82)', () => {
+  it('tells a cable’s setups apart: each setup reads its own sessions, never another’s (D82, D43)', () => {
     const hist = H([
       { d: '2026-10-01', entries: [{ id: '0150', sets: [W(40, 10)] }] },
       { d: '2026-10-08', entries: [{ id: '0150', hvCable: 'x2', sets: [W(20, 10)] }] },
@@ -104,5 +104,11 @@ describe('hevier previousSetsFor', () => {
     const entry = { id: '0150', sets: [{}] }
     expect(previousSetsFor(hist, entry, 'routine', { label: '|x2' })).toEqual([W(20, 10)])
     expect(previousSetsFor(hist, entry, 'routine', { label: '|2:1' })).toEqual([W(70, 10)])
+    // 1:1 unbranded is a label too: neither the ×2's per-stack 20 nor the 2:1's 70.
+    expect(previousSetsFor(hist, entry, 'routine', { label: '' })).toEqual([W(40, 10)])
+    // Only 1:1 history: a ×2 has no last time; a branded ×2 falls back to the unbranded ×2.
+    const only11 = H([{ d: '2026-10-01', entries: [{ id: '0150', sets: [W(60, 10)] }] }])
+    expect(previousSetsFor(only11, entry, 'routine', { label: '|x2' })).toEqual([null])
+    expect(previousSetsFor(hist, entry, 'routine', { label: 'LF|x2' })).toEqual([W(20, 10)])
   })
 })

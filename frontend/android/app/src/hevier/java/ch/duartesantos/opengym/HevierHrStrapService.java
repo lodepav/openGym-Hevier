@@ -151,6 +151,7 @@ public class HevierHrStrapService extends Service {
         // Only one client at a time: a reconnect still pending, or a client left open, would leak a
         // GATT client that keeps reaching for the strap (Android has few of them).
         main.removeCallbacks(reconnect);
+        main.removeCallbacks(afterBond);   // the pairing poll belongs to the link closed here
         if (gatt != null) {
             gatt.close();
             gatt = null;
@@ -327,7 +328,6 @@ public class HevierHrStrapService extends Service {
         if (dev.getBondState() == BluetoothDevice.BOND_NONE && !dev.createBond()) return false;
         Log.i(TAG, "pairing with the strap");
         bondWaits = 0;
-        main.removeCallbacks(afterBond);
         main.postDelayed(afterBond, 1000);
         return true;
     }

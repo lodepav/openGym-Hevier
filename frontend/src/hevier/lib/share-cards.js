@@ -7,8 +7,8 @@
 import { EXIDX } from '../../lib/exercises.js'
 import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
-import { fmtNum, fmtVol, capWords } from '../../lib/format.js'
-import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n-core.js'
+import { fmtNum, fmtVol, exerciseNameText } from '../../lib/format.js'
+import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { volumeMode, muscleMode, workSets, muscleSets } from './volume.js'
@@ -25,12 +25,7 @@ const ROW = 108          // one exercise or record row
 const MAX_MUSCLES = 5   // more and the body map would shrink to fit them
 
 const isWork = s => hasCompletedWork(s) && !isWarmupRow(s)
-const nameOfEntry = e => {
-  const ex = EXIDX[e.id]
-  if (!ex) return e.n || e.id
-  const name = exerciseNameFor(ex)
-  return exerciseNameClass(ex) ? capWords(name) : name
-}
+const nameOfEntry = e => (EXIDX[e.id] ? exerciseNameText(EXIDX[e.id]) : e.n || e.id)
 
 // The set that reads as the exercise's best: the heaviest by estimated effort (weight and reps),
 // else the most reps, the longest hold or cardio time; the first of equals.

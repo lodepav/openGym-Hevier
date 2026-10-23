@@ -4,12 +4,6 @@
 // entry has its own key. Used by the Calendar, which opens on this month unless you came back.
 let popped = null
 
-export function watchBack(win) {
-  const on = () => { popped = win.history.state?.key ?? null }
-  win.addEventListener('popstate', on)
-  return () => win.removeEventListener('popstate', on)
-}
+if (typeof window !== 'undefined') window.addEventListener('popstate', () => { popped = window.history.state?.key ?? null })
 
 export const cameBack = win => popped != null && popped === win.history.state?.key
-
-if (typeof window !== 'undefined') watchBack(window)

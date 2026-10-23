@@ -12,7 +12,7 @@ import { cardImage, loadPhoto, saveCardImage, shareCardImage } from '../lib/shar
 
 const toast = msg => useUI.getState().toast(msg)
 
-function ShareSheet({ w, close }) {
+function ShareSheet({ w }) {
   const S = useStore(s => s.S)
   const cards = useMemo(() => shareCards(S, w, { body: S.body }), [S.workouts, S.unit, S.hvVolume, S.hvMuscleSets, S.body, w])
   const [bg, setBg] = useState('black')
@@ -97,4 +97,4 @@ function ShareSheet({ w, close }) {
 }
 
 /** Opens the share sheet for a saved workout. */
-export const shareWorkoutSheet = w => useUI.getState().openSheet(close => <ShareSheet w={w} close={close} />)
+export const shareWorkoutSheet = w => useUI.getState().openSheet(() => <ShareSheet w={w} />)
