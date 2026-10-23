@@ -669,4 +669,4 @@ mcp	which@2.0.2
 mcp	why-is-node-running@2.3.0
 mcp	wrappy@1.0.2
 mcp	zod-to-json-schema@3.25.2
-mcp	zod@3.25.76
+mcp	zod@4.6.7
