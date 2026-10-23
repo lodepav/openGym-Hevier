@@ -301,3 +301,23 @@ describe('hevier: a single bracket that is your own brand (review T12)', () => {
     expect(readKey(importExercise('Hip Thrust (Paused)', 'Strong'))?.brand || '').toBe('')
   })
 })
+
+describe('hevier: a brand the same file names counts for its single brackets (D29)', () => {
+  beforeEach(() => Object.assign(hooks, { importExercise, importDone }))
+  afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
+  it('on a fresh install, "Face Pull (LifeFitness)" is the face pull with that brand, not your own exercise', () => {
+    useChoices({ map: null, cables: null, known: new Set(), customEx: [], brands: new Map() })
+    const p = parseImport(csv([
+      row('Lat Pulldown (Cable) (brand: LifeFitness)', 0, 'normal', 50, 10),
+      row('Face Pull (LifeFitness)', 0, 'normal', 20, 15),
+      row('Hip Thrust (Paused)', 0, 'normal', 60, 8, '13 Oct 2026, 16:27'),
+      row('Lying Neck Rotation', 0, 'normal', 0, 20),
+    ]), { unit: 'kg', customEx: [] })
+    const face = entriesOf(p).find(e => /face pull/i.test(EXIDX[e.id]?.n || ''))
+    expect(face).toBeTruthy()
+    expect(face.hvBrand).toBe('LifeFitness')
+    expect(p.customEx.map(c => c.n).sort()).toEqual(['hip thrust (paused)', 'lying neck rotation'])
+    expect(p.unmatchedNames.map(n => n.toLowerCase()).sort()).toEqual(['hip thrust (paused)', 'lying neck rotation'])
+    expect(p.hvTitles.find(t => t.title === 'Face Pull')).toMatchObject({ brand: 'LifeFitness' })
+  })
+})
