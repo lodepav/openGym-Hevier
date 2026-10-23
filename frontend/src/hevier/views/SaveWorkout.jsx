@@ -28,6 +28,7 @@ import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labe
 import { gymSheet } from '../components/GymLabels.jsx'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
+import { withoutForecast } from '../lib/plain-routine.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
@@ -199,7 +200,8 @@ export function WorkoutDone() {
     <h4 className="sec">{t('What you just trained')}</h4>
     <BodyMap load={loadOfWorkouts([w])} body={st.body} />
     <div style={{ height: 14 }} />
-    <LastAndNext st={st} w={w} />
+    {/* D85: "Next time" only for a routine whose progression is on. */}
+    <LastAndNext st={withoutForecast(st)} w={w} />
     <CardioDone st={st} w={w} />
     <WorkoutMediaSection w={w} hint />
     <button type="button" ref={bottom} className="btn primary hv-done-btn" onClick={finish}>{t('Done')}</button>

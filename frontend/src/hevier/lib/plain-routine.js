@@ -19,6 +19,16 @@ export const progressionOn = routine => routine?.hvProg === true
  */
 export const isPlain = routine => !!routine && !progressionOn(routine) && routine.excludeFromProgression !== true
 
+/**
+ * The profile as the finish summary's "Last time and next time" reads it (D85): a routine without
+ * progression counts as kept out of it, so upstream's finishCompare gives its lifts no "Next time"
+ * (a forecast of the progression, which the routine does not run). Last time is unchanged.
+ */
+export function withoutForecast(S) {
+  if (!(S?.routines || []).some(isPlain)) return S
+  return { ...S, routines: S.routines.map(r => (isPlain(r) ? { ...r, excludeFromProgression: true } : r)) }
+}
+
 // A row filled from history is marked as a weight of its own, so an edit of the set above does not
 // cascade onto it (upstream's cascadeWeight skips a manual weight), and `hvLast` so the workout
 // still draws it grey until it is touched (D2).

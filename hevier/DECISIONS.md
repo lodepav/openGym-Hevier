@@ -586,3 +586,11 @@ Added 2026-10-23, at the user's request: the "20 per side" line under a barbell 
 | # | Decision |
 |---|---|
 | D84 | **Upstream's plate line under a set is off, behind a switch.** Upstream draws a line under a set whose bar load changes, `◎ 20 per side` (Settings → Plates, `lib/plates.js`), and the fork's set table drew it too. It now shows only with **Plates to load** on, a switch at the end of upstream's Logging rows in Settings → During a workout (the fork adds it to the page's tree through seam S12, `appendToSection` in `hevier/lib/settings.js`), **off by default**, stored in `S.hvPlateLine` (a fork-only field upstream ignores, so it syncs and is in backups). The exercise's ⋮ → **Plate loading** (the bar and how it loads) stays, and so do upstream's Plates and Your bars pages. Nothing else changes. |
+
+## No forecast without progression
+
+Added 2026-10-23, at the user's request: "Nice work!" read "Next time: 0 kg × 8 · lighter" for a routine without progression.
+
+| # | Decision |
+|---|---|
+| D85 | **"Next time" shows only for a routine whose progression is on.** The "Nice work!" summary's **Last time and next time** (upstream's `finishCompare`) forecasts each lift's next target from the progression (`buildPlannedEntry`), and upstream leaves it out for a routine kept out of progression. A routine with D69's switch off (the fork's default) is read the same way for that summary only (`withoutForecast`, `hevier/lib/plain-routine.js`), so it shows **Last time** alone; with the switch on, as before. Nothing stored changes. |
