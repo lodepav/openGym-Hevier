@@ -2,6 +2,32 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.0.0 · 2026-10-23
+
+Based on openGym 1.4.2.
+
+### New
+
+- share a workout as Hevy's cards, on black or over your photo, saved to the gallery or shared (D87)
+- an exercise missing at a gym starts with its first backup there (D86)
+- no Next time forecast without progression (D85)
+- the plate line off by default, a switch in During a workout (D84)
+
+### Fixes and changes
+
+- an import's own brands count for its single-bracket titles (D29)
+- the workout's Sets counter counts as the stats do (D18)
+- the gym swap toast names exercises as the list does (D86)
+- the explorer's gym tests get time to render the whole catalogue
+- a heart-rate strap or watch that wants pairing is paired and subscribed again (D79)
+- in-range dependency bumps, React 19.3 and Vite 8.3 (S44, offered upstream #766)
+
+### From openGym
+
+- hevier-upstream/drop-assets: @capacitor/assets run with npx, not installed (S44, offered upstream #768)
+- hevier-upstream/mcp-zod4: mcp on zod 4 (S44, offered upstream #767)
+- hevier: merge upstream v1.4.2
+
 ## 1.13.0 · 2026-10-22
 
 Based on openGym 1.4.1.
