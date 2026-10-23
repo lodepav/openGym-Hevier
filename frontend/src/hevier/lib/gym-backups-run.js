@@ -3,7 +3,7 @@
 // (armSwap), since an exercise added mid-workout also carries its routine's `rid` and only the
 // swap's own sheet knows which is which; the swap itself is upstream's, so the learning waits for
 // the session to show it (its settings sheet or the "keep what's logged" question come first).
-import { t, exerciseNameFor } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { exOr } from '../../lib/exercises.js'
 import { workoutGym, gymName } from './gym-labels.js'
 import { learnSwap, plannedSwaps, applyGymSwaps, undoGymSwaps } from './gym-backups.js'
@@ -27,7 +27,11 @@ export function armSwap(getState, like, onPick) {
 }
 
 const sessionKey = A => (A ? `${A.start}|${A.backfill ? 'b' : ''}|${A.editingWorkoutId ?? ''}` : '')
-const nameOf = id => exerciseNameFor(exOr(id))
+// As the list shows it: a catalogue name is lower case, capitalised by CSS where it is drawn.
+const nameOf = id => {
+  const ex = exOr(id), n = exerciseNameFor(ex)
+  return exerciseNameClass(ex) === 'capitalize' ? n.replace(/(^|\s)(\p{Ll})/gu, (m, a, c) => a + c.toUpperCase()) : n
+}
 
 /** At launch (hevier/index.js). It watches the whole store: the session's gym and start. */
 let started = false
