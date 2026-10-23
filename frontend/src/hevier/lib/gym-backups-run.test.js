@@ -38,6 +38,7 @@ describe('a gym’s backups at run time (D46)', () => {
     expect(toast).toHaveBeenCalled()
     const [msg, opts] = toast.mock.calls.at(-1)
     expect(msg).toContain('City Gym')
+    expect(msg).not.toMatch(/: \p{Ll}|→ \p{Ll}/u)                 // names as the list shows them
     opts.onAction()
     expect(getState().active.entries[0].id).toBe(PRESS)
     expect(getState().hvGymSwaps).toEqual({})
