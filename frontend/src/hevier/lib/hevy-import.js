@@ -295,18 +295,77 @@ export function importHooks(getChoices) {
   let asking = false
   return {
     importExercise(title, source) {
-      const choices = getChoices()
-      const { name, cable, brand } = partsOf(title, source, choices)
       if (!asking) { titles = new Map(); asking = true; queueMicrotask(() => { asking = false }) }
-      titles.set(cableKey(title, source, choices), { title: name, source, cable, brand })
-      return matchTitle(title, source, choices)
+      titles.set(source + '|' + title, { title, source })
+      return matchTitle(title, source, getChoices())
     },
     importDone(parsed) {
-      const hvTitles = [...titles.values()]
+      const asked = [...titles.values()]
       titles = new Map()
-      return finishImport(parsed, hvTitles)
+      const choices = getChoices()
+      const learnt = withFileBrands(asked, choices)
+      return finishImport(learnt === choices ? parsed : rebrand(parsed, asked, choices, learnt), labelled(asked, learnt))
     },
   }
+}
+
+/** The titles a parse asked about, as the review lists them: name, brand and cable tag, once each. */
+function labelled(asked, choices) {
+  const out = new Map()
+  for (const { title, source } of asked) {
+    const { name, cable, brand } = partsOf(title, source, choices)
+    out.set(cableKey(title, source, choices), { title: name, source, cable, brand })
+  }
+  return [...out.values()]
+}
+
+/**
+ * The choices with the brands the file itself names (its "(brand: X)" and Hevy second brackets)
+ * added to your own, so a title with that brand as its only bracket is read as that brand in the
+ * same import, as it is in the next one: "Face Pull (LifeFitness)" beside "Lat Pulldown (Cable)
+ * (LifeFitness)" on a fresh install. The same choices when the file names none that is new.
+ */
+function withFileBrands(asked, choices) {
+  const brands = new Map(choices?.brands || [])
+  let added = false
+  for (const { title, source } of asked) {
+    const { brand } = partsOf(title, source, choices)
+    const k = brandNorm(brand)
+    if (k.length >= 2 && !brands.has(k)) { brands.set(k, brand); added = true }
+  }
+  return added ? { ...(choices || {}), brands } : choices
+}
+
+/**
+ * A parse with the titles the file's own brands answer differently moved to the new answer: an
+ * exercise of your own upstream or the fork made for "Face Pull (LifeFitness)" becomes the face
+ * pull with that brand. Only a title whose answer was its own (a custom exercise it made, or a key)
+ * moves, found by the id the parse gave it; one that matched a catalogue exercise stays.
+ */
+function rebrand(parsed, asked, before, after) {
+  if (!parsed || parsed.error || (parsed.kind !== 'workouts' && parsed.kind !== 'routines')) return parsed
+  const made = new Set((parsed.customEx || []).filter(c => !before?.known?.has(c.id)).map(c => c.id))
+  const to = new Map()
+  const names = new Set()
+  for (const { title, source } of asked) {
+    const was = matchTitle(title, source, before)
+    const now = matchTitle(title, source, after)
+    if (was === now) continue
+    const old = was || customId(source, title)
+    if (was ? !readKey(was) : !made.has(old)) continue
+    to.set(old, now)
+    names.add(title.toLowerCase())
+  }
+  if (!to.size) return parsed
+  const swap = e => (to.has(e.id) ? { ...e, id: to.get(e.id) } : e)
+  const out = {
+    ...parsed,
+    customEx: parsed.customEx.filter(c => !to.has(c.id)),
+    unmatchedNames: (parsed.unmatchedNames || []).filter(n => !names.has(String(n).toLowerCase())),
+  }
+  if (parsed.kind === 'routines') out.routines = parsed.routines.map(r => ({ ...r, ex: r.ex.map(swap) }))
+  else out.workouts = parsed.workouts.map(w => ({ ...w, entries: w.entries.map(swap) }))
+  return out
 }
 
 const both = s => {
