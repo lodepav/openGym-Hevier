@@ -12,7 +12,9 @@ import { equipChips, muscleChips } from '../components/EquipGroups.jsx'
 import { EQUIP_GROUPS } from './equip-groups.js'
 import { EXDB } from '../../lib/exercises.js'
 
-vi.setConfig({ testTimeout: 15000 })
+// Each test renders the whole catalogue (5,631 exercises) several times: about a second alone,
+// a minute when the full suite and a build share the machine.
+vi.setConfig({ testTimeout: 90000 })
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 let root, host
