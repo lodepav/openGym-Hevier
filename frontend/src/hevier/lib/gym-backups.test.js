@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import { EXDB } from '../../lib/exercises.js'
-import { learnSwap, learnedBackup, plannedSwaps, applyGymSwaps, undoGymSwaps } from './gym-backups.js'
+import { learnSwap, learnedBackup, plannedSwaps, applyGymSwaps, undoGymSwaps, missingAt, setMissing, gymPick } from './gym-backups.js'
 
 const clone = v => JSON.parse(JSON.stringify(v))
 const PRESS = EXDB.find(e => /^lever seated leg press$/i.test(e.n) || /leg press/i.test(e.n)).id
@@ -69,5 +69,43 @@ describe('a gym’s backups (D46)', () => {
     S.active.backfill = null
     S.active.editingWorkoutId = 'w1'
     expect(plannedSwaps(S)).toEqual([])
+  })
+})
+
+describe('missing at a gym (D86)', () => {
+  const missing = map => { const S = state(); S.hvGymMissing = map; return S }
+
+  it('marks and unmarks, one list of gyms per exercise, removed when empty', () => {
+    const S = state()
+    expect(setMissing(S, PRESS, 'g1', true)).toBe(true)
+    expect(setMissing(S, PRESS, 'g1', true)).toBe(false)
+    expect(setMissing(S, PRESS, 'g2', true)).toBe(true)
+    expect(S.hvGymMissing).toEqual({ [PRESS]: ['g1', 'g2'] })
+    expect(missingAt(S, PRESS, 'g1')).toBe(true)
+    expect(missingAt(S, PRESS, null)).toBe(false)
+    setMissing(S, PRESS, 'g1', false); setMissing(S, PRESS, 'g2', false)
+    expect(S.hvGymMissing).toEqual({})
+  })
+
+  it('a routine started where its exercise is missing swaps in the first backup the gym has, in the slot’s order', () => {
+    expect(plannedSwaps(missing({ [PRESS]: ['g1'] }))).toEqual([{ index: 0, from: PRESS, to: HACK }])
+    expect(plannedSwaps(missing({ [PRESS]: ['g1'], [HACK]: ['g1'] }))).toEqual([{ index: 0, from: PRESS, to: SQUAT }])
+    expect(plannedSwaps(missing({ [PRESS]: ['g1'], [HACK]: ['g1'], [SQUAT]: ['g1'] }))).toEqual([])
+    expect(plannedSwaps(missing({ [PRESS]: ['g2'] }))).toEqual([])
+    expect(plannedSwaps(missing({ [HACK]: ['g1'] }))).toEqual([])
+  })
+
+  it('a backup learned at the gym comes first, unless the gym lacks it', () => {
+    const S = missing({ [PRESS]: ['g1'] })
+    S.hvGymSwaps = { [PRESS]: { g1: SQUAT } }
+    expect(gymPick(S, S.routines[0].ex[0], 'g1')).toBe(SQUAT)
+    S.hvGymMissing[SQUAT] = ['g1']
+    expect(gymPick(S, S.routines[0].ex[0], 'g1')).toBe(HACK)
+  })
+
+  it('swapping back to the routine’s exercise at the gym unmarks it there', () => {
+    const S = missing({ [PRESS]: ['g1', 'g2'] })
+    expect(learnSwap(S, { rid: 'r', from: HACK, to: PRESS, gymId: 'g1' })).toBe(true)
+    expect(S.hvGymMissing).toEqual({ [PRESS]: ['g2'] })
   })
 })
