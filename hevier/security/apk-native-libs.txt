@@ -3,6 +3,7 @@
 # brings in is read before it ships. One per line, the reason after #.
 
 #
-# None since D50: the only two, ML Kit's barcode scanner (libbarhopper_v3.so) and CameraX's image
-# conversion under it (libimage_processing_util_jni.so), served upstream's gym check-in, which the
-# fork hides (D12), and hevier.gradle leaves them out.
+# None since D50: ML Kit's barcode scanner (libbarhopper_v3.so) and the CameraX libraries under it
+# (libimage_processing_util_jni.so, and libsurface_util_jni.so since CameraX 1.5 came with the
+# Capacitor 8 scanner) serve upstream's gym check-in, which the fork hides (D12), and hevier.gradle
+# leaves them out.
