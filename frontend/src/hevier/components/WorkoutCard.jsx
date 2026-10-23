@@ -16,6 +16,7 @@ import { workoutMediaOf } from '../../lib/media-refs.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import { Thumb } from '../../components/Media.jsx'
 import MuscleLine from './MuscleLine.jsx'
+import { shareWorkoutSheet } from './ShareSheet.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
 import { sanitizeHr } from '../lib/heart-rate.js'
@@ -77,6 +78,8 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-h">
       <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
       <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
+      <button type="button" className="iconbtn" aria-label={t('Share workout')}
+        onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>
       <button type="button" className="iconbtn" aria-label={t('More')}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>

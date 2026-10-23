@@ -53,6 +53,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (see upstream #649) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
+| Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet | D87 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
 
 ## Gyms, machines and labels
