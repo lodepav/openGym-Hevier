@@ -33,6 +33,7 @@ import java.util.UUID;
  *
  *   adb -s emulator-5556 shell am start -n ch.hevier.fakestrap/.Main            # 98–152 bpm, a minute's wave
  *   adb -s emulator-5556 shell am start -n ch.hevier.fakestrap/.Main --ei bpm 140 --ez u16 true
+ *   adb -s emulator-5556 shell am start -n ch.hevier.fakestrap/.Main --ez secure true   # wants pairing first
  *
  * Every second it logs "fakestrap sent <ms> <bpm>" (adb logcat -s fakestrap), so a test can hold
  * what the app recorded against what was sent.
@@ -104,7 +105,10 @@ public class Main extends Activity {
         });
         BluetoothGattService svc = new BluetoothGattService(HR_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY);
         measurement = new BluetoothGattCharacteristic(HR_MEASUREMENT, BluetoothGattCharacteristic.PROPERTY_NOTIFY, 0);
-        measurement.addDescriptor(new BluetoothGattDescriptor(CCCD, BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE));
+        // `--ez secure true`: subscribing needs a paired, encrypted link, as some watches want; the
+        // stack refuses the write with "insufficient encryption" until the phone pairs.
+        int write = getIntent().getBooleanExtra("secure", false) ? BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED : BluetoothGattDescriptor.PERMISSION_WRITE;
+        measurement.addDescriptor(new BluetoothGattDescriptor(CCCD, BluetoothGattDescriptor.PERMISSION_READ | write));
         svc.addCharacteristic(measurement);
         svc.addCharacteristic(new BluetoothGattCharacteristic(BODY_LOCATION, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ));
         server.addService(svc);
