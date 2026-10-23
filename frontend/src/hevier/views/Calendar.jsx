@@ -4,7 +4,7 @@
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate, useNavigationType } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -14,6 +14,7 @@ import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { streakLabel } from '../lib/streak.js'
+import { cameBack } from '../lib/came-back.js'
 import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
 
 const MORE = 6
@@ -72,10 +73,11 @@ export default function Calendar() {
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
   // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's
-  // App has put a new page at the top; coming back (POP) keeps the place App restores. Earlier
+  // App has put a new page at the top; coming back keeps the place App restores (a popstate:
+  // inside upstream's <Routes location> every navigation reads as POP, came-back.js). Earlier
   // months go in above: the page is moved down by what they add, so what was in view stays. Later
   // months (D68) go in below, one per tap, and the page goes down to the new one.
-  const back0 = useNavigationType() === 'POP'
+  const [back0] = useState(() => cameBack(window))
   const mounted = useRef(false)
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
