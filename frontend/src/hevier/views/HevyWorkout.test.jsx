@@ -63,6 +63,15 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelectorAll('.hv-row')).toHaveLength(2)
   })
 
+  it('Sets counts ticked work sets, a per-side set once, as Workout Detail does (D18)', () => {
+    const side = { w: 10, r: 16, done: true, sides: { L: { w: 10, r: 8, done: true }, R: { w: 10, r: 8, done: true } } }
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [
+      reps(40, 5, { done: true, phase: 'warmup' }), reps(60, 8, { done: true }), side, reps(60, 8),
+    ] }])
+    const sets = [...container.querySelectorAll('.hv-stats > div')].find(d => d.querySelector('span').textContent === 'Sets')
+    expect(sets.querySelector('b').textContent).toBe('2')
+  })
+
   it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     expect(container.querySelector('.hv-plates')).toBeNull()

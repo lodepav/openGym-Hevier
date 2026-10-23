@@ -23,14 +23,14 @@ import HvIcon from '../components/HvIcon.jsx'
 import MuscleLine from '../components/MuscleLine.jsx'
 import StrapBpm from '../components/StrapBpm.jsx'
 import StrapButton from '../components/StrapScreen.jsx'
-import { volumeMode } from '../lib/volume.js'
+import { volumeMode, workSets } from '../lib/volume.js'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 import { anyRunning, stopAll } from '../lib/set-timer.js'
 import { insertAfter, placeAt } from '../lib/add-at-end.js'
 import { exOr } from '../../lib/exercises.js'
 
-export default function HevyWorkout({ units, editing, done, blockProps, bindExRef, bindSetRef, actions }) {
+export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
   const opened = useLocation().key !== 'default'   // a page before this one to go back to
   const S = useStore(s => s.S)
@@ -96,7 +96,8 @@ export default function HevyWorkout({ units, editing, done, blockProps, bindExRe
       <div className="hv-stats">
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>
         {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
-        <div><span>{t('Sets')}</span><b>{done}</b></div>
+        {/* Work sets, each per-side set once, as Workout Detail and the statistics count them (D18). */}
+        <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
         {!(A.backfill || editing) && <StrapBpm />}
       </div>
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
