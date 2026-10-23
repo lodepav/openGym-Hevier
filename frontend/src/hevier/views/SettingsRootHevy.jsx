@@ -12,14 +12,14 @@ import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
 import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
-import { Section, Row } from '../../components/ui.jsx'
+import { Section, Row, Switch } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
-import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, GymsPage } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import HealthReadSection from '../components/HealthReadSection.jsx'
 import StrapSection from '../components/StrapSection.jsx'
@@ -84,6 +84,15 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     <div key="hv-version" className="dim small sp-version hv-version">{versionLine(t)}</div>)
 }
 
+// D84: the plate line under a set, off by default, among upstream's Logging rows.
+function PlateLineRow() {
+  const on = useStore(s => plateLineOn(s.S))
+  const update = useStore(s => s.update)
+  return <Row icon="plate" iconTint="var(--orange)" title={t('Plates to load')} subtitle={t('A line under a set: the plates on each side of the bar.')}>
+    <Switch checked={on} onChange={v => update(s => { s.hvPlateLine = v })} aria-label={t('Plates to load')} />
+  </Row>
+}
+
 /** Seams S11 and S12's hand-off. */
 export function installSettings() {
   hooks.settings = {
@@ -96,6 +105,7 @@ export function installSettings() {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t), t)
       if (id === 'about') return aboutPage(out, t)
+      if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
       if (id !== 'data' || !MOBILE) return out
       // D27's Health Connect reads, D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>
