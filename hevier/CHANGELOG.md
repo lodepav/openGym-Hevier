@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.0.2 · 2026-10-24
+
+Based on openGym 1.4.2.
+
+### Fixes and changes
+
+- the strap's notification reads Recording heart rate while the app is on screen (D79)
+- a strap out of reach is looked for once a minute after two minutes (D79)
+
 ## 2.0.1 · 2026-10-23
 
 Based on openGym 1.4.2.
