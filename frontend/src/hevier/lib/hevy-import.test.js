@@ -36,6 +36,7 @@ describe('hevier Hevy import (D29)', () => {
   it('fixes what upstream matches wrongly, Hevy only', () => {
     expect(importExercise('Seated Leg Curl (Machine)', 'Hevy')).toBe('0599')
     expect(importExercise('Air Bike', 'Hevy')).toBe('3893')
+    expect(importExercise('Clamshell', 'Hevy')).toBe('2461')
     expect(importExercise('Seated Leg Curl (Machine)', 'Strong')).toBe(null)
     expect(importExercise('Squat (Barbell)', 'Hevy')).toBe(null)   // upstream's match stands
   })
