@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.0.3 · 2026-10-24
+
+Based on openGym 1.4.2.
+
+### Fixes and changes
+
+- arrows past the rep cap, untagged cables read by 1:1 and 2:1 (D66, D82)
+- the release script runs the source gates while the APK builds, and starts Gradle early (D26)
+
 ## 2.0.2 · 2026-10-24
 
 Based on openGym 1.4.2.
