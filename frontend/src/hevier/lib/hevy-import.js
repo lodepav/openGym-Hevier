@@ -91,6 +91,18 @@ export const FIXES = {
   // Hevy's own picture, the user's choice: upstream left the title out as a wrong
   // match, so it imported as your own; #672 maps it the same way
   'rear delt reverse fly (cable)': '0225',   // standing, high cables crossing
+  // from upstream's #793 (another user's Hevy export), not in 1.4.3's map; goes when it merges
+  'lu raises': '10858',
+  'dumbbell squeeze press': '3681',
+  'triceps kickback (dumbbell)': '0333',
+  'single arm lat pulldown': '1204',
+  'lateral band walks': '6607',
+  'frog pumps (dumbbell)': '3182',
+  'single arm cross cable extension': '8614',
+  'bayesian curl': '2656',                    // one arm, facing away from the cable
+  'floor press (dumbbell)': '3668',           // both arms, not alternating
+  'clamshell': '2461',                        // lying on the side, not from a side plank
+  'single leg romanian deadlift (dumbbell)': '1757',   // standing, not on a bench
 }
 
 const BRAND = /\(\s*brand\s*:\s*([^)]*)\)/i
