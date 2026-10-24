@@ -13,6 +13,9 @@ describe('hevier: beat last time (D66)', () => {
     expect(setTrend({ w: 60, r: 9 }, { w: 55, r: 8 })).toBe(1)
     expect(setTrend({ w: 70, r: 6 }, { w: 60, r: 8 })).toBe(1)     // 1RM 84 against 76
     expect(setTrend({ w: 62.5, r: 5 }, { w: 60, r: 8 })).toBe(-1)  // 1RM 72.9 against 76
+    // Past upstream's rep cap (12) both go by Epley: 95.7 against 91
+    expect(setTrend({ w: 70, r: 11 }, { w: 63.5, r: 13 })).toBe(1)
+    expect(setTrend({ w: 70, r: 11 }, { w: 63.5, r: 13 }, { formula: 'brzycki' })).toBe(1)
     expect(setTrend({ w: 60, r: 8 }, null)).toBeNull()
   })
 

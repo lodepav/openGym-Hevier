@@ -5,9 +5,9 @@
 import { historyAsOf } from '../../lib/backfill.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
 import { isAssisted } from '../../lib/exercises.js'
-import { estimate1RM, formulaOf } from '../../lib/onerm.js'
+import { estimate1RM, formulaOf, FORMULAS } from '../../lib/onerm.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
-import { entryLabelKey } from './gym-labels.js'
+import { entryLastKey } from './gym-labels.js'
 
 const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0)
 const sign = d => (Math.abs(d) < 1e-9 ? 0 : d > 0 ? 1 : -1)
@@ -16,7 +16,8 @@ const sign = d => (Math.abs(d) < 1e-9 ? 0 : d > 0 ? 1 : -1)
  * How set `s` compares with set `p`: 1 better, 0 the same, -1 less, null when they cannot be
  * compared (no last time, or one is timed and the other is not). A hold or cardio set by its
  * time; a set with no load by its reps; a loaded one by weight and reps when both point the same
- * way, else by upstream's estimated 1RM (more weight for fewer reps can still be better). On an
+ * way, else by upstream's estimated 1RM (more weight for fewer reps can still be better); past the
+ * rep cap, where upstream refuses to estimate, both sets go by Epley, which only orders them. On an
  * assistance machine less weight is more.
  */
 export function setTrend(s, p, { assisted = false, formula } = {}) {
@@ -31,7 +32,8 @@ export function setTrend(s, p, { assisted = false, formula } = {}) {
   const dr = sign(r - pr)
   if (dw === dr || dw === 0 || dr === 0) return dw || dr
   if (assisted) return null
-  const [a, b] = [estimate1RM(w, r, formula), estimate1RM(pw, pr, formula)]
+  let [a, b] = [estimate1RM(w, r, formula), estimate1RM(pw, pr, formula)]
+  if (!a || !b) [a, b] = [FORMULAS.epley(w, r), FORMULAS.epley(pw, pr)]
   return a && b ? sign(a - b) : null
 }
 
@@ -40,7 +42,7 @@ export function workoutTrends(S, w, i) {
   const e = w?.entries?.[i]
   if (!e) return []
   const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
-  const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLabelKey(e) })
+  const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLastKey(e) })
   const opts = { assisted: isAssisted(e.id), formula: formulaOf(S) }
   return (e.sets || []).map((s, k) => (s?.done && !isWarmupRow(s) ? setTrend(s, prev[k], opts) : null))
 }
