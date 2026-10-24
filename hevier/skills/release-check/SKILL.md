@@ -9,6 +9,8 @@ description: Run the fork's security gates (D26, D38) on a release build — lea
 hevier/tools/install-scanners.sh        # once per machine: pinned gitleaks + trivy, user-local
 hevier/tools/release-check.sh           # clean tree; builds the mobile bundle, runs every gate
 hevier/tools/release-check.sh --apk <signed release APK>   # + the APK gates (D38)
+hevier/tools/release-check.sh --sources-only   # only the gates that read the committed sources
+hevier/tools/release-check.sh --no-sources     # all the others (the release script runs both halves)
 node --test hevier/tools/*.test.mjs     # the release tools' tests alone (release-check.sh runs them too)
 ```
 
