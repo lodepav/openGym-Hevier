@@ -7,6 +7,9 @@
 #                                                 # secrets, signing certificate and scheme,
 #                                                 # debuggable flag, permissions, native
 #                                                 # libraries and exported components
+#   hevier/tools/release-check.sh --sources-only  # only the gates that read the committed sources
+#   hevier/tools/release-check.sh --no-sources    # every gate but those (the release script runs
+#                                                 # the first while the APK builds, then this)
 #
 # Every gate runs even when an earlier one fails; exit 1 if any failed. The gates run at the same
 # time, each into its own log, and the ones that read only the sources start before the bundle is
@@ -20,11 +23,13 @@ SEC="$ROOT/hevier/security"
 # The release key's pinned certificate lives beside the keystore, never in the repo (D38).
 CERT="${HEVIER_CERT:-$HOME/.config/hevier/apk-cert.txt}"
 export PATH="$HOME/.local/opt/node/bin:$HOME/.local/opt/gitleaks:$HOME/.local/opt/trivy:$PATH"
-BUILD=1 APK=""
+BUILD=1 APK="" SOURCES=1 REST=1
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-build) BUILD=0 ;;
     --apk) APK="$(realpath "$2")"; shift ;;
+    --sources-only) REST=0 BUILD=0 ;;
+    --no-sources) SOURCES=0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
   shift
@@ -36,20 +41,29 @@ done
 if [[ -n "$APK" ]]; then
   # aapt2 and apksigner from the SDK the emulator uses (newest build-tools), apksigner on its JDK.
   BT="$(ls -d "${ANDROID_HOME:-$HOME/Android/Sdk}"/build-tools/*/ 2>/dev/null | sort -V | tail -1)"
-  export JAVA_HOME="${JAVA_HOME:-$HOME/.local/opt/jdk21}" PATH="$JAVA_HOME/bin:$PATH"
+  export JAVA_HOME="${JAVA_HOME:-$HOME/.local/opt/jdk21}"; export PATH="$JAVA_HOME/bin:$PATH"
   [[ -x "${BT}aapt2" && -x "${BT}apksigner" ]] || { echo "no Android build-tools with aapt2/apksigner under \$ANDROID_HOME" >&2; exit 2; }
   command -v java >/dev/null || { echo "java not found: apksigner needs JDK 21 (\$JAVA_HOME)" >&2; exit 2; }
 fi
 cd "$ROOT"
-[[ $BUILD == 1 || -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
+[[ $BUILD == 1 || $REST == 0 || -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
 
 TMP="$(mktemp -d)"
 # A failed build exits early: the gates still running are stopped first, with the scanner each
 # one runs (Trivy does not stop on SIGTERM).
 stop_gates() { local p; for p in $(jobs -p); do pkill -KILL -P "$p"; kill "$p"; done 2>/dev/null; wait; }
 trap 'stop_gates; rm -rf "$TMP"' EXIT
+trap 'exit 143' TERM   # so a release script that stops early stops the gates too
 NAMES=() PIDS=()
 gate() {   # name, command... : started in the background, its output kept for report
+  [[ $REST == 1 ]] || return 0
+  ugate "$@"
+}
+sgate() {   # the same, for a gate that reads only the committed sources (--sources-only)
+  [[ $SOURCES == 1 ]] || return 0
+  ugate "$@"
+}
+ugate() {
   local n=${#NAMES[@]}
   NAMES+=("$1"); shift
   "$@" > "$TMP/gate-$n.log" 2>&1 &
@@ -76,10 +90,10 @@ committed() {
 gate "working tree committed" committed
 # The release script numbers the release and writes its notes with release-notes.mjs, and this
 # check's supply-chain gates are supply-chain.mjs: their own tests are a gate too.
-gate "release tools: tests" node --test hevier/tools/*.test.mjs
+sgate "release tools: tests" node --test hevier/tools/*.test.mjs
 
 GL=(--no-banner --redact --verbose --log-level warn --gitleaks-ignore-path "$SEC/gitleaksignore")
-gate "secrets: git history" gitleaks git . "${GL[@]}"
+sgate "secrets: git history" gitleaks git . "${GL[@]}"
 # Changes not yet in a commit: unstaged and staged edits, and new files git doesn't ignore
 # (copied out, since gitleaks' git modes only see tracked files).
 worktree_secrets() {
@@ -190,19 +204,20 @@ vulns() {
   echo "vulnerability database updated $at ($age days ago)"
   (( age <= 7 )) || { echo "older than a week"; return 1; }
 }
-gate "dependencies: known vulnerabilities" vulns
+sgate "dependencies: known vulnerabilities" vulns
 
-gate "supply chain: npm packages" node hevier/tools/supply-chain.mjs packages
+sgate "supply chain: npm packages" node hevier/tools/supply-chain.mjs packages
 
 # The gates that read the bundle, once it is built.
-if [[ $BUILD == 1 ]]; then
+if [[ $REST == 0 ]]; then :
+elif [[ $BUILD == 1 ]]; then
   # The bundle the APK ships, flags as in emulator.sh (and upstream's build:mobile).
   echo "── building the mobile bundle"
   (cd frontend && { [[ -d node_modules ]] || npm ci --no-audit --no-fund; } &&
     VITE_MOBILE=1 VITE_HEVIER=1 VITE_UPDATE_REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}" \
       npx vite build --logLevel error) || { echo "build failed" >&2; exit 2; }
 fi
-[[ -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
+[[ $REST == 0 || -d frontend/dist ]] || { echo "no frontend/dist: run without --no-build" >&2; exit 2; }
 gate "secrets: built bundle" gitleaks dir frontend/dist "${GL[@]}"
 gate "supply chain: built bundle" node hevier/tools/supply-chain.mjs bundle frontend/dist
 
