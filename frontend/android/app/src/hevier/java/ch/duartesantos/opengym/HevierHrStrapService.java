@@ -85,6 +85,11 @@ public class HevierHrStrapService extends Service {
     // The one pending reconnect, so a second path to connect() (find) can cancel it.
     private final Runnable reconnect = () -> connect(retries > 1);
     static final long STALL_MS = 30_000;
+    // A strap out of reach is looked for every 15 s for its first two minutes away, then once a
+    // minute: one left at home was scanned for half the workout (battery).
+    static final long FIND_FAST_MS = 120_000;
+    static final long FIND_SLOW_EVERY_MS = 60_000;
+    private long lookedAt;
     // A strap that wants to be paired before it notifies (a Garmin watch's broadcast may): the
     // pairing is asked for once a workout, and the subscription made again once it is done.
     private boolean bondAsked;
@@ -190,8 +195,14 @@ public class HevierHrStrapService extends Service {
         if (!running) return;
         long since = Math.max(lastAt, connectedAt);
         if ("connected".equals(state) && gatt != null && System.currentTimeMillis() - since > STALL_MS) gatt.disconnect();
-        else if ("connecting".equals(state) && System.currentTimeMillis() - lostAt > STALL_MS / 2) find();
+        else if ("connecting".equals(state) && findDue(System.currentTimeMillis() - lostAt, System.currentTimeMillis() - lookedAt)) find();
         main.postDelayed(this::watch, STALL_MS / 2);
+    }
+
+    /** Whether the watchdog looks for the strap now, lost for `lostFor` ms, the last look `sinceLast` ms ago. */
+    static boolean findDue(long lostFor, long sinceLast) {
+        if (lostFor <= STALL_MS / 2) return false;
+        return lostFor < FIND_FAST_MS || sinceLast >= FIND_SLOW_EVERY_MS;
     }
 
     /**
@@ -225,6 +236,7 @@ public class HevierHrStrapService extends Service {
             }
         };
         finding = cb;
+        lookedAt = System.currentTimeMillis();
         ScanFilter only = new ScanFilter.Builder().setServiceUuid(new ParcelUuid(HR_SERVICE)).build();
         scanner.startScan(Collections.singletonList(only), new ScanSettings.Builder().build(), cb);
         main.postDelayed(() -> {

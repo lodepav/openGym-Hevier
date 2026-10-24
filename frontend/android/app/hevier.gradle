@@ -31,6 +31,8 @@ android {
         // own) and D34's encrypted secret.
         debug.java.srcDirs += ['src/hevier/java']
         release.java.srcDirs += ['src/hevier/java']
+        // The fork's Java unit tests (./gradlew :app:testSideloadDebugUnitTest).
+        test.java.srcDirs += ['src/hevier/test/java']
     }
     // D50: a smaller APK. Upstream's barcode scanner (ML Kit, with CameraX) only serves its gym
     // check-in, which the fork does not offer (D12): its native libraries and models are left out,
