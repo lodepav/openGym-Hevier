@@ -71,13 +71,17 @@ public class HevierHrStrapService extends Service {
     static volatile String address;
     static volatile long lastAt;
     static volatile int lastBpm;
+    // The app is on screen, where the heart rate already shows: the notification then reads a fixed
+    // line, and the bpm comes back once the app is locked or left.
+    static volatile boolean inApp;
+    private static volatile HevierHrStrapService current;
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private BluetoothGatt gatt;
     private FileOutputStream out;
     private boolean running;
     private int retries;
-    private String title = "Heart rate strap", connecting = "Connecting to {0}…", live = "{0} bpm", name = "";
+    private String title = "Heart rate strap", connecting = "Connecting to {0}…", live = "{0} bpm", recording = "Recording heart rate", name = "";
     private long shownAt;
     private long connectedAt;
     private long lostAt;
@@ -116,6 +120,7 @@ public class HevierHrStrapService extends Service {
         title = extra(intent, "title", title);
         connecting = extra(intent, "connecting", connecting);
         live = extra(intent, "live", live);
+        recording = extra(intent, "recording", recording);
         name = extra(intent, "name", addr);
         goForeground(connecting.replace("{0}", name));
         if (running && id.equals(session) && addr.equals(address)) return START_NOT_STICKY;
@@ -131,6 +136,7 @@ public class HevierHrStrapService extends Service {
             return START_NOT_STICKY;
         }
         running = true;
+        current = this;
         retries = 0;
         bondAsked = false;
         connect(false);
@@ -149,6 +155,21 @@ public class HevierHrStrapService extends Service {
         Listener l = listener;
         if (l != null) l.state(s);
         if (!"connected".equals(s)) notifyText(connecting.replace("{0}", name));
+        else if (inApp) notifyText(recording);
+    }
+
+    /** The app came on screen or went off it (HevierHrStrapPlugin): the notification follows. */
+    static void shown(boolean on) {
+        inApp = on;
+        HevierHrStrapService svc = current;
+        if (svc != null) svc.main.post(() -> {
+            if (!"connected".equals(state)) return;
+            if (on) svc.notifyText(svc.recording);
+            else if (lastBpm > 0) {
+                svc.shownAt = System.currentTimeMillis();
+                svc.notifyText(svc.live.replace("{0}", String.valueOf(lastBpm)));
+            }
+        });
     }
 
     private void connect(boolean auto) {
@@ -378,7 +399,7 @@ public class HevierHrStrapService extends Service {
             lastBpm = bpm;
             Listener l = listener;
             if (l != null) l.reading(t, h, bpm);
-            if (t - shownAt >= 5000 && bpm > 0) {
+            if (!inApp && t - shownAt >= 5000 && bpm > 0) {
                 shownAt = t;
                 notifyText(live.replace("{0}", String.valueOf(bpm)));
             }
@@ -414,6 +435,7 @@ public class HevierHrStrapService extends Service {
 
     private void close() {
         running = false;
+        if (current == this) current = null;
         stopFinding();
         main.removeCallbacksAndMessages(null);
         if (gatt != null) {
