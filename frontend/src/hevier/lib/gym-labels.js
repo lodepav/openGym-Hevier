@@ -206,12 +206,20 @@ export function withLabels(w, labels) {
 export const labelKey = (b, c) => (b || '') + (c && c !== '1:1' ? '|' + c : '')
 /** The label a logged entry was done with, as a key. */
 export const entryLabelKey = e => labelKey(e?.hvBrand, savedCable(e))
-/** The label the session's exercise `idx` is done with, as a key. */
-export const sessionLabelKey = (S, A, idx) => labelKey(entryBrand(S, A, idx), entryCable(S, A, idx))
-/** The label exercise `exId` starts with in the session (none open: one about to start), as a key. */
+
+// Last time (D82) reads its own keys: a cable's setup is written as logged, 1:1 too, and an
+// untagged cable (imported, or logged before D43) has none, so a 1:1 and a 2:1 both fall back to
+// it (previous-sets.js); a ×2 never does.
+/** A last-time key: the brand, '' for none, and on a cable `|` and its setup, if it has one. */
+export const lastKey = (b, c) => (b || '') + (c ? '|' + c : '')
+/** The last-time key a logged entry was done with. */
+export const entryLastKey = e => lastKey(e?.hvBrand, e && isCable(e.id) ? cableOf(e.hvCable) : null)
+/** The last-time key the session's exercise `idx` is done with. */
+export const sessionLabelKey = (S, A, idx) => lastKey(entryBrand(S, A, idx), entryCable(S, A, idx))
+/** The last-time key exercise `exId` starts with in the session (none open: one about to start). */
 export function startLabelKey(S, exId) {
   const gym = workoutGym(S, S?.active || {})
-  return labelKey(brandDefault(S, exId, gym), isCable(exId) ? cableDefault(S, exId, gym) || '1:1' : null)
+  return lastKey(brandDefault(S, exId, gym), isCable(exId) ? cableDefault(S, exId, gym) || '1:1' : null)
 }
 
 /**
