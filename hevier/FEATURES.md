@@ -25,6 +25,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Set-type sheet (W / F / D labels), with drops nested under their set | D5 | Fork |
 | Effort column, only when RIR/RPE is on | D6 | Fork |
 | Hevy exercise block: notes, rest line, + Add Set | D7 | Fork |
+| Progression guidance behind ⋮ (Exercise settings), nothing about it on the card | D8 | Fork |
 | Swipe left deletes a set, with undo | D9 | Fork |
 | Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
@@ -33,9 +34,9 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Offer |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
-| Holds (plank, wall sit …) start as timed holds | D55 | Offered (#694) |
-| A one-limb exercise starts per side | D75 | Offered (#736) |
-| Rest wheel opens on the default rest | D56 | Offered (#735) |
+| Holds (plank, wall sit …) start as timed holds | D55 | Offered (#694, in 1.4.3) |
+| A one-limb exercise starts per side | D75 | Offered (#736, in 1.4.3) |
+| Rest wheel opens on the default rest | D56 | Offered (#735, in 1.4.3) |
 | Duration wheels in 5-second steps | D48 | Fork |
 | "Still training?" after five hours | D60 | Offer |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
@@ -51,7 +52,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Routine page (read-only) before the editor | D37 | Fork |
 | Routine folders, long-press reorder | D13 | Fork |
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
-| A gym's backups: the swap made at a gym is reused there | D46 | Offer (see upstream #649) |
+| A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet | D87 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
@@ -77,7 +78,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Shoulder heads: front, side and rear delts | D65 | Offered (#638) |
 | One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offered (#788, the catalogue targets, shoulder heads as delts) |
 | The main muscle can be chosen per exercise | D76 | Offer |
-| Other names for an exercise, searchable, one shown as its name | D73 | Offer (see upstream PR #624) |
+| Other names for an exercise, searchable, one shown as its name | D73 | Offer (upstream 1.4.3 brings searchable other names, #624; not one shown as the name) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
 | Strength levels list, by the level reached | D81 | Offer |

@@ -16,6 +16,9 @@ cd frontend
 npx vitest run src/hevier                 # fork tests, fast
 VITE_HEVIER=1 npx vite build              # the fork build
 node scripts/check-locales.mjs            # only if a locale or t() key was touched
+# only if the fork's Java changed (frontend/android/app/src/hevier):
+(cd android && JAVA_HOME=$HOME/.local/opt/jdk21 ANDROID_HOME=$HOME/Android/Sdk \
+  ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
 # no conflict marker left behind by a merge (one shipped in DECISIONS.md once, 658d4cab):
 ! git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- .. ':!../hevier/CONFLICTS.md'
 ```

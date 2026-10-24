@@ -79,6 +79,13 @@ conflict on every upstream edit to them).
   `xperia1vi_api36` (Android 16, 1080×2340, 420 dpi), installs and launches it.
 - `hevier/tools/cdp.mjs` drives the WebView over the DevTools protocol (`click`, `text`, `shot`,
   `eval`). No new dependencies.
+- **A strap** (D79): `hevier/tools/fake-strap/build.sh` makes a second AVD, `hevier_strap`, a
+  heart-rate strap. Boot the app's emulator first (`emulator.sh` installs on whichever device adb
+  sees), then the strap's on port 5556, and give `adb` and `cdp.mjs` `ANDROID_SERIAL=emulator-5554`.
+  Two emulators fill this machine's memory: stop the Gradle daemon first (`./gradlew --stop`).
+- The fork's Java has unit tests in `frontend/android/app/src/hevier/test/java`:
+  `cd frontend/android && ./gradlew :app:testSideloadDebugUnitTest` (`JAVA_HOME`, `ANDROID_HOME`
+  set as `emulator.sh` sets them).
 - `cd frontend && npm test` runs upstream's suite and the fork's `src/hevier/**` tests; both pass
   before a merge. On this machine run it gently: `nice -n 19 npm test -- --maxWorkers=2`.
 - [reference/SCREENS.md](reference/SCREENS.md) describes Hevy's screens element by element, with

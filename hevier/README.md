@@ -21,6 +21,7 @@ touches any of them, so they never conflict.
 | [SEAMS.md](SEAMS.md) | The list of every place the fork edits an upstream file. Keep it current: it is what makes conflicts predictable. |
 | [tools/emulator.sh](tools/emulator.sh) | Builds the debug APK, boots the Android 16 emulator, installs and launches it. |
 | [tools/cdp.mjs](tools/cdp.mjs) | Drives the app's WebView over the Chrome DevTools Protocol: click, read text, screenshot. |
+| [tools/fake-strap/](tools/fake-strap/) | A pretend Bluetooth heart-rate strap for a second emulator, to test D79 without a real strap (RULES.md, "Test rig"). |
 | [tools/screens.mjs](tools/screens.mjs) | Checks every main screen on phones of different sizes and ratios (the emulator resized, not extra AVDs): screenshots plus a layout report. |
 | [tools/release-notes.mjs](tools/release-notes.mjs) | Numbers the next Go Hevier release and writes its notes from the merges since the last one (D52); the release script uses it, and [CHANGELOG.md](CHANGELOG.md) collects them. |
 | [tools/release-check.sh](tools/release-check.sh) | The security gates for a release build (D26): secrets, vulnerable dependencies, supply chain, and with `--apk` the APK's certificate and signature scheme, debuggable flag, permissions, native libraries and exported components (D38). The gates run in parallel, the release tools' own tests among them. Scanners from `tools/install-scanners.sh`, allow-lists in [security/](security/). |
