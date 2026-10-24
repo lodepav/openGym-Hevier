@@ -68,6 +68,7 @@ const labels = name => ({
   title: t('Heart rate strap'),
   connecting: t('Connecting to {0}…', '{0}'),
   live: t('{0} bpm', '{0}'),
+  recording: t('Recording heart rate'),
 })
 
 let installed = false

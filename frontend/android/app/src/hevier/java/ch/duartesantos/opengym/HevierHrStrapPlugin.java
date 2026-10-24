@@ -42,7 +42,7 @@ import java.util.Map;
  *   await H.status();                    // { bluetooth: 'on'|'off'|'none', permission, state, session, address, bpm, at }
  *   await H.request();                   // { permission: 'granted' | 'denied' }
  *   await H.scan({ ms: 8000 });          // { devices: [{ address, name, rssi }] }, 'device' events meanwhile
- *   await H.start({ session, address, name, title, connecting, live });
+ *   await H.start({ session, address, name, title, connecting, live, recording });
  *   await H.stop();
  *   await H.recording({ session });      // { text: '<ms> <hex>\n…' }, '' when there is none
  *   await H.sessions();                  // { sessions: ['a1', …] } the recordings on the phone
@@ -63,6 +63,7 @@ public class HevierHrStrapPlugin extends Plugin {
 
     @Override
     public void load() {
+        HevierHrStrapService.shown(true);
         HevierHrStrapService.listener = new HevierHrStrapService.Listener() {
             @Override
             public void state(String state) {
@@ -209,7 +210,7 @@ public class HevierHrStrapPlugin extends Plugin {
         Intent i = new Intent(getContext(), HevierHrStrapService.class);
         i.putExtra("session", session);
         i.putExtra("address", address);
-        for (String k : new String[] { "name", "title", "connecting", "live" }) i.putExtra(k, call.getString(k, ""));
+        for (String k : new String[] { "name", "title", "connecting", "live", "recording" }) i.putExtra(k, call.getString(k, ""));
         try {
             if (Build.VERSION.SDK_INT >= 26) getContext().startForegroundService(i);
             else getContext().startService(i);
@@ -257,7 +258,18 @@ public class HevierHrStrapPlugin extends Plugin {
     }
 
     @Override
+    protected void handleOnResume() {
+        HevierHrStrapService.shown(true);
+    }
+
+    @Override
+    protected void handleOnPause() {
+        HevierHrStrapService.shown(false);
+    }
+
+    @Override
     protected void handleOnDestroy() {
+        HevierHrStrapService.shown(false);
         stopScan();
         HevierHrStrapService.listener = null;
     }
