@@ -3,8 +3,10 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 <!-- [hevier] S8 -->
-> **This is the openGym-Hevier fork.** Read @hevier/README.md and @hevier/DECISIONS.md before
-> changing anything; upstream files are edited only at the seams in hevier/SEAMS.md.
+> **This is the openGym-Hevier fork.** Read @hevier/README.md before changing anything; upstream
+> files are edited only at the seams in hevier/SEAMS.md. The design decisions are indexed in
+> @hevier/DECISIONS-INDEX.md; `hevier/DECISIONS.md` is too large to load whole, so read the full
+> rows for the area you touch (grep a decision number, a screen, a field like `S.hvVolume`).
 <!-- [/hevier] -->
 
 ## What this is

@@ -13,6 +13,7 @@ touches any of them, so they never conflict.
 | File | What it is |
 |---|---|
 | [DECISIONS.md](DECISIONS.md) | The agreed design decisions, numbered D1, D2, … (take the next free number for a new one). They override RULES.md and the spec where they differ. |
+| [DECISIONS-INDEX.md](DECISIONS-INDEX.md) | One line per decision, loaded into every Claude Code session in place of DECISIONS.md. Regenerate it with `tools/decision-index.sh > DECISIONS-INDEX.md` after adding or rewording a decision. |
 | [FEATURES.md](FEATURES.md) | Every feature the fork adds, with its decision, each marked Fork (stays in the fork), Offer (could go upstream), Offered (already sent upstream) or Ported (until upstream's release replaces it). |
 | [RULES.md](RULES.md) | How the fork is built and kept mergeable: scope, branches, the build flag, the test rig, the rules every change follows, and the risks. The finished implementation plan is in git history. |
 | [CONFLICTS.md](CONFLICTS.md) | How to merge upstream and resolve conflicts, written for AI agents (and people). |

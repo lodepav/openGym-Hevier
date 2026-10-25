@@ -1,0 +1,96 @@
+# Decision index
+
+One line per decision in [DECISIONS.md](DECISIONS.md), its bold lead sentence. Read the full row
+there before changing anything a line touches. After adding or rewording a decision, regenerate:
+`hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md`.
+
+- **D1** One layout.
+- **D2** Prefilled values are grey until touched.
+- **D3** PREVIOUS column.
+- **D4** No ± steppers
+- **D5** Set types.
+- **D6** Effort column
+- **D7** Exercise block
+- **D8** Progression guidance lives behind ⋮
+- **D9** Swipe left deletes a set
+- **D10** Header and finish flow.
+- **D15** Hevy's table over openGym's plan, not per-set plans.
+- **D11** Three tabs: Home · Workout · Profile.
+- **D12** Home is configurable.
+- **D13** Workout tab
+- **D14** Profile
+- **D16** Hevy's root, upstream's pages.
+- **D17** Hevy's dark theme with Hevy blue, only.
+- **D18** Volume as tonnage or as sets per muscle group.
+- **D19** Strength level from thresholds the user types in.
+- **D20** Google Drive through a sync app, no fork code.
+- **D21** Where the PREVIOUS column reads from is a setting.
+- **D22** A personal record shows on the set as it is ticked.
+- **D23** A monthly report page, from the log alone.
+- **D24** Portrait only.
+- **D25** Keep the screen on: upstream's switch, no fork code.
+- **D26** Release builds pass three local gates, and a failure blocks.
+- **D27** Heart rate and weigh-ins read from Health Connect, as upstream's v1.4.3 will, until it does.
+- **D28** A gym is one of upstream's equipment profiles, and a machine exercise carries a brand label per gym.
+- **D29** A fork step after the Hevy importer's own reading: fixed matches, one-limb sets and brand labels.
+- **D30** The Hevy API import brings each routine's folder.
+- **D31** The Hevy API import also brings measurements, a routine's rest and rep range, the notes, the routine link, custom exercises' muscles and equipment, and warns about units.
+- **D32** While "Weigh-ins from other apps" is on, Health Connect is the only source of weigh-ins.
+- **D33** A review of the exercise matches before an import, remembered for the next one.
+- **D34** With a Hevy API key saved, new workouts and changed routines go to Hevy by themselves.
+- **D35** Hevy's "Update routine?", a prompt that stays until it is answered.
+- **D36** The exercise picker finds an exercise by its machine brand.
+- **D37** A tap on a routine's name opens its page, not the editor.
+- **D38** Given an APK, the release check also checks the APK itself, and a failure blocks.
+- **D39** The app is called "Go Hevier".
+- **D40** An imported weight keeps its hundredths, and a typed one already does.
+- **D41** One exercise can be shown and typed in the other unit, stored in the profile's.
+- **D42** Sets per muscle count the main muscle only, or a secondary muscle in part too, as a setting.
+- **D43** A cable exercise carries its setup, as D28 a brand: 1:1, 2:1 or ×2.
+- **D44** An Android home-screen widget with this month's calendar and its workouts and sets.
+- **D45** A routine exercise's planned backups, as upstream 1.4.2 has them, until the fork merges it.
+- **D46** A routine started at a gym swaps in the backups that gym took last time.
+- **D47** The gym sheet lists your gyms, finds gyms nearby on a tap, and takes a custom gym.
+- **D48** The duration wheels go in 5-second steps, as Hevy's rest wheel ("OFF, 5 s steps up to minutes", reference/SCREENS.md).
+- **D49** One page bar everywhere, Hevy's.
+- **D50** A smaller APK from the build alone: no barcode scanner code, shrunk Java.
+- **D51** Hevy's personal records, worked out from the log, per exercise and label.
+- **D52** Go Hevier has its own version, shown with upstream's.
+- **D53** A cardio set and a timed hold have Hevy's TIME column and a count-up timer.
+- **D54** The workout's note shows at the top of the workout and on the feed cards, and Hevy's CSV keeps its line breaks.
+- **D55** A plank, a wall sit or another static hold is added as a timed hold, with D53's TIME column.
+- **D56** An exercise's rest wheel opens on the default rest.
+- **D57** An exercise kept out of progression is kept out of the records and the statistics too; its numbers show only on its workout's pages and in its history.
+- **D58** Each row of the Add Exercise picker has Hevy's chart button, which opens the exercise's details without adding it.
+- **D59** The streak says how long you have been training: weeks, and years once it is a year long.
+- **D60** A workout open for five hours asks "Still training?"
+- **D61** An exercise with no progression rule of its own, in a routine with none, does not progress.
+- **D62** The exercise picker filters by a gym: the workout's in a workout, a chosen one outside it; Settings only sets up each gym's equipment.
+- **D63** Equipment is chosen by group, each group opening on its kinds.
+- **D64** Muscles are chosen by group, as equipment is (D63).
+- **D65** Shoulders opens on Front, Side and Rear Delts, sorted by the exercise's name, in the muscle filters only.
+- **D66** Workout Detail marks each work set against the same set last time: ↑ better (green), = the same (grey), ↓ less (red).
+- **D67** A search the gym filter narrows says how many it hid, and shows them on a tap.
+- **D68** A planned day is a dot in its workout's colour, on the Calendar page and the month widget, and the Calendar shows the months ahead one at a time.
+- **D69** A routine opens each set at what was done the last time that set was done, warm-ups too, unless its "Progression & auto warm-ups" switch is on.
+- **D70** A rest after every set, as Hevy's, and the rest bar goes once it is over.
+- **D71** The set to do next is highlighted
+- **D72** A per-side exercise can be done right first.
+- **D73** An exercise can have other names, each found by the search, and one of them shown as its name.
+- **D74** Each exercise has one main muscle, chosen by the fork, wherever the fork files or counts it by one.
+- **D75** A one-limb exercise starts per side.
+- **D76** The main muscle of an exercise can be chosen.
+- **D77** A newer Go Hevier offers itself when the app is opened.
+- **D78** Add Exercise asks where: Insert after the current exercise, or Add to end.
+- **D79** A Bluetooth heart-rate strap, picked once, is recorded live during every workout, and its readings replace Health Connect's for that workout.
+- **D80** The strap's heart rate full screen, with zones.
+- **D81** A list of every exercise with strength levels, by the level reached.
+- **D82** The PREVIOUS column and the sets a routine opens with read last time on the same machine.
+- **D83** The boot screen in the fork's look: upstream's barbell in Hevy blue on AMOLED black.
+- **D84** Upstream's plate line under a set is off, behind a switch.
+- **D85** "Next time" shows only for a routine whose progression is on.
+- **D86** An exercise can be marked missing at a gym, and a routine started there swaps in the first backup the gym has.
+- **D87** A finished workout shares as Hevy's cards, as a picture to save or send.
+- **D88** How long each exercise took, on Workout Detail and on a page of its own.
+- **D89** A set of a reps exercise can be a timed hold.
+- **D90** Ticking a set whose weight or reps looks mistyped, or whose cardio timer was left running, asks first.
