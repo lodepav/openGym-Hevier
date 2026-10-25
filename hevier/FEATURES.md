@@ -58,7 +58,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Fork |
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, the weight and rep checks; the cardio timer is the fork’s) |
-| Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
+| Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814) |
 
 ## Gyms, machines and labels
 
@@ -96,7 +96,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer |
 | Monthly report | D23 | Offer |
 | Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Offer |
-| Exercises kept out of progression are kept out of the statistics too | D57 | Offer |
+| Exercises kept out of progression are kept out of the statistics too | D57 | Offered (#813) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Offer |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
 
@@ -120,7 +120,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672, in 1.4.3; its regenerated template map was not taken, offered again in #807) |
 | Routine folders from the Hevy API | D30 | Offer |
-| More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offer |
+| More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offered (#815) |
 | Review of exercise matches before an import, remembered | D33 | Offer |
 | Weights kept to the hundredth on import | D40 | Offered (#690, in 1.4.3) |
 | Hevy CSV notes keep their line breaks | D54 | Offered (#690, in 1.4.3) |
