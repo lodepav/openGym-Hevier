@@ -2,6 +2,26 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.0.4 · 2026-10-25
+
+Based on openGym 1.4.2.
+
+### Fixes and changes
+
+- UX review rounds 3 and 4's fixes, one-side records in details, Plan's back bar, week tap
+- weigh an upstream release before merging it
+- UX review round 2's fixes, records with no brand, hidden line alone
+- a page opened from a sheet keeps its back (S47, UX U5)
+- UX review round 1's fixes, Replace and brand throughout
+- hide "I own no dumbbells" at the 1.4.3 merge
+- what 1.4.3's last 41 commits mean for the fork
+- a standards-based UX review with user journeys, fixing only minor findings
+- 11 more Hevy titles land on their exercise, from upstream's #793 (D29)
+
+### From openGym
+
+- origin/hevier/main: upstream's App Store docs and website, synced on GitHub
+
 ## 2.0.3 · 2026-10-24
 
 Based on openGym 1.4.2.
