@@ -87,7 +87,7 @@ conflict on every upstream edit to them).
   `cd frontend/android && ./gradlew :app:testSideloadDebugUnitTest` (`JAVA_HOME`, `ANDROID_HOME`
   set as `emulator.sh` sets them).
 - `cd frontend && npm test` runs upstream's suite and the fork's `src/hevier/**` tests; both pass
-  before a merge. On this machine run it gently: `nice -n 19 npm test -- --maxWorkers=2`.
+  before a merge. On this machine: `npx vitest run --pool=threads --maxWorkers=4` (about 2.5 min), or `nice -n 19` with `--maxWorkers=2` while the emulator runs (the `verify` skill).
 - [reference/SCREENS.md](reference/SCREENS.md) describes Hevy's screens element by element, with
   the screenshots `reference/fetch.sh` downloads (not committed).
 

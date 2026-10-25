@@ -8,12 +8,20 @@ description: Run the fork's checks — on every commit the fork tests and the VI
 Two levels. Run the steps in order, one at a time. Never run two vitest suites at once: that
 has caused false skips. Report the counts, and quote any failure in full.
 
+`$FAST` is `--pool=threads --maxWorkers=4`, measured 2026-10-25 (8 cores, 14 GB): the full suite
+283 s → 145 s, the fork's 39 s → 25 s, about 3 GB at its peak. Not faster: 6 workers (130 s for
+7 GB), `--pool=vmThreads` (filled the memory), `--no-isolate` (311 of upstream's tests fail when
+files share a process), Vite's dependency pre-bundling (no change). Most of the time is each
+file's setup (the 1.1 MB catalogue, happy-dom), not its tests. With the emulator up, run
+`nice -n 19` and `--maxWorkers=2`.
+
 ## Every commit
 
 ```bash
 export PATH="$HOME/.local/opt/node/bin:$PATH"
+FAST='--pool=threads --maxWorkers=4'
 cd frontend
-npx vitest run src/hevier                 # fork tests, fast
+npx vitest run $FAST src/hevier src/lib/i18n-plural.test.js   # fork tests and the plural keys, ~25 s
 VITE_HEVIER=1 npx vite build              # the fork build
 node scripts/check-locales.mjs            # only if a locale or t() key was touched
 # only if the fork's Java changed (frontend/android/app/src/hevier):
@@ -26,7 +34,7 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
 - A red upstream `src/lib/i18n-plural.test.js` naming a fork string means a fork file calls
   `tn()` with a plural key upstream's ru/uk/pl packs lack (the test reads every `tn()` in `src`,
   the fork's included). Use a plural key upstream already has, or reword so `t()` does, never a
-  new one. The fork-only test run doesn't catch this: check `tn(` in new fork code at every commit.
+  new one. The every-commit run above includes it.
 - A red `src/hevier/contract.test.js` means an upstream export the overlay uses changed:
   adapt the fork to the new shape.
 - Then run the `seam-check` skill if any upstream file changed.
@@ -37,7 +45,7 @@ When merging a branch into `hevier/main`, or upstream into the fork (the `upstre
 skill), or when asked to "check everything": the steps above, then upstream's tests.
 
 ```bash
-npm test                                  # upstream + fork, ~2 min: Bash timeout 400000
+npx vitest run $FAST                      # upstream + fork, ~2.5 min: Bash timeout 400000
 cd ../api && npm test                     # only if api/ changed since the last merge
 cd ../mcp && npm test                     # only if mcp/ changed since the last merge
 ```
