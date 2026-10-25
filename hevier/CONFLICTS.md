@@ -55,6 +55,23 @@ git checkout hevier/ux && git merge hevier/main
 
 Never `git push --force` a `hevier/*` branch, and never commit to `main`.
 
+## Whether to merge at all
+
+Agreed with the user on 2026-10-25: **a release is not merged just because it is out.** The user
+likes how the app works now, so before any merge, weigh what the release actually gives the fork
+and bring the user a recommendation:
+
+- **For:** seams it removes (a feature the fork ported ahead, D27, D47, …, that upstream now
+  carries), fixes to logic the fork reuses, security fixes.
+- **Against:** bloat (features, settings or screens the fork would only have to hide, new
+  dependencies, a bigger bundle or APK) and trouble down the road (new seams, restructured files
+  the fork wraps, behaviour the fork would have to undo).
+
+A release that removes several seams without much bloat is worth merging; one that mostly adds
+what the fork would hide is not, and can wait for a later one. Write the weighing down (the
+release, what it removes, what it adds, the recommendation) and let the user decide. Only then
+the decision round below.
+
 ## Decide what a release brings
 
 Every upstream release gets a decision round with the user, **before it lands on
@@ -202,7 +219,10 @@ A clean merge can still break the fork. After every sync, check these:
    minimise, resume, finish, open history, start the same routine and see progressed
    weights. Screenshot each step into the scratchpad and compare with
    `hevier/reference/*/after-*.png`.
-4. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
+4. **The UX journeys** (`hevier/ux/JOURNEYS.md`, the `ux-review` skill): every journey again on
+   the test profile, to see that each still finishes roughly as before and nothing broke with
+   the release. Compare with the last rounds in `hevier/ux/LEDGER.md`.
+5. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
    files and how each was resolved (rule letter), any seam added, moved or removed, and any
    silent-drift items skipped.
 

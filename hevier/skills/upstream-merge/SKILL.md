@@ -12,6 +12,8 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    `git checkout main && git merge --ff-only upstream/main` (if that fails: stop, ask).
 2. **Target.** Newest tag: `git tag --list 'v*' --sort=-v:refname | head -3`. Tell the user
    the target and how many commits it brings (`git log --oneline hevier/main..$TARGET | wc -l`).
+   **Whether to merge at all** (CONFLICTS.md): weigh the seams it removes against the bloat and
+   trouble it adds, recommend, and let the user decide. No merge without a yes.
 3. **Read first.** The CHANGELOG between the versions, and `git diff --stat
    hevier/main...$TARGET` for the seam files (`git grep -l '\[hevier\]'`).
    **Decide with the user.** List the release's new features and behaviour changes, sort out
@@ -36,7 +38,8 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
 7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
    minimise, resume, finish, see it in history, start it again, see the progressed weights.
-   Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
+   Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
+   rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed
    with the merge. Anything drift turns up that the user would see is a decision too: ask.
 8. **Land.** Commit message body: the conflicted files with the rule used for each, seams
