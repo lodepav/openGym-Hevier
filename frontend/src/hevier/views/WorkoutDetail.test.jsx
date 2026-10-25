@@ -132,4 +132,15 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => useStore.getState().update(s => { s.workouts = [] }))
     expect(path).toBe('/home')
   })
+  it('shows how long each exercise took, from its tick times (D88)', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    expect(container.querySelector('.hv-extime')).toBeNull()
+    const timed = clone(W)
+    timed.id = 'w2'
+    timed.entries[0].sets.forEach((s, i) => { if (s.done) s.at = start + (i + 1) * 4 * 60000 })
+    act(() => useStore.getState().update(s => { s.workouts.push(timed) }))
+    act(() => workoutDetailSheet(timed))
+    expect(container.querySelector('.hv-extime').textContent).toBe('Exercise time: 12min')
+  })
 })
