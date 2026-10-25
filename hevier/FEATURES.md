@@ -115,7 +115,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 
 | Feature | D | Mark |
 |---|---|---|
-| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672, in 1.4.3) |
+| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672, in 1.4.3; its regenerated template map was not taken, to offer again after 1.4.3's release) |
 | Routine folders from the Hevy API | D30 | Offer |
 | More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offer |
 | Review of exercise matches before an import, remembered | D33 | Offer |
