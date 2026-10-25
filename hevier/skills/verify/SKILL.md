@@ -29,7 +29,12 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
   ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
 # no conflict marker left behind by a merge (one shipped in DECISIONS.md once, 658d4cab):
 ! git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- .. ':!../hevier/CONFLICTS.md'
+# the decision index CLAUDE.md loads matches DECISIONS.md:
+diff <(../hevier/tools/decision-index.sh) ../hevier/DECISIONS-INDEX.md
 ```
+
+- A diff from the decision index means a decision was added or reworded without the index:
+  run `hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md` and commit it with the change.
 
 - A red upstream `src/lib/i18n-plural.test.js` naming a fork string means a fork file calls
   `tn()` with a plural key upstream's ru/uk/pl packs lack (the test reads every `tn()` in `src`,
