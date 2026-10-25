@@ -72,6 +72,32 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets.querySelector('b').textContent).toBe('2')
   })
 
+  it('a weight far past the best asks at the tick: Fix it leaves the set unticked, Log logs it (D90)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(30, 8, { done: true })] }] }]
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(300, 8, { weightOrigin: 'manual' })] }], past)
+    const sheet = () => {
+      const top = useUI.getState().sheets.at(-1)
+      const host = document.createElement('div')
+      const r = createRoot(host)
+      act(() => r.render(top.render(() => useUI.setState({ sheets: [] }))))
+      return host
+    }
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0].done).toBeFalsy()
+    let host = sheet()
+    expect(host.textContent).toContain('300 kg is over twice your heaviest, 30 kg.')
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Fix it').click())
+    expect(sets()[0].done).toBeFalsy()
+    act(() => container.querySelector('.hv-chk').click())
+    host = sheet()
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Log 300 kg').click())
+    expect(sets()[0].done).toBe(true)
+    const open = useUI.getState().sheets.length   // upstream's all-sets-done prompt
+    act(() => container.querySelector('.hv-chk').click())   // unticking never asks
+    expect(sets()[0].done).toBeFalsy()
+    expect(useUI.getState().sheets).toHaveLength(open)
+  })
+
   it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     expect(container.querySelector('.hv-plates')).toBeNull()

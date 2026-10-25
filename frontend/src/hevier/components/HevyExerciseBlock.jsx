@@ -9,10 +9,10 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { exOr } from '../../lib/exercises.js'
+import { exOr, isAssisted } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
 import { restTimerText } from '../lib/elapsed.js'
@@ -32,7 +32,7 @@ import { sessionHistory } from '../../lib/backfill.js'
 import { progressionGuidance } from '../../lib/progression-copy.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
 import {
-  menuSheet, effortPickerSheet, exerciseDetailSheet, exerciseHistorySheet, exerciseNoteSheet, barWeightSheet,
+  confirmSheet, menuSheet, effortPickerSheet, exerciseDetailSheet, exerciseHistorySheet, exerciseNoteSheet, barWeightSheet,
 } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
@@ -50,6 +50,7 @@ import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
+import { bestsFor, oddValues } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
@@ -79,6 +80,7 @@ export default function HevyExerciseBlock({
 
   const entry = S.active.entries[entryIdx]
   const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
+  const rowEls = useRef({})
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
@@ -394,7 +396,31 @@ export default function HevyExerciseBlock({
     if (s[RUN]) return openHoldClock(entryIdx, i, title)
     holdClockSheet(entryIdx, i, secOf(s, 'time') || HOLD_SEC, title)
   }
+  // D90: a weight or rep count far past the exercise's best asks before it is logged; Fix it
+  // leaves the set unticked and puts the caret in the field.
   const tick = (i, side) => {
+    const s = entry.sets[i], src = side ? s?.sides?.[side] : s
+    if (src && !src.done && modeAt(s) === 'reps') {
+      const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id), { unit, assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
+      if (odd.length) {
+        const shown = o => (o.f === 'w' ? fmtNum(showWeight(o.typed)) + ' ' + exUnit : t('{0} reps', o.typed))
+        return confirmSheet({
+          title: t('Is that right?'),
+          message: odd.map(o => (o.f === 'w'
+            ? t('{0} is over twice your heaviest, {1}.', shown(o), fmtNum(showWeight(o.best)) + ' ' + exUnit)
+            : t('{0} is over twice your most, {1}.', shown(o), t('{0} reps', o.best)))).join(' '),
+          confirmText: t('Fix it'), cancelText: t('Log {0}', odd.map(shown).join(' × ')),
+          onConfirm: () => setTimeout(() => {
+            const at = colsOf(s).findIndex(c => c.f === odd[0].f)
+            rowEls.current[i + (side || '')]?.querySelectorAll('.hv-cell')[at]?.querySelector('input')?.focus()
+          }, 50),
+          onCancel: () => logTick(i, side),
+        })
+      }
+    }
+    logTick(i, side)
+  }
+  const logTick = (i, side) => {
     if (!side && entry.sets[i]?.[RUN]) stopTimer(i)
     const had = recordsAt(liveRecords(useStore.getState().S), entryIdx, i).map(r => r.kind)
     if (side) onToggleSide(i, side); else onToggle(i)
@@ -412,7 +438,7 @@ export default function HevyExerciseBlock({
     const sideTag = side || s.side
     const prevText = previousText(p, { ...prevOpts, side })
     const canCopy = side ? !!(p && isSideSet(p)) : !!p
-    return <div ref={side === second ? undefined : el => onSetRowRef?.(i, el)} style={grid}
+    return <div ref={el => { rowEls.current[i + (side || '')] = el; if (side !== second) onSetRowRef?.(i, el) }} style={grid}
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
       {side === second ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
