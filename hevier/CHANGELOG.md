@@ -2,6 +2,27 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.1.0 · 2026-10-25
+
+Based on openGym 1.4.2.
+
+### New
+
+- ask before logging a likely typo (D90)
+- timed hold sets and the hold clock (D89)
+- exercise time on Workout Detail and in Statistics (D88)
+
+### Fixes and changes
+
+- D88 and D90 offered upstream
+- too-low values and forgotten cardio timers ask at the tick (D90)
+- per-side sets as one band, a line between sets
+- UX round 5 fixes (warm-up relay, exercise time totals, chip targets)
+- warm-up switch keeps work-set suggestions in place
+- #672's regenerated Hevy map offered again as #807
+- the fork's PRs taken into 1.4.3, #672's map to offer again
+- S44 names upstream PR #806
+
 ## 2.0.4 · 2026-10-25
 
 Based on openGym 1.4.2.
