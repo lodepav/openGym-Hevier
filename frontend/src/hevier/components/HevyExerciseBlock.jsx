@@ -15,7 +15,7 @@ import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
-import { restTimerText } from '../lib/elapsed.js'
+import { restTimerText, elapsedClock } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
@@ -48,9 +48,9 @@ import DurationField from './DurationField.jsx'
 import { isHoldRow, canBeHold, toHold, toReps, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
-import { RUN, secOf, fieldValue, stopped, startRun } from '../lib/set-timer.js'
+import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
-import { bestsFor, oddValues } from '../lib/odd-value.js'
+import { bestsFor, oddValues, longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
@@ -396,26 +396,41 @@ export default function HevyExerciseBlock({
     if (s[RUN]) return openHoldClock(entryIdx, i, title)
     holdClockSheet(entryIdx, i, secOf(s, 'time') || HOLD_SEC, title)
   }
-  // D90: a weight or rep count far past the exercise's best asks before it is logged; Fix it
-  // leaves the set unticked and puts the caret in the field.
+  // D90: a weight or rep count far past the exercise's best, or far under last time's same set,
+  // and a cardio timer left running, ask before the set is logged; Fix it leaves the set unticked
+  // and puts the caret in the field.
+  const ask = (i, side, s, f, title, message, logText, fix) => confirmSheet({
+    title, message, confirmText: t('Fix it'), cancelText: t('Log {0}', logText),
+    onConfirm: () => {
+      fix?.()
+      setTimeout(() => {
+        const at = colsOf(s).findIndex(c => c.f === f)
+        rowEls.current[i + (side || '')]?.querySelectorAll('.hv-cell')[at]?.querySelector('input')?.focus()
+      }, 50)
+    },
+    onCancel: () => logTick(i, side),
+  })
   const tick = (i, side) => {
     const s = entry.sets[i], src = side ? s?.sides?.[side] : s
+    const p = prev[i]
+    if (src && !src.done && modeAt(s) === 'cardio' && src[RUN]) {
+      const ran = runningSec(src)
+      const ref = longRun(ran, secOf(src, 'cardio'), p ? secOf(p, 'cardio') : 0)
+      if (ref) return ask(i, side, s, 'min', t('Timer still running?'),
+        t('{0} is over twice this set’s time, {1}.', elapsedClock(ran), elapsedClock(ref)), elapsedClock(ran), () => stopTimer(i))
+    }
     if (src && !src.done && modeAt(s) === 'reps') {
-      const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id), { unit, assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
+      const lastRow = !p || isWarmupRow(s) || isWarmupRow(p) || isHoldRow(p) ? null
+        : side ? p.sides?.[side] : isSideSet(p) ? null : p
+      const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id),
+        { unit, last: lastRow, assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
       if (odd.length) {
         const shown = o => (o.f === 'w' ? fmtNum(showWeight(o.typed)) + ' ' + exUnit : t('{0} reps', o.typed))
-        return confirmSheet({
-          title: t('Is that right?'),
-          message: odd.map(o => (o.f === 'w'
-            ? t('{0} is over twice your heaviest, {1}.', shown(o), fmtNum(showWeight(o.best)) + ' ' + exUnit)
-            : t('{0} is over twice your most, {1}.', shown(o), t('{0} reps', o.best)))).join(' '),
-          confirmText: t('Fix it'), cancelText: t('Log {0}', odd.map(shown).join(' × ')),
-          onConfirm: () => setTimeout(() => {
-            const at = colsOf(s).findIndex(c => c.f === odd[0].f)
-            rowEls.current[i + (side || '')]?.querySelectorAll('.hv-cell')[at]?.querySelector('input')?.focus()
-          }, 50),
-          onCancel: () => logTick(i, side),
-        })
+        const of = o => (o.f === 'w' ? fmtNum(showWeight(o.best)) + ' ' + exUnit : t('{0} reps', o.best))
+        return ask(i, side, s, odd[0].f, t('Is that right?'), odd.map(o => (o.low
+          ? t('{0} is under a third of last time’s, {1}.', shown(o), of(o))
+          : o.f === 'w' ? t('{0} is over twice your heaviest, {1}.', shown(o), of(o)) : t('{0} is over twice your most, {1}.', shown(o), of(o)))).join(' '),
+        odd.map(shown).join(' × '))
       }
     }
     logTick(i, side)
