@@ -39,7 +39,7 @@ api	ajv@8.20.0
 api	asn1.js@5.4.1
 api	asn1js@3.0.10
 api	bn.js@4.12.5
-api	body-parser@2.3.0
+api	body-parser@2.4.0
 api	buffer-equal-constant-time@1.0.1
 api	bytes@3.1.2
 api	call-bind-apply-helpers@1.0.2
@@ -47,6 +47,7 @@ api	call-bound@1.0.4
 api	content-disposition@1.1.0
 api	content-type@1.0.5
 api	content-type@2.0.0
+api	content-type@2.1.0
 api	cookie-signature@1.2.2
 api	cookie@0.7.2
 api	cors@2.8.6
@@ -68,7 +69,7 @@ api	express-rate-limit@8.6.2
 api	express@5.2.1
 api	fast-deep-equal@3.1.3
 api	fast-sha256@1.3.0
-api	fast-uri@3.1.8
+api	fast-uri@3.1.9
 api	finalhandler@2.1.1
 api	forwarded@0.2.0
 api	fresh@2.0.0
@@ -114,7 +115,7 @@ api	pkce-challenge@5.0.1
 api	proxy-addr@2.0.8
 api	pvtsutils@1.3.6
 api	pvutils@1.1.5
-api	qs@6.16.0
+api	qs@6.16.1
 api	range-parser@1.3.0
 api	raw-body@3.0.2
 api	reflect-metadata@0.2.2
@@ -146,7 +147,7 @@ api	web-push@3.6.7
 api	which@2.0.2
 api	wrappy@1.0.2
 api	zod-to-json-schema@3.25.2
-api	zod@4.4.3
+api	zod@4.6.7
 frontend	@aparajita/capacitor-secure-storage@8.0.1
 frontend	@babel/helper-string-parser@7.29.7
 frontend	@babel/helper-validator-identifier@7.29.7
@@ -266,7 +267,7 @@ frontend	fs-extra@9.1.0
 frontend	fsevents@2.3.3	install-script
 frontend	glob@13.0.6
 frontend	graceful-fs@4.2.11
-frontend	happy-dom@20.14.6
+frontend	happy-dom@21.0.4
 frontend	has-flag@4.0.0
 frontend	html-escaper@2.0.2
 frontend	html-escaper@3.0.3
@@ -422,7 +423,7 @@ mcp	ajv-formats@3.0.1
 mcp	ajv@8.20.0
 mcp	assertion-error@2.0.1
 mcp	ast-v8-to-istanbul@1.0.5
-mcp	body-parser@2.3.0
+mcp	body-parser@2.4.0
 mcp	bytes@3.1.2
 mcp	call-bind-apply-helpers@1.0.2
 mcp	call-bound@1.0.4
@@ -430,6 +431,7 @@ mcp	chai@6.3.0
 mcp	content-disposition@1.1.0
 mcp	content-type@1.0.5
 mcp	content-type@2.0.0
+mcp	content-type@2.1.0
 mcp	convert-source-map@2.0.0
 mcp	cookie-signature@1.2.2
 mcp	cookie@0.7.2
@@ -454,7 +456,7 @@ mcp	expect-type@1.4.0
 mcp	express-rate-limit@8.6.1
 mcp	express@5.2.1
 mcp	fast-deep-equal@3.1.3
-mcp	fast-uri@3.1.8
+mcp	fast-uri@3.1.9
 mcp	fdir@6.5.0
 mcp	finalhandler@2.1.1
 mcp	forwarded@0.2.0
@@ -520,7 +522,7 @@ mcp	picomatch@4.0.7
 mcp	pkce-challenge@5.0.1
 mcp	postcss@8.5.31
 mcp	proxy-addr@2.0.8
-mcp	qs@6.16.0
+mcp	qs@6.16.1
 mcp	range-parser@1.3.0
 mcp	raw-body@3.0.2
 mcp	require-from-string@2.0.2
