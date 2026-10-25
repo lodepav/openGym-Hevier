@@ -10,7 +10,7 @@ import { setNav } from '../../lib/nav.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO, MONTHS_LONG } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
-import { byExercise } from './MonthReport.jsx'
+import { byExercise } from '../lib/month-report.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))

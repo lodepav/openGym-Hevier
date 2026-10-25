@@ -32,13 +32,10 @@ export function entryTimes(w, gap = FORGOTTEN_GAP_MS) {
   const out = []
   let prev = start
   for (const { idx, at, len } of ticks) {
-    let step
-    if (at - len - prev > gap) { step = len; prev = Math.max(at, prev + len) } else {
-      const reach = Math.max(at, prev + len)
-      step = reach - prev
-      prev = reach
-    }
-    out[idx] = (out[idx] || 0) + step
+    // Past a forgotten gap, the set's own length only.
+    const reach = Math.max(at, prev + len)
+    out[idx] = (out[idx] || 0) + (at - len - prev > gap ? len : reach - prev)
+    prev = reach
   }
   return out
 }

@@ -62,7 +62,7 @@ export default function WeeklyChart() {
         const bar = <i style={{ height: Math.round((p.value / max) * 100) + '%' }} className={p.value ? '' : 'zero'} />
         const on = p.week === sel
         return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-pressed={on}
-          onClick={() => { setSel(on && kind !== 'sets' ? null : p.week); if (kind === 'sets') weekSheet(S, p.week) }}>{bar}</button>
+          onClick={() => { setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }}>{bar}</button>
       })}
     </div>
     {/* the axis on the right, Hevy's: the top line and its half */}

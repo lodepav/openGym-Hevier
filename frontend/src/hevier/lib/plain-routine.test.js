@@ -114,6 +114,15 @@ describe('hevier plain routines (D69)', () => {
     expect(pick(refillRows(S, S, e, legs, 'Hammer', 'Life Fitness'))).toEqual([['S', 90, 10], ['S', 90, 10]])
     const typed = { ...e, sets: [{ ...e.sets[0], r: 12 }, { ...e.sets[1], done: true }] }
     expect(pick(refillRows(S, S, typed, legs, 'Technogym', 'Life Fitness'))).toEqual([['S', 140, 12], ['S', 90, 10]])
+    // A hold last time on the old brand (D89) is a rep set again on a brand last done with reps,
+    // or with none.
+    const H = { ...S, workouts: [...S.workouts, pressDay('2026-10-15', 'Life Fitness', [{ w: 60, mode: 'time', sec: 40, done: true }])] }
+    const held = { ...e, sets: buildPlannedEntry(H, press, legs).sets }
+    expect(held.sets[0]).toMatchObject({ mode: 'time', sec: 40 })
+    const tg = refillRows(H, H, held, legs, 'Technogym', 'Life Fitness')
+    expect(tg[0]).toMatchObject({ w: 180, r: 8 })
+    expect(tg[0].mode).toBeUndefined()
+    expect(refillRows(H, H, held, legs, 'Hammer', 'Life Fitness')[0].mode).toBeUndefined()
     // Not a plain routine's: upstream's rows stay.
     expect(refillRows(S, S, e, { ...legs, hvProg: true }, 'Technogym', 'Life Fitness')).toBe(null)
   })

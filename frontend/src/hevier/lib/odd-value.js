@@ -6,7 +6,8 @@
 import { isSideSet } from '../../lib/workout-model.js'
 import { isHoldRow } from './hold-set.js'
 
-const rowsOf = s => (isSideSet(s) ? [s.sides?.L, s.sides?.R].filter(Boolean) : isHoldRow(s) ? [] : [s])
+// Ticked ones only: a saved workout keeps its unticked rows too.
+const rowsOf = s => (isSideSet(s) ? [s.sides?.L, s.sides?.R] : isHoldRow(s) ? [] : [s]).filter(x => x?.done)
 
 /** The heaviest weight and the most reps of any set logged for `exId` (a side counted alone). */
 export function bestsFor(S, exId) {

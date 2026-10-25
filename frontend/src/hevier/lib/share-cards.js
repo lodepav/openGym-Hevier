@@ -8,7 +8,7 @@
 import { EXIDX } from '../../lib/exercises.js'
 import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
-import { setUnits } from './hold-set.js'
+import { setUnits, isHoldRow } from './hold-set.js'
 import { fmtNum, fmtVol, exerciseNameText, weekOrder, DAYS } from '../../lib/format.js'
 import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
@@ -40,8 +40,10 @@ const scoreOf = s => Math.max(...partsOf(s).map(p => {
   return w > 0 ? w * (1 + r / 30) : (r || Number(p.sec) || Number(p.min) || 0) / 1e3
 }))
 function bestSet(e) {
+  // A rep set before a hold (D89): a pull-up's dead hang at the end is not its best set.
+  const work = (e.sets || []).filter(isWork), reps = work.filter(s => !isHoldRow(s))
   let best = null
-  for (const s of e.sets || []) if (isWork(s) && (!best || scoreOf(s) > scoreOf(best))) best = s
+  for (const s of reps.length ? reps : work) if (!best || scoreOf(s) > scoreOf(best)) best = s
   return best
 }
 

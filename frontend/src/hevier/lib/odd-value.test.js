@@ -4,8 +4,9 @@ import { makeSideSet } from '../../lib/workout-model.js'
 
 const S = { workouts: [
   { entries: [{ id: 'x', sets: [{ w: 30, r: 8, done: true }, { w: 20, r: 12, done: true }] }, { id: 'y', sets: [{ w: 200, r: 50 }] }] },
-  { entries: [{ id: 'x', sets: [{ w: 25, r: 10 }, { mode: 'time', sec: 90, w: 0 }] }] },
-  { entries: [{ id: 'z', sets: [makeSideSet({ w: 24, r: 22 })] }] },
+  // An unticked row (a typo never done, saved with the workout) counts for nothing.
+  { entries: [{ id: 'x', sets: [{ w: 300, r: 40 }, { mode: 'time', sec: 90, w: 0, done: true }] }] },
+  { entries: [{ id: 'z', sets: [(s => ({ ...s, done: true, sides: { L: { ...s.sides.L, done: true }, R: { ...s.sides.R, done: true } } }))(makeSideSet({ w: 24, r: 22 }))] }] },
 ] }
 
 describe('hevier: a mistyped weight or rep count (D90)', () => {

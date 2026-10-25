@@ -18,7 +18,6 @@ import { BackTo } from './Statistics.jsx'
 import { countedWorkouts } from '../lib/counted.js'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
 
-export { byExercise }
 const PR_ROWS = 5
 
 function Stat({ label, value, delta }) {

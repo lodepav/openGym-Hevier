@@ -5,7 +5,7 @@
 // A per-side set made a hold is upstream's timed per-side pair: an L row and an R row, each a hold
 // with its own seconds and weight, read as one set (setSpanAt). Upstream's per-side shape (`sides`)
 // cannot carry it: every side edit rebuilds a side from its reps and weight, and the seconds go.
-import { isWarmupRow, isSideSet, isDropSet, isRestPauseSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
+import { isWarmupRow, isSideSet, hasCompletedWork, isDropSet, isRestPauseSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 
 /** The seconds a new hold opens with when last time had none there: upstream's hold default. */
 export const HOLD_SEC = 45
@@ -22,6 +22,11 @@ export const canBeHold = (s, mode) => mode === 'reps' && !!s && !isWarmupRow(s)
 export const isPairTail = (rows, i) => rows?.[i]?.side === 'R' && rows?.[i - 1]?.side === 'L'
 /** Whether row `i` is the first half (L) of an L/R pair. */
 export const isPairHead = (rows, i) => rows?.[i]?.side === 'L' && rows?.[i + 1]?.side === 'R'
+
+/** Whether set `i` has anything ticked, either half of a pair or either side: its kind is then
+ *  kept (made a hold, or back, it would lose a logged side or invent one). */
+export const setTicked = (rows, i) => hasCompletedWork(rows?.[i])
+  || (isPairHead(rows, i) && rows[i + 1].done === true)
 
 /** The rows `rows` keeps as sets, an L/R pair as one (its L row): what a count of sets counts.
  *  `pick(s)` says whether a set counts; a pair counts when either half does. */

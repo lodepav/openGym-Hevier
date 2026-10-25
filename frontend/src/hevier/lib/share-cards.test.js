@@ -26,6 +26,11 @@ describe('share cards (D87)', () => {
     expect(cards[1].rows).toEqual([expect.objectContaining({ sets: '2 sets', best: '85kg × 3 reps' })])
   })
 
+  it('a hold at the end is not the best set of a rep exercise (D89)', () => {
+    const w = wk(3, [{ id: BENCH, sets: [s(0, 8), s(0, 7), s(0, 0, { mode: 'time', sec: 45 })] }])
+    expect(shareCards({ unit: 'kg', workouts: [w] }, w)[1].rows[0].best).toMatch(/8 reps/)
+  })
+
   it('a workout that beats the last one has a Records card, and Records in the summary', () => {
     const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
     const b = wk(3, [{ id: BENCH, sets: [s(90, 5)] }])
