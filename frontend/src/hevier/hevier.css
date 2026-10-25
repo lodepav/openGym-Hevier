@@ -748,3 +748,6 @@
 :root[data-ui="hevier"] .hv-extime-sort{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-extime-sort .hv-chip{display:inline-flex;align-items:center;gap:4px;min-height:32px}
 :root[data-ui="hevier"] .hv-extime-sort .icn{width:14px;height:14px}
+/* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
+:root[data-ui="hevier"] .hv-chip{position:relative}
+:root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}

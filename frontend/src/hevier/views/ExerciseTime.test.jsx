@@ -67,7 +67,7 @@ describe('hevier: exercise time page', () => {
     act(() => chip('Longest first').click())
     expect(names()[0]).toMatch(/bench/i)
     act(() => chip('Gym').click())
-    expect([...container.querySelectorAll('h4.sec')].map(h => h.textContent)).toEqual(['City Gym · 25min'])
+    expect([...container.querySelectorAll('h4.sec')].map(h => h.textContent)).toEqual(['City Gym · 25min total'])
     act(() => chip('Muscle').click())
     expect(chip('Gym').getAttribute('aria-pressed')).toBe('false')
     expect(container.querySelectorAll('h4.sec')).toHaveLength(2)

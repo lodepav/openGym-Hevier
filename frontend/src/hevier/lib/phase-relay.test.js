@@ -76,4 +76,12 @@ describe('hevier phase relay', () => {
     expect(movedTo(rows, 0)).toBe(0)
     expect(pick(change(rows, 1, true))).toEqual([['W', 40, 10], ['W', 60, 8], ['S', 60, 8], ['S', 70, 8], ['S', 80, 6]])
   })
+  it('a warm-up made a work set where a typed row was takes last time’s set, not its warm-up numbers', () => {
+    // Set 1 typed (85); set 2 was made a warm-up and filled from last time's warm-up (20 × 5).
+    const rows = [S(20, 5, { phase: 'warmup', warmup: true }), S(85, 6, { weightOrigin: 'manual' }), last(80, 8), last(80, 8)]
+    const free = i => i !== 1
+    const prev = [S(80, 6, { done: true }), S(60, 12, { done: true }), null, null]
+    expect(pick(relaySuggestions(rows, makeWorkAt(rows, 0), 0, 0, free, prev)))
+      .toEqual([['S', 80, 6], ['S', 85, 6], ['S', 80, 8], ['S', 80, 8]])
+  })
 })

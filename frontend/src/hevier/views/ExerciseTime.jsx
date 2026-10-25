@@ -12,7 +12,7 @@ import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { BackTo } from './Statistics.jsx'
 import { timedSessions, timeSections, periodSince } from '../lib/exercise-time.js'
-import { elapsedWords, durationWords } from '../lib/elapsed.js'
+import { elapsedWords } from '../lib/elapsed.js'
 import { mainMuscleOf } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
 
@@ -43,14 +43,14 @@ export default function ExerciseTime() {
     <div className="small dim">{t('Average time a session, from the times your sets were ticked: the rest before each set counts.')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {sections.map(sec => <section key={sec.key}>
-      {by && <h4 className="sec">{title(sec.key)} <span className="dim">· {durationWords(sec.total)}</span></h4>}
+      {by && <h4 className="sec">{title(sec.key)} <span className="dim">· {secs(sec.total)} {t('total')}</span></h4>}
       <div className="list">{sec.rows.map(r => {
         const ex = exOr(r.id)
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
           <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
-            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')} · {durationWords(r.total)} {t('total')}</span>
+            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')} · {secs(r.total)} {t('total')}</span>
           </span>
-          <b>{secs(r.avg)}</b>
+          <b><span className="hv-sr">{t('Average')}: </span>{secs(r.avg)}</b>
         </button>
       })}</div>
     </section>)}
