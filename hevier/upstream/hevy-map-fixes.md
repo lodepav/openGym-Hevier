@@ -28,7 +28,7 @@ mapped (1.4.3 has 297), 129 former customs mapped, 80 rows moved to Hevy's own p
 again the same day as **#807** (branch `hevier-upstream/hevy-map-regen`, against `release-1.4.3`):
 the commit rebased there and the map regenerated on it, so 1.4.3's own title fixes (#784, #785,
 #793) are kept. 429 of Hevy's 503 templates mapped (74 unmatched); Clamshell follows 1.4.3's
-alias (2461). The fork's lockfile-free map is upstream's file: nothing in the fork changes until
+alias (2461). The map is upstream's file, so nothing in the fork changes until
 the 1.4.3 merge.
 
 **Single Arm Triceps Extension (Cable)** stays fork-only: it is a custom exercise in the user's
