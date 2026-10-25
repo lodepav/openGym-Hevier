@@ -5,7 +5,9 @@ build something that is already coming. Read this before starting a milestone, a
 
 Saved 2026-10-16 from `upstream/release-1.4.2` and `upstream/release-1.4.3`, refreshed
 2026-10-21. **Refreshed 2026-10-24** from `release-1.4.3` (a96064d8, 75 commits past the last
-refresh's 6204387d; its milestone is due 2026-11-01). v1.4.2 is tagged and merged into the fork
+refresh's 6204387d; its milestone is due 2026-11-01). **Refreshed 2026-10-25** at e107bbe5, 41
+commits on: most are the Watch, the Live Activity, iOS 15 booting, Coach and Spanish; the rows
+marked *(2026-10-25)* below are the ones that meet the fork. v1.4.2 is tagged and merged into the fork
 (2026-10-23); `upstream/main` (7a3ace53) is two README and website commits past it (the App Store
 launch). The new `wp1-deps` … `wp15-machines` branches (2026-10-23/24) are stages of
 `release-1.4.3`, with nothing past it; the older work branches hold Coach, Apple Watch and
@@ -71,6 +73,15 @@ scripts build the `sideload` flavour; D45's port is gone; the boot screen is rec
 | **The Android update installs** after a switch away, reuses a downloaded APK; About names the Standard / Plus / HD build | D52 / D77 use upstream's updater: take it. Check About's row for the fork's sideload build. |
 | **New dependencies** in 1.4.3: `leaflet` (the gym reminder's map, tiles from `tile.openstreetmap.org`, places from `nominatim.openstreetmap.org`), `@capacitor/splash-screen` (`lib/boot.js`), `fast-check` (dev) | D26's supply-chain gate fails on all three until they are read and added to the baseline, and on the two OpenStreetMap hosts until they are allow-listed (Photon and Overpass already are, D47). The splash-screen plugin meets D83's boot screen and the fork's black native splash: check the colours at launch. |
 | Bodyweight view in Exercise progress (#729), volume in the workout's progress bar (#774), Swedish (#721), MCP `log_workout` (#739) | Upstream's pages and layouts: nothing appears in the fork's. |
+| **Hevy import leftovers** *(2026-10-25)*: 12 more Hevy titles (#793, another user's), seated leg curl stays seated and lifts never matched by title stay out of the Hevy id map (#784, #785) | At the merge: delete the 11 rows `hevier/lib/hevy-import.js` took from #793 (marked there) and D29's fix rows these cover (`Seated Leg Curl (Machine)` among them; compare with `hevier/upstream/hevy-map-fixes.md`). |
+| **Health Connect history permission** *(2026-10-25, #801)*: turning on weigh-ins asks for `READ_HEALTH_DATA_HISTORY` too, and the first read goes a year back | D27 reads 30 days and asks for no history permission. At the merge, D27's copy goes anyway; add the new permission to D38's `apk-permissions.txt` with its reason, or the APK gate fails. |
+| **Jump rope starts as sets × reps** *(2026-10-25, #796)*: nine catalogue entries moved from cardio to full body | D55 / D75's `defaultConfig` (S32) answers first only for holds and one-limb lifts, so upstream's default comes through. Check D53's TIME column is not drawn for them, and D64's Cardio muscle group loses them. |
+| **RPE for a cardio set** from its set menu, read by the fatigue model *(2026-10-25)* | The fork's set-type sheet (D5) replaces upstream's set menu: offer the row there at the merge, as #609's. D6's effort column shows only for RIR / RPE settings. |
+| **"I own no dumbbells"** switch on Settings → Equipment → Dumbbells *(2026-10-25)*: stands in for the active profile, so the library, picker and missing-equipment flags hide dumbbell exercises | The fork's picker filters by the gym (D62), not upstream's active profile, so it would ignore the switch. At the merge: honour it in the gym filter, or hide the row (D16), the user's call. |
+| **A run is a run** in Health Connect *(2026-10-25, #799)*: a cardio-only workout is written with its activity type | Upstream's write: nothing to do. Check D79's strap heart rate still lands on such a workout. |
+| **Boot watchdog** *(2026-10-25)*: a boot that never finishes says why on the boot screen, with a lime **Reload** button (`#boot.fail` in `index.html`) | D83 recolours `#boot` by S45's style: add `#boot.fail button` in Hevy blue, or the one screen that shows when things break is upstream's lime. |
+| **Safari 15 build target** and a bundle syntax check *(2026-10-25)*, in `vite.config.js`'s `build` | Seam S45 is in the same file's `plugins`: expect a nearby but separate hunk. The fork's newer syntax must pass `scripts/check-bundle-syntax.mjs`; run it after the merge. |
+| **color-mix() fallbacks** *(2026-10-25)*: `color-mix-fallback.test.js` checks every `.css` under `frontend/src`, so the fork's too | `frontend/src/hevier/hevier.css` has 8 `color-mix()` without plain fallbacks: upstream's test would fail on fork CSS (rule 3). At the merge: add the fallbacks (the Android WebView needs none, but the test is upstream's), not an exception in the test. |
 | Security fixes, owner role, CSP | Server side: take as is. CSP: the fork loads nothing external, but check it on merge. |
 
 ## Upstream's roadmap (ROADMAP.md, read 2026-10-18)
@@ -110,9 +121,11 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
 | Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
-## The fork's PRs and issues upstream (2026-10-24)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25)
 
-Every PR shows open until upstream ships the release that has it.
+Every PR shows open until upstream ships the release that has it. On 2026-10-25 nothing more of the
+fork's was taken: 1.4.3's CHANGELOG credits #694, #735, #736 and #766 by number, and #672, #677
+and #690 by name; #788 is still open, not in the branch.
 
 | # | What | State |
 |---|---|---|
@@ -123,7 +136,7 @@ Every PR shows open until upstream ships the release that has it.
 | #735 | An exercise's rest wheel opens on the default rest (D56) | In `release-1.4.3`, with upstream's "No timer" |
 | #736 | A one-arm or one-leg exercise starts per side (`pickedExerciseConfig`, D75) | In `release-1.4.3` |
 | #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | In `release-1.4.3` (#766 with #769) |
-| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Opened 2026-10-24 |
+| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Opened 2026-10-24; open, not in `release-1.4.3` (2026-10-25) |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21 |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
