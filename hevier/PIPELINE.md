@@ -58,7 +58,7 @@ scripts build the `sideload` flavour; D45's port is gone; the boot screen is rec
 | **Fatigue in percent** (1.4.3, #662), Muscle balance's untrained muscles offer exercises (#553) | Upstream's Stats pages: nothing to do. |
 | **Settings pages slide in** from the right | The fork's Settings root (D16) is upstream's page: check the slide and D49's page bar together. |
 | **Faster on long histories**: fewer renders on Home and Stats, a smaller start script | Check the fork's Home (D12) and Profile still render once per change. |
-| **The fork's own PRs** taken into 1.4.3: Hevy titles (#672), chart labels (#677), weights to the hundredth and note line breaks (#690), holds as timed holds (#694), one-limb exercises per side (#736), the rest wheel on the rest that applies (#735), and the dependency bumps (#754, #766, #767, #768: 1.4.3 has the same versions) | At the merge: delete D29's fix rows #672 covers (`hevier/upstream/hevy-map-fixes.md`), seam S25 and its `importWeight` hook (D40), and D54's line-break step in `importDone` for new imports (keep the fix-up of earlier imports' `\n`); seams S33 and S42 and `hevier/lib/rest-default.js` (D56); S32's per-side half and `sideOff` (D75), keeping the fork's "last logged per side" and "last logged as holds" rules, and D55's id list where upstream's catalogue defaults give the same mode; S44's rows, whose lines become upstream's. The PRs show open until upstream ships them. |
+| **The fork's own PRs** taken into 1.4.3: Hevy titles (#672), chart labels (#677), weights to the hundredth and note line breaks (#690), holds as timed holds (#694), one-limb exercises per side (#736), the rest wheel on the rest that applies (#735), and the dependency bumps (#754, #766, #767, #768: 1.4.3 has the same versions) | At the merge: delete D29's fix rows #672 covers (its regenerated map was not taken, see below) (`hevier/upstream/hevy-map-fixes.md`), seam S25 and its `importWeight` hook (D40), and D54's line-break step in `importDone` for new imports (keep the fix-up of earlier imports' `\n`); seams S33 and S42 and `hevier/lib/rest-default.js` (D56); S32's per-side half and `sideOff` (D75), keeping the fork's "last logged per side" and "last logged as holds" rules, and D55's id list where upstream's catalogue defaults give the same mode; S44's rows, whose lines become upstream's. The PRs show open until upstream ships them. |
 | **Other names** for an exercise (1.4.3, #624): `S.exAliases` (`{ [exId]: [names] }`) and a custom exercise's own `aliases`, found by upstream's search | **Overlaps D73** (`S.hvAliases`, seam S41). At the merge: move the fork's names into `S.exAliases` (one list, synced by upstream), keep only D73's **Show as its name** as the fork's, and drop S41's search half. |
 | **A planned backup in one tap** from the exercise's ⋯ during a workout (1.4.3, #649) | The fork's ⋮ (`HevyWorkout`) is its own, so nothing appears. D46 / D86 swap a backup in by gym; if a one-tap pick is wanted in the fork's ⋮, call upstream's helper rather than building one. |
 | **Machine weight stacks** under Plate loading (1.4.3, #688): progression, warm-ups and drops land only on the stack's weights | The fork's ⋮ → Plate loading is upstream's page, so it comes as is. A stack is per exercise, not per brand (D28 / D82): two brands' machines share it. Check it against D41's `inc` in the other unit. |
@@ -123,20 +123,23 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 
 ## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25)
 
-Every PR shows open until upstream ships the release that has it. On 2026-10-25 nothing more of the
-fork's was taken: 1.4.3's CHANGELOG credits #694, #735, #736 and #766 by number, and #672, #677
-and #690 by name; #788 is still open, not in the branch.
+On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 unmerged: each
+came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
+commit by commit against the branch the same day: everything is in **except #672's last commit**
+(below). #754 is still open, though its commit came in with #766; #735 is still open, upstream
+having written its own version into 1.4.3 (`8727ee090`); #788 and #806 are open, not in the branch.
 
 | # | What | State |
 |---|---|---|
-| #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | In `release-1.4.3` |
-| #677 | Chart x-axis labels never repeat a date or a month | In `release-1.4.3` |
-| #690 | Imports keep converted weights to the hundredth, Hevy notes keep line breaks (D40, D54) | In `release-1.4.3` |
-| #694 | A plank or a wall sit starts as a timed hold (D55) | In `release-1.4.3`, with #717's cardio defaults, for fresh picks only |
-| #735 | An exercise's rest wheel opens on the default rest (D56) | In `release-1.4.3`, with upstream's "No timer" |
-| #736 | A one-arm or one-leg exercise starts per side (`pickedExerciseConfig`, D75) | In `release-1.4.3` |
-| #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | In `release-1.4.3` (#766 with #769) |
+| #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **To offer again as a new PR once 1.4.3 is released**, regenerated on it (upstream's #784, #785, #793 changed the map meanwhile) |
+| #677 | Chart x-axis labels never repeat a date or a month | Closed, in `release-1.4.3` |
+| #690 | Imports keep converted weights to the hundredth, Hevy notes keep line breaks (D40, D54) | Closed, in `release-1.4.3` |
+| #694 | A plank or a wall sit starts as a timed hold (D55) | Closed, in `release-1.4.3`, with #717's cardio defaults, for fresh picks only |
+| #735 | An exercise's rest wheel opens on the default rest (D56) | Open; upstream's own version is in `release-1.4.3`, with its "No timer" |
+| #736 | A one-arm or one-leg exercise starts per side (`pickedExerciseConfig`, D75) | Closed, in `release-1.4.3` (its rename commit too) |
+| #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | #766, #767, #768 closed, #754 open; all four in `release-1.4.3` (#766 with #769) |
 | #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Opened 2026-10-24; open, not in `release-1.4.3` (2026-10-25) |
+| #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | Opened 2026-10-25, stacked on #766; open |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21 |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
@@ -170,7 +173,7 @@ from their **titles only**, so read a PR before acting on it. Refresh:
 | #661 | Life Fitness consoles: scan the end-of-workout QR code into a cardio set | Near D28's brands; nothing to take now |
 | #723 | Gym membership barcodes | **Won't do** (D12), like #568 |
 | #658 | Warm-ups: "Your last session" carries last time's warm-ups (#525) | D69 does this for routines without progression; if it lands, D69 may read it (with 1.4.3's #217, above) |
-| #785 (2026-10-24) | Hevy import: seated / lying leg curl, cable / machine reverse fly and the dumbbell skull crusher kept apart; Crunch, Side Plank, Squat (Machine) and Triceps Extension (Cable) left out of the template map too | **D29's fix table** maps some of these: if it lands, delete the rows it covers, as with #672. Its four titles left out would make custom exercises where D29 or D33 picked one: check the user's history imports the same. |
+| #785 (2026-10-24) | Hevy import: seated / lying leg curl, cable / machine reverse fly and the dumbbell skull crusher kept apart; Crunch, Side Plank, Squat (Machine) and Triceps Extension (Cable) left out of the template map too | **In `release-1.4.3`** (with #784 and #793; closed 2026-10-25). **D29's fix table** maps some of these: at the merge, delete the rows it covers, as with #672. Its four titles left out would make custom exercises where D29 or D33 picked one: check the user's history imports the same. |
 | #773 (2026-10-24) | Android slim APK, animations downloaded on demand (a proof of concept, discussion #744) | **D50** left the media alone: if it lands, the fork's APK can shrink with it, through upstream's build |
 | #775 (2026-10-24) | A warm-up or cool-down runs itself, as one card | `HevyWorkout` would need to follow, with #610's phases |
 | #749, #790 | Rest by heart rate on the Apple Watch; a forgotten workout ends at its last set (watch) | iOS; near D79 / D80 and D60, nothing to take |
