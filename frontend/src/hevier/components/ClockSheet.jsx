@@ -101,7 +101,7 @@ function HoldRing({ ei, si, title, close }) {
 /** Starts set `si` of entry `ei` on the big clock, counting down from `goal` seconds, and opens it. */
 export function holdClockSheet(ei, si, goal, title) {
   useUI.getState().stopRest()
-  useStore.getState().update(st => { if (st.active) startRun(st.active, ei, si, Date.now(), goal) })
+  useStore.getState().update(st => startRun(st.active, ei, si, Date.now(), goal))
   return openHoldClock(ei, si, title)
 }
 

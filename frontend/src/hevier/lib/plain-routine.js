@@ -89,7 +89,8 @@ export function plainRows(H, S, cfg, routine, rows) {
 }
 
 // The numbers a row is filled with, for refillRows: what plainRows and upstream's build write.
-const NUMS = ['w', 'r', 'sec', 'min', 'speed', 'incline', 'sides', 'weightOrigin', 'hvLast']
+// `mode` too: a hold from last time (D89) is no hold on a label whose last time was reps.
+const NUMS = ['w', 'r', 'sec', 'min', 'speed', 'incline', 'sides', 'mode', 'weightOrigin', 'hvLast']
 const VALS = ['w', 'r', 'sec', 'min', 'speed', 'incline']
 const sameVals = (a, b) => VALS.every(k => (a?.[k] ?? null) === (b?.[k] ?? null))
 const sameRow = (a, b) => sameVals(a, b) && ['L', 'R'].every(k => sameVals(a?.sides?.[k], b?.sides?.[k]))
@@ -127,8 +128,8 @@ export function refillRows(H, S, e, routine, label, was) {
       if (b[k] !== undefined) start[k] = b[k]
       else delete start[k]
     }
-    const was = filled(start, old[i])
-    if (!sameRow(row, start) && (Array.isArray(was) || !sameRow(row, was))) return [row]
+    const before = filled(start, old[i])
+    if (!sameRow(row, start) && (Array.isArray(before) || !sameRow(row, before))) return [row]
     return [filled(start, prev[i])].flat()
   })
 }

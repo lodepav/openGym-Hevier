@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { isHoldRow, canBeHold, toHold, toReps, rowMode, toSideHold, fromSideHold, setNumberOf, setUnits } from './hold-set.js'
+import { isHoldRow, canBeHold, toHold, toReps, rowMode, toSideHold, fromSideHold, setNumberOf, setUnits, setTicked } from './hold-set.js'
 import { previousSetsFor } from './previous-sets.js'
 import { plainRows } from './plain-routine.js'
 import { workSets } from './volume.js'
@@ -104,6 +104,20 @@ describe('hevier: a per-side set as a hold on each side (D89)', () => {
     expect(p[1].sides.R.r).toBe(10)
     expect(p[2]).toMatchObject({ side: 'L', sec: 40 })
     expect(previousText(p[2], { side: 'R', mode: 'reps', unit: 'kg', id: 'x' })).toBe(setLabel('x', past[2]))
+  })
+
+  it('two half-ticked pairs are two sets last time, never one', () => {
+    const [L1, R1] = toSideHold(side(20, 10), 30, 31), [L2, R2] = toSideHold(side(20, 10), 40, 41)
+    const H = { workouts: [{ id: 'w1', d: '2026-10-20', entries: [{ id: 'x', sets: [tick(L1), R1, L2, tick(R2)] }] }] }
+    const p = previousSetsFor(H, { id: 'x', sets: toSideHold(side(0, 0)).concat(toSideHold(side(0, 0))) }, 'any')
+    expect(p.map(x => x?.sec ?? null)).toEqual([30, null, null, 41])
+  })
+
+  it('a ticked set keeps its kind: a side or half ticked counts', () => {
+    const half = { ...side(20, 10), sides: { L: { w: 20, r: 10, done: true }, R: { w: 20, r: 10, done: false } } }
+    const [L, R] = toSideHold(side(20, 10))
+    expect([setTicked([half], 0), setTicked([side(20, 10)], 0)]).toEqual([true, false])
+    expect([setTicked([L, tick(R)], 0), setTicked([L, R], 0), setTicked([{ ...toHold(S(10, 8)), done: true }], 0)]).toEqual([true, false, true])
   })
 
   it('a routine without progression opens it as a hold on each side again', () => {

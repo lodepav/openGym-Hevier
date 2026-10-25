@@ -3,7 +3,6 @@
 // written as held), with the rest's end sound and buzz while the app is on screen. Checked every
 // second and on coming back to the app.
 import { dueGoals, stopped } from './set-timer.js'
-import { modeOf } from '../../lib/history.js'
 import { chime, alertBuzz, restSoundOf } from '../../lib/sound.js'
 import { fmtSec } from '../../lib/history.js'
 import { t } from '../../lib/i18n.js'
@@ -21,7 +20,7 @@ export function initHoldClock(store) {
       for (const [ei, si] of due) {
         const e = st.active?.entries?.[ei]
         if (!e?.sets?.[si]) continue
-        e.sets[si] = stopped(e.sets[si], modeOf({ ...(e.target || {}), id: e.id }))
+        e.sets[si] = stopped(e.sets[si], 'time')
         held = e.sets[si].sec || held
       }
     })

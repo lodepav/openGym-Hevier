@@ -24,11 +24,16 @@ function lastKeys(exId, label) {
   return [...new Set([...own(brand), ...(brand ? own('') : [])])]
 }
 
-// A per-side hold is an L row and an R row (hold-set.js), one set: past work sets as units, a
-// pair as { pair: true, L, R } (a half whose partner was left unticked, a pair of one).
-const units = rows => rows.flatMap((s, i) => (isPairTail(rows, i) ? []
-  : isPairHead(rows, i) ? [{ pair: true, L: s, R: rows[i + 1] }]
-    : s.side === 'L' || s.side === 'R' ? [{ pair: true, [s.side]: s }] : [s]))
+// A per-side hold is an L row and an R row (hold-set.js), one set: past work sets' ticked ones as
+// units, a pair as { pair: true, L, R } (a half whose partner was left unticked, a pair of one).
+// Paired before the unticked rows go, so two half-ticked pairs never read as one.
+const units = rows => rows.flatMap((s, i) => {
+  if (isPairTail(rows, i)) return []
+  const halves = isPairHead(rows, i) ? [s, rows[i + 1]] : s.side === 'L' || s.side === 'R' ? [s] : null
+  if (!halves) return s.done ? [s] : []
+  const done = halves.filter(h => h.done)
+  return done.length ? [{ pair: true, ...Object.fromEntries(done.map(h => [h.side, h])) }] : []
+})
 const isPair = u => u?.pair === true
 // What a row shows of a past unit: a half of a pair its own half (or the set, last time one row),
 // any other row the set, or a pair's L carrying its R (`hvPairR`, never stored) for a per-side set.
@@ -50,7 +55,7 @@ function* pastSessions(H, exId, rid, label) {
       if (!en || seen.has(en) || entryExcluded(w, en)) continue
       seen.add(en)
       const done = (en.sets || []).filter(s => s.done)
-      const work = units(done.filter(s => !isWarmupRow(s)))
+      const work = units((en.sets || []).filter(s => !isWarmupRow(s)))
       if (work.length) yield { warm: done.filter(isWarmupRow), work }
     }
   }
