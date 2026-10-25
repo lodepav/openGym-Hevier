@@ -246,6 +246,7 @@
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
 :root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px}
 :root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
+:root[data-ui="hevier"] .hv-bars:has(.on) .hv-barcol:not(.on) i{opacity:.45}
 :root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
 :root[data-ui="hevier"] .hv-chip{padding:6px 12px;border-radius:999px;font-size:13px;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-chip.on{background:var(--acc);color:var(--on-acc)}
@@ -662,6 +663,7 @@
 :root[data-ui="hevier"] .hv-report-more{width:100%;margin-top:8px}
 :root[data-ui="hevier"] .hv-msets-cap{margin:6px 0 2px}
 :root[data-ui="hevier"] .hv-allstats + .hdr{display:none}
+:root[data-ui="hevier"] .hv-planbar + .plan > .hdr h1{display:none}
 
 /* Equipment by group (D63): a gym's checklist, each group a chip with its chevron at the right edge. */
 :root[data-ui="hevier"] .hv-eqg{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 6px}

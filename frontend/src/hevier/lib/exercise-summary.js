@@ -4,7 +4,7 @@
 // is derived from those sessions: Hevy's records (best set volume, best session volume) and its
 // table of the heaviest weight for each rep count.
 import { exerciseHistory } from '../../lib/exercise-history.js'
-import { completedRepsOf } from '../../lib/history.js'
+import { isSideSet } from '../../lib/workout-model.js'
 import { beatsWeight, isAssisted } from '../../lib/exercises.js'
 
 const DAY = 86400000
@@ -13,6 +13,12 @@ export const RANGES = { '3m': 91 * DAY, '1y': 365 * DAY, all: Infinity }
 /** The points of a series inside a range ('3m' | '1y' | 'all') that ends at `now`. */
 export const inRange = (points, range, now = Date.now()) =>
   (points || []).filter(p => now - p.t <= (RANGES[range] ?? Infinity))
+
+// A set's done sides, each with its own weight and reps, as the records read them (records.js): a
+// per-side set's best is one side's, 28 kg × 11, not both sides' 22 (changed 2026-10-25, at the
+// user's request after the UX review). Session totals (volume) still count both sides.
+const parts = x => (isSideSet(x) ? [x.sides.L, x.sides.R] : [x])
+  .filter(p => p?.done === true).map(p => ({ w: Number(p.w) || 0, r: Math.max(0, Number(p.r) || 0) }))
 
 const top = (list, key) => list.reduce((best, x) => (x[key] > (best?.[key] ?? 0) ? x : best), null)
 
@@ -31,28 +37,33 @@ export function exerciseSummary(S, exId) {
   const lifts = chron.filter(s => s.mode === 'reps')
 
   const setVols = tonnage ? lifts.map(s => {
-    const best = top(s.sets.map(x => ({ w: Number(x.w) || 0, r: completedRepsOf(x) })).map(x => ({ ...x, v: x.w * x.r })), 'v')
+    const best = top(s.sets.flatMap(parts).map(x => ({ ...x, v: x.w * x.r })), 'v')
     return best ? { t: s.t, d: s.d, y: best.v, w: best.w, r: best.r } : null
   }).filter(p => p && p.y > 0) : []
 
-  const series = { main: h.points }
+  // Reps without load: a session's most reps in one set, a per-side set's one side.
+  const mostReps = h.metric === 'reps'
+    ? new Map(lifts.map(s => [s.t, Math.max(0, ...s.sets.flatMap(parts).map(x => x.r))])) : null
+  const main = mostReps ? h.points.map(p => ({ ...p, y: mostReps.get(p.t) ?? p.y })) : h.points
+  const series = { main }
   if (weighted && h.e1rmPoints.length) series.e1rm = h.e1rmPoints
   if (setVols.length) series.setVol = setVols
 
   const prSession = chron.find(s => s.pr) || null
+  const topReps = mostReps && top(main, 'y')
   const e1 = top(h.e1rmPoints, 'y')
   const sv = top(setVols, 'y')
   const sessVol = tonnage ? top(lifts.filter(s => s.volume > 0), 'volume') : null
   const records = {
-    best: h.best > 0 && prSession ? { v: h.best, d: prSession.d } : null,
+    best: mostReps ? (topReps ? { v: topReps.y, d: topReps.d } : null)
+      : h.best > 0 && prSession ? { v: h.best, d: prSession.d } : null,
     e1rm: e1 ? { v: e1.y, d: e1.d } : null,
     setVol: sv ? { v: sv.y, w: sv.w, r: sv.r, d: sv.d } : null,
     sessionVol: sessVol ? { v: sessVol.volume, d: sessVol.d } : null,
   }
 
   const byReps = new Map()
-  if (weighted) for (const s of lifts) for (const x of s.sets) {
-    const r = completedRepsOf(x), w = Number(x.w) || 0
+  if (weighted) for (const s of lifts) for (const { r, w } of s.sets.flatMap(parts)) {
     if (!(r > 0) || !(w > 0)) continue
     const had = byReps.get(r)
     // A tie keeps the first time it was reached, as upstream's PR marker does.

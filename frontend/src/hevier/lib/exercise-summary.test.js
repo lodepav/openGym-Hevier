@@ -30,6 +30,13 @@ describe('hevier exercise summary', () => {
     expect(s.series.setVol.map(p => p.y)).toEqual([480, 625, 520])
   })
 
+  it('reads a per-side set one side at a time, as the records do', () => {
+    const side = (w, r) => ({ r: 2 * r, done: true, sides: { L: { w, r, done: true }, R: { w, r, done: true } } })
+    const s = exerciseSummary(S([W('p', '2026-09-16', [side(28, 11), side(20, 10)])]), BENCH)
+    expect(s.records.setVol).toMatchObject({ v: 308, w: 28, r: 11 })
+    expect(s.reps).toEqual([{ r: 10, w: 20, d: '2026-09-16' }, { r: 11, w: 28, d: '2026-09-16' }])
+  })
+
   it('lists the heaviest weight for each rep count, warm-ups left out', () => {
     expect(exerciseSummary(S(log), BENCH).reps).toEqual([
       { r: 3, w: 70, d: '2026-10-10' },

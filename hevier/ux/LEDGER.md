@@ -71,11 +71,11 @@ about 35). 124 tool calls, 14 minutes. Ids are this round's (R3-).
 | Id | Sev | Rule | Claim | Outcome |
 |---|---|---|---|---|
 | R3-U1 | medium | H4 | The monthly report writes a record beaten N times as "×N", next to reps and the cable's ×2: "20 kg × 15 ×4" | **fixed** (hevier/ux-round3): "· 4 times" |
-| R3-U2 | medium | G8 | A one-limb exercise's Best Set Volume reads 28 kg × 11 in the report (one side, D51's records) and 28 kg × 22 in exercise details (upstream's both-sides total) | **discuss** |
+| R3-U2 | medium | G8 | A one-limb exercise's Best Set Volume reads 28 kg × 11 in the report (one side, D51's records) and 28 kg × 22 in exercise details (upstream's both-sides total) | **fixed** at the user's yes: details read one side too (D51) |
 | R3-U3 | medium | A8 | Long-press reorder did nothing in a routine made on the same visit | **fixed**: the hook's touch listener is attached again once the list has rows (`useDragReorder`); the tap path (Move up / down) already worked |
 | R3-U4 | low | C4 | Workout Detail wrote "300kg × 1 reps" | **fixed**: "1 rep" (also the share card) |
 | R3-U5 | low | C1 | The Backups sheet's title read "Backups For Lever Lying Leg Curl" | **fixed**: only the name is cased |
-| R3-U6 | low | H4 | The Plan page (Workout tab → Schedule) has no ‹ and no page bar (D49) | **discuss** (adds a control; upstream's page, system back works) |
+| R3-U6 | low | H4 | The Plan page (Workout tab → Schedule) has no ‹ and no page bar (D49) | **fixed** at the user's yes: the fork's bar with ‹ (D49) |
 | R3-U7 | low | H2 | The weekly chart's Reps headline "0 this week" had no unit | **fixed**: "0 reps this week" |
 | R3-U8 | low | A3 | The routine editor's ⋮ buttons were all spoken "More" | **fixed**: "More, <exercise>" and "More, <routine>" |
 | R3-U9 | low | A7 | The Calendar page had no headings | **fixed**: each month title is a heading |
@@ -84,7 +84,7 @@ about 35). 124 tool calls, 14 minutes. Ids are this round's (R3-).
 Improvements: **fixed**: the week bars spoken "Week of 12 Oct: 47 sets"; the Backups gym chips
 spoken "Lever Lying Leg Curl: available at Holmes Place"; the empty folder's hint names ⋯ → New
 Routine too; the monthly report's month buttons and the Routines heading's icons get a 48 dp target.
-**Discuss**: a tap on a week under Duration or Reps does nothing (only Sets opens a sheet).
+**Fixed** at the user's yes: a tap on any week puts its value in the headline (D14).
 
 Notes for the user: Workout Detail's ↑ = ↓ (D66) say what they compare with only to a screen
 reader; a gym's "missing" mark (D86) applies to every routine with the exercise, which the sheet

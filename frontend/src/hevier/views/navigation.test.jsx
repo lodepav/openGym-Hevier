@@ -144,6 +144,12 @@ describe('hevier: navigation (seam S2)', () => {
     expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4')
     act(() => byText('.hv-chip', 'Reps').click())
     expect(byText('.hv-chip', 'Reps').getAttribute('aria-pressed')).toBe('true')
+    // a tap on a week puts its value in the headline, a second one puts this week back
+    const week = [...container.querySelectorAll('button.hv-barcol')].at(-2)
+    act(() => week.click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 16 reps$/)
+    act(() => week.click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/this week$/)
     act(() => byText('.hv-dash .btn', 'Statistics').click())
     expect(path).toBe('/stats')
   })
