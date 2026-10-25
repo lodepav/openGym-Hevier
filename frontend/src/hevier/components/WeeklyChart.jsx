@@ -1,6 +1,6 @@
 // Hevy's Profile chart (reference/SCREENS.md §5): the last 12 weeks as bars, switched between
 // Duration · Volume · Reps. In sets mode (hevier/DECISIONS.md D18) Volume is Sets, and a tap on a
-// week lists its sets per muscle. Values come from hevier/lib/weekly-series.js.
+// week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -35,6 +35,7 @@ export default function WeeklyChart() {
   const S = useStore(s => s.S)
   const [pick, setKind] = useState('duration')
   const [weeks, setWeeks] = useState(12)
+  const [sel, setSel] = useState(null)
   const sets = volumeMode(S) === 'sets'
   // The Volume chip is Sets in sets mode; the choice follows a switch made in Settings.
   const kinds = SERIES.map(k => (k === 'volume' && sets ? 'sets' : k))
@@ -43,23 +44,25 @@ export default function WeeklyChart() {
   const pts = weeklySeries(countedWorkouts(S.workouts), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
-    : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v))
+    : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))
   const cur = pts.at(-1).value
   const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
   const day = iso => new Date(iso + 'T12:00:00').toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
-  const head = kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))
+  const picked = pts.find(p => p.week === sel)
+  const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
+  const head = picked ? weekText(picked) : kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))
   return <div className="hv-chart">
     <div className="hv-chart-h"><b>{head}</b>
       <button type="button" className="hv-link hv-range" onClick={() => menuSheet({
         title: t('Period'), items: RANGES.map(o => ({ label: t(o.label), on: o.weeks === weeks, onClick: () => setWeeks(o.weeks) })) })}>
         {t(RANGES.find(o => o.weeks === weeks).label)}<Icon name="chevronDown" /></button></div>
     <div className="hv-plot">
-    <div className="hv-bars" role="img" aria-label={t(LABEL[kind])}>
+    <div className="hv-bars" role="group" aria-label={t(LABEL[kind])}>
       {pts.map(p => {
         const bar = <i style={{ height: Math.round((p.value / max) * 100) + '%' }} className={p.value ? '' : 'zero'} />
-        return kind === 'sets'
-          ? <button key={p.week} type="button" className="hv-barcol" title={p.week + ': ' + fmt(p.value)} onClick={() => weekSheet(S, p.week)}>{bar}</button>
-          : <div key={p.week} className="hv-barcol" title={p.week + ': ' + fmt(p.value)}>{bar}</div>
+        const on = p.week === sel
+        return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-pressed={on}
+          onClick={() => { setSel(on && kind !== 'sets' ? null : p.week); if (kind === 'sets') weekSheet(S, p.week) }}>{bar}</button>
       })}
     </div>
     {/* the axis on the right, Hevy's: the top line and its half */}

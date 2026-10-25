@@ -74,7 +74,7 @@ function ExerciseSets({ w, e, st, recs, trends = [] }) {
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
-        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, t('reps'))}{!at(i).length && <Trend v={trends[i]} />}</span>
+        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
         <PrBadge recs={at(i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}

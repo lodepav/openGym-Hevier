@@ -11,7 +11,7 @@ import { useUI } from '../../store/useUI.js'
 import { EXIDX, exOr } from '../../lib/exercises.js'
 import { gymById, gymHas, rememberedGym } from '../lib/gym-filter.js'
 import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
 import { fmtRest, REST_MAX } from '../../lib/duration.js'
@@ -233,7 +233,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
       {noEquip && <span className="hv-warn" title={t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name)}><Icon name="warning" /></span>}
-      <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
+      <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     <input className="hv-notes hv-notes-in" value={note} maxLength={NOTE_MAX} placeholder={t('Add routine notes here')}
       onChange={ev => setNote(ev.target.value)} onBlur={saveNote} aria-label={t('Notes')} />
@@ -272,10 +272,16 @@ export default function RoutineEditHevy() {
   })
   if (!r) return null
 
+  // Several picks at once are called one by one in the same tick: one toast names them all.
+  const added = []
   const addExercise = () => exercisePicker((ex, quick) => {
     if (quick) {
       setR(x => x.ex.push({ id: ex.id, ...defaultConfig(ex.id) }))
-      toast(t('“{0}” added to {1}', exerciseNameText(ex), r.name))
+      if (added.push(exerciseNameText(ex)) === 1) queueMicrotask(() => {
+        toast(added.length > 1 ? t('{0} added to {1}', tn('{0} exercise', '{0} exercises', added.length), r.name)
+          : t('“{0}” added to {1}', added[0], r.name))
+        added.length = 0
+      })
     } else exConfigSheet(ex, null, cfg => setR(x => { x.ex.push({ id: ex.id, ...cfg }) }), null, r)
   })
   const printRoutine = () => {
@@ -309,7 +315,7 @@ export default function RoutineEditHevy() {
   const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
     <PageBar title={t('Edit Routine')} onBack={back}>
-      <button type="button" className="iconbtn" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
+      <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (r.name || t('Routine'))} onClick={openMore}><Icon name="more" /></button>
       <button type="button" className="btn primary pill hv-finish" onClick={back}>{t('Done')}</button>
     </PageBar>
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}

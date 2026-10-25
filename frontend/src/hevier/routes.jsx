@@ -9,8 +9,9 @@ import Stats from '../views/Stats.jsx'
 import Measurements from '../views/Measurements.jsx'
 import ProgressPhotos from '../views/ProgressPhotos.jsx'
 import StructuralBalance from '../views/StructuralBalance.jsx'
+import Plan from '../views/Plan.jsx'
 import Icon from '../components/Icon.jsx'
-import PageBar from './components/PageBar.jsx'
+import PageBar, { useBack } from './components/PageBar.jsx'
 import HevyHome from './views/HevyHome.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
 import Profile from './views/Profile.jsx'
@@ -61,6 +62,15 @@ function WithBack({ label = 'Profile', to = '/profile', title, children }) {
   </>
 }
 
+// Upstream's Plan (the Workout tab's Schedule) had no way back: the fork's page bar goes over it,
+// and its own "Plan" heading is hidden, its subtitle and Plan options kept (hevier.css).
+function PlanPage() {
+  return <>
+    <PageBar title={t('Plan')} onBack={useBack('/routines')} backLabel={t('Workout')} className="hv-planbar" />
+    <Plan />
+  </>
+}
+
 // Upstream's Measurements, Progress photos and Structural balance have their own ‹ in the header,
 // hard-wired to /home or /stats. In the fork they open from Statistics or Measures, so that ‹
 // goes back where the user came from instead. Caught before upstream's handler, which is left as is.
@@ -95,6 +105,7 @@ export const hevierRoutes = [
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-report" path="/report" element={<MonthReport />} />,
   <Route key="hv-strength" path="/strength" element={<StrengthLevels />} />,
+  <Route key="hv-plan" path="/plan" element={<PlanPage />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-routine-view" path="/plan/r/:id/view" element={<RoutinePreview />} />,
   <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,

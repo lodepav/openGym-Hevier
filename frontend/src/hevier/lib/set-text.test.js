@@ -6,6 +6,7 @@ describe('hevySetText', () => {
     expect(hevySetText('60×8', 'kg')).toBe('60kg × 8 reps')
     expect(hevySetText('22.5×10', 'lb')).toBe('22.5lb × 10 reps')
     expect(hevySetText('60×8 F', 'kg')).toBe('60kg × 8 reps F')
+    expect(hevySetText('300×1', 'kg')).toBe('300kg × 1 rep')
   })
   it('leaves upstream’s other forms alone', () => {
     expect(hevySetText('+10 × 12', 'kg')).toBe('+10 × 12')

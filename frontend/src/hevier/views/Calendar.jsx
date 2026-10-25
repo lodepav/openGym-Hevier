@@ -31,10 +31,10 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const cells = monthCells(y, mo, ws)
   const n = cells.filter(iso => iso && byDay[iso]).length
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
-    <button type="button" className="hv-cal-mt" onClick={onTitle} disabled={!onTitle}>
+    <h2 className="hv-cal-mh"><button type="button" className="hv-cal-mt" onClick={onTitle} disabled={!onTitle}>
       <b>{small ? t(MONTHS_LONG[mo]) : `${t(MONTHS_LONG[mo])} ${y}`}</b>
       {!small && n > 0 && <span>{tn('{0} workout', '{0} workouts', n)}</span>}
-    </button>
+    </button></h2>
     <div className="hv-cal-g">
       {!small && weekOrder(ws).map(d => <span key={d} className="hv-cal-h">{t(DAYS[d])}</span>)}
       {cells.map((iso, i) => {

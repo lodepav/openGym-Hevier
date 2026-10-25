@@ -114,7 +114,7 @@ describe('hevier: navigation (seam S2)', () => {
 
   it('a feed card’s ⋯ deletes the workout after upstream’s confirm', () => {
     render('/profile', { workouts: [workout('2026-10-14')] })
-    act(() => container.querySelector('.hv-wcard .iconbtn[aria-label="More"]').click())
+    act(() => container.querySelector('.hv-wcard .iconbtn[aria-label^="More, "]').click())
     const menu = useUI.getState().sheets.at(-1)
     const host = document.createElement('div')
     const r2 = createRoot(host)
@@ -144,6 +144,12 @@ describe('hevier: navigation (seam S2)', () => {
     expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4')
     act(() => byText('.hv-chip', 'Reps').click())
     expect(byText('.hv-chip', 'Reps').getAttribute('aria-pressed')).toBe('true')
+    // a tap on a week puts its value in the headline, a second one puts this week back
+    const week = [...container.querySelectorAll('button.hv-barcol')].at(-2)
+    act(() => week.click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 16 reps$/)
+    act(() => week.click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/this week$/)
     act(() => byText('.hv-dash .btn', 'Statistics').click())
     expect(path).toBe('/stats')
   })

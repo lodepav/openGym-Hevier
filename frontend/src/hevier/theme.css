@@ -117,7 +117,7 @@
 /* Its buttons are 33 dp tall: an invisible 6 dp above and below makes each a 44 dp target
    (UX review U3, standards A1), as the set tick's ::before does. */
 :root[data-ui="hevier"] body.no-tabbar #timer.rest .acts .btn{position:relative}
-:root[data-ui="hevier"] body.no-tabbar #timer.rest .acts .btn::before{content:'';position:absolute;inset:-6px 0}
+:root[data-ui="hevier"] body.no-tabbar #timer.rest .acts .btn::before{content:'';position:absolute;inset:-6px -4px}
 :root[data-ui="hevier"] body.no-tabbar #timer.rest .acts .btn{padding-block:8px}
 :root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting #app{padding-bottom:calc(90px + var(--sab))}
 
