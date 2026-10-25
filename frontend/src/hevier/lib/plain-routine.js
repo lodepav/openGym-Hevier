@@ -8,7 +8,7 @@ import { modeOf } from '../../lib/history.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
-import { isHoldRow, toHold } from './hold-set.js'
+import { isHoldRow, toHold, toSideHold, isPairHead, isPairTail } from './hold-set.js'
 
 /** Whether a routine keeps upstream's progression and warm-up ramp. Off unless switched on. */
 export const progressionOn = routine => routine?.hvProg === true
@@ -37,6 +37,8 @@ export function withoutForecast(S) {
 export const filledFromLast = (s, side) => (side ? String(s?.hvLast || '').includes(side) : !!s?.hvLast)
 const own = row => ({ ...row, weightOrigin: WEIGHT_ORIGIN_MANUAL, hvLast: 1 })
 
+/** Row `row` with last time's set `prev` (`mode` the exercise's), or a per-side set made a hold
+ *  on each side, two rows (an L/R pair). */
 export function fill(row, prev, mode) {
   if (mode === 'cardio') {
     if (!(prev.min > 0)) return row
@@ -44,6 +46,14 @@ export function fill(row, prev, mode) {
   }
   if (mode === 'time') return prev.sec > 0 ? { ...row, sec: prev.sec, w: prev.w || 0 } : row
   if (isSideSet(row)) {
+    // A hold last time (D89; a per-side one is an L/R pair, its R on `hvPairR`) opens as a hold on
+    // each side again: two rows in place of this one.
+    if (isHoldRow(prev)) {
+      if (!(prev.sec > 0)) return row
+      const R = prev.hvPairR || prev
+      const [l, r] = toSideHold(row, prev.sec, R.sec)
+      return [own({ ...l, w: prev.w || 0 }), own({ ...r, w: R.w || 0 })]
+    }
     // A set last time logged as one row (a Hevy import's) held one side's reps (D75): both sides.
     if (!isSideSet(prev)) {
       if (!(prev.r > 0)) return row
@@ -69,11 +79,11 @@ export function plainRows(H, S, cfg, routine, rows) {
   // D82: last time on the machine the session starts with (its brand, its cable setup).
   const prev = previousSetsFor(H, { id: cfg.id, rid: routine?.id, sets: rows }, previousMode(S), { label: startLabelKey(S, cfg.id) })
   const mode = modeOf(cfg)
-  return rows.map((row, i) => {
+  return rows.flatMap((row, i) => {
     const p = prev[i]
-    if (!p || row.done) return row
+    if (!p || row.done) return [row]
     // A warm-up keeps its own phase mark, and a work set never takes a warm-up's numbers.
-    if (isWarmupRow(row) !== isWarmupRow(p)) return row
+    if (isWarmupRow(row) !== isWarmupRow(p)) return [row]
     return fill(row, p, mode)
   })
 }
@@ -102,15 +112,23 @@ export function refillRows(H, S, e, routine, label, was) {
   const [prev, old] = [prevOn(label), prevOn(was)]
   const mode = modeOf(cfg)
   const filled = (start, p) => (p && isWarmupRow(p) === isWarmupRow(start) ? fill(start, p, mode) : start)
-  return (e.sets || []).map((row, i) => {
-    const b = base[i]
-    if (row.done || !b || isWarmupRow(b) !== isWarmupRow(row)) return row
+  // The build has one row a set; a per-side hold here is two (an L/R pair), so a row's set in the
+  // build is its set number. A pair keeps what it has: it was made a hold in the session, or
+  // opened as one from last time.
+  const rows = e.sets || []
+  let unit = -1
+  return rows.flatMap((row, i) => {
+    if (!isPairTail(rows, i)) unit++
+    if (isPairHead(rows, i) || isPairTail(rows, i)) return [row]
+    const b = base[unit]
+    if (row.done || !b || isWarmupRow(b) !== isWarmupRow(row)) return [row]
     const start = { ...row }
     for (const k of NUMS) {
       if (b[k] !== undefined) start[k] = b[k]
       else delete start[k]
     }
-    if (!sameRow(row, start) && !sameRow(row, filled(start, old[i]))) return row
-    return filled(start, prev[i])
+    const was = filled(start, old[i])
+    if (!sameRow(row, start) && (Array.isArray(was) || !sameRow(row, was))) return [row]
+    return [filled(start, prev[i])].flat()
   })
 }

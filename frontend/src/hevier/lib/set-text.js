@@ -37,12 +37,14 @@ export function hevySetLabel(id, s, cfg, speedUnit) {
  * The workout's PREVIOUS cell for last time's set `p`, or for one side of it (`side`): "60kg × 8",
  * "+10kg × 8" or "× 12" on body weight, '–' for none. A weight is written in the exercise's own
  * unit (`unit`, `show` converting a stored weight to it, D41). A timed, cardio or per-side set
- * (without `side`) reads as Workout Detail writes it.
+ * (without `side`) reads as Workout Detail writes it, and so does a hold, for a side too.
  */
 export function previousText(p, { side, mode, bw, unit, show = w => w, id, target, speedUnit }) {
   const weightReps = x => (bw ? (x.w > 0 ? `+${fmtNum(show(x.w))}${unit} × ` : '× ') + (x.r || 0)
     : `${fmtNum(show(x.w || 0))}${unit} × ${x.r || 0}`)
   if (side) {
+    // A hold last time (D89): a per-side one is an L/R pair, its R carried on `hvPairR`.
+    if (isHoldRow(p)) return hevySetLabel(id, side === 'R' && p.hvPairR ? p.hvPairR : p, target, speedUnit)
     const one = p && isSideSet(p) ? p.sides[side] : null
     return one ? weightReps(one) : '–'
   }

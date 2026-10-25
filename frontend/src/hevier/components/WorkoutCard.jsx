@@ -22,6 +22,7 @@ import Icon from '../../components/Icon.jsx'
 import { sanitizeHr } from '../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { workoutRecords } from '../lib/records.js'
+import { setUnits } from '../lib/hold-set.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -97,7 +98,7 @@ export default function WorkoutCard({ w }) {
     {entries.length > 0 && <div className="hv-wcard-lh">{t('Workout')}</div>}
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
-      const n = e.sets.filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length
+      const n = setUnits(e.sets, s => hasCompletedWork(s) && !isWarmupRow(s)).length
       // An exercise done only as warm-ups says so, rather than "0 sets" (D18 counts work sets).
       const warm = n ? 0 : e.sets.filter(s => hasCompletedWork(s) && isWarmupRow(s)).length
       return <div key={i} className="hv-wcard-ex">

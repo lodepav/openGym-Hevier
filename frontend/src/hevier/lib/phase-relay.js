@@ -59,10 +59,14 @@ export function relaySuggestions(before, after, from, to, free, prev = [], mode 
     const kind = isWarmupRow(row) ? 'warm' : 'work'
     const n = seen[kind]++
     if (row.done || !free(order[j])) return row
-    if (n < slots[kind].length && slots[kind][n]) return take(row, slots[kind][n])
+    // A half of a per-side hold (an L/R pair, D89) and a set of another shape keep their own.
+    const slot = n < slots[kind].length ? slots[kind][n] : null
+    if (slot && (row.side || slot.side)) return row
+    if (slot) return take(row, slot)
     // A slot new to its kind, or one whose row was typed into (its own numbers went with it): last
     // time's set for the slot, else the row's own.
     const p = prev[j]
-    return p && isWarmupRow(p) === isWarmupRow(row) ? fill(row, p, mode) : row
+    const f = p && isWarmupRow(p) === isWarmupRow(row) ? fill(row, p, mode) : row
+    return Array.isArray(f) ? row : f
   })
 }
