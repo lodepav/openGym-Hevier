@@ -153,6 +153,9 @@ export function setLabel(id, s, cfg, speedUnit) {
   // custom one moved to Cardio after months of rep sets read them all as "0 min @ 0 km/h", next
   // to the volume those same sets still count. A set with reps and nothing cardio was a rep set.
   if (!EXPLICIT_MODES.has(cfg?.mode) && mode !== 'reps' && s.r > 0 && !(s.min > 0 || s.speed > 0 || s.sec > 0)) mode = 'reps'
+  // [hevier] S48: a set of its own kind (a hold in a reps exercise, D89)
+  mode = hooks.setMode?.(s) || mode
+  // [/hevier]
   // A treadmill grade rides along when the set has one (lib/incline.js); a flat set reads as it did.
   if (mode === 'cardio') return `${s.min || 0} min @ ${fmtSpeed(s.speed || 0, speedUnit)}` + (hasIncline(s) ? ' · ' + t('{0}% incline', fmtNum(Number(s.incline))) : '')
   // A set taken to failure carries its "F" behind the numbers, the mark lifting logs use for it;

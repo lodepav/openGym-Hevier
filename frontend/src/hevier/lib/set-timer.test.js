@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN } from './set-timer.js'
+import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN, goalLeft, dueGoals, moveGoal } from './set-timer.js'
 import { digitsIn, fromDigits, showDigits } from './duration-entry.js'
 
 const T = Date.parse('2026-10-18T10:00:00')
@@ -56,5 +56,29 @@ describe('hevier duration entry (D53)', () => {
     expect(fromDigits('90')).toBe(90)
     expect(fromDigits('13000')).toBe(5400)
     expect(fromDigits('')).toBe(0)
+  })
+})
+
+describe('hevier hold goal (D89)', () => {
+  it('a hold on the clock counts down to its goal, is due there, and is written no longer than it', () => {
+    const A = { entries: [{ id: 'x', target: { mode: 'time' }, sets: [{ sec: 40 }] }] }
+    startRun(A, 0, 0, 1000, 40)
+    const s = A.entries[0].sets[0]
+    expect(goalLeft(s, 11_000)).toBe(30)
+    expect(dueGoals(A, 40_000)).toEqual([])
+    expect(dueGoals(A, 41_000)).toEqual([[0, 0]])
+    expect(stopped(s, 'time', 90_000)).toEqual({ sec: 40 })
+  })
+
+  it('−15 never goes below the time already held, and a plain start has no goal', () => {
+    const A = { entries: [{ id: 'x', sets: [{ sec: 40, hvGoal: 9 }] }] }
+    startRun(A, 0, 0, 1000, 40)
+    const s = A.entries[0].sets[0]
+    moveGoal(s, -15, 31_000)
+    expect(s.hvGoal).toBe(30)
+    moveGoal(s, 15, 31_000)
+    expect(s.hvGoal).toBe(45)
+    startRun(A, 0, 0, 1000)
+    expect(A.entries[0].sets[0].hvGoal).toBeUndefined()
   })
 })

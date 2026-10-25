@@ -6,6 +6,7 @@ import { setLabel } from '../../lib/history.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { fmtNum } from '../../lib/format.js'
 import { elapsedClock } from './elapsed.js'
+import { isHoldRow } from './hold-set.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
 
@@ -46,6 +47,6 @@ export function previousText(p, { side, mode, bw, unit, show = w => w, id, targe
     return one ? weightReps(one) : '–'
   }
   if (!p) return '–'
-  if (mode !== 'reps' || isSideSet(p)) return hevySetLabel(id, p, target, speedUnit)
+  if (mode !== 'reps' || isSideSet(p) || isHoldRow(p)) return hevySetLabel(id, p, target, speedUnit)
   return weightReps(p)
 }

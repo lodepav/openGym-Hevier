@@ -45,9 +45,11 @@ import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
+import { isHoldRow, canBeHold, toHold, toReps, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun } from '../lib/set-timer.js'
+import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
@@ -113,13 +115,20 @@ export default function HevyExerciseBlock({
   // D43: a cable on two stacks is typed per stack; the header says so.
   const perStack = isCable(entry.id) && entry.target?.dbLoad === 'each'
   const cols = setColumns({ mode, bw, perStack, unit, exUnit, speedUnit, ex, sets: entry.sets })
+  // D89: a hold in a reps exercise has TIME in the REPS column, and the ▶ timer.
+  const holdCols = mode === 'reps' ? setColumns({ mode: 'time', bw, perStack, unit, exUnit, speedUnit, ex }) : null
+  const colsOf = s => (holdCols && isHoldRow(s) ? holdCols : cols)
+  const modeAt = s => (isHoldRow(s) ? 'time' : mode)
   const effOn = mode === 'reps' && !!effortCol
   // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown;
   // not for a workout logged into the past, which is typed in.
-  const playOn = (timed || cardio) && !editing && !A?.backfill
+  const canPlay = !editing && !A?.backfill
+  const playOn = (timed || cardio) && canPlay
+  const playAt = s => playOn || (canPlay && isHoldRow(s))
+  const goOn = playOn || (canPlay && entry.sets.some(isHoldRow))
   const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
   // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
-  const goGrid = playOn ? ' hv-go-grid' : ''
+  const goGrid = goOn ? ' hv-go-grid' : ''
 
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), from lib/set-rows.js.
   const editSets = fn => update(s => { const e = s.active.entries[entryIdx]; e.sets = fn(e.sets, e) }, true)
@@ -143,6 +152,14 @@ export default function HevyExerciseBlock({
     reorder(moveOrder(before.length, i, to))
   }
   const setFailureAt = (i, on) => editSets(sets => withFailure(sets, i, on))
+  // D89: a set made a hold opens on last time's hold there, else 45 s; back, on last time's reps
+  // there, else the plan's. Either way grey until touched (D2).
+  const setHold = (i, on, from) => {
+    const p = prev[i]
+    editSet(i, row => (on ? toHold(row, from?.sec ?? (isHoldRow(p) ? p.sec : HOLD_SEC))
+      : toReps(row, from?.r ?? (p && !isHoldRow(p) && p.r > 0 ? p.r : entry.target?.reps))))
+    untouch(i, 'r'); untouch(i, 'sec')
+  }
   const intensifier = entry.target?.intensifier
   const addDropRow = i => editSet(i, row =>
     withDrop(row, { pct: intensifier?.type === 'dropset' ? intensifier.pct : undefined, grid: dropGrid(S, cfg) }))
@@ -158,20 +175,23 @@ export default function HevyExerciseBlock({
   const openSetType = (s, i) => {
     const warm = isWarmupRow(s)
     const fail = isFailureSet(s)
+    const hold = isHoldRow(s)
     const otherWork = entry.sets.some((x, j) => j !== i && !isWarmupRow(x))
     menuSheet({
       title: t('Select set type'),
       sections: [
         { items: [
-          mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && !(mode === 'reps' && canBeWarmup(s) && otherWork),
+          mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && (hold || !(mode === 'reps' && canBeWarmup(s) && otherWork)),
             onClick: () => { if (!warm) setPhaseAt(i, true) } },
-          { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s),
-            onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false) } },
+          { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s) && !hold,
+            onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false); else if (hold) setHold(i, false) } },
           !cardio && { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
-          mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || isRestPauseSet(s), onClick: () => addDropRow(i) },
+          mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || hold || isRestPauseSet(s), onClick: () => addDropRow(i) },
+          mode === 'reps' && { icon: 'timer', label: t('Timed hold'), sub: t('Seconds in place of reps'), on: hold,
+            disabled: !hold && !canBeHold(s, mode), onClick: () => setHold(i, !hold) },
         ] },
         { title: t('More'), items: [
-          mode === 'reps' && !warm && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
+          mode === 'reps' && !warm && !hold && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
           onCopySetAt && { icon: 'copy', label: t('Copy this set'), onClick: () => onCopySetAt(i) },
         ] },
         { items: [
@@ -282,7 +302,10 @@ export default function HevyExerciseBlock({
       touch(i, side + 'w'); touch(i, side + 'r')
       return
     }
-    cols.forEach(c => {
+    // A hold last time copied onto a rep set makes it a hold, and back (D89).
+    const row = entry.sets[i]
+    if (holdCols && !isSideSet(row) && isHoldRow(p) !== isHoldRow(row)) setHold(i, isHoldRow(p), p)
+    colsOf(p).forEach(c => {
       if (p[c.f] == null && c.opt) return
       onField(i, c.f, p[c.f] ?? 0)
       touch(i, c.f)
@@ -310,9 +333,9 @@ export default function HevyExerciseBlock({
         untouch(i, key)
       },
     }
-    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, mode)} {...hintProps}
+    if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, modeAt(s))} {...hintProps}
       aria-label={fieldName(s, i, col, side)}
-      onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(mode, sec)) }} />
+      onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(modeAt(s), sec)) }} />
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
       {...hintProps}
       aria-label={fieldName(s, i, col, side)}
@@ -347,21 +370,29 @@ export default function HevyExerciseBlock({
 
   const swipeOn = !!(controls.swipeSets && onCopySetAt && onRemoveSetAt)
   const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
-  const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span> : workNumber(i))
+  const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span>
+    : isHoldRow(s) ? <span className="hv-hold">{workNumber(i)}<Icon name="timer" /></span> : workNumber(i))
   const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
     aria-label={rowName(s, i) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
-      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (prSets.has(i) ? ', ' + t('PR') : '') + ', ' + t('Set type')}>
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (isHoldRow(s) ? ', ' + t('Timed hold') : '') + (prSets.has(i) ? ', ' + t('PR') : '') + ', ' + t('Set type')}>
     {markOf(s, i)}{prSets.has(i) && <Icon name="trophy" className="hv-pr-live" />}</button>
   // A tick that gives this set a record says so (D22): a toast, no sound of its own. A weight in
   // this exercise's own unit (D41).
   const prText = r => (!convertsUnit || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
     : r.kind === 'setVol' ? `${fmtNum(showWeight(r.w))} ${exUnit} × ${r.r}` : fmtNum(showWeight(r.v)) + ' ' + exUnit)
   // D53: ▶ starts the set's count-up timer (stopping any other), ■ writes its time in.
-  const timeCol = cols.find(c => c.dur)
   const startTimer = i => update(st => startRun(st.active, entryIdx, i), true)
   const stopTimer = i => {
-    update(st => { const e = st.active?.entries[entryIdx]; if (e?.sets[i]) e.sets[i] = stopped(e.sets[i], mode) }, true)
+    const timeCol = colsOf(entry.sets[i]).find(c => c.dur)
+    update(st => { const e = st.active?.entries[entryIdx]; if (e?.sets[i]) e.sets[i] = stopped(e.sets[i], modeAt(e.sets[i])) }, true)
     if (timeCol) touch(i, timeCol.f)
+  }
+  // D89: a hold's ⏱ opens the big clock, counting its seconds down (the set's, else 45 s); on a
+  // hold already running it opens that clock again.
+  const holdClock = (s, i) => {
+    const title = exerciseNameFor(ex) + ' · ' + t('Set {0}', workNumber(i))
+    if (s[RUN]) return openHoldClock(entryIdx, i, title)
+    holdClockSheet(entryIdx, i, secOf(s, 'time') || HOLD_SEC, title)
   }
   const tick = (i, side) => {
     if (!side && entry.sets[i]?.[RUN]) stopTimer(i)
@@ -387,9 +418,12 @@ export default function HevyExerciseBlock({
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + (side ? ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
-      {cols.map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
+      {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && effortCell(s, i, side)}
-      {playOn && (s[RUN]
+      {goOn && !playAt(s) && <span />}
+      {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] ? ' on' : '')} disabled={s.done}
+        aria-label={t('Timed hold') + ', ' + t('Set {0}', workNumber(i))} onClick={() => holdClock(s, i)}><Icon name="timer" /></button>}
+      {playAt(s) && modeAt(s) !== 'time' && (s[RUN]
         ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop') + ', ' + t('Set {0}', workNumber(i))} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
         : <button type="button" className="iconbtn hv-go" aria-label={t('Start set') + ', ' + t('Set {0}', workNumber(i))} disabled={s.done}
           onClick={() => startTimer(i)}><Icon name="play" /></button>)}
@@ -452,7 +486,7 @@ export default function HevyExerciseBlock({
     <div className={'hv-head' + goGrid} style={grid} aria-hidden="true">
       <span>{t('SET')}</span><span>{t('PREVIOUS')}</span>
       {cols.map(c => <span key={c.f}>{c.hd}</span>)}
-      {effOn && <span>{t(effortCol.hd).toUpperCase()}</span>}{playOn && <span />}<span><Icon name="check" /></span>
+      {effOn && <span>{t(effortCol.hd).toUpperCase()}</span>}{goOn && <span />}<span><Icon name="check" /></span>
     </div>
     {entry.sets.map((s, i) => <div key={i}>
       {setBlock(s, i)}

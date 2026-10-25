@@ -184,7 +184,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
   })
 
-  it('a timed hold gets KG · TIME, typed as a clock, with a count-up timer (M1, D53)', () => {
+  it('a timed hold gets KG · TIME, typed as a clock, with the big clock counting it down (M1, D53, D89)', () => {
     vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
     const head = container.querySelector('.hv-head').textContent
@@ -194,11 +194,15 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sec).toBe(90)
     act(() => container.querySelector('.hv-go').click())
     expect(sets()[0].hvRun).toBe(Date.now())
+    expect(sets()[0].hvGoal).toBe(90)
     expect(useUI.getState().work).toBeFalsy()      // not upstream's countdown
+    expect(useUI.getState().sheets).toHaveLength(1)  // the big clock
     expect(container.querySelector('.hv-running')).toBeTruthy()
     vi.setSystemTime(Date.now() + 75_000)
     act(() => container.querySelector('.hv-go.on').click())
-    expect(sets()[0]).toMatchObject({ sec: 75 })
+    expect(useUI.getState().sheets).toHaveLength(2)  // opened again, still running
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0]).toMatchObject({ sec: 75, done: true })
     expect(sets()[0].hvRun).toBeUndefined()
   })
 

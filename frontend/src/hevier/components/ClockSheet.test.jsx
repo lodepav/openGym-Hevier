@@ -1,13 +1,13 @@
 // @vitest-environment happy-dom
-// The workout header's ⏱ (D10): Timer · Stopwatch. The Timer starts a countdown at the Settings
-// rest with no rest running (D10), or adjusts the running one; the Stopwatch counts.
+// The workout header's ⏱ (D10): Timer · Stopwatch. The Timer always starts a new countdown, ending a
+// running rest; the Stopwatch counts. A hold's own clock (D89) is the same ring.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const apply = vi.fn()
 vi.mock('../../components/RestTimer.jsx', () => ({ applyRestLeft: (...a) => apply(...a) }))
-const { HeaderClock, timerSheet } = await import('./ClockSheet.jsx')
+const { HeaderClock, timerSheet, holdClockSheet } = await import('./ClockSheet.jsx')
 const { useUI } = await import('../../store/useUI.js')
 const { useStore } = await import('../../store/useStore.js')
 const { useStopwatch, elapsed, startW, stopW, resetW, ofSession, stopwatchText } = await import('../lib/stopwatch.js')
@@ -30,7 +30,7 @@ beforeEach(() => {
   apply.mockClear()
   useUI.setState({ sheets: [], timer: null })
   useStopwatch.setState({ w: { session: null, since: null, acc: 0 } })
-  useStore.setState(st => ({ S: { ...st.S, restSec: 120, active: { start: 1000, entries: [] } } }))
+  useStore.setState(st => ({ S: { ...st.S, restSec: 120, hvTimerSec: 0, active: { start: 1000, entries: [] } } }))
 })
 afterEach(() => { if (root) act(() => root.unmount()); host?.remove(); root = host = null; vi.useRealTimers() })
 
@@ -60,12 +60,34 @@ describe('hevier workout clock', () => {
     expect(host.querySelector('.hv-ring')).toBeNull()
   })
 
-  it('a running rest opens at its time left, and Done adjusts it', () => {
-    useUI.setState({ timer: { left: 30 } })
+  it('a running rest still opens a new countdown, which ends the rest when started (2026-10-25)', () => {
+    useUI.setState({ timer: { left: 30, total: 90 } })
     open()
-    expect(host.querySelector('.dw-read').textContent).toBe('30s')
-    act(() => btn('Done').click())
-    expect(apply).toHaveBeenCalledWith(30, 30)
+    expect(host.querySelector('.dw-read').textContent).toBe('2:00')
+    act(() => btn('Start timer').click())
+    expect(useUI.getState().timer).toBeNull()
+    expect(apply).toHaveBeenCalledWith(120)
+  })
+
+  it('a hold\'s clock counts its seconds down, moves with −15 · +15, and Stop writes what was held', () => {
+    vi.useFakeTimers({ now: 100_000 })
+    useStore.setState(st => ({ S: { ...st.S, active: { start: 1000, entries: [{ id: 'x', target: { mode: 'time' }, sets: [{ w: 0, sec: 40, done: false }] }] } } }))
+    useUI.setState({ timer: { left: 30, total: 90 } })
+    holdClockSheet(0, 0, 40, 'Plank · Set 1')
+    expect(useUI.getState().timer).toBeNull()
+    const top = useUI.getState().sheets.at(-1)
+    host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host)
+    const closed = vi.fn()
+    act(() => root.render(top.render(closed)))
+    expect(host.querySelector('.hv-ring-title').textContent).toBe('Plank · Set 1')
+    act(() => vi.advanceTimersByTime(10_000))
+    expect(host.querySelector('.hv-ring-t').textContent).toBe('0:30')
+    act(() => btn('+15').click())
+    expect(host.querySelector('.hv-ring-t').textContent).toBe('0:45')
+    act(() => vi.advanceTimersByTime(5_000))
+    act(() => btn('Stop').click())
+    expect(useStore.getState().S.active.entries[0].sets[0]).toEqual({ w: 0, sec: 15, done: false })
+    expect(closed).toHaveBeenCalled()
   })
 
   it('the Stopwatch starts, stops, resumes and resets, and the sheet opens on it while it has time', () => {

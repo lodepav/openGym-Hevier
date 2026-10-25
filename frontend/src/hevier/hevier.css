@@ -124,6 +124,8 @@
 :root[data-ui="hevier"] .hv-set{background:none;padding:0;font-weight:600;font-size:15px;text-align:center;min-height:36px}
 :root[data-ui="hevier"] .hv-w{color:var(--yellow)}
 :root[data-ui="hevier"] .hv-f{color:var(--red)}
+:root[data-ui="hevier"] .hv-hold{display:inline-flex;align-items:center;gap:1px}
+:root[data-ui="hevier"] .hv-hold svg{font-size:11px;color:var(--blue)}
 :root[data-ui="hevier"] .hv-d{color:var(--blue)}
 :root[data-ui="hevier"] .hv-prev{background:none;padding:0;text-align:center;font-size:14px;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-num{width:100%;text-align:center;font-size:16px;font-weight:600;background:none;border:0;padding:8px 0;color:var(--label)}
@@ -695,6 +697,7 @@
 /* The ⏱ Timer as Hevy's (D10): a larger readout and wheel, and a ring while it counts. */
 :root[data-ui="hevier"] .hv-clock .dw-read{font-size:56px;margin:4px 0 8px}
 :root[data-ui="hevier"] .hv-ring{display:flex;flex-direction:column;align-items:center;gap:22px;padding:8px 0 4px}
+:root[data-ui="hevier"] .hv-ring-title{font-size:17px;font-weight:600;text-align:center}
 :root[data-ui="hevier"] .hv-ring-dial{position:relative;width:min(72vw,280px);aspect-ratio:1}
 :root[data-ui="hevier"] .hv-ring-dial svg{width:100%;height:100%;transform:rotate(-90deg)}
 :root[data-ui="hevier"] .hv-ring-bg{fill:none;stroke:var(--fill,rgba(127,127,127,.16));stroke-width:10}
