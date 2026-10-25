@@ -208,7 +208,7 @@ export default function HevyExerciseBlock({
         onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => onNoProg(entry.noProg !== true) },
         plateLoading && modeOf(cfg) === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
         // Any exercise can carry a label (D28), not only a machine, whose line is always there.
-        !hasLabel(S, S.active, entryIdx) && { icon: 'machine', label: t('Add label'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(entryIdx) },
+        !hasLabel(S, S.active, entryIdx) && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(entryIdx) },
         routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: routineUpdate.sub, onClick: routineUpdate.run },
         perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
           onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [
@@ -317,7 +317,8 @@ export default function HevyExerciseBlock({
       const freshSrc = side ? fresh?.sides?.[side] : fresh
       if (nv != null && freshSrc && !freshSrc.done) (side ? onToggleSide(i, side) : onToggle(i))
     })
-    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open} aria-label={t(effortCol.hd)}
+    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open}
+      aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
@@ -413,7 +414,7 @@ export default function HevyExerciseBlock({
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
-      <button type="button" className="iconbtn hv-more" aria-label={t('More')} onClick={openMore}><Icon name="more" /></button>
+      <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     <BrandLine idx={entryIdx} />
     {supersetInfo && <div className="hv-ss"><span className="hv-sspill">{supersetInfo.name || t('Superset')}</span>

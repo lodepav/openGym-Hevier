@@ -98,9 +98,11 @@ export default function WorkoutCard({ w }) {
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
       const n = e.sets.filter(s => hasCompletedWork(s) && !isWarmupRow(s)).length
+      // An exercise done only as warm-ups says so, rather than "0 sets" (D18 counts work sets).
+      const warm = n ? 0 : e.sets.filter(s => hasCompletedWork(s) && isWarmupRow(s)).length
       return <div key={i} className="hv-wcard-ex">
         <span className="hv-thumb sm">{ex && <Thumb ex={ex} />}</span>
-        <span className="grow"><b>{tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
+        <span className="grow"><b>{warm ? tn('{0} set', '{0} sets', warm) + ' (' + t('Warm-up') + ')' : tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
         {prOf(e) > 0 && <span className="hv-pr" aria-label={t('Records')}><Icon name="trophy" />{prOf(e)}</span>}
       </div>
     })}

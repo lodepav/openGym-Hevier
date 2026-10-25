@@ -138,7 +138,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const eqLabel = eq === GYM ? profile?.name : groupIdOf(eq) ? t(EQUIP_GROUPS.find(g => g.id === groupIdOf(eq)).label) : eq ? t(eq) : t('All Equipment')
   return <div className="hv-pk">
     {browse ? browse({ create }) : <div className="hv-pk-hd">
-      <h3>{title || t('Add Exercise')}</h3>
+      <h3>{title === t('Swap exercise') ? t('Replace exercise') : title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>
     </div>}
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>

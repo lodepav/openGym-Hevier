@@ -6,6 +6,7 @@
 // The muscle split counts sets: as the fork's Statistics does (hevier/lib/muscle-sets.js), or in
 // sets mode each set once for its main muscle, as the line under the stats does (DECISIONS.md D18).
 // Heart rate (D27), when a watch saved one: the session's under the stats, each set's on its row.
+import HvIcon from '../components/HvIcon.jsx'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -106,7 +107,7 @@ export function WorkoutDetail() {
       <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </PageBar>
-    <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <Icon name="figureStrength" /> {gym || t('Removed gym')}</>}</div>
+    <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span></>}</div>
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>

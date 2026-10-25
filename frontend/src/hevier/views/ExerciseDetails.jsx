@@ -193,7 +193,7 @@ function ExerciseDetails({ ex, close }) {
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />
-    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Machine label')}
+    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
       onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
       <option value="">{t('All sets')}</option>
       {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}

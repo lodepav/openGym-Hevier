@@ -151,7 +151,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
 
   it('the brand sheet changes the label and what this gym has from now on', () => {
     render(<Workout />, { entries: [{ id: CABLE, sets: [] }], extra: { hvMachines: { [CABLE]: { '': 'Matrix' } } } })
-    expect(container.querySelector('.hv-brand').textContent).toContain('Add machine label')
+    expect(container.querySelector('.hv-brand').textContent).toContain('Add brand')
     act(() => container.querySelector('.hv-brand').click())
     const host = sheet()
     expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')

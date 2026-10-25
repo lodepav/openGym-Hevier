@@ -136,10 +136,10 @@ export default function WorkoutTab() {
       <div className="row between">
         {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
         <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>{r.name}</button>
-        <button type="button" className="iconbtn" aria-label={t('More')} onClick={() => more(r)}><Icon name="more" /></button>
+        <button type="button" className="iconbtn" aria-label={t('More') + ', ' + r.name} onClick={() => more(r)}><Icon name="more" /></button>
       </div>
       <div className="hv-rpreview">{r.ex.length ? preview(r) : exCount(0)}</div>
-      <button type="button" className="btn primary" disabled={!r.ex.length} onClick={() => startFlow([r.id])}>{t('Start Routine')}</button>
+      <button type="button" className="btn primary" aria-label={t('Start Routine') + ', ' + r.name} disabled={!r.ex.length} onClick={() => startFlow([r.id])}>{t('Start Routine')}</button>
     </div>
   }
   const folders = groups.slice(1)
@@ -160,7 +160,7 @@ export default function WorkoutTab() {
         <Icon name={open ? 'chevronDown' : 'chevronRight'} />
         <span>{g.name ?? t('My Routines')} ({g.ids.length})</span>
       </button>
-      {g.name && <button type="button" className="iconbtn" aria-label={t('More')} onClick={() => folderMore(g.name)}><Icon name="more" /></button>}
+      {g.name && <button type="button" className="iconbtn" aria-label={t('More') + ', ' + g.name} onClick={() => folderMore(g.name)}><Icon name="more" /></button>}
     </div>
   }
   const body = g => (closed.includes(g.name ?? MINE) ? null

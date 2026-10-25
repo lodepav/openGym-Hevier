@@ -145,12 +145,12 @@ function BrandSheet({ idx, close }) {
   const editing = S.active?.editingWorkoutId != null
   const gym = gymName(S, workoutGym(S, S.active))
   return <form className="hv-namesheet" onSubmit={e => { e.preventDefault(); save(v) }}>
-    <h3>{t('Machine label')}</h3>
+    <h3>{t('Brand')}</h3>
     <p className="small dim">{editing
       ? t('Only this workout changes.')
       : gym ? t('Used for this exercise at {0} from now on.', gym) : t('Used for this exercise from now on.')}</p>
     <input className="input" autoFocus value={v} maxLength={BRAND_MAX} placeholder={t('Brand or machine, e.g. Life Fitness')}
-      aria-label={t('Machine label')} onChange={e => setV(e.target.value)} />
+      aria-label={t('Brand')} onChange={e => setV(e.target.value)} />
     {brands.length > 0 && <div className="hv-xd-chips">{brands.map(b =>
       <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} onClick={() => save(b)}>{b}</button>)}</div>}
     <button type="submit" className="btn primary">{t('Save')}</button>
@@ -187,7 +187,7 @@ export function BrandLine({ idx }) {
   if (!e || !hasLabel(S, S.active, idx)) return null
   const b = entryBrand(S, S.active, idx)
   const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} onClick={() => brandSheet(idx)}>
-    <Icon name="machine" />{b || t('Add machine label')}
+    <Icon name="machine" />{b || t('Add brand')}
   </button>
   if (!cable) return brand
   return <div className="hv-labels">

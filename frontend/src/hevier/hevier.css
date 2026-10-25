@@ -170,6 +170,9 @@
 :root[data-ui="hevier"] body.hv-resume #app{padding-bottom:calc(132px + var(--sab))}
 :root[data-ui="hevier"] body.hv-resume #timer{bottom:calc(132px + var(--sab))}
 :root[data-ui="hevier"] body.hv-resume #toast{bottom:calc(140px + var(--sab))}
+/* In the workout the toast sits above the rest bar's height, so Undo neither hides the rest bar
+   nor the "+ Add Set" a swipe-delete leaves near the bottom (UX review, round 1). */
+:root[data-ui="hevier"] body.no-tabbar #toast{bottom:calc(96px + var(--sab))}
 
 /* ---------- Workout tab (hevier/views/WorkoutTab.jsx) ---------- */
 /* Hevy's ⋯, folder and gear buttons are bare glyphs, here and on Home and Profile */
@@ -448,6 +451,8 @@
 
 /* Workout Detail (hevier/views/WorkoutDetail.jsx, reference/SCREENS.md §4) */
 :root[data-ui="hevier"] .hv-wd-d{font-size:13px;color:var(--label-2);margin-top:4px}
+:root[data-ui="hevier"] .hv-wd-gym{display:inline-flex;align-items:center;gap:4px;vertical-align:bottom}
+:root[data-ui="hevier"] .hv-wd-gym .icn{width:14px;height:14px}
 :root[data-ui="hevier"] .hv-wd-t{font-size:22px;font-weight:700;margin:2px 0 10px}
 :root[data-ui="hevier"] .hv-wd .hv-stats{margin:0 0 14px}
 :root[data-ui="hevier"] .hv-wd-note{font-size:15px;white-space:pre-wrap;margin:0 0 12px}
