@@ -165,7 +165,7 @@ export default function WorkoutTab() {
   }
   const body = g => (closed.includes(g.name ?? MINE) ? null
     : g.ids.length ? <FolderList name={g.name} ids={g.ids} card={card} />
-      : <div className="hv-fempty">{g.name ? t('Empty folder. Use ⋯ → Move to folder on a routine.') : t('No routines outside a folder.')}</div>)
+      : <div className="hv-fempty">{g.name ? t('Empty folder. Add a routine with its ⋯ → New Routine, or a routine’s ⋯ → Move to folder.') : t('No routines outside a folder.')}</div>)
   // Each name keeps its own casing class (lib/i18n-core.js exerciseNameClass), as upstream's lists do.
   const preview = r => r.ex.map((e, i) => <span key={i} className={exerciseNameClass(EXIDX[e.id])}>
     {i ? ', ' : ''}{EXIDX[e.id] ? exerciseNameFor(EXIDX[e.id]) : e.n || e.id}</span>)

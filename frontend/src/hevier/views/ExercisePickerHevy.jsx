@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
+import { exerciseNameText } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
@@ -130,13 +131,16 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // The thumbnail and Hevy's chart button open the exercise's details without picking it.
   const details = (ev, e) => { ev.stopPropagation(); exerciseDetailSheet(e) }
-  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}>
-    <button className="hv-thumb" aria-label={t('Details')} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
+  // A screen reader hears the row as its exercise, and in a multi pick whether it is ticked; the
+  // thumbnail repeats the chart button, so only the chart button is in its reading order.
+  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}
+    aria-label={[exerciseNameText(e), t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
+    <button className="hv-thumb" aria-hidden="true" tabIndex={-1} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
     <div className="grow">
       <div className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div>
       <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</div>
     </div>
-    {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details')} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
+    {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>
 

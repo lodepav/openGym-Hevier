@@ -73,14 +73,14 @@ export default function WorkoutCard({ w }) {
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
   const who = (useStore(s => s.user?.name) || '').trim()
   const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
-  return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))}>
+  return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))} aria-label={(w.name || t('Workout')) + ', ' + workoutWhenText(w)}>
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
       <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
       <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
-      <button type="button" className="iconbtn" aria-label={t('Share workout')}
+      <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>
-      <button type="button" className="iconbtn" aria-label={t('More')}
+      <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
     <div className="hv-wcard-t">{w.name || t('Workout')}</div>

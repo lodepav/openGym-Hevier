@@ -83,7 +83,7 @@ export default function MonthReport() {
             N times, so the rows add up to the count above. The first five, then all on a tap. */}
         <div className="list">{(allPrs ? prRows : prRows.slice(0, PR_ROWS)).map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}{rec.times > 1 && ' ×' + rec.times} · {fmtDate(rec.d)}</span>)}</span>
+            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}{rec.times > 1 && ' · ' + t('{0} times', rec.times)} · {fmtDate(rec.d)}</span>)}</span>
         </button>)}</div>
         {!allPrs && prRows.length > PR_ROWS && <button type="button" className="btn hv-report-more" onClick={() => setAllPrs(true)}>{t('Show all ({0})', prRows.length)}</button>}
       </>}

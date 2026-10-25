@@ -722,3 +722,21 @@
 :root[data-ui="hevier"] .hv-share-change{display:block;margin:8px auto 0;background:none;border:0;color:var(--acc);font:inherit;font-size:14px}
 :root[data-ui="hevier"] .hv-share-acts{display:flex;gap:10px;margin-top:14px}
 :root[data-ui="hevier"] .hv-share-acts .btn{flex:1}
+
+/* Round 3 of the UX review: the calendar's month titles are headings (A7), and the 36 dp icon
+   buttons of the monthly report's month bar and the Routines heading get a 48 dp target (A1). */
+:root[data-ui="hevier"] .hv-cal-mh{margin:0;font:inherit}
+:root[data-ui="hevier"] :is(.hv-report-bar, .hv-rhead) .iconbtn{position:relative}
+:root[data-ui="hevier"] :is(.hv-report-bar, .hv-rhead) .iconbtn::before{content:'';position:absolute;inset:-6px}
+
+/* Round 4 (J7, low vision and one hand). Targets (A1) without moving anything: the tick reaches the
+   row's right edge, the effort button the row's height, Finish, Save and Done 8 dp above and below. */
+:root[data-ui="hevier"] .hv-row .hv-chk::before{inset:-7px -24px -7px -4px}
+:root[data-ui="hevier"] .hv-eff{position:relative}
+:root[data-ui="hevier"] .hv-eff::before{content:'';position:absolute;inset:-10px 0}
+:root[data-ui="hevier"] .btn.hv-finish{position:relative}
+:root[data-ui="hevier"] .btn.hv-finish::before{content:'';position:absolute;inset:-8px 0}
+/* At a large font, PREVIOUS wraps rather than hiding last time's reps, and a header cell is cut
+   short rather than running into the next (A6). At the normal size both fit as before. */
+:root[data-ui="hevier"] .hv-row .hv-prev{white-space:normal;text-overflow:clip;line-height:1.2}
+:root[data-ui="hevier"] .hv-head > *{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}

@@ -134,6 +134,9 @@ export default function HevyExerciseBlock({
 
   // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
   const workNumber = i => setNumberAt(entry.sets, i)
+  // A row as a screen reader names it: "Set 2", or "Warm-up 1" so two warm-ups are told apart.
+  const warmNumber = i => entry.sets.slice(0, i + 1).filter(isWarmupRow).length
+  const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', warmNumber(i)) : t('Set {0}', workNumber(i)))
   const openSetType = (s, i) => {
     const warm = isWarmupRow(s)
     const fail = isFailureSet(s)
@@ -268,7 +271,7 @@ export default function HevyExerciseBlock({
     })
   }
   // A screen reader hears which set a field belongs to: "Set 2, KG (Left)".
-  const fieldName = (s, i, col, side) => (isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + ', ' + col.label
+  const fieldName = (s, i, col, side) => rowName(s, i) + ', ' + col.label
     + (side ? ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : '')
   const field = (s, i, col, side) => {
     const src = side ? (s.sides?.[side] || {}) : s
@@ -318,7 +321,7 @@ export default function HevyExerciseBlock({
       if (nv != null && freshSrc && !freshSrc.done) (side ? onToggleSide(i, side) : onToggle(i))
     })
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open}
-      aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
@@ -328,8 +331,8 @@ export default function HevyExerciseBlock({
   const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span> : workNumber(i))
   const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
-    aria-label={(isWarmupRow(s) ? t('Warm-up') : t('Set {0}', workNumber(i))) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
-      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (prSets.has(i) ? ', ' + t('PR') : '')}>
+    aria-label={rowName(s, i) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (prSets.has(i) ? ', ' + t('PR') : '') + ', ' + t('Set type')}>
     {markOf(s, i)}{prSets.has(i) && <Icon name="trophy" className="hv-pr-live" />}</button>
   // A tick that gives this set a record says so (D22): a toast, no sound of its own. A weight in
   // this exercise's own unit (D41).
@@ -351,7 +354,7 @@ export default function HevyExerciseBlock({
     const got = recordsAt(liveRecords(st), entryIdx, i).filter(r => !had.includes(r.kind))
     if (got.length) useUI.getState().toast(t('New PR · {0}', t(KINDS[got[0].kind]) + ' ' + prText(got[0])) + (got.length > 1 ? ' +' + (got.length - 1) : ''))
   }
-  const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up') : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
+  const tickLabel = (s, i, side) => (isWarmupRow(s) ? t('Warm-up {0} done', warmNumber(i)) : side ? t('Set {0} ({1}) done', workNumber(i), sideWord(side)) : t('Set {0} done', workNumber(i)))
   // One line of the table: a straight set, one half of a timed per-side pair (`s.side`), or one
   // side of a per-side reps set (`side`).
   const line = (s, i, side) => {

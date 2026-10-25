@@ -7,6 +7,7 @@
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX } from '../../lib/exercises.js'
+import { exerciseNameText } from '../../lib/format.js'
 import Icon from '../../components/Icon.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import { exercisePickerSheet } from '../views/ExercisePickerHevy.jsx'
@@ -37,7 +38,7 @@ function GymChips({ exId, gyms }) {
     {gyms.map(g => {
       const has = !missingAt(S, exId, g.id)
       return <button key={g.id} type="button" className={'chip nocap' + (has ? ' on' : '')} aria-pressed={has}
-        aria-label={t('{0} at {1}', ex ? exerciseNameFor(ex) : '', g.name)}
+        aria-label={(ex ? exerciseNameText(ex) + ': ' : '') + t('available at {0}', g.name)}
         onClick={() => update(s => { setMissing(s, exId, g.id, has) })}>{g.name}</button>
     })}
   </div>
@@ -62,7 +63,7 @@ export function BackupsSheet({ rid, i, exId, close }) {
     }, { title: t('Add a backup'), like: exId })
   }
   return <>
-    <h3 className={ex ? exerciseNameClass(ex) : ''}>{t('Backups for {0}', ex ? exerciseNameFor(ex) : '')}</h3>
+    <h3>{t('Backups for {0}', '\u0001').split('\u0001').map((part, k) => k ? [<span key="n" className={ex ? exerciseNameClass(ex) : ''}>{ex ? exerciseNameFor(ex) : ''}</span>, part] : part)}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>{t('Machine taken? Pick what you’d do instead, and a swap mid-workout offers these first.')}</div>
     {gyms.length > 0 && ex && <div className="list hv-backups" style={{ marginBottom: 12 }}>
       <div className="item hv-pk-row">

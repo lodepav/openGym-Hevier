@@ -114,7 +114,7 @@ describe('hevier: navigation (seam S2)', () => {
 
   it('a feed card’s ⋯ deletes the workout after upstream’s confirm', () => {
     render('/profile', { workouts: [workout('2026-10-14')] })
-    act(() => container.querySelector('.hv-wcard .iconbtn[aria-label="More"]').click())
+    act(() => container.querySelector('.hv-wcard .iconbtn[aria-label^="More, "]').click())
     const menu = useUI.getState().sheets.at(-1)
     const host = document.createElement('div')
     const r2 = createRoot(host)

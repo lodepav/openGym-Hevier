@@ -62,3 +62,60 @@ change: **kept**, the user's choice (D28); with every match hidden, the hidden l
 keyboard: **fixed** (D67: the line stands alone); the next-set highlight and the rest bar carry on
 while a set timer runs (D53, D71): noted. The device's test profile is to be set up as JOURNEYS.md
 describes before round 3 (agreed).
+
+## Round 3 (2026-10-25, J5 numbers person, J6 planner)
+
+Build of hevier/main bcd8576d2 on the saved test profile. Both finished (J5 about 20 taps, J6
+about 35). 124 tool calls, 14 minutes. Ids are this round's (R3-).
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R3-U1 | medium | H4 | The monthly report writes a record beaten N times as "×N", next to reps and the cable's ×2: "20 kg × 15 ×4" | **fixed** (hevier/ux-round3): "· 4 times" |
+| R3-U2 | medium | G8 | A one-limb exercise's Best Set Volume reads 28 kg × 11 in the report (one side, D51's records) and 28 kg × 22 in exercise details (upstream's both-sides total) | **discuss** |
+| R3-U3 | medium | A8 | Long-press reorder did nothing in a routine made on the same visit | **fixed**: the hook's touch listener is attached again once the list has rows (`useDragReorder`); the tap path (Move up / down) already worked |
+| R3-U4 | low | C4 | Workout Detail wrote "300kg × 1 reps" | **fixed**: "1 rep" (also the share card) |
+| R3-U5 | low | C1 | The Backups sheet's title read "Backups For Lever Lying Leg Curl" | **fixed**: only the name is cased |
+| R3-U6 | low | H4 | The Plan page (Workout tab → Schedule) has no ‹ and no page bar (D49) | **discuss** (adds a control; upstream's page, system back works) |
+| R3-U7 | low | H2 | The weekly chart's Reps headline "0 this week" had no unit | **fixed**: "0 reps this week" |
+| R3-U8 | low | A3 | The routine editor's ⋮ buttons were all spoken "More" | **fixed**: "More, <exercise>" and "More, <routine>" |
+| R3-U9 | low | A7 | The Calendar page had no headings | **fixed**: each month title is a heading |
+| R3-U10 | low | H1 | Adding several exercises to a routine named only the last | **fixed**: "3 exercises added to …" |
+
+Improvements: **fixed**: the week bars spoken "Week of 12 Oct: 47 sets"; the Backups gym chips
+spoken "Lever Lying Leg Curl: available at Holmes Place"; the empty folder's hint names ⋯ → New
+Routine too; the monthly report's month buttons and the Routines heading's icons get a 48 dp target.
+**Discuss**: a tap on a week under Duration or Reps does nothing (only Sets opens a sheet).
+
+Notes for the user: Workout Detail's ↑ = ↓ (D66) say what they compare with only to a screen
+reader; a gym's "missing" mark (D86) applies to every routine with the exercise, which the sheet
+does not say; Schedule is an unlabelled icon (D13); planned-day names on the Calendar are 9 px
+(D68); the week's Sets bar counted a cardio set the muscle sheet leaves out (47 against 46), seen
+only in its hidden title.
+
+## Round 4 (2026-10-25, J7 low vision and one hand)
+
+Same build, font scale 2.0, then 1.0 to measure. Finished (about 21 taps; Start Routine is two taps,
+G6). 96 tool calls, 11 minutes. Rounds 1 and 2's fixes on the live workout re-checked on screen and
+holding (rest bar height, Update routine text, Replace and Add brand, cable and gym names, the
+named Start Routine, More and effort buttons, the toast clear of the rest bar).
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R4-U1 | medium | A1 | The set's tick hit area is 41×44 and the RIR button's 57×24 (touches D4, D6) | **fixed**: the tick's target runs to the row's right edge, the RIR button's is the row's height; nothing moves |
+| R4-U2 | medium | A1 | Finish (64×31) and Save Workout's Save (58×32) had no extra hit area | **fixed**: 8 dp above and below (and Done) |
+| R4-U3 | medium | A6, G2 | At 200% PREVIOUS cut off last time's reps ("80kg …") | **fixed**: it wraps onto a second line; at the normal size it fits on one as before (checked on screen) |
+| R4-U4 | low | A6 | At 200% the set table's headers ran together ("SETPREVIOUS") | **fixed**: each header cell is cut short on its own ("S… PREVIO…") |
+| R4-U5 | medium | A3, A4 | Picker rows were spoken "Details Barbell … Chest Details", and a ticked row was not spoken as ticked | **fixed**: the row is named by its exercise, muscle and brand, pressed when ticked in a multi pick; the chart button is "Details, <exercise>"; the thumbnail is left out of the reading order |
+| R4-U6 | low | A3 | Feed cards were one button named with the whole card, Share and ⋯ without the workout | **fixed**: the card is "Push Day, Sun, 25 Oct · 13:06", its buttons "Share workout, Push Day" and "More, Push Day" (checked on screen) |
+| R4-U7 | low | A3 | A warm-up's tick was spoken "Warm-up", two warm-ups alike | **fixed**: "Warm-up 1 done", "Warm-up 1, Weight (kg)" |
+| R4-U8 | low | A1 | Rest bar Pause and Skip are 40 dp wide | **fixed**: 4 dp more on each side, meeting in the gap between them |
+| R4-U9 | low | A6 | "Edit Home" is cut to "Edit Ho…" at 200% | **rejected**: D49's bar, the meaning is clear, rarely used |
+
+Improvements: **fixed**: the set number is spoken "Set 1, Set type". **Deferred**: the rest clock
+without `aria-live` and its two names (upstream's rest bar, `#timer`; offer upstream), Home's
+week-strip days spoken without trained or planned (low).
+
+Notes for the user: at 200% the workout's sticky header takes a third of the screen with the
+keyboard down (a smaller header at large fonts would be a discuss item); the swipe-delete undo
+toast lasts 5 s (upstream's `TOAST_ACTION_MS`, D9); upstream's confirmation dialogs are 260 dp
+wide, so their text breaks every few words at 200%.

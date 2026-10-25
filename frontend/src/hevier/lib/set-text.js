@@ -9,11 +9,14 @@ import { elapsedClock } from './elapsed.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
 
-/** "60×8" → "60kg × 8 reps", "60×8 F" → "60kg × 8 reps F"; anything else unchanged. */
-export function hevySetText(label, unit, repsWord = 'reps') {
+/**
+ * "60×8" → "60kg × 8 reps", "60×8 F" → "60kg × 8 reps F", "300×1" → "300kg × 1 rep"; anything else
+ * unchanged. `reps(n)` writes the count with its word, translated by the caller.
+ */
+export function hevySetText(label, unit, reps = n => n + (n === 1 ? ' rep' : ' reps')) {
   const m = PLAIN.exec(String(label))
   if (!m) return label
-  return `${m[1]}${unit} × ${m[2]} ${repsWord}${m[3] || ''}`
+  return `${m[1]}${unit} × ${reps(Number(m[2]))}${m[3] || ''}`
 }
 
 const CARDIO = /^(\d[\d.]*) min @ /
