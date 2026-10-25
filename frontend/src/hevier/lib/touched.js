@@ -19,3 +19,15 @@ export function shiftTouched(marks, before, after) {
   }
   return out
 }
+
+/** The marks after the rows were reordered: `order[j]` is the old number of new row `j`. */
+export function reorderTouched(marks, order) {
+  if (!marks.size) return marks
+  const out = new Set()
+  for (const key of marks) {
+    const at = key.indexOf(':')
+    const j = order.indexOf(Number(key.slice(0, at)))
+    if (j !== -1) out.add(j + key.slice(at))
+  }
+  return out
+}
