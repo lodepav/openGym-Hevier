@@ -7,6 +7,7 @@
 import { EXIDX } from '../../lib/exercises.js'
 import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
+import { setUnits } from './hold-set.js'
 import { fmtNum, fmtVol, exerciseNameText } from '../../lib/format.js'
 import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
@@ -75,7 +76,7 @@ export function shareCards(S, w, { body = 'male' } = {}) {
       const best = bestSet(e)
       return {
         name: nameOfEntry(e),
-        sets: tn('{0} set', '{0} sets', e.sets.filter(isWork).length),
+        sets: tn('{0} set', '{0} sets', setUnits(e.sets, isWork).length),
         best: best ? hevySetText(hevySetLabel(e.id, best, e.target, speed), unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps'))) : '',
       }
     }),

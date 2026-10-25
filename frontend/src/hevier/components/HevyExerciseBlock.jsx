@@ -25,7 +25,6 @@ import {
   isWarmupRow, isFailureSet, isDropSet, isRestPauseSet, dropsOf, clustersOf, isSideSet, WEIGHT_ORIGIN_MANUAL,
 } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
-import { setNumberAt } from '../../views/Workout.jsx'
 import { dropGrid, loadKindFor, baseWeightFor, inventoryFor, rowLoad, sameLoad } from '../../lib/plates.js'
 import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
@@ -45,7 +44,7 @@ import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
-import { isHoldRow, canBeHold, toHold, toReps, HOLD_SEC } from '../lib/hold-set.js'
+import { isHoldRow, canBeHold, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
@@ -155,9 +154,35 @@ export default function HevyExerciseBlock({
   }
   const setFailureAt = (i, on) => editSets(sets => withFailure(sets, i, on))
   // D89: a set made a hold opens on last time's hold there, else 45 s; back, on last time's reps
-  // there, else the plan's. Either way grey until touched (D2).
+  // there, else the plan's. Either way grey until touched (D2). A per-side set becomes an L/R pair
+  // of holds (hold-set.js), and the pair one per-side set again; copied from last time (`from`),
+  // it takes last time's weights too and is firm.
   const setHold = (i, on, from) => {
-    const p = prev[i]
+    const [at, count] = setSpanAt(entry.sets, i)
+    const row = entry.sets[at]
+    const p = from ?? prev[at]
+    const firm = keys => { if (from) setTimeout(() => keys.forEach(([j, k]) => touch(j, k)), 0) }
+    if (on && isSideSet(row)) {
+      const L = isHoldRow(p) ? p : null, R = L?.hvPairR || L
+      editSets(sets => {
+        const [l, r] = toSideHold(sets[at], L?.sec ?? HOLD_SEC, R?.sec ?? HOLD_SEC)
+        const pair = from && L ? [{ ...l, w: L.w || 0 }, { ...r, w: R.w || 0 }] : [l, r]
+        return [...sets.slice(0, at), ...pair, ...sets.slice(at + 1)]
+      })
+      firm([[at, 'w'], [at, 'sec'], [at + 1, 'w'], [at + 1, 'sec']])
+      return
+    }
+    if (!on && count === 2) {
+      // Per-side reps are each side's; a plan's rep target is both sides' (D75).
+      const reps = k => (isSideSet(p) ? p.sides[k]?.r : p && !isHoldRow(p) && p.r > 0 ? p.r : (entry.target?.reps || 0) / 2)
+      editSets(sets => {
+        const back = fromSideHold(sets[at], sets[at + 1], reps('L'), reps('R'))
+        const done = from && isSideSet(p) ? { ...back, sides: { L: { ...back.sides.L, w: p.sides.L.w || 0 }, R: { ...back.sides.R, w: p.sides.R.w || 0 } } } : back
+        return [...sets.slice(0, at), done, ...sets.slice(at + 2)]
+      })
+      firm(['Lw', 'Lr', 'Rw', 'Rr'].map(k => [at, k]))
+      return
+    }
     editSet(i, row => (on ? toHold(row, from?.sec ?? (isHoldRow(p) ? p.sec : HOLD_SEC))
       : toReps(row, from?.r ?? (p && !isHoldRow(p) && p.r > 0 ? p.r : entry.target?.reps))))
     untouch(i, 'r'); untouch(i, 'sec')
@@ -170,7 +195,8 @@ export default function HevyExerciseBlock({
   const setSide = (i, side, f, v) => editSets((sets, e) => withSideField(sets, i, side, f, v, e.target?.backoffStep))
 
   // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
-  const workNumber = i => setNumberAt(entry.sets, i)
+  // An L/R pair is one set, also among a per-side exercise's single rows (hold-set.js).
+  const workNumber = i => setNumberOf(entry.sets, i)
   // A row as a screen reader names it: "Set 2", or "Warm-up 1" so two warm-ups are told apart.
   const warmNumber = i => entry.sets.slice(0, i + 1).filter(isWarmupRow).length
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', warmNumber(i)) : t('Set {0}', workNumber(i)))
@@ -297,6 +323,10 @@ export default function HevyExerciseBlock({
   // A tap on PREVIOUS copies it into the row, field by field, in the row's own shape.
   const copyPrev = (i, p, side) => {
     if (!p) return
+    // A hold last time makes a per-side set a hold on each side (D89), and a per-side set last
+    // time makes a hold pair a per-side set again.
+    if (side && isHoldRow(p)) return setHold(i, true, p)
+    if (!side && entry.sets[i]?.side && isSideSet(p)) return setHold(i, false, p)
     if (side) {
       const sd = isSideSet(p) ? p.sides[side] : null
       if (!sd) return
@@ -392,7 +422,7 @@ export default function HevyExerciseBlock({
   // D89: a hold's ⏱ opens the big clock, counting its seconds down (the set's, else 45 s); on a
   // hold already running it opens that clock again.
   const holdClock = (s, i) => {
-    const title = exerciseNameFor(ex) + ' · ' + t('Set {0}', workNumber(i))
+    const title = exerciseNameFor(ex) + ' · ' + t('Set {0}', workNumber(i)) + (s.side ? ' · ' + sideWord(s.side) : '')
     if (s[RUN]) return openHoldClock(entryIdx, i, title)
     holdClockSheet(entryIdx, i, secOf(s, 'time') || HOLD_SEC, title)
   }
@@ -451,11 +481,12 @@ export default function HevyExerciseBlock({
     const src = side ? (s.sides?.[side] || {}) : s
     const p = prev[i]
     const sideTag = side || s.side
-    const prevText = previousText(p, { ...prevOpts, side })
-    const canCopy = side ? !!(p && isSideSet(p)) : !!p
+    // A half of a hold pair reads its own side of a per-side set last time.
+    const prevText = previousText(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
+    const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     return <div ref={el => { rowEls.current[i + (side || '')] = el; if (side !== second) onSetRowRef?.(i, el) }} style={grid}
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
-      {side === second ? <span /> : setButton(s, i)}
+      {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + (side ? ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>

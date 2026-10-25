@@ -19,7 +19,6 @@ import { speedUnitOf } from '../../lib/speed.js'
 import { sameWorkout } from '../../lib/workout-date.js'
 import { nav as navTo, onSheetEntry } from '../../lib/nav.js'
 import { exerciseDetailSheet, upstreamWorkoutDetailSheet } from '../../sheets.jsx'
-import { setNumberAt } from '../../views/Workout.jsx'
 import WorkoutMediaSection, { workoutMediaCount } from '../../components/WorkoutMedia.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -40,6 +39,7 @@ import { workoutTrends } from '../lib/set-trend.js'
 const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
 import { sanitizeHr } from '../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
+import { setNumberOf, isPairTail } from '../lib/hold-set.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -77,9 +77,9 @@ function ExerciseSets({ w, e, st, recs, trends = [], time }) {
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
       {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
-        <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : setNumberAt(e.sets, i)}</span>
+        <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : isPairTail(e.sets, i) ? '' : setNumberOf(e.sets, i)}</span>
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
-        <span>{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
+        <span>{s.side && <span className="hv-lr">{s.side === 'L' ? t('L') : t('R')}</span>}{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
         <PrBadge recs={at(i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
       </div>)}

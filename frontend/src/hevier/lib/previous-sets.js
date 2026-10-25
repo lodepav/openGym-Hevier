@@ -5,6 +5,7 @@
 import { entryExcluded, entryRoutineId } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
 import { entryLastKey, isCable } from './gym-labels.js'
+import { isPairHead, isPairTail } from './hold-set.js'
 
 // Each counting past session of the exercise, newest first, as its finished warm-ups and work sets:
 // with a routine id that routine's own sessions first, then the rest (upstream's lastEntryFor
@@ -23,6 +24,21 @@ function lastKeys(exId, label) {
   return [...new Set([...own(brand), ...(brand ? own('') : [])])]
 }
 
+// A per-side hold is an L row and an R row (hold-set.js), one set: past work sets as units, a
+// pair as { pair: true, L, R } (a half whose partner was left unticked, a pair of one).
+const units = rows => rows.flatMap((s, i) => (isPairTail(rows, i) ? []
+  : isPairHead(rows, i) ? [{ pair: true, L: s, R: rows[i + 1] }]
+    : s.side === 'L' || s.side === 'R' ? [{ pair: true, [s.side]: s }] : [s]))
+const isPair = u => u?.pair === true
+// What a row shows of a past unit: a half of a pair its own half (or the set, last time one row),
+// any other row the set, or a pair's L carrying its R (`hvPairR`, never stored) for a per-side set.
+function sideOf(u, role) {
+  if (!isPair(u)) return u || null
+  if (role) return u[role] || null
+  const L = u.L || u.R
+  return u.R && u.L ? { ...L, hvPairR: u.R } : L
+}
+
 function* pastSessions(H, exId, rid, label) {
   const workouts = H?.workouts || []
   const seen = new Set()
@@ -34,7 +50,7 @@ function* pastSessions(H, exId, rid, label) {
       if (!en || seen.has(en) || entryExcluded(w, en)) continue
       seen.add(en)
       const done = (en.sets || []).filter(s => s.done)
-      const work = done.filter(s => !isWarmupRow(s))
+      const work = units(done.filter(s => !isWarmupRow(s)))
       if (work.length) yield { warm: done.filter(isWarmupRow), work }
     }
   }
@@ -59,11 +75,16 @@ export function previousSetsFor(H, entry, mode = 'routine', { walk = true, label
   if (!entry || !rows.length) return out
   // Row r is warm-up wi or work set ki; a slot last time lacked is read from the last session
   // that had it (Hevy's way: a fourth set done two weeks ago still shows).
+  // An L/R pair is one work set: both its rows read the same slot, each its own side.
   let w = 0, k = 0
-  const slots = rows.map(row => (isWarmupRow(row) ? ['warm', w++] : ['work', k++]))
+  const slots = rows.map((row, r) => (isWarmupRow(row) ? ['warm', w++]
+    : isPairTail(rows, r) ? ['work', k - 1, 'R'] : ['work', k++, isPairHead(rows, r) ? 'L' : null]))
   let open = rows.length
   for (const past of pastSessions(H, entry.id, mode === 'any' ? null : entry.rid, label)) {
-    slots.forEach(([kind, n], r) => { if (!out[r] && past[kind][n]) { out[r] = past[kind][n]; open-- } })
+    slots.forEach(([kind, n, role], r) => {
+      const got = !out[r] && past[kind][n] ? sideOf(past[kind][n], role) : null
+      if (got) { out[r] = got; open-- }
+    })
     if (!open || !walk) break
   }
   return out

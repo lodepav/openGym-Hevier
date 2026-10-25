@@ -1,11 +1,13 @@
 // Volume as tonnage or as sets per muscle group (hevier/DECISIONS.md D18). Tonnage is upstream's
 // (`w.vol`, workoutVolume); this adds the sets count: each ticked work set once, for the exercise's
-// main muscle (D74), Hevy's way. Warm-ups are left out; a per-side or drop set is one set. Settings →
+// main muscle (D74), Hevy's way. Warm-ups are left out; a per-side or drop set is one set, and so is
+// a per-side hold's L/R pair (hold-set.js). Settings →
 // Muscle sets (D42) can count a secondary muscle too, in part, with upstream's load.
 import { EXIDX } from '../../lib/exercises.js'
 import { loadOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { muscleOf } from './exercise-picker.js'
+import { setUnits } from './hold-set.js'
 
 /** 'sets' (the default) or 'weight', from Settings → Volume. */
 export const volumeMode = S => (S?.hvVolume === 'weight' ? 'weight' : 'sets')
@@ -17,7 +19,7 @@ export const muscleMode = S => (S?.hvMuscleSets === 'share' ? 'share' : 'main')
 const isWorkSet = s => hasCompletedWork(s) && !isWarmupRow(s)
 
 /** Ticked work sets in a workout's (or a session's) entries. */
-export const workSets = entries => (entries || []).reduce((n, e) => n + (e.sets || []).filter(isWorkSet).length, 0)
+export const workSets = entries => (entries || []).reduce((n, e) => n + setUnits(e.sets, isWorkSet).length, 0)
 
 const tenth = v => Math.round(v * 10) / 10
 
@@ -28,7 +30,7 @@ export function muscleSets(entries, mode = 'main') {
   const by = new Map()
   const add = (muscle, n) => by.set(muscle, (by.get(muscle) || 0) + n)
   for (const e of entries || []) {
-    const n = (e.sets || []).filter(isWorkSet).length
+    const n = setUnits(e.sets, isWorkSet).length
     if (!n) continue
     if (mode === 'share') {
       const load = loadOf([{ id: e.id, ex: e.exercise || e, sets: n }])
