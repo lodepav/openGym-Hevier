@@ -446,6 +446,9 @@
 :root[data-ui="hevier"] .hv-pk-add .btn{flex:1}
 /* D78: Insert after the current exercise beside Add to end; a superset then takes its own row */
 :root[data-ui="hevier"] .hv-pk-add .btn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-pk-add .hv-pk-insert{display:flex;align-items:center;gap:.3em;justify-content:flex-start}
+:root[data-ui="hevier"] .hv-pk-insert span{flex:none}
+:root[data-ui="hevier"] .hv-pk-insert .hv-pk-name{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-pk-add.three{flex-wrap:wrap}
 :root[data-ui="hevier"] .hv-pk-add.three .btn:first-child{flex-basis:100%}
 

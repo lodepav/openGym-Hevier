@@ -35,9 +35,14 @@ const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym i
 // What "Add superset" links into: { items() -> the list the picks were added to, end() -> the
 // index of the last one added, pair(i, j) -> links two neighbours }. Set while a screen that adds
 // exercises is open; with none, the picker offers no superset. The workout's also has
-// insertAfter() -> the name of the exercise the picks would go after, or null when that is the
+// insertAfter() -> the exercise the picks would go after, or null when that is the
 // end, and placeAt(atEnd), which makes them go there or to the end (D78).
 let supersetTarget = null
+// "Insert after Bench Press" with the name cased as everywhere else and cut short, not the verb.
+const insertLabel = ex => {
+  const [pre, post = ''] = t('Insert after {0}', '\u0001').split('\u0001')
+  return <>{pre && <span>{pre}</span>}<span className={'hv-pk-name ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>{post && <span>{post}</span>}</>
+}
 export function useSupersetTarget(target) {
   useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
 }
@@ -164,7 +169,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       </button>)}
     {multi && picked.length > 0 && <div className={'hv-pk-add' + (after && canLink ? ' three' : '')}>
       {canLink && <button className="btn" onClick={addSuperset}>{t('Add superset')}</button>}
-      {after && <button className="btn hv-pk-insert" onClick={() => addPicked(false)}>{t('Insert after {0}', after)}</button>}
+      {after && <button className="btn hv-pk-insert" onClick={() => addPicked(false)}>{insertLabel(after)}</button>}
       <button className="btn primary" onClick={() => addPicked()}>{after ? t('Add to end') : picked.length === 1 ? t('Add 1 exercise') : t('Add {0} exercises', picked.length)}</button>
     </div>}
   </div>

@@ -20,6 +20,8 @@ describe('hevier cardio time as a clock (D53)', () => {
     const cardio = { mode: 'cardio' }
     expect(hevySetLabel('x', { min: 754 / 60, speed: 8 }, cardio, 'kmh')).toMatch(/^12:34 @ 8/)
     expect(hevySetLabel('x', { min: 90, speed: 8 }, cardio, 'kmh')).toMatch(/^1:30:00 @ /)
+    expect(hevySetLabel('x', { min: 918 / 60, speed: 0 }, cardio, 'kmh')).toBe('15:18')
+    expect(hevySetLabel('x', { min: 10, incline: 5 }, cardio, 'kmh')).toMatch(/^10:00 · /)
     expect(hevySetLabel('x', { sec: 75 }, { mode: 'time' })).toBe('1:15')
   })
 })
