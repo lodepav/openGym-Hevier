@@ -257,7 +257,7 @@ export default function RoutineEditHevy() {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const r = S.routines.find(x => x.id === id)
-  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout'))
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   useEffect(() => { if (!r) nav('/workout', { replace: true }) }, [!!r])
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])

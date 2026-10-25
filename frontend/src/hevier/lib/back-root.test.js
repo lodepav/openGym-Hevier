@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { decideBack } from '../../lib/back.js'
-import { isTabRoot, atTabRoot } from './back-root.js'
+import { isTabRoot, atTabRoot, sheetState } from './back-root.js'
 
 describe('hevier: back on a tab screen', () => {
   it('knows the three tab screens', () => {
@@ -28,5 +28,16 @@ describe('hevier: back on a tab screen', () => {
 
   it('an open sheet still closes first', () => {
     expect(decideBack({ top: { id: 's' }, canGoBack: atTabRoot({ canGoBack: true }, '/home', false).canGoBack, exitArmed: false })).toBe('sheet')
+  })
+})
+
+describe('sheetState', () => {
+  it("numbers a sheet's entry one past the page's", () => {
+    expect(sheetState({ usr: null, key: 'k', idx: 3 })).toEqual({ openGymSheet: true, idx: 4 })
+    expect(sheetState({ idx: 0 })).toEqual({ openGymSheet: true, idx: 1 })
+  })
+  it('leaves the index out when the page has none', () => {
+    expect(sheetState(null)).toEqual({ openGymSheet: true })
+    expect(sheetState({ openGymSheet: true })).toEqual({ openGymSheet: true })
   })
 })
