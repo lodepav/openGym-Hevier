@@ -72,7 +72,7 @@ export default function RoutinePreview() {
   const r = S.routines.find(x => x.id === id)
   useEffect(() => { if (!r) nav('/workout', { replace: true }) }, [!!r])
   if (!r) return null
-  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout'))
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   const units = supersetUnits(r.ex)
   const load = r.ex.length ? loadOfRoutine(r) : null
   const sets = r.ex.reduce((n, e) => n + workCount(e), 0)

@@ -13,3 +13,11 @@ export const isTabRoot = (path, active) =>
  *  canGoBack false on a page the app navigated to, and back then armed exit (emulator, Android 16). */
 export const atTabRoot = (ev, path, active, idx = 0) =>
   isTabRoot(path, active) ? { ...ev, canGoBack: false } : idx > 0 ? { ...ev, canGoBack: true } : ev
+
+/** The history state of a sheet's entry (seam S47): upstream's mark, and the router's index one
+ *  past the page's, as a push would have it. A page that takes the entry over (`closeThenNav`)
+ *  keeps a real index, so its back button goes back rather than to its fallback page. */
+export const sheetState = state => {
+  const idx = state?.idx
+  return typeof idx === 'number' ? { openGymSheet: true, idx: idx + 1 } : { openGymSheet: true }
+}

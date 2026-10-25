@@ -40,6 +40,7 @@ import { initRestExtra } from './lib/rest-extra-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
+import { sheetState } from './lib/back-root.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
 
 const store = storeAdapter(useStore, (msg, opts) => useUI.getState().toast(msg, opts))
@@ -60,6 +61,7 @@ function install() {
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
   installFinishHook(nav)
+  hooks.sheetState = sheetState                          // a page opened from a sheet keeps its back (S47)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
   hooks.durationOpen = o => restOpen(o, state().restSec)     // an exercise's rest wheel opens on the default (S33, D56)
   hooks.restFooter = text => restFooter(text, state().restSec)  // and the settings page's line says so (S42, D56)

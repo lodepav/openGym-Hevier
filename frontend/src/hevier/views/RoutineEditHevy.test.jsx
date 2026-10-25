@@ -136,7 +136,7 @@ describe('hevier: routine editor (M3)', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
     expect(byText('.hv-rsettings *', 'Deload routine')).toBeTruthy()
     act(() => byText('button', 'Done').click())
-    expect(path).toBe('/workout')
+    expect(path).toBe('/routines')  // no router index here: the fallback, the Workout tab's routines
   })
 
   it('the title edits the routine’s name', () => {

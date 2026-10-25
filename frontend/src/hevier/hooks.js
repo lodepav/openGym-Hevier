@@ -32,6 +32,7 @@ export const hooks = {
   exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
   exAliases: null,       // (ex) => text: an exercise's other names, for the search (S41)
   namesVersion: null,    // () => key: changes with those names, so the search's cache is rebuilt (S41)
+  sheetState: null,     // (state) => state: a sheet's history entry, numbered for the router (S47)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 

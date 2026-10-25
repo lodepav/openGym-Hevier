@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useUI } from '../store/useUI.js'
 import { keyboardOpen } from '../lib/viewport-guard.js'
+import { hooks } from '../hevier/hooks.js'  // [hevier] S47
 
 // Putting the page back after a sheet closes takes up to three goes (see the un-pin below): now,
 // next frame, and once the keyboard's dismiss animation is over. Anything else that wants to
@@ -164,7 +165,8 @@ export default function Modals() {
     if (sheets.length > prev) {
       for (let i = prev; i < sheets.length; i++) {
         sheetEntries.current.push({ openedAt: location.href, live: true })
-        history.pushState({ openGymSheet: true }, '')
+        // [hevier] S47: the fork numbers the sheet's entry for the router, so a page opened from it keeps its back
+        history.pushState(hooks.sheetState ? hooks.sheetState(history.state) : { openGymSheet: true }, '')
         pushedEntries.current++
       }
     } else if (sheets.length < prev) {
