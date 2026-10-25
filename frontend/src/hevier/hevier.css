@@ -144,7 +144,10 @@
 :root[data-ui="hevier"] .hv-chk.on{background:var(--green);color:#fff}
 :root[data-ui="hevier"] .hv-sub-row{padding-inline-start:18px}
 /* the L / R line of a per-side set, and its tag in PREVIOUS */
-:root[data-ui="hevier"] .hv-row.hv-side + .hv-row.hv-side{margin-top:-4px}
+/* a per-side set's two lines are one band, and a dark line parts it from the set above (they
+   overlapped by 4 px, which drew a lighter line between L and R instead) */
+:root[data-ui="hevier"] .hv-ex > div:not([class]) ~ div:not([class]) .hv-pair > .hv-row:first-child{box-shadow:inset 0 2px 0 var(--bg)}
+:root[data-ui="hevier"] .hv-ex > div:not([class]) ~ div:not([class]) .hv-pair > .hv-row.hv-next:first-child:not(.done){box-shadow:inset 4px 0 0 var(--acc),inset 0 2px 0 var(--bg)}
 :root[data-ui="hevier"] .hv-lr{display:inline-block;min-width:14px;margin-inline-end:4px;font-size:11px;font-weight:700;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-go{justify-self:center}
 :root[data-ui="hevier"] .hv-x{justify-self:center}
