@@ -29,7 +29,7 @@ import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labe
 import { gymSheet } from '../components/GymLabels.jsx'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
-import { withoutForecast } from '../lib/plain-routine.js'
+import { progressionOn, withoutForecast } from '../lib/plain-routine.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
@@ -224,6 +224,9 @@ function askRoutineUpdate(updates) {
     n.moved && t('new order'),
   ].filter(Boolean).join(' · ')
   const one = updates.length === 1
+  // D69: a routine without progression opens at last time's sets, so say that, not "the progression".
+  const routines = useStore.getState().S.routines || []
+  const progressed = updates.some(u => progressionOn(routines.find(r => r.id === u.rid)))
   const run = () => {
     const { update } = useStore.getState()
     let before = []
@@ -234,7 +237,7 @@ function askRoutineUpdate(updates) {
   }
   confirmSheet({
     title: one ? t('Update “{0}”?', updates[0].name) : t('Update {0} routines?', updates.length),
-    message: <>{t('This workout changed the routine. Weights and reps stay with the progression.')}<br /><b className="hv-ru-parts">{parts}</b></>,
+    message: <>{progressed ? t('This workout changed the routine. Weights and reps stay with the progression.') : t('This workout changed the routine. Weights and reps are filled from last time.')}<br /><b className="hv-ru-parts">{parts}</b></>,
     confirmText: one ? t('Update routine') : t('Update routines'),
     cancelText: one ? t('Keep original routine') : t('Keep original routines'),
     onConfirm: run,

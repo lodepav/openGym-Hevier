@@ -9,7 +9,7 @@ raised again.
 
 Adapted on 2026-10-25 from the OpenNutriTracker fork's journeys. What they learned: one pair of
 journeys takes about 25 minutes and 170 tool calls, and an unusual profile (theirs mixed units)
-found most of the real bugs.
+found most of the real bugs. Here, round 1 (J1 and J2) took 17 minutes and 154 tool calls.
 
 ## Before and after a round (the session that starts the reviewer)
 
@@ -18,14 +18,14 @@ machine out of memory. Start the reviewer only with the emulator up (`HEADLESS=1
 hevier/tools/emulator.sh`, never a window) and nothing else building.
 
 **Snapshot the app first, and restore it after.** Journeys log workouts and change settings. The
-debug build is debuggable, so its whole data folder can be saved and put back. (Not tried yet:
-check the first time that a restored app opens on the same state.)
+debug build is debuggable, so its whole data folder can be saved and put back. (checked 2026-10-25 for a round trip; the app has no `databases` folder, and naming one corrupts the archive.)
 
 ```bash
 ADB=~/Android/Sdk/platform-tools/adb; APP=ch.duartesantos.opengym.hevier.test
 SNAP=<scratchpad>/ux-snapshot.tar
 $ADB shell am force-stop $APP
-$ADB exec-out run-as $APP tar -cf - files shared_prefs app_webview databases > "$SNAP"
+$ADB exec-out "run-as $APP tar -cf - files shared_prefs app_webview 2>/dev/null" > "$SNAP"
+tar -tf "$SNAP" > /dev/null   # a tar error here means the device's stderr got into the archive
 # … the round …
 $ADB shell am force-stop $APP
 $ADB exec-in run-as $APP tar -xf - < "$SNAP"
@@ -69,7 +69,8 @@ Has used Hevy for a year and wants their history and routines to come along.
 2. Profile → Exercises: find the leg press by its brand ("life fitness"). Open its details.
    Does the label chooser make sense?
 3. Workout tab: browse the routine folders, open a routine's page (a tap on its name), then
-   its editor. Change a rep range, then put it back.
+   its editor. Change an exercise's number of sets, then put it back (a rep range shows only
+   with progression on, D69).
 4. Compare what was learned in Hevy: is anything named differently in a way that would confuse
    a Hevy user (C5, H2)?
 
