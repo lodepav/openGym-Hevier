@@ -33,23 +33,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(DeviceAuthPlugin.class);
         registerPlugin(AnimationPacksPlugin.class);
         registerPlugin(NudgeCheckPlugin.class);
-        // [hevier] S17: the fork's Health Connect reads (D27), until upstream's v1.4.3
-        registerPlugin(HevierHealthReadPlugin.class);
-        // [/hevier]
-        // [hevier] S24: the fork's encrypted secret, the Hevy API key of the export to Hevy (D34)
-        registerPlugin(HevierSecretPlugin.class);
-        // [/hevier]
-        // [hevier] S26: the fork's home-screen month widget (D44)
-        registerPlugin(HevierWidgetPlugin.class);
-        // [/hevier]
-        // [hevier] S27: the fork's one-off position, the gym picker's "Find gyms nearby" (D47), until upstream's v1.4.3
-        registerPlugin(HevierLocationPlugin.class);
-        // [/hevier]
-        // [hevier] S43: the fork's Bluetooth heart-rate strap, recorded while a workout runs (D79)
-        registerPlugin(HevierHrStrapPlugin.class);
-        // [/hevier]
-        // [hevier] S46: the fork's save to the gallery, a workout's share card (D87)
-        registerPlugin(HevierGalleryPlugin.class);
+        // [hevier] S17: the fork's native plugins (src/hevier/java/…/HevierPlugins.java)
+        HevierPlugins.register(this);
         // [/hevier]
         super.onCreate(savedInstanceState);
         passSystemBarsToPage();
