@@ -6,6 +6,7 @@ import { betterWeight } from '../../lib/exercises.js'
 import { muscleSets, workSets } from './volume.js'
 import { monthCells } from './calendar.js'
 import { signed } from './delta.js'
+import { KINDS } from './records.js'
 
 const pad = n => String(n).padStart(2, '0')
 const keyOf = (y, mo) => `${y}-${pad(mo + 1)}`
@@ -75,4 +76,19 @@ export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = 
  *  like '+3' or '−1h 30min' (`fmt` writes the size), or null for none. */
 export function change(now, before, fmt) {
   return signed((Number(now) || 0) - (Number(before) || 0), fmt)
+}
+
+// The month's records, one row per exercise, most records first: [{ id, n, recs }], each kind once
+// with its last (so best) record of the month and how many times it was beaten, `times`.
+export function byExercise(records) {
+  const rows = new Map()
+  for (const x of records) {
+    const row = rows.get(x.id) || { id: x.id, n: 0, kinds: new Map() }
+    row.n++
+    row.kinds.set(x.kind, { ...x, times: (row.kinds.get(x.kind)?.times || 0) + 1 })
+    rows.set(x.id, row)
+  }
+  const order = Object.keys(KINDS)
+  return [...rows.values()].sort((a, b) => b.n - a.n)
+    .map(({ id, n, kinds }) => ({ id, n, recs: [...kinds.values()].sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)) }))
 }

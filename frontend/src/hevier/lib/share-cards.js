@@ -1,14 +1,15 @@
 // A finished workout as Hevy's share cards (hevier/DECISIONS.md D87): Summary, Exercises, Muscles,
-// Records, each a 1080 × 1350 picture on black or over the user's own photo. Two pure steps, so
-// what a card says and where it goes are tested without a canvas:
-//   shareCards       — the cards a workout has, and what each says
+// Records, each a 1080 × 1350 picture on black or over the user's own photo; and a month's report
+// (D23) as Summary, Calendar, Muscles, Records and Top exercises. Two pure steps, so what a card
+// says and where it goes are tested without a canvas:
+//   shareCards       — the cards a workout has, and what each says (monthCards: a month's)
 //   layoutShareCard  — where everything goes on one card, given a way to measure text
 // share-draw.js paints a layout. Nothing is stored; the workout is read, never written.
 import { EXIDX } from '../../lib/exercises.js'
 import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
 import { setUnits } from './hold-set.js'
-import { fmtNum, fmtVol, exerciseNameText } from '../../lib/format.js'
+import { fmtNum, fmtVol, exerciseNameText, weekOrder, DAYS } from '../../lib/format.js'
 import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -17,6 +18,9 @@ import { workoutRecords, recordValue, KINDS } from './records.js'
 import { workoutTimeText, workoutWhenText } from './workout-when.js'
 import { sanitizeHr } from './heart-rate.js'
 import { hevySetText, hevySetLabel } from './set-text.js'
+import { byExercise, change, monthWorkouts } from './month-report.js'
+import { monthCells, dayKind } from './calendar.js'
+import { durationWords } from './elapsed.js'
 
 export const SHARE_W = 1080
 export const SHARE_H = 1350
@@ -100,6 +104,63 @@ export function shareCards(S, w, { body = 'male' } = {}) {
   return cards
 }
 
+const nameOfId = id => (EXIDX[id] ? exerciseNameText(EXIDX[id]) : id)
+
+/**
+ * The cards a month's report makes (D23's page): Summary (its totals against the month before and
+ * the weeks trained), Calendar (its days, the trained ones filled in their kind's colour), then
+ * Muscles, Records and Top exercises when the month has any. `report` is monthReport's for month
+ * (`y`, `mo`), `workouts` the counted log it was read from (D57), `byDay` every workout by its day
+ * (the calendar shows every day, as the page's does), `ws` the week's first day. `title` heads every
+ * card, `when` under it ("so far" for this month), `before` names the month before.
+ */
+export function monthCards(S, { y, mo, report: r, workouts = [], byDay = {}, ws = 1, title, when = '', before = '', body = 'male' }) {
+  const unit = S?.unit || 'kg'
+  const head = { title, when }
+  const stats = [
+    { label: t('Workouts'), value: fmtNum(r.workouts), delta: change(r.workouts, r.prev.workouts) },
+    { label: t('Duration'), value: durationWords(r.duration), delta: change(r.duration, r.prev.duration, durationWords) },
+    volumeMode(S) === 'sets'
+      ? { label: t('Sets'), value: fmtNum(r.sets), delta: change(r.sets, r.prev.sets) }
+      : { label: t('Volume'), value: fmtVol(r.volume, unit), delta: change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit)) },
+  ]
+  const cards = [{
+    kind: 'summary', ...head, stats,
+    exercises: t('{0} of {1} weeks trained', r.weeks.trained, r.weeks.total),
+    line: before ? t('Against {0}', before) : '',
+  }]
+  cards.push({
+    kind: 'calendar', ...head, heading: tn('{0} workout', '{0} workouts', r.workouts),
+    days: weekOrder(ws).map(d => t(DAYS[d])),
+    cells: monthCells(y, mo, ws).map(iso => iso && { day: Number(iso.slice(8)), kind: dayKind(byDay[iso]) }),
+  })
+  const levels = levelsOf(loadOfWorkouts(monthWorkouts(workouts, y, mo)))
+  if (r.muscles.length && MUSCLES.some(m => levels[m] > 0)) {
+    const top = r.muscles.slice(0, MAX_MUSCLES)
+    cards.push({
+      kind: 'muscles', ...head, heading: t('Muscle Split'), levels, body,
+      rows: top.map(m => ({ muscle: t(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
+    })
+  }
+  if (r.records.length) {
+    // One row per exercise, as the page lists them: its first kind of record and how many more.
+    cards.push({
+      kind: 'records', ...head, heading: t('Records'),
+      rows: byExercise(r.records).map(x => ({
+        name: nameOfId(x.id), value: recordValue(x.recs[0], unit, t),
+        kind: t(KINDS[x.recs[0].kind]) + (x.recs.length > 1 ? ' · +' + (x.recs.length - 1) : ''),
+      })),
+    })
+  }
+  if (r.top.length) {
+    cards.push({
+      kind: 'exercises', ...head, heading: t('Top exercises'),
+      rows: r.top.map(x => ({ name: nameOfId(x.id), sets: tn('{0} set', '{0} sets', x.sets), best: x.best > 0 ? fmtNum(x.best) + ' ' + unit : '' })),
+    })
+  }
+  return cards
+}
+
 /**
  * Where everything goes on one card. `measure(text, weight, size)` is a width in pixels (the
  * canvas's in the app, a fake in the tests). `photo`: the card is drawn over a picture, so its
@@ -130,9 +191,12 @@ export function layoutShareCard(card, { measure, photo = false, map = null }) {
     const gap = 20
     const n = card.stats.length
     const tileW = (inner - gap * (n - 1)) / n
+    // A month's tiles carry their change against the month before under the value.
+    const tileH = card.stats.some(st => st.delta) ? 222 : 170
     card.stats.forEach((stat, i) => {
       const x = PAD + i * (tileW + gap)
-      items.push({ kind: 'tile', x, y, w: tileW, h: 170 })
+      items.push({ kind: 'tile', x, y, w: tileW, h: tileH })
+      if (stat.delta) items.push({ kind: 'text', text: fit(stat.delta.text, tileW - 52, 30, 600), x: x + 28, y: y + 186, size: 30, weight: 600, color: stat.delta.up ? 'up' : 'down' })
       items.push({ kind: 'text', text: stat.label, x: x + 28, y: y + 58, size: 32, weight: 400, color: 'label2' })
       const vx = stat.trophy ? x + 28 + 56 : x + 28
       if (stat.trophy) items.push({ kind: 'trophy', x: x + 24, y: y + 82, size: 52 })
@@ -141,7 +205,7 @@ export function layoutShareCard(card, { measure, photo = false, map = null }) {
       while (size > 32 && measure(stat.value, 700, size) > tileW - (vx - x) - 24) size -= 2
       items.push({ kind: 'text', text: fit(stat.value, tileW - (vx - x) - 24, size, 700), x: vx, y: y + 130, size, weight: 700, color: 'label' })
     })
-    y += 170 + 36
+    y += tileH + 36
     text(card.exercises, 38, 600, 'label')
     if (card.line) for (const line of wrapText(card.line, inner, s => measure(s, 400, 36), 3)) text(line, 36, 400, 'label2')
   } else if (card.kind === 'exercises' || card.kind === 'records') {
@@ -161,6 +225,26 @@ export function layoutShareCard(card, { measure, photo = false, map = null }) {
       y += ROW
     }
     if (shown < card.rows.length) text(t('and {0} more', card.rows.length - shown), 34, 400, 'label2')
+  } else if (card.kind === 'calendar') {
+    // The month's grid, weekday letters on top; a trained day a disc in its kind's colour.
+    text(card.heading, 40, 700, 'label')
+    y += 12
+    const colW = inner / 7
+    const mid = i => PAD + colW * i + colW / 2
+    card.days.forEach((d, i) => items.push({ kind: 'text', text: d, x: mid(i), y: y + 32, size: 30, weight: 600, color: 'label2', align: 'center' }))
+    y += 64
+    const rows = Math.ceil(card.cells.length / 7)
+    const rowH = Math.min(colW, (room() - 8) / rows)
+    const radius = Math.max(12, Math.min(colW, rowH) / 2 - 8)
+    card.cells.forEach((c, i) => {
+      if (!c) return
+      const cx = mid(i % 7), cy = y + rowH * Math.floor(i / 7) + rowH / 2
+      if (c.kind) items.push({ kind: 'dot', x: cx, y: cy, r: radius, color: c.kind })
+      // A number on green or orange is black, as the Calendar page writes it (D17).
+      items.push({ kind: 'text', text: String(c.day), x: cx, y: cy + 12, size: 34, weight: c.kind ? 700 : 400,
+        color: !c.kind ? 'label2' : c.kind === 'strength' ? 'label' : 'onLight', align: 'center' })
+    })
+    y += rowH * rows
   } else if (card.kind === 'muscles') {
     // The body front and back side by side, then a bar per muscle with its sets.
     const rows = card.rows.length

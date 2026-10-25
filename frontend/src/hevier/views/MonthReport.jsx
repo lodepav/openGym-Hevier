@@ -11,26 +11,14 @@ import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { workoutsByDay } from '../lib/calendar.js'
 import { durationWords } from '../lib/elapsed.js'
-import { change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
+import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedWorkouts } from '../lib/counted.js'
+import { shareMonthSheet } from '../components/ShareSheet.jsx'
 
-// The month's records, one row per exercise, most records first: [{ id, n, recs }], each kind once
-// with its last (so best) record of the month and how many times it was beaten, `times`.
-export function byExercise(records) {
-  const rows = new Map()
-  for (const x of records) {
-    const row = rows.get(x.id) || { id: x.id, n: 0, kinds: new Map() }
-    row.n++
-    row.kinds.set(x.kind, { ...x, times: (row.kinds.get(x.kind)?.times || 0) + 1 })
-    rows.set(x.id, row)
-  }
-  const order = Object.keys(KINDS)
-  return [...rows.values()].sort((a, b) => b.n - a.n)
-    .map(({ id, n, kinds }) => ({ id, n, recs: [...kinds.values()].sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)) }))
-}
+export { byExercise }
 const PR_ROWS = 5
 
 function Stat({ label, value, delta }) {
@@ -46,7 +34,8 @@ export default function MonthReport() {
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
-  const r = useMemo(() => monthReport(countedWorkouts(st.workouts), at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [st.workouts, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
+  const counted = useMemo(() => countedWorkouts(st.workouts), [st.workouts])
+  const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [counted, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
   const ym = `${at.y}-${String(at.mo + 1).padStart(2, '0')}-`
@@ -61,7 +50,12 @@ export default function MonthReport() {
   const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + (at.y !== Number(today.slice(0, 4)) ? ' ' + at.y : '')
 
   return <div className="narrow hv-report">
-    <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')} />
+    <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')}>
+      {trained && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
+        y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
+        before: t(MONTHS_LONG[(at.mo + 11) % 12]),
+      })}><Icon name="share" /></button>}
+    </BackTo>
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
       <div><h1>{title}</h1>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
