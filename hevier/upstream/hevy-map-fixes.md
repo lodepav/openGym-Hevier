@@ -24,9 +24,12 @@ table lists them. The close-grip pulldown's fixtures in upstream's tests moved w
 commits. The fourth, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`,
 pushed after the maintainer's review), regenerated `frontend/src/lib/hevy-id-map.js` with
 `scripts/build-hevy-id-map.mjs` picking each template by its thumbnail's animation id: 429 of 451
-mapped (1.4.3 has 297), 129 former customs mapped, 80 rows moved to Hevy's own picture. Once 1.4.3
-is released, run the generator on it (upstream's #784, #785 and #793 changed the map since) and
-open a new PR.
+mapped (1.4.3 has 297), 129 former customs mapped, 80 rows moved to Hevy's own picture. Offered
+again the same day as **#807** (branch `hevier-upstream/hevy-map-regen`, against `release-1.4.3`):
+the commit rebased there and the map regenerated on it, so 1.4.3's own title fixes (#784, #785,
+#793) are kept. 429 of Hevy's 503 templates mapped (74 unmatched); Clamshell follows 1.4.3's
+alias (2461). The fork's lockfile-free map is upstream's file: nothing in the fork changes until
+the 1.4.3 merge.
 
 **Single Arm Triceps Extension (Cable)** stays fork-only: it is a custom exercise in the user's
 Hevy account, not one of Hevy's titles, so upstream's map has no place for it.
