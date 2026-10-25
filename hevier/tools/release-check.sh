@@ -194,9 +194,12 @@ if [[ -n "$APK" ]]; then
 fi
 
 # Trivy refreshes its database when it is due, but a stale one would pass in silence: say how old
-# it is, and fail past a week.
+# it is, and fail past a week. The build's outputs are skipped: the release script runs this while
+# the APK builds, and cap sync rewriting them under Trivy's walk fails it ("no such file").
 vulns() {
   trivy fs . --scanners vuln --include-dev-deps --skip-dirs '**/node_modules' \
+    --skip-dirs frontend/dist --skip-dirs frontend/ios/App/App/public \
+    --skip-dirs frontend/android/app/src/main/assets/public --skip-dirs '**/build' --skip-dirs '**/.gradle' \
     --ignorefile "$SEC/trivyignore.yaml" --exit-code 1 --quiet || return 1
   local meta="${TRIVY_CACHE_DIR:-$HOME/.cache/trivy}/db/metadata.json" at age
   at="$(node -p "JSON.parse(require('fs').readFileSync('$meta', 'utf8')).UpdatedAt" 2>/dev/null)" || { echo "no database metadata at $meta"; return 1; }
