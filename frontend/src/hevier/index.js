@@ -31,12 +31,14 @@ import { initNoteFix } from './lib/note-text.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
+import { rowMode } from './lib/hold-set.js'
 import { sideConfig, sideOff, initSideRoutines } from './lib/one-limb.js'
 import { restOpen, restFooter } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
+import { initHoldClock } from './lib/hold-clock-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
@@ -68,12 +70,14 @@ function install() {
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideConfig(state(), id)          // a single-leg calf raise starts per side (S32, D75)
   hooks.sideOff = id => sideOff(state(), id)                 // and per side switched off stays off
-  hooks.defaultProg = 'off'                               // no progression rule of its own: none (D61)
+  hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
+  hooks.defaultProg = 'off'                             // no progression rule of its own: none (D61)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
   initStillTraining(store)                                // Still training? after five hours (D60)
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
+  initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
   initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)

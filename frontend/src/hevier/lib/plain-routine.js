@@ -8,6 +8,7 @@ import { modeOf } from '../../lib/history.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
+import { isHoldRow, toHold } from './hold-set.js'
 
 /** Whether a routine keeps upstream's progression and warm-up ramp. Off unless switched on. */
 export const progressionOn = routine => routine?.hvProg === true
@@ -53,6 +54,8 @@ export function fill(row, prev, mode) {
     const side = k => ({ ...row.sides[k], w: prev.sides[k].w || 0, r: prev.sides[k].r || 0, weightOrigin: WEIGHT_ORIGIN_MANUAL })
     return { ...syncSideAggregate({ ...row, sides: { L: side('L'), R: side('R') } }), hvLast: 'LR' }
   }
+  // A hold last time in a reps exercise (D89) opens as that hold again.
+  if (isHoldRow(prev) && !isSideSet(row)) return prev.sec > 0 ? own({ ...toHold(row, prev.sec), w: prev.w || 0 }) : row
   if (isSideSet(prev) || !(prev.r > 0)) return row
   return own({ ...row, w: prev.w || 0, r: prev.r })
 }

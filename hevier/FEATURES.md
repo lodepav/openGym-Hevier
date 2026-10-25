@@ -56,6 +56,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet | D87 | Fork |
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offer |
+| A timed hold as a set type of a reps exercise, shown as a time in history; a big countdown clock for every hold | D89 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork |
 
 ## Gyms, machines and labels
