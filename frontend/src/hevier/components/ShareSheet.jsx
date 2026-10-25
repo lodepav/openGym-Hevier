@@ -1,20 +1,23 @@
 // Hevy's share sheet for a finished workout (hevier/DECISIONS.md D87): the cards side by side to
 // swipe through (Summary · Exercises · Muscles · Records), on black or over a photo the user picks,
 // then Save image (the gallery) or Share (the share sheet: social apps, messengers). The picture
-// saved or shared is the card in view, exactly as previewed.
+// saved or shared is the card in view, exactly as previewed. A month's report (D23) shares the
+// same way, with its own cards.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
 import { Button, Segmented } from '../../components/ui.jsx'
-import { shareCards } from '../lib/share-cards.js'
+import { shareCards, monthCards } from '../lib/share-cards.js'
 import { cardImage, loadPhoto, saveCardImage, shareCardImage } from '../lib/share-cards-run.js'
 
 const toast = msg => useUI.getState().toast(msg)
 
-function ShareSheet({ w }) {
+// `cardsOf(S)` makes the cards; `heading` titles the sheet, `file` names the pictures, `title` is
+// the share sheet's subject.
+function ShareSheet({ cardsOf, heading, file: fileName, title }) {
   const S = useStore(s => s.S)
-  const cards = useMemo(() => shareCards(S, w, { body: S.body }), [S.workouts, S.unit, S.hvVolume, S.hvMuscleSets, S.body, w])
+  const cards = useMemo(() => cardsOf(S), [S.workouts, S.unit, S.hvVolume, S.hvMuscleSets, S.body, S.weekStart, cardsOf])
   const [bg, setBg] = useState('black')
   const [photo, setPhoto] = useState(null)
   const [imgs, setImgs] = useState([])    // [{ blob, url }] per card
@@ -56,7 +59,7 @@ function ShareSheet({ w }) {
     if (el) setAt(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)))
   }
   const cur = imgs[at]
-  const name = `go-hevier-${w.d || 'workout'}-${cards[at]?.kind || 'card'}.png`
+  const name = `go-hevier-${fileName}-${cards[at]?.kind || 'card'}.png`
   const save = async () => {
     setBusy(true)
     const how = await saveCardImage(cur.blob, name)
@@ -66,13 +69,13 @@ function ShareSheet({ w }) {
   }
   const share = async () => {
     setBusy(true)
-    await shareCardImage(cur.blob, name, w.name || 'Go Hevier')
+    await shareCardImage(cur.blob, name, title || 'Go Hevier')
     setBusy(false)
   }
-  const label = { summary: t('Summary'), exercises: t('Exercises'), muscles: t('Muscles'), records: t('Records') }
+  const label = { summary: t('Summary'), exercises: t('Exercises'), muscles: t('Muscles'), records: t('Records'), calendar: t('Calendar') }
 
   return <div className="hv-share">
-    <h3>{t('Share workout')}</h3>
+    <h3>{heading}</h3>
     <div className="hv-share-strip" ref={strip} onScroll={onScroll}>
       {cards.map((c, i) => <div key={c.kind} className="hv-share-card">
         {imgs[i]?.url
@@ -97,4 +100,14 @@ function ShareSheet({ w }) {
 }
 
 /** Opens the share sheet for a saved workout. */
-export const shareWorkoutSheet = w => useUI.getState().openSheet(() => <ShareSheet w={w} />)
+export const shareWorkoutSheet = w => {
+  const cardsOf = S => shareCards(S, w, { body: S.body })
+  useUI.getState().openSheet(() => <ShareSheet cardsOf={cardsOf} heading={t('Share workout')} file={w.d || 'workout'} title={w.name} />)
+}
+
+/** Opens the share sheet for a month's report: `month` is monthCards' input but the store. */
+export const shareMonthSheet = month => {
+  const cardsOf = S => monthCards(S, { ...month, body: S.body })
+  const file = `${month.y}-${String(month.mo + 1).padStart(2, '0')}-report`
+  useUI.getState().openSheet(() => <ShareSheet cardsOf={cardsOf} heading={t('Share report')} file={file} title={month.title} />)
+}

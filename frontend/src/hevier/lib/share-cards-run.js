@@ -8,9 +8,11 @@ import { toBase64 } from '../../lib/media-store-fs.js'
 import { layoutShareCard } from './share-cards.js'
 
 const ACC = '#008cff'   // Hevy blue (D17)
+// A calendar day's kind (calendar.js) in the Calendar page's colours, and a change up or down.
+const KIND = { strength: ACC, cardio: '#2fbf5b', deload: '#ff9f0a', up: '#2fbf5b', down: '#ff453a', onLight: '#000' }
 const COLORS = {
-  black: { label: '#fff', label2: '#9a9aa0', acc: ACC, tile: '#1c1c1e', track: '#2c2c2e' },
-  photo: { label: '#fff', label2: 'rgba(255,255,255,0.8)', acc: ACC, tile: 'rgba(0,0,0,0.45)', track: 'rgba(255,255,255,0.2)' },
+  black: { label: '#fff', label2: '#9a9aa0', acc: ACC, tile: '#1c1c1e', track: '#2c2c2e', ...KIND },
+  photo: { label: '#fff', label2: 'rgba(255,255,255,0.8)', acc: ACC, tile: 'rgba(0,0,0,0.45)', track: 'rgba(255,255,255,0.2)', ...KIND },
 }
 
 /** The picked picture, decoded and turned upright; null when it cannot be read. */
@@ -69,6 +71,11 @@ function draw(ctx, layout, photo, map) {
       ctx.fillStyle = colors.acc
       roundRect(ctx, it.x, it.y, Math.max(it.h, it.w * it.part), it.h, it.h / 2)
       ctx.fill()
+    } else if (it.kind === 'dot') {
+      ctx.fillStyle = colors[it.color] || colors.acc
+      ctx.beginPath()
+      ctx.arc(it.x, it.y, it.r, 0, Math.PI * 2)
+      ctx.fill()
     } else if (it.kind === 'map') {
       const view = map?.body?.[it.view]
       if (view) drawView(ctx, view, it, map.levels, shades)
@@ -84,7 +91,7 @@ function draw(ctx, layout, photo, map) {
       ctx.restore()
     } else {
       ctx.direction = 'ltr'
-      ctx.textAlign = it.align === 'right' ? 'right' : 'left'
+      ctx.textAlign = it.align === 'right' || it.align === 'center' ? it.align : 'left'
       ctx.fillStyle = colors[it.color] || colors.label
       ctx.font = `${it.weight} ${it.size}px ${CARD_FONT}`
       ctx.fillText(it.text, it.x, it.y)
