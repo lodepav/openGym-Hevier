@@ -46,7 +46,7 @@ no folder); the reviewer made a second gym in the journey. Ids are this round's 
 | R2-U1 | medium | H6 | Add Exercise's "Insert after …" button lost its verb, centred and clipped at both ends, the name in lower case | **fixed** (hevier/ux-round2): the verb stays, the name is cased as elsewhere and only it is cut short |
 | R2-U2 | low | C5 | The brand sheet still said "Remove label" | **fixed**: "Remove brand" |
 | R2-U3 | low | C5 | A gym is a gym, an equipment profile, a profile and "Equipment" along one path | **fixed in part**: the gym sheet's "Manage gyms" reads "Each gym's equipment". **Deferred**: upstream's "Edit profile" sheet, "Delete profile?" and the page title "Equipment" (no seam reaches them; offer upstream) |
-| R2-U4 | low | A1 | The exercise block's brand, notes and rest lines are 24–28 dp and touch each other | **discuss** (touches D7): a few dp more padding per line would lengthen every exercise block |
+| R2-U4 | low | A1 | The exercise block's brand, notes and rest lines are 24–28 dp and touch each other | **rejected** (the user, 2026-10-25: keep the compact look, D7) |
 | R2-U5 | low | A4 | The cable chip shows "Cable ×2" but is spoken "Cable setup" | **fixed**: "Cable setup: Two stacks" |
 | R2-U6 | low | A9 | The moved toast sits over a low ticked row | withdrawn by the reviewer |
 | R2-U7 | low | C3 | A cardio set's PREVIOUS read "15:18 @ 0 km/h" | **fixed**: no speed, the clock alone (`hevySetLabel`) |
@@ -55,8 +55,10 @@ Improvements: **fixed**: the set timer's ▶ / ■ name their set; a cardio set'
 "Time", as a hold's; the brand and gym lines are spoken "Brand: …" and "Gym: …"; a per-side
 PREVIOUS names its side. **Deferred**: the gyms page's trash buttons all spoken "Delete" (upstream).
 
-Notes for the user: at a gym where an exercise has no brand, PREVIOUS reads every session but the
-records compare only unbranded ones, so a set below an older branded best got a trophy (D28, D51,
-D82 together); a brand picked in the session does not follow a gym change, only remembered ones do
-(D28); with every match hidden, "No exercises found" pushes the hidden list under the keyboard
-(D67); the next-set highlight and the rest bar carry on while a set timer runs (D53, D71).
+Notes for the user, and what became of them (2026-10-25): at a gym where an exercise has no brand,
+a set below an older branded best got a trophy: **fixed** at the user's request (D51: a session with
+no brand has every brand's best as its bar); a brand picked in the session does not follow a gym
+change: **kept**, the user's choice (D28); with every match hidden, the hidden list sat under the
+keyboard: **fixed** (D67: the line stands alone); the next-set highlight and the rest bar carry on
+while a set timer runs (D53, D71): noted. The device's test profile is to be set up as JOURNEYS.md
+describes before round 3 (agreed).

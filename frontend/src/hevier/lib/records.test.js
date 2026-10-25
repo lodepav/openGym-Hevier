@@ -61,6 +61,22 @@ describe('hevier personal records (D51)', () => {
     expect(kinds(S, x)).toEqual([])
   })
 
+  it('a session with no brand has to beat every brand of its setup', () => {
+    const e = (w, extra) => ({ id: CABLE, sets: [s(w, 10)], ...extra })
+    const a = wk(1, [e(28, { hvBrand: 'Achilles Rehab' })])
+    const b = wk(2, [e(15)])                                        // below the branded best: none
+    const c = wk(3, [e(24)])                                        // beats the unbranded 15, not 28
+    const d = wk(4, [e(30)])                                        // beats them all
+    const x = wk(5, [e(10, { hvCable: 'x2' })])                     // two stacks: a bar of its own
+    const y = wk(6, [e(29, { hvBrand: 'Achilles Rehab' })])         // a brand keeps its own bar
+    const S = { workouts: [a, b, c, d, x, y] }
+    expect(kinds(S, b)).toEqual([])
+    expect(kinds(S, c)).toEqual([])
+    expect(kinds(S, d)).toContain('weight')
+    expect(kinds(S, x)).toEqual([])
+    expect(kinds(S, y)).toContain('weight')
+  })
+
   it('an exercise with no load competes in reps', () => {
     const a = wk(1, [{ id: PULLUP, sets: [s(0, 8), s(0, 6)] }])
     const b = wk(2, [{ id: PULLUP, sets: [s(0, 7), s(0, 7), s(0, 5)] }])

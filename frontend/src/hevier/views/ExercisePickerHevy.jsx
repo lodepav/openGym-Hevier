@@ -155,11 +155,14 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     </div>
     {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
-    <h4 className="sec">{browsing ? t('All Exercises') : t('{0} exercises', list.length)}</h4>
-    <div className="list">
-      {list.slice(0, shown).map(e => row(e, 'a'))}
-      {list.length === 0 && <div className="empty">{t('No exercises found')}</div>}
-    </div>
+    {/* D67: every match hidden by the gym, the hidden line comes first, clear of the keyboard */}
+    {!(list.length === 0 && hidden.length > 0) && <>
+      <h4 className="sec">{browsing ? t('All Exercises') : t('{0} exercises', list.length)}</h4>
+      <div className="list">
+        {list.slice(0, shown).map(e => row(e, 'a'))}
+        {list.length === 0 && <div className="empty">{t('No exercises found')}</div>}
+      </div>
+    </>}
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}
     {hidden.length > 0 && (showHidden
       ? <><h4 className="sec">{t('Not at {0}', profile?.name)}</h4><div className="list">{hidden.slice(0, showHidden).map(e => row(e, 'h', t('Needs {0}', gymLacks(profile, e).map(k => t(k)).join(', '))))}</div>
