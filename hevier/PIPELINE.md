@@ -127,11 +127,11 @@ On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 
 came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
 commit by commit against the branch the same day: everything is in **except #672's last commit**
 (below). #754 is still open, though its commit came in with #766; #735 is still open, upstream
-having written its own version into 1.4.3 (`8727ee090`); #788 and #806 are open, not in the branch.
+having written its own version into 1.4.3 (`8727ee090`); #788 and #806 are open, not in the branch; #807 offers #672's last commit again.
 
 | # | What | State |
 |---|---|---|
-| #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **To offer again as a new PR once 1.4.3 is released**, regenerated on it (upstream's #784, #785, #793 changed the map meanwhile) |
+| #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **Offered again as #807** (2026-10-25, on `release-1.4.3`, regenerated there: 429 of Hevy's 503 templates mapped, 1.4.3's own title rows kept), the maintainer told why |
 | #677 | Chart x-axis labels never repeat a date or a month | Closed, in `release-1.4.3` |
 | #690 | Imports keep converted weights to the hundredth, Hevy notes keep line breaks (D40, D54) | Closed, in `release-1.4.3` |
 | #694 | A plank or a wall sit starts as a timed hold (D55) | Closed, in `release-1.4.3`, with #717's cardio defaults, for fresh picks only |
