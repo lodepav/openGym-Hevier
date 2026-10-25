@@ -152,6 +152,11 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     // D67: what the gym hid is counted, and shown on a tap with its equipment.
     const more = container.querySelector('.hv-pk-hidden')
     expect(more.textContent).toMatch(/^\d+ hidden at HomeShow$/)
+    search('push-up plus')
+    expect(container.querySelector('.hv-pk-hidden')).toBeTruthy()      // every match hidden:
+    expect(container.textContent).not.toContain('No exercises found')  // the line, not an empty list
+    expect([...container.querySelectorAll('h4')].some(h => /exercises$/.test(h.textContent))).toBe(false)
+    search('push-up')
     click(more)
     expect(container.textContent).toContain('Not at Home')
     expect(rowOf(PUSHUP).querySelector('.ss').textContent).toContain('Needs body weight')

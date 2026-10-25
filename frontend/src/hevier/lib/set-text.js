@@ -20,11 +20,13 @@ const CARDIO = /^(\d[\d.]*) min @ /
 
 /**
  * Upstream's setLabel with a cardio set's time as a clock (D53): "12.5666… min @ 8 km/h" reads
- * "12:34 @ 8 km/h", "20 min @ 8 km/h" "20:00 @ 8 km/h". Every other set reads as upstream writes it.
+ * "12:34 @ 8 km/h", "20 min @ 8 km/h" "20:00 @ 8 km/h", and with no speed the clock alone. Every other set reads as upstream writes it.
  */
 export function hevySetLabel(id, s, cfg, speedUnit) {
   const label = setLabel(id, s, cfg, speedUnit)
-  return label.replace(CARDIO, (_, min) => elapsedClock(Math.round(Number(min) * 60)) + ' @ ')
+  // No speed logged (a bike, an import) reads "15:18", not "15:18 @ 0 km/h".
+  const text = label.replace(CARDIO, (_, min) => elapsedClock(Math.round(Number(min) * 60)) + ' @ ')
+  return Number(s?.speed) > 0 ? text : text.replace(/ @ [^·]*?(?= · |$)/, '')
 }
 
 /**

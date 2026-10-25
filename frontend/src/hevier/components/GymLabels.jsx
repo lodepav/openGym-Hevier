@@ -36,7 +36,7 @@ export function gymSheet(nav) {
         { icon: 'pin', label: t('Find gyms nearby'), sub: t('Sends your position to OpenStreetMap, once'), onClick: () => useUI.getState().openSheet(close => <NearbySheet close={close} />) },
         { icon: 'plus', label: t('Custom gym…'), onClick: () => useUI.getState().openSheet(close => <CustomGymSheet close={close} />) },
       ] },
-      { items: [{ icon: 'gear', chevron: true, label: t('Manage gyms'), sub: t('Your equipment profiles'), onClick: () => nav('/settings/equipment') }] },
+      { items: [{ icon: 'gear', chevron: true, label: t('Manage gyms'), sub: t("Each gym's equipment"), onClick: () => nav('/settings/equipment') }] },
     ],
   })
 }
@@ -46,7 +46,7 @@ export function GymRow() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const cur = workoutGym(S, S.active)
-  return <button type="button" className="hv-gym" onClick={() => gymSheet(nav)}>
+  return <button type="button" className="hv-gym" aria-label={t('Gym') + ': ' + (cur ? (gymName(S, cur) || t('Removed gym')) : t('No gym'))} onClick={() => gymSheet(nav)}>
     <HvIcon name="mapPin" />{cur ? (gymName(S, cur) || t('Removed gym')) : t('No gym')}
     <Icon name="chevronDown" className="hv-gym-chev" />
   </button>
@@ -154,7 +154,7 @@ function BrandSheet({ idx, close }) {
     {brands.length > 0 && <div className="hv-xd-chips">{brands.map(b =>
       <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} onClick={() => save(b)}>{b}</button>)}</div>}
     <button type="submit" className="btn primary">{t('Save')}</button>
-    {entryBrand(S, S.active, idx) && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove label')}</button>}
+    {entryBrand(S, S.active, idx) && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove brand')}</button>}
   </form>
 }
 
@@ -186,13 +186,13 @@ export function BrandLine({ idx }) {
   useEffect(() => { if (stale) update(s => stampCable(s.active?.entries?.[idx], cable)) }, [stale, idx, cable])
   if (!e || !hasLabel(S, S.active, idx)) return null
   const b = entryBrand(S, S.active, idx)
-  const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} onClick={() => brandSheet(idx)}>
+  const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} aria-label={b ? t('Brand') + ': ' + b : undefined} onClick={() => brandSheet(idx)}>
     <Icon name="machine" />{b || t('Add brand')}
   </button>
   if (!cable) return brand
   return <div className="hv-labels">
     {brand}
-    <button type="button" className={'hv-cable' + (cable !== '1:1' ? ' has' : '')} aria-label={t('Cable setup')} onClick={() => cableSheet(idx)}>
+    <button type="button" className={'hv-cable' + (cable !== '1:1' ? ' has' : '')} aria-label={t('Cable setup') + ': ' + t(CABLE_NAME[cable])} onClick={() => cableSheet(idx)}>
       {t('Cable')} {cableText(cable)}<Icon name="chevronDown" />
     </button>
   </div>

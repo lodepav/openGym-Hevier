@@ -364,13 +364,13 @@ export default function HevyExerciseBlock({
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
       {side === second ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
-        aria-label={canCopy ? t('Last time') + ': ' + prevText : undefined}>
+        aria-label={canCopy ? t('Last time') + (side ? ' (' + (side === 'L' ? t('Left') : t('Right')) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {cols.map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && effortCell(s, i, side)}
       {playOn && (s[RUN]
-        ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop')} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
-        : <button type="button" className="iconbtn hv-go" aria-label={t('Start set')} disabled={s.done}
+        ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop') + ', ' + t('Set {0}', workNumber(i))} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
+        : <button type="button" className="iconbtn hv-go" aria-label={t('Start set') + ', ' + t('Set {0}', workNumber(i))} disabled={s.done}
           onClick={() => startTimer(i)}><Icon name="play" /></button>)}
       <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
         onChange={() => tick(i, side)} />

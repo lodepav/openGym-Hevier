@@ -3,8 +3,8 @@
 // weight, set once at the finish) is left as it is for upstream's screens.
 //
 // A record belongs to an exercise *and its label*: the brand and, on a cable, the setup (D28, D43),
-// never the gym, which is only where. The first session of an exercise, or of a new label, sets the
-// bar and is no record; a later session that strictly beats it is. A weighted exercise competes in
+// never the gym, which is only where; a session with no brand has every brand's best as its bar.
+// The first session of an exercise, or of a new label, sets the bar and is no record; a later session that strictly beats it is. A weighted exercise competes in
 // heaviest weight, best 1RM, best set volume and best session volume (the last three not on an
 // assistance machine, whose load is the help it gave); one with no load logged in most reps and most
 // session reps; a hold in the longest hold; cardio in the longest duration. Warm-ups never count.
@@ -106,17 +106,34 @@ function sessionRecords(entries, bests, scopeOf, asOf, formula, skip) {
   const out = []
   for (const [scope, { id, kinds }] of byScope) {
     const prev = bests.get(scope)
+    const bar = barOf(bests, scope, id)
     const next = { ...(prev || {}) }
     for (const kind of ORDER) {
       const x = kinds[kind]
       if (!x) continue
-      const p = prev?.[kind]
+      const p = bar[kind]
       if (p > 0 && better(id, kind, x.v, p)) out.push({ id, kind, ...x })
-      if (!(p > 0) || better(id, kind, x.v, p)) next[kind] = x.v
+      if (!(prev?.[kind] > 0) || better(id, kind, x.v, prev[kind])) next[kind] = x.v
     }
     bests.set(scope, next)
   }
   return out.sort((a, b) => a.i - b.i || ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind))
+}
+
+// The bar a scope's session has to beat. A brand's is its own; with no brand, the best of every
+// brand with the same cable setup, as last time reads them all (D82): a set below an older
+// branded best is no record at a gym where the exercise has no brand (UX review, 2026-10-25).
+// A scope is `id#brand`, a cable's `|setup` after it.
+const cableOf = key => (key.includes('|') ? key.slice(key.lastIndexOf('|')) : '')
+function barOf(bests, scope, id) {
+  const label = scope.slice(scope.indexOf('#') + 1)
+  if (label !== cableOf(label)) return bests.get(scope) || {}
+  const bar = {}
+  for (const [k, b] of bests) {
+    if (!k.startsWith(id + '#') || cableOf(k.slice(id.length + 1)) !== label) continue
+    for (const [kind, v] of Object.entries(b)) if (!(bar[kind] > 0) || better(id, kind, v, bar[kind])) bar[kind] = v
+  }
+  return bar
 }
 
 const savedScope = e => e.id + '#' + entryLabelKey(e)

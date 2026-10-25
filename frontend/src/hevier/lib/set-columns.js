@@ -22,7 +22,7 @@ export function setColumns({ mode, bw, perStack, unit, exUnit = unit, speedUnit,
   if (mode !== 'cardio') return [weight, { f: 'r', dec: false, hd: t('REPS'), label: t('Reps') }]
   const mph = speedUnit === 'mph'
   return [
-    { f: 'min', dur: true, hd: t('TIME'), label: t('Duration') },
+    { f: 'min', dur: true, hd: t('TIME'), label: t('Time') },
     { f: 'speed', dec: true, hd: mph ? t('MPH') : t('KM/H'), label: mph ? t('Speed (mph)') : t('Speed (km/h)'),
       view: v => toSpeed(v, speedUnit), store: v => fromSpeed(v, speedUnit) },
     (inclineFits(ex) || sets.some(hasIncline)) && { f: 'incline', dec: true, opt: true, hd: t('INCL %'), label: t('Incline (%)'), store: clampIncline },

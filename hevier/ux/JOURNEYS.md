@@ -43,6 +43,13 @@ from `~/Downloads/workout_data.csv`, loaded as the hevy-csv-test-data note descr
 
 The mixed profile is the point: the bugs live where two settings meet.
 
+**Set up on 2026-10-25** (gyms Holmes Place and Weekend Gym, the leg press 0739 Life Fitness and
+Hammer, cable 1323 ×2, the bench press 0047 in lb, Push Day with progression on, Leg Day in the
+Legs folder with a per-side slot) and saved on this machine as `~/.cache/hevier/ux-profile.tar`,
+outside the repo. Restore it before a round (as above, with `SNAP` pointing at it) rather than
+setting it up again. If it is gone, set the fields through the store over CDP (the `useStore`
+module's export with `getState().S`, then `update(S => …)`).
+
 ## J1 The routine lifter (the most common day)
 
 Trains four days a week from routines and wants to be in and out.

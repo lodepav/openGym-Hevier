@@ -6,7 +6,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t, exerciseNameFor } from '../../lib/i18n.js'
+import { t } from '../../lib/i18n.js'
 import { fmtNum, fmtDate } from '../../lib/format.js'
 import { workoutVolume } from '../../lib/history.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
@@ -44,7 +44,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     end: () => useStore.getState().S.active?.cur ?? -1,
     pair: pairAt,
     // D78: the exercise Insert puts the picks after, while that is not the end; where they go.
-    insertAfter: () => { const e = insertAfter(useStore.getState().S.active); return e ? exerciseNameFor(exOr(e.id)) : null },
+    insertAfter: () => { const e = insertAfter(useStore.getState().S.active); return e ? exOr(e.id) : null },
     placeAt: atEnd => useStore.getState().update(st => { if (st.active) placeAt(st.active, atEnd) }),
   })
 
