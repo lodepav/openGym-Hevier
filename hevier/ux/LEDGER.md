@@ -119,3 +119,22 @@ Notes for the user: at 200% the workout's sticky header takes a third of the scr
 keyboard down (a smaller header at large fonts would be a discuss item); the swipe-delete undo
 toast lasts 5 s (upstream's `TOAST_ACTION_MS`, D9); upstream's confirmation dialogs are 260 dp
 wide, so their text breaks every few words at 200%.
+
+## Round 5 (2026-10-25, the warm-up relay and exercise time, D69, D88)
+
+Targeted round on the two new features, J1's lifter and J5's numbers person. Branch
+`hevier/ux-round5`.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R5-U1 | medium | H5 | A warm-up made a work set again, after set 1 was typed into, put the warm-up's numbers (20 × 5) on work set 1 | **fixed**: a work-set slot whose row was typed takes last time's set for it (`relaySuggestions`, test beside it); checked by unit test, not on screen |
+| R5-U2 | low | H4 | Exercise time's totals and averages were written differently ("6s total" beside "7s") | **fixed**: both rounded to the second, same words |
+| R5-U3 | medium | A1 | The page's chips were 29–32 dp tall | **fixed**: an 8 dp hit area above and below every `.hv-chip` |
+| R5-U4 | low | H6 | Workout Detail's time line is an unlabelled "⏱ 12min 58s", the same icon as the live Rest Timer line | **discuss**: a visible "Exercise time" label or another icon; spoken "Exercise time" already |
+
+Improvements: **fixed**: the average is spoken "Average: 7min".
+
+Notes for the user: the test profile has no routine with a full history and progression off, so
+the relay was seen on a seeded one; upstream itself moves a typed row when a warm-up becomes a
+work set; the seeded history's tick times are 0–1 s apart, so exercise time was looked at on a
+demo workout added for the screenshots and removed again.
