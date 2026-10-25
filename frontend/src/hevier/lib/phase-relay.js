@@ -4,7 +4,8 @@
 // left sets 1–3 at last time's sets 2–4. The suggestions belong to "work set N" and "warm-up N"
 // (the PREVIOUS column's slots, D3), not to a row, so after the change each untouched row takes
 // the suggestion its slot had before, and a slot new to its kind takes last time's set for it
-// (D69's fill), else keeps its numbers. A row typed into or ticked keeps its own (D2).
+// (D69's fill), else keeps its numbers; so does a slot whose row was typed into, as that row's
+// numbers went with it. A row typed into or ticked keeps its own (D2).
 import { isWarmupRow, isSideSet, syncSideAggregate } from '../../lib/workout-model.js'
 import { fill } from './plain-routine.js'
 
@@ -58,7 +59,9 @@ export function relaySuggestions(before, after, from, to, free, prev = [], mode 
     const kind = isWarmupRow(row) ? 'warm' : 'work'
     const n = seen[kind]++
     if (row.done || !free(order[j])) return row
-    if (n < slots[kind].length) return slots[kind][n] ? take(row, slots[kind][n]) : row
+    if (n < slots[kind].length && slots[kind][n]) return take(row, slots[kind][n])
+    // A slot new to its kind, or one whose row was typed into (its own numbers went with it): last
+    // time's set for the slot, else the row's own.
     const p = prev[j]
     return p && isWarmupRow(p) === isWarmupRow(row) ? fill(row, p, mode) : row
   })
