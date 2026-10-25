@@ -19,7 +19,7 @@ const RANGES = [{ weeks: 12, label: 'Last 12 weeks' }, { weeks: 26, label: 'Last
 
 /** A week's sets per muscle, from a tap on its bar. */
 function weekSheet(S, week) {
-  const ws = countedWorkouts(S.workouts).filter(w => inWeek(w, week, weekStartOf(S)))
+  const ws = countedWorkouts(S.workouts, S.routines).filter(w => inWeek(w, week, weekStartOf(S)))
   const list = muscleSets(ws.flatMap(w => w.entries || []), muscleMode(S))
   useUI.getState().openSheet(() => <>
     <h3>{t('Week of {0}', fmtDate(week, true))}</h3>
@@ -41,7 +41,7 @@ export default function WeeklyChart() {
   const kinds = SERIES.map(k => (k === 'volume' && sets ? 'sets' : k))
   const kind = pick === 'volume' || pick === 'sets' ? (sets ? 'sets' : 'volume') : pick
   // Exercises kept out of progression are kept out of the chart (D57).
-  const pts = weeklySeries(countedWorkouts(S.workouts), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
+  const pts = weeklySeries(countedWorkouts(S.workouts, S.routines), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S) })
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))

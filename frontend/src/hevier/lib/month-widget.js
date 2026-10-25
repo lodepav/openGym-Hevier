@@ -46,7 +46,7 @@ export function widgetSnapshot(S, today) {
     byDay.get(d).push(w)
   }
   // The days show every workout; the line counts as the monthly report does (D57).
-  for (const w of countedWorkouts(S?.workouts)) {
+  for (const w of countedWorkouts(S?.workouts, S?.routines)) {
     const d = workoutDay(w)
     if (!d || !keep.has(d.slice(0, 7))) continue
     const m = totals.get(d.slice(0, 7)) || { n: 0, sets: 0 }

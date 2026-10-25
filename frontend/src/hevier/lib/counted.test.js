@@ -25,6 +25,15 @@ describe('countedWorkouts (D57)', () => {
     ]
     expect(countedWorkouts(ws).map(w => w.d)).toEqual(['2026-10-03'])
   })
+  it('counts a deload routine’s workouts, kept out of progression by the routine (D57)', () => {
+    const deload = { id: 'r1', excludeFromProgression: true }
+    const ws = [
+      { d: '2026-10-01', routineId: 'r1', entries: [{ ...bench, noProg: true }], excludeFromProgression: true },
+      { d: '2026-10-02', entries: [{ ...bench, rid: 'r1', noProg: true }, { ...bench, rid: 'r2' }] },
+    ]
+    expect(countedWorkouts(ws, [deload, { id: 'r2' }])).toBe(ws)
+    expect(countedWorkouts(ws, [{ id: 'r1' }]).map(w => w.entries.map(e => e.rid))).toEqual([['r2']])
+  })
   it('gives the statistics the counted log and keeps the rest of S', () => {
     const S = { unit: 'kg', workouts: [{ d: '2026-10-01', entries: [bench, curl] }] }
     const out = countedS(S)
