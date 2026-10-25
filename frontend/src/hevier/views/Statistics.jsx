@@ -14,6 +14,9 @@ import PageBar, { useBack } from '../components/PageBar.jsx'
 import { muscleSetCounts, lastDays, PERIODS, WEEK_HEAT } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 import { countedS } from '../lib/counted.js'
+import { entryTimes } from '../lib/exercise-time.js'
+
+const hasTimes = w => entryTimes(w).length > 0
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
@@ -82,6 +85,7 @@ export default function Statistics() {
     <h4 className="sec">{t('More')}</h4>
     {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     {S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
+    {S.workouts.some(hasTimes) && <LinkRow icon="timer" title={t('Exercise time')} sub={t('How long each exercise takes')} onClick={() => nav('/exercise-time')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

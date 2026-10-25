@@ -30,6 +30,7 @@ import { WorkoutDetail, DETAIL_PATH, installWorkoutDetail } from './views/Workou
 import Calendar from './views/Calendar.jsx'
 import MonthReport from './views/MonthReport.jsx'
 import StrengthLevels from './views/StrengthLevels.jsx'
+import ExerciseTime from './views/ExerciseTime.jsx'
 import { atTabRoot } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
@@ -105,6 +106,7 @@ export const hevierRoutes = [
   <Route key="hv-calendar" path="/calendar" element={<Calendar />} />,
   <Route key="hv-report" path="/report" element={<MonthReport />} />,
   <Route key="hv-strength" path="/strength" element={<StrengthLevels />} />,
+  <Route key="hv-extime" path="/exercise-time" element={<ExerciseTime />} />,
   <Route key="hv-plan" path="/plan" element={<PlanPage />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-routine-view" path="/plan/r/:id/view" element={<RoutinePreview />} />,

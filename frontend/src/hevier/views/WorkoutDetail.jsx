@@ -26,6 +26,8 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
 import { hevySetText, hevySetLabel } from '../lib/set-text.js'
+import { entryTimes } from '../lib/exercise-time.js'
+import { elapsedWords } from '../lib/elapsed.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
@@ -52,7 +54,7 @@ const Trend = ({ v }) => {
 
 const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
 
-function ExerciseSets({ w, e, st, recs, trends = [] }) {
+function ExerciseSets({ w, e, st, recs, trends = [], time }) {
   const ex = EXIDX[e.id]
   // A record sits on the set that made it, as in Hevy; a session's (its volume) on the last work set,
   // the one that took the session past it (changed 2026-10-20: it was on the exercise's header).
@@ -68,6 +70,9 @@ function ExerciseSets({ w, e, st, recs, trends = [] }) {
     </div>
     {(e.hvBrand || cableOn(e)) && <div className="hv-brand has"><Icon name="machine" />
       {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
+    {/* How long the exercise took, from its sets' tick times (D88). */}
+    {time > 0 && <div className="hv-brand has hv-extime">
+      <Icon name="timer" /><span className="hv-sr">{t('Exercise time')}: </span>{elapsedWords(Math.round(time / 1000))}</div>}
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
@@ -93,6 +98,7 @@ export function WorkoutDetail() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
   const prs = workoutRecords(st, w)
+  const times = entryTimes(w)
   const mode = volumeMode(st)
   const split = muscleSets(w.entries, muscleMode(st))
   const top = split[0]?.sets || 1
@@ -133,7 +139,7 @@ export function WorkoutDetail() {
     </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)} />)}
+      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)} time={times[i]} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

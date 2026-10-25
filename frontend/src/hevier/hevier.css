@@ -742,3 +742,9 @@
    short rather than running into the next (A6). At the normal size both fit as before. */
 :root[data-ui="hevier"] .hv-row .hv-prev{white-space:normal;text-overflow:clip;line-height:1.2}
 :root[data-ui="hevier"] .hv-head > *{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+
+/* Exercise time (D88): a label only a screen reader hears; the page's sort row. */
+:root[data-ui="hevier"] .hv-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-ui="hevier"] .hv-extime-sort{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+:root[data-ui="hevier"] .hv-extime-sort .hv-chip{display:inline-flex;align-items:center;gap:4px;min-height:32px}
+:root[data-ui="hevier"] .hv-extime-sort .icn{width:14px;height:14px}
