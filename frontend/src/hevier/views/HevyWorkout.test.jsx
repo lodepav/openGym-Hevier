@@ -246,11 +246,39 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].min).toBeCloseTo(754 / 60)
     // ▶, then the tick: the timer stops and its time is what is logged
     act(() => container.querySelector('.hv-go').click())
-    vi.setSystemTime(Date.now() + (30 * 60 + 5) * 1000)
+    vi.setSystemTime(Date.now() + (20 * 60 + 5) * 1000)
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0].done).toBe(true)
-    expect(sets()[0].min).toBeCloseTo(1805 / 60)
+    expect(sets()[0].min).toBeCloseTo(1205 / 60)
     expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('a cardio timer left running asks at the tick: Fix it stops it, unticked (D90)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
+    render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, speed: 10, done: false }] }])
+    act(() => container.querySelector('.hv-go').click())
+    vi.setSystemTime(Date.now() + 100 * 60 * 1000)
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0].done).toBeFalsy()
+    const top = useUI.getState().sheets.at(-1)
+    const host = document.createElement('div')
+    act(() => createRoot(host).render(top.render(() => useUI.setState({ sheets: [] }))))
+    expect(host.textContent).toContain('1:40:00 is over twice this set’s time, 20:00.')
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Fix it').click())
+    expect(sets()[0]).toMatchObject({ done: false, min: 100 })
+    expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('a weight far under last time’s same set asks too (D90)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(30, 8, { done: true })] }] }]
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(3, 8, { weightOrigin: 'manual' })] }], past)
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0].done).toBeFalsy()
+    const top = useUI.getState().sheets.at(-1)
+    const host = document.createElement('div')
+    act(() => createRoot(host).render(top.render(() => useUI.setState({ sheets: [] }))))
+    expect(host.textContent).toContain('3 kg is under a third of last time’s, 30 kg.')
   })
 
   it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
