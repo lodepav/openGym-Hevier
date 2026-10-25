@@ -36,7 +36,7 @@ export function withoutForecast(S) {
 export const filledFromLast = (s, side) => (side ? String(s?.hvLast || '').includes(side) : !!s?.hvLast)
 const own = row => ({ ...row, weightOrigin: WEIGHT_ORIGIN_MANUAL, hvLast: 1 })
 
-function fill(row, prev, mode) {
+export function fill(row, prev, mode) {
   if (mode === 'cardio') {
     if (!(prev.min > 0)) return row
     return { ...row, min: prev.min, ...(prev.speed != null ? { speed: prev.speed } : {}), ...(prev.incline != null ? { incline: prev.incline } : {}) }

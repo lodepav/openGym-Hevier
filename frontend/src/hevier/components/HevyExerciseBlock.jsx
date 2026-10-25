@@ -53,6 +53,7 @@ import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
+import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
 import { sideOrderOf, setSideOrder } from '../lib/side-order.js'
 import { plateLineOn } from '../lib/settings.js'
 import {
@@ -75,7 +76,7 @@ export default function HevyExerciseBlock({
   const working = useUI(s => s.work)
 
   const entry = S.active.entries[entryIdx]
-  const { isTouched, touch, untouch, typedOver } = useTouchedFields(entry.sets)
+  const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
@@ -123,7 +124,24 @@ export default function HevyExerciseBlock({
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), from lib/set-rows.js.
   const editSets = fn => update(s => { const e = s.active.entries[entryIdx]; e.sets = fn(e.sets, e) }, true)
   const editSet = (i, fn) => update(s => { const e = s.active.entries[entryIdx]; e.sets[i] = fn(e.sets[i]) }, true)
-  const setPhaseAt = (i, warm) => editSets(sets => (warm ? makeWarmupAt(sets, i) : makeWorkAt(sets, i)))
+  // Upstream moves the row to where the work sets begin with its numbers; the suggestions stay on
+  // their slots (work set N, warm-up N) and the marks go with the row (lib/phase-relay.js).
+  const setPhaseAt = (i, warm) => {
+    const before = entry.sets
+    const after = warm ? makeWarmupAt(before, i) : makeWorkAt(before, i)
+    if (after === before) return
+    const to = movedTo(before, i)
+    const keys = s => (isSideSet(s) ? ['L', 'R'].flatMap(k => [k + 'w', k + 'r']) : ['w', 'r'])
+    const typedWeight = (s, side) => (side ? s.sides[side] : s).weightOrigin === WEIGHT_ORIGIN_MANUAL && !filledFromLast(s, side)
+    const free = j => {
+      const s = before[j]
+      if (s.done || keys(s).some(k => isTouched(j, k))) return false
+      return isSideSet(s) ? !typedWeight(s, 'L') && !typedWeight(s, 'R') : !typedWeight(s)
+    }
+    const last = previousSetsFor(history, { ...entry, sets: after }, previousMode(S), { label: sessionLabelKey(S, A, entryIdx) })
+    editSets(() => relaySuggestions(before, after, i, to, free, last, mode))
+    reorder(moveOrder(before.length, i, to))
+  }
   const setFailureAt = (i, on) => editSets(sets => withFailure(sets, i, on))
   const intensifier = entry.target?.intensifier
   const addDropRow = i => editSet(i, row =>

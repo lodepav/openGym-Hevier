@@ -2,7 +2,7 @@
 // A mark is a row's index and a field name ('w', 'r', or a side's 'Lw' …). A weight edit is also
 // on the row itself as weightOrigin, which survives a reload; reps have no mark of their own.
 import { useRef, useState } from 'react'
-import { shiftTouched } from '../lib/touched.js'
+import { shiftTouched, reorderTouched } from '../lib/touched.js'
 
 export function useTouchedFields(sets) {
   const [touched, setTouched] = useState(() => new Set())
@@ -28,6 +28,8 @@ export function useTouchedFields(sets) {
       next.delete(mark(i, key))
       return next
     }),
+    // A set moved to another place (made a warm-up or a work set): `order[j]` is new row j's old number.
+    reorder: order => setTouched(prev => reorderTouched(prev, order)),
     typedOver,
   }
 }
