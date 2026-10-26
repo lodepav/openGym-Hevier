@@ -10,7 +10,8 @@
      It removes upstream's camera permission, which only its barcode scan of a gym check-in uses,
      hidden in the fork (D12), whose scanner the fork leaves out (D50), and the background location
      and location foreground service upstream's gym reminder needs (1.4.3), hidden in the fork too
-     (D16): "Find gyms nearby" asks for one position with the app open. -->
+     (D16): "Find gyms nearby" asks for one position with the app open. Its exported boot receiver,
+     which only registers that reminder's gyms again, is removed with them. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -35,6 +36,7 @@
             android:name=".HevierHrStrapService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+        <receiver android:name=".GymReminderBootReceiver" tools:node="remove" />
     </application>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
