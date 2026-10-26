@@ -3,7 +3,7 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
@@ -132,6 +132,10 @@ describe('hevier: navigation (seam S2)', () => {
   })
 
   it('Profile: dashboard, weekly chart and the workouts as feed cards', () => {
+    // The chart's weeks count back from today: pinned to the week after the workouts.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 9, 21, 12))
+    onTestFinished(() => vi.useRealTimers())
     // Records are worked out from the log (D51): the week before sets the bar, this one beats it.
     const before = workout('2026-10-07', { start: 0.5, entries: [{ id: EX, sets: [{ w: 50, r: 8, done: true }] }] })
     render('/profile', { workouts: [before, workout('2026-10-14')] })

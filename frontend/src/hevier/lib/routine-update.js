@@ -10,7 +10,9 @@
 // starts (lib/session-start.js), so a slot with no entry left was removed. Matching is
 // upstream's (routineSlotIndex: by exercise, twins by position). A removed slot with an unmatched
 // entry in its place is a swap: the slot keeps its prescription, through upstream's own
-// replaceSlotExercise, as the routine editor's Replace does. Anything else unmatched was added
+// replaceSlotExercise, as the routine editor's Replace does. An entry that is one of a removed
+// slot's planned backups (`subs`, D45) is that slot, wherever it went: the plan working as meant
+// (D46, D86), so the slot stays as the routine has it. Anything else unmatched was added
 // and is copied the way upstream's Save as routine copies it (routineFromSession).
 import { routineSlotIndex, routineChangesFromEntry, replaceSlotExercise } from '../../lib/routines.js'
 import { routineFromSession } from '../../lib/session-routines.js'
@@ -64,6 +66,15 @@ export function routineUpdate(S, session, routine) {
       }
       if (!same(slot, routine.ex[a])) summary.changed++
       ex.push(slot)
+      return
+    }
+    // One of a removed slot's backups: the slot, as it is.
+    const backupOf = gone.find(b => free.has(b) && Array.isArray(routine.ex[b].subs) && routine.ex[b].subs.includes(entry.id))
+    if (backupOf != null) {
+      free.delete(backupOf)
+      if (backupOf < last) summary.moved = true
+      last = backupOf
+      ex.push({ ...routine.ex[backupOf] })
       return
     }
     // A swap: a removed slot between the matched neighbours on either side of this entry.
