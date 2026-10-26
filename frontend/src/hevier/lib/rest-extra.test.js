@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { restDue, restFor } from './rest-extra.js'
+import { restDue, restFor, defaultRestFor, setOwnRest } from './rest-extra.js'
 import { makeSideSet } from '../../lib/workout-model.js'
 
 const set = (done = false, extra = {}) => ({ w: 50, r: 8, done, ...extra })
@@ -51,5 +51,18 @@ describe('hevier restDue', () => {
     expect(restDue({ ...before, editingWorkoutId: 'w' }, { ...after, editingWorkoutId: 'w' })).toBeNull()
     expect(restDue(before, { ...after, start: 2 })).toBeNull()
     expect(restDue(null, after)).toBeNull()
+  })
+
+  it('names the rest a set takes without its own, and stores one on the set’s first row (D5)', () => {
+    const own = A([{ id: 'fly', target: { restSec: 75 }, sets: [set(), set(false, { restSec: 0 })] }])
+    expect(defaultRestFor(own, 0, 1, 90)).toBe(75)
+    const sets = [makeSideSet({ w: 20, r: 8 }), set()]
+    setOwnRest(sets, 0, 99999)
+    expect(sets[0].restSec).toBeGreaterThan(0)
+    expect(sets[0].restSec).toBeLessThan(99999)
+    setOwnRest(sets, 1, 0)
+    expect(sets[1].restSec).toBe(0)
+    setOwnRest(sets, 1, null)
+    expect('restSec' in sets[1]).toBe(false)
   })
 })

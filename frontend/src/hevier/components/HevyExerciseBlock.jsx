@@ -58,6 +58,8 @@ import { withDrop, withBurst, withFailure, withSideField } from '../lib/set-rows
 import { useTouchedFields } from './useTouchedFields.js'
 import { setLoads, plateLineAt } from '../lib/plate-line.js'
 import { setTypeMenu, exerciseMenu } from './exercise-menus.js'
+import { defaultRestFor, setOwnRest } from '../lib/rest-extra.js'
+import { ownSetRest } from '../../lib/supersetFlow.js'
 import SubRows from './SubRows.jsx'
 
 const setUI = patch => useUI.setState?.(patch)
@@ -196,8 +198,21 @@ export default function HevyExerciseBlock(props) {
   // A row as a screen reader names it: "Set 2", or "Warm-up 1" so two warm-ups are told apart.
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', setNumberOf(entry.sets, i)) : t('Set {0}', workNumber(i)))
   // D5: the set number opens the set-type picker (exercise-menus.js).
-  const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, setPhaseAt, setFailureAt, setHold,
-    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt })
+  const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, rest: !editing && setRest(i), setPhaseAt, setFailureAt, setHold,
+    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField })
+  // A set's own rest (#609). The sheet may outlive the set it was opened for: a save after the
+  // rows moved or the workout changed does nothing, as upstream's does.
+  const setRest = i => {
+    const ref = { id: A.id, entryId: entry.id, rows: entry.sets.length }
+    return {
+      own: ownSetRest(entry.sets[setSpanAt(entry.sets, i)[0]]),
+      dflt: defaultRestFor(A, entryIdx, i, S.restSec, S.warmupRestSec),
+      save: sec => update(st => {
+        const e = st.active?.entries?.[entryIdx]
+        if (e && st.active.id === ref.id && e.id === ref.entryId && e.sets.length === ref.rows) setOwnRest(e.sets, i, sec)
+      }, true),
+    }
+  }
 
   // A session entry added after the switch (freestyle, or a routine added later) takes the step too.
   const unitChoice = exUnitChoice(S, entry.id)

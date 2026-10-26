@@ -7,6 +7,7 @@ import { isSideSet } from '../../lib/workout-model.js'
 import { supersetUnits, setSpanAt } from '../../lib/history.js'
 import { restSecFor, warmupRestSecFor, ownSetRest } from '../../lib/supersetFlow.js'
 import { pyramidRestFor } from '../../lib/pyramid.js'
+import { REST_MAX } from '../../lib/duration.js'
 
 const live = A => !!A && !A.backfill && !A.editingWorkoutId
 const sideDone = (s, k) => !!s?.sides?.[k]?.done
@@ -38,11 +39,26 @@ export function restDue(before, after) {
 }
 
 /** How long the rest after set `i` of entry `idx` runs, as upstream's tick flow works it out: the
- *  set's own rest (#609) first, else a warm-up's (the exercise's, then the profile's `warmupRestSec`). */
+ *  set's own rest (#609) first, else defaultRestFor. */
 export function restFor(A, idx, i, defaultRestSec, warmupRestSec) {
+  const sets = A.entries[idx].sets
+  return ownSetRest(sets[setSpanAt(sets, i)[0]]) ?? defaultRestFor(A, idx, i, defaultRestSec, warmupRestSec)
+}
+
+/** The rest a set takes without one of its own: the exercise's or superset's, a warm-up's (the
+ *  exercise's, then the profile's `warmupRestSec`). The set-type sheet names it (D5). */
+export function defaultRestFor(A, idx, i, defaultRestSec, warmupRestSec) {
   const entries = A.entries
   const unit = supersetUnits(entries).find(u => u.includes(idx)) || [idx]
   const setRest = { idx, sec: pyramidRestFor(entries[idx].target, entries[idx].sets, i) }
-  const sec = restSecFor(entries, unit, defaultRestSec, setRest)
-  return ownSetRest(entries[idx].sets[setSpanAt(entries[idx].sets, i)[0]]) ?? warmupRestSecFor(entries[idx], i, sec, warmupRestSec)
+  return warmupRestSecFor(entries[idx], i, restSecFor(entries, unit, defaultRestSec, setRest), warmupRestSec)
+}
+
+/** D5's "Rest after this set", as upstream's set menu stores it (#609): on the set's first row,
+ *  null takes it away and 0 is "No timer". */
+export function setOwnRest(sets, i, sec) {
+  const row = sets[setSpanAt(sets, i)[0]]
+  if (!row) return
+  if (sec == null) delete row.restSec
+  else row.restSec = Math.max(0, Math.min(REST_MAX, Math.round(sec)))
 }

@@ -3,16 +3,19 @@
 // through the handlers HevyExerciseBlock passes in.
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtDate } from '../../lib/format.js'
-import { canBeWarmup, setSpanAt } from '../../lib/history.js'
+import { canBeWarmup, setSpanAt, EFFORT } from '../../lib/history.js'
+import { REST_MAX, fmtRest } from '../../lib/duration.js'
+import { durationSheet } from '../../components/DurationWheel.jsx'
 import { isWarmupRow, isFailureSet, isDropSet, isRestPauseSet } from '../../lib/workout-model.js'
-import { menuSheet, exerciseDetailSheet, exerciseHistorySheet, barWeightSheet } from '../../sheets.jsx'
+import { menuSheet, effortPickerSheet, exerciseDetailSheet, exerciseHistorySheet, barWeightSheet } from '../../sheets.jsx'
 import { isHoldRow, canBeHold, setTicked } from '../lib/hold-set.js'
 import { exUnitChoice, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setSideOrder } from '../lib/side-order.js'
 import { brandSheet } from './GymLabels.jsx'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
-export function setTypeMenu({ sets, i, mode, editing, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt }) {
+// `rest` is the set's own rest and the one it takes without, with `save(sec)`; none while editing.
+export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField }) {
   const s = sets[i]
   const cardio = mode === 'cardio'
   const warm = isWarmupRow(s)
@@ -35,12 +38,32 @@ export function setTypeMenu({ sets, i, mode, editing, setPhaseAt, setFailureAt, 
       ] },
       { title: t('More'), items: [
         mode === 'reps' && !warm && !hold && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
+        // Cardio's effort, as upstream's set menu has it: RPE only, stored as the set's `rpe`.
+        cardio && !warm && { icon: 'gauge', label: t('How hard it felt'), sub: s.rpe != null ? t(EFFORT.rpe.hd) + ' ' + fmtNum(s.rpe) : t('Not rated yet'),
+          onClick: () => effortPickerSheet('rpe', s.rpe ?? null, nv => onField(i, 'rpe', nv), { cardio: true }) },
+        // Just this set's rest, this session (#609).
+        rest && { icon: 'timer', label: t('Rest after this set'), sub: restText(rest.own, rest.dflt), onClick: () => setRestMenu(rest) },
         onCopySetAt && { icon: 'copy', label: t('Copy this set'), onClick: () => onCopySetAt(i) },
       ] },
       { items: [
         { icon: 'xmark', label: t('Remove set'), danger: true,
           disabled: !editing && sets.length <= setSpanAt(sets, i)[1], onClick: () => onRemoveSetAt(i) },
       ] },
+    ],
+  })
+}
+
+const restText = (own, dflt) => (own == null ? t('Default ({0})', fmtRest(dflt)) : own === 0 ? t('No timer') : fmtRest(own))
+
+// Upstream's three choices for a set's own rest: the default, none, or a time from the wheel.
+function setRestMenu({ own, dflt, save }) {
+  menuSheet({
+    title: t('Rest after this set'),
+    items: [
+      { icon: 'timer', label: restText(null, dflt), on: own == null, onClick: () => save(null) },
+      { icon: 'pause', label: t('No timer'), on: own === 0, onClick: () => save(0) },
+      { icon: 'clock', label: t('Pick a time'), on: own > 0, onClick: () => durationSheet({
+        title: t('Rest after this set'), value: own > 0 ? own : dflt, max: REST_MAX, off: t('No timer'), onDone: sec => save(sec > 0 ? sec : 0) }) },
     ],
   })
 }
