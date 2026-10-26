@@ -13,7 +13,6 @@ import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
 import { volumeFactor } from '../../lib/dumbbells.js'
 import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
-import { unescapeWorkout } from './note-text.js'
 
 // Hevy's English title (lower case) → catalogue id, `side` for a one-limb title. Each row was
 // checked against the catalogue's artwork; each is also a fix for upstream's lib/hevy-id-map.js
@@ -342,10 +341,7 @@ const workVol = entries => entries.reduce((a, e) => a + volumeFactor(e) * e.sets
 /** A parse result with the fork's keys turned back into ids, brands and per-side sets, and the titles it asked about. */
 function finishImport(parsed, hvTitles) {
   if (!parsed || parsed.error) return parsed
-  const out = { ...byName(parsed, done(parsed)), hvTitles }
-  // Hevy's CSV writes a note's line breaks as `\n` (D54).
-  if (out.kind === 'workouts' && out.source === 'Hevy') out.workouts = out.workouts.map(unescapeWorkout)
-  return out
+  return { ...byName(parsed, done(parsed)), hvTitles }
 }
 
 // Upstream's Hevy API import matches by Hevy's template id alone, never by name, so a title its

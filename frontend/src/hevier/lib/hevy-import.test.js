@@ -167,7 +167,7 @@ describe('hevier Hevy import (D29)', () => {
     expect(r.routines[0].ex[0]).toMatchObject({ id: '7108', side: true, reps: 20 })   // 10 a side (D75)
   })
 
-  it('turns Hevy\'s escaped line breaks in notes back into line breaks (D54)', () => {
+  it('keeps Hevy\'s line breaks in notes with the hooks on (D54, upstream\'s since 1.4.3)', () => {
     const p = parseImport(csv([
       `"Lower A","14 Oct 2026, 16:27","14 Oct 2026, 17:44","Tired\\nNext week","Squat (Barbell)",,"Deep\\nslow",0,"normal",60,5,,,`,
     ]), { unit: 'kg', customEx: [] })

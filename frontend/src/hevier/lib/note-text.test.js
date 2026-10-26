@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { unescapeNote, unescapeWorkout, fixImportedNotes } from './note-text.js'
+import { unescapeNote, fixImportedNotes } from './note-text.js'
 
 describe('unescapeNote', () => {
   it('turns Hevy\'s escaped line breaks into line breaks', () => {
@@ -10,21 +10,6 @@ describe('unescapeNote', () => {
     expect(unescapeNote('plain')).toBe('plain')
     expect(unescapeNote('real\nbreak')).toBe('real\nbreak')
     expect(unescapeNote(undefined)).toBe(undefined)
-  })
-})
-
-describe('unescapeWorkout', () => {
-  it('fixes the workout note and the exercises\' notes in a copy', () => {
-    const w = { note: 'a\\nb', entries: [{ id: 'x', note: 'c\\nd' }, { id: 'y' }] }
-    const out = unescapeWorkout(w)
-    expect(out.note).toBe('a\nb')
-    expect(out.entries[0].note).toBe('c\nd')
-    expect(out.entries[1]).toEqual({ id: 'y' })
-    expect(w.note).toBe('a\\nb')
-  })
-  it('returns the same workout when nothing changes', () => {
-    const w = { note: 'fine', entries: [{ id: 'x' }] }
-    expect(unescapeWorkout(w)).toBe(w)
   })
 })
 

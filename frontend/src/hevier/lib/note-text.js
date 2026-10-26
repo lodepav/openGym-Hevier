@@ -1,8 +1,7 @@
 // Hevy's CSV export writes a line break inside a note as the two characters `\n` (D54), and
-// upstream's CSV import keeps them as they are, so an imported note read
-// "Feeling fatigued.\nLet's see". The import gets real line breaks (`importDone`), and the workouts
-// imported before this are fixed in place, once each: `fixImportedNotes` changes only a note
-// that still holds a `\n`, so running it again finds nothing.
+// upstream's CSV import kept them as they were until 1.4.3 (#690), so an imported note read
+// "Feeling fatigued.\nLet's see". The workouts imported before are fixed in place, once each:
+// `fixImportedNotes` changes only a note that still holds a `\n`, so running it again finds nothing.
 import { stampWorkout } from '../../lib/sync-merge.js'
 
 /** A note with Hevy's escaped line breaks turned back into line breaks. */
@@ -14,14 +13,6 @@ const fixOne = o => {
   if (n === o.note) return false
   o.note = n
   return true
-}
-
-/** A parsed workout's note and its exercises' notes, unescaped (a copy when anything changed). */
-export function unescapeWorkout(w) {
-  const copy = { ...w, entries: (w.entries || []).map(e => ({ ...e })) }
-  let changed = fixOne(copy)
-  for (const e of copy.entries) changed = fixOne(e) || changed
-  return changed ? copy : w
 }
 
 /** Fixes the notes of workouts already imported (their ids start `iw`), stamped so the fix syncs. */
