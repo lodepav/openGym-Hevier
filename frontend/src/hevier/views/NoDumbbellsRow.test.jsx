@@ -34,6 +34,14 @@ describe('hevier: the dumbbell sheet (S49)', () => {
     expect(host.textContent).toContain('No list yet')
   })
 
+  it('shows the switch while a synced "none" is on, so it can be turned off', () => {
+    hooks.noDumbbellsRowOff = true
+    useStore.getState().update(s => { s.dumbbells = { ...(s.dumbbells || {}), none: { on: true } } })
+    act(() => dumbbellInventorySheet())
+    mountTopSheet()
+    expect(host.textContent).toContain('I own no dumbbells')
+  })
+
   it('is upstream’s with the hook off', () => {
     act(() => dumbbellInventorySheet())
     mountTopSheet()

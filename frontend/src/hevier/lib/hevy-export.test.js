@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, isImported } from './hevy-export.js'
 import { exportOnce } from './hevy-export-sync.js'
 import { HevyApiError, HEVY_ID_MAP } from '../../lib/import-hevy.js'
+import { HEVY_TITLE_MAP } from '../../lib/hevy-id-map.js'
 import { importId } from '../../lib/import-csv.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -148,6 +149,15 @@ describe('hevier export to Hevy: templates (D34)', () => {
     expect(find('cx1')).toEqual({ id: 'C2', type: 'duration' })
     expect(find('0463')).toEqual({ id: 'C3', type: 'weight_reps' })
     expect(find('nope')).toBe(null)
+  })
+
+  it('a custom template named like a built-in leaves the title map\'s exercise to the built-in', () => {
+    const [title, id] = Object.entries(HEVY_TITLE_MAP).find(([, v]) => hevyOf(v) && EXIDX[v])
+    const templates = [
+      { id: 'CU', title, type: 'weight_reps', is_custom: true },
+      { id: hevyOf(id), title, type: 'weight_reps' },
+    ]
+    expect(templateFinder(templates, {})(id)?.id).toBe(hevyOf(id))
   })
 
   it('a template named with a brand goes for that brand only, found as the import finds it', () => {

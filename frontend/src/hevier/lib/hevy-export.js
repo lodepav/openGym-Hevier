@@ -233,8 +233,9 @@ export function templateFinder(templates, S) {
   })
   for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy', own)]; if (v && v !== 'custom') put(canonicalExId(v), t) }
   for (const t of list) {
-    // The fix table, else upstream's Hevy title map (since 1.4.3 it holds what the table had).
-    const f = FIXES[String(t.title || '').toLowerCase().trim()] || matchHevyTitle(t.title)
+    // The fix table, else upstream's Hevy title map (since 1.4.3 it holds what the table had); a
+    // custom template named like a built-in is left to the id pass below, built-ins first.
+    const f = FIXES[String(t.title || '').toLowerCase().trim()] || (!t.is_custom && matchHevyTitle(t.title))
     if (f) put(canonicalExId(typeof f === 'string' ? f : f.id), t)
   }
   for (const t of list) put(importId('im', 'Hevy|' + t.id), t)

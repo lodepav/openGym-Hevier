@@ -1045,8 +1045,8 @@ function DumbbellInventorySheet({ close }) {
     </div>
     {/* An empty list means "any weight", not "none", so owning none is its own switch (Discord,
         deamondo). On, the list has nothing to say and steps aside; it is kept for the day you buy a pair. */}
-    {/* [hevier] S49: no "I own no dumbbells" switch, a gym's checklist says it (D16, D62) */}
-    {!hooks.noDumbbellsRowOff && <div className="list menu-list" style={{ marginBottom: 12 }}>
+    {/* [hevier] S49: no "I own no dumbbells" switch, a gym's checklist says it (D16, D62); shown while on, so a synced one can be turned off */}
+    {(!hooks.noDumbbellsRowOff || none) && <div className="list menu-list" style={{ marginBottom: 12 }}>
       <Row icon="dumbbell" title={t('I own no dumbbells')} subtitle={t('Dumbbell lifts stay out of the library, the picker and the Coach’s plans.')}>
         <Switch checked={none} onChange={setNone} />
       </Row>
