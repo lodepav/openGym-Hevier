@@ -2,6 +2,20 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.1.1 · 2026-10-26
+
+Based on openGym 1.4.2.
+
+### Fixes and changes
+
+- HevyExerciseBlock split, two dead helpers gone
+- a swap to a planned backup is no change for Update routine (D35)
+- a deload routine's workouts count in the statistics (D57)
+- the fork's native plugins registered by one seam
+- hold sets keep their kind and seconds, the typo check on every tick (D89, D90)
+- the monthly report shares as cards (D87)
+- a per-side set can be a timed hold (D89)
+
 ## 2.1.0 · 2026-10-25
 
 Based on openGym 1.4.2.
