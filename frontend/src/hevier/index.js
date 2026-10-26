@@ -23,7 +23,7 @@ import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
 import { initLabelRefill } from './lib/label-refill-run.js'
-import { aliasHooks } from './lib/ex-aliases.js'
+import { aliasHooks, moveAliases } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
@@ -106,6 +106,10 @@ function install() {
   const movePrevious = () => { if ('hvPrevious' in state()) store.update(movePreviousIntoLastFrom) }
   movePrevious()
   store.watch(['hvPrevious'])?.(movePrevious)
+  // D73's names, moved into upstream's other names once (a backup or another device may bring them back).
+  const moveNames = () => { if ('hvAliases' in state()) store.update(moveAliases) }
+  moveNames()
+  store.watch(['hvAliases'])?.(moveNames)
 
   // Android: weigh-ins from Health Connect only while upstream's read of them is on
   // (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a

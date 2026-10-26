@@ -252,8 +252,7 @@ export const exerciseNameClass = ex => (hooks.exName?.(ex) ? '' : !enOnly && exe
 // Search both the localized and canonical English title without changing persisted data.
 export const exerciseNameSearchText = ex => {
   const translated = exerciseNames && ex && exerciseNames[ex.id]
-  const own = hooks.exAliases?.(ex) // [hevier] S41: the user's other names for it
-  return (translated ? `${translated} ${ex.n}` : (ex?.n || '')) + (own ? ' ' + own : '')
+  return translated ? `${translated} ${ex.n}` : (ex?.n || '')
 }
 
 // Called by i18n.js's setLang once the locale pack has been loaded — kept here rather than

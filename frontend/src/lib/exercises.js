@@ -2,7 +2,6 @@ import { EXDB, EXALIAS } from './exercises-data.js'
 import MUSCLE_MAP from './exercise-muscle-map.json' with { type: 'json' }
 import V13_IDS from './catalogue-v13-ids.json' with { type: 'json' }
 import { t, getVersion, exerciseNameSearchText } from './i18n-core.js'
-import { hooks } from '../hevier/hooks.js' // [hevier] S41
 import { exerciseAliases, aliasSnapshot } from './exercise-aliases.js'
 
 export { EXDB }
@@ -328,7 +327,7 @@ const corpusCache = new WeakMap()
 const VOCAB = new Set()
 
 function corpusOf(e) {
-  const v = hooks.namesVersion ? getVersion() + ':' + hooks.namesVersion() : getVersion() // [hevier] S41
+  const v = getVersion()
   const hit = corpusCache.get(e)
   if (hit && hit.v === v && hit.aliases === aliasSnapshot()) return hit
   const sm = Array.isArray(e?.sm) ? e.sm : []

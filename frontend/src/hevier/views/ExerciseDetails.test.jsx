@@ -102,7 +102,7 @@ describe('hevier: exercise details (seam S10)', () => {
     Object.assign(hooks, aliasHooks(() => useStore.getState().S))
     try {
       open(log)
-      act(() => useStore.getState().update(s => { s.hvAliases = { [EX.id]: { names: ['Flat bench', 'Bench'], show: 'Bench' } } }))
+      act(() => useStore.getState().update(s => { s.exAliases = { [EX.id]: ['Flat bench', 'Bench'] }; s.hvShownName = { [EX.id]: 'Bench' } }))
       expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
       expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called ' + capWords(EX.n) + ' · Flat bench')
       act(() => container.querySelector('.hv-xd-aka').click())
@@ -115,7 +115,7 @@ describe('hevier: exercise details (seam S10)', () => {
       expect(container.querySelector('.hv-xd-bar h3').textContent).toBe(EX.n)
       expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called Flat bench · Bench')
       act(() => r2.unmount())
-    } finally { hooks.exName = hooks.exAliases = hooks.namesVersion = null }
+    } finally { hooks.exName = null }
   })
 
   it('without the hook it is upstream’s sheet', () => {
