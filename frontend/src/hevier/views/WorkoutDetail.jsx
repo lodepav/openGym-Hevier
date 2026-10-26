@@ -13,7 +13,7 @@ import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtVol } from '../../lib/format.js'
-import { sessionSections } from '../../lib/history.js'
+import { sessionSections, sessionVolume } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { sameWorkout } from '../../lib/workout-date.js'
@@ -117,7 +117,7 @@ export function WorkoutDetail() {
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
-      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, st.unit)}</b></div>}
+      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtVol(sessionVolume(w, st), st.unit)}</b></div>}
       <div><span>{t('Sets')}</span><b>{setN}</b></div>
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>

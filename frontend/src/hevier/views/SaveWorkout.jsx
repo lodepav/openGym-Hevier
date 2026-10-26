@@ -11,7 +11,7 @@ import { useUI } from '../../store/useUI.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum } from '../../lib/format.js'
 import { durationWords } from '../lib/elapsed.js'
-import { workoutVolume, setsDoneActive, setUnitsTotal, NOTE_MAX } from '../../lib/history.js'
+import { sessionVolume, setsDoneActive, setUnitsTotal, NOTE_MAX } from '../../lib/history.js'
 import { loadOfWorkouts } from '../../lib/muscles.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { sameWorkout } from '../../lib/workout-date.js'
@@ -56,6 +56,7 @@ export function SaveWorkout() {
   const gym = useStore(s => { const g = workoutGym(s.S, s.S.active); return g ? (gymName(s.S, g) || t('Removed gym')) : '' })
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
+  const warmups = useStore(s => s.S.volumeWarmups)
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
   const [min, setMin] = useState(state?.durationMin ?? null)   // null: the session's own length, still running
@@ -112,7 +113,7 @@ export function SaveWorkout() {
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
       <div><span>{t('Duration')}</span><b className="acc">{durationWords(len * 60000)}</b></div>
-      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {unit}</b></div>}
+      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(sessionVolume(A, { volumeWarmups: warmups })))} {unit}</b></div>}
       <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
     </div>
     {mode === 'sets' && <MuscleLine entries={A.entries} />}

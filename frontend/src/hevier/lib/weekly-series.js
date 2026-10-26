@@ -11,16 +11,16 @@ export const SERIES = ['duration', 'volume', 'reps']
 const durationOf = w => Math.max(0, (Number(w.end) || 0) - (Number(w.start) || 0))
 const repsOf = w => (w.entries || []).reduce((n, e) =>
   n + (e.sets || []).reduce((m, s) => m + (isWarmupRow(s) ? 0 : completedRepsOf(s)), 0), 0)
-const VALUE = { duration: durationOf, volume: w => Number(w.vol) || 0, sets: w => workSets(w.entries), reps: repsOf }
+const VALUE = { duration: durationOf, volume: (w, vol) => vol(w), sets: w => workSets(w.entries), reps: repsOf }
 
 /** Whether workout `w` falls in the week that starts on `week` (a bar's `week`). */
 export const inWeek = (w, week, weekStart) => { const day = workoutDay(w); return !!day && weekKey(day, weekStart) === week }
 
 /** The last `weeks` weeks up to and including the one `today` is in, oldest first:
  *  `[{ week: 'YYYY-MM-DD' (its first day), value }]`. Duration is in ms, volume in the
- *  profile's unit (as stored on each workout), sets a count of ticked work sets, reps a count
+ *  profile's unit (warm-ups as upstream's switch says, `vol`), sets a count of ticked work sets, reps a count
  *  of completed work reps. */
-export function weeklySeries(workouts, kind, { today, weeks = 12, weekStart } = {}) {
+export function weeklySeries(workouts, kind, { today, weeks = 12, weekStart, vol = w => Number(w.vol) || 0 } = {}) {
   const value = VALUE[kind]
   if (!value) throw new Error('unknown series ' + kind)
   const last = new Date(weekKey(today, weekStart) + 'T12:00:00')
@@ -35,7 +35,7 @@ export function weeklySeries(workouts, kind, { today, weeks = 12, weekStart } = 
     const day = workoutDay(w)
     if (!day) continue
     const i = at.get(weekKey(day, weekStart))
-    if (i !== undefined) out[i].value += value(w)
+    if (i !== undefined) out[i].value += value(w, vol)
   }
   return out
 }

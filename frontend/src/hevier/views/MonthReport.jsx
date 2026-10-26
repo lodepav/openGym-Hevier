@@ -17,6 +17,7 @@ import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedWorkouts } from '../lib/counted.js'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
+import { sessionVolume } from '../../lib/history.js'
 
 const PR_ROWS = 5
 
@@ -34,7 +35,7 @@ export default function MonthReport() {
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
   const counted = useMemo(() => countedWorkouts(st.workouts, st.routines), [st.workouts, st.routines])
-  const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w)), [counted, st.dbLoad, at, ws, mm]) // eslint-disable-line react-hooks/exhaustive-deps
+  const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w), w => sessionVolume(w, st)), [counted, st.dbLoad, at, ws, mm, st.volumeWarmups]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const first = firstMonth(st.workouts)
   const ym = `${at.y}-${String(at.mo + 1).padStart(2, '0')}-`

@@ -8,7 +8,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, fmtDate } from '../../lib/format.js'
-import { workoutVolume } from '../../lib/history.js'
+import { sessionVolume } from '../../lib/history.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
 import {
   finishWorkout, exitWorkoutEdit, saveWorkoutEdits, menuSheet, sessionNoteSheet, renameWorkoutSheet,
@@ -95,7 +95,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       </div>
       <div className="hv-stats">
         <div><span>{t('Duration')}</span><b className="acc">{(A.backfill || editing) ? fmtDate(A.d, true) : <Elapsed start={A.start} words />}</b></div>
-        {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(workoutVolume(A)))} {S.unit}</b></div>}
+        {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(sessionVolume(A, S)))} {S.unit}</b></div>}
         {/* Work sets, each per-side set once, as Workout Detail and the statistics count them (D18). */}
         <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
         {!(A.backfill || editing) && <StrapBpm />}

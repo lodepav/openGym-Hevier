@@ -9,6 +9,7 @@ import { EXIDX } from '../../lib/exercises.js'
 import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
 import { setUnits, isHoldRow } from './hold-set.js'
+import { sessionVolume } from '../../lib/history.js'
 import { fmtNum, fmtVol, exerciseNameText, weekOrder, DAYS } from '../../lib/format.js'
 import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
@@ -65,7 +66,7 @@ export function shareCards(S, w, { body = 'male' } = {}) {
 
   const stats = [
     { label: t('Time'), value: workoutTimeText(w) },
-    mode === 'weight' ? { label: t('Volume'), value: fmtVol(w.vol || 0, unit) } : { label: t('Sets'), value: fmtNum(workSets(w.entries)) },
+    mode === 'weight' ? { label: t('Volume'), value: fmtVol(sessionVolume(w, S), unit) } : { label: t('Sets'), value: fmtNum(workSets(w.entries)) },
     ...(recs.length ? [{ label: t('Records'), value: fmtNum(recs.length), trophy: true }] : []),
     ...(hr ? [{ label: t('Heart rate'), value: hr.avg + ' bpm' }] : []),
   ].slice(0, 3)

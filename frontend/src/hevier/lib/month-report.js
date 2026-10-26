@@ -15,11 +15,11 @@ const shift = (y, mo, by) => { const d = new Date(y, mo + by, 1); return { y: d.
 /** The workouts logged in month (y, mo), oldest first. */
 export const monthWorkouts = (workouts, y, mo) => (workouts || []).filter(w => (workoutDay(w) || '').startsWith(keyOf(y, mo) + '-'))
 
-function totals(ws) {
+function totals(ws, vol) {
   return {
     workouts: ws.length,
     duration: ws.reduce((n, w) => n + workoutDuration(w), 0),
-    volume: ws.reduce((n, w) => n + (Number(w.vol) || 0), 0),
+    volume: ws.reduce((n, w) => n + vol(w), 0),
     sets: ws.reduce((n, w) => n + workSets(w.entries), 0),
   }
 }
@@ -44,7 +44,7 @@ export function firstMonth(workouts) {
  * `ws` is the week's first day, for the weeks the month's calendar rows show; `mode` counts the
  * muscles (D42).
  */
-export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = () => []) {
+export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = () => [], vol = w => Number(w.vol) || 0) {
   const list = monthWorkouts(workouts, y, mo)
   const before = shift(y, mo, -1)
   const records = []
@@ -63,8 +63,8 @@ export function monthReport(workouts, y, mo, ws = 1, mode = 'main', recordsOf = 
     byEx.set(e.id, cur)
   }
   return {
-    ...totals(list),
-    prev: totals(monthWorkouts(workouts, before.y, before.mo)),
+    ...totals(list, vol),
+    prev: totals(monthWorkouts(workouts, before.y, before.mo), vol),
     records,
     weeks: { trained: trainedRows.size, total: Math.ceil(cells.length / 7) },
     muscles: muscleSets(list.flatMap(w => w.entries || []), mode),

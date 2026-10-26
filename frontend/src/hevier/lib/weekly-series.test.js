@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { weeklySeries, niceMax, labelledWeeks } from './weekly-series.js'
+import { sessionVolume } from '../../lib/history.js'
 
 const H = 3600000
 const w = (d, extra = {}) => ({ d, start: 1000, end: 1000 + H, vol: 1000, entries: [], ...extra })
 
 describe('weeklySeries', () => {
+  it('counts warm-ups in Volume when upstream\'s switch says so (D18)', () => {
+    const sets = [{ w: 40, r: 10, done: true, phase: 'warmup' }, { w: 100, r: 5, done: true }]
+    const ws = [w('2026-10-16', { vol: 500, entries: [{ id: '0025', sets }] })]
+    const at = S => weeklySeries(ws, 'volume', { today: '2026-10-16', weeks: 1, weekStart: 1, vol: x => sessionVolume(x, S) })[0].value
+    expect(at({})).toBe(500)
+    expect(at({ volumeWarmups: true })).toBe(900)
+  })
+
   it('has one bar per week, oldest first, ending with the current week', () => {
     const out = weeklySeries([], 'volume', { today: '2026-10-16', weeks: 3, weekStart: 1 })
     expect(out.map(p => p.week)).toEqual(['2026-09-28', '2026-10-05', '2026-10-12'])

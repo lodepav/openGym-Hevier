@@ -8,6 +8,7 @@ import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtVol, exCount } from '../../lib/format.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
+import { sessionVolume } from '../../lib/history.js'
 import { workoutDetailSheet, repeatWorkout, menuSheet, confirmSheet } from '../../sheets.jsx'
 import { editCompletedSession } from '../../lib/session-edit.js'
 import { saveSessionAsRoutine } from '../../lib/session-routines.js'
@@ -66,6 +67,7 @@ export default function WorkoutCard({ w }) {
   const nav = useNavigate()
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
+  const warmups = useStore(s => s.S.volumeWarmups)
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
   const recs = useStore(s => workoutRecords(s.S, w))
@@ -88,7 +90,7 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'
-        ? <div><span>{t('Volume')}</span><b>{fmtVol(w.vol || 0, unit)}</b></div>
+        ? <div><span>{t('Volume')}</span><b>{fmtVol(sessionVolume(w, { volumeWarmups: warmups }), unit)}</b></div>
         : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
       {hr && <div><span>{t('Heart rate')}</span><b className="hv-wcard-hr"><Icon name="heart" />{hr.avg}</b></div>}
