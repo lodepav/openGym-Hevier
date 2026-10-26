@@ -3,7 +3,7 @@
 // (20 lb) or 10 reps more, so a real jump never asks; an exercise with nothing logged never does.
 // Under a third of last time's same set and at least that much less (3 for 30) asks too, and so
 // does a cardio timer left running past twice the set's time and 10 minutes more.
-import { isSideSet } from '../../lib/workout-model.js'
+import { isSideSet, isWarmupRow } from '../../lib/workout-model.js'
 import { isHoldRow } from './hold-set.js'
 
 // Ticked ones only: a saved workout keeps its unticked rows too.
@@ -36,6 +36,15 @@ export function oddValues(row, best, { unit = 'kg', assisted = false, last = nul
   if (best.r > 0 && r > 2 * best.r && r - best.r >= 10) out.push({ f: 'r', typed: r, best: best.r })
   else if (lr > 0 && r < lr / 3 && lr - r >= 5) out.push({ f: 'r', typed: r, best: lr, low: true })
   return out
+}
+
+/**
+ * Last time's same set to read `row` against ({ w, r }, or one `side` of a per-side set), or null:
+ * not for a warm-up, nor against last time's warm-up or hold, nor a per-side set against a straight one.
+ */
+export function lastRowOf(row, last, side) {
+  if (!last || isWarmupRow(row) || isWarmupRow(last) || isHoldRow(last)) return null
+  return side ? last.sides?.[side] : isSideSet(last) ? null : last
 }
 
 /** Whether `sec` run on a cardio set's timer looks forgotten against its time `planned` and last time's. */

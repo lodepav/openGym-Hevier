@@ -14,62 +14,59 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDate, fmtPlate } from '../../lib/format.js'
+import { fmtNum, fmtPlate } from '../../lib/format.js'
 import { restTimerText, elapsedClock } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
-  canBeWarmup, setSpanAt, lastEntryFor,
+  setSpanAt, lastEntryFor,
 } from '../../lib/history.js'
-import {
-  isWarmupRow, isFailureSet, isDropSet, isRestPauseSet, dropsOf, clustersOf, isSideSet, WEIGHT_ORIGIN_MANUAL,
-} from '../../lib/workout-model.js'
+import { isWarmupRow, isFailureSet, isSideSet, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
-import { dropGrid, loadKindFor, baseWeightFor, inventoryFor, rowLoad, sameLoad } from '../../lib/plates.js'
+import { dropGrid, loadKindFor, baseWeightFor, inventoryFor } from '../../lib/plates.js'
 import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { progressionGuidance } from '../../lib/progression-copy.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
-import {
-  confirmSheet, menuSheet, effortPickerSheet, exerciseDetailSheet, exerciseHistorySheet, exerciseNoteSheet, barWeightSheet,
-} from '../../sheets.jsx'
+import { confirmSheet, effortPickerSheet, exerciseDetailSheet, exerciseNoteSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
-import { Check, NumberField } from '../../components/ui.jsx'
+import { Check } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { nextSet } from '../lib/next-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
-import { BrandLine, brandSheet } from './GymLabels.jsx'
+import { BrandLine } from './GymLabels.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
-import { isHoldRow, canBeHold, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, setTicked, HOLD_SEC } from '../lib/hold-set.js'
+import { isHoldRow, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, setTicked, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
-import { bestsFor, oddValues, longRun } from '../lib/odd-value.js'
+import { bestsFor, oddValues, longRun, lastRowOf } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
-import { exUnitOf, exUnitChoice, shown, convert, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
+import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
-import { sideOrderOf, setSideOrder } from '../lib/side-order.js'
+import { sideOrderOf } from '../lib/side-order.js'
 import { plateLineOn } from '../lib/settings.js'
-import {
-  withDrop, withoutDrop, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField,
-} from '../lib/set-rows.js'
+import { withDrop, withBurst, withFailure, withSideField } from '../lib/set-rows.js'
 import { useTouchedFields } from './useTouchedFields.js'
+import { setLoads, plateLineAt } from '../lib/plate-line.js'
+import { setTypeMenu, exerciseMenu } from './exercise-menus.js'
+import SubRows from './SubRows.jsx'
 
 const setUI = patch => useUI.setState?.(patch)
 
-export default function HevyExerciseBlock({
-  entryIdx, editing, busy, superset, onToggle, onToggleSide, onField, onAddSet, onAddWarmup, onRemoveSetAt, onCopySetAt,
-  onProgressionSettings, onRest, onNoProg, routineUpdate, onSwap, onMoveUp, onMoveDown, canMoveUp, canMoveDown,
-  onRemoveExercise, onPairPrev, onPairNext, onUnpair, onSetRowRef,
-}) {
+export default function HevyExerciseBlock(props) {
+  const {
+    entryIdx, editing, superset, onToggle, onToggleSide, onField, onAddSet, onRemoveSetAt, onCopySetAt,
+    onRest, onNoProg, onSetRowRef,
+  } = props
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
   const restEnds = useUI(s => s.timer?.endsAt)
@@ -194,125 +191,34 @@ export default function HevyExerciseBlock({
     withBurst(row, intensifier?.type === 'restpause' ? intensifier.restSec : (S.restPauseSec || 15)))
   const setSide = (i, side, f, v) => editSets((sets, e) => withSideField(sets, i, side, f, v, e.target?.backoffStep))
 
-  // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
   // An L/R pair is one set, also among a per-side exercise's single rows (hold-set.js).
   const workNumber = i => setNumberOf(entry.sets, i)
   // A row as a screen reader names it: "Set 2", or "Warm-up 1" so two warm-ups are told apart.
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', setNumberOf(entry.sets, i)) : t('Set {0}', workNumber(i)))
-  const openSetType = (s, i) => {
-    const warm = isWarmupRow(s)
-    const fail = isFailureSet(s)
-    const hold = isHoldRow(s)
-    const ticked = setTicked(entry.sets, i)
-    const otherWork = entry.sets.some((x, j) => j !== i && !isWarmupRow(x))
-    menuSheet({
-      title: t('Select set type'),
-      sections: [
-        { items: [
-          mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && (hold || !(mode === 'reps' && canBeWarmup(s) && otherWork)),
-            onClick: () => { if (!warm) setPhaseAt(i, true) } },
-          { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s) && !hold, disabled: hold && ticked,
-            onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false); else if (hold) setHold(i, false) } },
-          !cardio && { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
-          mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || hold || isRestPauseSet(s), onClick: () => addDropRow(i) },
-          mode === 'reps' && { icon: 'timer', label: t('Timed hold'), sub: t('Seconds in place of reps'), on: hold,
-            disabled: ticked || (!hold && !canBeHold(s, mode)), onClick: () => setHold(i, !hold) },
-        ] },
-        { title: t('More'), items: [
-          mode === 'reps' && !warm && !hold && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
-          onCopySetAt && { icon: 'copy', label: t('Copy this set'), onClick: () => onCopySetAt(i) },
-        ] },
-        { items: [
-          { icon: 'xmark', label: t('Remove set'), danger: true,
-            disabled: !editing && entry.sets.length <= setSpanAt(entry.sets, i)[1], onClick: () => onRemoveSetAt(i) },
-        ] },
-      ],
-    })
-  }
+  // D5: the set number opens the set-type picker (exercise-menus.js).
+  const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, setPhaseAt, setFailureAt, setHold,
+    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt })
 
-  // D41: the exercise's unit and its step, picked from ⋮; switching changes no stored weight.
-  const unitSheet = () => {
-    const { profile, alt, steps } = unitChoices(unit)
-    const pick = (u, step) => update(s => { setExUnit(s, entry.id, u, step) })
-    const cur = exUnitChoice(S, entry.id)
-    menuSheet({
-      title: t('Weight unit'),
-      sections: [
-        { items: [{ label: t('{0}, as the profile', profile), on: !cur, onClick: () => pick(null) }] },
-        { title: t('In {0}, stepping by', alt), items: steps.map(st => ({
-          label: fmtNum(st) + ' ' + alt + (st === defaultStep(entry.id, alt) ? ' · ' + t('Recommended') : ''),
-          on: cur?.step === st, onClick: () => pick(alt, st),
-        })) },
-      ],
-    })
-  }
   // A session entry added after the switch (freestyle, or a routine added later) takes the step too.
   const unitChoice = exUnitChoice(S, entry.id)
   useEffect(() => {
     if (unitChoice && !(entry.target?.inc > 0)) update(s => { const e = s.active?.entries[entryIdx]; if (e) e.target = { ...(e.target || {}), inc: unitChoice.inc } })
   }, [unitChoice?.inc, entry.target?.inc])
 
-  // D8: everything about the exercise that is not a set lives behind ⋮ — Hevy's five items first,
-  // then what openGym adds (progression included), Remove last.
   const ownRest = entry.target?.restSec > 0 ? entry.target.restSec : 0
   const restText = restTimerText(ownRest, S.restSec, t('Off'))
   const plateLoading = !editing
-  const openMore = () => menuSheet({
-    title: exerciseNameFor(ex),
-    titleClass: exerciseNameClass(ex),
-    sections: [
-      { items: [
-        onMoveUp && { icon: 'chevronUp', label: t('Move up'), onClick: onMoveUp, disabled: busy || !canMoveUp },
-        onMoveDown && { icon: 'chevronDown', label: t('Move down'), onClick: onMoveDown, disabled: busy || !canMoveDown },
-        onSwap && { icon: 'swap', label: t('Replace exercise'), onClick: onSwap, disabled: busy },
-        !superset && onPairPrev && { icon: 'link', label: t('Make superset with previous'), onClick: onPairPrev },
-        !superset && onPairNext && { icon: 'link', label: t('Make superset with next'), onClick: onPairNext },
-        superset && onUnpair && { icon: 'link', label: t('Unpair'), onClick: onUnpair },
-        { icon: 'sunrise', label: t('Add warm-up set'), onClick: onAddWarmup },
-      ] },
-      { items: [
-        onProgressionSettings && { icon: 'slider', label: t('Exercise settings'),
-          sub: guidance ? t(guidance.policyLabel) + ' · ' + t(...guidance.why) : t('Sets, reps, rest, progression'),
-          onClick: onProgressionSettings },
-        onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => onNoProg(entry.noProg !== true) },
-        plateLoading && modeOf(cfg) === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
-        // Any exercise can carry a label (D28), not only a machine, whose line is always there.
-        !hasLabel(S, S.active, entryIdx) && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(entryIdx) },
-        routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: routineUpdate.sub, onClick: routineUpdate.run },
-        perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
-          onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [
-            { label: t('Left first'), on: first === 'L', onClick: () => update(s => { setSideOrder(s, entry.id, false) }) },
-            { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
-          ] }] }) },
-        mode === 'reps' && !bw && { icon: 'ruler', label: t('Weight unit'),
-          sub: convertsUnit ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice?.step)) : t('{0}, as the profile', unit),
-          onClick: unitSheet },
-        { icon: 'history', label: t('History'), sub: last ? t('Last time') + ' ' + fmtDate(last.d) : undefined, onClick: () => exerciseHistorySheet(entry.id) },
-        { icon: 'info', label: t('How to do it'), onClick: () => exerciseDetailSheet(ex) },
-      ] },
-      { items: [
-        onRemoveExercise && { icon: 'xmark', label: t('Remove exercise'), danger: true, disabled: busy, onClick: onRemoveExercise },
-      ] },
-    ],
-  })
+  // D8: the ⋮ menu (exercise-menus.js).
+  const openMore = () => exerciseMenu(props, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
+    unitChoice, guidance, last, plateLoading, hasLabel: hasLabel(S, S.active, entryIdx) })
 
   // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes;
   // only with During a workout → Plates to load on (D84).
   const loadKind = plateLoading && plateLineOn(S) && mode === 'reps' ? loadKindFor(S, cfg) : 'none'
-  const loads = loadKind === 'none' ? [] : (() => {
-    const inv = inventoryFor(S), base = baseWeightFor(S, entry.id)
-    return entry.sets.map(s => {
-      if (!(perSide && isSideSet(s))) return rowLoad(loadKind, s.w, base, inv)
-      const L = s.sides.L?.w || 0, R = s.sides.R?.w || 0
-      return L && R && L !== R ? null : rowLoad(loadKind, L || R, base, inv)
-    })
-  })()
+  const loads = loadKind === 'none' ? [] : setLoads(loadKind, entry.sets, { perSide, base: baseWeightFor(S, entry.id), inv: inventoryFor(S) })
   const plateLine = i => {
-    const L = loads[i]
+    const L = plateLineAt(loads, i)
     if (!L) return null
-    let p = i - 1
-    while (p >= 0 && !loads[p]) p--
-    if (p >= 0 && sameLoad(loads[p], L)) return null
     const stack = L.plates.map(w => fmtPlate(w)).join(' + ')
     return <div className="hv-plates"><Icon name="plate" />
       <span>{L.barOnly ? t('Bar only') : L.kind === 'pairs' ? t('{0} per side', stack || '–') : t('Load {0}', stack || '–')}</span>
@@ -455,10 +361,8 @@ export default function HevyExerciseBlock({
         t('{0} is over twice this set’s time, {1}.', elapsedClock(ran), elapsedClock(ref)), elapsedClock(ran), () => stopTimer(i))
     }
     if (src && !src.done && modeAt(s) === 'reps') {
-      const lastRow = !p || isWarmupRow(s) || isWarmupRow(p) || isHoldRow(p) ? null
-        : side ? p.sides?.[side] : isSideSet(p) ? null : p
       const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id),
-        { unit, last: lastRow, assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
+        { unit, last: lastRowOf(s, p, side), assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
       if (odd.length) {
         const shown = o => (o.f === 'w' ? fmtNum(showWeight(o.typed)) + ' ' + exUnit : t('{0} reps', o.typed))
         const of = o => (o.f === 'w' ? fmtNum(showWeight(o.best)) + ' ' + exUnit : t('{0} reps', o.best))
@@ -573,27 +477,4 @@ export default function HevyExerciseBlock({
     </div>)}
     <button type="button" className="hv-addset" onClick={onAddSet}><Icon name="plus" />{t('Add Set')}</button>
   </div>
-}
-
-// A set's drops and rest-pause bursts (or one side's), indented under it as Hevy's `D` rows. `edit`
-// changes the set row, `show` and `store` turn a stored weight into the exercise's unit and back.
-function SubRows({ src, side, show, store, edit }) {
-  return <>
-    {dropsOf(src).map((d, di) => <div key={'d' + di} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
-      <span className="hv-set"><span className="hv-d">D</span></span><span />
-      <NumberField decimal className="hv-num" value={show(d.w) ?? ''} aria-label={t('Drop {0}', di + 1)}
-        onChange={v => edit(row => withDropField(row, di, 'w', store(v), side))} />
-      <NumberField decimal={false} className="hv-num" value={d.r ?? ''} aria-label={t('Reps')}
-        onChange={v => edit(row => withDropField(row, di, 'r', v, side))} />
-      <button type="button" className="iconbtn hv-x" aria-label={t('Remove drop')} onClick={() => edit(row => withoutDrop(row, di))}>
-        <Icon name="xmark" /></button>
-    </div>)}
-    {clustersOf(src).map((c, ci) => <div key={'c' + ci} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
-      <span className="hv-set"><span className="hv-d">+</span></span><span className="hv-prev">{c.restSec}s</span><span />
-      <NumberField decimal={false} className="hv-num" value={c.r ?? ''} aria-label={t('Burst {0}', ci + 1)}
-        onChange={v => edit(row => withBurstReps(row, ci, v, side))} />
-      <button type="button" className="iconbtn hv-x" aria-label={t('Remove burst')} onClick={() => edit(row => withoutBurst(row, ci))}>
-        <Icon name="xmark" /></button>
-    </div>)}
-  </>
 }
