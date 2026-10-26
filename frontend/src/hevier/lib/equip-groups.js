@@ -10,7 +10,7 @@ export const EQUIP_GROUPS = [
   { id: 'machine', label: 'Machines', kinds: ['leverage machine', 'smith machine', 'sled machine', 'assisted'] },
   { id: 'cable', label: 'Cables', kinds: ['cable'] },
   { id: 'band', label: 'Bands', kinds: ['band', 'resistance band'] },
-  { id: 'ball', label: 'Balls & rollers', kinds: ['stability ball', 'bosu ball', 'roller', 'wheel roller'] },
+  { id: 'ball', label: 'Balls & rollers', kinds: ['stability ball', 'bosu ball', 'roller', 'wheel roller', 'massage ball'] },
   { id: 'cardio', label: 'Cardio machines', kinds: ['stationary bike', 'elliptical machine', 'skierg machine', 'stepmill machine', 'upper body ergometer'] },
   // The accessories a gym ticks (upstream's ACCESSORIES): no exercise names them as its equipment.
   { id: 'acc', label: 'Bench & bar', kinds: ['bench', 'pull-up bar'] },

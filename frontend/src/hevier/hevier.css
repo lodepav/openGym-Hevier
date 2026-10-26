@@ -757,3 +757,14 @@
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
+/* Plain stand-ins where color-mix() is missing (Safari before 16.2; upstream's color-mix-fallback test) */
+@supports not (color: color-mix(in srgb, red 50%, blue)){
+:root[data-ui="hevier"] .hv-row.done{background:var(--surface-2)}
+:root[data-ui="hevier"] .hm-fatigue .bm-m.l1{fill:var(--acc);fill-opacity:.32}
+:root[data-ui="hevier"] .hm-fatigue .bm-m.l2{fill:var(--acc);fill-opacity:.56}
+:root[data-ui="hevier"] .hm-fatigue .bm-m.l3{fill:var(--acc);fill-opacity:.78}
+:root[data-ui="hevier"] .hm-fatigue .hm-c.l1{background:var(--surface-3)}
+:root[data-ui="hevier"] .hm-fatigue .hm-c.l2{background:var(--acc)}
+:root[data-ui="hevier"] .hm-fatigue .hm-c.l3{background:var(--acc)}
+:root[data-ui="hevier"] .hv-eqg-chip .hv-eqg-x{border-inline-start:1px solid var(--sep)}
+}

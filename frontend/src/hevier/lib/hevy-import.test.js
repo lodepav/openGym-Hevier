@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { FIXES, splitBrand, splitCable, bareBrand, oneLimbOf, importHooks, importWeight, readKey, upstreamMatch } from './hevy-import.js'
+import { FIXES, splitBrand, splitCable, bareBrand, oneLimbOf, importHooks, readKey, upstreamMatch } from './hevy-import.js'
 import { workoutVolume } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -177,31 +177,7 @@ describe('hevier Hevy import (D29)', () => {
   it('changes nothing with the hooks empty, as in upstream\'s build', () => {
     Object.assign(hooks, { importExercise: null, importDone: null })
     const p = parseImport(csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)]), { unit: 'kg', customEx: [] })
-    expect(entriesOf(p)[0].id).toBe('0586')
-  })
-})
-
-describe('hevier import weights to the hundredth (D40)', () => {
-  beforeEach(() => { hooks.importWeight = importWeight })
-  afterEach(() => { hooks.importWeight = null })
-  const ws = p => entriesOf(p).flatMap(e => e.sets.map(s => s.w))
-  const api = w => [{ id: 'w1', title: 'Push', start_time: '2026-10-14T16:27:00Z', end_time: '2026-10-14T17:40:00Z',
-    exercises: [{ exercise_template_id: 'D04AC939', title: 'Bench Press (Barbell)', sets: [{ type: 'normal', weight_kg: w, reps: 5 }] }] }]
-
-  it('keeps the Hevy API\'s hundredths, in kg and converted to lb', () => {
-    expect(ws(parseHevyWorkouts(api(20.41), [], { unit: 'kg' }))).toEqual([20.41])
-    expect(ws(parseHevyWorkouts(api(20.411845), [], { unit: 'kg' }))).toEqual([20.41])
-    expect(ws(parseHevyWorkouts(api(20.41165665), [], { unit: 'lb' }))).toEqual([45])
-    expect(parseHevyBodyweight([{ date: '2026-10-14', weight_kg: 80.37 }]).bodyweight[0].w).toBe(80.37)
-  })
-
-  it('keeps a CSV weight\'s hundredths, converted or not; without the hook upstream rounds to tenths', () => {
-    const lb = csv([row('Squat (Barbell)', 0, 'normal', 45, 5)]).replace('weight_kg', 'weight_lbs')
-    expect(ws(parseImport(csv([row('Squat (Barbell)', 0, 'normal', 20.41, 5)]), { unit: 'kg' }))).toEqual([20.41])
-    expect(ws(parseImport(lb, { unit: 'kg' }))).toEqual([20.41])
-    hooks.importWeight = null
-    expect(ws(parseImport(lb, { unit: 'kg' }))).toEqual([20.4])
-    expect(ws(parseHevyWorkouts(api(20.41), [], { unit: 'kg' }))).toEqual([20.4])
+    expect(entriesOf(p)[0].id).toBe('0599')
   })
 })
 

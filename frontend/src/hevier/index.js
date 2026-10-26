@@ -5,7 +5,7 @@ import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
 import { hooks, installFinishHook } from './hooks.js'
-import { importHooks, importWeight } from './lib/hevy-import.js'
+import { importHooks } from './lib/hevy-import.js'
 import { choicesFor, keep } from './lib/import-review.js'
 import { ReviewRow } from './components/ImportReview.jsx'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
@@ -33,7 +33,6 @@ import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders
 import { holdMode } from './lib/hold-mode.js'
 import { rowMode } from './lib/hold-set.js'
 import { sideConfig, sideOff, initSideRoutines } from './lib/one-limb.js'
-import { restOpen, restFooter } from './lib/rest-default.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
@@ -65,8 +64,6 @@ function install() {
   installFinishHook(nav)
   hooks.sheetState = sheetState                          // a page opened from a sheet keeps its back (S47)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
-  hooks.durationOpen = o => restOpen(o, state().restSec)     // an exercise's rest wheel opens on the default (S33, D56)
-  hooks.restFooter = text => restFooter(text, state().restSec)  // and the settings page's line says so (S42, D56)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideConfig(state(), id)          // a single-leg calf raise starts per side (S32, D75)
   hooks.sideOff = id => sideOff(state(), id)                 // and per side switched off stays off
@@ -90,12 +87,11 @@ function install() {
   hooks.muscleChips = muscleChips
 
   // Imports: the fork's matches, one-limb sets and brand labels (S19, D29), with the user's own
-  // choices from the review (S23, D33); each weight's hundredths (S25, D40); Hevy's routine
+  // choices from the review (S23, D33); Hevy's routine
   // folders (S20, D30) and the rest of what its API holds (S21, D31). Notes an earlier Hevy CSV
   // import left with `\n` get their line breaks back (D54).
   Object.assign(hooks, importHooks(() => choicesFor(state())))
   hooks.importReview = { keep, Row: ReviewRow }
-  hooks.importWeight = importWeight
   hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
   hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
   initNoteFix(store)

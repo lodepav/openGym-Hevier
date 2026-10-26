@@ -31,7 +31,7 @@ describe('holdMode (D55)', () => {
 describe('defaultConfig with the hook (S32)', () => {
   afterEach(() => { hooks.defaultMode = null })
   it('is upstream\'s with the hook empty', () => {
-    expect(defaultConfig('0463').mode).toBe('reps')
+    expect(defaultConfig('0463').mode).toBe('time')   // upstream's isHold since 1.4.3 (#694)
   })
   it('starts a hold as a timed one, and an explicit mode still wins', () => {
     hooks.defaultMode = id => holdMode(S([]), id)

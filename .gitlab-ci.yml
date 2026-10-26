@@ -45,8 +45,8 @@ stages:
   - maintenance
 
 variables:
-  # node:22-alpine in web/Dockerfile and api/Dockerfile — CI must match production.
-  NODE_IMAGE: "node:22-alpine"
+  # node:22.23.4-alpine in web/Dockerfile and api/Dockerfile — CI must match production.
+  NODE_IMAGE: "node:22.23.4-alpine"
   DOCKER_IMAGE: "docker:28-cli"
   DOCKER_DIND_IMAGE: "docker:28-dind"
   TRIVY_IMAGE: "aquasec/trivy:0.74.0"
@@ -202,9 +202,13 @@ test:mcp:
     key:
       files:
         - mcp/package-lock.json
+        - api/package-lock.json
     paths:
       - mcp/.npm
   script:
+    # log_workout's end-to-end test drives the real api/server.js: the api's dependencies too
+    # (as test:api installs them), or that test fails here rather than skipping.
+    - (cd api && npm ci --cache ../mcp/.npm --prefer-offline --omit=optional)
     - cd mcp
     - npm ci --cache .npm --prefer-offline --ignore-scripts
     - npx vitest run
