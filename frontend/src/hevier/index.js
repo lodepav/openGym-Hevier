@@ -25,7 +25,6 @@ import { initGymBackups } from './lib/gym-backups-run.js'
 import { initLabelRefill } from './lib/label-refill-run.js'
 import { aliasHooks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
-import { chartTicks } from './lib/chart-ticks.js'
 import { initNoteFix } from './lib/note-text.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
@@ -51,11 +50,9 @@ function install() {
   // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
   document.documentElement.dataset.ui = 'hevier'
 
-  // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39); chart labels
-  // never repeat (S30).
+  // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39).
   applyForkIcons()
   applyForkName()
-  hooks.chartTicks = chartTicks
   Object.assign(hooks, aliasHooks(state))                 // an exercise's other names, one shown as its name (S41, D73)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
