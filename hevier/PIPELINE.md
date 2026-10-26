@@ -238,7 +238,31 @@ session carries weight with progression off · #542 any plate weight · #604 glo
 #567, #566, #480 planner and API tokens · #643, #588, #492 and others: Coach (off in the fork, D11) ·
 #435 Apple Watch, #314, #310, #326 MCP · locale PRs (take upstream, rule C).
 
-## Other forks (2026-10-17, rescanned 2026-10-21)
+## Other forks (2026-10-17, rescanned 2026-10-21 and 2026-10-26)
+
+**Rescan 2026-10-26:** 1,869 forks; 387 pushed since 2026-10-21, 109 of them ahead of upstream's
+main, with ~950 commits of their own since then. Again mostly deployments (Passenger, Workers,
+GitHub Pages), rebrands, health hubs, habits, water and drinks, friends and social, liquid-glass
+themes, Coach, remote MCP over OAuth (four forks: upstream's 1.4.5 plans its own) and a Go
+backend. What touches the fork:
+
+| Fork · commit | What | Fork item |
+|---|---|---|
+| nicosagasti/openGym `092355060` (on `12b7504fd`, its own D35) | "A backup used today is not a change": a swap to one of the slot's planned backups doesn't ask to update the routine, and Update leaves that slot as it was | **Check D35 against D45 / D46 / D86:** `routine-update.js` knows nothing of backups, so a gym's swap (D46, D86) or a backup picked from ⋮ likely counts as "1 swapped" and Update would replace the slot for good. Not yet checked on the device |
+| nicosagasti/openGym `bf46aaa46` | The workout screen no longer re-renders on every rest tick (it took all of `useUI`) | Not needed: `HevyWorkout` already selects only `s.timer` |
+| michaelportale/openGym `11f4d4193` | Share your week as an image card, from the workout share card's layout | Near D87 (workout and monthly report cards): a week card is a small step if wanted |
+| michaelportale/openGym `3d6ea904b`, `243…` (streak fixes) | A rotation streak counting sessions, with rest passes and **pauses** (a holiday doesn't break it) | Near D59, whose one week off does the same without a pause button: nothing to take |
+| michaelportale/openGym `80a7fb5dc` | The rest countdown as a ring beside the clock, pulsing at Ready | D10 / D70's rest bar is Hevy's: not taken |
+| michaelportale/openGym (a11y) | Workout sheets keyboard-accessible, text zoom allowed, 4.5:1 small text | UX STANDARDS' A rules already cover these: a lens for the next UX round |
+| omer-go/openGym `b31af9fad`, `5a1fda6de` | A short quiet rest sound as the default, no 3-2-1 before the end | Upstream's rest alert: nothing to take |
+| omer-go/openGym (catalogue, stats) | More muscle roles (arms, legs, core), movement patterns and one-sided flags; muscle balance by group | Still **near D74 / D64** and #788, which is now in 1.4.4 |
+| omer-go/openGym, orbenda83/openGym `540…`, `543…` | Holds timed, one-sided lifts per side; completed and routine exercises first in the library | Done as D55 / D75 (upstream 1.4.3); a "recent first" picker order is an idea, not Hevy's (Hevy sorts by name) |
+| tibi-iorga/openGym, WostPT/PerForm, Kinau-Guatemala/openGym | Health Connect: daily steps, runs, walks and rides read in; weigh-ins with their time and a 7-day average | Beyond D27; upstream 1.4.3 brings the weekly rate. Nothing to take |
+| Hugo-Mllr/Biscotos | Programs: routines grouped under a name (PPL) | Done as D13's folders; upstream 1.4.4's Programmes too |
+| DylanQ/openGym | Fitbod-style display names over the catalogue | Done as D73's shown name |
+| edoardo-rva/openGym | Routine overview, failure-set controls | Done as D37 and D5's F sets |
+| rplusautomation/openGym | The rest's end buzzes a strap instead of a push | Near D79; standard heart-rate straps can't buzz, nothing to take |
+| czepter/openGym, NicolaiGoon/openGym | Jefit import | Not Hevy: upstream's importer |
 
 **Rescan 2026-10-21:** 1,623 forks; 296 pushed since the last scan, 82 of them ahead of upstream's
 main. Most are again deployments, rebrands, iOS build workflows, nutrition, social or Coach work.
