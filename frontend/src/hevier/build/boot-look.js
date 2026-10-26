@@ -3,6 +3,8 @@
 // Hevy blue on AMOLED black (D17), without editing index.html. A style before upstream's, with a
 // stronger selector, so upstream's own rules and animation are untouched.
 export const BOOT_STYLE = 'html #boot{background:#000}html #boot .db{fill:#008cff}html #boot ellipse{fill:#008cff}'
+  // upstream 1.4.3's boot watchdog: the Reload button on a boot that never finished, the fork's primary button
+  + 'html #boot.fail button{background:#008cff;color:#fff}'
 
 /** Vite plugin, on only in the fork's build (seam S45 in vite.config.js). */
 export const bootLook = on => ({
