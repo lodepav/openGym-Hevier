@@ -26,6 +26,7 @@ import { initLabelRefill } from './lib/label-refill-run.js'
 import { aliasHooks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
+import { initSeasonsOff } from './lib/seasons-off.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -50,15 +51,18 @@ function install() {
   // hevier.css only matches under :root[data-ui="hevier"], so with the flag off it styles nothing.
   document.documentElement.dataset.ui = 'hevier'
 
-  // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39).
+  // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39); no seasonal
+  // themes (D17).
   applyForkIcons()
   applyForkName()
+  initSeasonsOff(store)
   Object.assign(hooks, aliasHooks(state))                 // an exercise's other names, one shown as its name (S41, D73)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
   installFinishHook(nav)
   hooks.sheetState = sheetState                          // a page opened from a sheet keeps its back (S47)
+  hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)

@@ -112,6 +112,22 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(hiddenSetting({ page: 'workout', title: 'Workout', isPage: true })).toBe(false)
   })
 
+  it('leaves out 1.4.3’s rows the fork has its own answer for, and the support section', () => {
+    render('look')
+    expect(titles()).not.toContain('Seasonal themes')
+    act(() => root.unmount()); container.remove()
+    render('about')
+    expect(titles()).not.toContain('Buy me a coffee')
+    expect(titles()).not.toContain('Ko-fi')
+    expect(container.textContent).not.toContain('Support openGym')
+    expect(hiddenSetting({ page: 'reminders', title: 'Gym reminder' })).toBe(true)
+    expect(hiddenSetting({ page: 'advanced', title: 'Planned sessions start from' })).toBe(true)
+    // The gym reminder's and the seasonal themes' pages, and every row on them, stay out of a search.
+    expect(hiddenSetting({ page: 'gym', title: 'Gym reminder', isPage: true })).toBe(true)
+    expect(hiddenSetting({ page: 'themes', title: 'Halloween' })).toBe(true)
+    expect(hiddenSetting({ page: 'look', title: 'Look & Home', isPage: true })).toBe(false)
+  })
+
   it('without the hook, upstream’s rows are all there', () => {
     hooks.settings = null
     render('workout')

@@ -20,18 +20,26 @@ export const SETTINGS_GROUPS = [
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
-  // One look (D17): no light theme, no accent choice. No gym check-in on Home (D12).
-  look: ['Theme', 'Accent color', 'Gym check-in'],
+  // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
+  look: ['Theme', 'Accent color', 'Gym check-in', 'Seasonal themes'],
   // The gym filter is the picker's (D62): no switch, no active profile here.
   equipment: ['Filter by equipment', 'Active profile'],
+  // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
-    'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise'],
+    'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise',
+    'Planned sessions start from', 'Muscle map at the top'],
+  // The fork's gyms are D47's.
+  reminders: ['Gym reminder'],
+  // No support rows: the section goes with them (2026-10-26, the user's choice).
+  about: ['Rate openGym on the App Store', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors'],
 }
+// Pages left out whole: not found by the search, nor any row on them.
+export const HIDDEN_PAGES = ['gym', 'themes']
 // A section whose footer speaks of rows that are gone loses the footer.
 const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.']
 
 /** Whether a settings search hit is a row the fork leaves out. */
-export const hiddenSetting = hit => !hit.isPage && (HIDDEN_ROWS[hit.page] || []).includes(hit.title)
+export const hiddenSetting = hit => HIDDEN_PAGES.includes(hit.page) || (!hit.isPage && (HIDDEN_ROWS[hit.page] || []).includes(hit.title))
 
 // A row's title: a Row's `title` prop, or the `.lrow-t` text of a hand-built `.lrow` (the accent row).
 function titleOf(node) {
