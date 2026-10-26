@@ -2,6 +2,14 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.1.2 · 2026-10-26
+
+Based on openGym 1.4.3.
+
+### From openGym
+
+- hevier: merge upstream v1.4.3
+
 ## 2.1.1 · 2026-10-26
 
 Based on openGym 1.4.2.
