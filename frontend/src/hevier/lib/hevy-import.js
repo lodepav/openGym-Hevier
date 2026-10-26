@@ -20,73 +20,20 @@ import { unescapeWorkout } from './note-text.js'
 // (hevier/upstream/hevy-map-fixes.md), and goes from here once upstream has it.
 export const FIXES = {
   // Each id is the catalogue entry with the animation Hevy's own thumbnail shows (its file name
-  // starts with that id), as offered upstream (hevier/upstream/hevy-map-fixes.md lists the four
-  // titles that are the user's own and stay here).
-  // upstream picks the wrong exercise
-  'seated leg curl (machine)': '0599',          // not the lying leg curl
+  // starts with that id). Only what upstream's 1.4.3 title map does not give the same way is
+  // left (hevier/upstream/hevy-map-fixes.md).
+  // upstream picks the wrong exercise, or the right one without per side
   'single leg extensions': { id: '7108', side: true },   // not the floor knee extension
-  'single arm cable row': { id: '7564', side: true },    // a horizontal row, not a high row
   'single arm cable row (cable)': { id: '7564', side: true },
-  'reverse grip lat pulldown (cable)': '0208',  // a cable, not the machine
-  'lat pulldown (machine)': '0579',             // not the reverse grip
-  'skullcrusher (dumbbell)': '0351',            // not the barbell
-  'romanian deadlift (smith machine)': '1597',  // not the barbell; no Smith RDL in the catalogue
-  'triceps dip': '0814',                        // body weight, not the lever machine
-  'triceps dip (weighted)': '1755',
-  'back extension (hyperextension)': '1860',    // the bench, not the lever machine
-  'back extension (weighted hyperextension)': '5035',
-  'seated overhead press (dumbbell)': '0290',   // not the barbell
-  'overhead press (barbell)': '1165',           // standing, not seated
-  'shoulder press (machine plates)': '0587',    // upstream's pick is a landmine press
-  'seated shoulder press (machine)': '1454',
-  'seated cable row - v grip (cable)': '2661',  // not the wide grip
-  'seated cable row - bar grip': '0180',
-  'triceps extension (dumbbell)': '0430',       // not the lever machine
-  'hanging knee raise': '9819',                 // knees, not straight legs
-  'ez bar biceps curl': '0447',                 // without an arm blaster
-  'plank': '0463',                              // not weighted
-  'crunch': '0274',                             // not weighted
-  'air bike': '3893',                           // the fan bike, not the crunch of that name
-  'walking': '2258',                            // not the walking lunge
   // upstream leaves these unmatched
-  'seated cable row - bar wide grip': '0218',
   'seated cable row - bar wide grip (cable)': '0218',
   'iso-lateral high row (machine)': { id: '0581', side: true },   // the user rows it one arm at a time
-  'iso-lateral low row': '4214',
-  'band pullaparts': '4568',
-  'triceps rope pushdown': '0200',
-  'triceps pressdown': '1605',
-  'straight arm lat pulldown (cable)': '0238',
-  'lying neck curls': '10780',
-  'single arm tricep extension (dumbbell)': '0362',
   'pull up (close neutral grip)': '0651',
-  'single leg standing calf raise': '5052',
-  'calf extension (machine)': '2315',
-  'iso-lateral chest press (machine)': '0576',
-  'triceps extension (cable)': '0149',
   'bulgarian split squat (smith machine)': '0768',
-  'standing leg curls': '4347',               // the machine, not the body-weight curl
-  'nordic hamstrings curls': '7746',
   'deficit push up': '1486',                  // push ups with handles: the hands raised, the chest sinks lower
-  'behind the back curl (cable)': { id: '4838', side: true },   // the cable unilateral curl, one arm at a time
   // Hevy's own picture, chosen by the user from their history's review; offered in #672,
   // but for the one-arm triceps extension, a custom exercise in the user's Hevy, not a Hevy title
-  'bent over row (dumbbell)': '0293',         // both arms, not one
-  'butterfly (pec deck)': '1030',
-  'chest dip (weighted)': '1755',             // no weighted chest dip in the catalogue: Hevy's, shared with Triceps Dip (Weighted)
-  'calf press (machine)': '0738',             // the 45° sled's calf press
-  'chest press (band)': '3780',               // standing
-  'face pull': '7744',
-  'lat pulldown (cable)': '0150',
-  'lat pulldown - close grip (cable)': '6392',
-  'preacher curl (dumbbell)': '0402',
-  'rear delt reverse fly (dumbbell)': '0380',
-  'single arm curl (cable)': { id: '0190', side: true },
   'single arm triceps extension (cable)': { id: '0149', side: true },
-  'sissy squat (weighted)': '0851',
-  'standing calf raise (smith)': '1164',
-  'triceps pushdown': '0201',
-  'upright row (barbell)': '0121',
   // Hevy's own picture, the user's choice: upstream left the title out as a wrong
   // match, so it imported as your own; #672 maps it the same way
   'rear delt reverse fly (cable)': '0225',   // standing, high cables crossing

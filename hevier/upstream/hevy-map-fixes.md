@@ -7,10 +7,13 @@ exercise, 14 it left unmatched. It also caches the CSV import's matches by exact
 `Triceps Dip` and `Triceps Dip (Weighted)` no longer share one. The pull request's description
 has the table, title by title, with the old id, the new one and Hevy's thumbnail.
 
-The fork carries the same ids in `FIXES` (`frontend/src/hevier/lib/hevy-import.js`, D29). Once
-upstream merges #672, delete those 40 rows there. Four rows stay, because they are the user's own
-titles, not Hevy's: `bulgarian split squat (smith machine)`, `deficit push up`,
-`pull up (close neutral grip)` and `seated cable row - bar wide grip (cable)`.
+The fork carried the same ids in `FIXES` (`frontend/src/hevier/lib/hevy-import.js`, D29). At the
+1.4.3 merge (2026-10-26) the 53 rows whose title upstream's `HEVY_TITLE_MAP` now gives the same
+exercise went; the export to Hevy (D34) reads that map where it read them. What stays: the user's
+own titles (`bulgarian split squat (smith machine)`, `deficit push up`,
+`pull up (close neutral grip)`, `seated cable row - bar wide grip (cable)`), the per-side rows
+upstream's map has no flag for, `rear delt reverse fly (cable)` (not in 1.4.3's map), and the 11
+rows from #793, which goes with a later release.
 
 ## Offered in #672 too: 15 more of Hevy's pictures
 

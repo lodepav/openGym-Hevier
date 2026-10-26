@@ -34,18 +34,19 @@ describe('hevier Hevy import (D29)', () => {
   })
 
   it('fixes what upstream matches wrongly, Hevy only', () => {
-    expect(importExercise('Seated Leg Curl (Machine)', 'Hevy')).toBe('0599')
-    expect(importExercise('Air Bike', 'Hevy')).toBe('3893')
+    expect(importExercise('Deficit Push Up', 'Hevy')).toBe('1486')
     expect(importExercise('Clamshell', 'Hevy')).toBe('2461')
-    expect(importExercise('Seated Leg Curl (Machine)', 'Strong')).toBe(null)
+    expect(importExercise('Deficit Push Up', 'Strong')).toBe(null)
     expect(importExercise('Squat (Barbell)', 'Hevy')).toBe(null)   // upstream's match stands
+    expect(importExercise('Seated Leg Curl (Machine)', 'Hevy')).toBe(null)   // upstream's map has the fix since 1.4.3
   })
 
   // The fix table's ids are checked against the catalogue above; these cases test the parsing
   // around a row (review 5.1), not the row itself.
   it('a fix row marked one arm at a time is per side; spacing before a bracket does not matter', () => {
     expect(readKey(importExercise('Behind the Back Curl (Cable)', 'Hevy'))).toEqual({ id: '4838', side: true, brand: '' })   // one arm at a time
-    expect(importExercise('Seated Cable Row - Bar Wide Grip', 'Hevy')).toBe('0218')
+    expect(importExercise('Pull Up (Close Neutral Grip)', 'Hevy')).toBe('0651')
+    expect(importExercise('Pull Up(Close Neutral Grip)', 'Hevy')).toBe('0651')
     expect(importExercise('Seated Cable Row - Bar Wide Grip(Cable)', 'Hevy')).toBe('0218')
     expect(importExercise('Seated Cable Row - Bar Wide Grip (Cable)', 'Hevy')).toBe('0218')
   })

@@ -8,7 +8,7 @@
 // the template ids in and leaves out the fields the template's type does not take.
 import { EXIDX, allExercises, canonicalExId, isAssisted, isBodyweightEq, isCardio } from '../../lib/exercises.js'
 import { HEVY_ID_MAP } from '../../lib/import-hevy.js'
-import { importId } from '../../lib/import-csv.js'
+import { importId, matchHevyTitle } from '../../lib/import-csv.js'
 import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../../lib/workout-model.js'
 import { isPerSide } from '../../lib/history.js'
 import { routineRows } from './routine-table.js'
@@ -233,7 +233,8 @@ export function templateFinder(templates, S) {
   })
   for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy', own)]; if (v && v !== 'custom') put(canonicalExId(v), t) }
   for (const t of list) {
-    const f = FIXES[String(t.title || '').toLowerCase().trim()]
+    // The fix table, else upstream's Hevy title map (since 1.4.3 it holds what the table had).
+    const f = FIXES[String(t.title || '').toLowerCase().trim()] || matchHevyTitle(t.title)
     if (f) put(canonicalExId(typeof f === 'string' ? f : f.id), t)
   }
   for (const t of list) put(importId('im', 'Hevy|' + t.id), t)
