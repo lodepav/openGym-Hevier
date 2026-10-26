@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, planTitle, routineKind } from './calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, planTitle } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -68,7 +68,6 @@ describe('hevier: calendar kinds and titles', () => {
     ]
     S.week = { 1: ['push'], 2: ['run'], 3: ['run', 'push'], 6: ['dl'] }   // 2026-10-19 is a Monday
     const today = '2026-10-19'
-    expect(routineKind(S.routines[1])).toBe('cardio')
     expect(planKind(S, '2026-10-19', {}, today)).toBe('strength')
     expect(planKind(S, '2026-10-20', {}, today)).toBe('cardio')
     expect(planKind(S, '2026-10-21', {}, today)).toBe('strength')

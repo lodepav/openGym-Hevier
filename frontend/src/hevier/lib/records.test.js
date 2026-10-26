@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB, EXIDX, isAssisted, isCardio } from '../../lib/exercises.js'
-import { workoutRecords, recordsIn, liveRecords, recordsAt, recordValue } from './records.js'
+import { workoutRecords, liveRecords, recordsAt, recordValue } from './records.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const PULLUP = '0652'     // pull-up
@@ -137,13 +137,6 @@ describe('hevier personal records (D51)', () => {
     const S = { workouts: [a, b, c] }
     expect(workoutRecords(S, b).map(r => [r.kind, r.set, r.v])).toEqual([['min', -1, 25]])
     expect(workoutRecords(S, c)).toEqual([])
-  })
-
-  it('lists a month’s records with their workouts', () => {
-    const a = wk(1, [{ id: BENCH, sets: [s(80)] }])
-    const b = wk(2, [{ id: BENCH, sets: [s(90)] }])
-    const S = { workouts: [a, b] }
-    expect(recordsIn(S, [a, b]).map(r => [r.w.id, r.kind])).toEqual([[b.id, 'weight'], [b.id, 'e1rm'], [b.id, 'setVol'], [b.id, 'sessionVol']])
   })
 
   describe('live (D22)', () => {

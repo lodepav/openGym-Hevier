@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { bestsFor, oddValues, longRun } from './odd-value.js'
+import { bestsFor, oddValues, longRun, lastRowOf } from './odd-value.js'
 import { makeSideSet } from '../../lib/workout-model.js'
 
 const S = { workouts: [
@@ -44,5 +44,17 @@ describe('hevier: a mistyped weight or rep count (D90)', () => {
     expect(longRun(12 * 60, 5 * 60, 0)).toBe(0)        // over twice, but under 10 minutes more
     expect(longRun(50 * 60, 30 * 60, 0)).toBe(0)
     expect(longRun(5 * 3600, 0, 0)).toBe(0)
+  })
+
+  it('reads a set against last time’s same kind of set, a side against its own side', () => {
+    const last = { w: 60, r: 8 }
+    const sides = makeSideSet({ w: 24, r: 22 })
+    expect(lastRowOf({ w: 6, r: 8 }, last)).toBe(last)
+    expect(lastRowOf({ w: 6, r: 8 }, null)).toBeNull()
+    expect(lastRowOf({ w: 6, r: 8, phase: 'warmup' }, last)).toBeNull()
+    expect(lastRowOf({ w: 6, r: 8 }, { ...last, phase: 'warmup' })).toBeNull()
+    expect(lastRowOf({ w: 6, r: 8 }, { mode: 'time', sec: 45, w: 0 })).toBeNull()
+    expect(lastRowOf({ w: 6, r: 8 }, sides)).toBeNull()
+    expect(lastRowOf(sides, sides, 'R')).toBe(sides.sides.R)
   })
 })
