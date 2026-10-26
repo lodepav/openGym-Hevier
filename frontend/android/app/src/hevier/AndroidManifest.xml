@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- [hevier] The fork's manifest overlay (seam S7, hevier/DECISIONS.md D24): hevier.gradle makes it
      the debug and release source sets' manifest, and the manifest merger folds it into upstream's
-     src/main one. It locks the app to portrait (D24), asks for the two Health Connect read
-     permissions, each requested only when its switch is turned on (D27), declares the home-screen
-     month widget, which needs no permission (D44), and asks for the location permissions "Find
-     gyms nearby" requests on its first tap, while the app is open (D47). Upstream's v1.4.3
-     declares the same Health Connect and location permissions; the merger keeps one of each.
+     src/main one. It locks the app to portrait (D24) and declares the home-screen month widget,
+     which needs no permission (D44). "Find gyms nearby" (D47) uses the location permissions
+     upstream's manifest declares for its gym reminder, asked for on its first tap, app open.
      For a Bluetooth heart-rate strap (D79) it asks for Nearby devices, scanning declared not for
      location (Android 12 on; before, the scan needs the location already asked for), and declares
      the foreground service that records the strap while a workout runs.
@@ -36,10 +34,6 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
     </application>
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
-    <uses-permission android:name="android.permission.health.READ_WEIGHT" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />

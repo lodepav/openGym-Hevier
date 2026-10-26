@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // Heart rate and weigh-ins read from Health Connect (hevier/DECISIONS.md D27): what the screens do
-// with them. The reading itself is tested in hevier/lib/health-read*.test.js.
+// with them. The reading itself is upstream's (lib/health-sync.js, since v1.4.3).
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
@@ -15,17 +15,8 @@ import { insertBeforeSection } from '../lib/settings.js'
 import { hevierRoutes } from '../routes.jsx'
 import { DETAIL_PATH } from './WorkoutDetail.jsx'
 
-const rs = vi.hoisted(() => ({ status: 'available', h: { readHr: false, readWeight: false, readError: null }, calls: [] }))
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
-vi.mock('../lib/health-read-sync.js', () => ({
-  readStatus: async () => ({ status: rs.status, read: {} }),
-  loadRead: async () => rs.h,
-  onReadChange: () => () => {},
-  enableRead: async kind => { rs.calls.push(['on', kind]); rs.h = { ...rs.h, [kind === 'hr' ? 'readHr' : 'readWeight']: true }; return { ok: true, health: rs.h } },
-  disableRead: async kind => { rs.calls.push(['off', kind]); rs.h = { ...rs.h, [kind === 'hr' ? 'readHr' : 'readWeight']: false }; return rs.h },
-}))
-const { default: HealthReadSection } = await import('../components/HealthReadSection.jsx')
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -43,7 +34,6 @@ const withState = edit => { const S = clone(DEF); edit(S); useStore.setState({ S
 
 beforeEach(() => {
   useUI.setState({ sheets: [], toastMsg: '' })
-  rs.status = 'available'; rs.h = { readHr: false, readWeight: false, readError: null }; rs.calls = []
 })
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
@@ -69,30 +59,12 @@ describe('hevier: Health Connect reads (D27)', () => {
     expect(container.querySelector('.hv-wd-hr')).toBeNull()
   })
 
-  it('typing over an imported weigh-in makes it a typed one (upstream v1.4.3’s rule, backported)', async () => {
+  it('typing over an imported weigh-in makes it a typed one (upstream’s rule)', async () => {
     withState(S => { S.bodyweight = [{ d: todayISO(), w: 80, t: 1, src: 'hc' }] })
     bwSheet()
     await mount(useUI.getState().sheets.at(-1).render(() => {}))
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Save').click())
     expect(useStore.getState().S.bodyweight).toEqual([{ d: todayISO(), w: 80, t: expect.any(Number) }])
-  })
-
-  it('the two switches turn each read on and off', async () => {
-    await mount(<HealthReadSection />)
-    const sw = label => container.querySelector(`[aria-label="${label}"]`)
-    expect(sw('Heart rate from your watch').getAttribute('aria-checked')).toBe('false')
-    await act(async () => sw('Weigh-ins from other apps').click())
-    expect(rs.calls).toEqual([['on', 'weight']])
-    expect(sw('Weigh-ins from other apps').getAttribute('aria-checked')).toBe('true')
-    expect(container.textContent).toContain('weigh-ins of the last 30 days')
-    await act(async () => sw('Weigh-ins from other apps').click())
-    expect(rs.calls.at(-1)).toEqual(['off', 'weight'])
-  })
-
-  it('shows nothing where Health Connect cannot be used', async () => {
-    rs.status = 'unsupported'
-    await mount(<HealthReadSection />)
-    expect(container.textContent).toBe('')
   })
 
   it('goes in right before upstream’s “Bring data in” section', () => {

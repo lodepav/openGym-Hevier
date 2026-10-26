@@ -17,8 +17,9 @@ android.permission.FOREGROUND_SERVICE_SPECIAL_USE # upstream's RestTimerService 
 android.permission.USE_BIOMETRIC              # upstream 1.4.2 DeviceAuthPlugin: the phone's own lock confirms deleting the account; no prompt
 android.permission.health.WRITE_EXERCISE         # upstream: finished workouts to Health Connect, when switched on
 android.permission.health.WRITE_WEIGHT           # upstream: weigh-ins to Health Connect, when switched on
-android.permission.health.READ_HEART_RATE        # the fork's heart-rate read (D27), when switched on
-android.permission.health.READ_WEIGHT            # the fork's weigh-in read (D27), when switched on
+android.permission.health.READ_HEART_RATE        # upstream's heart-rate read (1.4.3, D27), when switched on
+android.permission.health.READ_WEIGHT            # upstream's weigh-in read (1.4.3, D27), when switched on
+android.permission.health.READ_HEALTH_DATA_HISTORY # its first weigh-in read a year back (#801, D27)
 android.permission.ACCESS_COARSE_LOCATION        # the gym picker's "Find gyms nearby" (D47): one position, on that tap, app open
 android.permission.ACCESS_FINE_LOCATION          # the same (D47); Android asks for both together and the user may grant approximate only
 android.permission.BLUETOOTH_SCAN               # the heart-rate strap (D79): finds straps on a tap in Settings, declared neverForLocation

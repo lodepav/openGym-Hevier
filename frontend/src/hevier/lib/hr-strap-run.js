@@ -11,7 +11,7 @@ export const STRAP_FILE = 'hevier-hr-strap.json'
 
 // `{ H }`, or null off Android. Wrapped in an object, and unwrapped only after the await: a
 // Capacitor plugin proxy answers `then`, so a promise resolving to it would call it (as in
-// health-read-sync.js).
+// upstream's lib/health-sync.js).
 let pluginP = null
 export async function plugin() {
   if (!MOBILE || !(await isAndroid())) return null

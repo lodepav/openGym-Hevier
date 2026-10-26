@@ -1,4 +1,4 @@
-// [hevier] The heart-rate strap on Settings → Data & backup (hevier/DECISIONS.md D79), under D27's
+// [hevier] The heart-rate strap on Settings → Data & backup (hevier/DECISIONS.md D79), under upstream's
 // Health Connect reads: pick a Bluetooth strap once, and every workout records it live. Android
 // only; a phone without Bluetooth LE shows nothing.
 import { useEffect, useState } from 'react'
@@ -9,7 +9,7 @@ import { plugin, loadStrap, saveStrap, onStrapChange, liveStrap, onLive, lastErr
 import { liveBpm } from '../lib/hr-strap.js'
 import { maxHr } from '../lib/hr-zones.js'
 import { zonesSheet } from './StrapScreen.jsx'
-import { readStatus, loadRead, onReadChange } from '../lib/health-read-sync.js'
+import { healthStatus, loadHealth, onHealthChange } from '../../lib/health-sync.js'
 import { useStore } from '../../store/useStore.js'
 
 const toast = msg => useUI.getState().toast(msg)
@@ -74,9 +74,9 @@ export default function StrapSection() {
   const [hc, setHc] = useState(false)
   useEffect(() => {
     let on = true
-    readStatus().then(x => { if (on) setHc(x?.status === 'available') }).catch(() => {})
-    loadRead().then(x => { if (on) setHcHr(!!x?.readHr) }).catch(() => {})
-    const c = onReadChange(x => on && setHcHr(!!x?.readHr))
+    healthStatus().then(x => { if (on) setHc(x?.status === 'available') }).catch(() => {})
+    loadHealth().then(x => { if (on) setHcHr(!!x?.readHr) }).catch(() => {})
+    const c = onHealthChange(x => on && setHcHr(!!x?.readHr))
     plugin().then(p => p?.H.status()).then(s => { if (on) setBt(s || { bluetooth: 'none' }) }).catch(() => on && setBt({ bluetooth: 'none' }))
     loadStrap().then(s => { if (on) setStrap(s) })
     const a = onStrapChange(s => on && setStrap(s))

@@ -7,7 +7,7 @@
 //
 // Pure: the native side (HevierHrStrapService.java) writes each notification as it came, one line
 // `<ms> <hex>` in a file per workout; this decodes them and decides what goes into the log.
-import { hrFromSamples } from './heart-rate.js'
+import { hrFromSamples } from '../../lib/heart-rate.js'
 import { stampWorkout } from '../../lib/sync-merge.js'
 
 const BPM_MIN = 25

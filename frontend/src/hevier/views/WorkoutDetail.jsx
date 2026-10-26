@@ -37,7 +37,7 @@ import { workoutTrends } from '../lib/set-trend.js'
 
 // A cable's setup shows when it is not the plain 1:1 (D43).
 const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
-import { sanitizeHr } from '../lib/heart-rate.js'
+import { sanitizeHr } from '../../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setNumberOf, isPairTail } from '../lib/hold-set.js'
 

@@ -6,7 +6,7 @@
 // row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious. The Volume row's sheet also
 // holds Muscle sets (D42): a set for its main muscle only, or a secondary muscle in part too, kept
 // in S.hvMuscleSets. Data & backup gets the
-// fork's Health Connect read switches (D27) under upstream's Health Connect card.
+// fork's heart-rate strap (D79) and export to Hevy (D34) before "Bring data in".
 import { t } from '../../lib/i18n.js'
 import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
@@ -21,7 +21,6 @@ import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
-import HealthReadSection from '../components/HealthReadSection.jsx'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 
@@ -107,9 +106,8 @@ export function installSettings() {
       if (id === 'about') return aboutPage(out, t)
       if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
       if (id !== 'data' || !MOBILE) return out
-      // D27's Health Connect reads, D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
+      // D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>
-        <HealthReadSection key="hv-health-read" />
         <StrapSection key="hv-hr-strap" />
         <HevyExportSection key="hv-hevy-export" />
       </>)

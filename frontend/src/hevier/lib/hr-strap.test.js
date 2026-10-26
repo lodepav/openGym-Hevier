@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { decodeHrm, plausible, parseRecording, recordable, mergeStrap, liveBpm } from './hr-strap.js'
-import { mergeHeartRate, lacksHeartRate } from './health-read.js'
+import { mergeHeartRate, lacksHeartRate } from '../../lib/health-read.js'
 
 const T0 = Date.UTC(2026, 9, 21, 15, 0, 0)
 const s = sec => T0 + sec * 1000

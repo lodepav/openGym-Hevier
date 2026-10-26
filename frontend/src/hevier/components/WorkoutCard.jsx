@@ -19,7 +19,7 @@ import MuscleLine from './MuscleLine.jsx'
 import { shareWorkoutSheet } from './ShareSheet.jsx'
 import { volumeMode, workSets } from '../lib/volume.js'
 import Icon from '../../components/Icon.jsx'
-import { sanitizeHr } from '../lib/heart-rate.js'
+import { sanitizeHr } from '../../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { workoutRecords } from '../lib/records.js'
 

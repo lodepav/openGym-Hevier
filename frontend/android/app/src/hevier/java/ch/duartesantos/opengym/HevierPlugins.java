@@ -9,8 +9,6 @@ final class HevierPlugins {
     private HevierPlugins() {}
 
     static void register(MainActivity activity) {
-        // Health Connect reads (D27), until upstream's v1.4.3.
-        activity.registerFlavorPlugin(HevierHealthReadPlugin.class);
         // The encrypted secret, the Hevy API key of the export to Hevy (D34).
         activity.registerFlavorPlugin(HevierSecretPlugin.class);
         // The home-screen month widget (D44).

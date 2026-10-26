@@ -1,8 +1,8 @@
-// Health Connect as the only source of weigh-ins (hevier/DECISIONS.md D32, seam S22): while D27's
+// Health Connect as the only source of weigh-ins (hevier/DECISIONS.md D32, seam S22): while upstream's
 // "Weigh-ins from other apps" read is on, no weigh-in is typed in. The read's state is on the phone
-// (health-read-sync.js), so this module keeps a copy that the screens can read at once.
+// (upstream's lib/health-sync.js), so this module keeps a copy that the screens can read at once.
 import { useSyncExternalStore } from 'react'
-import { loadRead, onReadChange } from './health-read-sync.js'
+import { loadHealth, onHealthChange } from '../../lib/health-sync.js'
 
 let on = false
 const subs = new Set()
@@ -14,7 +14,7 @@ const set = h => {
 }
 
 /** Starts following the read's switch. */
-export function initWeighInSource(load = loadRead, onChange = onReadChange) {
+export function initWeighInSource(load = loadHealth, onChange = onHealthChange) {
   onChange(set)
   return Promise.resolve(load()).then(set).catch(() => {})
 }
