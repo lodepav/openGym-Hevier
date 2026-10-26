@@ -63,9 +63,6 @@ export function dayKind(ws) {
   return kinds.has('deload') ? 'deload' : kinds.has('strength') ? 'strength' : kinds.size ? 'cardio' : ''
 }
 
-/** A routine's kind, read as a workout of its exercises would be (D68). */
-export const routineKind = r => workoutKind({ name: r?.name, note: r?.note, entries: r?.ex })
-
 /**
  * What a day's planned dot shows (D68): the kind of the routines planned on it, from `today` on, while it
  * is not trained; '' otherwise. A day of several takes deload over strength over cardio.

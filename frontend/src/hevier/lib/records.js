@@ -185,9 +185,6 @@ const walked = S => perS(walkedOf, S, () => {
 const NONE = Object.freeze([])
 export const workoutRecords = (S, w) => walked(S).byWorkout.get(keyOf(w)) || NONE
 
-/** The records set in `workouts` (a part of `S.workouts`), each with its workout as `w`. */
-export const recordsIn = (S, workouts) => list(workouts).flatMap(w => workoutRecords(S, w).map(r => ({ ...r, w })))
-
 // The bests a running session competes with: every saved workout, less the one being edited and
 // any after it. Kept as the walk is.
 let lastPrior = { sig: null, bests: null }
