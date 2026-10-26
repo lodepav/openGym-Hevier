@@ -43,6 +43,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The next set to do is highlighted | D71 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offer |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
+| A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Fork |
+| A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, the weight and rep checks; the cardio timer is the fork’s) |
 
 ## Routines
 
@@ -54,10 +56,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
-| Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
-| How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, the Workout Detail line and a Stats card, no gym or muscle grouping) |
-| A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Fork |
-| A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, the weight and rep checks; the cardio timer is the fork’s) |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814) |
 
 ## Gyms, machines and labels
@@ -96,9 +94,11 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer |
 | Monthly report | D23 | Offer |
 | Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Offer |
-| Exercises kept out of progression are kept out of the statistics too | D57 | Offered (#813) |
+| Exercises kept out of progression are kept out of the statistics too (a deload routine's still count) | D57 | Offered (#813) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Offer |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
+| How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, the Workout Detail line and a Stats card, no gym or muscle grouping) |
+| Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
 
 ## Home, navigation and look
 
