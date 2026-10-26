@@ -36,7 +36,17 @@ upstream's swipe back (iOS only, so it cannot meet D9 on Android); Skip complete
 `HIDDEN_ROWS` (D16); per-side warm-ups in the set-type sheet (D5); timed auto-advance is
 Cards/Focus only (D1, skipped); the Apple Watch settings page is iOS only (skipped); the build
 scripts build the `sideload` flavour; D45's port is gone; the boot screen is recoloured (D83). The
-1.4.2 rows below are done; the 1.4.3 ones are kept for that merge.
+1.4.2 rows below are done.
+
+**v1.4.3 merged** (2026-10-26, the tag, on `sync/v1.4.3`): D27's copy of the Health Connect reads
+is gone for upstream's (turn its two switches on again), and S18 with it; S25, S30, S31, S33 and
+S42 are gone, S32 is down to its hooks, S41 to its name half (D73's names are `S.exAliases` now),
+D29's map keeps only #793's 11 rows, D54 only the fix-up of earlier imports. Hidden (D16): Seasonal
+themes (and Halloween stored off), Planned sessions start from (D69 stays), Muscle map at the top,
+the Gym reminder, the support links and "I own no dumbbells" (seam S49). D21's Previous values is
+upstream's Last time means; the fork's volumes follow Count warm-ups in volume (D18); D5's sheet
+has Rest after this set and a cardio set's RPE. The 1.4.3 rows below are done but for the checks
+the emulator walk and the journeys answer.
 
 | Upstream item | Fork impact |
 |---|---|

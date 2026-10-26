@@ -20,7 +20,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The plate line under a set off by default, a switch in During a workout | D84 | Fork |
 | "Next time" on the finish summary only for a routine with progression on | D85 | Fork |
 | PREVIOUS column: last time's set, tap to copy; a missing set is read from an older session | D3 | Fork |
-| Where PREVIOUS reads from: the same routine or any workout (a setting) | D21 | Fork |
 | No ± steppers; values typed on the number pad | D4 | Fork |
 | Set-type sheet (W / F / D labels), with drops nested under their set | D5 | Fork |
 | Effort column, only when RIR/RPE is on | D6 | Fork |
@@ -34,9 +33,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Offer (upstream 1.4.4 brings its own, every screen, #657; it replaces D41 at that merge) |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
-| Holds (plank, wall sit …) start as timed holds | D55 | Offered (#694, in 1.4.3) |
-| A one-limb exercise starts per side | D75 | Offered (#736, in 1.4.3) |
-| Rest wheel opens on the default rest | D56 | Offered (#735, in 1.4.3) |
+| An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Fork |
+| An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Fork |
 | Duration wheels in 5-second steps | D48 | Fork |
 | "Still training?" after five hours | D60 | Offer |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
@@ -79,7 +77,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Shoulder heads: front, side and rear delts | D65 | Offered (#638) |
 | One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offered (#788, in 1.4.4, the catalogue targets, shoulder heads as delts) |
 | The main muscle can be chosen per exercise | D76 | Offer |
-| Other names for an exercise, searchable, one shown as its name | D73 | Offer (upstream 1.4.3 brings searchable other names, #624; not one shown as the name) |
+| One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offer |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
 | Strength levels list, by the level reached | D81 | Offer |
@@ -118,12 +116,11 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 
 | Feature | D | Mark |
 |---|---|---|
-| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (fix table rows, #672, in 1.4.3; its regenerated template map was not taken, offered again in #807) |
+| Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (the fix table is in 1.4.3, #672, but for #793's rows; the regenerated template map, #807) |
 | Routine folders from the Hevy API | D30 | Offer |
 | More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offered (#815) |
 | Review of exercise matches before an import, remembered | D33 | Offer |
-| Weights kept to the hundredth on import | D40 | Offered (#690, in 1.4.3) |
-| Hevy CSV notes keep their line breaks | D54 | Offered (#690, in 1.4.3) |
+| Earlier Hevy imports' notes get their line breaks back (new imports keep them upstream since 1.4.3, #690) | D54 | Fork |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
 
 ## Android and phone
@@ -131,7 +128,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Feature | D | Mark |
 |---|---|---|
 | Portrait only | D24 | Offer |
-| Heart rate and weigh-ins read from Health Connect | D27 | Ported (1.4.3) |
 | Health Connect as the only source of weigh-ins | D32 | Offer |
 | Heart rate recorded live from a Bluetooth strap | D79 | Offer |
 | Heart rate full screen with zones and the cardio set's time | D80 | Offer |
