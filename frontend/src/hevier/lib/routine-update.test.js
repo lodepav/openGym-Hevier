@@ -61,6 +61,34 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(u.summary).toMatchObject({ swapped: 1, added: 0, removed: 0 })
   })
 
+  it('a swap to one of the slot’s backups is no change, and the slot stays as it was', () => {
+    const r = routine()
+    r.ex[1].subs = [CURL, DIP]
+    const S = state(r)
+    const A = start(S)
+    swapActiveExercise(A, 1, added(S, DIP))
+    A.entries[1].sets.pop()
+    expect(routineUpdates(S, A)).toEqual([])
+    // With another change, the backup's slot is kept as the routine has it.
+    A.entries.splice(2, 1)
+    const u = one(S, A)
+    expect(u.ex).toEqual([r.ex[0], r.ex[1]])
+    expect(u.summary).toMatchObject({ swapped: 0, removed: 1, changed: 0 })
+  })
+
+  it('a backup moved elsewhere in the workout is a new order, not a swap', () => {
+    const r = routine()
+    r.ex[0].subs = [DIP]
+    const S = state(r)
+    const A = start(S)
+    swapActiveExercise(A, 0, added(S, DIP))
+    A.entries.push(A.entries.shift())
+    const u = one(S, A)
+    expect(u.ex.map(e => e.id)).toEqual([BENCH, ROW, SQUAT])
+    expect(u.ex[2]).toEqual(r.ex[0])
+    expect(u.summary).toMatchObject({ swapped: 0, added: 0, removed: 0, moved: true })
+  })
+
   it('a removed exercise and one added elsewhere are a removal and an addition', () => {
     const S = state()
     const A = start(S)
