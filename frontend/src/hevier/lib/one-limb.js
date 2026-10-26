@@ -1,25 +1,11 @@
-// A one-limb exercise starts per side (hevier/DECISIONS.md D75). Upstream logs every exercise as
-// one row a set until its settings say "per side" (`cfg.side`, lib/history.js isPerSide), so a
-// single-leg calf raise added to a workout, swapped in or imported from Hevy logged both legs as
-// one. `sideDefault` answers upstream's `defaultConfig` (seam S32, beside D55's hold mode): per side
-// for a catalogue exercise its name says is done one arm or leg at a time, and for any exercise
-// whose last logged work sets were per side. An entry whose settings are already set stays as it is.
-import { EXIDX, isCardio } from '../../lib/exercises.js'
+// A one-limb exercise starts per side (hevier/DECISIONS.md D75). Upstream's 1.4.3 does this for a
+// catalogue exercise its name says is done one arm or leg at a time (`isOneLimb`,
+// `pickedExerciseConfig`, from the fork's #736). The fork adds, through seam S32, any exercise
+// whose last logged work sets were per side, and turns routine slots per side (`withSide`,
+// `sideRoutines`). An entry whose settings are already set stays as it is.
+import { EXIDX, isCardio, isOneLimb } from '../../lib/exercises.js'
 import { lastEntryFor } from '../../lib/history.js'
 import { isSideSet } from '../../lib/workout-model.js'
-
-// "single leg", "one arm", "single-arm", "unilateral".
-export const LIMB_NAME = /\b(single|one)[\s-]+(arm|leg|hand)\b|\bunilateral\b/i
-// Stretches and rollers are mobility, not sets; a single-leg push-up or plank is a two-arm
-// exercise with a leg lifted, and "two to one leg" lands on one.
-const NOT = /stretch|\broll(er|ball)?\b|two to one|single leg (push|plank)|leg push up|single leg plank/i
-
-/** Whether the catalogue exercise `ex` is done one arm or leg at a time, by its name. */
-export function isOneLimb(ex) {
-  if (!ex || ex.custom || isCardio(ex.id)) return false
-  const n = String(ex.n || '')
-  return LIMB_NAME.test(n) && !NOT.test(n)
-}
 
 const sidedSets = sets => {
   const work = (sets || []).filter(s => s && s.phase !== 'warmup')
@@ -34,20 +20,6 @@ export function sideDefault(S, id) {
   return !!last && sidedSets(last.sets)
 }
 
-/** What upstream's `defaultConfig` adds for `id` (seam S32): per side, a rep target of ten a side
- *  (upstream's per-side reps are both sides' total), or nothing. */
-export function sideConfig(S, id) {
-  return sideDefault(S, id) ? { reps: { side: true, reps: 20 }, time: { side: true } } : null
-}
-
-/** What upstream's exercise settings save for `id` with per side switched off (seam S32): an
- *  explicit `side: false` when the exercise would start per side, else nothing. Off is stored
- *  without the flag, and `defaultConfig` is spread under saved targets (Save as routine, the
- *  mode switch), so a one-limb lift switched off would get per side back from the defaults. */
-export function sideOff(S, id) {
-  return sideDefault(S, id) ? { side: false } : null
-}
-
 // A rep target that meant one side, as a total of both: Hevy's and an unmarked slot's.
 const doubled = slot => {
   const out = { ...slot, side: true }
@@ -55,7 +27,7 @@ const doubled = slot => {
   for (const k of ['reps', 'repsMin', 'repsMax']) if (slot[k] > 0) out[k] = slot[k] * 2
   return out
 }
-// An explicit `side: false` is per side switched off (`sideOff`), and stays off.
+// An explicit `side: false` is per side switched off, and stays off.
 const sideable = slot => slot && slot.side == null && slot.mode !== 'cardio' && !slot.pyramid
 
 /** A routine slot just given exercise `slot.id` (upstream's replaceSlotExercise drops `side`),

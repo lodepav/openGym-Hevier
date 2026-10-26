@@ -8,12 +8,11 @@
 // convention for a brand, from any app; in a Hevy title so is a second bracket after the
 // equipment's, the older way; and a bare "(1:1)", "(2:1)" or "(x2)" is a cable's setup. What is left
 // is matched by the steps in `STEPS`, the first answer winning, else by upstream.
-import { EXIDX, canonicalExId } from '../../lib/exercises.js'
+import { EXIDX, canonicalExId, isOneLimb } from '../../lib/exercises.js'
 import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
 import { volumeFactor } from '../../lib/dumbbells.js'
 import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
-import { isOneLimb } from './one-limb.js'
 import { unescapeWorkout } from './note-text.js'
 
 // Hevy's English title (lower case) → catalogue id, `side` for a one-limb title. Each row was

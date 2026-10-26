@@ -7,7 +7,7 @@
 // An exercise can also be marked missing at a gym (D86, S.hvGymMissing: { [exId]: [gymId] }): a slot
 // whose exercise a gym lacks starts there with its first backup, in the slot's order, the gym has.
 import { EXIDX, allExercises } from '../../lib/exercises.js'
-import { defaultConfig } from '../../lib/history.js'
+import { pickedExerciseConfig } from '../../lib/history.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { buildPlannedEntry, builtOutOfProgression } from '../../lib/session-start.js'
 import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
@@ -113,7 +113,7 @@ export function swapEntry(s, index, toId, slot = null) {
   if (!current || list(current.sets).some(x => x?.done === true)) return false
   const routine = routineOf(s, current.rid)
   if (!routine) return false
-  const full = { ...(slot || defaultConfig(toId)), id: toId }
+  const full = { ...(slot || pickedExerciseConfig(toId)), id: toId }
   const built = buildPlannedEntry(sessionHistory(s), full, routine, { noProg: builtOutOfProgression(current, routine) })
   const replacement = { id: toId, ...built, rid: current.rid, ...(current.noProg === true ? { noProg: true } : {}) }
   return !!swapActiveExercise(A, index, replacement)

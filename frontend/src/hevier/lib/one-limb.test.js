@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { EXIDX } from '../../lib/exercises.js'
-import { defaultConfig, isPerSide } from '../../lib/history.js'
+import { defaultConfig, pickedExerciseConfig, isPerSide } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
-import { isOneLimb, sideDefault, withSide, sideConfig, sideOff, sideRoutines } from './one-limb.js'
+import { sideDefault, withSide, sideRoutines } from './one-limb.js'
 import { matchTitle, readKey } from './hevy-import.js'
 
 const S0 = (workouts = []) => ({ unit: 'kg', workouts, routines: [] })
@@ -11,38 +11,25 @@ const side = (w, r) => ({ w, r, done: true, sides: { L: { w, r, done: true }, R:
 describe('hevier one-limb exercises start per side (D75)', () => {
   afterEach(() => { hooks.defaultSide = null })
 
-  it('reads the catalogue name: single leg, one arm, unilateral; not stretches or a single-leg push-up', () => {
-    expect(isOneLimb(EXIDX['1178'])).toBe(true)   // dumbbell standing single leg calf raise
-    expect(isOneLimb(EXIDX['4838'])).toBe(true)   // cable unilateral curl
-    expect(isOneLimb(EXIDX['0085'])).toBe(false)  // barbell romanian deadlift
-    const named = re => Object.values(EXIDX).find(e => re.test(e.n))
-    expect(isOneLimb(named(/^single leg calf stretch$/))).toBe(false)
-    expect(isOneLimb(named(/^raise single leg push up$/))).toBe(false)
-    expect(isOneLimb({ id: 'c1', n: 'Single leg thing', custom: true })).toBe(false)
-  })
-
   it('a custom or other exercise last logged per side starts per side too', () => {
     expect(sideDefault(S0(), '0085')).toBe(false)
     const S = S0([{ d: '2026-10-01', entries: [{ id: '0085', sets: [side(60, 8)] }] }])
     expect(sideDefault(S, '0085')).toBe(true)
   })
 
-  it('upstream’s defaultConfig takes it through the seam, and only then', () => {
-    expect(defaultConfig('1178').side).toBeUndefined()
-    hooks.defaultSide = id => sideConfig(S0(), id)
-    expect(defaultConfig('1178')).toMatchObject({ mode: 'reps', side: true })
-    expect(defaultConfig('0085').side).toBeUndefined()
+  it('upstream’s pickedExerciseConfig takes it through the seam, and only then', () => {
+    const S = S0([{ d: '2026-10-01', entries: [{ id: '0085', sets: [side(60, 8)] }] }])
+    expect(pickedExerciseConfig('0085').side).toBeUndefined()
+    hooks.defaultSide = id => sideDefault(S, id)
+    expect(pickedExerciseConfig('0085')).toMatchObject({ mode: 'reps', side: true, reps: 20 })
+    expect(pickedExerciseConfig('0085', 'time')).toMatchObject({ mode: 'time', side: true, sec: 45 })
+    expect(pickedExerciseConfig('0025').side).toBeUndefined()
+    // defaultConfig, spread under saved targets, never adds it: per side switched off stays off.
+    expect(isPerSide({ ...defaultConfig('0085'), sets: 3, reps: 12, mode: 'reps' })).toBe(false)
   })
 
-  it('per side switched off is saved as off, so the defaults spread under it keep it off', () => {
-    expect(sideOff(S0(), '1178')).toEqual({ side: false })
-    expect(sideOff(S0(), '0085')).toBeNull()
-    hooks.defaultSide = id => sideConfig(S0(), id)
-    // Save as routine and the mode switch spread defaultConfig under the saved target.
-    const saved = { sets: 3, reps: 12, weight: 20, mode: 'reps', ...sideOff(S0(), '1178') }
-    expect(isPerSide({ ...defaultConfig('1178'), ...saved })).toBe(false)
-    hooks.defaultSide = null
-    // Neither the one-time routine pass nor a replace turns it back on.
+  it('a slot switched off per side before 1.4.3 (`side: false`) stays off', () => {
+    const saved = { sets: 3, reps: 12, weight: 20, mode: 'reps', side: false }
     const s = { routines: [{ id: 'r', ex: [{ id: '1178', ...saved }] }] }
     sideRoutines(s)
     expect(s.routines[0].ex[0]).toMatchObject({ side: false, reps: 12 })
@@ -73,11 +60,5 @@ describe('hevier routines made before D75', () => {
     expect(s.routines[0].ex[1].side).toBeUndefined()
     expect(s.routines[0].ex[2].reps).toBe(12)
     expect(sideRoutines(s)).toBe(0)
-  })
-  it('a fresh one-limb exercise is ten a side', () => {
-    hooks.defaultSide = id => sideConfig(S0(), id)
-    expect(defaultConfig('1178')).toMatchObject({ side: true, reps: 20 })
-    expect(defaultConfig('1178', 'time')).toMatchObject({ side: true, sec: 45 })
-    hooks.defaultSide = null
   })
 })

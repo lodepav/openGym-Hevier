@@ -12,7 +12,7 @@ import { EXIDX, exOr } from '../../lib/exercises.js'
 import { gymById, gymHas, rememberedGym } from '../lib/gym-filter.js'
 import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { supersetUnits, moveRoutineEntry, cleanupSg, defaultConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
+import { supersetUnits, moveRoutineEntry, cleanupSg, pickedExerciseConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
 import { fmtRest, REST_MAX } from '../../lib/duration.js'
 import { deleteRoutine, replaceSlotExercise } from '../../lib/routines.js'
@@ -276,7 +276,7 @@ export default function RoutineEditHevy() {
   const added = []
   const addExercise = () => exercisePicker((ex, quick) => {
     if (quick) {
-      setR(x => x.ex.push({ id: ex.id, ...defaultConfig(ex.id) }))
+      setR(x => x.ex.push({ id: ex.id, ...pickedExerciseConfig(ex.id) }))
       if (added.push(exerciseNameText(ex)) === 1) queueMicrotask(() => {
         toast(added.length > 1 ? t('{0} added to {1}', tn('{0} exercise', '{0} exercises', added.length), r.name)
           : t('“{0}” added to {1}', added[0], r.name))

@@ -24,7 +24,7 @@ const workRowsForMode = (entry = {}, mode = 'reps') => {
 import { t } from './i18n-core.js'
 import { queueNext, pinState, queueLiveOn } from './queue.js'
 import { isPyramid, pyramidLabel, pyramidTargetAt, pyramidWeightAt, PYRAMID_MAX } from './pyramid.js'
-// [hevier] S32: the hook a hold's default mode comes from
+// [hevier] S32: the hooks a fresh exercise's mode and per side come from
 import { hooks } from '../hevier/hooks.js'
 // [/hevier]
 
@@ -214,18 +214,15 @@ export function setLabel(id, s, cfg, speedUnit) {
 // Default config for a freshly added exercise. A catalogue hold starts timed; `modeOf` itself is
 // left alone, so an entry saved without a mode (a plank logged as reps) still reads as it did.
 export function defaultConfig(id, mode) {
-  // [hevier] S32: a hold starts as a timed hold (D55)
+  // [hevier] S32: an exercise last logged as holds starts as one (D55)
   const m = mode || hooks.defaultMode?.(id) || (isHold(id) ? 'time' : modeOf({ id }))
   // [/hevier]
   if (m === 'cardio') return { sets: 1, min: 20, speed: 8 }
   // Written only when it is true, so a barbell config is byte-for-byte what it was before
   // the flag existed and a plan file gains nothing it does not need.
   const bw = isBodyweightEq(id) ? { bodyweight: true } : {}
-  // [hevier] S32: a one-limb exercise starts per side (D75)
-  const side = hooks.defaultSide?.(id) || {}
-  if (m === 'time') return { sets: 3, sec: 45, weight: 0, mode: 'time', ...bw, ...side.time }
-  return { sets: 3, reps: 10, weight: 0, mode: 'reps', ...bw, ...side.reps }
-  // [/hevier]
+  if (m === 'time') return { sets: 3, sec: 45, weight: 0, mode: 'time', ...bw }
+  return { sets: 3, reps: 10, weight: 0, mode: 'reps', ...bw }
 }
 // What an exercise picked from the library starts with: `defaultConfig`, and per side for a
 // one-arm or one-leg exercise, at ten reps a side (per-side reps are both sides' total). Kept out
@@ -233,7 +230,9 @@ export function defaultConfig(id, mode) {
 // side is stored without the flag, and must not get it back.
 export function pickedExerciseConfig(id, mode) {
   const cfg = defaultConfig(id, mode)
-  if (!isOneLimb(id) || !('mode' in cfg)) return cfg
+  // [hevier] S32: an exercise last logged per side starts per side too (D75)
+  if (!(isOneLimb(id) || hooks.defaultSide?.(id)) || !('mode' in cfg)) return cfg
+  // [/hevier]
   return { ...cfg, side: true, ...(cfg.mode === 'reps' ? { reps: 20 } : {}) }
 }
 // A double-progression range is stored as its top (`reps`) and its bottom (`repsMin`), and

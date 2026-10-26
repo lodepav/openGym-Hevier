@@ -30,7 +30,7 @@ import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
 import { rowMode } from './lib/hold-set.js'
-import { sideConfig, sideOff, initSideRoutines } from './lib/one-limb.js'
+import { sideDefault, initSideRoutines } from './lib/one-limb.js'
 import { countedS } from './lib/counted.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
@@ -61,8 +61,7 @@ function install() {
   hooks.sheetState = sheetState                          // a page opened from a sheet keeps its back (S47)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
-  hooks.defaultSide = id => sideConfig(state(), id)          // a single-leg calf raise starts per side (S32, D75)
-  hooks.sideOff = id => sideOff(state(), id)                 // and per side switched off stays off
+  hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   hooks.defaultProg = 'off'                             // no progression rule of its own: none (D61)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
