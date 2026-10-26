@@ -19,7 +19,8 @@ export function initRestExtra(store) {
       const A = store.get()?.active
       const ui = useUI.getState()
       if (!A?.entries?.[due.idx] || (due.kind === 'unit' && ui.timer && !ui.timer.ready)) return
-      ui.startRest(restFor(A, due.idx, due.i, store.get().restSec), due.idx, { forSet: due.i })
+      const S = store.get()
+      ui.startRest(restFor(A, due.idx, due.i, S.restSec, S.warmupRestSec), due.idx, { forSet: due.i })
     }, 0)
   })
   let readyAt = null

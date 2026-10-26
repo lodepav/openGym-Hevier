@@ -3,9 +3,9 @@
 // sides), and after an exercise's last set, which upstream leaves without a rest when the next
 // exercise opens with a warm-up, or when it was the workout's last. Read off two copies of the
 // running session; the rest is timed as upstream times the set's (restSecFor).
-import { isSideSet, isWarmupRow } from '../../lib/workout-model.js'
-import { supersetUnits } from '../../lib/history.js'
-import { restSecFor, warmupRestSecFor } from '../../lib/supersetFlow.js'
+import { isSideSet } from '../../lib/workout-model.js'
+import { supersetUnits, setSpanAt } from '../../lib/history.js'
+import { restSecFor, warmupRestSecFor, ownSetRest } from '../../lib/supersetFlow.js'
 import { pyramidRestFor } from '../../lib/pyramid.js'
 
 const live = A => !!A && !A.backfill && !A.editingWorkoutId
@@ -37,11 +37,12 @@ export function restDue(before, after) {
   return allDone(E1) && !allDone(E0) ? { ...hit, kind: 'unit' } : null
 }
 
-/** How long the rest after set `i` of entry `idx` runs, as upstream works it out. */
-export function restFor(A, idx, i, defaultRestSec) {
+/** How long the rest after set `i` of entry `idx` runs, as upstream's tick flow works it out: the
+ *  set's own rest (#609) first, else a warm-up's (the exercise's, then the profile's `warmupRestSec`). */
+export function restFor(A, idx, i, defaultRestSec, warmupRestSec) {
   const entries = A.entries
   const unit = supersetUnits(entries).find(u => u.includes(idx)) || [idx]
   const setRest = { idx, sec: pyramidRestFor(entries[idx].target, entries[idx].sets, i) }
   const sec = restSecFor(entries, unit, defaultRestSec, setRest)
-  return isWarmupRow(entries[idx].sets[i]) ? warmupRestSecFor(entries[idx], i, sec) : sec
+  return ownSetRest(entries[idx].sets[setSpanAt(entries[idx].sets, i)[0]]) ?? warmupRestSecFor(entries[idx], i, sec, warmupRestSec)
 }

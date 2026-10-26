@@ -16,6 +16,16 @@ describe('hevier restDue', () => {
     expect(restFor(after, 0, 1, 90)).toBe(75)
   })
 
+  it('times a set’s own rest (#609) and the profile’s warm-up rest as upstream’s tick does', () => {
+    const own = A([{ id: 'fly', target: { restSec: 75 }, sets: [set(true), set(true, { restSec: 0 })] }])
+    expect(restFor(own, 0, 1, 90)).toBe(0)
+    own.entries[0].sets[1].restSec = 200
+    expect(restFor(own, 0, 1, 90)).toBe(200)
+    const ramp = A([{ id: 'curl', sets: [warm(true), warm(), set()] }])
+    expect(restFor(ramp, 0, 0, 90)).toBe(90)
+    expect(restFor(ramp, 0, 0, 90, 30)).toBe(30)
+  })
+
   it('owes a rest after the workout’s last set', () => {
     const before = A([{ id: 'curl', sets: [set(true), set(false)] }])
     const after = clone(before); after.entries[0].sets[1].done = true
