@@ -2,8 +2,7 @@
 // through seams S11 and S12 in views/Settings.jsx: upstream's search, account card data and row
 // previews, in titled groups; each row opens upstream's own page, less the rows that only steer
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
-// (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume; and its Previous values
-// row (D21): where the PREVIOUS column reads from, kept in S.hvPrevious. The Volume row's sheet also
+// (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume. The Volume row's sheet also
 // holds Muscle sets (D42): a set for its main muscle only, or a secondary muscle in part too, kept
 // in S.hvMuscleSets. Data & backup gets the
 // fork's heart-rate strap (D79) and export to Hevy (D34) before "Bring data in".
@@ -17,7 +16,6 @@ import Icon from '../../components/Icon.jsx'
 import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
-import { previousMode } from '../lib/previous-sets.js'
 import { MOBILE } from '../../lib/mobile.js'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
@@ -43,13 +41,6 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     ],
   })
   const volumeValue = mode === 'weight' ? VOLUME.weight : t('Sets') + ' · ' + (mMode === 'share' ? t('secondary too') : t('main muscle'))
-  const prevMode = useStore(s => previousMode(s.S))
-  const PREVIOUS = { routine: t('Same routine'), any: t('Any workout') }
-  const pickPrevious = () => menuSheet({
-    title: t('Previous values'),
-    items: Object.entries(PREVIOUS).map(([v, label]) => ({ label, on: prevMode === v,
-      onClick: () => useStore.getState().update(s => { s.hvPrevious = v }) })),
-  })
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
   // fork pins (D17), so that row names the body diagram instead.
@@ -64,7 +55,6 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {
     'hv:volume': () => <Row key={'hv:volume'} icon="chart" iconTint="var(--blue)" title={t('Volume')} value={volumeValue} accessory="chevron" onClick={pickVolume} className="sp-root-row" />,
-    'hv:previous': () => <Row key={'hv:previous'} icon="history" iconTint="var(--blue)" title={t('Previous values')} value={PREVIOUS[prevMode]} accessory="chevron" onClick={pickPrevious} className="sp-root-row" />,
   }
   return SETTINGS_GROUPS.map(g => {
     const ids = g.ids.filter(id => id.startsWith('hv:') || pageVisible(id, ctx))

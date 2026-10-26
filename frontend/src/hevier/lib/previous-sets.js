@@ -2,7 +2,7 @@
 // session, the matching set from the last time it was done — warm-up N against last time's warm-up
 // N, work set N against last time's work set N. Read-only over upstream's history; nothing here
 // changes what is logged or how the next session is built.
-import { entryExcluded, entryRoutineId } from '../../lib/history.js'
+import { entryExcluded, entryRoutineId, lastAcrossRoutines } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
 import { entryLastKey, isCable } from './gym-labels.js'
 import { isPairHead, isPairTail } from './hold-set.js'
@@ -61,8 +61,17 @@ function* pastSessions(H, exId, rid, label) {
   }
 }
 
-/** Settings → Previous values (D21): 'routine' (the default, D3's rule) or 'any'. */
-export const previousMode = S => (S?.hvPrevious === 'any' ? 'any' : 'routine')
+/** Where PREVIOUS reads from (D21): upstream's Fine-tuning → Last time means (`S.lastFrom`, 1.4.3),
+ *  'routine' (the default, D3's rule) or 'any'. */
+export const previousMode = S => (lastAcrossRoutines(S) ? 'any' : 'routine')
+
+/** The fork's own switch before 1.4.3 (`S.hvPrevious`) into upstream's, once (a store draft `s`):
+ *  'any' carries over unless upstream's is already set; the fork's field goes. */
+export function movePreviousIntoLastFrom(s) {
+  if (!('hvPrevious' in s)) return
+  if (s.hvPrevious === 'any' && s.lastFrom == null) s.lastFrom = 'any'
+  delete s.hvPrevious
+}
 
 /**
  * One slot per row of `entry.sets`: the previous set it lines up with, or null when last time had

@@ -42,7 +42,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     const rows = titles()
     expect(rows.indexOf('During a workout')).toBeGreaterThan(-1)
     expect(rows).not.toContain('Workout')
-    expect(rows.indexOf('Previous values')).toBeLessThan(rows.indexOf('Volume'))
+    expect(rows).not.toContain('Previous values')   // upstream's Last time means, in Fine-tuning (D21)
     expect(rows).not.toContain('Muscle sets')   // in the Volume row's sheet (review S4)
     expect(rows.indexOf('Volume')).toBeLessThan(rows.indexOf('Units & language'))
     expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))

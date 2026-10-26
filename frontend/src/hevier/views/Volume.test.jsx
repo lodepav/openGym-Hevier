@@ -106,16 +106,4 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(useStore.getState().S.hvVolume).toBe('weight')
     expect(row.textContent).toContain('Total weight')
   })
-
-  it('Settings → Previous values switches the PREVIOUS column’s source (D21), kept in S', () => {
-    installSettings()
-    render(<Settings page={null} />)
-    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Previous values'))
-    expect(row.textContent).toContain('Same routine')
-    act(() => row.click())
-    const host = sheetHost()
-    act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Any workout')).click())
-    expect(useStore.getState().S.hvPrevious).toBe('any')
-    expect(row.textContent).toContain('Any workout')
-  })
 })

@@ -26,6 +26,7 @@ import { initLabelRefill } from './lib/label-refill-run.js'
 import { aliasHooks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
+import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
@@ -100,6 +101,11 @@ function install() {
   // S once, so they sync and are backed up (D12, D13).
   const kept = k => { try { return localStorage.getItem(k) != null } catch { return false } }
   if ([HOME_KEY, FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveHomeIntoS(s); moveFoldersIntoS(s) })
+  // The fork's Previous values switch is upstream's Last time means since 1.4.3 (D21); a sync from
+  // an older build can bring the old field back, so it is moved whenever it shows up.
+  const movePrevious = () => { if ('hvPrevious' in state()) store.update(movePreviousIntoLastFrom) }
+  movePrevious()
+  store.watch(['hvPrevious'])?.(movePrevious)
 
   // Android: weigh-ins from Health Connect only while upstream's read of them is on
   // (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a

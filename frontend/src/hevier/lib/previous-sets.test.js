@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { previousSetsFor, previousMode } from './previous-sets.js'
+import { previousSetsFor, previousMode, movePreviousIntoLastFrom } from './previous-sets.js'
 
 const W = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
 const warm = (w, r) => W(w, r, { phase: 'warmup' })
@@ -42,7 +42,22 @@ describe('hevier previousSetsFor', () => {
     ])
     expect(previousSetsFor(hist, { id: 'squat', rid: 'heavy', sets: [{}] }, 'any')).toEqual([W(70, 10)])
     expect(previousMode({})).toBe('routine')
-    expect(previousMode({ hvPrevious: 'any' })).toBe('any')
+    expect(previousMode({ lastFrom: 'any' })).toBe('any')
+  })
+
+  it('moves the fork’s old Previous values switch into upstream’s Last time means, once', () => {
+    const a = { hvPrevious: 'any' }
+    movePreviousIntoLastFrom(a)
+    expect(a).toEqual({ lastFrom: 'any' })
+    const b = { hvPrevious: 'any', lastFrom: 'routine' }   // upstream's already chosen: it stands
+    movePreviousIntoLastFrom(b)
+    expect(b).toEqual({ lastFrom: 'routine' })
+    const c = { hvPrevious: 'routine' }
+    movePreviousIntoLastFrom(c)
+    expect(c).toEqual({})
+    const d = { lastFrom: 'any' }
+    movePreviousIntoLastFrom(d)
+    expect(d).toEqual({ lastFrom: 'any' })
   })
 
   it('is all nulls for an exercise never done before', () => {
