@@ -14,6 +14,15 @@ launch). The new `wp1-deps` … `wp15-machines` branches (2026-10-23/24) are sta
 store-screenshot commits only. The full notes are upstream's own CHANGELOG on those branches (the
 commands below print them).
 
+**Refreshed 2026-10-26.** `release-1.4.3` has not moved (e107bbe5) and v1.4.3 is not tagged yet
+("in App Review", ROADMAP.md). The new **`release-1.4.4`** (45512b2f) holds it all and 86 commits
+more: 1.4.3's version bump and its last items (Halloween, iPhone app icons, pictures on the printed
+plan) under `## v1.4.3`, then 1.4.4's under `## Unreleased`. The `n144-*`, `airpods-hr-818`,
+`datepicker-809` and `pdf-images-817` branches are its stages, with nothing past it but two Coach
+commits. **Four of the fork's PRs are in it** (#788, #806, #811, #812) and #814's default rule
+(the fork's commit, `e0802a24d`); see the section after the next one. `upstream/main` (08eabf4f) is
+three template and FAQ commits on.
+
 ```bash
 git fetch upstream
 git branch -r | grep release-                        # new release branches?
@@ -83,12 +92,37 @@ scripts build the `sideload` flavour; D45's port is gone; the boot screen is rec
 | **Safari 15 build target** and a bundle syntax check *(2026-10-25)*, in `vite.config.js`'s `build` | Seam S45 is in the same file's `plugins`: expect a nearby but separate hunk. The fork's newer syntax must pass `scripts/check-bundle-syntax.mjs`; run it after the merge. |
 | **color-mix() fallbacks** *(2026-10-25)*: `color-mix-fallback.test.js` checks every `.css` under `frontend/src`, so the fork's too | `frontend/src/hevier/hevier.css` has 8 `color-mix()` without plain fallbacks: upstream's test would fail on fork CSS (rule 3). At the merge: add the fallbacks (the Android WebView needs none, but the test is upstream's), not an exception in the test. |
 | Security fixes, owner role, CSP | Server side: take as is. CSP: the fork loads nothing external, but check it on merge. |
+| **Halloween** *(v1.4.3, on `release-1.4.4`)*: until the end of October a spider at every open, bats in the header, cobwebs, a pumpkin on Home, a corner on Stats; Settings → Seasonal themes | Drawn over upstream's screens, so check what shows over the fork's Home, Profile and `HevyWorkout` next October, or switch it off with the Seasonal themes row. 1.4.3 merges after October, so nothing shows at the merge. |
+| **Pictures on the printed plan** *(v1.4.3, #817)* | Upstream's print page: nothing to do. |
+
+## What release-1.4.4 brings (2026-10-26)
+
+`release-1.4.4` (45512b2f, due 2026-11-15). Its v1.4.3 part is in the table above; these are
+under `## Unreleased`. The rows the fork must act on come first.
+
+| Upstream item | Fork impact |
+|---|---|
+| **A weight unit per exercise** (#657): `S.exUnit` (`{ [exId]: { unit, _ts } }`, synced with stamps), `lib/ex-unit.js`; the exercise is shown and typed in its unit everywhere (rows, steppers, plates, warm-ups, last time, records, history, its chart); an Exercise settings row | **Replaces D41** (`S.hvExUnit`, the workout's rows and PREVIOUS only). At the merge: move each `hvExUnit` entry into `S.exUnit` (D41's `step` / `inc` onto upstream's increment), point the fork's ⋮ → Weight unit at upstream's, and drop D41's own conversion. The fork's screens (Save Workout, Workout Detail, the routine editor, records D51, the PR toast D22) must then read the exercise's unit as upstream's do: a check of every fork screen with a lb exercise. D19's thresholds and D28's labels keep their own units. |
+| **Swap suggestions and a gym row in the swap picker** (#674): up to three substitutes under the planned backups; a Gym row filters the list for another gym, for this swap only | The fork's picker (D45, D62, D67) is its own, so nothing appears. Its gym filter is the same idea as D62's: read #674's helper before the next gym change; the substitutes could sit under D45's "Your backups" through upstream's helper. |
+| **"Your last session" brings your warm-ups too** (#525, #658): typed warm-ups come back, automatic ramps stay automatic | **Overlaps D69** further (with 1.4.3's #217, above): decide at the merge whether D69 (seam S40) gives way to upstream's choice. |
+| **Programmes** (#159): Plan → Programmes runs routines as a 1–16 week block with %1RM / RPE / deload weeks, takes over the plan while it runs, a chip on Home and Plan, in plan files and the sync | The fork's Workout tab (D13) and Home (D12) show no Programmes entry or chip: upstream's Plan page still has it. Decide whether the fork offers it (a row on the Workout tab) or leaves it on Plan. A %1RM week opens a session at its own weights, so D69 must not override it, and D57's deload handling should count a programme's deload week as a deload routine's. D13's folders stay the fork's. |
+| **A 1-minute tour** after the first setup, and Settings → About & updates → Show the tour again; anchors are `data-tour` on upstream's screens | **The fork's screens have none of its anchors**, so on a fresh install the tour would ask and then point at nothing. At the merge: turn it off under `HEVIER` (don't offer it, hide the Settings row in `HIDDEN_ROWS`), or later add `data-tour` to the fork's own screens. Its practice workout is upstream's store sandbox (`enterTourSandbox`): check `HevyWorkout` never sees it. |
+| **App icon picker on Android**: nine launcher `activity-alias` entries in `src/main`'s manifest (`.IconDefault` enabled), `AppIconPlugin.java`, Settings → Look & Home → App icon | `IconDefault` uses `@mipmap/ic_launcher`, which S7's `src/hevier/res` recolours, so the fork's icon stays. The other eight are openGym's colours and `recolour-icons.py` does not cover them: **hide the App icon row** (`HIDDEN_ROWS`, D17's one look) unless the user wants them. Check D24's portrait-only overlay manifest still applies through the aliases, D38's exported-components list (eight new exported aliases), and `AppIconPlugin` in S17's plugin list and R8's keep rules. |
+| **Tap the tab you are on** scrolls its page to the top (Exercises: into the search); a **back-to-top** arrow on long pages (`App.jsx`, `TabBar.jsx`) | `App.jsx` gains ~60 lines near seams S2 and S15: expect a conflict there. The fork's `HevyTabBar` (S2) gets no tap-to-top; worth copying as Hevy does the same. Check the arrow on the fork's long pages (Profile's feed, the picker) and that it stays out of `HevyWorkout`. |
+| **Count body weight in bodyweight lifts** (#794), a switch in Units & language, off by default | Like 1.4.3's #719: D18 / D42 and D57's `counted.js` volumes should follow the switch, or the row goes into `HIDDEN_ROWS`. |
+| **Dates pick like the rest of openGym** (#809): every date field is upstream's own picker | The fork has no date field of its own (only a test): nothing to do. |
+| **YouTube demos inline** (#613): a "Watch video" card from youtube-nocookie.com, the CSP's `frame-src` | Shows in upstream's exercise details and routine notes; the fork's details (D7, D58) don't draw it. D26's endpoint check: allow-list `www.youtube-nocookie.com`. |
+| **The gym reminder's map redrawn** (#614) | Upstream's page; still `leaflet` and the OpenStreetMap hosts (the 1.4.3 row above). |
+| **Tap the picture in a past workout for the how-to** (#805) | Upstream's history; the fork's Workout Detail (D66, D88) is its own: nothing appears. |
+| **The fork's PRs** #788 (D74's catalogue targets), #806 (S44's CVE pins), #811 (D90's weight and rep checks), #812 (D88), and #814's default rule | At the merge: D74's name rules that #788's targets now give (check `muscle-groups.js` reads them), S44's rows, D90's checks (the fork keeps the cardio-timer one), D88's `exercise-time.js` (keep the fork's Muscle and Gym grouping over upstream's helper), and D61 / D69's default (the profile setting replaces the fork's own). Each becomes upstream's. |
+| AirPods heart rate (#818), Coach gateways (#804), iPhone web app height (#810), Halloween and app icons on iOS | iOS or Coach: nothing for the fork. |
 
 ## Upstream's roadmap (ROADMAP.md, read 2026-10-18)
 
 `ROADMAP.md` on upstream's main (last changed 2026-10-09) describes the themes; its version numbers
 have slipped. The **GitHub milestones** are the live plan, a release every two weeks on a Sunday
-(checked 2026-10-24, unchanged but for 1.4.3's name):
+(checked 2026-10-24, unchanged but for 1.4.3's name; checked again 2026-10-26, unchanged, though
+the new ROADMAP.md on `release-1.4.4` makes 1.4.5 remote MCP and Google Play):
 1.4.2 App Store & Watch (shipped) · 1.4.3 gym reminder, health data & community features (11-01) · **1.4.4 Programmes
 & phases** (11-15) · 1.4.5 Google Play & progression I (11-29) · 1.4.6 progression II (12-13) ·
 1.4.7 cardio, alternatives, groups (12-27) · 1.4.8 search & catalogue (2027-01-10) · 1.4.9
@@ -114,7 +148,7 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **Cardio** (1.4.7): intervals, C25k, rucking, **distance for cardio** (#177, #169; roadmap) | D53's TIME column and set timer: add the distance column as upstream stores it; intervals may replace the count-up timer for those sets. |
 | **Alternatives per routine slot** (#649, "when the machine is taken") | **Shipped in 1.4.3** as the one-tap backup (the table above): no per-gym choice, so D46 / D86 stay the fork's. |
 | **Search your history, import aliases by name** (roadmap; the aliases shipped in 1.4.3, #624) | D33's import map and D36's brand search stay the fork's; D73 moves onto upstream's aliases (the table above). |
-| **kg ↔ lb switching converts stored values** (roadmap; a per-exercise unit is asked in #657) | D41 (per-exercise unit, stored in the profile's), D19 (`hvStrength` entries keep their own unit) and D28's labels: check the conversion leaves the fork's fields right, and that D41's `inc` is converted with upstream's. |
+| **kg ↔ lb switching converts stored values** (roadmap; the per-exercise unit #657 is in `release-1.4.4`, see above) | D41 (per-exercise unit, stored in the profile's), D19 (`hvStrength` entries keep their own unit) and D28's labels: check the conversion leaves the fork's fields right, and that D41's `inc` is converted with upstream's. |
 | **Android & health**: Health Connect sessions, an Android **home-screen widget** (1.4.5, #125; PR #299), logging a set from the lock screen, the **timer rework** (#165), **media cached for offline** (#123) | Widget: D44 is the fork's; if upstream ships one, keep one. Timer rework: D10's Timer / Stopwatch and D53's set timer. Offline media: D50 left the media (90% of the APK) alone; upstream's cache may let the fork stop bundling it. |
 | **Looks** (1.4.12): skins, wallpapers, a big-screen layout (#129, #134, #135); **social** (PR #180) | D17 (one dark look) and D49's page bars: skins stay unoffered, like the accent. Social: D14's Profile and Hevy's feed. |
 | **Body composition** in measurements: fat %, muscle mass and more (1.4.4, #648) | D31 maps Hevy's `fat_percent` to body fat and leaves lean mass out for want of a field: add it to the Hevy import when #648 brings one. |
@@ -129,17 +163,27 @@ commit by commit against the branch the same day: everything is in **except #672
 (below). #754 is still open, though its commit came in with #766; #735 is still open, upstream
 having written its own version into 1.4.3 (`8727ee090`); #788 and #806 are open, not in the branch; #807 offers #672's last commit again.
 
+**2026-10-26:** #735 and #754 are closed (covered in 1.4.3). #788, #806, #811 and #812 are in
+`release-1.4.4`, still open until it ships, and so is #814's commit; the maintainer will retarget
+#813, #814 and #815 to `main` once 1.4.3 is out. #813 and #815 are not in any branch yet.
+
 | # | What | State |
 |---|---|---|
 | #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **Offered again as #807** (2026-10-25, on `release-1.4.3`, regenerated there: 429 of Hevy's 503 templates mapped, 1.4.3's own title rows kept), the maintainer told why |
 | #677 | Chart x-axis labels never repeat a date or a month | Closed, in `release-1.4.3` |
 | #690 | Imports keep converted weights to the hundredth, Hevy notes keep line breaks (D40, D54) | Closed, in `release-1.4.3` |
 | #694 | A plank or a wall sit starts as a timed hold (D55) | Closed, in `release-1.4.3`, with #717's cardio defaults, for fresh picks only |
-| #735 | An exercise's rest wheel opens on the default rest (D56) | Open; upstream's own version is in `release-1.4.3`, with its "No timer" |
+| #735 | An exercise's rest wheel opens on the default rest (D56) | Closed; upstream's own version is in `release-1.4.3`, with its "No timer" |
 | #736 | A one-arm or one-leg exercise starts per side (`pickedExerciseConfig`, D75) | Closed, in `release-1.4.3` (its rename commit too) |
-| #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | #766, #767, #768 closed, #754 open; all four in `release-1.4.3` (#766 with #769) |
-| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Opened 2026-10-24; open, not in `release-1.4.3` (2026-10-25) |
-| #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | Opened 2026-10-25, stacked on #766; open |
+| #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | All closed; all four in `release-1.4.3` (#766 with #769) |
+| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Open; in `release-1.4.4` (planned for 1.4.4, as it shifts everyone's fatigue numbers) |
+| #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | Open; in `release-1.4.4` |
+| #807 | #672's last commit: Hevy templates mapped by their artwork (D29) | Open, on `release-1.4.3`; not taken yet |
+| #811 | Ask before logging a likely typo (D90's weight and rep checks) | Open; in `release-1.4.4` |
+| #812 | How long each exercise takes (D88) | Open; in `release-1.4.4`, a Stats card without the fork's Muscle and Gym grouping |
+| #813 | An exercise kept out of progression is kept out of the statistics, a deload routine's still counted (D57) | Open, to be retargeted to `main` after 1.4.3 |
+| #814 | A default progression rule for the profile (D61, D69) | Open, to be retargeted to `main` after 1.4.3; its commit is in `release-1.4.4` already |
+| #815 | More from the Hevy API import: notes, rest and rep ranges, measurements, routine links, muscles (D31) | Open, to be retargeted to `main` after 1.4.3 |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21 |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
@@ -164,7 +208,7 @@ from their **titles only**, so read a PR before acting on it. Refresh:
 | #528 | Liquid Glass redesign (tokens, glass surfaces) | **Phase 2 theme**: a large CSS change, conflicts with `hevier.css` |
 | #549 | Dark mode inverts exercise artwork | Phase 2 theme |
 | #312 | Prescription engine v2, smart warm-ups, v1→v2 migration | **D15 routine editor** reads the v1 prescription: big drift if it lands |
-| #674 (2026-10-17) | Substitutes in the swap picker, and switching gyms from it | **D45 / D46 / D47 / D62**: the fork's picker, gym sheet and gym backups. Read it before the next gym change; if it lands, back the fork's gym switch with it |
+| #674 (2026-10-17) | Substitutes in the swap picker, and switching gyms from it | **In `release-1.4.4`** (2026-10-26, see above). D45 / D46 / D47 / D62: read it before the next gym change |
 | #702 | Exercise goals with progress tracking | A Hevy-like idea: take upstream's if it lands, don't build one |
 | #706 | A guided warm-up before workouts | Not Hevy; upstream's |
 | #709, #710, #711 | Apple HIG colours, 11 px tab labels, a floating capsule tab bar | **Theme conflicts** with D17 / D49 and `hevier.css`, like #528 |
@@ -172,18 +216,18 @@ from their **titles only**, so read a PR before acting on it. Refresh:
 | #681 | A music bar in the workout | `HevyWorkout` would need to follow if it lands |
 | #661 | Life Fitness consoles: scan the end-of-workout QR code into a cardio set | Near D28's brands; nothing to take now |
 | #723 | Gym membership barcodes | **Won't do** (D12), like #568 |
-| #658 | Warm-ups: "Your last session" carries last time's warm-ups (#525) | D69 does this for routines without progression; if it lands, D69 may read it (with 1.4.3's #217, above) |
+| #658 | Warm-ups: "Your last session" carries last time's warm-ups (#525) | **In `release-1.4.4`** (2026-10-26). D69 does this for routines without progression: decide at the merge (with 1.4.3's #217, above) |
 | #785 (2026-10-24) | Hevy import: seated / lying leg curl, cable / machine reverse fly and the dumbbell skull crusher kept apart; Crunch, Side Plank, Squat (Machine) and Triceps Extension (Cable) left out of the template map too | **In `release-1.4.3`** (with #784 and #793; closed 2026-10-25). **D29's fix table** maps some of these: at the merge, delete the rows it covers, as with #672. Its four titles left out would make custom exercises where D29 or D33 picked one: check the user's history imports the same. |
 | #773 (2026-10-24) | Android slim APK, animations downloaded on demand (a proof of concept, discussion #744) | **D50** left the media alone: if it lands, the fork's APK can shrink with it, through upstream's build |
 | #775 (2026-10-24) | A warm-up or cool-down runs itself, as one card | `HevyWorkout` would need to follow, with #610's phases |
 | #749, #790 | Rest by heart rate on the Apple Watch; a forgotten workout ends at its last set (watch) | iOS; near D79 / D80 and D60, nothing to take |
-| #657 (issue) | A per-exercise weight unit | D41 is the fork's display-only answer: offer it there if the maintainer asks |
+| #657 (issue) | A per-exercise weight unit | **In `release-1.4.4`** (2026-10-26), upstream's own, in every screen: it replaces D41 (see above) |
 
 **Workout-screen features `HevyWorkout` would need to follow** (CONFLICTS.md, silent drift):
 #563 a persistent Complete / Next button · #490 a timer bar that says what it times, timed
 exercises that run themselves · #610 workout phases (reorder, colours, skip/resume) · #626
 automatic superset intervals, editable round rest · #587 extra exercises counted as training ·
-#507 interval training mode · #613 YouTube demos inline · #299 Android widget, early finish ·
+#507 interval training mode · #613 YouTube demos inline (in `release-1.4.4`) · #299 Android widget, early finish ·
 #712 Focus card width · #714 measurements back chevron. (#608, #622, #595, #574, #625 as #609,
 and #636 are in 1.4.3 now; #650 was closed.)
 
