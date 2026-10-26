@@ -26,3 +26,13 @@ strengthlevel.com                    # D19 "Compare strength": opens its standar
 react.dev                            # React's minified error messages
 reactrouter.com                      # React Router's error messages
 www.w3.org                           # SVG / XML namespace strings
+
+# Upstream 1.4.3 rows the fork hides (D16): in the bundle, never fetched or shown
+tile.openstreetmap.org               # the gym reminder's map tiles (leaflet), its page hidden
+nominatim.openstreetmap.org          # the gym reminder's place search, its page hidden
+www.openstreetmap.org                # the map's attribution link, same page
+leafletjs.com                        # leaflet's attribution link, same page
+opengym.ch                           # the web build's "Get the Android app" link and the gym reminder's user-agent text
+apps.apple.com                       # About's "Rate openGym on the App Store", hidden
+buymeacoffee.com                     # About's support link, hidden
+ko-fi.com                            # About's support link, hidden

@@ -8,7 +8,9 @@
      location (Android 12 on; before, the scan needs the location already asked for), and declares
      the foreground service that records the strap while a workout runs.
      It removes upstream's camera permission, which only its barcode scan of a gym check-in uses,
-     hidden in the fork (D12), whose scanner the fork leaves out (D50). -->
+     hidden in the fork (D12), whose scanner the fork leaves out (D50), and the background location
+     and location foreground service upstream's gym reminder needs (1.4.3), hidden in the fork too
+     (D16): "Find gyms nearby" asks for one position with the app open. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -42,4 +44,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" tools:node="remove" />
 </manifest>
