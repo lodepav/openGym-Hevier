@@ -91,7 +91,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Sets per muscle: main muscle only, or secondaries in part too | D42 | Offer |
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer |
 | Monthly report | D23 | Offer |
-| Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Offer |
+| Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Offered (#907, issue) |
 | Exercises kept out of progression are kept out of the statistics too (a deload routine's still count) | D57 | Offered (#813) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Offer |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
