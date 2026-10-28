@@ -77,7 +77,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Shoulder heads: front, side and rear delts | D65 | Offered (#638) |
 | One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offered (#788, in 1.4.4, the catalogue targets, shoulder heads as delts) |
 | The main muscle can be chosen per exercise | D76 | Offer |
-| One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offer |
+| One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offered (#903, issue) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
 | Strength levels list, by the level reached | D81 | Offer |
