@@ -67,7 +67,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Offer |
 | Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork |
 | Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offer |
-| Equipment chosen by group (Free weights, Machines …) | D63 | Offer |
+| Equipment chosen by group (Free weights, Machines …) | D63 | Offered (#901, the explorer's strip; a gym's checklist to follow) |
 
 ## Exercises and muscles
 
