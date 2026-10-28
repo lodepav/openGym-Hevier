@@ -36,7 +36,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902) |
 | Duration wheels in 5-second steps | D48 | Fork |
-| "Still training?" after five hours | D60 | Offer |
+| "Still training?" after five hours | D60 | Offered (#906, as the Watch's "All done?" after 20 min without a set) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
 | The next set to do is highlighted | D71 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offer |
@@ -66,7 +66,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Exercise search by machine brand | D36 | Offer |
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Offer |
 | Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork |
-| Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offer |
+| Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offered (#905, the count and Show all equipment) |
 | Equipment chosen by group (Free weights, Machines …) | D63 | Offered (#901, the explorer's strip; a gym's checklist to follow) |
 
 ## Exercises and muscles
