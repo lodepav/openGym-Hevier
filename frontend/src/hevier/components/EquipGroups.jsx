@@ -1,7 +1,7 @@
 // Equipment by group (hevier/DECISIONS.md D63): a gym's checklist (seam S36) and the exercise
 // picker's equipment filter show the groups of hevier/lib/equip-groups.js, each with a chevron at
 // its right edge that opens its kinds. A group is chosen or ticked as one; a kind on its own too.
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { t } from '../../lib/i18n.js'
 import Icon from '../../components/Icon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
@@ -47,11 +47,17 @@ const useOpen = first => {
 
 /**
  * A strip of group chips with a chevron at each one's right edge, an open group's kinds in a
- * second strip. `value` is '' (any), a kind or a group's value (`gv(id)`, read back by `gidOf`);
- * `kindGroup(k)` is a kind's group; `count(v)`, when given, is shown after a chip's name.
+ * second strip; a group of one kind is a plain chip of that kind, under its own name. `value` is
+ * '' (any), a kind or a group's value (`gv(id)`, read back by `gidOf`); `kindGroup(k)` is a
+ * kind's group; `count(v)`, when given, is shown after a chip's name.
  */
 export function GroupStrip({ groups, value, onChange, anyLabel, gv, gidOf, kindGroup, kindLabel = k => t(k), count, anyCls = 'chip nocap' }) {
-  const [open, setOpen] = useState(() => (value && !gidOf(value) ? kindGroup(value) : null))
+  // A chosen kind's group is open, so its chip is in sight: at first, and whenever the kind lands
+  // in a group of several (another body part's list), until the chevron shuts it.
+  const kindIn = value && !gidOf(value) ? kindGroup(value) : null
+  const hidden = !!kindIn && groups.some(g => g.id === kindIn && g.kinds.length > 1)
+  const [open, setOpen] = useState(kindIn)
+  useEffect(() => { if (hidden) setOpen(kindIn) }, [value, hidden]) // eslint-disable-line react-hooks/exhaustive-deps
   const shut = open && groups.find(g => g.id === open)?.kinds.length > 1 ? open : null
   const sub = shut ? groups.find(g => g.id === shut) : null
   const inGroup = id => value === gv(id) || (!gidOf(value) && value && kindGroup(value) === id)
@@ -60,12 +66,16 @@ export function GroupStrip({ groups, value, onChange, anyLabel, gv, gidOf, kindG
     <div className="chips" style={{ marginBottom: sub ? 6 : 12 }}>
       <button className={anyCls + (!value ? ' on' : '')} onClick={() => onChange('')}>{anyLabel}</button>
       {groups.map(g => {
-        const many = g.kinds.length > 1
-        const v = many ? gv(g.id) : g.kinds[0]
+        if (g.kinds.length === 1) {
+          const k = g.kinds[0]
+          return <button key={g.id} className={'chip' + (value === k ? ' on' : '')} aria-pressed={value === k}
+            onClick={() => onChange(value === k ? '' : k)}>{kindLabel(k)}{n(k)}</button>
+        }
+        const v = gv(g.id)
         const label = t(g.label)
         return <span key={g.id} className={'chip hv-eqg-chip' + (value === v ? ' on' : inGroup(g.id) ? ' some' : '')}>
           <button type="button" className="hv-eqg-t" aria-pressed={value === v} onClick={() => onChange(value === v ? '' : v)}>{label}{n(v)}</button>
-          {many && <Chevron open={shut === g.id} label={label} className="hv-eqg-x" onClick={() => setOpen(o => (o === g.id ? null : g.id))} />}
+          <Chevron open={shut === g.id} label={label} className="hv-eqg-x" onClick={() => setOpen(o => (o === g.id ? null : g.id))} />
         </span>
       })}
     </div>
@@ -167,7 +177,7 @@ export function MuscleFilterSheet({ value, names, onPick, close }) {
 
 /** Seam S39: the By muscle explorer's muscle chips by group, with each one's exercise count. */
 function MuscleStrip({ value, onChange, catalog }) {
-  const groups = groupBy(explorerMuscles(MUSCLES), groupOfMuscle).map(g => ({ ...g, label: g.kinds.length > 1 ? g.label : MUSCLE_NAME[g.kinds[0]] }))
+  const groups = groupBy(explorerMuscles(MUSCLES), groupOfMuscle)
   const count = v => catalog.filter(e => explorerShare(v, e)).length
   return <div style={{ marginTop: 10 }}><GroupStrip groups={groups} value={value || ''} onChange={v => onChange(v || null)}
     anyLabel={t('All')} gv={muscleGroupValue} gidOf={muscleGroupIdOf} kindGroup={groupOfMuscle}

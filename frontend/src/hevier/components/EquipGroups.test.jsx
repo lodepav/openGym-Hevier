@@ -4,7 +4,7 @@
 import React, { act, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it } from 'vitest'
-import { GymEquipmentChips } from './EquipGroups.jsx'
+import { GymEquipmentChips, EquipChipStrip } from './EquipGroups.jsx'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 let root, host, have
@@ -46,5 +46,41 @@ describe('hevier: a gym’s equipment by group (D63)', () => {
     expect([...have]).toEqual(['kettlebell'])
     act(() => chip('Free weights').querySelector('.hv-eqg-x').click())
     expect(host.querySelector('.hv-eqg-sub')).toBeNull()
+  })
+})
+
+// The explorer's equipment strip (seam S38), as offered upstream in #901.
+describe('hevier: the explorer’s equipment strip by group (D63)', () => {
+  let strip
+  function Strip({ kinds, start = '' }) {
+    const [value, setValue] = useState(start)
+    strip = { value }
+    return <EquipChipStrip kinds={kinds} value={value} onChange={setValue} />
+  }
+  function show(kinds, start) { act(() => root.render(<Strip kinds={kinds} start={start} />)) }
+  const byText = text => [...host.querySelectorAll('.chips .chip')].find(c => c.textContent === text)
+
+  it('a group with one kind present is a plain chip of that kind', () => {
+    render([])
+    show(['dumbbell', 'cable', 'barbell', 'ez barbell'])
+    expect(chip('Free weights')).toBeUndefined()
+    const dumbbell = byText('dumbbell')
+    expect(dumbbell.matches('button.chip')).toBe(true)
+    expect(dumbbell.querySelector('.hv-eqg-x')).toBeNull()
+    act(() => dumbbell.click())
+    expect(strip.value).toBe('dumbbell')
+    expect(chip('Barbells').querySelector('.hv-eqg-x')).toBeTruthy()
+  })
+
+  it('opens a chosen kind’s group once the list puts it among several', () => {
+    render([])
+    show(['dumbbell', 'cable'], 'dumbbell')
+    expect(host.querySelector('.hv-eqg-strip')).toBeNull()
+    show(['dumbbell', 'kettlebell', 'cable'])
+    expect([...host.querySelectorAll('.hv-eqg-strip .chip')].map(c => c.textContent)).toEqual(['dumbbell', 'kettlebell'])
+    expect(byText('dumbbell').className).toContain(' on')
+    act(() => chip('Free weights').querySelector('.hv-eqg-x').click())
+    expect(host.querySelector('.hv-eqg-strip')).toBeNull()
+    expect(chip('Free weights').className).toContain('some')
   })
 })
