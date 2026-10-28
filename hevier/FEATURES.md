@@ -33,8 +33,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Offer (upstream 1.4.4 brings its own, every screen, #657; it replaces D41 at that merge) |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
-| An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Fork |
-| An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Fork |
+| An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902) |
+| An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902) |
 | Duration wheels in 5-second steps | D48 | Fork |
 | "Still training?" after five hours | D60 | Offer |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
