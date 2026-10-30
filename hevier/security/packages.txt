@@ -14,7 +14,7 @@ api	@anthropic-ai/claude-agent-sdk@0.3.302
 api	@anthropic-ai/sdk@0.115.0
 api	@babel/runtime@7.29.7
 api	@hexagon/base64@1.1.28
-api	@hono/node-server@2.1.0
+api	@hono/node-server@2.1.5
 api	@levischuck/tiny-cbor@0.2.11
 api	@modelcontextprotocol/sdk@1.32.1
 api	@peculiar/asn1-android@2.8.0
@@ -388,7 +388,7 @@ mcp	@babel/helper-validator-identifier@7.29.7
 mcp	@babel/parser@7.29.8
 mcp	@babel/types@7.29.8
 mcp	@bcoe/v8-coverage@1.0.2
-mcp	@hono/node-server@2.0.12
+mcp	@hono/node-server@2.1.5
 mcp	@jridgewell/resolve-uri@3.1.2
 mcp	@jridgewell/sourcemap-codec@1.6.0
 mcp	@jridgewell/trace-mapping@0.3.31
