@@ -1680,7 +1680,7 @@ function ActiveWorkout() {
         else delete activeEntry.carried
         activeEntry.sets = [...doneWarm, ...freshWarm.slice(doneWarm.length), ...doneWork, ...freshWork.slice(doneWork.length)]
       })
-    }, null, routine)
+    }, null, routine, null, null, null, { autosave: true }) // [hevier] S50
   }
 
   // Remove a whole exercise from the session. The confirmation always asks first; in a

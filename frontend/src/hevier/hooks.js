@@ -16,6 +16,7 @@ export const hooks = {
   importReview: null,    // { keep(parsed, redo), Row }: the import's review of exercise matches (S23)
   weighIns: null,        // (opts) => true when upstream's weigh-in sheet is not to open (S22)
   noDumbbellsRowOff: false, // true: the dumbbell sheet has no "I own no dumbbells" switch (S49)
+  settingsAutosave: false, // true: the live workout's Exercise settings save as they close (S50)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
   defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)

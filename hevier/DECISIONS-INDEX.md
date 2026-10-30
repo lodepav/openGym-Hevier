@@ -94,3 +94,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D88** How long each exercise took, on Workout Detail and on a page of its own.
 - **D89** A set of a reps exercise can be a timed hold.
 - **D90** Ticking a set whose weight or reps looks mistyped, or whose cardio timer was left running, asks first.
+- **D92** A live workout's Exercise settings save as they close.
