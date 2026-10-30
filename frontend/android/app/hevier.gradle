@@ -59,6 +59,13 @@ android {
 //   cd frontend/android && ./gradlew :app:dependencies --write-locks
 // Only the two runtime classpaths, which are what the APK ships: the sideload flavour's (upstream
 // 1.4.2's flavours; the fork builds no play APK).
+// Health Connect's client asks for Guava 31.1, which CVE-2026-102554 reaches (fixed in 33.7.2): the
+// APK takes the fixed one (D26). Drop this once the client asks for that or later.
+dependencies {
+    constraints {
+        implementation 'com.google.guava:guava:33.7.2-android'
+    }
+}
 dependencyLocking {
     lockFile = file('src/hevier/gradle.lockfile')
 }

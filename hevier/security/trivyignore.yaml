@@ -10,17 +10,3 @@ vulnerabilities:
     purls: ["pkg:npm/uuid@7.0.3"]
     statement: MEDIUM, @capacitor/cli 8 → xcode → uuid, iOS project tooling run by cap sync, never shipped
     expired_at: 2027-01-17
-  # The APK's Java libraries (review G1, frontend/android/app/src/hevier/gradle.lockfile). Guava
-  # comes with upstream's Health Connect client (androidx.health.connect:connect-client
-  # 1.1.0-alpha12). Both CVEs are Guava's temp-directory helpers (Files.createTempDir,
-  # FileBackedOutputStream) leaving files readable to other users of a shared Unix /tmp; on Android
-  # java.io.tmpdir is the app's own private cache directory, which no other app can read. Drop
-  # these when the Health Connect client brings Guava 32 or later.
-  - id: CVE-2023-2976
-    purls: ["pkg:maven/com.google.guava/guava@31.1-android"]
-    statement: MEDIUM, Guava temp dir, Android's tmpdir is the app's private cache
-    expired_at: 2027-01-17
-  - id: CVE-2020-8908
-    purls: ["pkg:maven/com.google.guava/guava@31.1-android"]
-    statement: LOW, Guava temp dir, Android's tmpdir is the app's private cache
-    expired_at: 2027-01-17
