@@ -1940,7 +1940,8 @@ function BackupsSheet({ ex, subs: initial, onChange, close }) {
   </>
 }
 
-function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, initial, saveLabel, backupsEditable }) {
+// [hevier] S50: `autosave`, below
+function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, initial, saveLabel, backupsEditable, autosave }) {
   const st = useStore(s => s.S)
   // No warm-up rest of its own: the profile's (Settings > Workout) when it has one, else the work rest.
   const warmAll = typeof st.warmupRestSec === 'number' ? st.warmupRestSec : null
@@ -2091,6 +2092,11 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
       onSave(out)
     }
   }
+  // [hevier] S50: the live workout's sheet saves when it closes, however it closes, if anything changed (D92)
+  const saveOnClose = useRef(null)
+  const openedAs = useRef(JSON.stringify(c))
+  saveOnClose.current = JSON.stringify(c) === openedAs.current ? null : save
+  useEffect(() => () => { if (autosave) saveOnClose.current?.() }, [])
   return <>
     <h3 className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</h3>
     <Media ex={ex} />
@@ -2417,7 +2423,8 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
     {/* What saving does, when it is neither of the two usual things: the routine editor's
         Replace (#110) seeds this sheet with the slot it replaces, and saving puts the exercise
         into that slot. */}
-    <Button variant="primary" disabled={progressionStepInvalid} onClick={save}>{saveLabel || (existing ? t('Save') : t('Add to routine'))}</Button>
+    {/* [hevier] S50 */}
+    <Button variant="primary" disabled={progressionStepInvalid} onClick={autosave ? close : save}>{autosave ? t('Done') : saveLabel || (existing ? t('Save') : t('Add to routine'))}</Button>
     {isCustomEx(ex) && <><div style={{ height: 8 }} /><Button icon="pencil" onClick={() => { close(); customExSheet(ex) }}>{t('Edit or delete this exercise')}</Button></>}
     {/* The routine editor's counterpart to a workout's Swap (#110): another exercise in this
         slot, with the slot's sets, reps, weight, rule and note kept (lib/routines.js). What was
@@ -2427,7 +2434,8 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
   </>
 }
 // `opts.backups`: the routine editor's sheet, where the slot's planned substitutes are picked.
-export const exConfigSheet = (ex, existing, onSave, onDelete, routine, initial, onReplace, saveLabel, opts = {}) => ui().openSheet(close => <ExConfig ex={ex} existing={existing} initial={initial} onSave={onSave} onDelete={onDelete} onReplace={onReplace} routine={routine} saveLabel={saveLabel} backupsEditable={!!opts.backups} close={close} />)
+// [hevier] S50: `opts.autosave`, the live workout's sheet
+export const exConfigSheet = (ex, existing, onSave, onDelete, routine, initial, onReplace, saveLabel, opts = {}) => ui().openSheet(close => <ExConfig ex={ex} existing={existing} initial={initial} onSave={onSave} onDelete={onDelete} onReplace={onReplace} routine={routine} saveLabel={saveLabel} backupsEditable={!!opts.backups} autosave={!!opts.autosave && hooks.settingsAutosave} close={close} />)
 
 /* ============================ glyph picker ============================ */
 // Grouped by what the glyph means for a training day, so picking one is a scan

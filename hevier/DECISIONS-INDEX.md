@@ -95,3 +95,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D89** A set of a reps exercise can be a timed hold.
 - **D90** Ticking a set whose weight or reps looks mistyped, or whose cardio timer was left running, asks first.
 - **D91** A workout with a strap has one card, not two.
+- **D92** A live workout's Exercise settings save as they close.

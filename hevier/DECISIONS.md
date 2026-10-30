@@ -644,3 +644,10 @@ Added 2026-10-30, at the user's request: "Unified workout notification".
 | # | Decision |
 |---|---|
 | D91 | **A workout with a strap has one card, not two.** The heart-rate strap's card (D79) and the rest countdown's share one notification: while a rest runs, the countdown with its controls and `128 bpm` in the card's header (nothing in the header with the app on screen, or the strap not reading, D79's rule); otherwise the strap's own card. Built on Android letting two foreground services hold one notification id, which stays up until the last lets go: `HevierHrStrapService` takes the countdown's id, leaves the card alone while the countdown's is up, and posts its own when the rest goes (S51). **Not done, the smallest thing that is one card:** a workout with no strap keeps upstream's behaviour, a card only during a rest, since a card for every workout would be a new service always running. The header's bpm stands still while a rest is paused, as the card is not redrawn then. **Rest over**'s alert is still its own short notification: it has to sound. |
+## Exercise settings in a workout
+
+Added 2026-10-30, at the user's request: "Exercise settings during workout - autosave".
+
+| # | Decision |
+|---|---|
+| D92 | **A live workout's Exercise settings save as they close.** The exercise's ⋮ → **Exercise settings** has no Save: its button is **Done**, and a tap outside, a swipe down or Android's back also keep the changes (they threw them away). Nothing changed, or a change undone before closing, saves nothing, so opening the sheet to look leaves the rows as they are. A progression step the sheet marks invalid is not saved: Done is disabled, and closing another way drops the sheet's changes. Saving is upstream's: it rebuilds the rows that are not ticked from the settings, so a weight typed into an unticked row goes back to the plan's when something on the sheet changed, as it did with Save. Only this sheet (S50): adding an exercise, a swap's settings and the routine editor still have their own button, since closing those means no. |

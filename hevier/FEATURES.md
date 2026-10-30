@@ -44,6 +44,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Fork |
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, in 1.4.4, the weight and rep checks; the cardio timer is the fork’s) |
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
+| A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offer |
 
 ## Routines
 
