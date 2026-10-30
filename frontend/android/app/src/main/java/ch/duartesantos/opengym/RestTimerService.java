@@ -159,6 +159,8 @@ public class RestTimerService extends Service {
         }
         endsAt = 0;
         stopForegroundCompat();
+        Runnable gone = RestAlert.hevierRestGone; // [hevier] S51
+        if (gone != null) gone.run();
         super.onDestroy();
     }
 

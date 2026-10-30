@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.ParcelUuid;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import java.util.Collections;
 import java.io.File;
@@ -44,6 +45,10 @@ import java.util.UUID;
  * The app decodes the file when the workout is saved (hevier/lib/hr-strap.js). A strap that goes
  * out of reach or switches off is waited for and reconnected, for as long as the workout runs.
  * Started and stopped by HevierHrStrapPlugin; it keeps the strap's last reading for the plugin.
+ * A workout has one card (D91): this service shares the rest countdown's notification id, which
+ * Android allows two foreground services and keeps up until the last of them lets go. While a rest
+ * runs its card shows, with the bpm in its header (RestAlert.hevierSubText); when the rest goes,
+ * this service's own text comes back (RestAlert.hevierRestGone).
  */
 @SuppressLint("MissingPermission")   // the plugin starts it only with Bluetooth allowed
 public class HevierHrStrapService extends Service {
@@ -51,7 +56,8 @@ public class HevierHrStrapService extends Service {
     static final UUID HR_MEASUREMENT = uuid16(0x2A37);
     static final UUID CCCD = uuid16(0x2902);
     static final String CHANNEL_ID = "hevier-hr-strap";
-    static final int NOTIFICATION_ID = 7913;
+    // Android 7 cannot tell whose card is up (no channels): there the two stay apart.
+    static final int NOTIFICATION_ID = Build.VERSION.SDK_INT >= 26 ? RestAlert.COUNTDOWN_ID : 7913;
     static final String DIR = "hevier-hr";
     static final String TAG = "HevierHrStrap";
 
@@ -82,6 +88,7 @@ public class HevierHrStrapService extends Service {
     private boolean running;
     private int retries;
     private String title = "Heart rate strap", connecting = "Connecting to {0}…", live = "{0} bpm", recording = "Recording heart rate", name = "";
+    private String cardText = "";
     private long shownAt;
     private long connectedAt;
     private long lostAt;
@@ -137,6 +144,7 @@ public class HevierHrStrapService extends Service {
         }
         running = true;
         current = this;
+        RestAlert.hevierRestGone = this::restGone;
         retries = 0;
         bondAsked = false;
         connect(false);
@@ -421,14 +429,41 @@ public class HevierHrStrapService extends Service {
         return b.build();
     }
 
+    /** The rest countdown's card, while it is the one up; null otherwise. */
+    private Notification restCard() {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (nm == null || Build.VERSION.SDK_INT < 26) return null;
+        for (StatusBarNotification s : nm.getActiveNotifications()) {
+            if (s.getId() == NOTIFICATION_ID && RestAlert.COUNTDOWN_CHANNEL_ID.equals(s.getNotification().getChannelId())) return s.getNotification();
+        }
+        return null;
+    }
+
+    /** The bpm for the rest card's header: only a live reading, and only with the app off screen. */
+    private String heartLine() {
+        return "connected".equals(state) && !inApp && lastBpm > 0 ? live.replace("{0}", String.valueOf(lastBpm)) : null;
+    }
+
+    // The rest countdown let go of the card, which stays up as it was, since this service holds it too.
+    private void restGone() {
+        if (!running) return;
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (nm != null) nm.notify(NOTIFICATION_ID, build(cardText));
+    }
+
     private void goForeground(String text) {
-        Notification n = build(text);
+        cardText = text;
+        Notification rest = restCard();
+        Notification n = rest != null ? rest : build(text);
         if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
         else startForeground(NOTIFICATION_ID, n);
     }
 
     private void notifyText(String text) {
         if (!running) return;
+        cardText = text;
+        RestAlert.hevierSubText = heartLine();
+        if (restCard() != null) return;
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm != null) nm.notify(NOTIFICATION_ID, build(text));
     }
@@ -436,6 +471,8 @@ public class HevierHrStrapService extends Service {
     private void close() {
         running = false;
         if (current == this) current = null;
+        RestAlert.hevierSubText = null;
+        RestAlert.hevierRestGone = null;
         stopFinding();
         main.removeCallbacksAndMessages(null);
         if (gatt != null) {
