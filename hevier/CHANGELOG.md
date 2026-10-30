@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.2.0 · 2026-10-30
+
+Based on openGym 1.4.3.
+
+### New
+
+- a live workout's Exercise settings save as they close (D92)
+- one notification for a workout with a strap (D91)
+
 ## 2.1.2 · 2026-10-26
 
 Based on openGym 1.4.3.
