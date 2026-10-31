@@ -6,7 +6,7 @@ build something that is already coming. Read this before starting a milestone, a
 The refresh notes up to 2026-10-26 and the rows of v1.4.2 and v1.4.3, all merged, are in
 [archive/PIPELINE-merged.md](archive/PIPELINE-merged.md).
 
-**Refreshed 2026-10-29.** v1.4.3 was tagged on 2026-10-26 (`7c8290ca`) and is merged (see below).
+**Refreshed 2026-10-29.** v1.4.3 was tagged on 2026-10-26 (`7c8290ca`) and is merged (see the archive).
 `release-1.4.4` (now `fef710b6`) has grown 96 commits past 45512b2f, see "What release-1.4.4 added
 after 2026-10-26"; its milestone is now due **2026-11-08**. A new **`release-1.4.5`** (`d0a85546`,
 21 commits on it, with the `wins-145`, `design-review-145`, `integrations-145` and `wear-os` stages)
