@@ -12,7 +12,9 @@
 #   JDK 21          ~/.local/opt/jdk21       (or JAVA_HOME; a JRE is not enough)
 #   Android SDK     ~/Android/Sdk with platform-tools, emulator, platforms;android-35,
 #                   build-tools;35.0.0, system-images;android-36;google_apis;x86_64
-#   AVD             xperia1vi_api36 (1080x2340, 420 dpi, like the Xperia 1 VI)
+#   AVD             xperia1vi_api36 (1080x2340, 420 dpi, like the Xperia 1 VI; hw.ramSize 3072),
+#                   shared with OpenBite; keep the -gpu flag the same in its launcher, or each
+#                   switch drops the snapshot
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -44,7 +46,7 @@ fi
 if ! adb get-state >/dev/null 2>&1; then
   echo "booting $AVD..."
   nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD" -no-audio -no-boot-anim \
-    ${HEADLESS:+-no-window} -gpu swiftshader_indirect >/tmp/hevier-emulator.log 2>&1 &
+    ${HEADLESS:+-no-window} -gpu host >/tmp/hevier-emulator.log 2>&1 &
   adb wait-for-device
 fi
 adb shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
