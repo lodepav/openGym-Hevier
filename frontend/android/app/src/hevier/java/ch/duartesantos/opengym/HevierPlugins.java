@@ -21,5 +21,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierGalleryPlugin.class);
         // OpenBite's phase, read when a workout is saved (D93).
         activity.registerFlavorPlugin(HevierPhasePlugin.class);
+        // The strength signal OpenBite reads (D95).
+        activity.registerFlavorPlugin(HevierStrengthPlugin.class);
     }
 }

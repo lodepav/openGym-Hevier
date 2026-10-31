@@ -47,6 +47,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offer |
 | OpenBite's phase on saved workouts, and a filter by it on the statistics pages | D93 | Fork |
 | The gym on the feed card | D94 | Offer |
+| Strength in the current phase, shared with OpenBite | D95 | Fork |
 
 ## Routines
 

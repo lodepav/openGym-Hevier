@@ -14,7 +14,9 @@
      which only registers that reminder's gyms again, is removed with them.
      It reads OpenBite's phase (D93): a permission OpenBite grants only to an app signed with its key,
      and the visibility Android 11 on needs to see its provider. The develop pair is for debug builds;
-     HevierPhasePlugin never reads it in a release. -->
+     HevierPhasePlugin never reads it in a release.
+     It answers OpenBite with the strength signal (D95): a read-only provider, guarded by a permission
+     only an app signed with this app's key can hold. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -40,6 +42,11 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
         <receiver android:name=".GymReminderBootReceiver" tools:node="remove" />
+        <provider
+            android:name=".HevierStrengthProvider"
+            android:authorities="${applicationId}.strength"
+            android:exported="true"
+            android:permission="${applicationId}.permission.READ_STRENGTH" />
     </application>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
@@ -48,6 +55,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <permission android:name="${applicationId}.permission.READ_STRENGTH" android:protectionLevel="signature" />
     <uses-permission android:name="io.github.lodepav.openbite.permission.READ_PHASE" />
     <uses-permission android:name="io.github.lodepav.openbite.develop.permission.READ_PHASE" />
     <queries>
