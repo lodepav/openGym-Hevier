@@ -11,7 +11,10 @@
      hidden in the fork (D12), whose scanner the fork leaves out (D50), and the background location
      and location foreground service upstream's gym reminder needs (1.4.3), hidden in the fork too
      (D16): "Find gyms nearby" asks for one position with the app open. Its exported boot receiver,
-     which only registers that reminder's gyms again, is removed with them. -->
+     which only registers that reminder's gyms again, is removed with them.
+     It reads OpenBite's phase (D93): a permission OpenBite grants only to an app signed with its key,
+     and the visibility Android 11 on needs to see its provider. The develop pair is for debug builds;
+     HevierPhasePlugin never reads it in a release. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -45,6 +48,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <uses-permission android:name="io.github.lodepav.openbite.permission.READ_PHASE" />
+    <uses-permission android:name="io.github.lodepav.openbite.develop.permission.READ_PHASE" />
+    <queries>
+        <provider android:authorities="io.github.lodepav.openbite.phase" />
+        <provider android:authorities="io.github.lodepav.openbite.develop.phase" />
+    </queries>
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" tools:node="remove" />

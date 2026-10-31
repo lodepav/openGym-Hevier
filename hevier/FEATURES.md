@@ -45,6 +45,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, in 1.4.4, the weight and rep checks; the cardio timer is the fork’s) |
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
 | A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offer |
+| OpenBite's phase on saved workouts, and a filter by it on the statistics pages | D93 | Fork |
+| The gym on the feed card | D94 | Offer |
 
 ## Routines
 

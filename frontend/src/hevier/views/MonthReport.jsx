@@ -16,6 +16,8 @@ import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedWorkouts } from '../lib/counted.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
+import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
 import { sessionVolume } from '../../lib/history.js'
 
@@ -34,9 +36,10 @@ export default function MonthReport() {
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
-  const counted = useMemo(() => countedWorkouts(st.workouts, st.routines), [st.workouts, st.routines])
+  const log = usePhasedS(st).workouts   // D93
+  const counted = useMemo(() => countedWorkouts(log, st.routines), [log, st.routines])
   const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w), w => sessionVolume(w, st)), [counted, st.dbLoad, at, ws, mm, st.volumeWarmups]) // eslint-disable-line react-hooks/exhaustive-deps
-  const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
+  const byDay = useMemo(() => workoutsByDay(log), [log])
   const first = firstMonth(st.workouts)
   const ym = `${at.y}-${String(at.mo + 1).padStart(2, '0')}-`
   const trained = Object.keys(byDay).some(d => d.startsWith(ym))
@@ -56,6 +59,7 @@ export default function MonthReport() {
         before: t(MONTHS_LONG[(at.mo + 11) % 12]),
       })}><Icon name="share" /></button>}
     </BackTo>
+    <PhaseFilter />
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
       <div><h1>{title}</h1>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>

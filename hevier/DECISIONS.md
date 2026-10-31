@@ -651,3 +651,19 @@ Added 2026-10-30, at the user's request: "Exercise settings during workout - aut
 | # | Decision |
 |---|---|
 | D92 | **A live workout's Exercise settings save as they close.** The exercise's ⋮ → **Exercise settings** has no Save: its button is **Done**, and a tap outside, a swipe down or Android's back also keep the changes (they threw them away). Nothing changed, or a change undone before closing, saves nothing, so opening the sheet to look leaves the rows as they are. A progression step the sheet marks invalid is not saved: Done is disabled, and closing another way drops the sheet's changes. Saving is upstream's: it rebuilds the rows that are not ticked from the settings, so a weight typed into an unticked row goes back to the plan's when something on the sheet changed, as it did with Save. Only this sheet (S50): adding an exercise, a swap's settings and the routine editor still have their own button, since closing those means no. |
+
+## OpenBite's phase on saved workouts
+
+Added 2026-10-31, at the user's request: "see which phase I'm in on workout cards and workout page, filters by phase on the stats pages".
+
+| # | Decision |
+|---|---|
+| D93 | **A saved workout carries OpenBite's phase, and the statistics pages filter by it.** OpenBite (the nutrition fork, signed with the same key) shares cutting, maintaining or bulking from a read-only ContentProvider on the phone; Go Hevier writes nothing back, and no server is involved (`HevierPhasePlugin`, a signature-level permission, and the provider's own signature checked). OpenBite keeps no history of it, so **Save Workout writes the phase of the day on the record**, `w.hvPhase` `{ p, r, k }` (phase, kg a week, kcal target; only the phase is shown, the rest kept as it could not be got later). An edit keeps it. It shows **only on saved workouts**: the feed card under the title and Workout Detail's date line, never in the running workout. **No phase is written** without OpenBite, when its row is over 14 days old (the app no longer in use), or on a workout logged into the past. Workouts before this, imports, and a finish that skips Save Workout have none, and count only under All. **The filter**: All (the default, again at each app start), then each phase the log has workouts in, one choice across Statistics, All statistics, Structural balance, Monthly report, Strength levels, Exercise time and an exercise's Summary (its History lists every session). With no workout carrying a phase it does not show. **Reading only:** progression, last time and the recovery of a live workout never read it. No seam: upstream's pages already read the log through `hooks.statsS` (S34). **Not done:** a side-by-side of the phases, until the filter proves not to be enough; the user asked for that only if it does not. |
+
+## The gym on the feed card
+
+Added 2026-10-31, at the user's request: "gym tags on workout cards in the feed, not just on workout page".
+
+| # | Decision |
+|---|---|
+| D94 | **A feed card shows the workout's gym.** Under the title, with the pin Workout Detail uses, beside the phase (D93), or **Removed gym** for one deleted since. A workout with no gym has no line. |

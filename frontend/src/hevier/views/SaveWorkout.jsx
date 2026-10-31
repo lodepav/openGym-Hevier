@@ -27,6 +27,8 @@ import { volumeMode, workSets } from '../lib/volume.js'
 import { sessionMin, durationProblem, applyDuration, workoutNumber, workoutsInDays, TITLE_MAX } from '../lib/save-workout.js'
 import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
 import { gymSheet } from '../components/GymLabels.jsx'
+import { withPhase } from '../lib/shared-phase.js'
+import { readSharedPhase } from '../lib/shared-phase-run.js'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { progressionOn, withoutForecast } from '../lib/plain-routine.js'
@@ -62,6 +64,10 @@ export function SaveWorkout() {
   const [min, setMin] = useState(state?.durationMin ?? null)   // null: the session's own length, still running
   const [, tick] = useState(0)
   useEffect(() => { const id = setInterval(() => tick(n => n + 1), 15000); return () => clearInterval(id) }, [])
+  // D93: OpenBite's phase, read as the page opens so Save has it at once. A workout logged into the
+  // past gets none: today's phase says nothing about that day.
+  const phase = useRef(null)
+  useEffect(() => { if (!useStore.getState().S.active?.backfill) readSharedPhase().then(p => { phase.current = p }) }, [])
   // Reached with no session to save (a reload after saving, a link): back to the Workout tab. A
   // session that ends while the page is open (Save, Discard) leaves through its own navigation,
   // which a redirect from here would overtake.
@@ -97,7 +103,7 @@ export function SaveWorkout() {
     saved = { id: cur.id, session: structuredClone(cur), updates: null, used: false }
     doFinishWorkout()
     update(s => {
-      s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withLabels(w, labels) : w))
+      s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withPhase(withLabels(w, labels), phase.current) : w))
       s.workouts = applyDuration(s.workouts, ref, min)
     })
     // doFinishWorkout wrote the day's auto-backup before the labels and the date above: again,

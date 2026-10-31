@@ -9,6 +9,8 @@ import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedS } from '../lib/counted.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
+import PhaseFilter from '../components/PhaseFilter.jsx'
 import { exerciseSummary } from '../lib/exercise-summary.js'
 import { LEVELS, levelGroups } from '../lib/strength-level.js'
 
@@ -17,12 +19,13 @@ const title = level => (level == null ? t('No 1RM logged yet') : level < 0 ? t('
 export default function StrengthLevels() {
   const st = useStore(s => s.S)
   const unit = st.unit
+  const counted = usePhasedS(countedS(st))
   const groups = useMemo(() => {
-    const counted = countedS(st)
     return levelGroups(st.hvStrength, unit, id => exerciseSummary(counted, id).records.e1rm?.v)
-  }, [st.hvStrength, st.workouts, st.dbLoad, unit]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st.hvStrength, counted, st.dbLoad, unit]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="narrow hv-statpage">
     <BackTo label={t('Statistics')} to="/stats" title={t('Strength levels')} />
+    <PhaseFilter />
     {!groups.length && <div className="muted small">{t('No strength levels yet. Add them on an exercise’s Summary, under Strength level.')}</div>}
     {groups.map(g => <section key={String(g.level)}>
       <h4 className="sec">{title(g.level)} <span className="dim">· {g.items.length}</span></h4>

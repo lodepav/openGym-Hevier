@@ -28,6 +28,8 @@ import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
 import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
+import PhaseFilter from '../components/PhaseFilter.jsx'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
 import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
@@ -146,8 +148,9 @@ function ExerciseDetails({ ex, close }) {
   const st = useStore(s => s.S)
   const [tab, setTab] = useState('summary')
   // The Summary leaves out sessions kept out of progression (D57); the History lists every one.
-  const counted = countedS(st)
-  const all = useMemo(() => exerciseSummary(counted, ex.id), [st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // The filter by OpenBite's phase (D93) is the Summary's too; the History still lists every one.
+  const counted = usePhasedS(countedS(st))
+  const all = useMemo(() => exerciseSummary(counted, ex.id), [counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // With nothing kept out (the usual case), countedS hands back `st` itself: one summary serves both.
   const same = counted === st
   const logged = useMemo(() => (same ? all : exerciseSummary(st, ex.id)), [all, same, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -156,7 +159,7 @@ function ExerciseDetails({ ex, close }) {
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
   const on = labels.some(l => l.key === label) ? label : null
-  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(st, ex.id, on), ex.id)), [logged, sum, same, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
@@ -198,6 +201,7 @@ function ExerciseDetails({ ex, close }) {
       <option value="">{t('All sets')}</option>
       {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
     </select>}
+    {tab === 'summary' && <PhaseFilter />}
     {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
     {tab === 'history' && <History ex={ex} sum={hist} st={st} />}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}

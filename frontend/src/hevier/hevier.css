@@ -218,6 +218,7 @@
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
 :root[data-ui="hevier"] .hv-wcard-t{margin-bottom:8px}
+:root[data-ui="hevier"] .hv-wcard-tags{display:flex;flex-wrap:wrap;gap:4px 12px;margin:-4px 0 8px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wcard-note{margin:-4px 0 8px;font-size:14px;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* Hevy spreads the stats over the card's width: equal columns, not packed to the left */
 :root[data-ui="hevier"] .hv-wcard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -255,6 +256,11 @@
 :root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
 :root[data-ui="hevier"] .hv-chip{padding:6px 12px;border-radius:999px;font-size:13px;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-chip.on{background:var(--acc);color:var(--on-acc)}
+:root[data-ui="hevier"] .hv-phase-filter{margin:0 0 10px}
+/* Structural balance's own header stays on top: the filter goes in under it (D93). */
+:root[data-ui="hevier"] .hv-phase-page{display:flex;flex-direction:column}
+:root[data-ui="hevier"] .hv-phase-page>.hdr{order:-2}
+:root[data-ui="hevier"] .hv-phase-page>.hv-phase-filter{order:-1}
 
 /* ---------- Home (hevier/views/HevyHome.jsx) ---------- */
 :root[data-ui="hevier"] .hv-edithome .item{gap:10px}
