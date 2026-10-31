@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# A merge into hevier/main needs "Merge hevier/<branch>: what it does": the release
+# notes are those subjects (hevier/tools/release-notes.mjs).
+set -euo pipefail
+
+[[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]] || exit 0
+[[ "$(git branch --show-current)" == hevier/main ]] || exit 0
+subject="$(sed -n '1p' "$1")"
+if [[ "$subject" =~ ^Merge\ hevier/[^:[:space:]]+:\ .+ \
+   || "$subject" =~ ^hevier:\ merge\ upstream\  \
+   || "$subject" == "Merge remote-tracking branch 'origin/hevier/main'"* \
+   || "$subject" == "Merge branch 'hevier/main' of "* ]]; then
+  exit 0
+fi
+echo "commit-msg: a merge into hevier/main needs the subject \"Merge hevier/<branch>: what it does\"; it was:" >&2
+echo "  $subject" >&2
+exit 1

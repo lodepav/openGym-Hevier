@@ -8,6 +8,16 @@ description: Run the fork's checks — on every commit the fork tests and the VI
 Two levels. Run the steps in order, one at a time. Never run two vitest suites at once: that
 has caused false skips. Report the counts, and quote any failure in full.
 
+The merge level is `hevier/tools/verify.sh`, and git enforces it: the `pre-push` hook runs it for
+`hevier/main`, and `hevier/tools/release-apk.sh` runs it first. A pass is remembered by commit, so
+the push after a passing check doesn't repeat it, and neither does a docs-only commit. Hooks are
+on through `hevier/tools/install-hooks.sh`, once a clone. `git push --no-verify` only when the
+user says so. The `commit-msg` hook refuses a merge into `hevier/main` without
+`Merge hevier/<branch>: what it does`, because the release notes are those subjects.
+
+Whole suites and builds take turns through `hevier/tools/heavy.sh`, a lock shared with OpenBite's
+copy, so one waits for the other, in either repo.
+
 `$FAST` is `--config src/hevier/build/vitest-fast.config.js --maxWorkers=4`: the threads pool with 4 workers, and the tests that set `process.env.TZ` in a process of their own, as a thread cannot move the clock. Threads measured 2026-10-25 (8 cores, 14 GB): the full suite
 283 s → 145 s, the fork's 39 s → 25 s, about 3 GB at its peak. Not faster: 6 workers (130 s for
 7 GB), `--pool=vmThreads` (filled the memory), `--no-isolate` (311 of upstream's tests fail when
@@ -27,13 +37,9 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
 # only if the fork's Java changed (frontend/android/app/src/hevier):
 (cd android && JAVA_HOME=$HOME/.local/opt/jdk21 ANDROID_HOME=$HOME/Android/Sdk \
   ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
-# no conflict marker left behind by a merge (one shipped in DECISIONS.md once, 658d4cab):
-! git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- .. ':!../hevier/CONFLICTS.md'
-# the decision index CLAUDE.md loads matches DECISIONS.md:
-diff <(../hevier/tools/decision-index.sh) ../hevier/DECISIONS-INDEX.md
 ```
 
-- A diff from the decision index means a decision was added or reworded without the index:
+- A diff from the decision index (`verify.sh` checks it) means a decision was added or reworded without the index:
   run `hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md` and commit it with the change.
 
 - A red upstream `src/lib/i18n-plural.test.js` naming a fork string means a fork file calls
@@ -47,10 +53,11 @@ diff <(../hevier/tools/decision-index.sh) ../hevier/DECISIONS-INDEX.md
 ## Before a merge
 
 When merging a branch into `hevier/main`, or upstream into the fork (the `upstream-merge`
-skill), or when asked to "check everything": the steps above, then upstream's tests.
+skill), or when asked to "check everything": the script, which covers conflict markers, seams,
+the decision index, the release tools, the whole suite and the fork build.
 
 ```bash
-npx vitest run $FAST                      # upstream + fork, ~2.5 min: Bash timeout 400000
+../hevier/tools/verify.sh                 # ~3.5 min: Bash timeout 400000
 cd ../api && npm test                     # only if api/ changed since the last merge
 cd ../mcp && npm test                     # only if mcp/ changed since the last merge
 ```

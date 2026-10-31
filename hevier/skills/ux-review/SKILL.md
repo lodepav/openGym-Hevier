@@ -19,8 +19,8 @@ your own judgement.
 
 ## 0. Set up
 
-1. Nothing else heavy runs: no Gradle, test suite or second emulator (the machine has run out of
-   memory). Boot and install: `HEADLESS=1 hevier/tools/emulator.sh`, in the background.
+1. Builds and suites take turns (`hevier/tools/heavy.sh`), but start none beside a review: no
+   second emulator either (the machine has run out of memory). Boot and install: `HEADLESS=1 hevier/tools/emulator.sh`, in the background.
 2. Take the snapshot ("Before and after a round" in `hevier/ux/JOURNEYS.md`). Set up the test
    profile if the snapshot lacks it.
 3. Read `hevier/ux/LEDGER.md`.

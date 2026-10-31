@@ -1,0 +1,3 @@
+# The table only ever grows: two branches adding a row is not a conflict. Numbers can clash;
+# hevier/tools/seam_check.py finds that.
+hevier/SEAMS.md merge=union
