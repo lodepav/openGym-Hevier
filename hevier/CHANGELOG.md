@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.3.0 · 2026-10-31
+
+Based on openGym 1.4.3.
+
+### New
+
+- strength in the current phase, shared with OpenBite (D95)
+- OpenBite's phase on saved workouts and a phase filter on the statistics pages (D93), the gym on the feed card (D94)
+
 ## 2.2.0 · 2026-10-30
 
 Based on openGym 1.4.3.
