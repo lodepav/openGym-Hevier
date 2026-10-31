@@ -19,6 +19,7 @@ import { useUI } from '../store/useUI.js'
 import { t } from '../lib/i18n.js'
 import { applyForkIcons, applyForkName } from './lib/pwa-icons.js'
 import { initMonthWidget } from './lib/month-widget.js'
+import { initStrengthSignal } from './lib/strength-signal-run.js'
 import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
@@ -121,6 +122,7 @@ function install() {
   hooks.weighIns = opts => weighInBlocked(opts, () => store.toast(t('Weigh-ins come from Health Connect')))
   initHevyExport(store)
   initMonthWidget(store, route => nav(route), todayISO)
+  initStrengthSignal(store, todayISO)                     // strength in the phase, for OpenBite to read (D95)
 }
 
 install()
