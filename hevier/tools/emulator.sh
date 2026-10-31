@@ -36,11 +36,11 @@ export VITE_HEVIER_DEBUG=1
 if [[ "${1:-}" != "--no-build" ]]; then
   cd "$ROOT/frontend"
   [[ -d node_modules ]] || npm ci
-  npx vite build
+  ../hevier/tools/heavy.sh npx vite build
   node ../scripts/catalogue/stage-media.mjs dist
   npx cap sync
   node scripts/check-mobile-bundle.mjs
-  (cd android && ./gradlew assembleSideloadDebug -q)
+  (cd android && ../../hevier/tools/heavy.sh ./gradlew assembleSideloadDebug -q)
 fi
 
 if ! adb get-state >/dev/null 2>&1; then
