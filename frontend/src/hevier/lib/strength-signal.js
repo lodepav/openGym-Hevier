@@ -24,6 +24,9 @@ const GROUP = { Lats: 'Back', 'Upper Back': 'Back', 'Lower Back': 'Back', Traps:
   'Front Delts': 'Shoulders', 'Side Delts': 'Shoulders', 'Rear Delts': 'Shoulders' }
 export const muscleGroup = ex => { const m = mainMuscleOf(ex); return GROUP[m] || m }
 
+// Left out at the user's word: these rarely move much, so "not rising" there says little about food.
+const LEFT_OUT = new Set(['Calves', 'Abdominals', 'Obliques'])
+
 const dayNo = d => Math.floor(Date.parse(d + 'T12:00:00Z') / DAY)
 const tenth = v => Math.round(v * 10) / 10
 
@@ -113,14 +116,16 @@ export function strengthSignal(S, today, now = Date.now()) {
   const byMuscle = new Map()
   const reads = []
   for (const { id, sessions } of byExercise.values()) {
+    const muscle = muscleGroup(exOr(id))
+    if (LEFT_OUT.has(muscle)) continue
     const read = { id, ...readExercise(sessions) }
     reads.push(read)
-    const muscle = muscleGroup(exOr(id))
     // An exercise compared only once has no chain to show, so it cannot be most of anything.
     if (!muscle || !read.judged) continue
     if (!byMuscle.has(muscle)) byMuscle.set(muscle, [])
     byMuscle.get(muscle).push(read)
   }
+  if (!reads.length) return null
   const groups = test => [...byMuscle].filter(([, list]) => mostOf(list, test))
   const falling = groups(r => r.falling)
   const notRising = phase === 'bulking' && phaseDays >= WEEKS_DAYS ? groups(r => r.notRising) : []

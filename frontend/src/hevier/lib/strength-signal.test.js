@@ -139,6 +139,18 @@ describe('strengthSignal', () => {
     expect(BACK.length).toBeGreaterThan(1)
   })
 
+  it('leaves out calves and abs, as if they were not done', () => {
+    const ofGroup = m => EXDB.filter(e => e.eq !== 'body weight' && !/assist/i.test(e.eq || '') && muscleGroup(e) === m).map(e => e.id)
+    for (const m of ['Calves', 'Abdominals', 'Obliques']) {
+      expect(signal(series(ofGroup(m).slice(0, 2), [15, 8, 1], [70, 65, 60]))).toBeNull()
+    }
+    const r = signal([
+      ...series(CHEST.slice(0, 2), [15, 8, 1], [70, 65, 60]),
+      ...series(ofGroup('Calves').slice(0, 2), [14, 7, 2], [70, 65, 60]),
+    ])
+    expect(r).toMatchObject({ level: 'warning', muscles: 'Chest', exercises_tracked: 2, exercises_falling: 2 })
+  })
+
   it('leaves out kept-out and bodyweight exercises', () => {
     const off = series(CHEST.slice(0, 2), [15, 8, 1], [70, 65, 60]).map(w => ({ ...w, entries: w.entries.map(e => ({ ...e, noProg: true })) }))
     expect(signal(off)).toBeNull()
