@@ -15,6 +15,11 @@ cd "$ROOT"
 STAMP="$(git rev-parse --path-format=absolute --git-common-dir)/hevier-verified"
 clean() { [[ -z "$(git status --porcelain)" ]]; }
 
+# git doesn't carry core.hooksPath over a clone: without it nothing guards hevier/main.
+if [[ -z "${CI:-}" && "$(git config core.hooksPath)" != hevier/hooks ]]; then
+  echo "verify: warning: the hooks are off in this clone; run hevier/tools/install-hooks.sh" >&2
+fi
+
 already_checked() {
   clean && [[ -f "$STAMP" ]] || return 1
   local last
@@ -33,6 +38,7 @@ if git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- . ':!hevier/CONFLICTS.md'; then
   exit 1
 fi
 python3 hevier/tools/seam_check.py
+hevier/tools/sibling_check.sh
 diff <(hevier/tools/decision-index.sh) hevier/DECISIONS-INDEX.md || {
   echo "verify: run hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md" >&2
   exit 1
