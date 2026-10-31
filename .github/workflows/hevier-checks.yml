@@ -1,0 +1,35 @@
+# Go Hevier's trunk gets the checks the pre-push hook runs, on a machine that isn't this one: a
+# push with --no-verify, or from a clone without the hooks, still gets checked. Upstream's test.yml
+# watches main, not hevier/main.
+name: Hevier checks
+
+on:
+  push:
+    branches: [hevier/main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hevier-checks
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Upstream, for the seam check
+        run: |
+          git remote add upstream https://github.com/DuarteSantos8/openGym.git
+          git fetch -q upstream main
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: frontend
+      - run: hevier/tools/verify.sh

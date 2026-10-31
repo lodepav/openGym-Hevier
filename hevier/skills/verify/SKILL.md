@@ -15,6 +15,10 @@ on through `hevier/tools/install-hooks.sh`, once a clone. `git push --no-verify`
 user says so. The `commit-msg` hook refuses a merge into `hevier/main` without
 `Merge hevier/<branch>: what it does`, because the release notes are those subjects.
 
+`.github/workflows/hevier-checks.yml` runs the same script on every push to `hevier/main`, once
+Actions is on for the repo. `frontend/src/hevier/upgrade/` holds what each release saved, and the
+test that the current code still reads it; `hevier/tools/upgrade-fixture.sh <version>` adds one.
+
 Whole suites and builds take turns through `hevier/tools/heavy.sh`, a lock shared with OpenBite's
 copy, so one waits for the other, in either repo.
 
