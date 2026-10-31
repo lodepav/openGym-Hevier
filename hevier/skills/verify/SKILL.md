@@ -8,7 +8,7 @@ description: Run the fork's checks — on every commit the fork tests and the VI
 Two levels. Run the steps in order, one at a time. Never run two vitest suites at once: that
 has caused false skips. Report the counts, and quote any failure in full.
 
-`$FAST` is `--pool=threads --maxWorkers=4`, measured 2026-10-25 (8 cores, 14 GB): the full suite
+`$FAST` is `--config src/hevier/build/vitest-fast.config.js --maxWorkers=4`: the threads pool with 4 workers, and the tests that set `process.env.TZ` in a process of their own, as a thread cannot move the clock. Threads measured 2026-10-25 (8 cores, 14 GB): the full suite
 283 s → 145 s, the fork's 39 s → 25 s, about 3 GB at its peak. Not faster: 6 workers (130 s for
 7 GB), `--pool=vmThreads` (filled the memory), `--no-isolate` (311 of upstream's tests fail when
 files share a process), Vite's dependency pre-bundling (no change). Most of the time is each
@@ -19,7 +19,7 @@ file's setup (the 1.1 MB catalogue, happy-dom), not its tests. With the emulator
 
 ```bash
 export PATH="$HOME/.local/opt/node/bin:$PATH"
-FAST='--pool=threads --maxWorkers=4'
+FAST='--config src/hevier/build/vitest-fast.config.js --maxWorkers=4'
 cd frontend
 npx vitest run $FAST src/hevier src/lib/i18n-plural.test.js   # fork tests and the plural keys, ~25 s
 VITE_HEVIER=1 npx vite build              # the fork build
