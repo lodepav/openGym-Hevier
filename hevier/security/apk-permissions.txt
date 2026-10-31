@@ -27,4 +27,6 @@ android.permission.BLUETOOTH_CONNECT            # the same (D79): connects to th
 android.permission.BLUETOOTH                     # the same (D79), Android 11 and older only (maxSdkVersion 30)
 android.permission.BLUETOOTH_ADMIN               # the same (D79), Android 11 and older only (maxSdkVersion 30)
 android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE # the strap's recording keeps going with the screen locked (D79)
+io.github.lodepav.openbite.permission.READ_PHASE # OpenBite's phase on a saved workout (D93): signature-level, only for an app signed with its key
+io.github.lodepav.openbite.develop.permission.READ_PHASE # the same from OpenBite's develop build; the plugin reads it in debug builds only
 $PKG.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION    # added by AndroidX for its own unexported receivers, app-private

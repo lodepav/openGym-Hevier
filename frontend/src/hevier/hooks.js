@@ -21,7 +21,7 @@ export const hooks = {
   defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)
-  statsS: null,          // (S) => S: the log upstream's statistics pages read (S34)
+  statsS: null,          // (S) => S, a React hook: the log upstream's statistics pages read (S34)
   gymSheet: null,        // { equipment(p), saved(p), note(), Chips }: an equipment profile's sheet, a gym's (S36)
   equipFilter: null,     // (S) => { profile, has(ex) }: the gym upstream's muscle explorer filters by (S37)
   equipChips: null,      // { on(v, kinds), has(v, ex), Chips }: the muscle explorer's equipment strip (S38)

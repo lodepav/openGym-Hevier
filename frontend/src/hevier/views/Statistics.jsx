@@ -14,6 +14,8 @@ import PageBar, { useBack } from '../components/PageBar.jsx'
 import { muscleSetCounts, lastDays, PERIODS, WEEK_HEAT } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 import { countedS } from '../lib/counted.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
+import PhaseFilter from '../components/PhaseFilter.jsx'
 import { entryTimes } from '../lib/exercise-time.js'
 
 const hasTimes = w => entryTimes(w).length > 0
@@ -74,12 +76,13 @@ export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
-  const S = countedS(useStore(s => s.S))
+  const S = usePhasedS(countedS(useStore(s => s.S)))
   const today = todayISO()
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   return <div className="narrow hv-statpage">
     <BackTo label={t('Profile')} to="/profile" title={t('Statistics')} />
+    <PhaseFilter />
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     <h4 className="sec">{t('More')}</h4>

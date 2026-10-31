@@ -19,5 +19,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierHrStrapPlugin.class);
         // The save to the gallery, a workout's share card (D87).
         activity.registerFlavorPlugin(HevierGalleryPlugin.class);
+        // OpenBite's phase, read when a workout is saved (D93).
+        activity.registerFlavorPlugin(HevierPhasePlugin.class);
     }
 }

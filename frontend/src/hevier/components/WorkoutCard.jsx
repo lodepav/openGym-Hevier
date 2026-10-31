@@ -1,5 +1,5 @@
-// A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, its note, date, Time · Volume ·
-// Records, then the first exercises with their set counts. Tapping it opens the workout's details
+// A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, its gym (D94) and OpenBite's
+// phase (D93), its note, date, Time · Volume · Records, then the first exercises with their set counts. Tapping it opens the workout's details
 // (the fork's Workout Detail, seam S14); ⋯ offers Hevy's four actions, each the one upstream's details sheet runs.
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -23,6 +23,9 @@ import Icon from '../../components/Icon.jsx'
 import { sanitizeHr } from '../../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { workoutRecords } from '../lib/records.js'
+import { gymName, savedGym } from '../lib/gym-labels.js'
+import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
+import HvIcon from './HvIcon.jsx'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -75,6 +78,8 @@ export default function WorkoutCard({ w }) {
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
   const who = (useStore(s => s.user?.name) || '').trim()
   const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
+  const gym = useStore(s => gymName(s.S, savedGym(w)))   // D28: null without a gym, '' for one deleted since
+  const phase = workoutPhase(w)
   return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))} aria-label={(w.name || t('Workout')) + ', ' + workoutWhenText(w)}>
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
@@ -86,6 +91,10 @@ export default function WorkoutCard({ w }) {
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
     <div className="hv-wcard-t">{w.name || t('Workout')}</div>
+    {(gym != null || phase) && <div className="hv-wcard-tags">
+      {gym != null && <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span>}
+      {phase && <span>{t(PHASE_LABEL[phase])}</span>}
+    </div>}
     {w.note && <p className="hv-wcard-note">{w.note}</p>}
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>

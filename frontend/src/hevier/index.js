@@ -33,7 +33,7 @@ import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders
 import { holdMode } from './lib/hold-mode.js'
 import { rowMode } from './lib/hold-set.js'
 import { sideDefault, initSideRoutines } from './lib/one-limb.js'
-import { countedS } from './lib/counted.js'
+import { useStatsS } from './lib/shared-phase-run.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
@@ -71,7 +71,7 @@ function install() {
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   hooks.defaultProg = 'off'                             // no progression rule of its own: none (D61)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
-  hooks.statsS = countedS                                 // All statistics leave out the kept-out exercises (S34, D57)
+  hooks.statsS = useStatsS                                // All statistics leave out the kept-out exercises (S34, D57) and follow the phase filter (D93)
   initStillTraining(store)                                // Still training? after five hours (D60)
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes

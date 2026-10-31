@@ -9,6 +9,7 @@ import Stats from '../views/Stats.jsx'
 import Measurements from '../views/Measurements.jsx'
 import ProgressPhotos from '../views/ProgressPhotos.jsx'
 import StructuralBalance from '../views/StructuralBalance.jsx'
+import PhaseFilter from './components/PhaseFilter.jsx'
 import Plan from '../views/Plan.jsx'
 import Icon from '../components/Icon.jsx'
 import PageBar, { useBack } from './components/PageBar.jsx'
@@ -75,7 +76,7 @@ function PlanPage() {
 // Upstream's Measurements, Progress photos and Structural balance have their own ‹ in the header,
 // hard-wired to /home or /stats. In the fork they open from Statistics or Measures, so that ‹
 // goes back where the user came from instead. Caught before upstream's handler, which is left as is.
-function BackWhereFrom({ to, children }) {
+function BackWhereFrom({ to, className, children }) {
   const nav = useNavigate()
   const catchBack = e => {
     const b = e.target.closest?.('button')
@@ -86,7 +87,7 @@ function BackWhereFrom({ to, children }) {
     if (window.history.state?.idx > 0) nav(-1)
     else nav(to, { replace: true })
   }
-  return <div onClickCapture={catchBack}>{children}</div>
+  return <div className={className} onClickCapture={catchBack}>{children}</div>
 }
 
 export const hevierRoutes = [
@@ -95,11 +96,11 @@ export const hevierRoutes = [
   <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
   <Route key="hv-stats" path="/stats" element={<Statistics />} />,
-  <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><Stats /></WithBack>} />,
+  <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><PhaseFilter /><Stats /></WithBack>} />,
   <Route key="hv-measures" path="/measures" element={<Measures />} />,
   <Route key="hv-measurements" path="/measurements" element={<BackWhereFrom to="/measures"><Measurements /></BackWhereFrom>} />,
   <Route key="hv-photos" path="/progress-photos" element={<BackWhereFrom to="/measures"><ProgressPhotos /></BackWhereFrom>} />,
-  <Route key="hv-balance" path="/structural-balance" element={<BackWhereFrom to="/stats"><StructuralBalance /></BackWhereFrom>} />,
+  <Route key="hv-balance" path="/structural-balance" element={<BackWhereFrom to="/stats" className="hv-phase-page"><PhaseFilter /><StructuralBalance /></BackWhereFrom>} />,
   <Route key="hv-library" path="/library" element={<Exercises />} />,
   // Upstream's explorer goes "back" by opening /library anew, so Exercises' back led to it again.
   <Route key="hv-muscles" path="/muscles" element={<BackWhereFrom to="/library"><Muscles /></BackWhereFrom>} />,

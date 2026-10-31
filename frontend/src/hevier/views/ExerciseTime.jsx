@@ -5,6 +5,8 @@
 // exercise was done at, D28). A tap opens exercise details.
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
+import PhaseFilter from '../components/PhaseFilter.jsx'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { todayISO } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
@@ -24,14 +26,16 @@ export default function ExerciseTime() {
   const [period, setPeriod] = useState('90d')
   const [by, setBy] = useState(null)
   const [asc, setAsc] = useState(false)
-  const sessions = useMemo(() => timedSessions(st.workouts, periodSince(period, todayISO())),
-    [st.workouts, period])
+  const log = usePhasedS(st).workouts   // D93
+  const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO())),
+    [log, period])
   const sections = timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) })
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
     : key ? t(key) : t('Other'))
   const group = k => setBy(by === k ? null : k)
   return <div className="narrow hv-statpage">
     <BackTo label={t('Statistics')} to="/stats" title={t('Exercise time')} />
+    <PhaseFilter />
     <div className="hv-chips">{PERIODS.map(([k, label]) => <button key={k} type="button" className={'hv-chip' + (k === period ? ' on' : '')}
       aria-pressed={k === period} onClick={() => setPeriod(k)}>{t(label)}</button>)}</div>
     <div className="hv-extime-sort">

@@ -33,6 +33,7 @@ import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
 import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
+import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
 import { workoutTrends } from '../lib/set-trend.js'
 
 // A cable's setup shows when it is not the plain 1:1 (D43).
@@ -104,6 +105,7 @@ export function WorkoutDetail() {
   const top = split[0]?.sets || 1
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
+  const phase = workoutPhase(w)   // D93: OpenBite's phase when it was saved
   const more = () => workoutActions(w, nav, [
     { icon: 'list', label: t('All details'), sub: t('Note, photos, date, duration, copy, share, .fit'), onClick: () => upstreamWorkoutDetailSheet(w) },
   ])
@@ -113,7 +115,7 @@ export function WorkoutDetail() {
       <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </PageBar>
-    <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span></>}</div>
+    <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span></>}{phase && <> · {t(PHASE_LABEL[phase])}</>}</div>
     <h2 className="hv-wd-t">{w.name || t('Workout')}</h2>
     <div className="hv-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>

@@ -96,3 +96,5 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D90** Ticking a set whose weight or reps looks mistyped, or whose cardio timer was left running, asks first.
 - **D91** A workout with a strap has one card, not two.
 - **D92** A live workout's Exercise settings save as they close.
+- **D93** A saved workout carries OpenBite's phase, and the statistics pages filter by it.
+- **D94** A feed card shows the workout's gym.
