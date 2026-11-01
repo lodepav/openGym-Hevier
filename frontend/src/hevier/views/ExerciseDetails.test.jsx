@@ -13,6 +13,7 @@ import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
 import { aliasHooks } from '../lib/ex-aliases.js'
 import { capWords } from '../../lib/format.js'
+import { useStatsPhase } from '../lib/shared-phase-run.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -123,5 +124,62 @@ describe('hevier: exercise details (seam S10)', () => {
     open(log)
     expect(container.querySelector('.hv-xd')).toBeNull()
     expect(container.querySelector('.exdetail-name')).toBeTruthy()
+  })
+})
+
+describe('hevier: an exercise\'s History by phase and brand (D93, D96)', () => {
+  const when = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+  const session = (id, n, brand, w, extra = {}) => ({ id, d: when(n), name: id, start: Date.now() - n * 86400000, end: Date.now() - n * 86400000 + 3600000,
+    entries: [{ id: EX.id, hvBrand: brand, sets: [{ w, r: 8, done: true }] }], ...extra })
+  const log = [
+    session('s1', 3, 'Technogym', 50, { hvPhase: { p: 'cutting' } }),
+    session('s2', 5, 'Hammer', 70, { hvPhase: { p: 'bulking' } }),
+    session('s3', 7, 'Technogym', 60, { hvPhase: { p: 'bulking' } }),
+  ]
+  const shown = el => [...el.querySelectorAll('.hv-xd-st')].map(n => n.firstChild.textContent.trim())
+  const compare = () => act(() => [...container.querySelectorAll('.hv-xd-labels button')].find(b => b.textContent === 'Compare').click())
+  const chip = label => act(() => [...container.querySelectorAll('.hv-phase-filter .hv-chip')].find(b => b.textContent === label).click())
+  afterEach(() => act(() => useStatsPhase.getState().pick(null)))
+
+  it('narrows the History to the phase', () => {
+    open(log); tab('History')
+    expect(shown(container)).toEqual(['s1', 's2', 's3'])
+    chip('Bulking')
+    expect(shown(container)).toEqual(['s2', 's3'])
+  })
+  it('lists two brands side by side, each with its own sessions', () => {
+    open(log); tab('History'); compare()
+    const cols = [...container.querySelectorAll('.hv-xd-cmpcol')]
+    expect(cols.map(shown)).toEqual([['s1', 's3'], ['s2']])
+    expect(cols.map(c => c.querySelector('select').value)).toEqual(['k:Technogym', 'k:Hammer'])
+    chip('Cutting')
+    expect([...container.querySelectorAll('.hv-xd-cmpcol')].map(shown)).toEqual([['s1'], []])
+  })
+  it('compares a brand with the sessions that have no brand', () => {
+    const noBrand = { ...session('s4', 9, undefined, 40) }
+    open([session('s1', 3, 'Technogym', 50), noBrand]); tab('History'); compare()
+    const cols = () => [...container.querySelectorAll('.hv-xd-cmpcol')]
+    expect(cols().map(shown)).toEqual([['s1'], ['s4']])
+    expect([...cols()[1].querySelectorAll('option')].map(o => o.textContent)).toEqual(['No brand'])
+  })
+  it('lets a column pick No brand among other brands', () => {
+    open([...log, session('s4', 9, undefined, 40)]); tab('History'); compare()
+    const cols = () => [...container.querySelectorAll('.hv-xd-cmpcol')]
+    expect(cols().map(shown)).toEqual([['s1', 's3'], ['s2']])
+    const select = cols()[1].querySelector('select')
+    expect([...select.querySelectorAll('option')].map(o => o.textContent)).toEqual(['Hammer', 'No brand'])
+    act(() => {
+      Object.getOwnPropertyDescriptor(select.constructor.prototype, 'value').set.call(select, 'k:')
+      select.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    expect(cols().map(shown)).toEqual([['s1', 's3'], ['s4']])
+    expect(cols()[1].querySelector('select').value).toBe('k:')
+  })
+  it('does not offer Compare with one brand, nor on the Summary', () => {
+    open(log.filter(w => w.id !== 's2')); tab('History')
+    expect(container.querySelector('.hv-xd-labels')).toBeNull()
+    act(() => root.unmount()); container.remove()
+    open(log)
+    expect(container.querySelector('.hv-xd-labels button')).toBeNull()
   })
 })

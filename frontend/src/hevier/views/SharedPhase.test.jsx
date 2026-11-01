@@ -125,6 +125,13 @@ describe('the statistics filter', () => {
     act(() => chips()[0].click())
     expect(sets()).toBe('14')
   })
+  it('narrows the workout feed', () => {
+    render('/profile', { workouts: log })
+    const cards = () => container.querySelectorAll('.hv-wcard').length
+    expect(cards()).toBe(3)
+    act(() => chips().find(c => c.textContent === 'Bulking').click())
+    expect(cards()).toBe(1)
+  })
   it('follows the filter in upstream\'s pages through the hook', () => {
     let seen
     function Page() { seen = useStatsS(useStore(s => s.S)).workouts.length; return null }

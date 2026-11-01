@@ -99,3 +99,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D93** A saved workout carries OpenBite's phase, and the statistics pages filter by it.
 - **D94** A feed card shows the workout's gym.
 - **D95** Go Hevier tells OpenBite how strength is going in the current phase, and OpenBite may suggest a calorie change.
+- **D96** An exercise's History can show two labels side by side.
