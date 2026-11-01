@@ -12,6 +12,7 @@ Based on openGym 1.4.3.
 
 ### Fixes and changes
 
+- the build tools' glob and minimatch take their security fixes
 - the release script is in the repo
 - CI on hevier/main, and each release's data stays readable
 - checks run before every push, and builds and suites take turns

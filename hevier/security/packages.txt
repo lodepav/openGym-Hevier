@@ -175,6 +175,7 @@ frontend	@ionic/utils-stream@3.1.7
 frontend	@ionic/utils-subprocess@3.0.1
 frontend	@ionic/utils-terminal@2.3.5
 frontend	@isaacs/fs-minipass@4.0.1
+frontend	@isaacs/nonrecursive-glob-match@1.0.3
 frontend	@jridgewell/resolve-uri@3.1.2
 frontend	@jridgewell/sourcemap-codec@1.5.5
 frontend	@jridgewell/trace-mapping@0.3.31
@@ -267,7 +268,7 @@ frontend	fdir@6.5.0
 frontend	fs-extra@11.3.6
 frontend	fs-extra@9.1.0
 frontend	fsevents@2.3.3	install-script
-frontend	glob@13.0.6
+frontend	glob@14.0.3
 frontend	graceful-fs@4.2.11
 frontend	happy-dom@21.0.4
 frontend	has-flag@4.0.0
@@ -303,11 +304,11 @@ frontend	lightningcss-win32-arm64-msvc@1.33.0
 frontend	lightningcss-win32-x64-msvc@1.33.0
 frontend	lightningcss@1.33.0
 frontend	linkedom@0.18.13
-frontend	lru-cache@11.5.2
+frontend	lru-cache@11.5.3
 frontend	magic-string@0.30.21
 frontend	magicast@0.5.4
 frontend	make-dir@4.0.0
-frontend	minimatch@10.2.5
+frontend	minimatch@11.0.3
 frontend	minipass@7.1.3
 frontend	minizlib@3.1.0
 frontend	ms@2.1.3
@@ -318,7 +319,7 @@ frontend	obug@2.2.1
 frontend	open@8.4.2
 frontend	package-json-from-dist@1.0.1
 frontend	path-key@3.1.1
-frontend	path-scurry@2.0.2
+frontend	path-scurry@3.0.0
 frontend	pathe@2.0.3
 frontend	pend@1.2.0
 frontend	picocolors@1.1.1
