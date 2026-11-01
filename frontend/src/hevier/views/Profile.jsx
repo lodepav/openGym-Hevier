@@ -12,14 +12,17 @@ import PageBar from '../components/PageBar.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
+import PhaseFilter from '../components/PhaseFilter.jsx'
+import { usePhasedS } from '../lib/shared-phase-run.js'
 
 export const PAGE = 10
 
 export function WorkoutFeed({ S }) {
   const [n, setN] = useState(PAGE)
-  const ws = historyRows(S).filter(r => r.w).map(r => r.w)
+  const ws = historyRows(usePhasedS(S)).filter(r => r.w).map(r => r.w)   // D93
   if (!ws.length) return <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No workouts yet. Your first one will land here.')}</div>
   return <>
+    <PhaseFilter />
     {ws.slice(0, n).map(w => <WorkoutCard key={w.id || w.start} w={w} />)}
     {ws.length > n && <button type="button" className="btn hv-moreb" onClick={() => setN(n + PAGE)}>{t('Show more')}</button>}
   </>

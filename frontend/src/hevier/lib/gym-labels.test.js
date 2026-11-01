@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   isMachine, hasLabel, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands,
-  labelsAtFinish, withLabels, labelsFor, labelText, labelKey, withLabelFilter, isCable, entryCable, setEntryCable,
+  labelsAtFinish, withLabels, labelsFor, labelText, labelKey, withLabelFilter, comparePair, isCable, entryCable, setEntryCable,
 } from './gym-labels.js'
 import { buildCompletedWorkout } from '../../lib/finish-workout.js'
 import { workoutVolume } from '../../lib/history.js'
@@ -198,5 +198,19 @@ describe('hevier labels on any exercise (D28)', () => {
     expect(hasLabel(S, A(), 0)).toBe(true)
     expect(entryBrand(S, A(), 0)).toBe('Achilles Rehab')
     expect(hasLabel(S, A({ hvBrand: '' }), 0)).toBe(false)   // removed in this session
+  })
+})
+
+describe('hevier: comparePair (D96)', () => {
+  const labels = [{ key: 'A' }, { key: 'B' }, { key: 'C' }]
+  it('opens on the two newest labels', () => expect(comparePair(labels, null, null)).toEqual(['A', 'B']))
+  it('keeps the picks', () => expect(comparePair(labels, 'C', 'A')).toEqual(['C', 'A']))
+  it('replaces a label that is gone, never with the other side', () => {
+    expect(comparePair(labels, 'gone', 'A')).toEqual(['B', 'A'])
+    expect(comparePair(labels, 'A', 'gone')).toEqual(['A', 'B'])
+  })
+  it('never compares a label with itself', () => expect(comparePair(labels, 'B', 'B')).toEqual(['B', 'A']))
+  it('treats the no-brand label, an empty key, as a label', () => {
+    expect(comparePair([{ key: 'A' }, { key: '' }], '', null)).toEqual(['', 'A'])
   })
 })

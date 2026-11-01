@@ -26,7 +26,7 @@ import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
-import { labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
+import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
@@ -128,6 +128,27 @@ function History({ ex, sum, st }) {
   })}</div>
 }
 
+// D96: two labels' histories side by side, each column its own sessions, newest first. `base` is
+// the log the History reads, so the phase filter (D93) narrows both.
+function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
+  const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id), [base, st.dbLoad, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
+  return <div className="hv-xd-cmpcol">
+    <select className="hv-xd-label" value={'k:' + value} aria-label={t('Brand')} onChange={e => onPick(e.target.value.slice(2))}>
+      {labels.filter(l => l.key !== other).map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)}</option>)}
+    </select>
+    <History ex={ex} sum={sum} st={st} />
+  </div>
+}
+
+function CompareHistory({ ex, base, st, labels }) {
+  const [picks, setPicks] = useState([null, null])
+  const [a, b] = comparePair(labels, picks[0], picks[1])
+  return <div className="hv-xd-cmp">
+    <CompareColumn ex={ex} base={base} st={st} labels={labels} value={a} other={b} onPick={k => setPicks([k, b])} />
+    <CompareColumn ex={ex} base={base} st={st} labels={labels} value={b} other={a} onPick={k => setPicks([a, k])} />
+  </div>
+}
+
 function HowTo({ ex, st }) {
   const steps = instrFor(ex)
   const pinned = lastEntryFor(st, ex.id)
@@ -148,19 +169,21 @@ function ExerciseDetails({ ex, close }) {
   const st = useStore(s => s.S)
   const [tab, setTab] = useState('summary')
   // The Summary leaves out sessions kept out of progression (D57); the History lists every one.
-  // The filter by OpenBite's phase (D93) is the Summary's too; the History still lists every one.
+  // The filter by OpenBite's phase (D93) narrows both.
   const counted = usePhasedS(countedS(st))
+  const listed = usePhasedS(st)
   const all = useMemo(() => exerciseSummary(counted, ex.id), [counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  // With nothing kept out (the usual case), countedS hands back `st` itself: one summary serves both.
-  const same = counted === st
-  const logged = useMemo(() => (same ? all : exerciseSummary(st, ex.id)), [all, same, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // With nothing kept out (the usual case), both are the same copy of S: one summary serves both.
+  const same = counted === listed
+  const logged = useMemo(() => (same ? all : exerciseSummary(listed, ex.id)), [all, same, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
   // the Summary and History follow the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
+  const [comparing, setComparing] = useState(false)
   const on = labels.some(l => l.key === label) ? label : null
   const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(st, ex.id, on), ex.id)), [logged, sum, same, on, st.workouts, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -196,14 +219,20 @@ function ExerciseDetails({ ex, close }) {
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />
-    {tab !== 'howto' && labels.length > 0 && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
-      onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
-      <option value="">{t('All sets')}</option>
-      {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
-    </select>}
-    {tab === 'summary' && <PhaseFilter />}
+    {tab !== 'howto' && labels.length > 0 && <div className="hv-xd-labels">
+      {!(tab === 'history' && comparing) && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
+        onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
+        <option value="">{t('All sets')}</option>
+        {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
+      </select>}
+      {tab === 'history' && <button type="button" className={'hv-chip' + (comparing ? ' on' : '')} aria-pressed={comparing}
+        onClick={() => setComparing(!comparing)}>{t('Compare')}</button>}
+    </div>}
+    {tab !== 'howto' && <PhaseFilter />}
     {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
-    {tab === 'history' && <History ex={ex} sum={hist} st={st} />}
+    {tab === 'history' && (comparing && labels.length > 0
+      ? <CompareHistory ex={ex} base={listed} st={st} labels={labels} />
+      : <History ex={ex} sum={hist} st={st} />)}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}
   </div>
 }

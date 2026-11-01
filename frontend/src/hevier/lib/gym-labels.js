@@ -246,6 +246,17 @@ export function labelText(l, tr = s => s) {
   return [l.brand, c].filter(Boolean).join(' · ') || tr('No brand')
 }
 
+/**
+ * The two label keys to compare (D96): the picks while they still are labels and differ, else the
+ * newest labels left. Needs two labels, which labelsFor's list always has when it has any.
+ */
+export function comparePair(labels, a, b) {
+  const keys = list(labels).map(l => l.key)
+  const left = keys.includes(a) ? a : keys.find(k => k !== b)
+  const right = keys.includes(b) && b !== left ? b : keys.find(k => k !== left)
+  return [left, right]
+}
+
 /** S with only the sessions of `exId` done with label `key` (other exercises untouched). */
 export function withLabelFilter(S, exId, key) {
   if (key == null) return S
