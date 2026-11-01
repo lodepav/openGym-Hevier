@@ -2,6 +2,22 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.4.0 · 2026-11-01
+
+Based on openGym 1.4.3.
+
+### New
+
+- the phase filter on an exercise's History and the workout feed, and two brands' histories side by side (D93, D96)
+
+### Fixes and changes
+
+- the release script is in the repo
+- CI on hevier/main, and each release's data stays readable
+- checks run before every push, and builds and suites take turns
+- the emulator boots on the host GPU
+- the faster test run passes the whole suite
+
 ## 2.3.0 · 2026-10-31
 
 Based on openGym 1.4.3.
