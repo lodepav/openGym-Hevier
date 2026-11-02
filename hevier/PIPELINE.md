@@ -6,6 +6,17 @@ build something that is already coming. Read this before starting a milestone, a
 The refresh notes up to 2026-10-26 and the rows of v1.4.2 and v1.4.3, all merged, are in
 [archive/PIPELINE-merged.md](archive/PIPELINE-merged.md).
 
+**Refreshed 2026-11-02.** `release-1.4.4` (now `1f15e1db`, 121 commits past `fef710b6`) **took
+`release-1.4.5` whole**: `release-1.4.5` (`11302d2d`, 33 commits past `d0a85546`) has nothing that
+is not in `release-1.4.4`, and the CHANGELOG has one `## Unreleased` again, so everything under
+"What release-1.4.5 brings" ships as **1.4.4**. The 1.4.4 store build is made (2026-11-01: iOS build
+54, Android versionCode 31) and its milestone is still due **2026-11-08**; v1.4.3 is still the latest
+tag and `upstream/main` is still `b6cfe2bb`. The new work since 2026-10-29 is in "What release-1.4.4
+added after 2026-10-29": **Modules** (switch whole parts of the app off), **Settings → Integrations**
+and webhooks, a **Stats redesign** and a look-and-feel pass over every screen, an **F-Droid**
+flavour, Wear OS as a beta, Garmin and Zepp OS watches. One new fork PR upstream (#931), none of
+the open ones taken since; 152 PRs open upstream.
+
 **Refreshed 2026-10-29.** v1.4.3 was tagged on 2026-10-26 (`7c8290ca`) and is merged (see the archive).
 `release-1.4.4` (now `fef710b6`) has grown 96 commits past 45512b2f, see "What release-1.4.4 added
 after 2026-10-26"; its milestone is now due **2026-11-08**. A new **`release-1.4.5`** (`d0a85546`,
@@ -63,10 +74,33 @@ under `## Unreleased`. The rows the fork must act on come first.
 | **Back from a page opened from a sheet** (#837, the fork's PR) | At the merge: seam S47 goes. |
 | Docker healthchecks (#844), cardio fatigue by duration (#841), barcodes at check-in (#854), Apple Health discard (#776) | Server, model or hidden screens: nothing to do. |
 
-## What release-1.4.5 brings (2026-10-29)
+## What release-1.4.4 added after 2026-10-29 (2026-11-02)
+
+`fef710b6..1f15e1db`, 121 commits, `release-1.4.5`'s 33 included. All under `## Unreleased`, so they
+ship with 1.4.4 on about 2026-11-08. The rows the fork must act on come first.
+
+| Upstream item | Fork impact |
+|---|---|
+| **Modules** (`lib/modules.js`): Settings → Modules switches off Effort, Plates and warm-ups, Strength levels, Form videos, Watch, Gym check-in, Body, Health, Motivation, AI Coach, Integrations and Seasonal themes, with three presets; `S.modules` (`{ [id]: boolean }`, a missing key is on) syncs per key (`sync-merge.js` PER_KEY, `sync-stamps.js`); every upstream view asks `isOn(S, id)`; the preset choice is on the tour's first card | **The fork's screens don't ask `isOn`**, so a module switched off hides upstream's part and leaves the fork's: D6's effort column, D84's plate line (and its own switch, which "Plates and warm-ups" now overlaps), D19 / D81's strength levels (beside upstream's own, the 1.4.5 row above), D12's Home widgets and D14's Measures (Body), D27 / D79's heart rate (Health), D59's streak (Motivation), D44's widget. At the merge, decide: the fork's screens follow `isOn` for the modules they draw (a fork helper beside `settings.js`), or the Modules row goes into `HIDDEN_ROWS` and everything stays on (no key means on, so nothing changes for a profile that never opened it). With the tour off (1.4.4 row above), the onboarding preset choice never shows: check a fresh install still lands on every module on. Check D20's carry-through: `S.modules` is a new synced key, nothing for the fork to add. |
+| **Settings → Integrations**: one page for Apple Health / Health Connect (their switches move here from Data & backup, which keeps a way in), the Hevy and file imports, CSV export, Coach, MCP; Garmin, COROS, Polar and friends as "works with" | **Meets D27 / D32** (the fork's Health Connect reads and "Weigh-ins from other apps" switch) and D30 / D31 / D34's Hevy API rows. Check the fork's rows still sit where its Settings (D16) put them and that the moved Health Connect switches still reach D27's plugin. The page's Hevy import card is upstream's importer, not D29 / D33's step after it: check the card opens the fork's flow. |
+| **Webhooks** (`INTEGRATIONS=webhook`, api): signed, retried for about an hour, Home Assistant, n8n, ntfy, Node-RED; `INTEGRATIONS_ALLOW_LAN` | Server only, off unless set. D26's endpoint check and supply chain: new api code, no new dependency. Nothing in the fork's screens. |
+| **A Stats redesign**: Overview, Body, Lifts and Effort with a sticky index; `#/stats?section=lifts` deep links; Home's weekly-sets line opens Stats on Lifts | **The fork owns `/stats`** (`hevier/routes.jsx`: its Statistics page, upstream's `Stats` only under `/stats/all`). Upstream's links to `/stats?section=…` land on the fork's page and lose the section: point them at `/stats/all?section=…` or drop the query. Check `/stats/all`'s `PhaseFilter` (D93) and `WithBack` still sit above the new sticky index, and D18 / D42 / D74's numbers beside its Muscles card. |
+| **A look-and-feel pass over every screen** (P1 to P13): one rem type scale, `--surface-raised`, one pressed state per tier, a readable ink for the accent, Home's card headers, the end of a workout as one list, the routine editor's actions, the Library's filters in one sheet, empty states, settings previews as subtitles | **The largest CSS drift yet for `hevier.css` (D17, D49):** rem tokens move every size the fork's overrides were matched against, and new surface and ink tokens need the fork's dark values. Run the hevy-side-by-side and UX checks on every fork screen after the merge. The fork's own screens keep their layout; upstream's pages the fork shows (D16) change look. |
+| **Cards and rows with a control of their own are no longer one big button** (`d7b8d939f`) | Upstream's `Row` and cards change their markup: check the fork's screens built on them (Settings rows, D12's Home cards, D14's Profile) still open on a tap, and seam S2 / S15 tests. |
+| **F-Droid flavour** (`fdroid`, beside `sideload` and `play`): no Google Play services or ML Kit, a browser barcode scanner, no updater, Wear OS left out; fastlane metadata in 20 languages; `check-fdroid.sh` | A third `channel` flavour. `release-apk.sh` already builds `assembleSideloadRelease` by name, so D26 / D38's release keeps working; check S7's manifest overlay and the `src/hevier` resources don't break the `fdroid` variant's build or lint. The fork already drops ML Kit (D50), so nothing to take; D77's updater stays the fork's. |
+| **Google Play build**: no donation links, a Play rating row, "plan B" without background location hiding the gym reminder (`ChannelPlugin`) | Play only. The fork is sideloaded: check the rating row and the hidden reminder never show in `sideload`. |
+| **Wear OS ships in 1.4.4 as a beta** ("openGym Beta" on the watch), was the 1.4.5 row above | The same decision as that row, now at the 1.4.4 merge: D38's exported-components list, `play-services-wearable` in the phone APK (D26), the Gradle lockfile. |
+| **Zepp OS (Amazfit) watches** through the server: `api/watch-relay.js`, `/api/watch/pair`, `redeem`, `links`, `unlink`, `snapshot`, `events`, `ack`, `box`, a scoped watch token; Settings → Zepp OS watch | api routes and a new token kind: D26's endpoint check. The Watch module covers it; hide the Settings row unless wanted. No APK change. |
+| **Garmin Connect IQ app** (`garmin/`, Monkey C), the phone sends a cut-down snapshot when a Garmin is linked | Not in the APK; nothing for the fork until upstream ships its phone bridge. |
+| **Sync: a save that changed nothing is not an edit** (`68a523f57`, `sync-merge.js`): an untouched save keeps its old stamp | Good for D20 (fewer stamp bumps on the fork's fields). Run the fork's sync tests at the merge; #925 (a workout saved with nothing changed no longer brings a deleted one back) is the same idea, still a PR. |
+| **Exercise names in European Portuguese and Swedish** (5,632 each), Swedish a catalogue language | D73's shown names and D36's brand search read the name packs: check the search tests in pt and sv. |
+| Privacy policy (health data as explicit consent, age 13 and over), a ticked set fades its parts not its number, Stats index fixes, Safari fallbacks | Upstream's pages and workout: nothing for the fork. D71's highlighted next set is the fork's own. |
+
+## What release-1.4.5 brings (2026-10-29, ships with 1.4.4)
 
 `release-1.4.5` (`d0a85546`, due 2026-11-29 as "Google Play, F-Droid & integrations"). Most of it
-meets something the fork already has.
+meets something the fork already has. **2026-11-02:** all of it is in `release-1.4.4` now and ships
+there, so these rows are 1.4.4 merge work too; the Wear OS row is a beta in 1.4.4 (the section above).
 
 | Upstream item | Fork impact |
 |---|---|
@@ -93,7 +127,12 @@ Play, F-Droid & integrations (11-29) · 1.4.6 Wear OS & Health Connect (12-13: b
 engine #186, ranges #154, %1RM #153, phases #57 / #610, distance #177, supersets and circuits) ·
 1.4.8 search, catalogue & equipment (2027-01-10: the shoulder split **#638**, dual-cable stacks
 #671, any plate weight #542) · 1.4.9 accounts · 1.4.10 trainer, Coach & MCP write · 1.4.11 looks,
-social & goals · later: database storage. Refresh:
+social & goals · later: database storage. **Checked 2026-11-02:** the milestones and their due dates
+are unchanged (1.4.4 33 open items, 1.4.5 30, 1.4.6 17, 1.4.7 24, 1.4.8 14, 1.4.10 6, 1.4.11 12;
+1.4.9 and 1.4.12 have no open items), though 1.4.5's F-Droid and integrations, and 1.4.6's Wear
+OS, are already in `release-1.4.4`. What is left for 1.4.5 is Google Play's closed test, Strava,
+FIT, intervals.icu, WebDAV backups and remote MCP; for 1.4.6 Health Connect sessions, body
+composition and the Android lock screen. Refresh:
 
 ```bash
 for n in $(gh api repos/DuarteSantos8/openGym/milestones --jq '.[].number'); do
@@ -121,7 +160,7 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
 | Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25 and 2026-10-29)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29 and 2026-11-02)
 
 On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 unmerged: each
 came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
@@ -137,6 +176,12 @@ having written its own version into 1.4.3 (`8727ee090`); #788 and #806 are open,
 but are not in it; #814 still targets `release-1.4.3`. The issue #907 (D66's arrows) is built by
 upstream in `release-1.4.5`. The new PRs #901, #902, #905, #906 target `release-1.4.4`, none in it
 yet. #638 (the shoulder split) is on the v1.4.8 milestone.
+
+**2026-11-02:** nothing changed for the open PRs: #788, #806, #811 and #812 are in `release-1.4.4`
+(by commit message, as upstream applies them with edits), #807, #813, #815, #901, #902, #905 and #906
+are in no branch, and #814's commit is in. One new PR, **#931**. The issues #900 and #903 have no
+answer; #638 is still on v1.4.8; #907 ships with 1.4.4 (upstream's build, its CHANGELOG credits
+the fork for the idea).
 
 | # | What | State |
 |---|---|---|
@@ -160,9 +205,10 @@ yet. #638 (the shoulder split) is on the v1.4.8 milestone.
 | #902 | A picked exercise starts the way it was logged last time (D55, D75, S32) | Open, on `release-1.4.4` |
 | #905 | A search filtered by a gym says how many it hid (D67) | Open, on `release-1.4.4` |
 | #906 | All done? for a workout left running (D60) | Open, on `release-1.4.4` |
+| #931 | Import: check each exercise's match before importing, and remember the pick (D33) | Open (2026-10-30), in no branch yet |
 | #900 | Muscle filter: pick a group, or open it into its muscles (D64) | Issue open, no answer |
 | #903 | Show one of an exercise's other names as its name (D73, S41) | Issue open, no answer |
-| #907 | Mark each set against the same set last time (D66) | Issue open; **built by upstream in `release-1.4.5`** |
+| #907 | Mark each set against the same set last time (D66) | Issue open; **built by upstream, ships in 1.4.4** (`release-1.4.5` folded in) |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21; on the **v1.4.8** milestone |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
@@ -201,6 +247,23 @@ from their **titles only**, so read a PR before acting on it. Refresh:
 | #775 (2026-10-24) | A warm-up or cool-down runs itself, as one card | `HevyWorkout` would need to follow, with #610's phases |
 | #749, #790 | Rest by heart rate on the Apple Watch; a forgotten workout ends at its last set (watch) | iOS; near D79 / D80 and D60, nothing to take |
 | #657 (issue) | A per-exercise weight unit | **In `release-1.4.4`** (2026-10-26), upstream's own, in every screen: it replaces D41 (see above) |
+
+**New since 2026-10-24 that meets the fork** (2026-11-02, titles only, 152 PRs open)
+
+| PR | What | Fork item |
+|---|---|---|
+| #866 | Lengthened partials as a set type | **D5's set-type sheet**: a new type would need a row there and a mark in `HevyWorkout` and Workout Detail |
+| #909 | Supersets of 2+ exercises, choose who leaves, warm-up order | `HevyWorkout`'s superset handling would need to follow |
+| #879 | Workout end and Finish: cheer on to one more, suggest the extras you add most | Near D10's finish flow and D35's "Update routine?": the fork's finish is its own |
+| #849 | Choose which exercises to import from a CSV (v1.4.5 milestone) | Near D33 and #931: one review step, not two |
+| #874 | Android: the running workout as one notification, with Log set and Live Updates (#760) | D10 / D70's rest bar and D44; check the notification's actions reach the fork's session |
+| #872, #871, #873, #830 | The tab bar on the right edge of a wide screen, a Settings choice for where it stands | **D11's `HevyTabBar` (S2)** is the fork's own; D24 keeps portrait, so nothing to take |
+| #954 | Each muscle's share as a percentage on the exercise detail | D74 / D76's main muscle on the fork's details (D7, D58): two answers to "what does this train" |
+| #941, #952, #956, #957 | Progress photos: dates, a gallery, an overlay camera, compare side by side | Upstream's Body pages, reached from D14's Measures: take as it lands |
+| #925 | Sync: a workout saved with nothing changed no longer brings a deleted workout back | D20, with 1.4.4's `68a523f57` above |
+| #864 | The right warm-up hint for assisted exercises | D51's assisted records read the help as the weight: check the hint agrees |
+| #942, #960, #880 | MCP: log cardio, create and update routines, read through the api | The fork's MCP use is upstream's; nothing to take |
+| #823, #824, #825 | The progression engine in three pieces (v1.4.7) | **D15's routine table** and D69: the drift the roadmap table above names, now as three PRs |
 
 **Workout-screen features `HevyWorkout` would need to follow** (CONFLICTS.md, silent drift):
 #563 a persistent Complete / Next button · #490 a timer bar that says what it times, timed
