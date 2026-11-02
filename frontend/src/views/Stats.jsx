@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { dayPhotosOf } from '../lib/day-photos.js'
 import { EXIDX, matchExercise, betterWeight, isAssisted } from '../lib/exercises.js'
-import { lastBW, streakWeeks, setLabel, modeOf, effortOf, entriesForExercise, metricEntriesForExercise, metricModeForEntry, bestWeightForEntry, completedRepsOf, workoutDay, workoutAt, lifetimeVolume } from '../lib/history.js'
+import { lastBW, streakWeeks, historySetLabel, modeOf, effortOf, entriesForExercise, metricEntriesForExercise, metricModeForEntry, bestWeightForEntry, completedRepsOf, workoutDay, workoutAt, lifetimeVolume } from '../lib/history.js'
 import { fmtNum, fmtDate, fmtVol, todayISO, isoOf, weekKey, weekStartOf, exerciseNameText } from '../lib/format.js'
 import { speedUnitOf, speedLabel, toSpeed } from '../lib/speed.js'
 import { t, exerciseNameFor, exerciseNameClass, getLang } from '../lib/i18n.js'
@@ -827,7 +827,7 @@ export default function Stats() {
             </span>)}
           </div>}
           <div style={{ marginTop: 8 }}>{exList.map((p, i) => <div key={i} className="row between small" style={{ padding: '6px 0', borderBottom: 'var(--hair) solid var(--sep)' }}>
-            <span className="muted">{fmtDate(p.d, true)}</span><span>{p.sets.map(s => setLabel(curEx, s, p.target, speedUnit)).join('  ')}</span></div>)}</div>
+            <span className="muted">{fmtDate(p.d, true)}</span><span>{p.sets.map(s => historySetLabel(curEx, s, p.target, speedUnit)).join('  ')}</span></div>)}</div>
           <div className="small dim" style={{ marginTop: 8 }}>
             {onSets ? (perSet.metric === 'reps' ? t('Reps in each working set, one line per set number') : t('Estimated 1RM of each working set, one line per set number')) : onRel ? (relUsed === 'top' ? t('Heaviest set as a share of body weight, per workout') : t('Estimated 1RM as a share of body weight, per workout')) : onMax ? <>{t('Most reps in a Max set per workout')} · {t('Best:')}{' '}<b className="accent">{maxBest} {t('reps')}</b></> : onEff ? t('Average effort per workout') : onE1 ? t('Estimated 1RM per workout') : curCardio ? t('Top speed per workout') : curTimed ? t('Longest hold per workout') : repsOnly ? t('Most reps in a set per workout') : t('Best set weight per workout')}
             {onRel ? <> · {t('Best:')}{' '}<b className="accent">{fmtNum(Math.max(0, ...relPts.map(p => p.y * 100)))} % BW</b></>

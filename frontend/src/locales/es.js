@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Cualquier peso. Toca para apuntar los que tienes.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Isométricos',
   'Taken to failure': 'Al fallo',
   'Nothing left in the tank': 'Sin repeticiones en reserva',
   'Last set to failure': 'Última serie al fallo',

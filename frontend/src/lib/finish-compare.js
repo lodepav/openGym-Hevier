@@ -76,3 +76,18 @@ export function finishCardio(w) {
   }
   return rows
 }
+
+/**
+ * The timed holds of `w` for the finish summary, which the lift rows leave out as they leave out
+ * cardio: one row per timed exercise with the sets that were held, warm-ups included (marked "W"
+ * by historySetLabel). Without these a session of planks finished with no word of them.
+ */
+export function finishHolds(w) {
+  const rows = []
+  for (const entry of w?.entries || []) {
+    if (!entry?.id || modeOf({ ...(entry.target || {}), id: entry.id }) !== 'time') continue
+    const sets = (Array.isArray(entry.sets) ? entry.sets : []).filter(s => s && s.done && Number(s.sec) > 0)
+    if (sets.length) rows.push({ id: entry.id, target: entry.target, sets })
+  }
+  return rows
+}

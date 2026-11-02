@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': '아무 무게나 가능해요. 눌러서 가진 덤벨을 적어 보세요.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': '버티기',
   'Taken to failure': '실패 지점까지',
   'Nothing left in the tank': '남은 힘 없음',
   'Last set to failure': '마지막 세트는 실패 지점까지',

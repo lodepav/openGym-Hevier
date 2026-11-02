@@ -2145,6 +2145,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Valfri vikt. Tryck för att lista de du har.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Hållningar',
   'Taken to failure': 'Till failure',
   'Nothing left in the tank': 'Inget kvar i tanken',
   'Last set to failure': 'Sista setet till failure',

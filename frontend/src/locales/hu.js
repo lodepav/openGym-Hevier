@@ -2127,6 +2127,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Bármilyen súly. Koppints, és sorold fel a sajátjaidat.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Tartások',
   'Taken to failure': 'Bukásig',
   'Nothing left in the tank': 'Üres a tank',
   'Last set to failure': 'Utolsó sorozat bukásig',

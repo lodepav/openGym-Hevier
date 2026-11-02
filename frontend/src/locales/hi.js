@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'कोई भी वज़न। अपने वाले लिखने के लिए टैप करें।',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'होल्ड',
   'Taken to failure': 'फेलियर तक',
   'Nothing left in the tank': 'टंकी में कुछ नहीं बचा',
   'Last set to failure': 'आख़िरी सेट फेलियर तक',

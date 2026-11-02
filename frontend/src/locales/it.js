@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Qualsiasi peso. Tocca per elencare i tuoi.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Tenute',
   'Taken to failure': 'A cedimento',
   'Nothing left in the tank': 'Serbatoio vuoto',
   'Last set to failure': 'Ultima serie a cedimento',

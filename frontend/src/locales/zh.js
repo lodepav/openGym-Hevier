@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': '任意重量。点一下列出你有的哑铃。',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': '静力',
   'Taken to failure': '做到力竭',
   'Nothing left in the tank': '油箱见底了',
   'Last set to failure': '最后一组做到力竭',

@@ -2117,6 +2117,9 @@ export default {
   'Any weight. Tap to list the ones you own.': '任意重量。點一下列出你有的啞鈴。',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': '支撐',
   'Taken to failure': '做到力竭',
   'Nothing left in the tank': '油箱見底了',
   'Last set to failure': '最後一組做到力竭',

@@ -2135,6 +2135,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'น้ำหนักใดก็ได้ แตะเพื่อใส่น้ำหนักที่คุณมี',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'ท่าค้าง',
   'Taken to failure': 'จนหมดแรง',
   'Nothing left in the tank': 'หมดถังแล้ว',
   'Last set to failure': 'เซ็ตสุดท้ายจนหมดแรง',

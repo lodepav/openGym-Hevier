@@ -2128,6 +2128,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Любой вес. Нажмите, чтобы перечислить свои.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Удержания',
   'Taken to failure': 'До отказа',
   'Nothing left in the tank': 'Бак пуст',
   'Last set to failure': 'Последний подход до отказа',

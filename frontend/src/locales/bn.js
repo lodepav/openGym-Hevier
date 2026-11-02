@@ -2203,6 +2203,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'যেকোনো ওজন। আপনারগুলো তালিকায় দিতে ট্যাপ করুন।',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'হোল্ড',
   'Taken to failure': 'ফেইলিওর পর্যন্ত',
   'Nothing left in the tank': 'ট্যাঙ্কে আর কিছু নেই',
   'Last set to failure': 'শেষ সেট ফেইলিওর পর্যন্ত',

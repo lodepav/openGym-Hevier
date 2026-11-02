@@ -2144,6 +2144,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Jedes Gewicht. Tippe, um deine aufzulisten.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Halteübungen',
   'Taken to failure': 'Bis zum Versagen',
   'Nothing left in the tank': 'Nichts mehr im Tank',
   'Last set to failure': 'Letzter Satz bis zum Versagen',

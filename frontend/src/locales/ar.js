@@ -2179,6 +2179,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'أي وزن. اضغط لإدراج ما تملكه.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'التثبيتات',
   'Taken to failure': 'حتى الفشل العضلي',
   'Nothing left in the tank': 'لم يبقَ شيء في الخزان',
   'Last set to failure': 'المجموعة الأخيرة حتى الفشل',

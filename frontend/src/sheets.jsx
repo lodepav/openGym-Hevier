@@ -4,7 +4,7 @@ import { useUI } from './store/useUI.js'
 import { EXDB, EXIDX, BODYPARTS, isCardio, isBodyweightEq, allExercises, equipmentOf, byCategory, smOf, searchExercises, similarExercises, exOr, isAssisted, betterWeight, beatsWeight, isCustomEx } from './lib/exercises.js'
 import { activeProfile, exAvailable, ALL_EQUIPMENT, newProfile, profileEquipment, ACC_V } from './lib/equipment.js'
 import { fmtDate, fmtDateRange, fmtNum, fmtPlate, exerciseNameText, fmtVol, fmtDur, durPart, todayISO, isoOf, uid, exCount, routineCount, setsWorkCount, DAYN, DAYS, weekOrder, weekStartOf, weekDayOffset, MONTHS_LONG, ACCENTS } from './lib/format.js'
-import { lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, effectiveRoutineIds, workoutDay, workoutVolume, sessionVolume, countsWarmups, setsDone, setsDoneActive, setUnitsTotal, lastBW, sessionSections, setLabel, defaultConfig, pickedExerciseConfig, cleanupSg, modeOf, effortOf, EFFORT, capEffort, stepEffort, isBw, isPerSide, sideReps, workSetsDone, applyIntensifierPlan, MAX_PLANNED_WARMUPS, NOTE_MAX } from './lib/history.js'
+import { lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, effectiveRoutineIds, workoutDay, workoutVolume, sessionVolume, countsWarmups, setsDone, setsDoneActive, setUnitsTotal, lastBW, sessionSections, setLabel, historySetLabel, defaultConfig, pickedExerciseConfig, cleanupSg, modeOf, effortOf, EFFORT, capEffort, stepEffort, isBw, isPerSide, sideReps, workSetsDone, applyIntensifierPlan, MAX_PLANNED_WARMUPS, NOTE_MAX } from './lib/history.js'
 import { usesBar, hasBarOverride, isNoBar, barTypeWeight, ownBarDefault, barPicks, withBarDefault, withStandardBars, defaultBarWeight, BAR_TYPES } from './lib/bar.js'
 import { PLATE_SIZES, pairsOf, ownsPlates, withPlatePairs, withStandardPlates, withLoadKind, loadKindFor, baseWeightFor, dropGrid } from './lib/plates.js'
 import { toScale, rirOf, EFFORT_PRESETS, effortColor } from './lib/effort.js'
@@ -61,7 +61,7 @@ import { useSheetKeyboard, useRevealActiveChip, tappable } from './lib/use-sheet
 import { useAutoMore } from './lib/use-auto-more.js'
 import { isFav, toggleFav, sortFavouritesFirst, sortYoursFirst } from './lib/favourites.js'
 import { buildSessionEntries, buildPlannedEntry, buildSessionEntry, plannedConfigOf } from './lib/session-start.js'
-import { finishCompare, finishCardio } from './lib/finish-compare.js'
+import { finishCompare, finishCardio, finishHolds } from './lib/finish-compare.js'
 import { workoutFit, fitFileName } from './lib/fit-export.js'
 import { joinSessionNoProg } from './lib/session-noprog.js'
 import { buildCombinedEntries, deriveSessionName } from './lib/session-merge.js'
@@ -1249,7 +1249,7 @@ function ExerciseHistory({ exId }) {
       {h.sessions.map(s => <div key={s.id} className="item" style={{ alignItems: 'flex-start' }}>
         <div className="grow">
           <div className="tt">{fmtDate(s.d, true)} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
-          <div className="ss">{s.sets.map(x => setLabel(exId, x, s.target, speedUnitOf(st))).join('  ·  ')}</div>
+          <div className="ss">{s.sets.map(x => historySetLabel(exId, x, s.target, speedUnitOf(st))).join('  ·  ')}</div>
           {tail(s) && <div className="small dim" style={{ marginTop: 3 }}>{tail(s)}</div>}
         </div>
         {s.value != null && s.value > 0 && <b className="accent nocap" style={{ whiteSpace: 'nowrap' }}>{fmtNum(s.value)} {unit}</b>}
@@ -2804,7 +2804,7 @@ function WorkoutDetail({ w, close }) {
     return <div key={i} className="row wd-ex" style={{ alignItems: 'flex-start' }} {...tappable(() => exerciseHistorySheet(e.id))}>
       {ex && <Thumb ex={ex} />}
       <div className="grow"><div className={`tt ${exerciseNameClass(ex)}`} style={{ fontWeight: 600 }}>{nameOf(e)} {w.prs && w.prs.includes(e.id) && <span className="pr"><Icon name="trophy" />PR</span>}</div>
-        <div className="ss">{e.sets.filter(hasCompletedWork).map(s => setLabel(e.id, s, e.target, speedUnitOf(st)) + hrLabel(s)).join('  ·  ') || t('no sets')}</div>
+        <div className="ss">{e.sets.filter(hasCompletedWork).map(s => historySetLabel(e.id, s, e.target, speedUnitOf(st)) + hrLabel(s)).join('  ·  ') || t('no sets')}</div>
         {e.note && <div className="small dim" style={{ marginTop: 3 }}>
           {e.notePin && <Icon name="pin" style={{ fontSize: 12, marginInlineEnd: 4, verticalAlign: '-1px', color: 'var(--yellow)' }} />}{e.note}
         </div>}</div>
@@ -3633,6 +3633,23 @@ function LastAndNext({ st, w }) {
   </div>
 }
 
+// The timed holds of the session, which "Last time and next time" leaves out as it does cardio:
+// each set as held, "H 0:45", a warm-up hold "W 0:30".
+function HoldsDone({ st, w }) {
+  const rows = finishHolds(w)
+  if (!rows.length) return null
+  return <div style={{ textAlign: 'start', marginBottom: 14 }}>
+    <h4 className="sec">{t('Holds')}</h4>
+    <div className="list">{rows.map((row, i) => {
+      const ex = EXIDX[row.id]
+      return <div key={i} className="item" style={{ display: 'block' }}>
+        <span className={'tt ' + exerciseNameClass(ex)} style={{ fontWeight: 600 }}>{ex ? exerciseNameFor(ex) : row.id}</span>
+        <div className="small">{row.sets.map(x => historySetLabel(row.id, x, row.target, speedUnitOf(st)) + hrLabel(x)).join('  ·  ')}</div>
+      </div>
+    })}</div>
+  </div>
+}
+
 // The cardio of the session, which "Last time and next time" leaves out: minutes, speed and the
 // treadmill's incline as they were logged.
 function CardioDone({ st, w }) {
@@ -3693,6 +3710,7 @@ function FinishSummary({ w, prs, e1prs = [], additions = [], close }) {
     <BodyMap load={loadOfWorkouts([w])} body={st.body} />
     <div style={{ height: 14 }} />
     <LastAndNext st={st} w={w} />
+    <HoldsDone st={st} w={w} />
     <CardioDone st={st} w={w} />
     <KeepInRoutine additions={additions} />
     {/* The moment for a progress photo or the clip of a set: the workout is already saved, so

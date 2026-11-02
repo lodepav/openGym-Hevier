@@ -2124,6 +2124,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Her ağırlık. Sahip olduklarını listelemek için dokun.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Tutuşlar',
   'Taken to failure': 'Tükenişe kadar',
   'Nothing left in the tank': 'Depoda bir şey kalmadı',
   'Last set to failure': 'Son set tükenişe kadar',

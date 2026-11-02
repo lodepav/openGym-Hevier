@@ -139,7 +139,8 @@ const effortTail = s => {
 // entry or a workout entry); passing an id alone keeps the old body-part behaviour.
 // `speedUnit` is the profile's (lib/speed.js speedUnitOf); without one a cardio set reads km/h.
 const EXPLICIT_MODES = new Set(['reps', 'time', 'cardio'])
-export function setLabel(id, s, cfg, speedUnit) {
+// The mode a logged set reads back in: the target's, else what the set's own fields say.
+function labelModeOf(id, s, cfg) {
   // The id is the caller's when the config does not carry one: a freestyle target is built
   // without it, and modeOf would then fall back to 'reps' and print a run as "0×0".
   const c = cfg ? { ...cfg, id: cfg.id ?? id } : { id }
@@ -151,6 +152,21 @@ export function setLabel(id, s, cfg, speedUnit) {
   // custom one moved to Cardio after months of rep sets read them all as "0 min @ 0 km/h", next
   // to the volume those same sets still count. A set with reps and nothing cardio was a rep set.
   if (!EXPLICIT_MODES.has(cfg?.mode) && mode !== 'reps' && s.r > 0 && !(s.min > 0 || s.speed > 0 || s.sec > 0)) mode = 'reps'
+  return { c, mode }
+}
+/**
+ * setLabel with the set's kind in front, for the lists that read a session back (the workout
+ * detail, the exercise history, Stats, the finish summary): "W" for a warm-up, "H" for a timed
+ * hold, the way "F" marks a set taken to failure behind the numbers. A warm-up hold reads "W".
+ */
+export function historySetLabel(id, s, cfg, speedUnit) {
+  const label = setLabel(id, s, cfg, speedUnit)
+  if (isWarmupRow(s)) return t('W') + ' ' + label
+  if (labelModeOf(id, s || {}, cfg).mode === 'time') return t('H') + ' ' + label
+  return label
+}
+export function setLabel(id, s, cfg, speedUnit) {
+  const { c, mode } = labelModeOf(id, s, cfg)
   // A treadmill grade rides along when the set has one (lib/incline.js); a flat set reads as it did.
   if (mode === 'cardio') return `${s.min || 0} min @ ${fmtSpeed(s.speed || 0, speedUnit)}` + (hasIncline(s) ? ' · ' + t('{0}% incline', fmtNum(Number(s.incline))) : '')
   // A set taken to failure carries its "F" behind the numbers, the mark lifting logs use for it;

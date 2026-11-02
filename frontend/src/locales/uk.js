@@ -2121,6 +2121,9 @@ export default {
   'Any weight. Tap to list the ones you own.': 'Будь-яка вага. Торкнися, щоб перелічити свої.',
   // --- sets to failure (v1.4.0) ---
   'F': 'F',
+  'W': 'W',
+  'H': 'H',
+  'Holds': 'Утримання',
   'Taken to failure': 'До відмови',
   'Nothing left in the tank': 'Бак порожній',
   'Last set to failure': 'Останній підхід до відмови',
