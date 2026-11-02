@@ -18,6 +18,7 @@ export const hooks = {
   noDumbbellsRowOff: false, // true: the dumbbell sheet has no "I own no dumbbells" switch (S49)
   settingsAutosave: false, // true: the live workout's Exercise settings save as they close (S50)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
+  backupKeep: null,     // how many dated auto-backups a write keeps, in place of upstream's 14 (S52)
   defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)

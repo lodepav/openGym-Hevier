@@ -15,6 +15,7 @@ import { effectiveRoutineIds } from './history.js'
 import { NUDGE_COPY, lineIndex, nudgeFor, nudgeMinute, toneOf } from './nudge.js'
 import { excusedOn } from './day-notes.js'
 import { stateJson } from './state-json.js'
+import { hooks } from '../hevier/hooks.js' // [hevier] S52
 
 export const MOBILE = import.meta.env.VITE_MOBILE === '1'
 
@@ -344,6 +345,9 @@ export async function printHtml(html, name, { paper = 'a4', footer } = {}) {
 // backup still reads either kind).
 export const AUTO_BACKUP_DIR = 'openGym'
 export const AUTO_BACKUP_KEEP = 14
+// [hevier] S52: the fork keeps fewer copies (hooks.backupKeep, D20)
+const backupKeep = () => hooks.backupKeep || AUTO_BACKUP_KEEP
+// [/hevier]
 // Only the exact names writeAutoBackup gives its files are ever pruned; anything else someone
 // keeps in the folder is theirs.
 const AUTO_BACKUP_NAME = /^opengym-backup-\d{4}-\d{2}-\d{2}(-[2-9])?\.json$/
@@ -394,7 +398,7 @@ async function pruneAutoBackups({ Filesystem, Directory }, written) {
     // Newest first by the date in the name, which a sync app or a copy cannot disturb the way
     // it can a modification time.
     .sort().reverse()
-  for (const n of older.slice(AUTO_BACKUP_KEEP - 1)) {
+  for (const n of older.slice(backupKeep() - 1)) { // [hevier] S52
     try { await Filesystem.deleteFile({ path: `${AUTO_BACKUP_DIR}/${n}`, directory: Directory.Documents }) } catch (e) { /* one stuck file does not stop the rest */ }
   }
 }
@@ -482,7 +486,7 @@ async function writeToChosenFolder(state, day) {
     return false
   }
   // Pruning waits for a successful write, and only ever touches the app's own dated names.
-  try { await folderPlugin.prune({ uri: folder.uri, keep: AUTO_BACKUP_KEEP, pattern: AUTO_BACKUP_NAME.source, written: name }) } catch (e) { /* housekeeping */ }
+  try { await folderPlugin.prune({ uri: folder.uri, keep: backupKeep() /* [hevier] S52 */, pattern: AUTO_BACKUP_NAME.source, written: name }) } catch (e) { /* housekeeping */ }
   return true
 }
 

@@ -68,6 +68,17 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(card.querySelectorAll('.hv-xd-set')).toHaveLength(2)
   })
 
+  it('History lists a set made a timed hold, marked H (D89)', () => {
+    const held = clone(log)
+    held[0].entries[0].sets.splice(1, 0, { w: 60, sec: 30, mode: 'time', done: true })
+    open(held)
+    tab('History')
+    const sets = [...container.querySelectorAll('.hv-xd-sess .hv-xd-set')]
+    expect(sets.map(r => r.querySelector('.hv-xd-n').textContent)).toEqual(['1', 'H', '2'])
+    expect(sets[1].textContent).toContain('0:30')
+    expect(sets[1].querySelector('.hv-xd-h')).toBeTruthy()
+  })
+
   it('How to shows the steps, and an empty log says so', () => {
     open([])
     expect(container.textContent).toContain('No sessions logged yet')

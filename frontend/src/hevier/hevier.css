@@ -482,6 +482,8 @@
 :root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
 :root[data-ui="hevier"] .hv-wd-row span:first-child{text-align:center;font-weight:600}
 :root[data-ui="hevier"] .hv-wd-w{color:var(--yellow,#f5c518)}
+/* A timed hold (D89) reads H where its number would be, as a warm-up reads W. */
+:root[data-ui="hevier"] .hv-wd-h,:root[data-ui="hevier"] .hv-xd-n.hv-xd-h{color:var(--teal,var(--blue))}
 
 /* Exercises and Calendar under Profile (reference/SCREENS.md §8, §11) */
 :root[data-ui="hevier"] .hv-cal-streak{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600;margin:4px 0 12px}
