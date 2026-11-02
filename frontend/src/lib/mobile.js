@@ -343,7 +343,7 @@ export async function printHtml(html, name, { paper = 'a4', footer } = {}) {
 // tells it apart from an old automatic copy, so those stay for the person to clear (Import
 // backup still reads either kind).
 export const AUTO_BACKUP_DIR = 'openGym'
-export const AUTO_BACKUP_KEEP = 14
+export const AUTO_BACKUP_KEEP = 5
 // Only the exact names writeAutoBackup gives its files are ever pruned; anything else someone
 // keeps in the folder is theirs.
 const AUTO_BACKUP_NAME = /^opengym-backup-\d{4}-\d{2}-\d{2}(-[2-9])?\.json$/

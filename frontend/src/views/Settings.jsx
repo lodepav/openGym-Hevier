@@ -918,10 +918,10 @@ export default function Settings({ page = null, find = null, via = null, entryKe
         <Row icon="note" iconTint="var(--green)" title={t('Performance report (PDF)')} subtitle={t('Charts, totals and every workout of the last days or weeks.')} accessory="chevron" onClick={reportSheet} />
         {/* One row per set for spreadsheets and other apps (#647); our own importer reads it back. */}
         <Row icon="share" iconTint="var(--green)" title={t('Export as spreadsheet (CSV)')} subtitle={t('Workouts, body weight and measurements')} accessory="chevron" onClick={csvExportSheet} />
-        {/* 14 is AUTO_BACKUP_KEEP in lib/mobile.js, written out because the Settings tests mock
+        {/* 5 is AUTO_BACKUP_KEEP in lib/mobile.js, written out because the Settings tests mock
             that module wholesale; mobile.autobackup.test.js pins the two together. */}
         {MOBILE && <Row icon="folder" iconTint="var(--blue)" title={t('Auto-backup on changes')}
-          subtitle={autoBackupSubtitle(android && S.autoBackup ? backupDir : null, 14)}>
+          subtitle={autoBackupSubtitle(android && S.autoBackup ? backupDir : null, 5)}>
           <Switch checked={!!S.autoBackup} onChange={v => update(s => { s.autoBackup = v })} />
         </Row>}
         {/* Android only: the system folder picker (#161). iOS shows Documents in Files already. */}

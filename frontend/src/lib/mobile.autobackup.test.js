@@ -1,5 +1,5 @@
 // Auto-backup on the phone (#161): the copies go into Documents/openGym/, and each write keeps
-// the newest fourteen there. Nothing outside that folder, and nothing but the app's own dated
+// the newest five there. Nothing outside that folder, and nothing but the app's own dated
 // backups inside it, is ever deleted.
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { todayISO } from './format.js'
@@ -57,17 +57,17 @@ describe('writeAutoBackup', () => {
     expect(h.files.has('DOCUMENTS/' + backup(todayISO()))).toBe(false)
   })
 
-  it('keeps the newest fourteen in the folder, today\'s among them, and deletes only older dated backups', async () => {
+  it('keeps the newest five in the folder, today\'s among them, and deletes only older dated backups', async () => {
     for (let i = 0; i < 20; i++) put('openGym/' + backup(day(i)))
     put('openGym/notes.txt'); put('openGym/opengym-backup-latest.json'); put('openGym/' + backup(day(0)).replace('.json', '.json.bak'))
     put('openGym/' + backup('2020-01-01') + '/inside.json')   // a directory that happens to carry the name
     await writeAutoBackup({})
     const dated = inFolder().filter(n => /^opengym-backup-\d{4}-\d{2}-\d{2}\.json$/.test(n))
-    expect(AUTO_BACKUP_KEEP).toBe(14)
-    expect(dated).toHaveLength(14)
+    expect(AUTO_BACKUP_KEEP).toBe(5)
+    expect(dated).toHaveLength(5)
     expect(dated).toContain(backup(todayISO()))
-    // The thirteen newest of the old ones survive next to today's.
-    expect(dated.filter(n => n !== backup(todayISO()))).toEqual([...Array(13)].map((_, i) => backup(day(19 - i))).sort())
+    // The four newest of the old ones survive next to today's.
+    expect(dated.filter(n => n !== backup(todayISO()))).toEqual([...Array(4)].map((_, i) => backup(day(19 - i))).sort())
     // Everything that is not an automatic backup is untouched.
     expect(inFolder()).toEqual(expect.arrayContaining(['notes.txt', 'opengym-backup-latest.json', backup(day(0)).replace('.json', '.json.bak')]))
     expect(h.files.has('DOCUMENTS/openGym/' + backup('2020-01-01') + '/inside.json')).toBe(true)
@@ -85,7 +85,7 @@ describe('writeAutoBackup', () => {
     for (let i = 0; i < 20; i++) put('openGym/' + backup('2099-01-' + String(i + 1).padStart(2, '0')))
     await writeAutoBackup({})
     const left = inFolder()
-    expect(left).toHaveLength(14)
+    expect(left).toHaveLength(5)
     expect(left).toContain(backup(todayISO()))
   })
 
@@ -103,7 +103,7 @@ describe('writeAutoBackup', () => {
     h.refuseList = false
     h.stuck.add('openGym/' + backup(day(0)))
     await writeAutoBackup({})
-    expect(inFolder()).toHaveLength(15)   // fourteen, plus the one that would not go
+    expect(inFolder()).toHaveLength(6)   // five, plus the one that would not go
     expect(inFolder()).toContain(backup(day(0)))
   })
 })
@@ -129,10 +129,10 @@ describe('writeAutoBackup where today\'s name belongs to another install', () =>
     expect(JSON.parse(h.files.get('DOCUMENTS/openGym/' + backup(todayISO()).replace('.json', '-3.json')))).toEqual({ n: 3 })
   })
 
-  it('counts the second names among the fourteen it keeps, and prunes them like any other', async () => {
+  it('counts the second names among the five it keeps, and prunes them like any other', async () => {
     for (let i = 0; i < 20; i++) put('openGym/' + backup(day(i)).replace('.json', i % 2 ? '-2.json' : '.json'))
     await writeAutoBackup({})
-    expect(inFolder()).toHaveLength(14)
+    expect(inFolder()).toHaveLength(5)
     expect(inFolder()).toContain(backup(todayISO()))
     expect(inFolder()).not.toContain(backup(day(0)))
     expect(inFolder()).not.toContain(backup(day(1)).replace('.json', '-2.json'))

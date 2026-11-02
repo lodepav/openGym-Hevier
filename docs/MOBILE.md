@@ -146,7 +146,7 @@ Where the phone keeps things, in case you ever need them by hand:
   changes** switched on: a dated copy after every finished workout or edited routine, in a
   folder of its own under the phone's Documents folder, where a file manager or a sync app
   (Syncthing, a cloud folder) can reach it without taking the rest of Documents along. One
-  file per day; each new copy deletes all but the newest 14 of these dated files in that
+  file per day; each new copy deletes all but the newest 5 of these dated files in that
   folder. Nothing else is deleted, in that folder or anywhere: other files you keep there, and
   the copies versions before 1.3.9 wrote straight into `Documents/`, stay until you remove
   them yourself. Settings → Data & backup → **Import backup** reads any of them back, wherever it is.

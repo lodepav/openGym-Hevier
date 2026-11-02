@@ -136,7 +136,7 @@ public class BackupFolderPlugin extends Plugin {
         String uri = call.getString("uri");
         String pattern = call.getString("pattern");
         String written = call.getString("written", "");
-        int keep = call.getInt("keep", 14);
+        int keep = call.getInt("keep", 5);
         if (uri == null || pattern == null || keep < 1) {
             call.reject("uri, pattern and keep are required");
             return;

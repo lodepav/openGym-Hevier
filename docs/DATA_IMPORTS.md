@@ -81,7 +81,7 @@ library.
   (.zip)** includes your media as well.
 - **Import backup** restores such a file and *replaces* everything currently in the app.
 - **Auto-backup on changes** (phone app only) saves a dated copy to `Documents/openGym` after each
-  workout or routine edit and keeps the newest 14. Point a sync app at that folder to get them off
+  workout or routine edit and keeps the newest 5. Point a sync app at that folder to get them off
   the phone, or, on Android, choose the sync app's own folder under Settings → Data & backup → **Backup folder**.
 
 If you host openGym yourself, backing up the `./data` folder covers every profile at once; see

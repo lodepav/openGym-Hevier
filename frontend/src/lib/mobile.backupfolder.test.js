@@ -94,7 +94,7 @@ describe('writing into the chosen folder', () => {
     h.calls.length = 0
   })
 
-  it('writes today\'s copy there and prunes there to the same fourteen, nothing in Documents', async () => {
+  it('writes today\'s copy there and prunes there to the same five, nothing in Documents', async () => {
     await writeAutoBackup({ n: 2 })
     expect(methods()).toEqual(['check', 'write', 'prune'])
     const write = h.calls.find(c => c[0] === 'write')[1]
