@@ -806,3 +806,10 @@
 /* Home's Today widget keeps 1.4.3's small-caps label: upstream 1.4.4 restyled every .lbl2 (one card
    header) and dropped its `.today-row .lbl2` rule (D17). */
 :root[data-ui="hevier"] .hv-home .today-row .lbl2{font-size:11px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;color:var(--label-3)}
+/* Settings' root rows keep their value beside the title on a phone (D16, D17): upstream 1.4.4 moves
+   it under the title up to 430px (P10), for a 390px phone where "Plan & schedule" broke; the fork's
+   root, as in 1.4.3, stacks only from 360px down, where there is no room for both. */
+@media (min-width:361px) and (max-width:430px){
+  :root[data-ui="hevier"] .lrow.sp-root-row:has(.lrow-v){display:flex}
+  :root[data-ui="hevier"] .lrow.sp-root-row .lrow-v{text-align:end;max-width:62%;font-size:var(--fs-body);-webkit-line-clamp:3;line-clamp:3}
+}
