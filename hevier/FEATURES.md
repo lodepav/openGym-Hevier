@@ -30,7 +30,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Offer |
 | "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
-| Weight unit per exercise (e.g. one machine in lb) | D41 | Offer (upstream 1.4.4 brings its own, every screen, #657; it replaces D41 at that merge) |
+| Weight unit per exercise (e.g. one machine in lb) | D41 | Ported (upstream's #657, released in v1.4.4, replaces it at the merge: decided 2026-11-03) |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902) |
@@ -88,6 +88,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength level from thresholds you type in | D19 | Offer |
 | Strength levels list, by the level reached | D81 | Offer |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
+| YouTube demo on an exercise's How to tab (upstream 1.4.4's card) | D101 | Fork |
 
 ## Statistics and history
 
@@ -103,6 +104,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, released in v1.4.4: the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
+| Weekly sets per muscle against a target range (upstream 1.4.4's card), counted by the fork's main muscle | D99 | Fork |
 
 ## Home, navigation and look
 
@@ -117,6 +119,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | One Hevy page bar everywhere | D49 | Fork |
 | App name "Go Hevier" | D39 | Fork |
 | Boot screen in Hevy blue on AMOLED black | D83 | Fork |
+| Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
+| Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 
 ## Hevy import and export
 

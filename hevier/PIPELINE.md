@@ -18,6 +18,10 @@ merge list**: merge the tag (`git merge v1.4.4`, CONFLICTS.md), not the branch. 
 (`11302d2d`) has not moved and is all in 1.4.4; no new `release-*` branch yet. **Six of the fork's
 PRs are in the release**, see "The fork's PRs and issues upstream".
 
+**Decided 2026-11-03: merge v1.4.4.** The decision round is done: each item below has its answer in
+DECISIONS.md, as an "At the 1.4.4 merge" note on the decision it touches or as D97 to D101 (section
+"openGym 1.4.4"). Next is the merge itself, on `sync/v1.4.4` (the `upstream-merge` skill).
+
 **Refreshed 2026-11-02.** `release-1.4.4` (now `1f15e1db`, 121 commits past `fef710b6`) **took
 `release-1.4.5` whole**: `release-1.4.5` (`11302d2d`, 33 commits past `d0a85546`) has nothing that
 is not in `release-1.4.4`, and the CHANGELOG has one `## Unreleased` again, so everything under
