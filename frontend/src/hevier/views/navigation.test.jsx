@@ -158,6 +158,14 @@ describe('hevier: navigation (seam S2)', () => {
     expect(path).toBe('/stats')
   })
 
+  it('a link into one part of upstream’s Stats opens All statistics on it; /stats alone is the fork’s (1.4.4)', () => {
+    render('/stats?section=lifts')
+    expect(path).toBe('/stats/all')
+    act(() => root.unmount()); container.remove()
+    render('/stats')
+    expect(path).toBe('/stats')
+  })
+
   it('Edit Home switches widgets on and off, in S or through upstream’s switch', () => {
     render('/home')
     expect(container.textContent).not.toContain('week streak')

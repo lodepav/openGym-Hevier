@@ -1,7 +1,7 @@
 // The fork's screens, reached through seam S2 (frontend/src/App.jsx). The routes are placed
 // before upstream's own, and React Router gives an exact tie to the first one, so a fork route
 // replaces upstream's same path without its line being touched.
-import { Route, useNavigate } from 'react-router-dom'
+import { Navigate, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import Workout from '../views/Workout.jsx'
@@ -66,6 +66,14 @@ function WithBack({ label = 'Profile', to = '/profile', title, children }) {
 
 // Upstream's Plan (the Workout tab's Schedule) had no way back: the fork's page bar goes over it,
 // and its own "Plan" heading is hidden, its subtitle and Plan options kept (hevier.css).
+// Upstream's links into one part of its Stats (1.4.4: `/stats?section=lifts`, Plan's
+// `/stats?focus=weekly-volume`) open upstream's page, the fork's All statistics, on that part; the
+// fork's own Statistics page is `/stats` without them.
+function StatsEntry() {
+  const { search } = useLocation()
+  return /[?&](section|focus)=/.test(search) ? <Navigate to={'/stats/all' + search} replace /> : <Statistics />
+}
+
 function PlanPage() {
   return <>
     <PageBar title={t('Plan')} onBack={useBack('/routines')} backLabel={t('Workout')} className="hv-planbar" />
@@ -95,7 +103,7 @@ export const hevierRoutes = [
   <Route key="hv-workout" path="/workout" element={<WorkoutRoute />} />,
   <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
-  <Route key="hv-stats" path="/stats" element={<Statistics />} />,
+  <Route key="hv-stats" path="/stats" element={<StatsEntry />} />,
   <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><PhaseFilter /><Stats /></WithBack>} />,
   <Route key="hv-measures" path="/measures" element={<Measures />} />,
   <Route key="hv-measurements" path="/measurements" element={<BackWhereFrom to="/measures"><Measurements /></BackWhereFrom>} />,
