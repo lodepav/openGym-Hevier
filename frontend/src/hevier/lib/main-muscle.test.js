@@ -9,8 +9,8 @@ const done = n => Array.from({ length: n }, () => ({ w: 50, r: 8, done: true }))
 afterEach(() => registerCustom([]))
 
 describe('mainMuscleOf (D74)', () => {
-  it('files squats, lunges and leg presses under the quads, not the catalogue’s glutes', () => {
-    expect(EXIDX['0739'].tg).toBe('glutes')
+  it('files squats and leg presses under the quads, as the catalogue does since 1.4.4 (#788)', () => {
+    expect(EXIDX['0739'].tg).toBe('quads')
     expect(main('0739')).toBe('Quadriceps') // sled 45° leg press
     expect(main('0043')).toBe('Quadriceps') // barbell full squat
     expect(main('0743')).toBe('Quadriceps') // sled hack squat
@@ -47,7 +47,7 @@ describe('mainMuscleOf (D74)', () => {
     expect(main('1454')).toBe('Front Delts') // lever seated shoulder press
   })
   it('gives twists and side planks to the obliques', () => {
-    const twist = Object.values(EXIDX).find(e => e.tg === 'abs' && /russian twist/.test(e.n))
+    const twist = Object.values(EXIDX).find(e => /russian twist/.test(e.n))
     expect(mainMuscleOf(twist)).toBe('Obliques')
   })
   it('files what the review found under another muscle (2026-10-21)', () => {
@@ -65,6 +65,18 @@ describe('mainMuscleOf (D74)', () => {
     expect(main('2142')).toBe('Cardio') // ski ergometer
     expect(main('1130')).toBe('Rear Delts') // suspender reverse fly
     expect(main('2779')).toBe('Shoulders') // shoulder lateral rotation: rotator cuff, no head
+  })
+  it('files a custom exercise with no muscles and no catalogue match by its name alone', () => {
+    registerCustom([
+      { id: 'n1', n: 'Zzq Pike Push-up', custom: true, tg: '' },
+      { id: 'n2', n: 'Zzq Side Bridge Hold', custom: true, tg: '' },
+      { id: 'n3', n: 'Zzq Twisting Bench Press', custom: true, tg: '' },
+      { id: 'n4', n: 'Zzq Push-up Ladder', custom: true, tg: '' },
+    ])
+    expect(main('n1')).toBe('Front Delts')
+    expect(main('n2')).toBe('Obliques')
+    expect(main('n3')).toBe('Chest')
+    expect(main('n4')).toBe('Chest')
   })
   it('reads a custom exercise’s own primary muscle, or the catalogue exercise its name finds', () => {
     registerCustom([

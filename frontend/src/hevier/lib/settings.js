@@ -3,7 +3,7 @@
 // workout layouts, which the fork's one Hevy layout never reads (D1, D3, D4, D7), and the theme and
 // accent pickers (D17). They are left out of the page's element tree before it renders (seam S12),
 // so upstream's Settings.jsx keeps every row and the fork edits none of them.
-import { Children, cloneElement, isValidElement } from 'react'
+import { Children, Fragment, cloneElement, isValidElement } from 'react'
 import { Section } from '../../components/ui.jsx'
 import { fmtPlate } from '../../lib/format.js'
 
@@ -14,24 +14,30 @@ export const SETTINGS_GROUPS = [
   { title: 'Workout', ids: ['workout', 'alerts', 'equipment', 'plan'] },
   { title: 'Stats', ids: ['hv:volume'] },
   { title: 'App', ids: ['units', 'look'] },
-  { title: 'Data & more', ids: ['data', 'coach', 'about'] },
+  { title: 'Data & more', ids: ['data', 'integrations', 'coach', 'about'] },
 ]
 
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
-  look: ['Theme', 'Accent color', 'Gym check-in', 'Seasonal themes'],
+  look: ['Theme', 'Accent color', 'Gym check-in', 'Seasonal themes',
+    // 1.4.4 (D100): no NFC stickers. Upstream's new Home cards come back as Home widgets (D98).
+    'Set up an NFC sticker', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges'],
   // The gym filter is the picker's (D62): no switch, no active profile here.
   equipment: ['Filter by equipment', 'Active profile'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise',
-    'Planned sessions start from', 'Muscle map at the top'],
+    'Planned sessions start from', 'Muscle map at the top',
+    // 1.4.4 (D100): holds that run themselves, for now (D53, D89 time them).
+    'Timed holds start by themselves'],
   // The fork's gyms are D47's.
   reminders: ['Gym reminder'],
   // No support rows: the section goes with them (2026-10-26, the user's choice).
-  about: ['Rate openGym on the App Store', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors'],
+  about: ['Rate openGym on the App Store', 'Rate openGym on Google Play', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors',
+    // 1.4.4 (D100): the tour and its tutorials point at upstream's screens, which the fork replaces.
+    'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
 }
 // Pages left out whole: not found by the search, nor any row on them.
 export const HIDDEN_PAGES = ['gym', 'themes']
@@ -54,20 +60,25 @@ function titleOf(node) {
 /**
  * A page's element tree without the hidden rows. `tr` is the translation the page rendered its
  * titles with, so a row is matched in any language. A section left with no rows goes too.
+ * `types`: components upstream draws a row with instead of a titled Row, left out wherever they
+ * are (the caller's, so this stays free of views: Android's app icon picker, D100).
  */
-export function prunePage(page, tree, tr) {
+export function prunePage(page, tree, tr, types = []) {
+  const hiddenTypes = new Set(types)
   const hide = new Set((HIDDEN_ROWS[page] || []).map(k => tr(k)))
   const stale = new Set(STALE_FOOTERS.map(k => tr(k)))
   if (!hide.size) return tree
   const walk = node => {
     if (!isValidElement(node)) return node
-    if (hide.has(titleOf(node))) return null
+    if (hide.has(titleOf(node)) || hiddenTypes.has(node.type)) return null
     if (node.props.children === undefined) return node
     const kids = Children.toArray(node.props.children).map(walk).filter(k => k != null && k !== false)
     const isSection = node.type === Section
-    if (isSection && !kids.length) return null
+    // A section or a fragment left with no rows goes. (cloneElement given no children keeps the
+    // old ones, so an emptied element says so: upstream 1.4.4 groups its support rows in one.)
+    if (!kids.length && (isSection || node.type === Fragment)) return null
     const extra = isSection && stale.has(node.props.footer) ? { footer: undefined } : {}
-    return cloneElement(node, extra, ...kids)
+    return kids.length ? cloneElement(node, extra, ...kids) : cloneElement(node, { ...extra, children: undefined })
   }
   return walk(tree)
 }

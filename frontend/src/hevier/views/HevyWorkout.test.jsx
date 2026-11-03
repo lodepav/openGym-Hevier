@@ -72,7 +72,8 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets.querySelector('b').textContent).toBe('2')
   })
 
-  it('a weight far past the best asks at the tick: Fix it leaves the set unticked, Log logs it (D90)', () => {
+  // Upstream's check since 1.4.4 (#811, D90's 1.4.4 note): asked once, in upstream's words.
+  it('a weight far past the best asks at the tick: Fix it leaves the set unticked, Log as typed logs it (D90)', () => {
     const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(30, 8, { done: true })] }] }]
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(300, 8, { weightOrigin: 'manual' })] }], past)
     const sheet = () => {
@@ -85,17 +86,28 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0].done).toBeFalsy()
     let host = sheet()
-    expect(host.textContent).toContain('300 kg is over twice your heaviest, 30 kg.')
+    expect(host.textContent).toContain('Weight: 300 kg is more than twice your heaviest, 30 kg.')
     act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Fix it').click())
     expect(sets()[0].done).toBeFalsy()
     act(() => container.querySelector('.hv-chk').click())
     host = sheet()
-    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Log 300 kg').click())
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Log as typed').click())
     expect(sets()[0].done).toBe(true)
     const open = useUI.getState().sheets.length   // upstream's all-sets-done prompt
     act(() => container.querySelector('.hv-chk').click())   // unticking never asks
     expect(sets()[0].done).toBeFalsy()
     expect(useUI.getState().sheets).toHaveLength(open)
+  })
+
+  it('a ticked set beside its number says how it compares with the same set last time, behind upstream’s switch (D66, #907)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true }), reps(60, 10, { done: true })] }] }]
+    // Below last time, so no record: a record's trophy takes the arrow's place, as in Workout Detail.
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 9, { done: true }), reps(60, 8)] }], past)
+    const marks = () => [...container.querySelectorAll('.hv-set')].map(b => b.querySelector('.hv-trend')?.className || '')
+    expect(marks()).toEqual(['hv-trend down', ''])
+    expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
+    act(() => useStore.getState().update(st => { st.setTrend = false }))
+    expect(marks()).toEqual(['', ''])
   })
 
   it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
@@ -200,13 +212,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const kg45 = 45 * 0.45359237
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(kg45, 8)] }],
       [{ id: 'w0', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [{ w: kg45, r: 8, done: true }] }] }])
-    act(() => useStore.getState().update(s => { s.hvExUnit = { [EX]: { u: 'lb', step: 5, inc: 5 * 0.45359237 } } }))
+    // Upstream's pin since 1.4.4 (#657, D41's 1.4.4 note).
+    act(() => useStore.getState().update(s => { s.exUnit = { [EX]: { unit: 'lb', _ts: 1 } }; for (const e of s.active.entries) if (e.id === EX) e.target = { ...e.target, inc: 5 * 0.45359237 } }))
     expect(container.querySelector('.hv-head').textContent).toContain('LB')
     const w = container.querySelector('.hv-row .hv-num')
     expect(w.placeholder).toBe('45')   // untouched: Hevy's grey hint (D2)
     expect(container.querySelector('.hv-prev').textContent).toContain('45lb × 8')
     typeInto(w, '50')
-    expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 9)
+    expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 4)   // upstream stores a converted weight to four places (#657)
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
   })
 
@@ -278,7 +291,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const top = useUI.getState().sheets.at(-1)
     const host = document.createElement('div')
     act(() => createRoot(host).render(top.render(() => useUI.setState({ sheets: [] }))))
-    expect(host.textContent).toContain('3 kg is under a third of last time’s, 30 kg.')
+    expect(host.textContent).toContain('Weight: 3 kg is under a third of last time’s 30 kg.')
   })
 
   it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
@@ -350,7 +363,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     document.body.appendChild(host)
     const r = createRoot(host)
     act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
-    const rows = host.querySelectorAll('.hv-pk-row')
+    const rows = host.querySelectorAll('.hv-pk-row .tap-main')
     const button = text => [...host.querySelectorAll('button')].find(b => b.textContent.startsWith(text))
     const done = () => { act(() => r.unmount()); host.remove(); hooks.exercisePicker = null }
     return { OTHER, rows, button, done }

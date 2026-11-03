@@ -45,10 +45,14 @@ import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
-import { bestsFor, oddValues, longRun, lastRowOf } from '../lib/odd-value.js'
+import { longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
+import { shownWeight } from '../../lib/ex-unit.js'
+import { setTrend, trendsOn } from '../lib/set-trend.js'
+import { formulaOf } from '../../lib/onerm.js'
+import TrendMark, { trendWords } from './TrendMark.jsx'
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
@@ -265,7 +269,9 @@ export default function HevyExerciseBlock(props) {
     }
     colsOf(p).forEach(c => {
       if (p[c.f] == null && c.opt) return
-      onField(i, c.f, p[c.f] ?? 0)
+      // Upstream's onField takes a weight in the exercise's own unit since 1.4.4 (#657): last
+      // time's stored weight goes in as the exercise shows it.
+      onField(i, c.f, c.view ? shownWeight(S, entry.id, p[c.f] ?? 0) : p[c.f] ?? 0)
       touch(i, c.f)
     })
   }
@@ -299,8 +305,9 @@ export default function HevyExerciseBlock(props) {
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {
         touch(i, key)
-        const val = col.store ? col.store(v) : v
-        if (side) setSide(i, side, col.f, val); else onField(i, col.f, val)
+        // A side is written here, in the stored unit; upstream's onField converts what it is
+        // given from the exercise's unit itself since 1.4.4 (#657), so it takes the typed number.
+        if (side) setSide(i, side, col.f, col.store ? col.store(v) : v); else onField(i, col.f, v)
         if (col.f === 'w' && filledFromLast(s, side)) update(st => {
           const row = st.active?.entries[entryIdx]?.sets[i]
           const left = side ? String(row?.hvLast || '').replace(side, '') : ''
@@ -330,10 +337,15 @@ export default function HevyExerciseBlock(props) {
   const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span>
     : isHoldRow(s) ? <span className="hv-hold">{workNumber(i)}<Icon name="timer" /></span> : workNumber(i))
+  // A ticked work set against the same set last time, the PREVIOUS column's (D66, upstream's #907
+  // and its switch since 1.4.4); a per-side set is read by Workout Detail, not here.
+  const trendAt = (s, i) => (trendsOn(S) && s?.done && !isWarmupRow(s) && !isSideSet(s)
+    ? setTrend(s, prev[i], { assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }), formula: formulaOf(S) }) : null)
   const setButton = (s, i) => <button type="button" className="hv-set" onClick={() => openSetType(s, i)}
     aria-label={rowName(s, i) + (s.side ? ' (' + sideWord(s.side) + ')' : '')
-      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (isHoldRow(s) ? ', ' + t('Timed hold') : '') + (prSets.has(i) ? ', ' + t('PR') : '') + ', ' + t('Set type')}>
-    {markOf(s, i)}{prSets.has(i) && <Icon name="trophy" className="hv-pr-live" />}</button>
+      + (isFailureSet(s) ? ', ' + t('Taken to failure') : '') + (isHoldRow(s) ? ', ' + t('Timed hold') : '') + (prSets.has(i) ? ', ' + t('PR') : '')
+      + (trendAt(s, i) != null ? ', ' + trendWords(trendAt(s, i)) : '') + ', ' + t('Set type')}>
+    {markOf(s, i)}{prSets.has(i) && <Icon name="trophy" className="hv-pr-live" />}{!prSets.has(i) && <TrendMark v={trendAt(s, i)} hidden />}</button>
   // A tick that gives this set a record says so (D22): a toast, no sound of its own. A weight in
   // this exercise's own unit (D41).
   const prText = r => (!convertsUnit || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
@@ -375,18 +387,7 @@ export default function HevyExerciseBlock(props) {
       if (ref) return ask(i, side, s, 'min', t('Timer still running?'),
         t('{0} is over twice this set’s time, {1}.', elapsedClock(ran), elapsedClock(ref)), elapsedClock(ran), () => stopTimer(i))
     }
-    if (src && !src.done && modeAt(s) === 'reps') {
-      const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id),
-        { unit, last: lastRowOf(s, p, side), assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
-      if (odd.length) {
-        const shown = o => (o.f === 'w' ? fmtNum(showWeight(o.typed)) + ' ' + exUnit : t('{0} reps', o.typed))
-        const of = o => (o.f === 'w' ? fmtNum(showWeight(o.best)) + ' ' + exUnit : t('{0} reps', o.best))
-        return ask(i, side, s, odd[0].f, t('Is that right?'), odd.map(o => (o.low
-          ? t('{0} is under a third of last time’s, {1}.', shown(o), of(o))
-          : o.f === 'w' ? t('{0} is over twice your heaviest, {1}.', shown(o), of(o)) : t('{0} is over twice your most, {1}.', shown(o), of(o)))).join(' '),
-        odd.map(shown).join(' × '))
-      }
-    }
+    // A weight or rep count that looks mistyped asks in upstream's tick (#811, D90's 1.4.4 note).
     logTick(i, side)
   }
   const logTick = (i, side) => {
