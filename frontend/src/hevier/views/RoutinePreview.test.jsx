@@ -83,6 +83,17 @@ describe('Routine page (D37)', () => {
     expect(path).toBe('/plan/r/r1')
   })
 
+  it('shares the routine with a friend through upstream’s sheet (D37, upstream 1.4.4)', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }])
+    const share = container.querySelector('[aria-label="Share with a friend"]')
+    expect(share.disabled).toBe(false)
+    act(() => share.click())
+    expect(useUI.getState().sheets).toHaveLength(1)
+    act(() => root.unmount()); container.remove()
+    render([])
+    expect(container.querySelector('[aria-label="Share with a friend"]').disabled).toBe(true)
+  })
+
   it('resumes a session already open instead of starting another', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], undefined, { active: { id: 'a1', d: '2026-10-17', start: 1, entries: [] } })
     act(() => byText('button', 'Resume').click())
