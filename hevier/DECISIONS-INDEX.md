@@ -105,3 +105,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D99** Weekly sets per muscle against a target range, counted the fork's way.
 - **D100** What openGym 1.4.4 brings that the fork leaves out of its UI.
 - **D101** An exercise's How to plays its YouTube demo.
+- **D102** A module with several parts has a switch for each part.

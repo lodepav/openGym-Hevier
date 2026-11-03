@@ -120,6 +120,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | App name "Go Hevier" | D39 | Fork |
 | Boot screen in Hevy blue on AMOLED black | D83 | Fork |
 | Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
+| A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offer |
 | Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 
 ## Hevy import and export
