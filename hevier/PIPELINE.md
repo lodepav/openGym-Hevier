@@ -20,7 +20,12 @@ PRs are in the release**, see "The fork's PRs and issues upstream".
 
 **Decided 2026-11-03: merge v1.4.4.** The decision round is done: each item below has its answer in
 DECISIONS.md, as an "At the 1.4.4 merge" note on the decision it touches or as D97 to D101 (section
-"openGym 1.4.4"). Next is the merge itself, on `sync/v1.4.4` (the `upstream-merge` skill).
+"openGym 1.4.4"). **The merge is #5** (`sync/v1.4.4`, 2026-11-03): the conflicts, S35 and S47 gone,
+and the decisions the merge needs (D18, D41, D61, D66, D70, D74, D90, D100's rows and Android
+overlay, D11's re-tap, the Stats links). Still to build after it: D97 and D102 (Modules in the
+fork's screens, a switch per part), D98, D99, D101, D5's Note, D45's suggestions, D37's Share, the
+`hevier.css` restyle (D17), and on the release machine the Wear OS library left out, the Gradle
+lock and `release-check.sh --apk`.
 What v1.4.5 plans on top, with no code yet, is in "v1.4.5, planned, not built".
 
 **Refreshed 2026-11-02.** `release-1.4.4` (now `1f15e1db`, 121 commits past `fef710b6`) **took
