@@ -29,6 +29,7 @@ import { hooks } from '../hooks.js'
 import { cleanBackups } from '../../lib/routine-backups.js'
 import { armSwap } from '../lib/gym-backups-run.js'
 import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches, hiddenByGym } from '../lib/exercise-picker.js'
+import { suggestedSubstitutes, relatedSubstitutes } from '../../lib/exercise-substitutes.js'
 
 const PAGE = 50
 const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym is `gymId`
@@ -90,6 +91,16 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // D45: the slot's planned backups first, while nothing is typed (upstream 1.4.2's "Your backups").
   const backupList = q.trim() ? [] : cleanBackups(backups, like).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && !e.missing)
+  // D45's 1.4.4 note: upstream's swap suggestions (#674), up to three, under the backups: the same
+  // movement and muscle first, else related ones, from what the gym and the filters leave, a planned
+  // backup not twice. Only on a swap, while nothing is typed.
+  const pool = likeEx && !q.trim() ? list.filter(e => !backupList.includes(e)) : []
+  const closeMatches = pool.length ? suggestedSubstitutes(pool, likeEx) : []
+  const suggested = closeMatches.length ? closeMatches : pool.length ? relatedSubstitutes(pool, likeEx) : []
+  const suggestWhy = closeMatches.length ? t('Same movement and muscle')
+    : suggested.some(e => e.cat !== likeEx?.cat) ? t('Same muscle, different exercise type. Check suitability.')
+      : suggested.some(e => e.tg !== likeEx?.tg) ? t('Related muscles and exercise type. The movement may differ.')
+        : t('Same muscle and exercise type. The movement may differ.')
 
   const isOn = e => picked.some(p => p.id === e.id)
   const tap = e => {
@@ -159,6 +170,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}</button>
     </div>
     {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
+    {suggested.length > 0 && <section aria-label={t('Suggested substitutes')}>
+      <h4 className="sec">{t('Suggested substitutes')}</h4>
+      <p className="small dim hv-pk-why">{suggestWhy}</p>
+      <div className="list">{suggested.map(e => row(e, 's'))}</div>
+    </section>}
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
     {/* D67: every match hidden by the gym, the hidden line comes first, clear of the keyboard */}
     {!(list.length === 0 && hidden.length > 0) && <>

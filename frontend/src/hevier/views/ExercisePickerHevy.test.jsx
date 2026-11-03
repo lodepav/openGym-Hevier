@@ -123,6 +123,26 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(container.textContent).not.toContain('Your backups')
   })
 
+  it('a swap suggests up to three substitutes under the backups, never a backup again, until something is typed (D45, #674)', () => {
+    const S = clone(DEF)
+    S.active = { start: Date.now(), entries: [{ id: BENCH.id, target: { subs: [SQUAT.id] }, sets: [] }] }
+    useStore.setState({ S, user: null })
+    swapActiveWorkoutExercise(0)
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    act(() => root.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const heads = [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
+    expect(heads.slice(0, 2)).toEqual(['Your backups', 'Suggested substitutes'])
+    const sug = [...container.querySelectorAll('section[aria-label="Suggested substitutes"] .hv-pk-row .tt')].map(e => e.textContent)
+    expect(sug.length).toBeGreaterThan(0)
+    expect(sug.length).toBeLessThanOrEqual(3)
+    expect(sug).not.toContain(SQUAT.n)
+    expect(sug).not.toContain(BENCH.n)
+    search('curl')
+    expect(container.textContent).not.toContain('Suggested substitutes')
+  })
+
   it('lists recent exercises first', () => {
     open(vi.fn(), {}, [{ id: 'w', d: '2026-10-01', entries: [{ id: SQUAT.id, sets: [] }] }])
     expect(container.textContent).toContain('Recent Exercises')
