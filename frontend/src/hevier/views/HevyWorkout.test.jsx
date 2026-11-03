@@ -201,13 +201,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const kg45 = 45 * 0.45359237
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(kg45, 8)] }],
       [{ id: 'w0', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [{ w: kg45, r: 8, done: true }] }] }])
-    act(() => useStore.getState().update(s => { s.hvExUnit = { [EX]: { u: 'lb', step: 5, inc: 5 * 0.45359237 } } }))
+    // Upstream's pin since 1.4.4 (#657, D41's 1.4.4 note).
+    act(() => useStore.getState().update(s => { s.exUnit = { [EX]: { unit: 'lb', _ts: 1 } }; for (const e of s.active.entries) if (e.id === EX) e.target = { ...e.target, inc: 5 * 0.45359237 } }))
     expect(container.querySelector('.hv-head').textContent).toContain('LB')
     const w = container.querySelector('.hv-row .hv-num')
     expect(w.placeholder).toBe('45')   // untouched: Hevy's grey hint (D2)
     expect(container.querySelector('.hv-prev').textContent).toContain('45lb × 8')
     typeInto(w, '50')
-    expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 9)
+    expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 4)   // upstream stores a converted weight to four places (#657)
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
   })
 

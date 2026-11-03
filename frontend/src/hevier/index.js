@@ -30,6 +30,7 @@ import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
 import { initProgDefault } from './lib/prog-default.js'
+import { initExUnits } from './lib/ex-unit.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -70,6 +71,7 @@ function install() {
   hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   initProgDefault(store)                                  // the profile's default rule is Off until chosen (D61, upstream's #814)
+  initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = useStatsS                                // All statistics leave out the kept-out exercises (S34, D57) and follow the phase filter (D93)
   initStillTraining(store)                                // Still training? after five hours (D60)

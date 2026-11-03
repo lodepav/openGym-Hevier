@@ -49,6 +49,7 @@ import { longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
+import { shownWeight } from '../../lib/ex-unit.js'
 import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
@@ -265,7 +266,9 @@ export default function HevyExerciseBlock(props) {
     }
     colsOf(p).forEach(c => {
       if (p[c.f] == null && c.opt) return
-      onField(i, c.f, p[c.f] ?? 0)
+      // Upstream's onField takes a weight in the exercise's own unit since 1.4.4 (#657): last
+      // time's stored weight goes in as the exercise shows it.
+      onField(i, c.f, c.view ? shownWeight(S, entry.id, p[c.f] ?? 0) : p[c.f] ?? 0)
       touch(i, c.f)
     })
   }
@@ -299,8 +302,9 @@ export default function HevyExerciseBlock(props) {
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {
         touch(i, key)
-        const val = col.store ? col.store(v) : v
-        if (side) setSide(i, side, col.f, val); else onField(i, col.f, val)
+        // A side is written here, in the stored unit; upstream's onField converts what it is
+        // given from the exercise's unit itself since 1.4.4 (#657), so it takes the typed number.
+        if (side) setSide(i, side, col.f, col.store ? col.store(v) : v); else onField(i, col.f, v)
         if (col.f === 'w' && filledFromLast(s, side)) update(st => {
           const row = st.active?.entries[entryIdx]?.sets[i]
           const left = side ? String(row?.hvLast || '').replace(side, '') : ''
