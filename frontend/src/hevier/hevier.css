@@ -713,6 +713,8 @@
 :root[data-ui="hevier"] .hv-trend{display:inline-block;margin-inline-start:8px;font-weight:700;font-size:.95em}
 :root[data-ui="hevier"] .hv-trend.up{color:var(--green)}
 :root[data-ui="hevier"] .hv-trend.down{color:var(--red)}
+/* In the workout, the mark sits beside the set number, small (D66's 1.4.4 note). */
+:root[data-ui="hevier"] .hv-set .hv-trend{margin-inline-start:2px;font-size:.75em;vertical-align:super}
 :root[data-ui="hevier"] .hv-trend.eq{color:var(--label-3)}
 /* The ⏱ Timer as Hevy's (D10): a larger readout and wheel, and a ring while it counts. */
 :root[data-ui="hevier"] .hv-clock .dw-read{font-size:56px;margin:4px 0 8px}

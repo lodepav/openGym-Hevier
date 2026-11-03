@@ -99,6 +99,17 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useUI.getState().sheets).toHaveLength(open)
   })
 
+  it('a ticked set beside its number says how it compares with the same set last time, behind upstream’s switch (D66, #907)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true }), reps(60, 10, { done: true })] }] }]
+    // Below last time, so no record: a record's trophy takes the arrow's place, as in Workout Detail.
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 9, { done: true }), reps(60, 8)] }], past)
+    const marks = () => [...container.querySelectorAll('.hv-set')].map(b => b.querySelector('.hv-trend')?.className || '')
+    expect(marks()).toEqual(['hv-trend down', ''])
+    expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
+    act(() => useStore.getState().update(st => { st.setTrend = false }))
+    expect(marks()).toEqual(['', ''])
+  })
+
   it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     expect(container.querySelector('.hv-plates')).toBeNull()
