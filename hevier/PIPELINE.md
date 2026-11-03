@@ -6,6 +6,18 @@ build something that is already coming. Read this before starting a milestone, a
 The refresh notes up to 2026-10-26 and the rows of v1.4.2 and v1.4.3, all merged, are in
 [archive/PIPELINE-merged.md](archive/PIPELINE-merged.md).
 
+**v1.4.4 is released (2026-11-03).** The tag `v1.4.4` (`5f5832db`, tagged 2026-11-03, five days
+before its milestone's 2026-11-08) is `release-1.4.4`'s tip, and `upstream/main` now points at the
+same commit. It is the `release-1.4.4` read on 2026-11-02 plus 14 commits: the changelog under
+`## v1.4.4 (2026-11-03)`, the api's version, the website's downloads, `main`'s README and
+ROADMAP commits merged in, and **two server hardening fixes** (push subscriptions capped in size and
+checked before they are kept, oversized rows dropped at boot; the workout nudge no longer stalls the
+server on a very large saved state; `4ae1cbc10`, `0817ac5f9`, advisories to follow). No feature
+came in after 2026-11-02, so the four "What release-1.4.x …" sections below are now **the 1.4.4
+merge list**: merge the tag (`git merge v1.4.4`, CONFLICTS.md), not the branch. `release-1.4.5`
+(`11302d2d`) has not moved and is all in 1.4.4; no new `release-*` branch yet. **Six of the fork's
+PRs are in the release**, see "The fork's PRs and issues upstream".
+
 **Refreshed 2026-11-02.** `release-1.4.4` (now `1f15e1db`, 121 commits past `fef710b6`) **took
 `release-1.4.5` whole**: `release-1.4.5` (`11302d2d`, 33 commits past `d0a85546`) has nothing that
 is not in `release-1.4.4`, and the CHANGELOG has one `## Unreleased` again, so everything under
@@ -30,7 +42,7 @@ git branch -r | grep release-                        # new release branches?
 git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}'   # since our base
 ```
 
-## What release-1.4.4 brings (2026-10-26)
+## What release-1.4.4 brings (2026-10-26, released in v1.4.4)
 
 `release-1.4.4` (45512b2f, due 2026-11-15). Its v1.4.3 part is in [the archive](archive/PIPELINE-merged.md); these are
 under `## Unreleased`. The rows the fork must act on come first.
@@ -52,7 +64,7 @@ under `## Unreleased`. The rows the fork must act on come first.
 | **The fork's PRs** #788 (D74's catalogue targets), #806 (S44's CVE pins), #811 (D90's weight and rep checks), #812 (D88), and #814's default rule | At the merge: D74's name rules that #788's targets now give (check `muscle-groups.js` reads them), S44's rows, D90's checks (the fork keeps the cardio-timer one), D88's `exercise-time.js` (keep the fork's Muscle and Gym grouping over upstream's helper), and D61 / D69's default (the profile setting replaces the fork's own). Each becomes upstream's. |
 | AirPods heart rate (#818), Coach gateways (#804), iPhone web app height (#810), Halloween and app icons on iOS | iOS or Coach: nothing for the fork. |
 
-## What release-1.4.4 added after 2026-10-26 (2026-10-29)
+## What release-1.4.4 added after 2026-10-26 (2026-10-29, released in v1.4.4)
 
 `45512b2f..fef710b6`, 96 commits. Also under `## Unreleased` in its CHANGELOG, so they ship with 1.4.4.
 
@@ -74,7 +86,7 @@ under `## Unreleased`. The rows the fork must act on come first.
 | **Back from a page opened from a sheet** (#837, the fork's PR) | At the merge: seam S47 goes. |
 | Docker healthchecks (#844), cardio fatigue by duration (#841), barcodes at check-in (#854), Apple Health discard (#776) | Server, model or hidden screens: nothing to do. |
 
-## What release-1.4.4 added after 2026-10-29 (2026-11-02)
+## What release-1.4.4 added after 2026-10-29 (2026-11-02, released in v1.4.4)
 
 `fef710b6..1f15e1db`, 121 commits, `release-1.4.5`'s 33 included. All under `## Unreleased`, so they
 ship with 1.4.4 on about 2026-11-08. The rows the fork must act on come first.
@@ -96,7 +108,7 @@ ship with 1.4.4 on about 2026-11-08. The rows the fork must act on come first.
 | **Exercise names in European Portuguese and Swedish** (5,632 each), Swedish a catalogue language | D73's shown names and D36's brand search read the name packs: check the search tests in pt and sv. |
 | Privacy policy (health data as explicit consent, age 13 and over), a ticked set fades its parts not its number, Stats index fixes, Safari fallbacks | Upstream's pages and workout: nothing for the fork. D71's highlighted next set is the fork's own. |
 
-## What release-1.4.5 brings (2026-10-29, ships with 1.4.4)
+## What release-1.4.5 brings (2026-10-29, released in v1.4.4)
 
 `release-1.4.5` (`d0a85546`, due 2026-11-29 as "Google Play, F-Droid & integrations"). Most of it
 meets something the fork already has. **2026-11-02:** all of it is in `release-1.4.4` now and ships
@@ -132,7 +144,10 @@ are unchanged (1.4.4 33 open items, 1.4.5 30, 1.4.6 17, 1.4.7 24, 1.4.8 14, 1.4.
 1.4.9 and 1.4.12 have no open items), though 1.4.5's F-Droid and integrations, and 1.4.6's Wear
 OS, are already in `release-1.4.4`. What is left for 1.4.5 is Google Play's closed test, Strava,
 FIT, intervals.icu, WebDAV backups and remote MCP; for 1.4.6 Health Connect sessions, body
-composition and the Android lock screen. Refresh:
+composition and the Android lock screen. **2026-11-03:** v1.4.4 is out; its milestone still shows 25 open
+items (the fork's five PRs above among them) and the tag's ROADMAP.md still says "in TestFlight, out
+around 2026-11-08", both from before the release. Next: v1.4.5 (2026-11-29), with no `release-1.4.5`
+work of its own yet. Refresh:
 
 ```bash
 for n in $(gh api repos/DuarteSantos8/openGym/milestones --jq '.[].number'); do
@@ -160,7 +175,7 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
 | Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29 and 2026-11-02)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02 and 2026-11-03)
 
 On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 unmerged: each
 came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
@@ -183,6 +198,16 @@ are in no branch, and #814's commit is in. One new PR, **#931**. The issues #900
 answer; #638 is still on v1.4.8; #907 ships with 1.4.4 (upstream's build, its CHANGELOG credits
 the fork for the idea).
 
+**2026-11-03, v1.4.4 released.** Checked against the tag, by commit message (upstream applies the
+fork's commits with edits) and by the changelog's credits. **In v1.4.4:** #788, #806, #811 and #812
+(each "thanks @lodepav" in the changelog), #814 (its commit is in the tag; the changelog names no
+default rule) and #837 (merged on 2026-10-27), and the issue #907, built by upstream and credited
+to the fork for the idea and the first version. On GitHub #788, #806, #811, #812 and #814 still read
+open on the v1.4.4 milestone: after 1.4.3 upstream closed the fork's PRs by hand a day after the
+release (2026-10-25), so expect the same. **Not in v1.4.4**, and on no milestone: #807, #813, #815,
+#901, #902, #905, #906 and #931, none answered yet; the next release is v1.4.5 (due 2026-11-29). The
+issues #900 and #903 have no answer, #638 is still on v1.4.8.
+
 | # | What | State |
 |---|---|---|
 | #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **Offered again as #807** (2026-10-25, on `release-1.4.3`, regenerated there: 429 of Hevy's 503 templates mapped, 1.4.3's own title rows kept), the maintainer told why |
@@ -192,23 +217,23 @@ the fork for the idea).
 | #735 | An exercise's rest wheel opens on the default rest (D56) | Closed; upstream's own version is in `release-1.4.3`, with its "No timer" |
 | #736 | A one-arm or one-leg exercise starts per side (`pickedExerciseConfig`, D75) | Closed, in `release-1.4.3` (its rename commit too) |
 | #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | All closed; all four in `release-1.4.3` (#766 with #769) |
-| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | Open; in `release-1.4.4` (planned for 1.4.4, as it shifts everyone's fatigue numbers) |
-| #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | Open; in `release-1.4.4` |
-| #807 | #672's last commit: Hevy templates mapped by their artwork (D29) | Open, retargeted to `release-1.4.4`; not taken yet |
-| #811 | Ask before logging a likely typo (D90's weight and rep checks) | Open; in `release-1.4.4` |
-| #812 | How long each exercise takes (D88) | Open; in `release-1.4.4`, a Stats card without the fork's Muscle and Gym grouping |
-| #813 | An exercise kept out of progression is kept out of the statistics, a deload routine's still counted (D57) | Open, retargeted to `release-1.4.4`; not in it yet |
-| #814 | A default progression rule for the profile (D61, D69) | Open, still on `release-1.4.3`; its commit is in `release-1.4.4` already |
-| #815 | More from the Hevy API import: notes, rest and rep ranges, measurements, routine links, muscles (D31) | Open, retargeted to `release-1.4.4`; not in it yet |
-| #837 | Back from a page opened from a sheet keeps its place (S47) | Merged into `release-1.4.4` |
-| #901 | Explorer: equipment by group, each opening on its kinds (D63; PR 1 of 3, then a gym checklist by group, then muscle groups after #900) | Open, on `release-1.4.4` |
-| #902 | A picked exercise starts the way it was logged last time (D55, D75, S32) | Open, on `release-1.4.4` |
-| #905 | A search filtered by a gym says how many it hid (D67) | Open, on `release-1.4.4` |
-| #906 | All done? for a workout left running (D60) | Open, on `release-1.4.4` |
-| #931 | Import: check each exercise's match before importing, and remember the pick (D33) | Open (2026-10-30), in no branch yet |
+| #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | **Released in v1.4.4** (credited); the PR still reads open |
+| #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | **Released in v1.4.4** (credited); the PR still reads open |
+| #807 | #672's last commit: Hevy templates mapped by their artwork (D29) | Open; **not in v1.4.4** |
+| #811 | Ask before logging a likely typo (D90's weight and rep checks) | **Released in v1.4.4** (credited); the PR still reads open |
+| #812 | How long each exercise takes (D88) | **Released in v1.4.4** (credited), a Stats card without the fork's Muscle and Gym grouping; the PR still reads open |
+| #813 | An exercise kept out of progression is kept out of the statistics, a deload routine's still counted (D57) | Open; **not in v1.4.4** |
+| #814 | A default progression rule for the profile (D61, D69) | **Released in v1.4.4** (its commit; the changelog doesn't name it); the PR still reads open, on `release-1.4.3` |
+| #815 | More from the Hevy API import: notes, rest and rep ranges, measurements, routine links, muscles (D31) | Open; **not in v1.4.4** |
+| #837 | Back from a page opened from a sheet keeps its place (S47) | **Released in v1.4.4** (merged 2026-10-27): seam S47 goes at the merge |
+| #901 | Explorer: equipment by group, each opening on its kinds (D63; PR 1 of 3, then a gym checklist by group, then muscle groups after #900) | Open; **not in v1.4.4**, its base branch is released |
+| #902 | A picked exercise starts the way it was logged last time (D55, D75, S32) | Open; **not in v1.4.4**, its base branch is released |
+| #905 | A search filtered by a gym says how many it hid (D67) | Open; **not in v1.4.4**, its base branch is released |
+| #906 | All done? for a workout left running (D60) | Open; **not in v1.4.4**, its base branch is released |
+| #931 | Import: check each exercise's match before importing, and remember the pick (D33) | Open (2026-10-30); **not in v1.4.4** |
 | #900 | Muscle filter: pick a group, or open it into its muscles (D64) | Issue open, no answer |
 | #903 | Show one of an exercise's other names as its name (D73, S41) | Issue open, no answer |
-| #907 | Mark each set against the same set last time (D66) | Issue open; **built by upstream, ships in 1.4.4** (`release-1.4.5` folded in) |
+| #907 | Mark each set against the same set last time (D66) | Issue open; **built by upstream, released in v1.4.4** (credited): it replaces D66 at the merge |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21; on the **v1.4.8** milestone |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
