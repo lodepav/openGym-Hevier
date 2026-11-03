@@ -9,7 +9,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtVol, capWords } from '../../lib/format.js'
-import { lastEntryFor } from '../../lib/history.js'
+import { lastEntryFor, pinnedNoteFor } from '../../lib/history.js'
 import { hevySetLabel } from '../lib/set-text.js'
 import { isCustomEx } from '../../lib/exercises.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -19,7 +19,9 @@ import {
   menuSheet, detailTags, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
-import { Segmented } from '../../components/ui.jsx'
+import { Segmented, Button } from '../../components/ui.jsx'
+import { youtubeSearchUrl } from '../../lib/youtube.js'
+import { openExternal } from '../../components/CustomMedia.jsx'
 import Media from '../../components/Media.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -152,16 +154,20 @@ function CompareHistory({ ex, base, st, labels }) {
 
 function HowTo({ ex, st }) {
   const steps = instrFor(ex)
-  const pinned = lastEntryFor(st, ex.id)
-  const note = pinned?.notePin && pinned.note
+  // The note pinned last time (upstream's pinnedNoteFor; lastEntryFor's answer carries no note, so
+  // the pin never showed here before 2026-11-03).
+  const note = pinnedNoteFor(st, ex.id)?.note || ''
   return <div className="hv-xd-howto">
-    <Media ex={ex} />
+    {/* D101: a YouTube link in the pinned note plays here too, as upstream's Media plays a routine note's. */}
+    <Media ex={ex} notes={note || undefined} />
     {note && <div className="exnote hv-xd-pin"><Icon name="pin" /> {note}</div>}
     {descFor(ex) && <div className="exnote">{descFor(ex)}</div>}
     {steps.length > 0
       ? <>{getLang() !== 'en' && !instrTranslated(ex) && <div className="small dim">{t('instructions in English')}</div>}
         <ol className="steps-list">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></>
       : !descFor(ex) && <div className="empty small">{t('No instructions yet')}</div>}
+    {/* D101: upstream 1.4.4's YouTube search for the exercise (#613), opened only on the tap. */}
+    {youtubeSearchUrl(ex) && <Button variant="ghost" icon="play" className="hv-xd-yt" onClick={() => openExternal(youtubeSearchUrl(ex))}>{t('Watch on YouTube')}</Button>}
   </div>
 }
 
