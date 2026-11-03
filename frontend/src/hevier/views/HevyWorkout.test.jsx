@@ -72,7 +72,8 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets.querySelector('b').textContent).toBe('2')
   })
 
-  it('a weight far past the best asks at the tick: Fix it leaves the set unticked, Log logs it (D90)', () => {
+  // Upstream's check since 1.4.4 (#811, D90's 1.4.4 note): asked once, in upstream's words.
+  it('a weight far past the best asks at the tick: Fix it leaves the set unticked, Log as typed logs it (D90)', () => {
     const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(30, 8, { done: true })] }] }]
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(300, 8, { weightOrigin: 'manual' })] }], past)
     const sheet = () => {
@@ -85,12 +86,12 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0].done).toBeFalsy()
     let host = sheet()
-    expect(host.textContent).toContain('300 kg is over twice your heaviest, 30 kg.')
+    expect(host.textContent).toContain('Weight: 300 kg is more than twice your heaviest, 30 kg.')
     act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Fix it').click())
     expect(sets()[0].done).toBeFalsy()
     act(() => container.querySelector('.hv-chk').click())
     host = sheet()
-    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Log 300 kg').click())
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent === 'Log as typed').click())
     expect(sets()[0].done).toBe(true)
     const open = useUI.getState().sheets.length   // upstream's all-sets-done prompt
     act(() => container.querySelector('.hv-chk').click())   // unticking never asks
@@ -278,7 +279,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const top = useUI.getState().sheets.at(-1)
     const host = document.createElement('div')
     act(() => createRoot(host).render(top.render(() => useUI.setState({ sheets: [] }))))
-    expect(host.textContent).toContain('3 kg is under a third of last time’s, 30 kg.')
+    expect(host.textContent).toContain('Weight: 3 kg is under a third of last time’s 30 kg.')
   })
 
   it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
@@ -350,7 +351,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     document.body.appendChild(host)
     const r = createRoot(host)
     act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
-    const rows = host.querySelectorAll('.hv-pk-row')
+    const rows = host.querySelectorAll('.hv-pk-row .tap-main')
     const button = text => [...host.querySelectorAll('button')].find(b => b.textContent.startsWith(text))
     const done = () => { act(() => r.unmount()); host.remove(); hooks.exercisePicker = null }
     return { OTHER, rows, button, done }

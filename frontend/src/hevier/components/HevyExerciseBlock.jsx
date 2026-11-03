@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { exOr, isAssisted } from '../../lib/exercises.js'
+import { exOr } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtPlate } from '../../lib/format.js'
 import { restTimerText, elapsedClock } from '../lib/elapsed.js'
@@ -45,7 +45,7 @@ import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
-import { bestsFor, oddValues, longRun, lastRowOf } from '../lib/odd-value.js'
+import { longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
@@ -375,18 +375,7 @@ export default function HevyExerciseBlock(props) {
       if (ref) return ask(i, side, s, 'min', t('Timer still running?'),
         t('{0} is over twice this set’s time, {1}.', elapsedClock(ran), elapsedClock(ref)), elapsedClock(ran), () => stopTimer(i))
     }
-    if (src && !src.done && modeAt(s) === 'reps') {
-      const odd = oddValues(src, bestsFor(useStore.getState().S, entry.id),
-        { unit, last: lastRowOf(s, p, side), assisted: isAssisted({ ...ex, id: entry.id, target: entry.target }) })
-      if (odd.length) {
-        const shown = o => (o.f === 'w' ? fmtNum(showWeight(o.typed)) + ' ' + exUnit : t('{0} reps', o.typed))
-        const of = o => (o.f === 'w' ? fmtNum(showWeight(o.best)) + ' ' + exUnit : t('{0} reps', o.best))
-        return ask(i, side, s, odd[0].f, t('Is that right?'), odd.map(o => (o.low
-          ? t('{0} is under a third of last time’s, {1}.', shown(o), of(o))
-          : o.f === 'w' ? t('{0} is over twice your heaviest, {1}.', shown(o), of(o)) : t('{0} is over twice your most, {1}.', shown(o), of(o)))).join(' '),
-        odd.map(shown).join(' × '))
-      }
-    }
+    // A weight or rep count that looks mistyped asks in upstream's tick (#811, D90's 1.4.4 note).
     logTick(i, side)
   }
   const logTick = (i, side) => {
