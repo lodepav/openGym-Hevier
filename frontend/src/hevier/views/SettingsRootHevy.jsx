@@ -23,6 +23,7 @@ import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { moduleOn } from '../lib/fork-modules.js'
+import { ModulePartsSection } from './ModuleParts.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
@@ -99,6 +100,8 @@ export function installSettings() {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES), t)
       if (id === 'about') return aboutPage(out, t)
+      // D102: the modules with parts, each opening its own page.
+      if (id === 'modules') return <>{out}<ModulePartsSection key="hv-module-parts" /></>
       if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
       if (id !== 'data' || !MOBILE) return out
       // D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".

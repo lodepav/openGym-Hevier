@@ -32,7 +32,7 @@ import { readSharedPhase } from '../lib/shared-phase-run.js'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts } from '../lib/routine-update.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { progressionOn, withoutForecast } from '../lib/plain-routine.js'
-import { moduleOn } from '../lib/fork-modules.js'
+import { partOn } from '../lib/module-parts.js'
 
 // D35: the session as it stood at Save, for the summary's Update routine button. The saved
 // record drops an exercise with no ticked set, so what was taken out can only be read from here.
@@ -203,7 +203,7 @@ export function WorkoutDone() {
     </div>
     <WorkoutCard w={w} />
     {/* D87: Hevy's share cards, to the gallery or the share sheet. */}
-    {moduleOn(st, 'motivation') && <button type="button" className="btn hv-done-share" onClick={() => shareWorkoutSheet(w)}><Icon name="share" /><span>{t('Share workout')}</span></button>}
+    {partOn(st, 'motivation', 'share') && <button type="button" className="btn hv-done-share" onClick={() => shareWorkoutSheet(w)}><Icon name="share" /><span>{t('Share workout')}</span></button>}
     {prs.length > 0 && <div className="card hv-done-prs">
       {prs.map((r, i) => <div key={i} className="hv-done-pr"><Icon name="trophy" /><b className={exerciseNameClass(EXIDX[r.id])}>{name(r.id)}</b>
         <span className="hv-sub">{t(KINDS[r.kind])} · {recordValue(r, st.unit, t)}</span></div>)}

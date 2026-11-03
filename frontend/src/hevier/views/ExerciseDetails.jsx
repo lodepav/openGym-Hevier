@@ -35,7 +35,7 @@ import { aliasSheet } from '../components/AliasSheet.jsx'
 import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
 import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
-import { moduleOn } from '../lib/fork-modules.js'
+import { partOn } from '../lib/module-parts.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -104,7 +104,7 @@ function Summary({ ex, sum, st }) {
         </div>)}</div>
       </>}
       {/* D19 follows the label the page shows (D28), every set under All. */}
-      {r.e1rm && moduleOn(st, 'strength') && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
+      {r.e1rm && partOn(st, 'strength', 'details') && <StrengthLevel exId={ex.id} oneRm={r.e1rm.v} st={st} />}
       {sum.reps.length > 0 && <>
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">

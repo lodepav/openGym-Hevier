@@ -16,7 +16,7 @@ import PageBar from '../components/PageBar.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
 import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
-import { moduleOn } from '../lib/fork-modules.js'
+import { partOn } from '../lib/module-parts.js'
 
 const MORE = 6
 
@@ -99,9 +99,9 @@ export default function Calendar() {
   return <div className="hv-cal">
     <PageBar title={t('Calendar')} onBack={back} />
     {/* The streak is Motivation's (D97); the rest days stay. */}
-    {(moduleOn(st, 'motivation') || rest != null) && <div className="hv-cal-streak">
-      {moduleOn(st, 'motivation') ? <><Icon name="flame" /><span>{streakLabel(st)}</span></> : null}
-      {rest != null && <span className="muted">{moduleOn(st, 'motivation') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
+    {(partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak">
+      {partOn(st, 'motivation', 'streak') ? <><Icon name="flame" /><span>{streakLabel(st)}</span></> : null}
+      {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>}
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
     <div className="hv-cal-key">

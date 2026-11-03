@@ -14,7 +14,7 @@ import WeeklyChart from '../components/WeeklyChart.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { usePhasedS } from '../lib/shared-phase-run.js'
-import { moduleOn } from '../lib/fork-modules.js'
+import { anyPartOn } from '../lib/module-parts.js'
 
 export const PAGE = 10
 
@@ -47,7 +47,7 @@ export default function Profile() {
     <div className="hv-dash">
       {tile('chartLine', t('Statistics'), () => nav('/stats'))}
       {tile('dumbbell', t('Exercises'), () => nav('/library'))}
-      {moduleOn(S, 'body') && tile('figure', t('Measures'), () => nav('/measures'))}
+      {anyPartOn(S, 'body') && tile('figure', t('Measures'), () => nav('/measures'))}
       {tile('calendar', t('Calendar'), () => nav('/calendar'))}
     </div>
     <h4 className="sec">{t('Workouts')}</h4>

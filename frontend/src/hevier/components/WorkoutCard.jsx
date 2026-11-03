@@ -25,7 +25,7 @@ import { workoutRecords } from '../lib/records.js'
 import { gymName, savedGym } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
 import HvIcon from './HvIcon.jsx'
-import { moduleOn } from '../lib/fork-modules.js'
+import { partOn } from '../lib/module-parts.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -75,7 +75,7 @@ export default function WorkoutCard({ w }) {
   // card does not redraw on every change of S.
   const volume = useStore(s => sessionVolume(w, s.S))
   // Sharing as a picture is Motivation's (D97, D87).
-  const shareOn = useStore(s => moduleOn(s.S, 'motivation'))
+  const shareOn = useStore(s => partOn(s.S, 'motivation', 'share'))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
   const recs = useStore(s => workoutRecords(s.S, w))

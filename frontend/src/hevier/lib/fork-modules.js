@@ -4,6 +4,7 @@
 // isOn: one source of truth, never S.modules read directly. FORK_PARTS names what the fork adds to
 // each module, for D102's switch per part and for the docs; a fork feature in no module is core.
 import { isOn } from '../../lib/modules.js'
+import { partOn } from './module-parts.js'
 
 export const moduleOn = (S, id) => isOn(S, id)
 
@@ -23,7 +24,7 @@ export const FORK_PARTS = {
 // is left as it is, so a preset still writes them.
 export const HIDDEN_MODULES = ['videos', 'watch', 'checkin', 'coach', 'seasonal']
 
-// The Home widgets (D12) a module switches; the others are core.
-const WIDGET_MODULE = { streak: 'motivation', weight: 'body' }
-/** Whether Home widget `id` belongs to a module that is on. */
-export const widgetOn = (S, id) => !WIDGET_MODULE[id] || moduleOn(S, WIDGET_MODULE[id])
+// The Home widgets (D12) a module part switches (D102); the others are core.
+const WIDGET_PART = { streak: ['motivation', 'streak'], weight: ['body', 'weight'] }
+/** Whether Home widget `id` belongs to a module part that is on. */
+export const widgetOn = (S, id) => !WIDGET_PART[id] || partOn(S, ...WIDGET_PART[id])
