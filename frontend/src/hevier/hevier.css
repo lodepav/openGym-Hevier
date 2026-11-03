@@ -785,3 +785,5 @@
 :root[data-ui="hevier"] .hm-fatigue .hm-c.l3{background:var(--acc)}
 :root[data-ui="hevier"] .hv-eqg-chip .hv-eqg-x{border-inline-start:1px solid var(--sep)}
 }
+/* Upstream 1.4.4's floating back-to-top arrow: the fork's tabs scroll to the top on a re-tap instead (D11, D100). */
+:root[data-ui="hevier"] #totop{display:none}

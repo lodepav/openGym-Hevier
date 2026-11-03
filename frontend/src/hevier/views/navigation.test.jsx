@@ -158,6 +158,16 @@ describe('hevier: navigation (seam S2)', () => {
     expect(path).toBe('/stats')
   })
 
+  it('the tab you are on, tapped again, scrolls its page to the top (D11, upstream 1.4.4)', () => {
+    render('/profile')
+    const to = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    Object.defineProperty(window, 'scrollY', { value: 900, configurable: true })
+    onTestFinished(() => { to.mockRestore(); Object.defineProperty(window, 'scrollY', { value: 0, configurable: true }) })
+    act(() => [...container.querySelectorAll('nav button, .tabbar button, button')].find(b => b.textContent === 'Profile').click())
+    expect(path).toBe('/profile')
+    expect(to).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }))
+  })
+
   it('a link into one part of upstream’s Stats opens All statistics on it; /stats alone is the fork’s (1.4.4)', () => {
     render('/stats?section=lifts')
     expect(path).toBe('/stats/all')
