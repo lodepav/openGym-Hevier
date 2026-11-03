@@ -8,8 +8,9 @@
 export const HOME_KEY = 'hevier_home'
 
 // Default order. The feed is long, so it goes last; it can be moved but not hidden.
-export const WIDGETS = ['today', 'streak', 'weight', 'recovery', 'weekly', 'feed']
-const OFF_BY_DEFAULT = new Set(['streak', 'recovery', 'weekly'])
+export const WIDGETS = ['today', 'streak', 'weight', 'recovery', 'weekly', 'wsets', 'feed']
+// D99: the weekly-sets line, off until added (upstream's Weekly sets on Home is off by default too).
+const OFF_BY_DEFAULT = new Set(['streak', 'recovery', 'weekly', 'wsets'])
 export const ALWAYS_ON = new Set(['feed'])
 // Widgets whose switch is upstream's, read and written on S.
 export const UPSTREAM_SWITCH = {
@@ -28,9 +29,12 @@ export function homeWidgets(stored, S) {
     order.splice(before ? order.indexOf(before) + 1 : 0, 0, id)
   }
   const hidden = new Set(Array.isArray(stored?.hidden) ? stored.hidden : OFF_BY_DEFAULT)
+  // A widget newer than the stored layout (it is not in its order) starts as its default: one that is
+  // off by default stays off for a Home someone already arranged (D99's weekly sets, D98's cards).
+  const unseen = id => Array.isArray(stored?.order) && !known.includes(id) && OFF_BY_DEFAULT.has(id)
   return order.map(id => ({
     id,
-    on: ALWAYS_ON.has(id) ? true : UPSTREAM_SWITCH[id] ? UPSTREAM_SWITCH[id].get(S) : !hidden.has(id),
+    on: ALWAYS_ON.has(id) ? true : UPSTREAM_SWITCH[id] ? UPSTREAM_SWITCH[id].get(S) : !(hidden.has(id) || unseen(id)),
   }))
 }
 

@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { hevierRoutes } from '../routes.jsx'
+import { WIDGETS } from '../lib/home-layout.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -15,7 +16,7 @@ const clone = v => JSON.parse(JSON.stringify(v))
 let root, container
 
 function render(at, patch = {}) {
-  useStore.setState({ S: Object.assign(clone(DEF), { weighIn: false, hvHome: { order: [], hidden: [] } }, patch), user: null, isGuest: () => true })
+  useStore.setState({ S: Object.assign(clone(DEF), { weighIn: false, hvHome: { order: [...WIDGETS], hidden: [] } }, patch), user: null, isGuest: () => true })
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)

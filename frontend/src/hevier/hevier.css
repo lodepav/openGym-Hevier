@@ -796,3 +796,8 @@
 :root[data-ui="hevier"] .hv-xd-note{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;font-size:13px;color:var(--label-2)}
 /* Upstream 1.4.4's swap suggestions under Your backups (D45): the line that says how close they are. */
 :root[data-ui="hevier"] .hv-pk-why{margin:-4px 0 8px}
+/* D99: weekly sets per muscle, upstream's bars with the fork's counts; its Home line. */
+:root[data-ui="hevier"] .hv-wsets .sbar-list{margin-top:6px}
+:root[data-ui="hevier"] .hv-wsets-ft{display:flex;justify-content:flex-end;margin-top:6px}
+:root[data-ui="hevier"] .hv-wsets-home{display:flex;align-items:center;gap:10px;width:100%;text-align:start;color:inherit;font:inherit}
+:root[data-ui="hevier"] .hv-wsets-home>span{flex:1;min-width:0}

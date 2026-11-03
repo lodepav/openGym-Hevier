@@ -29,9 +29,10 @@ import { useHcOnly } from '../lib/weigh-in-source.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { homeWidgets, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 import { widgetOn } from '../lib/fork-modules.js'
+import { WeeklySetsWidget } from '../components/WeeklySetsCard.jsx'
 
 const TITLE = {
-  today: 'Today & this week', streak: 'Week streak', weight: 'Body weight',
+  today: 'Today & this week', streak: 'Week streak', weight: 'Body weight', wsets: 'Weekly sets per muscle',
   recovery: 'Muscle recovery', weekly: 'Weekly chart', feed: 'Workouts',
 }
 
@@ -101,11 +102,14 @@ function RecoveryWidget({ S }) {
 }
 
 function Widget({ id, S }) {
+  const nav = useNavigate()
   if (id === 'today') return <TodayWidget S={S} />
   if (id === 'weight') return <WeightWidget S={S} />
   if (id === 'recovery') return <RecoveryWidget S={S} />
   if (id === 'weekly') return <div className="card"><WeeklyChart /></div>
   if (id === 'feed') return <><h4 className="sec">{t('Workouts')}</h4><WorkoutFeed S={S} /></>
+  // D99: upstream's weekly-sets line, counted the fork's way; a tap opens Statistics.
+  if (id === 'wsets') return <WeeklySetsWidget S={S} onOpen={() => nav('/stats')} />
   if (id === 'streak') {
     const { done, planned } = weekTally(S, todayISO())
     return <div className="card tappable" {...tappable(() => calendarSheet())}>

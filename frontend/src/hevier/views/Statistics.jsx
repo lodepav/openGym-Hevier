@@ -18,6 +18,7 @@ import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { entryTimes } from '../lib/exercise-time.js'
 import { partOn } from '../lib/module-parts.js'
+import WeeklySetsCard from '../components/WeeklySetsCard.jsx'
 
 const hasTimes = w => entryTimes(w).length > 0
 
@@ -86,6 +87,8 @@ export default function Statistics() {
     <PhaseFilter />
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
+    {/* D99: upstream's weekly sets against a range, counted the fork's way. */}
+    <WeeklySetsCard S={S} />
     <h4 className="sec">{t('More')}</h4>
     {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     {partOn(S, 'strength', 'list') && S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
