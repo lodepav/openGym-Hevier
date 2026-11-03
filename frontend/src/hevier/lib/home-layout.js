@@ -8,9 +8,9 @@
 export const HOME_KEY = 'hevier_home'
 
 // Default order. The feed is long, so it goes last; it can be moved but not hidden.
-export const WIDGETS = ['today', 'streak', 'weight', 'recovery', 'weekly', 'wsets', 'feed']
-// D99: the weekly-sets line, off until added (upstream's Weekly sets on Home is off by default too).
-const OFF_BY_DEFAULT = new Set(['streak', 'recovery', 'weekly', 'wsets'])
+export const WIDGETS = ['today', 'weekleft', 'streak', 'challenges', 'recap', 'year', 'weight', 'recovery', 'recoveryhint', 'weekly', 'wsets', 'feed']
+// D99's weekly sets and D98's cards from upstream 1.4.4's Home, off until added.
+const OFF_BY_DEFAULT = new Set(['streak', 'recovery', 'weekly', 'wsets', 'weekleft', 'challenges', 'recap', 'year', 'recoveryhint'])
 export const ALWAYS_ON = new Set(['feed'])
 // Widgets whose switch is upstream's, read and written on S.
 export const UPSTREAM_SWITCH = {

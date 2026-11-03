@@ -41,6 +41,19 @@ describe('hevier: Modules in the fork’s screens (D97)', () => {
     expect(rows).not.toContain('Body weight')
     expect(rows).toContain('Today & this week')
   })
+  it('Edit Home offers upstream 1.4.4’s cards as widgets, off until added; a part off takes its card away (D98, D102)', () => {
+    render('/home', { hvHome: undefined })
+    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Edit Home').click())
+    const sw = name => [...container.querySelectorAll('.hv-edithome .item')].find(r => r.querySelector('.tt')?.textContent === name)?.querySelector('[role="switch"]')
+    for (const name of ['Workouts left this week', 'Monthly challenges', 'Week and month recap', 'Your year in openGym', 'Recovery tips'])
+      expect(sw(name).getAttribute('aria-checked')).toBe('false')
+    act(() => root.unmount()); container.remove()
+    render('/home', { hvHome: undefined, hvModuleParts: { 'motivation.challenges': false } })
+    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Edit Home').click())
+    expect(sw('Monthly challenges')).toBeUndefined()
+    expect(sw('Week and month recap')).toBeTruthy()
+  })
+
   it('Profile: Measures goes with Body', () => {
     render('/profile')
     expect([...container.querySelectorAll('.hv-dash button, .hv-dash .btn')].map(b => b.textContent).join('|')).toContain('Measures')

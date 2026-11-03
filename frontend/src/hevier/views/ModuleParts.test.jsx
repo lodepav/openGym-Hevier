@@ -43,8 +43,8 @@ describe('hevier: a switch per part (D102)', () => {
     render('/settings/modules/motivation', { modules: { motivation: false }, hvModuleParts: { 'motivation.share': false } })
     expect(container.textContent).toContain('is off, so all of it is hidden')
     const sw = [...container.querySelectorAll('[role="switch"]')]
-    expect(sw.map(s => s.disabled)).toEqual([true, true])
-    expect(sw.map(s => s.getAttribute('aria-checked'))).toEqual(['true', 'false'])
+    expect(sw.map(s => s.disabled)).toEqual([true, true, true, true, true])
+    expect(sw.map(s => s.getAttribute('aria-checked'))).toEqual(['true', 'true', 'true', 'true', 'false'])
   })
   it('a module without parts has no page', () => {
     render('/settings/modules/effort')
@@ -55,7 +55,7 @@ describe('hevier: a switch per part (D102)', () => {
     render('/settings/modules', { hvModuleParts: { 'body.photos': false } })
     const sect = [...container.querySelectorAll('.sect-t')].find(h => h.textContent === 'Parts of a module')
     expect(sect).toBeTruthy()
-    expect(titles()).toEqual(expect.arrayContaining(['Strength levels', 'Body', 'Motivation']))
+    expect(titles()).toEqual(expect.arrayContaining(['Strength levels', 'Body', 'Health', 'Motivation']))
     expect(container.textContent).toContain('2 of 3')
     const body = [...container.querySelectorAll('.lrow')].filter(r => r.querySelector('.lrow-t')?.textContent === 'Body').at(-1)
     act(() => body.click())

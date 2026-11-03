@@ -801,3 +801,5 @@
 :root[data-ui="hevier"] .hv-wsets-ft{display:flex;justify-content:flex-end;margin-top:6px}
 :root[data-ui="hevier"] .hv-wsets-home{display:flex;align-items:center;gap:10px;width:100%;text-align:start;color:inherit;font:inherit}
 :root[data-ui="hevier"] .hv-wsets-home>span{flex:1;min-width:0}
+/* D98: upstream's countdown of the week as a Home widget. */
+:root[data-ui="hevier"] .hv-weekleft{display:flex;align-items:center;gap:10px}

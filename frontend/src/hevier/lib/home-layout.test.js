@@ -14,7 +14,7 @@ describe('homeWidgets', () => {
 
   it('reads the weight card from upstream’s switch; the gym check-in is no widget, on or off', () => {
     const ws = homeWidgets({ order: WIDGETS, hidden: [] }, { showWeightCard: false, checkIn: false })
-    expect(on(ws)).toEqual(['today', 'streak', 'recovery', 'weekly', 'wsets', 'feed'])
+    expect(on(ws)).toEqual(WIDGETS.filter(id => id !== 'weight'))
   })
 
   it('never hides the feed', () => {
@@ -23,12 +23,12 @@ describe('homeWidgets', () => {
 
   it('keeps a stored order, drops unknown ids and slots in new ones after their default neighbour', () => {
     const ws = homeWidgets({ order: ['feed', 'gone', 'today', 'feed', 'weight'], hidden: [] }, S)
-    expect(ids(ws)).toEqual(['feed', 'today', 'streak', 'weight', 'recovery', 'weekly', 'wsets'])
+    expect(ids(ws)).toEqual(['feed', 'today', 'weekleft', 'streak', 'challenges', 'recap', 'year', 'weight', 'recovery', 'recoveryhint', 'weekly', 'wsets'])
   })
 
   it('a widget newer than the stored layout starts off when it is off by default (D99)', () => {
     const ws = homeWidgets({ order: ['today', 'streak', 'weight', 'recovery', 'weekly', 'feed'], hidden: [] }, S)
-    expect(ws.find(w => w.id === 'wsets').on).toBe(false)
+    for (const id of ['wsets', 'weekleft', 'challenges', 'recap', 'year', 'recoveryhint']) expect(ws.find(w => w.id === id).on).toBe(false)
     expect(ws.find(w => w.id === 'streak').on).toBe(true)
   })
 
@@ -39,7 +39,7 @@ describe('homeWidgets', () => {
   it('round-trips through its stored form', () => {
     const ws = homeWidgets(null, S).reverse().map(w => (w.id === 'streak' ? { ...w, on: true } : w))
     const stored = storedLayout(ws)
-    expect(stored.hidden).toEqual(['wsets', 'weekly', 'recovery'])
+    expect(stored.hidden).toEqual(['wsets', 'weekly', 'recoveryhint', 'recovery', 'year', 'recap', 'challenges', 'weekleft'])
     expect(homeWidgets(stored, S)).toEqual(ws)
   })
 })

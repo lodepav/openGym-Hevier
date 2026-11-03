@@ -30,9 +30,11 @@ import { fieldSig } from '../lib/store-watch.js'
 import { homeWidgets, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 import { widgetOn } from '../lib/fork-modules.js'
 import { WeeklySetsWidget } from '../components/WeeklySetsCard.jsx'
+import { HOME_CARDS } from '../components/HomeCards.jsx'
 
 const TITLE = {
   today: 'Today & this week', streak: 'Week streak', weight: 'Body weight', wsets: 'Weekly sets per muscle',
+  weekleft: 'Workouts left this week', challenges: 'Monthly challenges', recap: 'Week and month recap', year: 'Your year in openGym', recoveryhint: 'Recovery tips',
   recovery: 'Muscle recovery', weekly: 'Weekly chart', feed: 'Workouts',
 }
 
@@ -104,6 +106,8 @@ function RecoveryWidget({ S }) {
 function Widget({ id, S }) {
   const nav = useNavigate()
   if (id === 'today') return <TodayWidget S={S} />
+  // D98: upstream 1.4.4's Home cards, hosted as they are.
+  if (HOME_CARDS[id]) return HOME_CARDS[id](S)
   if (id === 'weight') return <WeightWidget S={S} />
   if (id === 'recovery') return <RecoveryWidget S={S} />
   if (id === 'weekly') return <div className="card"><WeeklyChart /></div>

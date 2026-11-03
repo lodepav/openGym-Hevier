@@ -25,6 +25,9 @@ export const FORK_PARTS = {
 export const HIDDEN_MODULES = ['videos', 'watch', 'checkin', 'coach', 'seasonal']
 
 // The Home widgets (D12) a module part switches (D102); the others are core.
-const WIDGET_PART = { streak: ['motivation', 'streak'], weight: ['body', 'weight'] }
+const WIDGET_PART = {
+  streak: ['motivation', 'streak'], weight: ['body', 'weight'],
+  challenges: ['motivation', 'challenges'], recap: ['motivation', 'recaps'], year: ['motivation', 'year'], recoveryhint: ['health', 'tips'],
+}
 /** Whether Home widget `id` belongs to a module part that is on. */
 export const widgetOn = (S, id) => !WIDGET_PART[id] || partOn(S, ...WIDGET_PART[id])
