@@ -16,14 +16,38 @@
      and the visibility Android 11 on needs to see its provider. The develop pair is for debug builds;
      HevierPhasePlugin never reads it in a release.
      It answers OpenBite with the strength signal (D95): a read-only provider, guarded by a permission
-     only an app signed with this app's key can hold. -->
+     only an app signed with this app's key can hold.
+     Upstream 1.4.4 (D100): it removes the NFC permission and the sticker filter (the routine links
+     stay, D37), the nine other launcher icons with Christmas and Halloween among them (one icon, D17;
+     the picker is hidden), the long-press and Assistant shortcuts on the one left, and the Wear OS
+     watch's exported listener service (no watch app in the fork; its library is still in the build,
+     to be left out with the plugin on the release machine). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            tools:node="merge" />
+            tools:node="merge">
+            <intent-filter tools:node="remove">
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="https" android:host="opengym.ch" android:pathPrefix="/nfc" />
+            </intent-filter>
+        </activity>
+        <activity-alias android:name=".IconDefault" tools:node="merge">
+            <meta-data android:name="android.app.shortcuts" tools:node="remove" />
+        </activity-alias>
+        <activity-alias android:name=".IconLight" tools:node="remove" />
+        <activity-alias android:name=".IconMono" tools:node="remove" />
+        <activity-alias android:name=".IconNeon" tools:node="remove" />
+        <activity-alias android:name=".IconSky" tools:node="remove" />
+        <activity-alias android:name=".IconOrange" tools:node="remove" />
+        <activity-alias android:name=".IconPink" tools:node="remove" />
+        <activity-alias android:name=".IconViolet" tools:node="remove" />
+        <activity-alias android:name=".IconHalloween" tools:node="remove" />
+        <activity-alias android:name=".IconChristmas" tools:node="remove" />
+        <service android:name=".WatchListenerService" tools:node="remove" />
         <receiver
             android:name=".HevierMonthWidget"
             android:exported="false"
@@ -63,6 +87,8 @@
         <provider android:authorities="io.github.lodepav.openbite.develop.phase" />
     </queries>
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <uses-permission android:name="android.permission.NFC" tools:node="remove" />
+    <uses-feature android:name="android.hardware.nfc" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" tools:node="remove" />
 </manifest>

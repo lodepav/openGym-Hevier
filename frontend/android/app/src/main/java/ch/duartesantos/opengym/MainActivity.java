@@ -36,6 +36,10 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AnimationPacksPlugin.class);
         registerPlugin(NudgeCheckPlugin.class);
         registerPlugin(GymReminderPlugin.class);
+        registerPlugin(AppIconPlugin.class);
+        registerPlugin(NfcTagsPlugin.class);
+        registerPlugin(WidgetBridgePlugin.class);
+        registerPlugin(WatchBridgePlugin.class);
         // [hevier] S17: the fork's native plugins (src/hevier/java/…/HevierPlugins.java)
         HevierPlugins.register(this);
         // [/hevier]

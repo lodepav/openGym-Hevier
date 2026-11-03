@@ -115,7 +115,7 @@ describe('hevier: Calendar', () => {
 describe('hevier: Exercises', () => {
   it('a tap opens exercise details, not a pick', () => {
     render('/library')
-    click(container.querySelector('.hv-pk-row'))
+    click(container.querySelector('.hv-pk-row .tap-main'))
     expect(useUI.getState().sheets).toHaveLength(1)
     expect(container.querySelector('.hv-pk-add')).toBeNull()
   })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { restDue, restFor, defaultRestFor, setOwnRest } from './rest-extra.js'
+import { restStarted, restDue, restFor, defaultRestFor, setOwnRest } from './rest-extra.js'
 import { makeSideSet } from '../../lib/workout-model.js'
 
 const set = (done = false, extra = {}) => ({ w: 50, r: 8, done, ...extra })
@@ -64,5 +64,13 @@ describe('hevier restDue', () => {
     expect(sets[1].restSec).toBe(0)
     setOwnRest(sets, 1, null)
     expect('restSec' in sets[1]).toBe(false)
+  })
+
+  it('starts none when upstream’s tick already rests that set (1.4.4, #853)', () => {
+    const due = { idx: 1, i: 2, kind: 'side' }
+    expect(restStarted({ forIdx: 1, forSet: 2, ready: false }, due)).toBe(true)
+    expect(restStarted({ forIdx: 1, forSet: 2, ready: true }, due)).toBe(false)
+    expect(restStarted({ forIdx: 1, forSet: 1, ready: false }, due)).toBe(false)
+    expect(restStarted(null, due)).toBe(false)
   })
 })

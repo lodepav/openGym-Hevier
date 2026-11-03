@@ -12,6 +12,7 @@ import Icon from '../../components/Icon.jsx'
 import Elapsed from './Elapsed.jsx'
 import { SAVE_PATH } from '../hooks.js'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
+import { retapTab } from '../../lib/scroll-top.js'
 
 // Which tab an upstream route belongs to now that it is reached from a fork screen.
 const TAB_OF = {
@@ -50,6 +51,9 @@ export default function HevyTabBar() {
   const own = tabOf(loc.pathname)
   if (own && own !== last) setLast(own)
   const tab = own || last
+  // The tab you are on, tapped again, goes to the top of its page, as Hevy's and upstream 1.4.4's
+  // do (lib/scroll-top.js); upstream's floating back-to-top arrow is left out (D11's 1.4.4 note).
+  const go = path => (loc.pathname === path && !loc.search ? retapTab(path) : nav(path))
   // Upstream's condition for a live session away from its screen; a saved workout being edited
   // or one logged after the fact has no clock, and resumes through the Workout tab instead.
   const running = !!A && !A.editingWorkoutId && !A.backfill && A.start > 0
@@ -89,9 +93,9 @@ export default function HevyTabBar() {
       <button type="button" className="hv-resume-go" aria-label={A.editingWorkoutId ? t('Edit') : t('Resume')} onClick={() => nav('/workout')}><Icon name="play" /><span className="hv-resume-l">{A.editingWorkoutId ? t('Edit') : t('Resume')}</span></button>
       {!A.editingWorkoutId && <button type="button" className="hv-resume-x" aria-label={t('Discard')} onClick={discard}><Icon name="xmark" /><span className="hv-resume-l">{t('Discard')}</span></button>}
     </div>}
-    <Tab active={tab === 'home'} icon="house" label={t('Home')} dot={trouble} onClick={() => nav('/home')} />
+    <Tab active={tab === 'home'} icon="house" label={t('Home')} dot={trouble} onClick={() => go('/home')} />
     {/* with a session open the tab is still the start screen, its bar above the tabs (D13) */}
-    <Tab active={tab === 'workout'} icon="dumbbell" label={t('Workout')} onClick={() => nav(A ? '/routines' : '/workout')} />
-    <Tab active={tab === 'profile'} icon="person" label={t('Profile')} onClick={() => nav('/profile')} />
+    <Tab active={tab === 'workout'} icon="dumbbell" label={t('Workout')} onClick={() => go(A ? '/routines' : '/workout')} />
+    <Tab active={tab === 'profile'} icon="person" label={t('Profile')} onClick={() => go('/profile')} />
   </nav>
 }

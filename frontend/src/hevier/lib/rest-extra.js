@@ -38,6 +38,14 @@ export function restDue(before, after) {
   return allDone(E1) && !allDone(E0) ? { ...hit, kind: 'unit' } : null
 }
 
+/**
+ * Whether upstream's own tick flow already started the rest `due` is owed: a running rest for that
+ * very set. Upstream 1.4.4 rests after an exercise's last set, also before warm-ups, and between the
+ * sides of a per-side set with a rest of its own (#853, D70's 1.4.4 note), so the fork starts none
+ * then, rather than replacing upstream's with its own.
+ */
+export const restStarted = (timer, due) => !!timer && !timer.ready && timer.forIdx === due.idx && timer.forSet === due.i
+
 /** How long the rest after set `i` of entry `idx` runs, as upstream's tick flow works it out: the
  *  set's own rest (#609) first, else defaultRestFor. */
 export function restFor(A, idx, i, defaultRestSec, warmupRestSec) {

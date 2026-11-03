@@ -29,6 +29,8 @@ import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
+import { initProgDefault } from './lib/prog-default.js'
+import { initExUnits } from './lib/ex-unit.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -42,7 +44,6 @@ import { initHoldClock } from './lib/hold-clock-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
-import { sheetState } from './lib/back-root.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
 
 const store = storeAdapter(useStore, (msg, opts) => useUI.getState().toast(msg, opts))
@@ -63,7 +64,6 @@ function install() {
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
   installFinishHook(nav)
-  hooks.sheetState = sheetState                          // a page opened from a sheet keeps its back (S47)
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
@@ -71,7 +71,8 @@ function install() {
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
-  hooks.defaultProg = 'off'                             // no progression rule of its own: none (D61)
+  initProgDefault(store)                                  // the profile's default rule is Off until chosen (D61, upstream's #814)
+  initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = useStatsS                                // All statistics leave out the kept-out exercises (S34, D57) and follow the phase filter (D93)
   initStillTraining(store)                                // Still training? after five hours (D60)

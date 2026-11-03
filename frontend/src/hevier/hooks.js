@@ -19,7 +19,6 @@ export const hooks = {
   settingsAutosave: false, // true: the live workout's Exercise settings save as they close (S50)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
   backupKeep: null,     // how many dated auto-backups a write keeps, in place of upstream's 14 (S52)
-  defaultProg: null,     // the progression rule of an exercise and routine with none of their own (S35)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)
   statsS: null,          // (S) => S, a React hook: the log upstream's statistics pages read (S34)
@@ -29,7 +28,6 @@ export const hooks = {
   muscleChips: null,     // { Chips, share(v, ex), name(v), map(v) }: the muscle explorer's muscles by group (S39)
   plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40)
   exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
-  sheetState: null,     // (state) => state: a sheet's history entry, numbered for the router (S47)
   setMode: null,         // (set) => 'time' | null: the kind of set a row is, before its exercise's (S48)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
