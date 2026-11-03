@@ -67,6 +67,7 @@ function install() {
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
+  hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)

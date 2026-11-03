@@ -25,6 +25,7 @@ import { workoutRecords } from '../lib/records.js'
 import { gymName, savedGym } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
 import HvIcon from './HvIcon.jsx'
+import { moduleOn } from '../lib/fork-modules.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
@@ -73,6 +74,8 @@ export default function WorkoutCard({ w }) {
   // weight in bodyweight lifts by their switches (#719, #794; D18's 1.4.4 note). A number, so the
   // card does not redraw on every change of S.
   const volume = useStore(s => sessionVolume(w, s.S))
+  // Sharing as a picture is Motivation's (D97, D87).
+  const shareOn = useStore(s => moduleOn(s.S, 'motivation'))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
   const recs = useStore(s => workoutRecords(s.S, w))
@@ -88,8 +91,8 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-h">
       <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
       <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
-      <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
-        onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>
+      {shareOn && <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
+        onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>}
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>

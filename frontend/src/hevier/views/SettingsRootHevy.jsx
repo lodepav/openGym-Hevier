@@ -22,6 +22,7 @@ import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSec
 import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
+import { moduleOn } from '../lib/fork-modules.js'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
@@ -102,7 +103,8 @@ export function installSettings() {
       if (id !== 'data' || !MOBILE) return out
       // D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
       return insertBeforeSection(out, t('Bring data in'), <>
-        <StrapSection key="hv-hr-strap" />
+        {/* Health's (D97): the strap goes with upstream's Health module. */}
+        {moduleOn(useStore.getState().S, 'health') && <StrapSection key="hv-hr-strap" />}
         <HevyExportSection key="hv-hevy-export" />
       </>)
     },

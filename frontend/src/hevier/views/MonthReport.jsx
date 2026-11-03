@@ -20,6 +20,7 @@ import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
 import { sessionVolume } from '../../lib/history.js'
+import { moduleOn } from '../lib/fork-modules.js'
 
 const PR_ROWS = 5
 
@@ -54,7 +55,7 @@ export default function MonthReport() {
 
   return <div className="narrow hv-report">
     <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')}>
-      {trained && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
+      {trained && moduleOn(st, 'motivation') && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
         y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
         before: t(MONTHS_LONG[(at.mo + 11) % 12]),
       })}><Icon name="share" /></button>}

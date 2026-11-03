@@ -18,6 +18,7 @@ export const hooks = {
   noDumbbellsRowOff: false, // true: the dumbbell sheet has no "I own no dumbbells" switch (S49)
   settingsAutosave: false, // true: the live workout's Exercise settings save as they close (S50)
   secondsStep: null,     // seconds a row of the duration wheel's seconds column (S28)
+  tourPresetOnly: false, // true: the first-run card asks only how much app, and the tour is never offered (S53, D97, D100)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
   defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)
   statsS: null,          // (S) => S, a React hook: the log upstream's statistics pages read (S34)
