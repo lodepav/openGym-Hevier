@@ -218,6 +218,9 @@
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
 :root[data-ui="hevier"] .hv-wcard-t{margin-bottom:8px}
+/* The title is the card's stretched button (upstream 1.4.4's tap-host pattern): it reads as the title did. */
+:root[data-ui="hevier"] button.hv-wcard-t{display:block;width:100%;background:none;border:0;color:inherit;font-family:inherit;line-height:inherit}
+:root[data-ui="hevier"] .hv-pk-row .tap-main{background:none;border:0;color:inherit;font:inherit}
 :root[data-ui="hevier"] .hv-wcard-tags{display:flex;flex-wrap:wrap;gap:4px 12px;margin:-4px 0 8px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wcard-note{margin:-4px 0 8px;font-size:14px;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* Hevy spreads the stats over the card's width: equal columns, not packed to the left */

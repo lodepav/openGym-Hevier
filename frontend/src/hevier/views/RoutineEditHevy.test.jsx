@@ -160,7 +160,7 @@ describe('hevier: routine editor (M3)', () => {
     render([{ id: EX, sets: 3, reps: 5, w: 60 }])
     act(() => byText('button', 'Add Exercise').click())
     const host = sheet()
-    const rows = host.querySelectorAll('.hv-pk-row')
+    const rows = host.querySelectorAll('.hv-pk-row .tap-main')
     act(() => rows[0].click())
     expect(host.querySelector('.hv-pk-add').textContent).not.toContain('Add superset')
     act(() => rows[1].click())
