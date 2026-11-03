@@ -58,7 +58,8 @@ export function SaveWorkout() {
   const gym = useStore(s => { const g = workoutGym(s.S, s.S.active); return g ? (gymName(s.S, g) || t('Removed gym')) : '' })
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
-  const warmups = useStore(s => s.S.volumeWarmups)
+  // Warm-ups and body weight as the profile counts them (#719, #794; D18's 1.4.4 note).
+  const volume = useStore(s => (s.S.active ? sessionVolume(s.S.active, s.S) : 0))
   const [title, setTitle] = useState(A?.name || '')
   const [note, setNote] = useState(A?.note || '')
   const [min, setMin] = useState(state?.durationMin ?? null)   // null: the session's own length, still running
@@ -119,7 +120,7 @@ export function SaveWorkout() {
       aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
     <div className="hv-stats">
       <div><span>{t('Duration')}</span><b className="acc">{durationWords(len * 60000)}</b></div>
-      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(sessionVolume(A, { volumeWarmups: warmups })))} {unit}</b></div>}
+      {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(volume))} {unit}</b></div>}
       <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
     </div>
     {mode === 'sets' && <MuscleLine entries={A.entries} />}

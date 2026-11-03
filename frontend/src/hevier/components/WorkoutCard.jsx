@@ -69,7 +69,10 @@ export default function WorkoutCard({ w }) {
   const nav = useNavigate()
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
-  const warmups = useStore(s => s.S.volumeWarmups)
+  // The session's volume as upstream counts it for this profile: warm-ups and, since 1.4.4, body
+  // weight in bodyweight lifts by their switches (#719, #794; D18's 1.4.4 note). A number, so the
+  // card does not redraw on every change of S.
+  const volume = useStore(s => sessionVolume(w, s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
   const recs = useStore(s => workoutRecords(s.S, w))
@@ -100,7 +103,7 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'
-        ? <div><span>{t('Volume')}</span><b>{fmtVol(sessionVolume(w, { volumeWarmups: warmups }), unit)}</b></div>
+        ? <div><span>{t('Volume')}</span><b>{fmtVol(volume, unit)}</b></div>
         : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
       {hr && <div><span>{t('Heart rate')}</span><b className="hv-wcard-hr"><Icon name="heart" />{hr.avg}</b></div>}
