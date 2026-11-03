@@ -15,7 +15,7 @@ import { brandSheet } from './GymLabels.jsx'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
 // `rest` is the set's own rest and the one it takes without, with `save(sec)`; none while editing.
-export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField }) {
+export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note }) {
   const s = sets[i]
   const cardio = mode === 'cardio'
   const warm = isWarmupRow(s)
@@ -37,6 +37,8 @@ export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailu
           disabled: ticked || (!hold && !canBeHold(s, mode)), onClick: () => setHold(i, !hold) },
       ] },
       { title: t('More'), items: [
+        // A note on this set (upstream 1.4.4's set note, D5's 1.4.4 note): shown under the row and in History.
+        note && { icon: 'note', label: note.text ? t('Edit note') : t('Note'), sub: note.text || t('A word about this set'), onClick: note.open },
         mode === 'reps' && !warm && !hold && !isDropSet(s) && { icon: 'bolt', label: t('Rest-pause burst'), sub: t('+ Burst'), onClick: () => addBurstRow(i) },
         // Cardio's effort, as upstream's set menu has it: RPE only, stored as the set's `rpe`.
         cardio && !warm && { icon: 'gauge', label: t('How hard it felt'), sub: s.rpe != null ? t(EFFORT.rpe.hd) + ' ' + fmtNum(s.rpe) : t('Not rated yet'),

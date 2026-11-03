@@ -110,6 +110,16 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(marks()).toEqual(['', ''])
   })
 
+  it('a set’s note shows under it, and the set type sheet offers Note (D5, upstream 1.4.4)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8, { note: 'grip slipped' }), reps(60, 8)] }])
+    const notes = [...container.querySelectorAll('.hv-setnote')]
+    expect(notes.map(n => n.textContent)).toEqual(['grip slipped'])
+    act(() => container.querySelectorAll('.hv-set')[1].click())
+    const host = document.createElement('div')
+    act(() => createRoot(host).render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(host.textContent).toContain('A word about this set')
+  })
+
   it('draws upstream’s plate line under a barbell set only with Plates to load on (D84)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     expect(container.querySelector('.hv-plates')).toBeNull()

@@ -38,6 +38,7 @@ import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
 import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { partOn } from '../lib/module-parts.js'
+import { setNoteOf } from '../../lib/set-notes.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -126,7 +127,9 @@ function History({ ex, sum, st }) {
     return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
       <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
       <div className="hv-xd-sd">{fmtDate(s.d, true)}</div>
-      {s.sets.map((x, k) => <div key={k} className="hv-xd-set"><span className="hv-xd-n">{k + 1}</span>{hevySetLabel(ex.id, x, s.target, speedUnitOf(st))}</div>)}
+      {s.sets.map((x, k) => <div key={k} className="hv-xd-set"><span className="hv-xd-n">{k + 1}</span>{hevySetLabel(ex.id, x, s.target, speedUnitOf(st))}
+        {/* A set's note (upstream 1.4.4, D5). */}
+        {setNoteOf(x) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(x)}</span>}</div>)}
     </div>
   })}</div>
 }

@@ -96,6 +96,14 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(sets.querySelector('b').textContent).toBe('2')
   })
 
+  it('shows a set’s note under its row (D5, upstream 1.4.4)', () => {
+    render()
+    const N = { ...clone(W), id: 'wn', entries: [{ ...clone(W.entries[0]), sets: [{ w: 60, r: 8, done: true, note: 'felt strong' }] }] }
+    act(() => useStore.setState(st => ({ S: { ...st.S, workouts: [...st.S.workouts, N] } })))
+    act(() => workoutDetailSheet(N))
+    expect(container.querySelector('.hv-wd-setnote').textContent).toBe('felt strong')
+  })
+
   it('marks each work set against the same set last time (D66)', () => {
     render()
     act(() => workoutDetailSheet(W))
