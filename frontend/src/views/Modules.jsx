@@ -16,6 +16,7 @@ import { readWatchStatus, readGarminLink } from '../lib/watch-settings.js'
 import { moduleCopy, groupCopy, presetCopy } from '../lib/modules-copy.js'
 import { confirmSheet } from '../sheets.jsx'
 import { Section, Row, SelectRow, Switch } from '../components/ui.jsx'
+import { hooks } from '../hevier/hooks.js' // [hevier] S54
 
 /* What is connected right now, read once when the page opens. Each answer is a promise that never
    rejects: a check that fails counts as nothing connected, and the switch simply goes off. */
@@ -95,15 +96,19 @@ export default function ModulesPage() {
     ...PRESETS.map(p => ({ value: p.id, label: pc[p.id][0], subtitle: pc[p.id][1] })),
     { value: 'custom', label: t('Custom'), subtitle: t('Your own mix. Flip the switches below.') },
   ]
+  // [hevier] S54: modules whose features the fork does not show at all are not listed (D97)
+  const shown = MODULES.filter(m => !(hooks.hiddenModules || []).includes(m.id))
+  // [/hevier]
   return <div className="modules">
     <p className="sect-f modules-intro">{t('Switch off what you don’t use. Nothing gets deleted: switch it back on and it’s all still there.')}</p>
-    <Section footer={preset === 'custom' ? t('{0} of {1} modules on.', onCount(S), MODULES.length) : null}>
+    {/* [hevier] S54: the count is of the modules the page lists */}
+    <Section footer={preset === 'custom' ? t('{0} of {1} modules on.', shown.filter(m => isOn(S, m.id)).length, shown.length) : null}>
       <SelectRow icon="slider" iconTint="var(--blue)" title={t('Start from')} sheetTitle={t('Modules')}
         value={preset} onChange={pickPreset} options={options} />
     </Section>
     {GROUPS.map((g, gi) => <Section key={g.id} title={gc[g.id]}
       footer={gi === GROUPS.length - 1 ? t('Logging, plans, history, the exercise library and the basic stats are always on.') : null}>
-      {MODULES.filter(m => m.group === g.id).map(m => (
+      {shown.filter(m => m.group === g.id).map(m => ( // [hevier] S54: shown
         <Row key={m.id} icon={m.icon} iconTint={m.tint} title={mc[m.id][0]} subtitle={mc[m.id][1]} className="module-row" tour={'module-' + m.id}>
           <Switch aria-label={mc[m.id][0]} checked={isOn(S, m.id)} onChange={v => flip(m.id, v)} />
         </Row>

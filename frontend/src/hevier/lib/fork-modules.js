@@ -17,6 +17,12 @@ export const FORK_PARTS = {
   motivation: ['D59: the streak (Home widget, Calendar)', 'D87: sharing a workout or a month as a picture'],
 }
 
+// Upstream's modules whose every feature the fork leaves out or keeps off (Form videos and Gym
+// check-in, D100 and D12; Watch, no watch app in the fork; AI Coach, D11; Seasonal themes, D17).
+// Settings → Modules does not list them (seam S54, the user's choice 2026-11-03); what they store
+// is left as it is, so a preset still writes them.
+export const HIDDEN_MODULES = ['videos', 'watch', 'checkin', 'coach', 'seasonal']
+
 // The Home widgets (D12) a module switches; the others are core.
 const WIDGET_MODULE = { streak: 'motivation', weight: 'body' }
 /** Whether Home widget `id` belongs to a module that is on. */

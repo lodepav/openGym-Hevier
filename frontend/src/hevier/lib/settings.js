@@ -37,6 +37,8 @@ export const HIDDEN_ROWS = {
   // The fork's gyms are D47's.
   reminders: ['Gym reminder'],
   // No support rows: the section goes with them (2026-10-26, the user's choice).
+  // The modules the fork never shows (D97, S54 leaves them off the page): no search hit either.
+  modules: ['Form videos', 'Watch', 'Gym check-in', 'AI Coach', 'Seasonal themes'],
   about: ['Rate openGym on the App Store', 'Rate openGym on Google Play', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors',
     // 1.4.4 (D100): the tour and its tutorials point at upstream's screens, which the fork replaces.
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],

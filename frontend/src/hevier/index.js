@@ -31,6 +31,7 @@ import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
 import { initProgDefault } from './lib/prog-default.js'
 import { initExUnits } from './lib/ex-unit.js'
+import { HIDDEN_MODULES } from './lib/fork-modules.js'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -67,6 +68,7 @@ function install() {
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
+  hooks.hiddenModules = HIDDEN_MODULES                    // modules whose features the fork never shows (S54, D97)
   hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
   hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
