@@ -21,6 +21,7 @@ PRs are in the release**, see "The fork's PRs and issues upstream".
 **Decided 2026-11-03: merge v1.4.4.** The decision round is done: each item below has its answer in
 DECISIONS.md, as an "At the 1.4.4 merge" note on the decision it touches or as D97 to D101 (section
 "openGym 1.4.4"). Next is the merge itself, on `sync/v1.4.4` (the `upstream-merge` skill).
+What v1.4.5 plans on top, with no code yet, is in "v1.4.5, planned, not built".
 
 **Refreshed 2026-11-02.** `release-1.4.4` (now `1f15e1db`, 121 commits past `fef710b6`) **took
 `release-1.4.5` whole**: `release-1.4.5` (`11302d2d`, 33 commits past `d0a85546`) has nothing that
@@ -130,6 +131,34 @@ there, so these rows are 1.4.4 merge work too; the Wear OS row is a beta in 1.4.
 | **Your week, your month** recap cards on Home | Upstream's Home: nothing appears in the fork's. |
 | **Wear OS watch app** (`frontend/android/wear`, its own module; the phone gains `play-services-wearable`, an exported `WatchListenerService`) | Android, so it reaches the APK: D38's exported-components list, D26's supply chain (a Google Play services library in the phone APK), the Gradle lockfile (G1), the sideload flavour. Decide whether the fork ships it; D79's strap heart rate overlaps the watch's. |
 | Design review (contrast, one label style), weekly-sets bar colour fallback | Upstream's tokens: check D17's overrides. |
+
+## v1.4.5, planned, not built (2026-11-03)
+
+**No code yet.** `release-1.4.5` (`11302d2d`) holds nothing past v1.4.4 and `upstream/main` is the
+tag; no topic branch has commits past v1.4.4 but seven from about 2026-10-13, older work. What
+follows is the plan: the v1.4.5 section of ROADMAP.md at the tag, and the milestone "v1.4.5:
+Google Play, F-Droid & integrations" (due 2026-11-29: 30 open items, mostly community PRs).
+**Judged from titles only**; upstream often writes its own version instead of merging a PR, so the
+shape may change. Read the code here once `release-1.4.5` gets commits of its own.
+
+**Already shipped in 1.4.4** (`release-1.4.5` was folded in): the F-Droid build (#325), Settings →
+Integrations and webhooks, timed holds that run themselves (#490 as a PR is still open; upstream's
+own version shipped), switching off features (#240, as Modules). Their fork answers are in
+DECISIONS.md (D97, D100, D16's 1.4.4 note).
+
+| Planned item | Fork impact |
+|---|---|
+| **A daily backup to Nextcloud or any WebDAV folder** (#582) | **Meets D20** (Google Drive through a sync app, no fork code) and S52's five copies (PR #4, not merged yet). If it lands, decide whether it replaces D20's sync-app route, and whether its copies follow S52's count. It would be an Integrations part (D102). |
+| **Strava upload** (#478), **intervals.icu**, **FIT files** for Garmin, COROS and Suunto, **planned workouts as a calendar feed** | New Integrations cards: parts of the Integrations module (D102). Strava and intervals.icu reach outside the server: D26's endpoint check. The calendar feed reads the plan: check it agrees with D68's planned days. FIT export exists since 1.4.3; check it still carries the fork's fields cleanly. |
+| **MCP over HTTPS with OAuth** (#314, #781: an opt-in `mcp` container at `/mcp`) and **scoped API tokens** (#480; `PLANNER_TOKENS`, #566) | Server and auth: new endpoints and token kinds for D26's endpoint and supply-chain gates. The fork's MCP use is upstream's. |
+| **A sound for each kind of rest, a count-in you hear from a pocket, the volume buttons during a rest** (#165) | **D10 / D70's rest bar** is the fork's: wire it there, as spoken cues (D10's 1.4.4 note). The volume buttons need native code: check S17's plugin list and D38's exported components. |
+| **Tempo per set** (#572, an issue) | A new set field: D5's set sheet and D15's table would need a place for it, and D3's PREVIOUS column a way to show it. A decision when it lands. |
+| **A warm-up or cool-down that runs itself, as one card** (#775) | A workout-screen feature `HevyWorkout` would have to follow (CONFLICTS.md, silent drift); with D69's warm-ups and #610's phases. |
+| **Choose which exercises to import from a CSV** (#849) | **Overlaps D33** (the review of an import's matches) and the fork's own #931: one review step, not two. If it lands first, rebuild D33's step on top of it and say so on #931. |
+| **A session counts as done only when it has been** (#567, queue and rotation, app and reminder) | Training logic the fork reuses (rule 2): check D68's planned days, D98's Workouts left this week and the rotation chip on D13's Workout tab. |
+| **Italian, Persian, Czech, Lithuanian, Vietnamese**, better Chinese names (#399, #513 to #518, #535, #576, #606, #499, #629) | Locale packs: take upstream's (rule C). The fork's own strings stay English; check D73's search and D36's brands with the new name packs. |
+| **Google Play** (a closed test with 12 testers for 14 days first) | Store only; the fork is sideloaded. |
+| Coach fixes (#387, #520, #537, #546) | The Coach is off in the fork (D11): nothing to do. |
 
 ## Upstream's roadmap (ROADMAP.md, read 2026-10-18)
 
