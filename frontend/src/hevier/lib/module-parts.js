@@ -8,8 +8,8 @@
 // Built 2026-11-03 with the parts the fork draws itself and that have no switch of their own; the
 // others D102 named stay their module's (the plate line and automatic warm-ups have their own
 // switches; Effort's Stats part, Health's reads and the Integrations cards are upstream's screens,
-// which follow upstream's module switch). Motivation's challenges, recaps and Your year join when
-// they become Home widgets (D98).
+// which follow upstream's module switch). Motivation's challenges, recaps and Your year, and Health's
+// recovery tips, joined as Home widgets (D98).
 import { isOn } from '../../lib/modules.js'
 
 export const PARTS = {
@@ -24,7 +24,15 @@ export const PARTS = {
   ],
   motivation: [
     { id: 'streak', title: 'Week streak', desc: 'On Home and in the Calendar.' },
+    { id: 'challenges', title: 'Monthly challenges', desc: 'Three small goals a month, on Home.' },
+    { id: 'recaps', title: 'Week and month recap', desc: 'Your week, your month: a card on Home when one is over.' },
+    { id: 'year', title: 'Your year in openGym', desc: 'From December to January, your year on Home.' },
     { id: 'share', title: 'Share as a picture', desc: 'A finished workout or a month, as a card to save or send.' },
+  ],
+  // D98: the recovery tips join the strap.
+  health: [
+    { id: 'strap', title: 'Heart-rate strap', desc: 'A Bluetooth strap records every workout, with its live reading.' },
+    { id: 'tips', title: 'Recovery tips', desc: 'Now and then a word on Home about what has rested.' },
   ],
 }
 

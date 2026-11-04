@@ -180,7 +180,7 @@ describe('hevier: navigation (seam S2)', () => {
     render('/home')
     expect(container.textContent).not.toContain('week streak')
     act(() => byText('button', 'Edit Home').click())
-    const row = name => [...container.querySelectorAll('.hv-edithome .item')].find(r => r.textContent.includes(name))
+    const row = name => [...container.querySelectorAll('.hv-edithome .item')].find(r => r.querySelector('.tt')?.textContent === name)
     // both in one tick: the second must not undo the first
     act(() => {
       row('Week streak').querySelector('[role="switch"]').click()

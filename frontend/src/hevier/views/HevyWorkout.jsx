@@ -29,7 +29,7 @@ import { useSupersetTarget } from './ExercisePickerHevy.jsx'
 import { anyRunning, stopAll } from '../lib/set-timer.js'
 import { insertAfter, placeAt } from '../lib/add-at-end.js'
 import { exOr } from '../../lib/exercises.js'
-import { moduleOn } from '../lib/fork-modules.js'
+import { partOn } from '../lib/module-parts.js'
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -84,7 +84,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
           ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit(leave)}><Icon name="xmark" /></button>
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
-        {!editing && !A.backfill && moduleOn(S, 'health') && <StrapButton />}
+        {!editing && !A.backfill && partOn(S, 'health', 'strap') && <StrapButton />}
         {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={() => {
@@ -99,7 +99,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
         {volumeMode(S) === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(sessionVolume(A, S)))} {S.unit}</b></div>}
         {/* Work sets, each per-side set once, as Workout Detail and the statistics count them (D18). */}
         <div><span>{t('Sets')}</span><b>{workSets(A.entries)}</b></div>
-        {!(A.backfill || editing) && moduleOn(S, 'health') && <StrapBpm />}
+        {!(A.backfill || editing) && partOn(S, 'health', 'strap') && <StrapBpm />}
       </div>
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
       <GymRow />
