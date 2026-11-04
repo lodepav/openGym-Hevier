@@ -68,6 +68,14 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(card.querySelectorAll('.hv-xd-set')).toHaveLength(2)
   })
 
+  it('How to offers upstream’s YouTube search, and plays a video linked in the pinned note (D101)', () => {
+    const vid = 'https://youtu.be/dQw4w9WgXcQ'
+    open([{ ...clone(log[0]), entries: [{ ...clone(log[0].entries[0]), note: 'Form: ' + vid, notePin: true }] }])
+    tab('How to')
+    expect([...container.querySelectorAll('button')].some(b => b.textContent.includes('Watch on YouTube'))).toBe(true)
+    expect(container.querySelector('.youtube-video')).toBeTruthy()
+  })
+
   it('How to shows the steps, and an empty log says so', () => {
     open([])
     expect(container.textContent).toContain('No sessions logged yet')

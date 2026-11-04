@@ -43,6 +43,8 @@ import { sanitizeHr } from '../../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setNumberOf, isPairTail } from '../lib/hold-set.js'
 import { partOn } from '../lib/module-parts.js'
+import { setNoteOf } from '../../lib/set-notes.js'
+import { Fragment } from 'react'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -74,13 +76,15 @@ function ExerciseSets({ w, e, st, recs, trends = [], time }) {
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
-      {sets.map(({ s, i }) => <div key={i} className="hv-wd-row">
+      {sets.map(({ s, i }) => <Fragment key={i}><div className="hv-wd-row">
         <span className={isWarmupRow(s) ? 'hv-wd-w' : ''}>{isWarmupRow(s) ? t('W') : isPairTail(e.sets, i) ? '' : setNumberOf(e.sets, i)}</span>
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
         <span>{s.side && <span className="hv-lr">{s.side === 'L' ? t('L') : t('R')}</span>}{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
         <PrBadge recs={at(i)} />
         {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
-      </div>)}
+      </div>
+      {/* A set's note (upstream 1.4.4, D5): under its row. */}
+      {setNoteOf(s) && <div className="hv-wd-setnote"><Icon name="note" /><span>{setNoteOf(s)}</span></div>}</Fragment>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
   </div>

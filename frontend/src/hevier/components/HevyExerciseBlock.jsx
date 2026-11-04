@@ -28,7 +28,7 @@ import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { progressionGuidance } from '../../lib/progression-copy.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
-import { confirmSheet, effortPickerSheet, exerciseDetailSheet, exerciseNoteSheet } from '../../sheets.jsx'
+import { confirmSheet, effortPickerSheet, exerciseDetailSheet, exerciseNoteSheet, setNoteSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -65,6 +65,7 @@ import { setTypeMenu, exerciseMenu } from './exercise-menus.js'
 import { defaultRestFor, setOwnRest } from '../lib/rest-extra.js'
 import { ownSetRest } from '../../lib/supersetFlow.js'
 import SubRows from './SubRows.jsx'
+import { setNoteOf } from '../../lib/set-notes.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -203,7 +204,17 @@ export default function HevyExerciseBlock(props) {
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', setNumberOf(entry.sets, i)) : t('Set {0}', workNumber(i)))
   // D5: the set number opens the set-type picker (exercise-menus.js).
   const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, rest: !editing && setRest(i), setPhaseAt, setFailureAt, setHold,
-    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField })
+    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note: noteOf(i) })
+  // A set's note (upstream 1.4.4): on its first row, an L/R pair's L; written by upstream's sheet.
+  const noteOf = i => {
+    const at = setSpanAt(entry.sets, i)[0]
+    return { text: setNoteOf(entry.sets[at]), open: () => setNoteSheet(entryIdx, at, rowName(entry.sets[at], at)) }
+  }
+  const noteLine = i => {
+    const n = noteOf(i)
+    return n.text ? <button type="button" className="hv-setnote" aria-label={t('Edit note') + ': ' + n.text} onClick={n.open}>
+      <Icon name="note" /><span>{n.text}</span></button> : null
+  }
   // A set's own rest (#609). The sheet may outlive the set it was opened for: a save after the
   // rows moved or the workout changed does nothing, as upstream's does.
   const setRest = i => {
@@ -450,12 +461,12 @@ export default function HevyExerciseBlock(props) {
   const setBlock = (s, i) => {
     const [from, count] = setSpanAt(entry.sets, i)
     if (count === 2 && from !== i) return null
-    if (perSide && isSideSet(s)) return swipe(s, i, <div className={'hv-pair' + (s.done ? ' done' : '')}>
+    if (perSide && isSideSet(s)) return <>{swipe(s, i, <div className={'hv-pair' + (s.done ? ' done' : '')}>
       {line(s, i, first)}{!isWarmupRow(s) && subRows(s.sides[first] || {}, i, first)}
       {line(s, i, second)}{!isWarmupRow(s) && subRows(s.sides[second] || {}, i, second)}
-    </div>)
-    if (count === 2) return swipe(s, i, <div className="hv-pair">{line(s, i)}{line(entry.sets[i + 1], i + 1)}</div>)
-    return <>{swipe(s, i, line(s, i))}{!isWarmupRow(s) && mode === 'reps' && subRows(s, i)}</>
+    </div>)}{noteLine(i)}</>
+    if (count === 2) return <>{swipe(s, i, <div className="hv-pair">{line(s, i)}{line(entry.sets[i + 1], i + 1)}</div>)}{noteLine(i)}</>
+    return <>{swipe(s, i, line(s, i))}{!isWarmupRow(s) && mode === 'reps' && subRows(s, i)}{noteLine(i)}</>
   }
 
   const supersetInfo = superset ? supersetMeta(S.active.entries, superset, { onTarget: true }) : null

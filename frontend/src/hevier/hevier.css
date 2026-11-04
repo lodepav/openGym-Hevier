@@ -789,3 +789,10 @@
 }
 /* Upstream 1.4.4's floating back-to-top arrow: the fork's tabs scroll to the top on a re-tap instead (D11, D100). */
 :root[data-ui="hevier"] #totop{display:none}
+/* A set's note (upstream 1.4.4, D5's 1.4.4 note): a line under the set, tapped to edit in the workout. */
+:root[data-ui="hevier"] .hv-setnote{display:flex;align-items:center;gap:6px;width:100%;margin:-2px 0 6px;padding:2px 12px 4px 44px;background:none;border:0;color:var(--label-2);font:inherit;font-size:13px;text-align:start}
+:root[data-ui="hevier"] .hv-setnote .icn,:root[data-ui="hevier"] .hv-wd-setnote .icn,:root[data-ui="hevier"] .hv-xd-note .icn{color:var(--yellow);font-size:12px;flex:none}
+:root[data-ui="hevier"] .hv-wd-setnote{display:flex;align-items:center;gap:6px;margin:-4px 0 8px;padding-inline-start:44px;font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-xd-note{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;font-size:13px;color:var(--label-2)}
+/* Upstream 1.4.4's swap suggestions under Your backups (D45): the line that says how close they are. */
+:root[data-ui="hevier"] .hv-pk-why{margin:-4px 0 8px}
