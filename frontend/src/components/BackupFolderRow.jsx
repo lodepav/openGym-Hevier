@@ -3,6 +3,7 @@ import { t } from '../lib/i18n.js'
 import { backupFolder, chooseBackupFolder, resetBackupFolder, onBackupFolderChange } from '../lib/mobile.js'
 import { useUI } from '../store/useUI.js'
 import { Row } from './ui.jsx'
+import { hooks } from '../hevier/hooks.js' // [hevier] S52
 
 const DEFAULT_FOLDER = 'Documents/openGym'
 
@@ -29,6 +30,7 @@ export function useBackupFolder(enabled = true) {
 /* The Auto-backup row's subtitle names where the copies go: the chosen folder once there is one,
    not Documents/openGym regardless (Android QA). `keep` is AUTO_BACKUP_KEEP. */
 export function autoBackupSubtitle(folder, keep) {
+  keep = hooks.backupKeep || keep // [hevier] S52: the fork's builds keep fewer (D20)
   if (folder?.uri && folder.label) return t('Saves a dated copy to “{0}” after finishing a workout or editing a routine, and keeps the newest {1}.', folder.label, keep)
   if (folder?.uri) return t('Saves a dated copy to the folder you chose after finishing a workout or editing a routine, and keeps the newest {0}.', keep)
   return t('Saves a dated copy to Documents/openGym after finishing a workout or editing a routine, and keeps the newest {0}. Point a sync app at that folder, or copy it out by hand.', keep)

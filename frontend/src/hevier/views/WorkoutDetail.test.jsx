@@ -13,6 +13,7 @@ import { workoutDetailSheet } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
+import { rowMode } from '../lib/hold-set.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -50,6 +51,7 @@ afterEach(() => {
   if (root) act(() => root.unmount())
   container?.remove()
   hooks.workoutDetail = null
+  hooks.setMode = null
 })
 
 describe('hevier: Workout Detail (seam S14)', () => {
@@ -94,6 +96,20 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect([...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Records')).textContent).toBe('Records4')
     const sets = [...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Sets'))
     expect(sets.querySelector('b').textContent).toBe('2')
+  })
+
+  it('marks a timed hold H in place of its number, as a warm-up is W (D89)', () => {
+    render()
+    const H = { ...clone(W), id: 'wh', entries: [{ ...clone(W.entries[0]), sets: [
+      { w: 40, r: 10, done: true, phase: 'warmup' }, { w: 60, r: 8, done: true }, { w: 60, sec: 30, mode: 'time', done: true }, { w: 60, r: 8, done: true },
+    ] }] }
+    act(() => useStore.setState(st => ({ S: { ...st.S, workouts: [...st.S.workouts, H] } })))
+    hooks.setMode = rowMode   // hevier/index.js sets it in the app (S48)
+    act(() => workoutDetailSheet(H))
+    const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')]
+    expect(rows.map(r => r.firstChild.textContent)).toEqual(['W', '1', 'H', '2'])
+    expect(rows[2].firstChild.className).toBe('hv-wd-h')
+    expect(rows[2].textContent).toContain('0:30')
   })
 
   it('marks each work set against the same set last time (D66)', () => {

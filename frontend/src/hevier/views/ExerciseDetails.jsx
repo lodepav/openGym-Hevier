@@ -11,6 +11,7 @@ import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameCla
 import { fmtNum, fmtDate, fmtVol, capWords } from '../../lib/format.js'
 import { lastEntryFor } from '../../lib/history.js'
 import { hevySetLabel } from '../lib/set-text.js'
+import { historyRows, setMark } from '../lib/history-rows.js'
 import { isCustomEx } from '../../lib/exercises.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { isFav, toggleFav } from '../../lib/favourites.js'
@@ -123,7 +124,11 @@ function History({ ex, sum, st }) {
     return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
       <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
       <div className="hv-xd-sd">{fmtDate(s.d, true)}</div>
-      {s.sets.map((x, k) => <div key={k} className="hv-xd-set"><span className="hv-xd-n">{k + 1}</span>{hevySetLabel(ex.id, x, s.target, speedUnitOf(st))}</div>)}
+      {/* The holds of a reps session too (D89), marked H as a warm-up is W. */}
+      {(rows => rows.map((x, k) => {
+        const mark = setMark(rows.map(y => y.s), k)
+        return <div key={k} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>{hevySetLabel(ex.id, x.s, x.target, speedUnitOf(st))}</div>
+      }))(historyRows(w, ex.id, s))}
     </div>
   })}</div>
 }
