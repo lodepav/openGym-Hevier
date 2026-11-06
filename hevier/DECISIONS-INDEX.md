@@ -100,3 +100,9 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D94** A feed card shows the workout's gym.
 - **D95** Go Hevier tells OpenBite how strength is going in the current phase, and OpenBite may suggest a calorie change.
 - **D96** An exercise's History can show two labels side by side.
+- **D97** Upstream's Modules, followed by the fork's screens too.
+- **D98** Upstream 1.4.4's new Home cards are optional Home widgets.
+- **D99** Weekly sets per muscle against a target range, counted the fork's way.
+- **D100** What openGym 1.4.4 brings that the fork leaves out of its UI.
+- **D101** An exercise's How to plays its YouTube demo.
+- **D102** A module with several parts has a switch for each part.

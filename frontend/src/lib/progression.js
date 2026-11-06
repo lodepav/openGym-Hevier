@@ -18,9 +18,6 @@
 
 import { modeOf, repStep, rerampWarmups, isBw, isPerSide, entryExcluded, entryRoutineId, lastAcrossRoutines } from './history.js'
 import { EXIDX, isAssisted, isLoadedEq, defaultIncrement } from './exercises.js'
-// [hevier] S35: the hook the default rule comes from
-import { hooks } from '../hevier/hooks.js'
-// [/hevier]
 import { isWarmupRow, isSideSet, syncSideAggregate, makeSideSet } from './workout-model.js'
 import { normalizeRepRange } from './rep-range.js'
 import { isPyramid } from './pyramid.js'
@@ -96,16 +93,19 @@ export const DEFAULT_SEC_INCREMENT = 5
 // an evening. Past this the honest advice is load or a harder variation (issue #33).
 export const MAX_BW_SETS = 6
 
+// The profile's rule for a reps exercise whose routine sets none (Settings → Fine-tuning,
+// `S.progDefault`): linear, the way the app always behaved, unless the lifter picked another.
+// Someone who sets every weight by hand picks Off once instead of in every routine.
+export const profileRule = S => (POLICIES_FOR.reps.includes(S?.progDefault) ? S.progDefault : 'linear')
+
 // The policy in force for one exercise: its own override, else the routine's default, else
-// the mode's default. Reps keeps behaving the way the app always did (all reps → add a step).
-export function policyFor(cfg, routine, mode) {
+// the mode's default: for reps the profile's (`fallback`, profileRule above), linear without one.
+export function policyFor(cfg, routine, mode, fallback = 'linear') {
   // Pyramid sets are never progressed: the lifter picks every set's weight (CONTEXT.md).
   if (isPyramid(cfg)) return 'off'
   const m = mode || modeOf(cfg || {})
   const allowed = POLICIES_FOR[m] || ['off']
-  // [hevier] S35: the fork's default rule when neither the exercise nor the routine sets one (D61)
-  const pick = (cfg && cfg.prog) || (routine && routine.prog) || (m === 'reps' ? (hooks.defaultProg || 'linear') : 'off')
-  // [/hevier]
+  const pick = (cfg && cfg.prog) || (routine && routine.prog) || (m === 'reps' ? fallback || 'linear' : 'off')
   return allowed.includes(pick) ? pick : 'off'
 }
 
@@ -450,7 +450,7 @@ export function stallCount(sessions, policy) {
  */
 export function nextPrescription(S, cfg, routine) {
   const mode = modeOf(cfg)
-  const policy = policyFor(cfg, routine, mode)
+  const policy = policyFor(cfg, routine, mode, profileRule(S))
   const unit = S.unit || 'kg'
   const inc = mode === 'time'
     ? (cfg.inc > 0 ? cfg.inc : DEFAULT_SEC_INCREMENT)

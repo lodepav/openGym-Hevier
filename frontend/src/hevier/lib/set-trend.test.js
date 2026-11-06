@@ -25,7 +25,8 @@ describe('hevier: beat last time (D66)', () => {
     expect(setTrend({ min: 20 }, { min: 20 })).toBe(0)
     expect(setTrend({ sec: 45 }, { w: 20, r: 8 })).toBeNull()
     expect(setTrend({ w: 20, r: 8 }, { w: 30, r: 8 }, { assisted: true })).toBe(1)
-    expect(setTrend({ w: 20, r: 6 }, { w: 30, r: 8 }, { assisted: true })).toBeNull()
+    // Upstream's rule since 1.4.4 (#907): on an assistance machine the help decides.
+    expect(setTrend({ w: 20, r: 6 }, { w: 30, r: 8 }, { assisted: true })).toBe(1)
   })
 
   it('holds a finished workout against the log before it, not after', () => {
@@ -38,10 +39,10 @@ describe('hevier: beat last time (D66)', () => {
     expect(workoutTrends(S, S.workouts[2], 0)).toEqual([null, -1])
   })
 
-  it('leaves a set without reps, or one gaining load from none, unmarked', () => {
+  it('leaves a set without reps unmarked; one gaining load from none goes by the weight (upstream’s rule)', () => {
     expect(setTrend({ w: 60, r: 0 }, { w: 60, r: 8 })).toBeNull()
     expect(setTrend({ w: 60 }, { w: 60 })).toBeNull()
-    expect(setTrend({ w: 10, r: 8 }, { r: 10 })).toBeNull()
+    expect(setTrend({ w: 10, r: 8 }, { r: 10 })).toBe(1)
     expect(setTrend({ r: 10, sec: 30 }, { r: 8, sec: 40 })).toBe(1)   // reps, not the time beside them
   })
 

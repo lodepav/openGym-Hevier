@@ -14,7 +14,6 @@ import { editCompletedSession } from '../../lib/session-edit.js'
 import { saveSessionAsRoutine } from '../../lib/session-routines.js'
 import { sameWorkout } from '../../lib/workout-date.js'
 import { workoutMediaOf } from '../../lib/media-refs.js'
-import { tappable } from '../../lib/use-sheet-keyboard.js'
 import { Thumb } from '../../components/Media.jsx'
 import MuscleLine from './MuscleLine.jsx'
 import { shareWorkoutSheet } from './ShareSheet.jsx'
@@ -70,7 +69,10 @@ export default function WorkoutCard({ w }) {
   const nav = useNavigate()
   const unit = useStore(s => s.S.unit)
   const mode = useStore(s => volumeMode(s.S))
-  const warmups = useStore(s => s.S.volumeWarmups)
+  // The session's volume as upstream counts it for this profile: warm-ups and, since 1.4.4, body
+  // weight in bodyweight lifts by their switches (#719, #794; D18's 1.4.4 note). A number, so the
+  // card does not redraw on every change of S.
+  const volume = useStore(s => sessionVolume(w, s.S))
   const entries = (w.entries || []).filter(e => (e.sets || []).some(hasCompletedWork))
   // D51: every record the workout set, worked out from the log; a trophy on each exercise that set one.
   const recs = useStore(s => workoutRecords(s.S, w))
@@ -80,7 +82,8 @@ export default function WorkoutCard({ w }) {
   const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
   const gym = useStore(s => gymName(s.S, savedGym(w)))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)
-  return <div className="card hv-wcard" {...tappable(() => workoutDetailSheet(w))} aria-label={(w.name || t('Workout')) + ', ' + workoutWhenText(w)}>
+  // The title is the card's button, stretched over it; Share and ⋯ sit above it (upstream 1.4.4's card pass).
+  return <div className="card hv-wcard tap-host">
     {/* Hevy's head: avatar, who and when, ⋯; then the title */}
     <div className="hv-wcard-h">
       <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
@@ -90,7 +93,8 @@ export default function WorkoutCard({ w }) {
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>
-    <div className="hv-wcard-t">{w.name || t('Workout')}</div>
+    <button type="button" className="hv-wcard-t tap-main" aria-label={(w.name || t('Workout')) + ', ' + workoutWhenText(w)}
+      onClick={() => workoutDetailSheet(w)}>{w.name || t('Workout')}</button>
     {(gym != null || phase) && <div className="hv-wcard-tags">
       {gym != null && <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span>}
       {phase && <span>{t(PHASE_LABEL[phase])}</span>}
@@ -99,7 +103,7 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-stats">
       <div><span>{t('Time')}</span><b>{workoutTimeText(w)}</b></div>
       {mode === 'weight'
-        ? <div><span>{t('Volume')}</span><b>{fmtVol(sessionVolume(w, { volumeWarmups: warmups }), unit)}</b></div>
+        ? <div><span>{t('Volume')}</span><b>{fmtVol(volume, unit)}</b></div>
         : <div><span>{t('Sets')}</span><b>{workSets(w.entries)}</b></div>}
       {prs > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs}</b></div>}
       {hr && <div><span>{t('Heart rate')}</span><b className="hv-wcard-hr"><Icon name="heart" />{hr.avg}</b></div>}

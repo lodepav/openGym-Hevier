@@ -35,6 +35,7 @@ import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
 import { workoutTrends } from '../lib/set-trend.js'
+import TrendMark from '../components/TrendMark.jsx'
 
 // A cable's setup shows when it is not the plain 1:1 (D43).
 const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
@@ -46,12 +47,7 @@ export const DETAIL_PATH = '/workout-detail'
 
 // A record's badge: the trophy and what it is a record of (D51).
 // Beat last time (D66): each work set against the same set last time.
-const TREND = { 1: ['up', '↑', 'Better than last time'], 0: ['eq', '=', 'Same as last time'], '-1': ['down', '↓', 'Less than last time'] }
-const Trend = ({ v }) => {
-  if (v == null) return null
-  const [cls, glyph, label] = TREND[v]
-  return <span className={'hv-trend ' + cls} role="img" aria-label={t(label)} title={t(label)}>{glyph}</span>
-}
+const Trend = TrendMark
 
 const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
 

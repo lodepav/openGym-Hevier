@@ -20,7 +20,7 @@ import { copyRoutineHere } from '../lib/routine-copy.js'
 import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
 import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
-import { POLICIES_FOR, POLICY_NAME, POLICY_DESC } from '../../lib/progression.js'
+import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { glyphOf } from '../../lib/glyphs.js'
@@ -346,7 +346,7 @@ export default function RoutineEditHevy() {
         })} />
       </Row>
       {progressionOn(r) && <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
-        value={r.prog || hooks.defaultProg || 'linear'} onChange={v => setR(x => { x.prog = v })}
+        value={r.prog || profileRule(S)} onChange={v => setR(x => { x.prog = v })}
         options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />}
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>
@@ -359,7 +359,7 @@ export default function RoutineEditHevy() {
     <div className="small dim hv-rsettings-note">
       {r.excludeFromProgression
         ? t('A deload routine opens at the numbers set here, so the progression above does not apply to it.') + ' ' + t('The next regular target continues from the last included workout.')
-        : progressionOn(r) ? t(POLICY_DESC[r.prog || hooks.defaultProg || 'linear'] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
+        : progressionOn(r) ? t(POLICY_DESC[r.prog || profileRule(S)] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
         : t('A set never done opens at the numbers set here.')}
     </div>
     {load && <div className="card hv-rmap">
