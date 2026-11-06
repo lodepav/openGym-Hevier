@@ -29,6 +29,7 @@ import Icon from './Icon.jsx'
 import { PRESETS, presetOf, applyPreset } from '../lib/modules.js'
 import { presetCopy } from '../lib/modules-copy.js'
 import './Tour.css'
+import { hooks } from '../hevier/hooks.js' // [hevier] S53
 
 // What each stop says. Literal t() calls, so check-source-strings sees every one.
 const COPY = {
@@ -286,9 +287,12 @@ function useCardKeys(cardRef, onEscape, trap = true) {
 function Question({ kind, at }) {
   const cardRef = useRef(null)
   const resume = kind === 'resume'
+  // [hevier] S53: the fork asks only how much app (its screens have no tour stops, D97, D100)
+  const presetOnly = !resume && !!hooks.tourPresetOnly
+  // [/hevier]
   useEffect(() => { if (resume) markResumeAsked(); else markOffered() }, [resume])
   useEffect(() => { cardRef.current?.focus() }, [])
-  const no = () => { if (resume) markTourDone(); closeTour() }
+  const no = () => { if (resume || presetOnly) markTourDone(); closeTour() } // [hevier] S53: presetOnly
   const yes = () => openTour({ kind: 'run', at: resume ? at : null })
   useCardKeys(cardRef, no)
   const S = useStore(s => s.S)
@@ -296,7 +300,8 @@ function Question({ kind, at }) {
   const pick = id => { if (id !== preset) useStore.getState().update(s => applyPreset(s, id)) }
   return <div className="tour tour-ask">
     <div className="tour-block tour-dim" />
-    <div className="tour-card tour-center" ref={cardRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="tour-t" aria-describedby="tour-b">
+    {/* [hevier] S53: named by its one question when that is all it asks */}
+    <div className="tour-card tour-center" ref={cardRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={presetOnly ? 'tour-m' : 'tour-t'} aria-describedby={presetOnly ? undefined : 'tour-b'}>
       {!resume && <>
         <h2 id="tour-m">{t('How much app do you want?')}</h2>
         <div className="tour-list tour-presets" role="radiogroup" aria-labelledby="tour-m">
@@ -307,12 +312,18 @@ function Question({ kind, at }) {
         </div>
         <p className="tour-pick-f">{t('Change it anytime in Settings → Modules.')}</p>
       </>}
+      {/* [hevier] S53 */}
+      {presetOnly ? <div className="tour-acts"><Button variant="primary" onClick={no}>{t('Continue')}</Button></div> : <>
+      {/* [/hevier] */}
       <h2 id="tour-t" className={resume ? '' : 'tour-q2'}>{resume ? t('Finish the tour?') : t('Want a 1-minute tour?')}</h2>
       <p id="tour-b">{resume ? t('You stopped halfway. Want to see the rest?') : t('We’ll point at the good bits on the real screens. Bail out anytime.')}</p>
       <div className="tour-acts">
         <Button onClick={no}>{resume ? t('No thanks') : t('Skip')}</Button>
         <Button variant="primary" onClick={yes}>{resume ? t('Continue') : t('Show me')}</Button>
       </div>
+      {/* [hevier] S53 */}
+      </>}
+      {/* [/hevier] */}
     </div>
   </div>
 }

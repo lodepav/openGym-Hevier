@@ -28,6 +28,7 @@ import { WorkoutFeed } from './Profile.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { homeWidgets, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
+import { widgetOn } from '../lib/fork-modules.js'
 
 const TITLE = {
   today: 'Today & this week', streak: 'Week streak', weight: 'Body weight',
@@ -142,9 +143,17 @@ export default function HevyHome() {
   const trouble = useConnectionTrouble()
   const [editing, setEditing] = useState(false)
   const update = useStore(s => s.update)
-  const widgets = homeWidgets(readHome(S), S)
-  // On the store's latest state, so two taps before a re-render both land.
-  const setWidgets = fn => update(s => { writeHome(s, fn(homeWidgets(readHome(s), s))) })
+  // A widget whose module is off (D97: the streak with Motivation, body weight with Body) is not on
+  // Home nor in Edit Home; it keeps its place and its switch for when the module is back.
+  const widgets = homeWidgets(readHome(S), S).filter(w => widgetOn(S, w.id))
+  // On the store's latest state, so two taps before a re-render both land. `fn` sees the widgets
+  // shown; the others stay where they are.
+  const setWidgets = fn => update(s => {
+    const all = homeWidgets(readHome(s), s)
+    const next = fn(all.filter(w => widgetOn(s, w.id)))
+    let k = 0
+    writeHome(s, all.map(w => (widgetOn(s, w.id) ? next[k++] : w)))
+  })
   return <div className="narrow hv-home">
     <PageBar title={t('Home')}
       start={<button type="button" className="hv-link" aria-pressed={editing} onClick={() => setEditing(e => !e)}>{editing ? t('Done') : t('Edit Home')}</button>}>
