@@ -24,8 +24,10 @@ export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Gym check-in', 'Seasonal themes',
-    // 1.4.4 (D100): no NFC stickers. Upstream's new Home cards come back as Home widgets (D98).
-    'Set up an NFC sticker', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges'],
+    // 1.4.4 (D100): no NFC stickers, no app icon picker (its search hit; the row goes by type), no
+    // Assistant or Siri shortcuts (the manifest overlay removes them). Upstream's new Home cards come
+    // back as Home widgets (D98).
+    'Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges'],
   // The gym filter is the picker's (D62): no switch, no active profile here.
   equipment: ['Filter by equipment', 'Active profile'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).
@@ -44,7 +46,7 @@ export const HIDDEN_ROWS = {
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
 }
 // Pages left out whole: not found by the search, nor any row on them.
-export const HIDDEN_PAGES = ['gym', 'themes']
+export const HIDDEN_PAGES = ['gym', 'themes', 'zepp']   // zepp: no Zepp OS watch (D100)
 // A section whose footer speaks of rows that are gone loses the footer.
 const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.']
 

@@ -127,6 +127,10 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(hiddenSetting({ page: 'gym', title: 'Gym reminder', isPage: true })).toBe(true)
     expect(hiddenSetting({ page: 'themes', title: 'Halloween' })).toBe(true)
     expect(hiddenSetting({ page: 'look', title: 'Look & Home', isPage: true })).toBe(false)
+    // D100: what the APK no longer has is not offered either.
+    expect(hiddenSetting({ page: 'look', title: 'Assistant & shortcuts' })).toBe(true)
+    expect(hiddenSetting({ page: 'look', title: 'App icon' })).toBe(true)
+    expect(hiddenSetting({ page: 'zepp', title: 'Zepp OS watch', isPage: true })).toBe(true)
   })
 
   it('without the hook, upstream’s rows are all there', () => {

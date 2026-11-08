@@ -72,3 +72,11 @@ dependencyLocking {
 configurations.matching { it.name in ['sideloadDebugRuntimeClasspath', 'sideloadReleaseRuntimeClasspath'] }.configureEach {
     resolutionStrategy.activateDependencyLocking()
 }
+
+// D100: no Wear OS link in the fork's APK. Upstream 1.4.4's sideload flavour adds the Wearable Data
+// Layer (play-services-wearable) and its WatchBridgePlugin and WatchListenerService (src/gms); the
+// fork takes them out again and builds the F-Droid flavour's "no watch" WatchBridgePlugin in their
+// place (src/hevier-nowear links upstream's src/fdroid file, so it never drifts). The manifest
+// overlay already removes the listener service (src/hevier/AndroidManifest.xml).
+android.sourceSets.sideload.java.srcDirs = android.sourceSets.sideload.java.srcDirs.findAll { !it.path.endsWith('src/gms/java') } + [file('src/hevier-nowear/java')]
+configurations.sideloadImplementation.dependencies.removeIf { it.group == 'com.google.android.gms' && it.name == 'play-services-wearable' }
