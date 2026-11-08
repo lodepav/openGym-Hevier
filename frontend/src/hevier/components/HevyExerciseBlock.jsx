@@ -282,7 +282,7 @@ export default function HevyExerciseBlock(props) {
       if (p[c.f] == null && c.opt) return
       // Upstream's onField takes a weight in the exercise's own unit since 1.4.4 (#657): last
       // time's stored weight goes in as the exercise shows it.
-      onField(i, c.f, c.view ? shownWeight(S, entry.id, p[c.f] ?? 0) : p[c.f] ?? 0)
+      onField(i, c.f, c.f === 'w' ? shownWeight(S, entry.id, p[c.f] ?? 0) : p[c.f] ?? 0)
       touch(i, c.f)
     })
   }
