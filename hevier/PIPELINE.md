@@ -23,6 +23,10 @@ Coach programme week, @hono/node-server 2.1.6, the README's phones), merged into
 1.4.4 merge. Still no new `release-*` branch; v1.4.5 is due 2026-11-29 and none of the fork's open
 PRs is on it (#849, which overlaps #931, is).
 
+**Checked 2026-11-08.** No upstream commit on `main` since 2026-11-04 and still no `release-1.4.5`
+branch to read, so nothing new to merge. 34 PRs and issues opened since 2026-11-06, none on a
+milestone yet; the few that meet the fork are under "New since 2026-11-06 that meets the fork".
+
 **Decided 2026-11-03: merge v1.4.4.** The decision round is done: each item below has its answer in
 DECISIONS.md, as an "At the 1.4.4 merge" note on the decision it touches or as D97 to D101 (section
 "openGym 1.4.4"). **The merge is #5** (`sync/v1.4.4`, 2026-11-03): the conflicts, S35 and S47 gone,
@@ -218,7 +222,7 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
 | Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03 and 2026-11-06)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06 and 2026-11-08)
 
 On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 unmerged: each
 came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
@@ -263,6 +267,9 @@ review on it and say so on #931, or close #931. New on 2026-11-05: the fork's co
 (per-gym and per-brand tracking, RobinRHL's issue, no milestone) pointing at D28, D82, D51, D96,
 D46, D86 and D47 as code to copy; the issue has had one more comment since.
 
+**2026-11-08:** nothing moved. No comment or state change on any of the fork's PRs or issues, #988
+unchanged since 2026-11-05 (no milestone), #849 still on v1.4.5 and #638 on v1.4.8.
+
 | # | What | State |
 |---|---|---|
 | #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **Offered again as #807** (2026-10-25, on `release-1.4.3`, regenerated there: 429 of Hevy's 503 templates mapped, 1.4.3's own title rows kept), the maintainer told why |
@@ -291,6 +298,24 @@ D46, D86 and D47 as code to copy; the issue has had one more comment since.
 | #907 | Mark each set against the same set last time (D66) | Issue closed 2026-11-03; **built by upstream, released in v1.4.4** (credited): it replaces D66 at the merge |
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open; no answer since the fork's comments of 2026-10-19 and 2026-10-21; on the **v1.4.8** milestone |
 | #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open, no milestone; the fork commented on 2026-11-05 that its gyms and brands can be copied, one more comment since |
+
+**New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
+
+| # | What | For the fork |
+|---|---|---|
+| #1022 (issue) | Routine variants: choose a gym without advancing a separate rotation | **Meets D28, D46 and D86**: the fork's answer is one routine whose slots swap to each gym's backups. Worth a comment pointing at them, as on #988. |
+| #1034 (issue) | Many exercises with the wrong muscles | **Meets D74** and the fork's #788 (released in 1.4.4) and #638. If upstream fixes catalogue targets, recheck D74's name rules for custom exercises. |
+| #1010 (PR) | Create a routine from imported workouts | Upstream's plan and import pages: check D33's import review and D15's routine table read a routine made this way. |
+| #1017, #1020 (issues) | Auto-advance to the next exercise after the last rest; a longer rest between exercises | **Meet D70** (`rest-extra.js`, the fork's rest after every set): if built, the fork's rest bar must not start a second rest. |
+| #1021 (issue) | A workout's duration sometimes saved far shorter than the session | Upstream's finish; D60 and D88 read the same times, so a fix there is the fork's too. |
+| #1011, #1012 (issues) | Sled exercises logged as distance | Catalogue modes: D55's picked-exercise defaults would follow upstream's. |
+| #1016 (issue) | Custom equipment | Meets D62's gym equipment filter, if built. |
+| #1009 (issue) | Delete or rename custom body measurements | Upstream's Measurements, which D14's Measures reads. |
+| #1036 (issue) | The Settings tour's spotlight lands wrong | Nothing: the tour is out of the fork (D100; the preset choice stays, D97). |
+| #1040, #1042 (PRs) | Five contrast fixes; press feedback (quick in, slower out, hold shrink, star pop) | **Meet D17** (`hevier.css`): the fork's own colours and press styles may need the same, or win over them. |
+| #1024 to #1033, #1041, #1028 | Wear OS fixes, iPhone Liquid Glass | Nothing: Wear OS is out of the fork (D100), and iOS is not built. |
+| #1008, #1023, #1026, #1039 | Chinese, Bangla, Japanese, Danish | Locales: take upstream's (rule C). |
+| #1013, #1014, #1015, #1018, #1019, #1025, #1032, #1035, #1037 | Tennis, Health Connect steps, video markers, Coach effort and streaming, a web image crash, Nix, first-launch language | Server, Coach, health or packaging: nothing for the fork. |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
 
