@@ -1,25 +1,41 @@
-// D61, seam S35: with the fork's default, an exercise and routine with no rule of their own do not
-// progress; a rule set on either still does.
-import { afterEach, describe, expect, it } from 'vitest'
-import { policyFor } from '../../lib/progression.js'
-import { hooks } from '../hooks.js'
+// D61 since upstream 1.4.4: the profile's default rule (`S.progDefault`, #814) is Off in the fork,
+// unless the profile chose one.
+import { describe, expect, it } from 'vitest'
+import { policyFor, profileRule } from '../../lib/progression.js'
+import { unchosenDefault, progDefaultOff, initProgDefault } from './prog-default.js'
 
 const ex = { id: '0025', sets: 3, reps: 8 }
 
-afterEach(() => { hooks.defaultProg = null })
-
 describe('hevier: progression off by default (D61)', () => {
   it('upstream’s default without the fork: linear', () => {
-    expect(policyFor(ex, {}, 'reps')).toBe('linear')
+    expect(policyFor(ex, {}, 'reps', profileRule({}))).toBe('linear')
   })
-  it('the fork’s default: off, for a routine exercise and a freestyle one', () => {
-    hooks.defaultProg = 'off'
-    expect(policyFor(ex, {}, 'reps')).toBe('off')
-    expect(policyFor(ex, null, 'reps')).toBe('off')
+  it('stores Off on a profile that never chose, and keeps a choice', () => {
+    expect(unchosenDefault({ progDefault: 'linear' })).toBe(true)
+    expect(unchosenDefault({})).toBe(true)
+    expect(unchosenDefault({ progDefault: 'linear', edited: { progDefault: 5 } })).toBe(false)
+    expect(unchosenDefault({ progDefault: 'double' })).toBe(false)
+    expect(unchosenDefault({ progDefault: 'off' })).toBe(false)
+    const s = { progDefault: 'linear' }
+    progDefaultOff(s)
+    expect(policyFor(ex, {}, 'reps', profileRule(s))).toBe('off')
+    expect(policyFor(ex, null, 'reps', profileRule(s))).toBe('off')
   })
   it('a rule on the routine or the exercise still applies', () => {
-    hooks.defaultProg = 'off'
-    expect(policyFor(ex, { prog: 'linear' }, 'reps')).toBe('linear')
-    expect(policyFor({ ...ex, prog: 'double' }, {}, 'reps')).toBe('double')
+    const S = { progDefault: 'off' }
+    expect(policyFor(ex, { prog: 'linear' }, 'reps', profileRule(S))).toBe('linear')
+    expect(policyFor({ ...ex, prog: 'double' }, {}, 'reps', profileRule(S))).toBe('double')
+  })
+  it('runs on install and again when a sync brings a profile that never chose', () => {
+    let S = { progDefault: 'linear' }, watcher = null, updates = 0
+    const store = { get: () => S, update: fn => { const s = structuredClone(S); fn(s); S = s; updates++ }, watch: () => cb => { watcher = cb } }
+    initProgDefault(store)
+    expect(S.progDefault).toBe('off')
+    watcher()
+    expect(updates).toBe(1)
+    S = { progDefault: 'linear', edited: { progDefault: 9 } }
+    watcher()
+    expect(S.progDefault).toBe('linear')
+    expect(updates).toBe(1)
   })
 })

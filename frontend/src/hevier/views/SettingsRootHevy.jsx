@@ -17,6 +17,7 @@ import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { MOBILE } from '../../lib/mobile.js'
+import AppIconRow from '../../components/AppIconRow.jsx'
 import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
@@ -83,6 +84,9 @@ function PlateLineRow() {
 }
 
 /** Seams S11 and S12's hand-off. */
+// Rows upstream draws as a component of their own, left out of every page: the app icon picker (D100, D17).
+const HIDDEN_TYPES = [AppIconRow]
+
 export function installSettings() {
   hooks.settings = {
     root: props => <SettingsRootHevy {...props} />,
@@ -92,7 +96,7 @@ export function installSettings() {
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
-      const out = relabelPage(id, prunePage(id, tree, t), t)
+      const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES), t)
       if (id === 'about') return aboutPage(out, t)
       if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
       if (id !== 'data' || !MOBILE) return out

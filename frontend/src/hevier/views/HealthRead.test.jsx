@@ -59,12 +59,18 @@ describe('hevier: Health Connect reads (D27)', () => {
     expect(container.querySelector('.hv-wd-hr')).toBeNull()
   })
 
-  it('typing over an imported weigh-in makes it a typed one (upstream’s rule)', async () => {
+  // Upstream 1.4.4 keeps several weigh-ins a day (#859, D27's 1.4.4 note): a typed one joins the
+  // imported one, and the day reads as typed.
+  it('typing over an imported weigh-in adds a typed one beside it (upstream’s rule)', async () => {
     withState(S => { S.bodyweight = [{ d: todayISO(), w: 80, t: 1, src: 'hc' }] })
     bwSheet()
     await mount(useUI.getState().sheets.at(-1).render(() => {}))
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Save').click())
-    expect(useStore.getState().S.bodyweight).toEqual([{ d: todayISO(), w: 80, t: expect.any(Number) }])
+    const [day, ...more] = useStore.getState().S.bodyweight
+    expect(more).toEqual([])
+    expect(day).toMatchObject({ d: todayISO(), w: 80 })
+    expect(day.src).toBeUndefined()
+    expect(day.ins.map(x => x.src || 'typed')).toEqual(['hc', 'typed'])
   })
 
   it('goes in right before upstream’s “Bring data in” section', () => {

@@ -19,7 +19,7 @@ import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
 import { EquipFilterSheet, MuscleFilterSheet } from '../components/EquipGroups.jsx'
 import { muscleValueLabel, muscleFilterValue } from '../lib/muscle-groups.js'
 import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../../lib/favourites.js'
-import { useSheetKeyboard, tappable } from '../../lib/use-sheet-keyboard.js'
+import { useSheetKeyboard } from '../../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../../lib/use-auto-more.js'
 import { customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
@@ -133,13 +133,14 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const details = (ev, e) => { ev.stopPropagation(); exerciseDetailSheet(e) }
   // A screen reader hears the row as its exercise, and in a multi pick whether it is ticked; the
   // thumbnail repeats the chart button, so only the chart button is in its reading order.
-  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row' + (isOn(e) ? ' on' : '')} {...tappable(() => tap(e))}
-    aria-label={[exerciseNameText(e), t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
+  // The name is the row's button, stretched over it; the thumbnail and the chart button sit above it.
+  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row tap-host' + (isOn(e) ? ' on' : '')}>
     <button className="hv-thumb" aria-hidden="true" tabIndex={-1} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
-    <div className="grow">
-      <div className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div>
-      <div className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</div>
-    </div>
+    <button type="button" className="grow item-open tap-main" onClick={() => tap(e)}
+      aria-label={[exerciseNameText(e), t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
+      <span className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</span>
+      <span className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</span>
+    </button>
     {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>

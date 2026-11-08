@@ -1,46 +1,39 @@
-// Beat last time (hevier/DECISIONS.md D66), Dorian Yates' way of reading a log: each work set of
-// a finished workout against the same set last time, ↑ better, = the same, ↓ less. Last time is
-// the PREVIOUS column's (D3, D21), read from the log as it stood before this workout, so an old
-// workout is held against what came before it. Nothing is stored.
+// Beat last time (hevier/DECISIONS.md D66, replaced at the 1.4.4 merge by upstream's #907): each
+// work set against the same set last time, ↑ better, = the same, ↓ less. The comparison and its
+// switch are upstream's (lib/set-trend.js setTrend, Settings → Compare sets with last time); which
+// set it is held against stays the PREVIOUS column's (D3, D21, by machine label D82), read from the
+// log as it stood before the workout, so the arrow and PREVIOUS always speak of the same set.
+// Nothing is stored.
 import { historyAsOf } from '../../lib/backfill.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
 import { isAssisted } from '../../lib/exercises.js'
-import { estimate1RM, formulaOf, FORMULAS } from '../../lib/onerm.js'
+import { formulaOf } from '../../lib/onerm.js'
+import { setTrend as upstreamTrend, setTrendOn } from '../../lib/set-trend.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { entryLastKey } from './gym-labels.js'
 
 const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0)
-const sign = d => (Math.abs(d) < 1e-9 ? 0 : d > 0 ? 1 : -1)
+// A row's kind as upstream compares it: a hold by its seconds, cardio by its minutes, else reps.
+const modeOfRow = x => (num(x.min) > 0 || num(x.speed) > 0 ? 'cardio' : !num(x.r) && num(x.sec) > 0 ? 'time' : 'reps')
 
 /**
  * How set `s` compares with set `p`: 1 better, 0 the same, -1 less, null when they cannot be
- * compared (no last time, or one is timed and the other is not). A hold or cardio set by its
- * time; a set with no load by its reps; a loaded one by weight and reps when both point the same
- * way, else by upstream's estimated 1RM (more weight for fewer reps can still be better); past the
- * rep cap, where upstream refuses to estimate, both sets go by Epley, which only orders them. On an
- * assistance machine less weight is more.
+ * compared (no last time, or one is a hold and the other is not), by upstream's rule (#907).
  */
 export function setTrend(s, p, { assisted = false, formula } = {}) {
   if (!s || !p) return null
-  const time = x => num(x.sec) || num(x.min) * 60
-  const timed = x => !num(x.r) && time(x) > 0
-  if (timed(s) || timed(p)) return timed(s) && timed(p) ? sign(time(s) - time(p)) : null
-  const [w, pw, r, pr] = [num(s.w), num(p.w), num(s.r), num(p.r)]
-  if (!r || !pr) return null
-  if (!w && !pw) return sign(r - pr)
-  const dw = assisted ? sign(pw - w) : sign(w - pw)
-  const dr = sign(r - pr)
-  if (dw === dr || dw === 0 || dr === 0) return dw || dr
-  if (assisted) return null
-  let [a, b] = [estimate1RM(w, r, formula), estimate1RM(pw, pr, formula)]
-  if (!a || !b) [a, b] = [FORMULAS.epley(w, r), FORMULAS.epley(pw, pr)]
-  return a && b ? sign(a - b) : null
+  const mode = modeOfRow(s)
+  if (modeOfRow(p) !== mode) return null
+  return upstreamTrend(s, p, { mode, assisted, formula })?.dir ?? null
 }
+
+/** Whether the arrows are on: upstream's switch (Settings → Compare sets with last time). */
+export const trendsOn = setTrendOn
 
 /** One slot per set of entry `i` of finished workout `w`: its trend, null for a warm-up or none. */
 export function workoutTrends(S, w, i) {
   const e = w?.entries?.[i]
-  if (!e) return []
+  if (!e || !setTrendOn(S)) return []
   const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
   const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLastKey(e) })
   const opts = { assisted: isAssisted(e.id), formula: formulaOf(S) }

@@ -1,7 +1,7 @@
 // The rests of rest-extra.js at run time, and Hevy's timer that goes away once the rest is over
 // (asked 2026-10-20: upstream's stays on Ready until dismissed).
 import { useUI } from '../../store/useUI.js'
-import { restDue, restFor } from './rest-extra.js'
+import { restDue, restFor, restStarted } from './rest-extra.js'
 
 /** How long Ready shows before the rest bar goes. */
 export const READY_MS = 3000
@@ -18,7 +18,7 @@ export function initRestExtra(store) {
     setTimeout(() => {
       const A = store.get()?.active
       const ui = useUI.getState()
-      if (!A?.entries?.[due.idx] || (due.kind === 'unit' && ui.timer && !ui.timer.ready)) return
+      if (!A?.entries?.[due.idx] || restStarted(ui.timer, due) || (due.kind === 'unit' && ui.timer && !ui.timer.ready)) return
       const S = store.get()
       ui.startRest(restFor(A, due.idx, due.i, S.restSec, S.warmupRestSec), due.idx, { forSet: due.i })
     }, 0)

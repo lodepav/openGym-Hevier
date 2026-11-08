@@ -69,7 +69,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
   it('During a workout has the fork’s Plates to load switch in Logging, off until switched on (D84)', () => {
     render('workout')
     const rows = titles()
-    expect(rows.indexOf('Plates to load')).toBe(rows.indexOf('Effort per set') + 1)
+    // The end of Logging: after upstream 1.4.4's Compare sets with last time.
+    expect(rows.indexOf('Plates to load')).toBe(rows.indexOf('Compare sets with last time') + 1)
     const sw = [...container.querySelectorAll('.lrow')].find(r => r.textContent.includes('Plates to load')).querySelector('[role="switch"], input[type="checkbox"], button')
     expect(useStore.getState().S.hvPlateLine).toBeUndefined()
     act(() => sw.click())

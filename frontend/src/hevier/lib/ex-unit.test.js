@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { exUnitOf, exUnitChoice, convert, shown, setExUnit, defaultStep } from './ex-unit.js'
+import { exUnitOf, exUnitChoice, convert, shown, setExUnit, defaultStep, migrateExUnits, initExUnits } from './ex-unit.js'
 import { snapWeight } from '../../lib/progression.js'
 import { convertStateUnit } from '../../lib/units.js'
 import { EXDB } from '../../lib/exercises.js'
@@ -65,5 +65,27 @@ describe('hevier weight unit per exercise (D41)', () => {
   it('offers 5 lb for a big lift, 2.5 lb for a small one', () => {
     expect([2.5, 5]).toContain(defaultStep(EX, 'lb'))
     expect([1.25, 2.5]).toContain(defaultStep(EX, 'kg'))
+  })
+
+  it('moves the fork\'s units into upstream\'s pin once, keeping a pin upstream already has (1.4.4)', () => {
+    const s = { unit: 'kg', hvExUnit: { a: { u: 'lb', step: 5, inc: 2.27 }, b: { u: 'lb' }, c: { u: 'kg' } }, exUnit: { b: { unit: 'kg', _ts: 1 } } }
+    expect(migrateExUnits(s)).toBe(true)
+    expect(s.hvExUnit).toBeUndefined()
+    expect(s.exUnit.a.unit).toBe('lb')
+    expect(s.exUnit.b).toEqual({ unit: 'kg', _ts: 1 })
+    expect(s.exUnit.c).toBeUndefined()
+    expect(exUnitOf(s, 'a')).toBe('lb')
+    expect(migrateExUnits({ unit: 'kg' })).toBe(false)
+  })
+
+  it('migrates on install and when a sync brings the old field back', () => {
+    let S = { unit: 'kg', hvExUnit: { a: { u: 'lb' } } }, watcher = null
+    const store = { get: () => S, update: fn => { const s = structuredClone(S); fn(s); S = s }, watch: () => cb => { watcher = cb } }
+    initExUnits(store)
+    expect(S.exUnit.a.unit).toBe('lb')
+    S = { ...S, hvExUnit: { z: { u: 'lb' } } }
+    watcher()
+    expect(S.exUnit.z.unit).toBe('lb')
+    expect(S.hvExUnit).toBeUndefined()
   })
 })

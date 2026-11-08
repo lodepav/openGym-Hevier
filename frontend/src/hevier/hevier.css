@@ -218,6 +218,9 @@
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
 :root[data-ui="hevier"] .hv-wcard-t{margin-bottom:8px}
+/* The title is the card's stretched button (upstream 1.4.4's tap-host pattern): it reads as the title did. */
+:root[data-ui="hevier"] button.hv-wcard-t{display:block;width:100%;background:none;border:0;color:inherit;font-family:inherit;line-height:inherit}
+:root[data-ui="hevier"] .hv-pk-row .tap-main{background:none;border:0;color:inherit;font:inherit}
 :root[data-ui="hevier"] .hv-wcard-tags{display:flex;flex-wrap:wrap;gap:4px 12px;margin:-4px 0 8px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wcard-note{margin:-4px 0 8px;font-size:14px;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* Hevy spreads the stats over the card's width: equal columns, not packed to the left */
@@ -710,6 +713,8 @@
 :root[data-ui="hevier"] .hv-trend{display:inline-block;margin-inline-start:8px;font-weight:700;font-size:.95em}
 :root[data-ui="hevier"] .hv-trend.up{color:var(--green)}
 :root[data-ui="hevier"] .hv-trend.down{color:var(--red)}
+/* In the workout, the mark sits beside the set number, small (D66's 1.4.4 note). */
+:root[data-ui="hevier"] .hv-set .hv-trend{margin-inline-start:2px;font-size:.75em;vertical-align:super}
 :root[data-ui="hevier"] .hv-trend.eq{color:var(--label-3)}
 /* The ⏱ Timer as Hevy's (D10): a larger readout and wheel, and a ring while it counts. */
 :root[data-ui="hevier"] .hv-clock .dw-read{font-size:56px;margin:4px 0 8px}
@@ -782,3 +787,5 @@
 :root[data-ui="hevier"] .hm-fatigue .hm-c.l3{background:var(--acc)}
 :root[data-ui="hevier"] .hv-eqg-chip .hv-eqg-x{border-inline-start:1px solid var(--sep)}
 }
+/* Upstream 1.4.4's floating back-to-top arrow: the fork's tabs scroll to the top on a re-tap instead (D11, D100). */
+:root[data-ui="hevier"] #totop{display:none}
