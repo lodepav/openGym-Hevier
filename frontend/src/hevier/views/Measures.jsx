@@ -11,12 +11,14 @@ import LineChart from '../../components/LineChart.jsx'
 import { Button } from '../../components/ui.jsx'
 import { BackTo, LinkRow } from './Statistics.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
+import { partOn } from '../lib/module-parts.js'
 
 const DAYS_SHOWN = 90
 
 export default function Measures() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
+  const weightOn = partOn(S, 'body', 'weight'), measOn = partOn(S, 'body', 'measurements'), photosOn = partOn(S, 'body', 'photos')
   const hc = useHcOnly()
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
@@ -25,7 +27,8 @@ export default function Measures() {
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
     <BackTo label={t('Profile')} to="/profile" title={t('Measures')} />
-    <div className="card">
+    {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
+    {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
         <div>
           <div className="muted small">{t('Body weight')}</div>
@@ -47,11 +50,11 @@ export default function Measures() {
         <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
       </button>)}</div>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
-    </>}
-    <h4 className="sec">{t('More')}</h4>
-    <LinkRow icon="ruler" title={t('Body measurements')}
+    </>}</>}
+    {(measOn || photosOn) && <h4 className="sec">{weightOn ? t('More') : t('Measures')}</h4>}
+    {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
       sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : undefined}
-      onClick={() => nav('/measurements')} />
-    <LinkRow icon="camera" title={t('Progress photos')} onClick={() => nav('/progress-photos')} />
+      onClick={() => nav('/measurements')} />}
+    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} onClick={() => nav('/progress-photos')} />}
   </div>
 }

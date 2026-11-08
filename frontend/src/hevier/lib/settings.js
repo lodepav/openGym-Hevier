@@ -6,6 +6,7 @@
 import { Children, Fragment, cloneElement, isValidElement } from 'react'
 import { Section } from '../../components/ui.jsx'
 import { fmtPlate } from '../../lib/format.js'
+import { moduleOn } from './fork-modules.js'
 
 // The root, top to bottom. `account` puts upstream's account card first in its group.
 export const SETTINGS_GROUPS = [
@@ -13,7 +14,8 @@ export const SETTINGS_GROUPS = [
   // `hv:` ids are the fork's own rows (DECISIONS.md D18, D21, D42), the rest upstream's pages (D16).
   { title: 'Workout', ids: ['workout', 'alerts', 'equipment', 'plan'] },
   { title: 'Stats', ids: ['hv:volume'] },
-  { title: 'App', ids: ['units', 'look'] },
+  // Upstream's Modules page (1.4.4, D97): which parts of the app, the fork's with them.
+  { title: 'App', ids: ['modules', 'units', 'look'] },
   { title: 'Data & more', ids: ['data', 'integrations', 'coach', 'about'] },
 ]
 
@@ -35,6 +37,8 @@ export const HIDDEN_ROWS = {
   // The fork's gyms are D47's.
   reminders: ['Gym reminder'],
   // No support rows: the section goes with them (2026-10-26, the user's choice).
+  // The modules the fork never shows (D97, S54 leaves them off the page): no search hit either.
+  modules: ['Form videos', 'Watch', 'Gym check-in', 'AI Coach', 'Seasonal themes'],
   about: ['Rate openGym on the App Store', 'Rate openGym on Google Play', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors',
     // 1.4.4 (D100): the tour and its tutorials point at upstream's screens, which the fork replaces.
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
@@ -123,7 +127,8 @@ export function appendToSection(tree, title, el) {
 }
 
 /** Whether the set table shows upstream's plate line (D84): off unless switched on. */
-export const plateLineOn = S => S?.hvPlateLine === true
+// Off by default (D84), and off with upstream's Plates and warm-ups module (D97).
+export const plateLineOn = S => S?.hvPlateLine === true && moduleOn(S, 'plates')
 
 // Options relabelled, per page and row title: Weight decimals reads 0.5 / 0.25 upstream, but its
 // second choice shows any weight to the hundredth, 20.41 kg included (DECISIONS.md D40).

@@ -42,6 +42,7 @@ const cableOn = e => !!savedCable(e) && savedCable(e) !== '1:1'
 import { sanitizeHr } from '../../lib/heart-rate.js'
 import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setMark } from '../lib/history-rows.js'
+import { partOn } from '../lib/module-parts.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -109,7 +110,7 @@ export function WorkoutDetail() {
 
   return <div className="hv-wd">
     <PageBar title={t('Workout Detail')} onBack={back}>
-      <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>
+      {partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>}
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </PageBar>
     <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span></>}{phase && <> · {t(PHASE_LABEL[phase])}</>}</div>
