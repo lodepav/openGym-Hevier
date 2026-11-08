@@ -52,6 +52,20 @@ export async function evaluate(cdp, expression) {
   return r.result.value
 }
 
+// A PNG of the screen. The WebView's own capture first; a headless emulator never answers it (no
+// compositor frame), so after 5 s it is the device's screencap instead (status and nav bars
+// included), and that for the rest of the run.
+let screencap = false
+export async function screenshot(cdp, file) {
+  if (!screencap) {
+    const shot = cdp.send('Page.captureScreenshot', { format: 'png' })
+    const r = await Promise.race([shot, new Promise(ok => setTimeout(ok, 5000, null))])
+    if (r) return writeFileSync(file, Buffer.from(r.data, 'base64'))
+    screencap = true
+  }
+  writeFileSync(file, execFileSync(ADB, ['exec-out', 'screencap', '-p'], { maxBuffer: 64 << 20 }))
+}
+
 // Clicks the smallest visible element whose own text matches (buttons/links preferred).
 export const clickJs = needle => `(() => {
   const want = ${JSON.stringify(needle)}.toLowerCase()
@@ -75,8 +89,7 @@ try {
   else if (cmd === 'reload') await evaluate(cdp, 'location.reload()')
   else if (cmd === 'nav') await evaluate(cdp, `location.hash = ${JSON.stringify(args[0])}`)
   else if (cmd === 'shot') {
-    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' })
-    writeFileSync(args[0] || 'shot.png', Buffer.from(data, 'base64'))
+    await screenshot(cdp, args[0] || 'shot.png')
     console.log('saved ' + (args[0] || 'shot.png'))
   } else {
     console.error('usage: cdp.mjs eval <js> | click <text> | text | shot [file] | reload | nav <#/route>')

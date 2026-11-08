@@ -15,7 +15,7 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { connect, evaluate, clickJs } from './cdp.mjs'
+import { connect, evaluate, clickJs, screenshot } from './cdp.mjs'
 
 const ADB = process.env.ADB || homedir() + '/Android/Sdk/platform-tools/adb'
 const APP_ID = process.env.APP_ID || 'ch.duartesantos.opengym.hevier.test'
@@ -137,8 +137,7 @@ async function visit(cdp, label, dir, results) {
   const { size, out } = await evaluate(cdp, CHECK)
   label = label.replace(/\/plan\/r\/[^/]+/, '/routine')
   const file = dir + '/' + label.replace(/^\//, '').replace(/[^a-z0-9]+/gi, '-') + '.png'
-  const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' })
-  writeFileSync(file, Buffer.from(data, 'base64'))
+  await screenshot(cdp, file)
   results.push({ screen: label, size, file, out })
   const fails = out.filter(f => !f.note).length, notes = out.length - fails
   console.log(`  ${label.padEnd(16)} ${size.padEnd(9)} ${fails ? fails + ' finding(s)' : 'ok'}${notes ? ', ' + notes + ' note(s)' : ''}`)
