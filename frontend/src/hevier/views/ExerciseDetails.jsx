@@ -40,6 +40,7 @@ import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
+import { workoutAs, currentDbLoad } from '../../lib/dumbbells.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -134,7 +135,7 @@ function History({ ex, sum, st }) {
         return <div key={k} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>{hevySetLabel(ex.id, x.s, x.target, speedUnitOf(st))}
           {/* A set's note (upstream 1.4.4, D5). */}
           {setNoteOf(x.s) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(x.s)}</span>}</div>
-      }))(historyRows(w, ex.id, s))}
+      }))(historyRows(w && workoutAs(w, ex.id, currentDbLoad(st, ex.id)), ex.id, s))}
     </div>
   })}</div>
 }

@@ -233,6 +233,9 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     typeInto(w, '50')
     expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 4)   // upstream stores a converted weight to four places (#657)
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)
+    // A tap on PREVIOUS copies last time's 45 lb back, not 45 kg read as lb.
+    act(() => container.querySelector('.hv-prev').click())
+    expect(sets()[0].w).toBeCloseTo(kg45, 3)
   })
 
   it('a timed hold gets KG · TIME, typed as a clock, with the big clock counting it down (M1, D53, D89)', () => {
