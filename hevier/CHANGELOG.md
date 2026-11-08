@@ -2,6 +2,22 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.5.0 · 2026-11-08
+
+Based on openGym 1.4.4.
+
+### New
+
+- upstream v1.4.4 and main past it, the 1.4.4 decision round (D97 to D102) and the PIPELINE refresh (#3)
+
+### Fixes and changes
+
+- the APK leaves out the Wear OS link, Settings hides what D100 leaves out, review fixes after the 1.4.4 merge, and the emulator tools work headless
+- weekly sets per muscle, upstream's new Home cards, and the fork's look on 1.4.4 (D99, D98, D17, #14)
+- YouTube on How to, set notes, Share a routine, swap suggestions (D101, D5, D37, D45, #11)
+- Modules in the fork's screens and a switch per part (D97, D102, #7)
+- timed holds read H in a past workout and show in History again; auto-backup keeps 5 (D5, D20, D89, #4)
+
 ## 2.4.0 · 2026-11-01
 
 Based on openGym 1.4.3.
