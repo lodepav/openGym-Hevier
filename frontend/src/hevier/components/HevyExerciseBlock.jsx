@@ -232,8 +232,8 @@ export default function HevyExerciseBlock(props) {
   // A session entry added after the switch (freestyle, or a routine added later) takes the step too.
   const unitChoice = exUnitChoice(S, entry.id)
   useEffect(() => {
-    if (unitChoice && !(entry.target?.inc > 0)) update(s => { const e = s.active?.entries[entryIdx]; if (e) e.target = { ...(e.target || {}), inc: unitChoice.inc } })
-  }, [unitChoice?.inc, entry.target?.inc])
+    if (unitChoice?.step != null && !(entry.target?.inc > 0)) update(s => { const e = s.active?.entries[entryIdx]; if (e) e.target = { ...(e.target || {}), inc: convert(unitChoice.step, unitChoice.u, unit) } })
+  }, [unitChoice?.step, entry.target?.inc])
 
   const ownRest = entry.target?.restSec > 0 ? entry.target.restSec : 0
   const restText = restTimerText(ownRest, S.restSec, t('Off'))
@@ -316,9 +316,11 @@ export default function HevyExerciseBlock(props) {
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {
         touch(i, key)
-        // A side is written here, in the stored unit; upstream's onField converts what it is
-        // given from the exercise's unit itself since 1.4.4 (#657), so it takes the typed number.
-        if (side) setSide(i, side, col.f, col.store ? col.store(v) : v); else onField(i, col.f, v)
+        // A side is written here, in the stored unit; upstream's onField converts a weight from
+        // the exercise's unit itself since 1.4.4 (#657), so it takes the typed weight. Speed and
+        // incline it stores as given: their own store (mph to km/h, the incline's clamp) first.
+        if (side) setSide(i, side, col.f, col.store ? col.store(v) : v)
+        else onField(i, col.f, col.f !== 'w' && col.store ? col.store(v) : v)
         if (col.f === 'w' && filledFromLast(s, side)) update(st => {
           const row = st.active?.entries[entryIdx]?.sets[i]
           const left = side ? String(row?.hvLast || '').replace(side, '') : ''

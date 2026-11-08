@@ -20,8 +20,8 @@
      Upstream 1.4.4 (D100): it removes the NFC permission and the sticker filter (the routine links
      stay, D37), the nine other launcher icons with Christmas and Halloween among them (one icon, D17;
      the picker is hidden), the long-press and Assistant shortcuts on the one left, and the Wear OS
-     watch's exported listener service (no watch app in the fork; its library is still in the build,
-     to be left out with the plugin on the release machine). -->
+     watch's exported listener service (no watch app in the fork; hevier.gradle leaves its library
+     and plugin out of the build). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>

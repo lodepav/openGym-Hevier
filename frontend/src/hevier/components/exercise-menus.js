@@ -120,7 +120,7 @@ export function exerciseMenu(p, x) {
             { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
           ] }] }) },
         mode === 'reps' && !bw && { icon: 'ruler', label: t('Weight unit'),
-          sub: convertsUnit ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice?.step)) : t('{0}, as the profile', unit),
+          sub: convertsUnit ? (unitChoice?.step != null ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice.step)) : exUnit) : t('{0}, as the profile', unit),
           onClick: () => unitMenu(S, update, entry.id) },
         { icon: 'history', label: t('History'), sub: last ? t('Last time') + ' ' + fmtDate(last.d) : undefined, onClick: () => exerciseHistorySheet(entry.id) },
         { icon: 'info', label: t('How to do it'), onClick: () => exerciseDetailSheet(ex) },

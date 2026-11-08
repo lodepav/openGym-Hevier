@@ -12,6 +12,8 @@ import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { installExercisePicker } from './ExercisePickerHevy.jsx'
+import { fromSpeed } from '../../lib/speed.js'
+import { clampIncline } from '../../lib/incline.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -253,6 +255,16 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0]).toMatchObject({ sec: 75, done: true })
     expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('cardio speed typed in mph is stored in km/h, and the incline is clamped (M1)', () => {
+    const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
+    render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, speed: 10, incline: 2, done: false }] }])
+    act(() => useStore.setState(st => ({ S: { ...st.S, speedUnit: 'mph' } })))
+    typeInto(container.querySelectorAll('.hv-num')[1], '6')
+    expect(sets()[0].speed).toBeCloseTo(fromSpeed(6, 'mph'))
+    typeInto(container.querySelectorAll('.hv-num')[2], '55')
+    expect(sets()[0].incline).toBe(clampIncline(55))
   })
 
   it('cardio gets TIME · speed, its time in minutes and its speed in km/h (M1, D53)', () => {
