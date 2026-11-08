@@ -6,7 +6,7 @@
 import { MOBILE, isAndroid, readJsonFile, writeJsonFile } from '../../lib/mobile.js'
 import { t } from '../../lib/i18n.js'
 import { parseRecording, mergeStrap, recordable, decodeHrm, plausible } from './hr-strap.js'
-import { moduleOn } from './fork-modules.js'
+import { partOn } from './module-parts.js'
 
 export const STRAP_FILE = 'hevier-hr-strap.json'
 
@@ -123,7 +123,7 @@ export function initHrStrap(store) {
       const s = await loadStrap()
       // Upstream's Health module switches the strap too (D97): off, nothing records, and a running
       // recording stops, as upstream's health sync pauses.
-      if (recordable(A) && s && moduleOn(store.get(), 'health')) {
+      if (recordable(A) && s && partOn(store.get(), 'health', 'strap')) {
         // Another strap picked mid-workout: the service moves to it, into the same recording.
         if (started === A.id && startedAt === s.address) return
         if (started && started !== A.id) { const prev = started; started = null; await H.stop(); await settle(prev) }
@@ -149,7 +149,7 @@ export function initHrStrap(store) {
     // One pass at a time: a tick in the middle of a start or a stop waits for it.
     let queue = Promise.resolve()
     const run = () => { queue = queue.then(sync, sync); return queue }
-    store.watch(['active', 'workouts', 'modules'])(run)
+    store.watch(['active', 'workouts', 'modules', 'hvModuleParts'])(run)
     onStrapChange(run)
     document.addEventListener('visibilitychange', () => { if (!document.hidden) run() })
     run()

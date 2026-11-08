@@ -732,7 +732,7 @@
 
 /* D77: the update notice's download sheet. */
 :root[data-ui="hevier"] .hv-upd{text-align:center;padding:8px 0}
-:root[data-ui="hevier"] .hv-upd-bar{margin:16px 0;height:6px;border-radius:3px;background:var(--fill-3);overflow:hidden}
+:root[data-ui="hevier"] .hv-upd-bar{margin:16px 0;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden}
 :root[data-ui="hevier"] .hv-upd-bar>div{height:100%;background:var(--acc);border-radius:3px;transition:width .2s}
 /* D86: the backups sheet's gyms, on where the exercise is, struck through where it is missing. */
 :root[data-ui="hevier"] .hv-bk-gyms{margin-top:6px;flex-wrap:wrap}
@@ -798,3 +798,20 @@
 :root[data-ui="hevier"] .hv-xd-note{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;font-size:13px;color:var(--label-2)}
 /* Upstream 1.4.4's swap suggestions under Your backups (D45): the line that says how close they are. */
 :root[data-ui="hevier"] .hv-pk-why{margin:-4px 0 8px}
+/* D99: weekly sets per muscle, upstream's bars with the fork's counts; its Home line. */
+:root[data-ui="hevier"] .hv-wsets .sbar-list{margin-top:6px}
+:root[data-ui="hevier"] .hv-wsets-ft{display:flex;justify-content:flex-end;margin-top:6px}
+:root[data-ui="hevier"] .hv-wsets-home{display:flex;align-items:center;gap:10px;width:100%;text-align:start;color:inherit;font:inherit}
+:root[data-ui="hevier"] .hv-wsets-home>span{flex:1;min-width:0}
+/* D98: upstream's countdown of the week as a Home widget. */
+:root[data-ui="hevier"] .hv-weekleft{display:flex;align-items:center;gap:10px}
+/* Home's Today widget keeps 1.4.3's small-caps label: upstream 1.4.4 restyled every .lbl2 (one card
+   header) and dropped its `.today-row .lbl2` rule (D17). */
+:root[data-ui="hevier"] .hv-home .today-row .lbl2{font-size:11px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;color:var(--label-3)}
+/* Settings' root rows keep their value beside the title on a phone (D16, D17): upstream 1.4.4 moves
+   it under the title up to 430px (P10), for a 390px phone where "Plan & schedule" broke; the fork's
+   root, as in 1.4.3, stacks only from 360px down, where there is no room for both. */
+@media (min-width:361px) and (max-width:430px){
+  :root[data-ui="hevier"] .lrow.sp-root-row:has(.lrow-v){display:flex}
+  :root[data-ui="hevier"] .lrow.sp-root-row .lrow-v{text-align:end;max-width:62%;font-size:var(--fs-body);-webkit-line-clamp:3;line-clamp:3}
+}
