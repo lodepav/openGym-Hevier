@@ -9,7 +9,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
 import { fmtNum, fmtDate, fmtVol, capWords } from '../../lib/format.js'
-import { lastEntryFor } from '../../lib/history.js'
+import { lastEntryFor, pinnedNoteFor } from '../../lib/history.js'
 import { hevySetLabel } from '../lib/set-text.js'
 import { historyRows, setMark } from '../lib/history-rows.js'
 import { isCustomEx } from '../../lib/exercises.js'
@@ -20,7 +20,9 @@ import {
   menuSheet, detailTags, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
-import { Segmented } from '../../components/ui.jsx'
+import { Segmented, Button } from '../../components/ui.jsx'
+import { youtubeSearchUrl } from '../../lib/youtube.js'
+import { openExternal } from '../../components/CustomMedia.jsx'
 import Media from '../../components/Media.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -37,6 +39,7 @@ import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
 import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { partOn } from '../lib/module-parts.js'
+import { setNoteOf } from '../../lib/set-notes.js'
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
@@ -128,7 +131,9 @@ function History({ ex, sum, st }) {
       {/* The holds of a reps session too (D89), marked H as a warm-up is W. */}
       {(rows => rows.map((x, k) => {
         const mark = setMark(rows.map(y => y.s), k)
-        return <div key={k} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>{hevySetLabel(ex.id, x.s, x.target, speedUnitOf(st))}</div>
+        return <div key={k} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>{hevySetLabel(ex.id, x.s, x.target, speedUnitOf(st))}
+          {/* A set's note (upstream 1.4.4, D5). */}
+          {setNoteOf(x.s) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(x.s)}</span>}</div>
       }))(historyRows(w, ex.id, s))}
     </div>
   })}</div>
@@ -157,16 +162,20 @@ function CompareHistory({ ex, base, st, labels }) {
 
 function HowTo({ ex, st }) {
   const steps = instrFor(ex)
-  const pinned = lastEntryFor(st, ex.id)
-  const note = pinned?.notePin && pinned.note
+  // The note pinned last time (upstream's pinnedNoteFor; lastEntryFor's answer carries no note, so
+  // the pin never showed here before 2026-11-03).
+  const note = pinnedNoteFor(st, ex.id)?.note || ''
   return <div className="hv-xd-howto">
-    <Media ex={ex} />
+    {/* D101: a YouTube link in the pinned note plays here too, as upstream's Media plays a routine note's. */}
+    <Media ex={ex} notes={note || undefined} />
     {note && <div className="exnote hv-xd-pin"><Icon name="pin" /> {note}</div>}
     {descFor(ex) && <div className="exnote">{descFor(ex)}</div>}
     {steps.length > 0
       ? <>{getLang() !== 'en' && !instrTranslated(ex) && <div className="small dim">{t('instructions in English')}</div>}
         <ol className="steps-list">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></>
       : !descFor(ex) && <div className="empty small">{t('No instructions yet')}</div>}
+    {/* D101: upstream 1.4.4's YouTube search for the exercise (#613), opened only on the tap. */}
+    {youtubeSearchUrl(ex) && <Button variant="ghost" icon="play" className="hv-xd-yt" onClick={() => openExternal(youtubeSearchUrl(ex))}>{t('Watch on YouTube')}</Button>}
   </div>
 }
 

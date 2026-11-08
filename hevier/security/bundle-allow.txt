@@ -1,4 +1,5 @@
 # Code patterns allowed in the built app, per chunk (D26). `supply-chain.mjs bundle` fails on any
 # hit of eval, new Function, a long base64 or escaped blob, WebSocket, sendBeacon or
 # importScripts that is not listed here. Format: `<pattern> <chunk without hash>  # reason`,
-# e.g. `eval assets/index.js  # why it is safe`. Empty on purpose: the build has none today.
+# e.g. `eval assets/index.js  # why it is safe`.
+beacon assets/api.js  # upstream 1.4.4's "left" signal (lib/api.js beacon): the web app only, to its own server's /api/activity with its session cookie; the phones (MOBILE) never send one

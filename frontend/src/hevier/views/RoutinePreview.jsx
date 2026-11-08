@@ -21,6 +21,7 @@ import PageBar from '../components/PageBar.jsx'
 import { restTimerText } from '../lib/elapsed.js'
 import { tableShape, routineRows, workCount } from '../lib/routine-table.js'
 import { folderOf } from '../lib/routine-folders.js'
+import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
 
 export const previewPath = id => '/plan/r/' + id + '/view'
 
@@ -80,6 +81,8 @@ export default function RoutinePreview() {
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))
   return <div className="hv-routine hv-rview">
     <PageBar title={t('Routine')} onBack={back}>
+      {/* D37's 1.4.4 note: upstream's Share a routine, a link a friend taps to add it. */}
+      <button type="button" className="iconbtn" aria-label={t('Share with a friend')} disabled={!r.ex.length} onClick={() => shareRoutineSheet(r)}><Icon name="share" /></button>
       <button type="button" className="iconbtn" aria-label={t('Edit routine')} onClick={() => nav('/plan/r/' + r.id)}><Icon name="pencil" /></button>
     </PageBar>
     <h2 className="hv-rv-name">{r.name}</h2>
