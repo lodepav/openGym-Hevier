@@ -106,3 +106,14 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D100** What openGym 1.4.4 brings that the fork leaves out of its UI.
 - **D101** An exercise's How to plays its YouTube demo.
 - **D102** A module with several parts has a switch for each part.
+- **D103** Where upstream built the fork's own PR, upstream's version replaces the fork's.
+- **D104** Numbers per gym stay the fork's (D28, D82, D96).
+- **D105** 1.4.5's new set fields all get a place in the fork's set row
+- **D106** The APK takes Garmin, and no microphone.
+- **D107** The fork's workout gets Pause, the next exercise after the rest, and the record trophy.
+- **D108** Routines: upstream's folders, favourites, a routine from a past workout, and Start picks.
+- **D109** 1.4.5's new screens stay out of the fork's UI
+- **D110** Upstream's live widget and workout notification, beside D44's calendar widget.
+- **D111** Settings: the rest before the next exercise, text size and WebDAV backups are offered.
+- **D112** The Profile header shows upstream's profile picture, not its badges.
+- **D113** The fork's routine page and effort column stay.

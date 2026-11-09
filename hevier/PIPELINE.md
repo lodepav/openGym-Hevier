@@ -22,12 +22,14 @@ GitHub still shows them open. What it brings and what it means for the fork is i
 release-1.4.5 brings". `upstream/main` (`8fb98b16`) has nothing new since 2026-11-04 (11 README
 and fix commits past the tag, merged with v1.4.4).
 
-**Before merging v1.4.5**, decide (DECISIONS.md, a new "openGym 1.4.5" section, next free D103):
-which fork features step aside for upstream's own version of the fork's PRs (S19, S20, S32, S34,
-S37, S41 may go), what to do with per-gym numbers (#988) against D28, D82 and D96, the new set
-fields (bands, colour tags, tempo, distance, resistance level) in the fork's set rows, the Garmin
-SDK and the new permissions in the APK (D38, D100), and the one-green default against D17's Hevy
-blue. Weigh the merge as for 1.4.4: seams removed against what the fork must hide.
+**Decided 2026-11-09: the 1.4.5 decision round is done** (DECISIONS.md, "openGym 1.4.5", D103 to
+D113). Upstream's versions of the fork's PRs replace the fork's (D103: S19 shrinks, S32, S34, S41
+go); numbers per gym stay the fork's (D104); every new set field gets a place in the set row
+(D105); the APK keeps Garmin and leaves out the microphone (D106); Pause, the next exercise after
+the rest and the record trophy join the workout (D107); routine folders move onto upstream's (D108);
+the new screens stay out (D109); upstream's workout notification comes beside D44 (D110); D17's
+blue must survive upstream's new green default (a check, no decision). After the tag, **#901** is
+rebased onto 1.4.5's muscle-groups explorer and pinged once.
 
 ```bash
 git fetch upstream
