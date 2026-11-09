@@ -3,6 +3,7 @@
 #
 #   hevier/tools/emulator.sh            # build + boot + install + launch
 #   hevier/tools/emulator.sh --no-build # reinstall the last APK
+#   LEAN=1 VITE_HEVIER_MEDIA='{…}' hevier/tools/emulator.sh   # without the exercise pictures, as the release's lean APK (D115)
 #
 # Mirrors `npm run build:mobile` in frontend/package.json. If upstream changes that script,
 # change this one the same way (hevier/CONFLICTS.md, "silent drift").
@@ -37,7 +38,7 @@ if [[ "${1:-}" != "--no-build" ]]; then
   cd "$ROOT/frontend"
   [[ -d node_modules ]] || npm ci
   ../hevier/tools/heavy.sh npx vite build
-  node ../scripts/catalogue/stage-media.mjs dist
+  if [[ -n "${LEAN:-}" ]]; then rm -rf dist/exercise-media; else node ../scripts/catalogue/stage-media.mjs dist; fi
   npx cap sync
   node scripts/check-mobile-bundle.mjs
   (cd android && ../../hevier/tools/heavy.sh ./gradlew assembleSideloadDebug -q)

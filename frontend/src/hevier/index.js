@@ -45,6 +45,8 @@ import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
+import { askMedia } from './components/MediaSection.jsx'
+import { initMediaPack } from './lib/media-pack-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
 import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
 
@@ -83,6 +85,7 @@ function install() {
   hooks.statsS = useStatsS                                // All statistics leave out the kept-out exercises (S34, D57) and follow the phase filter (D93)
   initStillTraining(store)                                // Still training? after five hours (D60)
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
+  initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard

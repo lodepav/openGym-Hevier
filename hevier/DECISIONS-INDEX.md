@@ -118,3 +118,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D112** The Profile header shows upstream's profile picture, not its badges.
 - **D113** The fork's routine page and effort column stay.
 - **D114** More of the fork joins Modules: new parts, and three modules of its own.
+- **D115** The exercise pictures are a download of their own, kept across updates.
