@@ -31,6 +31,7 @@ export const hooks = {
   plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40)
   exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
   setMode: null,         // (set) => 'time' | null: the kind of set a row is, before its exercise's (S48)
+  integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
   hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 

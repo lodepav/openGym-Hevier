@@ -18,6 +18,7 @@ import Icon from '../components/Icon.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { Section, Row, Switch, Button, TextField } from '../components/ui.jsx'
 import { isOn } from '../lib/modules.js'
+import { hooks } from '../hevier/hooks.js' // [hevier] S57
 
 /* Settings → Integrations (v1.4.4): one directory of what openGym can talk to, grouped, each card
    with what it is, whether it is on, and the one thing to do next. The cards are thin on purpose:
@@ -166,6 +167,7 @@ export default function IntegrationsPage({ android = false, ios = false }) {
         {cat.cards.map(card => <Card key={card.id} card={card} onOpen={() => open(card)} onAction={() => act(card)} />)}
       </Section>
       {cat.id === 'health' && <WorksWith platform={platform} nav={nav} />}
+      {hooks.integrationsAfter?.(cat.id)}{/* [hevier] S57 */}
     </div>)}
     <input ref={fileRef} type="file" accept=".csv,.xml,text/csv,text/xml" style={{ display: 'none' }}
       onChange={ev => { const f = ev.target.files[0]; if (f) importFromApp(f); ev.target.value = '' }} />

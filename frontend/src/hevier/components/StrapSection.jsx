@@ -1,5 +1,5 @@
-// [hevier] The heart-rate strap on Settings → Data & backup (hevier/DECISIONS.md D79), under upstream's
-// Health Connect reads: pick a Bluetooth strap once, and every workout records it live. Android
+// [hevier] The heart-rate strap on Settings → Integrations (hevier/DECISIONS.md D79), after upstream's
+// Health & devices: pick a Bluetooth strap once, and every workout records it live. Android
 // only; a phone without Bluetooth LE shows nothing.
 import { useEffect, useState } from 'react'
 import { t } from '../../lib/i18n.js'
@@ -98,7 +98,7 @@ export default function StrapSection() {
   return <Section title={t('Heart rate strap')}
     footer={t('While a workout runs, the phone records the strap every second, also with the screen locked, and the saved workout gets each set’s heart rate. It replaces what Health Connect has for that workout.')
       + (!hc ? '' : ' ' + (hcHr ? t('A workout or set the strap did not record keeps Health Connect’s heart rate.')
-        : t('Switch on Heart rate from your watch above, and a workout the strap did not record gets Health Connect’s heart rate instead.')))}>
+        : t('Switch on Heart rate from your watch in Health Connect above, and a workout the strap did not record gets Health Connect’s heart rate instead.')))}>
     <Row icon="heart" iconTint="var(--red)" title={strap ? strap.name || strap.address : t('Pick a strap')} accessory="chevron"
       subtitle={err || now || (strap ? t('Records your workouts') : t('A chest strap, armband or watch that broadcasts its heart rate over Bluetooth'))}
       onClick={scanSheet} />
