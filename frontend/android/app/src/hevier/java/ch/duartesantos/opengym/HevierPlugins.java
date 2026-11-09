@@ -23,5 +23,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierPhasePlugin.class);
         // The strength signal OpenBite reads (D95).
         activity.registerFlavorPlugin(HevierStrengthPlugin.class);
+        // The exercise pictures downloaded once, kept across updates (D115).
+        activity.registerFlavorPlugin(HevierMediaPlugin.class);
     }
 }

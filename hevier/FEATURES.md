@@ -145,6 +145,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
 | Smaller APK: no barcode scanner, R8 shrinking | D50 | Fork (the scanner serves the gym check-in the fork hides) |
 | A newer version offers itself in the app, with Install and Not now | D77 | Offered (#1098) |
+| A lean APK, with the exercise pictures downloaded once and kept across updates; a full APK beside it | D115 | Fork |
 
 ## Release and security (tooling)
 

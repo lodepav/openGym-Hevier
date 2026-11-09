@@ -23,6 +23,7 @@ import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { ModulePartsSection } from './ModuleParts.jsx'
+import { MediaSection } from '../components/MediaSection.jsx'
 import { partOn } from '../lib/module-parts.js'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
@@ -99,7 +100,7 @@ export function installSettings() {
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES), t)
-      if (id === 'about') return aboutPage(out, t)
+      if (id === 'about') return <>{aboutPage(out, t)}<MediaSection key="hv-media" /></>
       // D102: the modules with parts, each opening its own page.
       if (id === 'modules') return <>{out}<ModulePartsSection key="hv-module-parts" /></>
       if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
