@@ -47,7 +47,7 @@ export function startDownload() {
   useMedia.setState({ state: 'running', phase: 'download', fraction: 0, error: null })
   running = (async () => {
     const p = await plugin()
-    if (!p) { useMedia.setState({ state: before === 'running' ? 'idle' : before }); return false }
+    if (!p) { useMedia.setState({ state: before }); running = null; return false }
     const sub = await p.P.addListener('progress', e => useMedia.setState({ phase: e?.phase || 'download', fraction: Number(e?.fraction) || 0 }))
     try {
       await p.P.download(WANT)

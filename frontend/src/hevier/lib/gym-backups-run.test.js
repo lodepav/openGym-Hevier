@@ -53,4 +53,17 @@ describe('a gym’s backups at run time (D46)', () => {
     await tick()
     expect(getState().hvGymSwaps).toEqual({ [PRESS]: { g1: HACK } })
   })
+
+  it('with Backups per gym off in Modules, neither swaps at the start nor learns a swap (D114)', async () => {
+    base({ [PRESS]: { g1: HACK } })
+    useStore.getState().update(s => { s.hvModuleParts = { 'hvGyms.backups': false } })
+    start(30)
+    await tick()
+    expect(getState().active.entries[0].id).toBe(PRESS)
+    useStore.getState().update(s => { s.hvGymSwaps = {} })
+    const pick = armSwap(getState, PRESS, () => useStore.getState().update(s => { s.active.entries[0] = { ...s.active.entries[0], id: HACK } }))
+    pick({ id: HACK }, true)
+    await tick()
+    expect(getState().hvGymSwaps).toEqual({})
+  })
 })

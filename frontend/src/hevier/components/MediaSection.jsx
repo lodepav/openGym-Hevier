@@ -52,7 +52,7 @@ export async function askMedia(status) {
     ].filter(Boolean).join(' '),
     items: [
       { icon: 'download', label: t('Download'), onClick: () => download() },
-      { icon: 'xmark', label: t('Not now'), sub: t('Settings → About still has it.'), onClick: () => {} },
+      { icon: 'xmark', label: t('Not now'), sub: t('Settings → About still has it.') },
     ],
   })
 }
