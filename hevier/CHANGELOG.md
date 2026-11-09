@@ -2,6 +2,26 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.6.0 · 2026-11-09
+
+Based on openGym 1.4.4.
+
+### Before you update
+
+- Settings → Modules now covers more of the app. With the "Training and body" preset (Motivation off), record marks and records on Save, Workout Detail and the monthly report are hidden; with "Just training" (Strength off), Weekly sets is hidden. Turn Motivation or Strength back on in Settings → Modules to see them again.
+
+### New
+
+- a lean APK that downloads the exercise pictures once (D115)
+- more of the fork joins Modules (D114)
+
+### Fixes and changes
+
+- a phone that moves to the full APK drops its downloaded pictures, and the pictures' question never opens over the update notice
+- the downloaded pictures stay out of Android's cloud backup, and the Modules switches that stop sending are tested
+- strap and Send to Hevy settings move to Integrations
+- the updater falls back to GitHub's API link when the download link fails
+
 ## 2.5.0 · 2026-11-08
 
 Based on openGym 1.4.4.
