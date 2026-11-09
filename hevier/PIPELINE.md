@@ -242,6 +242,9 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1088 | Health Connect as the only source of weigh-ins while reading from it (D32) | Issue opened 2026-11-09 |
 | #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; PR offered |
 | #1090 | Zepp toolchain npm overrides (S55): 62 findings to 0, tests and build unchanged | PR opened 2026-11-09 on release-1.4.5; drops S55 when merged |
+| #1091 | Auto-backup: choose how many copies to keep (5, 14, 30 or 60; S52) | PR opened 2026-11-09 on release-1.4.5; drops S52 when merged (the fork sets 5) |
+| #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; S16 keeps only the fork's tab list when merged |
+| #1093 | A set of a reps exercise as a timed hold (D89, S48) | Issue opened 2026-11-09, offering a PR; S48 goes if upstream builds it |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 
