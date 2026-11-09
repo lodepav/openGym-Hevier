@@ -9,6 +9,8 @@
 // adds a decision (a new `| D<n> |` row in hevier/DECISIONS.md) is listed under New and raises the
 // minor version; any other is under Fixes and changes and raises the patch. A merge of upstream's
 // (any other subject) is listed under From openGym. A major release is only ever asked for.
+// A fork merge whose message has a line "Release-note: <text>" puts that text under Before you
+// update, first: for what someone has to know before updating (a feature that hides itself).
 // No dependencies: git through execFileSync. release-apk.sh writes the notes into
 // hevier/CHANGELOG.md with the version commit and into the GitHub release.
 import { execFileSync } from 'node:child_process'
@@ -33,17 +35,22 @@ export function addedDecisions(diff) {
   return rows('+').filter(d => !had.has(d))
 }
 
-/** Each merge as { section: 'new' | 'fix' | 'upstream', text, decisions }. */
+/** The "Release-note:" lines of a merge message's body. */
+export const releaseNotesOf = body => [...String(body || '').matchAll(/^Release-note:\s*(.+)$/gm)].map(m => m[1].trim())
+
+/** Each merge as { section: 'new' | 'fix' | 'upstream', text, decisions }, plus a 'before' entry per release note. */
 export function entriesOf(merges) {
-  return merges.map(({ subject, diff }) => {
+  return merges.flatMap(({ subject, diff, body }) => {
     const { fork, text } = noteOf(subject)
     const decisions = fork ? addedDecisions(diff) : []
-    return { section: !fork ? 'upstream' : decisions.length ? 'new' : 'fix', text, decisions }
+    const own = { section: !fork ? 'upstream' : decisions.length ? 'new' : 'fix', text, decisions }
+    return [own, ...(fork ? releaseNotesOf(body).map(t => ({ section: 'before', text: t, decisions: [] })) : [])]
   })
 }
 
 /** The version after `ver`: major when asked, minor with anything new, else patch; null with nothing to release. */
 export function nextVersion(ver, entries, { major = false } = {}) {
+  entries = entries.filter(e => e.section !== 'before')
   if (!entries.length && !major) return null
   const [ma, mi, pa] = String(ver).split('.').map(Number)
   if (major) return `${ma + 1}.0.0`
@@ -51,7 +58,7 @@ export function nextVersion(ver, entries, { major = false } = {}) {
   return `${ma}.${mi}.${pa + 1}`
 }
 
-const SECTIONS = [['new', 'New'], ['fix', 'Fixes and changes'], ['upstream', 'From openGym']]
+const SECTIONS = [['before', 'Before you update'], ['new', 'New'], ['fix', 'Fixes and changes'], ['upstream', 'From openGym']]
 
 /** The notes as Markdown: a heading per section that has entries, newest merge first. */
 export function render(entries) {
@@ -86,7 +93,7 @@ function mergesBetween(from, to) {
   const lines = git('log', '--first-parent', '--merges', '--format=%H%x09%s', range).split('\n').filter(Boolean)
   return lines.map(l => {
     const [hash, subject] = l.split('\t')
-    return { subject, diff: git('diff', '--unified=0', `${hash}^1`, hash, '--', 'hevier/DECISIONS.md') }
+    return { subject, body: git('log', '-1', '--format=%b', hash), diff: git('diff', '--unified=0', `${hash}^1`, hash, '--', 'hevier/DECISIONS.md') }
   })
 }
 

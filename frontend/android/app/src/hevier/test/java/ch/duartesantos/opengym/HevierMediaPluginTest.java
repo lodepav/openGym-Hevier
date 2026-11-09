@@ -80,4 +80,81 @@ public class HevierMediaPluginTest {
             root.delete();
         }
     }
+
+    // ── the swap and what a killed run leaves (D115) ────────────────────────────────────────────
+
+    private static File dirWith(File base, String name, String content) throws Exception {
+        File d = new File(base, name);
+        d.mkdirs();
+        Files.write(new File(d, "still.webp").toPath(), content.getBytes("UTF-8"));
+        return d;
+    }
+
+    private static String read(File base, String name) throws Exception {
+        return new String(Files.readAllBytes(new File(new File(base, name), "still.webp").toPath()), "UTF-8");
+    }
+
+    @Test
+    public void aSwapPutsTheNewCopyInPlaceAndLeavesNothingElse() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        dirWith(base, "exercise-media", "old");
+        File fresh = dirWith(base, "exercise-media.new", "new");
+        HevierMediaPlugin.swapIn(base, fresh);
+        assertEquals("new", read(base, "exercise-media"));
+        assertFalse(new File(base, "exercise-media.old").exists());
+        assertFalse(fresh.exists());
+    }
+
+    @Test
+    public void aFirstSwapNeedsNoCurrentCopy() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        HevierMediaPlugin.swapIn(base, dirWith(base, "exercise-media.new", "new"));
+        assertEquals("new", read(base, "exercise-media"));
+    }
+
+    @Test
+    public void aFailedSwapKeepsTheCurrentCopy() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        dirWith(base, "exercise-media", "old");
+        try {
+            HevierMediaPlugin.swapIn(base, new File(base, "missing.new"));
+            fail("a swap from nothing must fail");
+        } catch (java.io.IOException expected) {
+            // the old copy is back where it was
+        }
+        assertEquals("old", read(base, "exercise-media"));
+        assertFalse(new File(base, "exercise-media.old").exists());
+    }
+
+    @Test
+    public void killedBetweenTheRenamesTheOldCopyComesBack() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        dirWith(base, "exercise-media.old", "old");
+        dirWith(base, "exercise-media.new", "half");
+        HevierMediaPlugin.recover(base);
+        assertEquals("old", read(base, "exercise-media"));
+        assertFalse(new File(base, "exercise-media.old").exists());
+        assertFalse(new File(base, "exercise-media.new").exists());
+    }
+
+    @Test
+    public void killedAfterTheSwapTheNewCopyStays() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        dirWith(base, "exercise-media", "new");
+        dirWith(base, "exercise-media.old", "old");
+        HevierMediaPlugin.recover(base);
+        assertEquals("new", read(base, "exercise-media"));
+        assertFalse(new File(base, "exercise-media.old").exists());
+    }
+
+    @Test
+    public void theFullApkDropsEveryDownloadedCopy() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        dirWith(base, "exercise-media", "a");
+        dirWith(base, "exercise-media.old", "b");
+        dirWith(base, "exercise-media.new", "c");
+        dirWith(base, "other", "keep");
+        HevierMediaPlugin.dropAll(base);
+        assertArrayEquals(new String[] { "other" }, base.list());
+    }
 }

@@ -49,7 +49,6 @@ import java.util.zip.ZipFile;
  *   await P.network();    // { metered }
  *   await P.download({ url, sha256, version, bytes });   // { version }; 'progress' { phase, fraction }
  *   await P.cancel();
- *   await P.remove();
  *
  * A download rejects with the code 'checksum', 'space', 'cancelled' or 'failed'.
  */
@@ -75,8 +74,14 @@ public class HevierMediaPlugin extends Plugin {
     @Override
     public void load() {
         bundled = carriesMedia();
-        cleanLeftovers();
-        if (bundled) return;
+        File base = getContext().getNoBackupFilesDir();
+        new File(getContext().getCacheDir(), PART).delete();
+        if (bundled) {
+            // Moved from the lean APK to the full one: the downloaded copy (~200 MB) is not needed.
+            new Thread(() -> dropAll(base), "hevier-media-drop").start();
+            return;
+        }
+        recover(base);
         Bridge bridge = getBridge();
         bridge.setWebViewClient(new MediaClient(bridge, bridge.getWebViewClient(), mediaDir()));
     }
@@ -90,16 +95,32 @@ public class HevierMediaPlugin extends Plugin {
         }
     }
 
-    /** What a run killed half-way (the app closed or crashed) left behind. */
-    private void cleanLeftovers() {
-        File files = getContext().getNoBackupFilesDir();
-        File old = new File(files, DIR + ".old");
-        File fresh = new File(files, DIR + ".new");
+    /** What a run killed half-way (the app closed or crashed) left in base: put right at launch. */
+    static void recover(File base) {
+        File current = new File(base, DIR);
+        File old = new File(base, DIR + ".old");
         // Killed between the two renames: the old copy is the only one, so it goes back.
-        if (old.isDirectory() && !mediaDir().exists()) old.renameTo(mediaDir());
+        if (old.isDirectory() && !current.exists()) old.renameTo(current);
         deleteTree(old);
-        deleteTree(fresh);
-        new File(getContext().getCacheDir(), PART).delete();
+        deleteTree(new File(base, DIR + ".new"));
+    }
+
+    /** Puts the unpacked fresh copy in place of base's current one; a failure leaves the current one. */
+    static void swapIn(File base, File fresh) throws IOException {
+        File current = new File(base, DIR);
+        File old = new File(base, DIR + ".old");
+        deleteTree(old);
+        if (current.exists() && !current.renameTo(old)) throw new IOException("could not move the old media aside");
+        if (!fresh.renameTo(current)) {
+            old.renameTo(current);
+            throw new IOException("could not move the new media in");
+        }
+        deleteTree(old);
+    }
+
+    /** The full APK carries the media: every downloaded copy in base goes. */
+    static void dropAll(File base) {
+        for (String name : new String[] { DIR, DIR + ".old", DIR + ".new" }) deleteTree(new File(base, name));
     }
 
     private File mediaDir() {
@@ -165,18 +186,11 @@ public class HevierMediaPlugin extends Plugin {
         call.resolve();
     }
 
-    @PluginMethod
-    public void remove(PluginCall call) {
-        deleteTree(mediaDir());
-        call.resolve();
-    }
-
     /** One download, on its own thread: fetch, check, unpack, swap, then answer every waiting call. */
     private void run(String url, String sha256, String version, long bytes) {
         File part = new File(getContext().getCacheDir(), PART);
         File files = getContext().getNoBackupFilesDir();
         File fresh = new File(files, DIR + ".new");
-        File old = new File(files, DIR + ".old");
         String code = null;
         String message = null;
         try {
@@ -187,14 +201,7 @@ public class HevierMediaPlugin extends Plugin {
             unpack(part, fresh);
             write(new File(fresh, VERSION_FILE), version);
             checkCancelled();
-            File current = mediaDir();
-            deleteTree(old);
-            if (current.exists() && !current.renameTo(old)) throw new IOException("could not move the old media aside");
-            if (!fresh.renameTo(current)) {
-                old.renameTo(current);
-                throw new IOException("could not move the new media in");
-            }
-            deleteTree(old);
+            swapIn(files, fresh);
         } catch (Refused e) {
             code = e.code;
             message = e.getMessage();

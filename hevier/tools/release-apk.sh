@@ -51,28 +51,15 @@ untag() {  # tag
 # The pictures' own release (D115), once per media version: the zip and its SHA-256 under
 # gohevier-media-<version>, a prerelease and never "latest". Skipped when it already exists.
 publish_media() {
-  local mtag="gohevier-media-$MEDIA_VER" zipname out
-  zipname="$(basename "$MEDIA_ZIP")"
-  # Only "not found" means create: any other failure (network, auth) stops here, as the clean-up
-  # below must never delete a release that older lean APKs download from.
-  if ! out="$(gh release view "$mtag" -R "$REPO" 2>&1 >/dev/null)"; then
-    grep -qi 'not found' <<<"$out" || { echo "cannot read $mtag: $out" >&2; return 1; }
-  else
-    gh release view "$mtag" -R "$REPO" --json assets -q '.assets[].name' | grep -qx "$zipname" \
-      || { echo "$mtag exists without $zipname: fix or delete it on GitHub" >&2; return 1; }
-    # The build carries the local zip's SHA-256, and the phone checks the published zip against it.
-    [ "$(gh release download "$mtag" -R "$REPO" -p "$zipname.sha256" -O - | cut -d' ' -f1)" = "$(cut -d' ' -f1 "$MEDIA_ZIP.sha256")" ] \
-      || { echo "$mtag holds another zip than this build's: the lean APK would refuse it" >&2; return 1; }
-    echo "pictures $MEDIA_VER already published"
-    return 0
-  fi
-  if gh release create "$mtag" "$MEDIA_ZIP" "$MEDIA_ZIP.sha256" -R "$REPO" --prerelease --latest=false \
+  [[ -n "$MEDIA_PUBLISHED" ]] && { echo "pictures $MEDIA_VER already published"; return 0; }
+  if gh release create "$MEDIA_TAG" "$MEDIA_ZIP" "$MEDIA_ZIP.sha256" -R "$REPO" --prerelease --latest=false \
       --title "Go Hevier exercise pictures $MEDIA_VER" \
       --notes "The exercise pictures (180 px) that the lean Go Hevier APK downloads once and keeps across updates; not an app release. Licensed from Gym visual for openGym, see NOTICE.md inside."; then
     return 0
   fi
-  # A half-made release (created, upload failed) would be taken for a whole one next time.
-  gh release delete "$mtag" -R "$REPO" --yes --cleanup-tag >/dev/null 2>&1 || true
+  # This run found no release: a half-made one (created, upload failed) is its own, and would be
+  # taken for a whole one next time.
+  gh release delete "$MEDIA_TAG" -R "$REPO" --yes --cleanup-tag >/dev/null 2>&1 || true
   return 1
 }
 
@@ -173,7 +160,23 @@ rm -rf "$TMP/stage"
 MEDIA_ZIP="$(node -p 'JSON.parse(process.argv[1]).file' "$MEDIA")"
 MEDIA_VER="$(node -p 'JSON.parse(process.argv[1]).version' "$MEDIA")"
 MEDIA_BYTES="$(node -p 'JSON.parse(process.argv[1]).bytes' "$MEDIA")"
-echo "pictures $MEDIA_VER: $(basename "$MEDIA_ZIP"), $MEDIA_BYTES bytes"
+# Already published (the pictures did not change): the build takes that zip's SHA-256 and size, as
+# the phone downloads that zip, not the one just made. The version is a hash of the content, so
+# both hold the same pictures; their bytes can still differ (another zip tool on this machine).
+MEDIA_TAG="gohevier-media-$MEDIA_VER"
+if ! out="$(gh release view "$MEDIA_TAG" -R "$REPO" 2>&1 >/dev/null)"; then
+  grep -qi 'not found' <<<"$out" || { echo "cannot read $MEDIA_TAG: $out" >&2; exit 1; }
+  MEDIA_PUBLISHED=
+else
+  MEDIA_PUBLISHED=1
+  pub_bytes="$(gh release view "$MEDIA_TAG" -R "$REPO" --json assets -q ".assets[] | select(.name == \"$(basename "$MEDIA_ZIP")\") | .size")"
+  pub_sha="$(gh release download "$MEDIA_TAG" -R "$REPO" -p "$(basename "$MEDIA_ZIP").sha256" -O - | cut -d' ' -f1)"
+  [[ "$pub_bytes" =~ ^[0-9]+$ && "$pub_sha" =~ ^[0-9a-f]{64}$ ]] \
+    || { echo "$MEDIA_TAG lacks its zip or .sha256: fix or delete it on GitHub" >&2; exit 1; }
+  MEDIA="$(node -p 'JSON.stringify({ ...JSON.parse(process.argv[1]), sha256: process.argv[2], bytes: +process.argv[3] })' "$MEDIA" "$pub_sha" "$pub_bytes")"
+  MEDIA_BYTES="$pub_bytes"
+fi
+echo "pictures $MEDIA_VER: $(basename "$MEDIA_ZIP"), $MEDIA_BYTES bytes${MEDIA_PUBLISHED:+, already published}"
 
 # The bundle as emulator.sh builds it (upstream's build:mobile), then the release builds.
 # nice and few workers: a full-speed build has hung this machine.

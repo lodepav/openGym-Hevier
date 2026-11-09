@@ -22,7 +22,14 @@ describe('initUpdateNotice', () => {
     vi.useFakeTimers()
     let S = { active: null }
     initUpdateNotice({ get: () => S })
+    // Another sheet open (the pictures' question, D115): not on top of it, but at the next return.
+    const { useUI } = await import('../../store/useUI.js')
+    useUI.getState().openSheet(() => null)
     await vi.advanceTimersByTimeAsync(4000)
+    expect(menu).not.toHaveBeenCalled()
+    useUI.getState().closeAll()
+    document.dispatchEvent(new Event('visibilitychange'))
+    await vi.advanceTimersByTimeAsync(1000)
     expect(menu).toHaveBeenCalledTimes(1)
     const o = menu.mock.calls[0][0]
     expect(o.title).toContain('1.3.0')

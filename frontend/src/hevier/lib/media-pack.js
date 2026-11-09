@@ -20,7 +20,7 @@
 //       'progress' events { phase: 'download' | 'unpack', fraction }; rejects with a code:
 //       'checksum', 'space', 'cancelled', 'failed'. A second call while one runs joins it.
 //   cancel()
-//   remove()                                → deletes the installed media
+// The full APK (bundled) deletes any downloaded copy at launch: it carries its own.
 // While the APK does not carry them, https://localhost/exercise-media/... is answered from
 // storage (a 404, never cached, for a file that is not there), so the web code's URLs never change.
 

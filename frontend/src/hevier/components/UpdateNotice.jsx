@@ -59,7 +59,8 @@ export function initUpdateNotice(store) {
   const check = async () => {
     if (document.hidden || !(await isAndroid())) return
     const info = await checkForUpdate().catch(() => null)
-    if (shouldOffer(info, readSeen(), !!store.get()?.active)) offer(info)
+    // Not over another sheet (the pictures' question, D115): the next return to the app offers it.
+    if (shouldOffer(info, readSeen(), !!store.get()?.active) && !useUI.getState().sheets.length) offer(info)
   }
   setTimeout(check, 4000)
   document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(check, 1000) })
