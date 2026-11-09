@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { wantedMedia, mediaPlan } from './media-pack.js'
+import { useUI } from '../../store/useUI.js'
 
 export const WANT = wantedMedia((import.meta.env || {}).VITE_HEVIER_MEDIA)
 export const DECLINED_KEY = 'hevier_media_declined'
@@ -71,13 +72,14 @@ export async function cancelDownload() {
   try { await p?.P.cancel() } catch { /* nothing running */ }
 }
 
-/** At launch: the question, when the media are missing or another version and it was not declined. */
+/** At launch: the question, when the media are missing or another version and it was not declined,
+ *  and nothing else is open (the update notice, a sheet): About still offers it. */
 let started = false
 export function initMediaPack(store, ask) {
   if (!MOBILE || !WANT || started) return
   started = true
   setTimeout(async () => {
     const status = await readStatus()
-    if (mediaPlan(WANT, status, readDeclined()) === 'ask' && !store.get()?.active) ask(status)
+    if (mediaPlan(WANT, status, readDeclined()) === 'ask' && !store.get()?.active && !useUI.getState().sheets.length) ask(status)
   }, 1500)
 }

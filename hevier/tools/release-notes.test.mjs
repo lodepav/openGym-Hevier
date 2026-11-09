@@ -1,7 +1,7 @@
 // node --test hevier/tools/*.test.mjs
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { noteOf, addedDecisions, entriesOf, nextVersion, render, prependChangelog } from './release-notes.mjs'
+import { noteOf, addedDecisions, entriesOf, nextVersion, render, prependChangelog, releaseNotesOf } from './release-notes.mjs'
 
 test('noteOf takes the text of a fork merge and keeps an upstream merge apart', () => {
   assert.deepEqual(noteOf('Merge hevier/overpass-mirrors: gyms nearby from Photon first (D47)'), { fork: true, text: 'gyms nearby from Photon first (D47)' })
@@ -35,4 +35,16 @@ test('the changelog keeps its title and puts the newest release first', () => {
   assert.match(two, /^# Go Hevier releases\n/)
   assert.ok(two.indexOf('## 1.2.0') < two.indexOf('## 1.1.0'))
   assert.equal(two.match(/# Go Hevier releases/g).length, 1)
+})
+
+test('a fork merge’s Release-note lines come first, under Before you update, and do not number the release', () => {
+  assert.deepEqual(releaseNotesOf('Some body\nRelease-note: With X off, Y hides.\nCo-Authored-By: z'), ['With X off, Y hides.'])
+  const e = entriesOf([
+    { subject: 'Merge hevier/a: a fix', diff: '', body: 'Release-note: Read this first.' },
+    { subject: "Merge tag 'v1.4.2' into hevier/main", diff: '', body: 'Release-note: upstream’s, not ours' },
+  ])
+  assert.deepEqual(e.map(x => x.section), ['fix', 'before', 'upstream'])
+  assert.equal(render(e), "### Before you update\n\n- Read this first.\n\n### Fixes and changes\n\n- a fix\n\n### From openGym\n\n- tag 'v1.4.2'")
+  assert.equal(nextVersion('1.1.0', e), '1.1.1')
+  assert.equal(nextVersion('1.1.0', [{ section: 'before', text: 'x', decisions: [] }]), null)
 })

@@ -13,7 +13,9 @@ The merge level is `hevier/tools/verify.sh`, and git enforces it: the `pre-push`
 the push after a passing check doesn't repeat it, and neither does a docs-only commit. Hooks are
 on through `hevier/tools/install-hooks.sh`, once a clone. `git push --no-verify` only when the
 user says so. The `commit-msg` hook refuses a merge into `hevier/main` without
-`Merge hevier/<branch>: what it does`, because the release notes are those subjects.
+`Merge hevier/<branch>: what it does`, because the release notes are those subjects. A line
+`Release-note: <text>` in the merge's body goes first in the notes, under Before you update, for
+what someone must know before updating (a feature that hides itself).
 
 `.github/workflows/hevier-checks.yml` runs the same script on every push to `hevier/main`, once
 Actions is on for the repo. `frontend/src/hevier/upgrade/` holds what each release saved, and the
