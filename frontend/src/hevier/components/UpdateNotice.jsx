@@ -28,9 +28,9 @@ async function install(info) {
   useUI.getState().openSheet(c => { close = c; return <Progress bind={fn => { set = fn }} /> }, { locked: true })
   try {
     let hash = null
-    try { hash = await fetchChecksum(info.hashUrl) } catch { /* reported below */ }
+    try { hash = await fetchChecksum(info.hashUrl, info.hashApiUrl) } catch { /* reported below */ }
     if (!/^[0-9a-f]{64}$/i.test(hash || '')) throw new Error(t('Checksum not available, so not installing'))
-    await downloadAndInstall(info.apkUrl, hash, (r, n) => set?.(r, n))
+    await downloadAndInstall(info.apkUrl, hash, (r, n) => set?.(r, n), info.apkApiUrl)
     close?.()
   } catch (e) {
     close?.()

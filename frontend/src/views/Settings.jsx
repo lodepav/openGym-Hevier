@@ -304,11 +304,11 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             // The release always publishes the checksum next to the APK. Without it the file is
             // not installed — a sideloaded binary is exactly the thing that should be verified.
             let expectedHash = null
-            try { expectedHash = await fetchChecksum(updateInfo.hashUrl) } catch (e) { /* reported below */ }
+            try { expectedHash = await fetchChecksum(updateInfo.hashUrl, updateInfo.hashApiUrl) } catch (e) { /* reported below */ } // [hevier] S56
             if (!/^[0-9a-f]{64}$/i.test(expectedHash || '')) throw new Error(t('Checksum not available, so not installing'))
             await downloadAndInstall(updateInfo.apkUrl, expectedHash, (received, total) => {
               if (setProgress) setProgress(received, total)
-            })
+            }, updateInfo.apkApiUrl) // [hevier] S56
             if (closeProgress) closeProgress()
           } catch (e) {
             if (closeProgress) closeProgress()
