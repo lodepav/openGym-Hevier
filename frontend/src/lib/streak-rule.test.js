@@ -5,8 +5,10 @@ import { describe, expect, it } from 'vitest'
 import { streakInfo } from './streak.js'
 import { streakRuleOf, ruleTimeline, ruleAt, setStreakRule, currentRule, HISTORY_MAX } from './streak-rule.js'
 import { mergeStates, stampEdits } from './sync-merge.js'
+import { isoOf } from './format.js'
 
-const day = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10) }
+// The local date, as the app keys days: toISOString() gives the UTC one, a day early east of UTC+12.
+const day = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return isoOf(d) }
 const MON = '2026-06-01' // a Monday; week k starts at day(MON, 7k)
 const wk = k => day(MON, 7 * k)
 // Trained in the listed weeks (a Tuesday each), with Monday weeks.

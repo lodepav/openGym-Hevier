@@ -13,6 +13,7 @@ import { StreakFlame, Freezes } from './Streak.jsx'
 import { StreakIconPicker } from './StreakIconPicker.jsx'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { isoOf } from '../lib/format.js'
 
 const clone = v => JSON.parse(JSON.stringify(v))
 const mounted = []
@@ -22,7 +23,8 @@ const mount = node => {
   act(() => root.render(node)); return host
 }
 const renderTop = () => { const sh = useUI.getState().sheets.at(-1); return mount(sh.render(() => useUI.getState().closeSheet(sh.id))) }
-const plus = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10) }
+// The local date, as the app keys days: toISOString() gives the UTC one, a day early east of UTC+12.
+const plus = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return isoOf(d) }
 
 // This week open, last week frozen, the four weeks before trained (they earned the freeze).
 const thisWeek = weekKey(todayISO(), 1)
