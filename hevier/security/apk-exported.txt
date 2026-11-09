@@ -10,3 +10,5 @@ activity-alias ch.duartesantos.opengym.ViewPermissionUsageActivity [android.perm
 service androidx.health.platform.client.impl.sdkservice.HealthDataSdkService    # AndroidX Health Connect client: Health Connect binds to it for its callbacks
 provider ch.duartesantos.opengym.HevierStrengthProvider [ch.duartesantos.opengym.hevier.permission.READ_STRENGTH]    # the strength signal for OpenBite (D95): read-only, signature-level, only an app with this key
 receiver androidx.profileinstaller.ProfileInstallReceiver [android.permission.DUMP]    # AndroidX baseline profiles; only the shell / system holds DUMP
+receiver ch.duartesantos.opengym.OpenGymWidgetProvider    # upstream 1.4.4's Home Screen widget: the launcher sends it APPWIDGET_UPDATE, so it must be reachable; it only redraws the widget from the app's own data
+activity ch.duartesantos.opengym.OpenGymWidgetConfigure    # the same widget's configure screen, opened by the launcher when it is placed (APPWIDGET_CONFIGURE); it writes only this app's widget settings

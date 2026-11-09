@@ -93,7 +93,9 @@ gate "working tree committed" committed
 sgate "release tools: tests" node --test hevier/tools/*.test.mjs
 
 GL=(--no-banner --redact --verbose --log-level warn --gitleaks-ignore-path "$SEC/gitleaksignore")
-sgate "secrets: git history" gitleaks git . "${GL[@]}"
+# The history being released: HEAD's, not every fetched ref. Upstream's unmerged branches are not
+# ours to ship; they are read when a merge brings them into HEAD.
+sgate "secrets: git history" gitleaks git . "${GL[@]}" --log-opts=HEAD
 # Changes not yet in a commit: unstaged and staged edits, and new files git doesn't ignore
 # (copied out, since gitleaks' git modes only see tracked files).
 worktree_secrets() {
