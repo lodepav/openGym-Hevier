@@ -27,6 +27,14 @@ describe('hevier personal records (D51)', () => {
     expect(recordsAt(recs, 0, -1).map(r => r.kind)).toEqual(['sessionVol'])
   })
 
+  it('lists none while Motivation’s record marks are off, or Motivation is (D114)', () => {
+    const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
+    const b = wk(3, [{ id: BENCH, sets: [s(85, 5)] }])
+    expect(workoutRecords({ workouts: [b, a] }, b).length).toBeGreaterThan(0)
+    expect(workoutRecords({ workouts: [b, a], hvModuleParts: { 'motivation.records': false } }, b)).toEqual([])
+    expect(workoutRecords({ workouts: [b, a], modules: { motivation: false } }, b)).toEqual([])
+  })
+
   it('an exercise kept out of progression sets no record and raises no bar (D57)', () => {
     const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
     const b = wk(2, [{ id: BENCH, sets: [s(120, 5)], noProg: true }])

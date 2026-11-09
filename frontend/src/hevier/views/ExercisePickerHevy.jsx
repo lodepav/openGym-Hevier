@@ -30,6 +30,7 @@ import { cleanBackups } from '../../lib/routine-backups.js'
 import { armSwap } from '../lib/gym-backups-run.js'
 import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches, hiddenByGym } from '../lib/exercise-picker.js'
 import { suggestedSubstitutes, relatedSubstitutes } from '../../lib/exercise-substitutes.js'
+import { partOn } from '../lib/module-parts.js'
 
 const PAGE = 50
 const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym is `gymId`
@@ -78,7 +79,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   let list = searchExercises(base, q)
   list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
-  const byBrand = q.trim() ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []
+  const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []
   const brandOf = new Map(byBrand.map(m => [m.ex.id, m.brand]))
   if (byBrand.length) list = [...byBrand.map(m => m.ex), ...list.filter(e => !brandOf.has(e.id))]
   // Same equipment first on a swap: a taken machine is usually swapped for the same kind of kit.

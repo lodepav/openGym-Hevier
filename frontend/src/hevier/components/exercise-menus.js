@@ -12,6 +12,8 @@ import { isHoldRow, canBeHold, setTicked } from '../lib/hold-set.js'
 import { exUnitChoice, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setSideOrder } from '../lib/side-order.js'
 import { brandSheet } from './GymLabels.jsx'
+import { partOn } from '../lib/module-parts.js'
+import { useStore } from '../../store/useStore.js'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
 // `rest` is the set's own rest and the one it takes without, with `save(sec)`; none while editing.
@@ -112,7 +114,7 @@ export function exerciseMenu(p, x) {
         p.onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => p.onNoProg(entry.noProg !== true) },
         plateLoading && mode === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
         // Any exercise can carry a label (D28), not only a machine, whose line is always there.
-        !x.hasLabel && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(p.entryIdx) },
+        !x.hasLabel && partOn(useStore.getState().S, 'hvGyms', 'brands') && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(p.entryIdx) },
         p.routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: p.routineUpdate.sub, onClick: p.routineUpdate.run },
         perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
           onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [

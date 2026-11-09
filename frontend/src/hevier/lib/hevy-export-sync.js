@@ -9,6 +9,7 @@ import { allExercises } from '../../lib/exercises.js'
 import { baseline, pending, finish, exercisesOf, brandsOf, brandKey, setsOf, templateFinder, newTemplate } from './hevy-export.js'
 import { getSecret, putSecret, removeSecret } from './secret.js'
 import { within } from './within.js'
+import { partOn } from './module-parts.js'
 
 export const EXPORT_FILE = 'hevier-hevy-export.json'
 export const KEY_NAME = 'hevy-api-key'
@@ -230,6 +231,7 @@ export async function disableExport() {
  */
 export function sendToHevy(getState, { force = false, apply = null, now = Date.now() } = {}) {
   if (!MOBILE) return Promise.resolve(cached)
+  if (!partOn(getState(), 'integrations', 'hevy')) return Promise.resolve(cached) // D114: paused while its part is off
   if (running) return running
   if (!force && lastError && now - lastError < RETRY_MS) return Promise.resolve(cached)
   const pass = within(sendOnce(getState, apply || applyRef, now, force), PASS_MS)
@@ -269,7 +271,7 @@ let started = false
 export function initHevyExport(store) {
   if (!MOBILE || started) return
   const { get: getState, update: apply } = store
-  const subscribe = store.watch(['workouts', 'routines', 'customEx', 'unit'])
+  const subscribe = store.watch(['workouts', 'routines', 'customEx', 'unit', 'modules', 'hvModuleParts'])
   started = true
   applyRef = apply
   import('@capacitor/app').then(({ App }) => {

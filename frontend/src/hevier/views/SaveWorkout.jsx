@@ -69,7 +69,7 @@ export function SaveWorkout() {
   // D93: OpenBite's phase, read as the page opens so Save has it at once. A workout logged into the
   // past gets none: today's phase says nothing about that day.
   const phase = useRef(null)
-  useEffect(() => { if (!useStore.getState().S.active?.backfill) readSharedPhase().then(p => { phase.current = p }) }, [])
+  useEffect(() => { const S = useStore.getState().S; if (!S.active?.backfill && partOn(S, 'integrations', 'openbite')) readSharedPhase().then(p => { phase.current = p }) }, [])
   // Reached with no session to save (a reload after saving, a link): back to the Workout tab. A
   // session that ends while the page is open (Save, Discard) leaves through its own navigation,
   // which a redirect from here would overtake.

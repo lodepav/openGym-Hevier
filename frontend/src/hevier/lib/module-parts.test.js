@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { PARTS, hasParts, partOn, partSwitch, anyPartOn, setPart } from './module-parts.js'
 import { MODULE_IDS, applyPreset } from '../../lib/modules.js'
+import { FORK_MODULES } from './fork-modules.js'
 import { mergeStates } from '../../lib/sync-merge.js'
 
 describe('hevier: a switch per part inside a module (D102)', () => {
-  it('names only upstream modules, each with two parts or more', () => {
+  it('names only upstream’s modules and the fork’s own, each with two parts or more', () => {
+    const ids = [...MODULE_IDS, ...FORK_MODULES.map(m => m.id)]
     for (const [mod, parts] of Object.entries(PARTS)) {
-      expect(MODULE_IDS).toContain(mod)
+      expect(ids).toContain(mod)
       expect(parts.length).toBeGreaterThan(1)
       expect(new Set(parts.map(p => p.id)).size).toBe(parts.length)
     }
@@ -50,5 +52,20 @@ describe('hevier: a switch per part inside a module (D102)', () => {
     const b = { _ts: 200, edited: { hvModuleParts: 200 }, hvModuleParts: { 'motivation.share': false } }
     expect(mergeStates(a, b).hvModuleParts).toEqual({ 'motivation.share': false })
     expect(mergeStates(b, a).hvModuleParts).toEqual({ 'motivation.share': false })
+  })
+
+  it('D114: the Strength levels list moved to Statistics extras keeps the switch it had', () => {
+    expect(partOn({ hvModuleParts: { 'strength.list': false } }, 'hvStats', 'levels')).toBe(false)
+    expect(partOn({}, 'hvStats', 'levels')).toBe(true)
+    const s = { hvModuleParts: { 'strength.list': false } }
+    setPart(s, 'hvStats', 'levels', true)
+    expect(partOn(s, 'hvStats', 'levels')).toBe(true)
+  })
+  it('D114: a fork module off hides its parts, and a preset leaves it as it is', () => {
+    const s = { modules: { hvGyms: false } }
+    expect(partOn(s, 'hvGyms', 'nearby')).toBe(false)
+    applyPreset(s, 'all')
+    expect(s.modules.hvGyms).toBe(false)
+    expect(partOn({}, 'hvGyms', 'brands')).toBe(true)
   })
 })

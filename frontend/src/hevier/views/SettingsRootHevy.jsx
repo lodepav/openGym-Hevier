@@ -112,6 +112,6 @@ export function installSettings() {
   hooks.integrationsAfter = cat => !MOBILE ? null
     // Health's (D97): the strap goes with upstream's Health module.
     : cat === 'health' ? (partOn(useStore.getState().S, 'health', 'strap') ? <StrapSection key="hv-hr-strap" /> : null)
-    : cat === 'training' ? <HevyExportSection key="hv-hevy-export" />
+    : cat === 'training' ? (partOn(useStore.getState().S, 'integrations', 'hevy') ? <HevyExportSection key="hv-hevy-export" /> : null)
     : null
 }

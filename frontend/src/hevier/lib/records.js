@@ -19,6 +19,7 @@ import { fmtNum, fmtVol } from '../../lib/format.js'
 import { elapsedClock } from './elapsed.js'
 import { fieldSig } from './store-watch.js'
 import { entryLabelKey, entryBrand, entryCable, labelKey, isCable } from './gym-labels.js'
+import { partOn } from './module-parts.js'
 
 /** Hevy's names for the records, in the order a set lists them. */
 export const KINDS = {
@@ -183,7 +184,8 @@ const walked = S => perS(walkedOf, S, () => {
 
 /** The records saved workout `w` set, as sessionRecords lists them. */
 const NONE = Object.freeze([])
-export const workoutRecords = (S, w) => walked(S).byWorkout.get(keyOf(w)) || NONE
+// D114: none while Motivation's record marks are off (the set's trophy, the toast, the cards' counts).
+export const workoutRecords = (S, w) => !partOn(S, 'motivation', 'records') ? NONE : walked(S).byWorkout.get(keyOf(w)) || NONE
 
 // The bests a running session competes with: every saved workout, less the one being edited and
 // any after it. Kept as the walk is.
@@ -213,7 +215,7 @@ function priorWalk(S, editing) {
  * once it is saved, the labels read as the session shows them. None in a workout logged into the past.
  */
 export function liveRecords(S, A = S?.active) {
-  if (!A || A.backfill) return NONE
+  if (!A || A.backfill || !partOn(S, 'motivation', 'records')) return NONE
   // Every exercise block asks for the same copy of S on a render: worked out once per copy.
   const own = A === S?.active
   if (own && liveMemo.has(S)) return liveMemo.get(S)

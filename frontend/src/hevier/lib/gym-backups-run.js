@@ -8,6 +8,7 @@ import { exerciseNameText } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { workoutGym, gymName } from './gym-labels.js'
 import { learnSwap, plannedSwaps, applyGymSwaps, undoGymSwaps } from './gym-backups.js'
+import { partOn } from './module-parts.js'
 
 const ARMED_MS = 5 * 60e3
 let armed = null
@@ -20,7 +21,7 @@ export function armSwap(getState, like, onPick) {
     const S = getState()
     const A = S?.active
     const entry = (A?.entries || []).find(e => e?.id === like)
-    if (entry?.rid && pick?.id && pick.id !== like) {
+    if (entry?.rid && pick?.id && pick.id !== like && partOn(S, 'hvGyms', 'backups')) {
       armed = { rid: entry.rid, from: like, to: pick.id, gymId: workoutGym(S, A), start: A.start, had: countOf(A, pick.id, entry.rid), at: Date.now() }
     }
     return onPick(pick, ...rest)
@@ -39,7 +40,7 @@ export function initGymBackups(store) {
   const { get: getState, update, subscribe, toast } = store
   const swapNow = () => {
     const S = getState()
-    if (!plannedSwaps(S).length) return
+    if (!partOn(S, 'hvGyms', 'backups') || !plannedSwaps(S).length) return // D114
     let done = []
     update(s => { done = applyGymSwaps(s) })
     if (!done.length) return
