@@ -208,7 +208,7 @@ npx cap sync
 node scripts/check-mobile-bundle.mjs
 wait "$WARM" || true
 assemble "$FULL"
-unzip -Z1 "$FULL" | grep -qx 'assets/public/exercise-media/NOTICE.md' \
+unzip -Z1 "$FULL" | grep -x 'assets/public/exercise-media/NOTICE.md' >/dev/null \
   || { echo "$(basename "$FULL") has no exercise pictures" >&2; exit 1; }
 
 # The lean APK: the same bundle without them. cap sync copies dist/ into the Android assets, so
@@ -219,7 +219,7 @@ npx cap sync
   || { echo "cap sync left exercise-media in the Android assets" >&2; exit 1; }
 node scripts/check-mobile-bundle.mjs
 assemble "$OUT"
-if unzip -Z1 "$OUT" | grep -q '^assets/public/exercise-media/'; then
+if unzip -Z1 "$OUT" | grep '^assets/public/exercise-media/' >/dev/null; then
   echo "$(basename "$OUT") still carries exercise pictures" >&2; exit 1
 fi
 
