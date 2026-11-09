@@ -238,6 +238,9 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1084 | The updater falls back to the API's asset link (S56) | PR opened 2026-11-09 on release-1.4.5 |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
+| #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |
+| #1088 | Health Connect as the only source of weigh-ins while reading from it (D32) | Issue opened 2026-11-09 |
+| #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; PR offered |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 

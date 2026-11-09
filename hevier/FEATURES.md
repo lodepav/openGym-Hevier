@@ -120,7 +120,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | App name "Go Hevier" | D39 | Fork |
 | Boot screen in Hevy blue on AMOLED black | D83 | Fork |
 | Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
-| A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offer |
+| A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered |
 | Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 
 ## Hevy import and export
@@ -139,7 +139,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Feature | D | Mark |
 |---|---|---|
 | Portrait only | D24 | Offer |
-| Health Connect as the only source of weigh-ins | D32 | Offer |
+| Health Connect as the only source of weigh-ins | D32 | Offered |
 | Heart rate recorded live from a Bluetooth strap | D79 | Offered |
 | Heart rate full screen with zones and the cardio set's time | D80 | Offer |
 | Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
