@@ -75,8 +75,13 @@ async function fetchLatest() {
   if (!latestVersion) return { hasUpdate: false, latestVersion: __APP_VERSION__, apkUrl: null, hashUrl: null }
   const hasUpdate = compareSemver(latestVersion, __APP_VERSION__) > 0
   const { apk, hash } = pickApk(latest.assets || [])
-  return { hasUpdate, latestVersion, apkUrl: apk?.browser_download_url || null, hashUrl: hash?.browser_download_url || null }
+  return { hasUpdate, latestVersion, apkUrl: apk?.browser_download_url || null, hashUrl: hash?.browser_download_url || null,
+    apkApiUrl: apk?.url || null, hashApiUrl: hash?.url || null } // [hevier] S56
 }
+// [hevier] S56: the API's asset link (assets[].url) answers with the file itself when asked for
+// octet-stream; it is the fallback for when github.com's download link fails (504, 2026-11-09)
+const API_ASSET = { Accept: 'application/octet-stream' }
+// [/hevier]
 
 /**
  * Since v1.4.2 a release carries three sideloaded APKs, the same app with different animations
@@ -104,15 +109,23 @@ export function pickApk(assets, variant = APK_VARIANT) {
  * The SHA-256 the release publishes next to its APK, as 64 hex characters, or null. In the app it
  * comes down natively like the APK itself (github.com answers a WebView fetch without CORS).
  */
-export async function fetchChecksum(hashUrl) {
+// [hevier] S56: the browser link first, then the API link (`hashApiUrl`) when that one throws,
+// answers an error, or gives no hash (a 504 page the native download wrote to the file)
+export async function fetchChecksum(hashUrl, hashApiUrl = null) {
+  if (!hashApiUrl) return readChecksum(hashUrl)
+  const hex = hashUrl ? await readChecksum(hashUrl).catch(() => null) : null
+  return hex || readChecksum(hashApiUrl, API_ASSET)
+}
+async function readChecksum(hashUrl, headers) {
+// [/hevier]
   if (!hashUrl) return null
   let text
   if (MOBILE) {
     const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem')
-    await Filesystem.downloadFile({ url: hashUrl, path: 'opengym-update.apk.sha256', directory: Directory.Cache })
+    await Filesystem.downloadFile({ url: hashUrl, path: 'opengym-update.apk.sha256', directory: Directory.Cache, ...(headers && { headers }) }) // [hevier] S56
     text = (await Filesystem.readFile({ path: 'opengym-update.apk.sha256', directory: Directory.Cache, encoding: Encoding.UTF8 })).data
   } else {
-    const res = await fetch(hashUrl)
+    const res = await (headers ? fetch(hashUrl, { headers }) : fetch(hashUrl)) // [hevier] S56
     if (!res.ok) return null
     text = await res.text()
   }
@@ -169,8 +182,10 @@ const installPlugin = async () => {
  * @param {string} url - Direct download URL for the APK
  * @param {string} expectedHash - Expected SHA-256 hex string (from the .sha256 asset)
  * @param {function|null} onProgress - Called with (received, total) bytes during download, or null
+ * @param {string|null} apiUrl - [hevier] S56: the API's link to the same APK, used once when the
+ *   download from `url` fails or the file it gave is refused (an error page saved as the APK)
  */
-export async function downloadAndInstall(url, expectedHash, onProgress = null) {
+export async function downloadAndInstall(url, expectedHash, onProgress = null, apiUrl = null) { // [hevier] S56
   if (!MOBILE) {
     window.open(RELEASES_PAGE, '_blank', 'noopener')
     return
@@ -185,16 +200,31 @@ export async function downloadAndInstall(url, expectedHash, onProgress = null) {
     return
   } catch { /* nothing usable in the cache yet: download it */ }
   const { Filesystem, Directory } = await import('@capacitor/filesystem')
-  const listener = onProgress
-    ? await Filesystem.addListener('progress', p => onProgress(p.bytes, p.contentLength))
-    : null
-  try {
-    await Filesystem.downloadFile({ url, path: UPDATE_FILE, directory: Directory.Cache, progress: !!onProgress })
-  } finally {
-    await listener?.remove()
+  const download = async (from, headers) => { // [hevier] S56
+    const listener = onProgress
+      ? await Filesystem.addListener('progress', p => onProgress(p.bytes, p.contentLength))
+      : null
+    try {
+      await Filesystem.downloadFile({ url: from, path: UPDATE_FILE, directory: Directory.Cache, progress: !!onProgress, ...(headers && { headers }) }) // [hevier] S56
+    } finally {
+      await listener?.remove()
+    }
+  } // [hevier] S56
+  // [hevier] S56: one fallback to the API link, when the download fails or its file is refused
+  let fromApi = false
+  try { await download(url) } catch (e) {
+    if (!apiUrl) throw e
+    await download(apiUrl, API_ASSET)
+    fromApi = true
   }
   await whenInForeground()
-  await Install.installApk({ fileName: UPDATE_FILE, sha256 })
+  try { await Install.installApk({ fileName: UPDATE_FILE, sha256 }) } catch (e) {
+    if (!apiUrl || fromApi) throw e
+    await download(apiUrl, API_ASSET)
+    await whenInForeground()
+    await Install.installApk({ fileName: UPDATE_FILE, sha256 })
+  }
+  // [/hevier]
 }
 
 /**
