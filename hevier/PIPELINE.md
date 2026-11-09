@@ -234,13 +234,14 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1080 | A Bluetooth heart-rate strap recorded live (D79, D80); asks plugin or hand-written service | Issue opened 2026-11-09 |
 | #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
 | #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; PR offered |
-| #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09 |
+| #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented |
 | #1084 | The updater falls back to the API's asset link (S56) | PR opened 2026-11-09 on release-1.4.5 |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 | #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |
 | #1088 | Health Connect as the only source of weigh-ins while reading from it (D32) | Issue opened 2026-11-09 |
 | #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; PR offered |
+| #1090 | Zepp toolchain npm overrides (S55): 62 findings to 0, tests and build unchanged | PR opened 2026-11-09 on release-1.4.5; drops S55 when merged |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 
