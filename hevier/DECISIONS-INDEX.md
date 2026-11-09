@@ -117,3 +117,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D111** Settings: the rest before the next exercise, text size and WebDAV backups are offered.
 - **D112** The Profile header shows upstream's profile picture, not its badges.
 - **D113** The fork's routine page and effort column stay.
+- **D114** More of the fork joins Modules: new parts, and three modules of its own.

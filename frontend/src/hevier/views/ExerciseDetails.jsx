@@ -235,7 +235,7 @@ function ExerciseDetails({ ex, close }) {
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },
     ]} />
-    {tab !== 'howto' && labels.length > 0 && <div className="hv-xd-labels">
+    {tab !== 'howto' && labels.length > 0 && partOn(st, 'hvGyms', 'brands') && <div className="hv-xd-labels">
       {!(tab === 'history' && comparing) && <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
         onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
         <option value="">{t('All sets')}</option>
@@ -246,7 +246,7 @@ function ExerciseDetails({ ex, close }) {
     </div>}
     {tab !== 'howto' && <PhaseFilter />}
     {tab === 'summary' && <Summary ex={ex} sum={sum} st={st} />}
-    {tab === 'history' && (comparing && labels.length > 0
+    {tab === 'history' && (comparing && labels.length > 0 && partOn(st, 'hvGyms', 'brands')
       ? <CompareHistory ex={ex} base={listed} st={st} labels={labels} />
       : <History ex={ex} sum={hist} st={st} />)}
     {tab === 'howto' && <HowTo ex={ex} st={st} />}

@@ -2234,6 +2234,7 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
   // config it opened with and the one it saves are in the profile's.
   const live = useStore(s => s.S)
   const st = exView(live, ex.id)
+  const exPart = p => !hooks.exPart || hooks.exPart(p) // [hevier] S58: the categories switched on (D114)
   // No warm-up rest of its own: the profile's (Settings > Workout) when it has one, else the work rest.
   const warmAll = typeof st.warmupRestSec === 'number' ? st.warmupRestSec : null
   const warmLikeAll = warmAll === null ? t('Like the work sets') : t('Default ({0})', warmAll > 0 ? fmtRest(warmAll) : t('No timer'))
@@ -2631,11 +2632,13 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
       {/* The last work set of every session is marked as taken to failure, like Greyskull's
           final AMRAP set (workout-model isFailureSet, history.js applyFailurePlan). A pyramid
           already has its Max set for that. */}
-      {!pyramid && <Row icon="gauge" iconTint="var(--purple)" title={t('Last set to failure')}
+      {/* [hevier] S58: a category that is off still shows what this exercise already uses */}
+      {!pyramid && (exPart('intensity') || c.lastToFailure) && <Row icon="gauge" iconTint="var(--purple)" title={t('Last set to failure')}
         subtitle={c.lastToFailure ? t('The last set goes until nothing is left, and counts as all-out effort unless you rate it.') : t('Plan the final set as an all-out one.')}>
         <Switch checked={c.lastToFailure === true} onChange={v => setC(x => ({ ...x, lastToFailure: v || undefined }))} />
       </Row>}
-      {mode === 'reps' && <Row icon="steps" iconTint="var(--acc)" title={t('Pyramid sets')}
+      {/* [hevier] S58 */}
+      {mode === 'reps' && (exPart('intensity') || pyramid) && <Row icon="steps" iconTint="var(--acc)" title={t('Pyramid sets')}
         subtitle={t('A different rep target for each set, e.g. 12 · 8 · 6 · Max · 12.')}>
         <Switch checked={pyramid} onChange={v => setC(x => (v
           ? { ...x, pyramid: x.pyramidDraft || pyramidFromFlat(x), intensifier: undefined }
@@ -2665,7 +2668,7 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
         : t('Reps climb by one whenever every set was clean. Set a ceiling to add sets instead of reps forever.')}
     </div>}
     {/* A pyramid already shapes every set; a drop-set or rest-pause would reshape them again. */}
-    {mode === 'reps' && !pyramid && <>
+    {mode === 'reps' && !pyramid && (exPart('intensity') || c.intensifier?.type) && <>{/* [hevier] S58 */}
       <h4 className="sec">{t('Drop-set / rest-pause')}</h4>
       <div className="sect-b" style={{ marginBottom: 8 }}>
         <SelectRow title={t('Intensifier')} sheetTitle={t('Intensifier')} value={c.intensifier?.type || ''}
@@ -2704,7 +2707,7 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
     </>}
     {/* What a dumbbell weight means, for this routine's slot (cfg.dbLoad). Picking what the
         exercise already means drops the key, so the slot follows the exercise's default again. */}
-    {isBellEx(ex) && !bw && mode !== 'cardio' && <>
+    {isBellEx(ex) && !bw && mode !== 'cardio' && exPart('units') && <>{/* [hevier] S58 */}
       <h4 className="sec">{t('Weight means')}</h4>
       <DbLoadPicker ex={ex} cfg={c} value={dbLoadFor(st, { ...c, id: ex.id })}
         onChange={v => setC(x => ({ ...x, dbLoad: v === dbLoadFor(st, ex.id) ? undefined : v }))} />
@@ -2712,18 +2715,18 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
     {/* How the weight is plate-loaded and what the bar weighs — per exercise, not per plan, so
         it sits apart from the config fields above and writes straight to S.barWeights/S.loadKind. */}
     {/* What is typed above is held in the unit on screen; a switch converts it with the unit. */}
-    {!cardio && <>
+    {!cardio && exPart('units') && <>{/* [hevier] S58 */}
       <h4 className="sec">{t('Weight unit')}</h4>
       <ExUnitRow ex={ex} onChange={(before, after) => setC(x => viewTarget(after, ex.id, storedTarget(before, ex.id, x, seedStored)))} />
     </>}
-    {mode === 'reps' && <>
+    {mode === 'reps' && exPart('plates') && <>{/* [hevier] S58 */}
       <h4 className="sec">{t('Plate loading')}</h4>
       <BarWeightEditor ex={ex} cfg={c} extra={t('Applies to this exercise everywhere, not just this plan.')} />
       {canHaveStack(ex) && !bw && <><h4 className="sec">{t('Weight stack')}</h4><StackEditor ex={ex} /></>}
     </>}
     {pyramid
       ? <div className="small dim" style={{ marginBottom: 18 }}>{t('Weight is up to you: pyramid sets are not progressed automatically.')}</div>
-      : <ProgressionFields ex={ex} mode={mode} c={c} setC={setC} routine={routine} unit={st.unit} perSide={perSide} bw={bw} fallback={profileRule(st)} freestyle={routine ? false : freestyle} />}
+      : /* [hevier] S58 */ exPart('progression') && <ProgressionFields ex={ex} mode={mode} c={c} setC={setC} routine={routine} unit={st.unit} perSide={perSide} bw={bw} fallback={profileRule(st)} freestyle={routine ? false : freestyle} />}
     <textarea className="input" rows={3} maxLength={500} style={{ marginBottom: 18 }}
       placeholder={t('Note (optional): loading cues, "bar only, then +1 plate/side each set", anything worth remembering')}
       value={c.note || ''} onChange={e => setC(x => ({ ...x, note: e.target.value }))} />

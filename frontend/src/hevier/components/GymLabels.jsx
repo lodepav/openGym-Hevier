@@ -18,6 +18,7 @@ import {
 import {
   currentPosition, placesNear, ownHere, gymOfPlace, addGym, distanceText, RADIUS,
 } from '../lib/nearby-gyms.js'
+import { partOn } from '../lib/module-parts.js'
 
 const update = fn => useStore.getState().update(fn, true)
 
@@ -33,7 +34,7 @@ export function gymSheet(nav) {
         { icon: 'xmark', label: t('No gym'), on: !cur, onClick: () => update(s => setWorkoutGym(s, null)) },
       ] },
       { items: [
-        { icon: 'pin', label: t('Find gyms nearby'), sub: t('Sends your position to OpenStreetMap, once'), onClick: () => useUI.getState().openSheet(close => <NearbySheet close={close} />) },
+        partOn(S, 'hvGyms', 'nearby') && { icon: 'pin', label: t('Find gyms nearby'), sub: t('Sends your position to OpenStreetMap, once'), onClick: () => useUI.getState().openSheet(close => <NearbySheet close={close} />) },
         { icon: 'plus', label: t('Custom gym…'), onClick: () => useUI.getState().openSheet(close => <CustomGymSheet close={close} />) },
       ] },
       { items: [{ icon: 'gear', chevron: true, label: t('Manage gyms'), sub: t("Each gym's equipment"), onClick: () => nav('/settings/equipment') }] },
@@ -184,7 +185,7 @@ export function BrandLine({ idx }) {
   // Two stacks are logged per stack (D43): the session's entry says so, as a dumbbell's does.
   const stale = !!cable && !cableStamped(e, cable)
   useEffect(() => { if (stale) update(s => stampCable(s.active?.entries?.[idx], cable)) }, [stale, idx, cable])
-  if (!e || !hasLabel(S, S.active, idx)) return null
+  if (!e || !hasLabel(S, S.active, idx) || !partOn(S, 'hvGyms', 'brands')) return null // D114
   const b = entryBrand(S, S.active, idx)
   const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} aria-label={b ? t('Brand') + ': ' + b : undefined} onClick={() => brandSheet(idx)}>
     <Icon name="machine" />{b || t('Add brand')}

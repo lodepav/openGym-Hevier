@@ -43,8 +43,8 @@ describe('hevier: a switch per part (D102)', () => {
     render('/settings/modules/motivation', { modules: { motivation: false }, hvModuleParts: { 'motivation.share': false } })
     expect(container.textContent).toContain('is off, so all of it is hidden')
     const sw = [...container.querySelectorAll('[role="switch"]')]
-    expect(sw.map(s => s.disabled)).toEqual([true, true, true, true, true])
-    expect(sw.map(s => s.getAttribute('aria-checked'))).toEqual(['true', 'true', 'true', 'true', 'false'])
+    expect(sw.map(s => s.disabled)).toEqual([true, true, true, true, true, true])
+    expect(sw.map(s => s.getAttribute('aria-checked'))).toEqual(['true', 'true', 'true', 'true', 'false', 'true'])
   })
   it('a module without parts has no page', () => {
     render('/settings/modules/effort')

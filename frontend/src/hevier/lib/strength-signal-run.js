@@ -3,6 +3,7 @@
 // HevierStrengthPlugin.java holds it; HevierStrengthProvider.java answers OpenBite from it.
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { strengthSignal } from './strength-signal.js'
+import { partOn } from './module-parts.js'
 
 // Wrapped in an object: a Capacitor plugin proxy answers `then` (as in lib/secret.js).
 let pluginP = null
@@ -15,7 +16,8 @@ async function plugin() {
 async function push(S, today) {
   const p = await plugin()
   if (!p) return
-  const row = strengthSignal(S, today)
+  // D114: with OpenBite's part off, OpenBite reads no row, as with no phase to share.
+  const row = partOn(S, 'integrations', 'openbite') ? strengthSignal(S, today) : null
   await p.P.put({ row: row ? JSON.stringify(row) : null })
 }
 
@@ -29,7 +31,7 @@ export function initStrengthSignal(store, todayOf) {
     App.addListener('appStateChange', ({ isActive }) => { if (isActive) send() })
   }).catch(() => {})
   let tm = null
-  store.watch(['workouts', 'hvMainMuscle'])?.(() => {
+  store.watch(['workouts', 'hvMainMuscle', 'modules', 'hvModuleParts'])?.(() => {
     clearTimeout(tm)
     tm = setTimeout(send, 2000)
   })

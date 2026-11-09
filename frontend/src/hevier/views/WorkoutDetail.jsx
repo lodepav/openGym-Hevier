@@ -101,7 +101,7 @@ export function WorkoutDetail() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
   const prs = workoutRecords(st, w)
-  const times = entryTimes(w)
+  const times = partOn(st, 'hvStats', 'time') ? entryTimes(w) : [] // D114
   const mode = volumeMode(st)
   const split = muscleSets(w.entries, muscleMode(st))
   const top = split[0]?.sets || 1

@@ -15,6 +15,7 @@ import { cleanBackups, withBackups, MAX_BACKUPS } from '../../lib/routine-backup
 import { useDragReorder } from './useDragReorder.js'
 import { gymsOf } from '../lib/gym-labels.js'
 import { missingAt, setMissing } from '../lib/gym-backups.js'
+import { partOn } from '../lib/module-parts.js'
 
 const known = id => !!EXIDX[id]
 
@@ -32,7 +33,7 @@ export function setBackups(rid, i, exId, list) {
 function GymChips({ exId, gyms }) {
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
-  if (!gyms.length) return null
+  if (!gyms.length || !partOn(S, 'hvGyms', 'backups')) return null // D114
   const ex = EXIDX[exId]
   return <div className="chips hv-bk-gyms">
     {gyms.map(g => {

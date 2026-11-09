@@ -18,6 +18,7 @@ import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { entryTimes } from '../lib/exercise-time.js'
 import { partOn } from '../lib/module-parts.js'
+import { isOn } from '../../lib/modules.js'
 import WeeklySetsCard from '../components/WeeklySetsCard.jsx'
 
 const hasTimes = w => entryTimes(w).length > 0
@@ -88,11 +89,11 @@ export default function Statistics() {
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />
     {/* D99: upstream's weekly sets against a range, counted the fork's way. */}
-    <WeeklySetsCard S={S} />
+    {partOn(S, 'strength', 'weekly') && <WeeklySetsCard S={S} />}
     <h4 className="sec">{t('More')}</h4>
-    {S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
-    {partOn(S, 'strength', 'list') && S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
-    {S.workouts.some(hasTimes) && <LinkRow icon="timer" title={t('Exercise time')} sub={t('How long each exercise takes')} onClick={() => nav('/exercise-time')} />}
+    {partOn(S, 'hvStats', 'report') && S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
+    {partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
+    {partOn(S, 'hvStats', 'time') && S.workouts.some(hasTimes) && <LinkRow icon="timer" title={t('Exercise time')} sub={t('How long each exercise takes')} onClick={() => nav('/exercise-time')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
     {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
   </div>

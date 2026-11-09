@@ -80,7 +80,7 @@ export default function ModulesPage() {
       onConfirm: () => update(apply),
     })
   }
-  const mc = moduleCopy(), gc = groupCopy(), pc = presetCopy()
+  const mc = { ...moduleCopy(), ...hooks.forkModuleCopy?.() }, gc = groupCopy(), pc = presetCopy() // [hevier] S54: the fork's modules' words
   const pickPreset = id => {
     if (id === 'custom' || id === preset) return
     const next = presetModules(id)
@@ -88,8 +88,9 @@ export default function ModulesPage() {
     change(next, off.length === 1 ? t('Switch off {0}?', mc[off[0]][0]) : t('Switch these off?'), s => applyPreset(s, id))
   }
   const flip = (id, on) => {
-    if (on) { update(s => setModule(s, id, true)); return }
-    change({ [id]: false }, t('Switch off {0}?', mc[id][0]), s => setModule(s, id, false))
+    const set = hooks.setModule || setModule // [hevier] S54: the fork's modules too
+    if (on) { update(s => set(s, id, true)); return }
+    change({ [id]: false }, t('Switch off {0}?', mc[id][0]), s => set(s, id, false)) // [hevier] S54
   }
 
   const options = [
@@ -97,7 +98,8 @@ export default function ModulesPage() {
     { value: 'custom', label: t('Custom'), subtitle: t('Your own mix. Flip the switches below.') },
   ]
   // [hevier] S54: modules whose features the fork does not show at all are not listed (D97)
-  const shown = MODULES.filter(m => !(hooks.hiddenModules || []).includes(m.id))
+  // and the fork's own modules join their group (D114)
+  const shown = [...MODULES.filter(m => !(hooks.hiddenModules || []).includes(m.id)), ...(hooks.forkModules || [])]
   // [/hevier]
   return <div className="modules">
     <p className="sect-f modules-intro">{t('Switch off what you don’t use. Nothing gets deleted: switch it back on and it’s all still there.')}</p>
