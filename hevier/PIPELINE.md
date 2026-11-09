@@ -229,6 +229,15 @@ a thank-you, and decide whether #901 is still worth offering.
 | #638 | Split shoulders into front, side and rear delts (D65) | Issue open, on the v1.4.8 milestone, but **built in release-1.4.5**: three delts and the lats apart, in every muscle map |
 | #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open; **built in release-1.4.5** as Numbers per gym, with the fork's brand-as-label design credited |
 | #1077 | Security gates before a release: the advisories each release fixed from the one before, Trivy and gitleaks over every tag, and six gates to suggest (D26, D38; `release-check.sh` offered as the example) | Issue opened 2026-11-09; PRs for the dependency and secret gates offered |
+| #1078 | A Timer and a Stopwatch in the workout, for time that is not a set (D10) | Issue opened 2026-11-09; port offered |
+| #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; PR offered |
+| #1080 | A Bluetooth heart-rate strap recorded live (D79, D80); asks plugin or hand-written service | Issue opened 2026-11-09 |
+| #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
+| #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; PR offered |
+| #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09 |
+| #1084 | The updater falls back to the API's asset link (S56) | PR opened 2026-11-09 on release-1.4.5 |
+| #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
+| #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 

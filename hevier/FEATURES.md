@@ -27,7 +27,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Progression guidance behind ⋮ (Exercise settings), nothing about it on the card | D8 | Fork |
 | Swipe left deletes a set, with undo | D9 | Fork |
 | Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
-| The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offer |
+| The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Offer |
 | "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
 | Weight unit per exercise (e.g. one machine in lb) | D41 | Ported (upstream's #657, released in v1.4.4, replaces it at the merge: decided 2026-11-03) |
@@ -39,12 +39,12 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | "Still training?" after five hours | D60 | Offered (#906, as the Watch's "All done?" after 20 min without a set) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer |
 | The next set to do is highlighted | D71 | Fork |
-| Per-side exercises can be done right side first, remembered per exercise | D72 | Offer |
+| Per-side exercises can be done right side first, remembered per exercise | D72 | Offered |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Fork |
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, released in v1.4.4 on 2026-11-03: the weight and rep checks; the cardio timer is the fork’s) |
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
-| A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offer |
+| A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offered |
 | OpenBite's phase on saved workouts, and a filter by it on the statistics pages, exercise history and workout feed | D93 | Fork |
 | The gym on the feed card | D94 | Offer |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
@@ -68,8 +68,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | A gym per workout (an equipment profile); brand labels on machine and cable exercises, any exercise via ⋮ → Add label | D28 | Offer |
 | PREVIOUS and last time's prefilled sets read the machine's brand and cable setup, refilled when the gym or brand changes | D82 | Fork |
-| Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offer |
-| Exercise search by machine brand | D36 | Offer |
+| Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offered |
+| Exercise search by machine brand | D36 | Offered |
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Offer |
 | Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork |
 | Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offered (#905, the count and Show all equipment) |
@@ -82,7 +82,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Muscles chosen by group in the filters | D64 | Offered (#900, issue) |
 | Shoulder heads: front, side and rear delts | D65 | Offered (#638) |
 | One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offered (#788, released in v1.4.4: the catalogue targets, shoulder heads as delts) |
-| The main muscle can be chosen per exercise | D76 | Offer |
+| The main muscle can be chosen per exercise | D76 | Offered |
 | One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offered (#903, issue) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
@@ -140,7 +140,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | Portrait only | D24 | Offer |
 | Health Connect as the only source of weigh-ins | D32 | Offer |
-| Heart rate recorded live from a Bluetooth strap | D79 | Offer |
+| Heart rate recorded live from a Bluetooth strap | D79 | Offered |
 | Heart rate full screen with zones and the cardio set's time | D80 | Offer |
 | Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
 | Smaller APK: no barcode scanner, R8 shrinking | D50 | Fork (the scanner serves the gym check-in the fork hides) |
