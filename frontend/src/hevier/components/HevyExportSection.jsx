@@ -1,4 +1,4 @@
-// [hevier] The export to Hevy's switch (hevier/DECISIONS.md D34) on upstream's Data & backup page,
+// [hevier] The export to Hevy's switch (hevier/DECISIONS.md D34) on upstream's Integrations page, after Training apps,
 // put there beside the Health Connect reads (hevier/views/SettingsRootHevy.jsx). Android only:
 // where the key cannot be kept encrypted, nothing shows.
 import { useEffect, useState } from 'react'

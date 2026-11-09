@@ -4,8 +4,8 @@
 // upstream's workout layouts (hevier/lib/settings.js). Preferences also has the fork's Volume row
 // (DECISIONS.md D18): sets per muscle or total weight, kept in S.hvVolume. The Volume row's sheet also
 // holds Muscle sets (D42): a set for its main muscle only, or a secondary muscle in part too, kept
-// in S.hvMuscleSets. Data & backup gets the
-// fork's heart-rate strap (D79) and export to Hevy (D34) before "Bring data in".
+// in S.hvMuscleSets. Integrations gets the
+// fork's heart-rate strap (D79) after Health & devices and export to Hevy (D34) after Training apps (S57).
 import { t } from '../../lib/i18n.js'
 import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
@@ -18,7 +18,7 @@ import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { MOBILE } from '../../lib/mobile.js'
 import AppIconRow from '../../components/AppIconRow.jsx'
-import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, insertBeforeSection, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
@@ -103,14 +103,15 @@ export function installSettings() {
       // D102: the modules with parts, each opening its own page.
       if (id === 'modules') return <>{out}<ModulePartsSection key="hv-module-parts" /></>
       if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
-      if (id !== 'data' || !MOBILE) return out
-      // D79's heart-rate strap, then D34's export to Hevy, before "Bring data in".
-      return insertBeforeSection(out, t('Bring data in'), <>
-        {/* Health's (D97): the strap goes with upstream's Health module. */}
-        {partOn(useStore.getState().S, 'health', 'strap') && <StrapSection key="hv-hr-strap" />}
-        <HevyExportSection key="hv-hevy-export" />
-      </>)
+      return out
     },
     hides: hiddenSetting,
   }
+  // Integrations (S57): D79's heart-rate strap after Health & devices, where the watches are, and
+  // D34's export to Hevy after Training apps, beside Hevy's import. Phones only.
+  hooks.integrationsAfter = cat => !MOBILE ? null
+    // Health's (D97): the strap goes with upstream's Health module.
+    : cat === 'health' ? (partOn(useStore.getState().S, 'health', 'strap') ? <StrapSection key="hv-hr-strap" /> : null)
+    : cat === 'training' ? <HevyExportSection key="hv-hevy-export" />
+    : null
 }
