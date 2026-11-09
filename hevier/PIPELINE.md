@@ -235,7 +235,7 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
 | #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; PR offered |
 | #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented |
-| #1084 | The updater falls back to the API's asset link (S56) | PR opened 2026-11-09 on release-1.4.5 |
+| #1084 | The updater falls back to the API's asset link (S56) | **Merged into release-1.4.5** (2026-11-09): S56 goes at the 1.4.5 merge |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 | #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |
@@ -245,6 +245,8 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1091 | Auto-backup: choose how many copies to keep (5, 14, 30 or 60; S52) | PR opened 2026-11-09 on release-1.4.5; drops S52 when merged (the fork sets 5) |
 | #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; S16 keeps only the fork's tab list when merged |
 | #1093 | A set of a reps exercise as a timed hold (D89, S48) | Issue opened 2026-11-09, offering a PR; S48 goes if upstream builds it |
+| #1097 | History rows and workout details name the workout's gym, with two gyms or more (D94) | PR opened 2026-11-09 on release-1.4.5 |
+| #1098 | A newer APK offers itself when the app opens, once per version, About's question with Not now (D77) | PR opened 2026-11-09 on release-1.4.5; replaces the fork's UpdateNotice when merged |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 

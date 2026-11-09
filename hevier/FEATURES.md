@@ -46,7 +46,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
 | A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offered |
 | OpenBite's phase on saved workouts, and a filter by it on the statistics pages, exercise history and workout feed | D93 | Fork |
-| The gym on the feed card | D94 | Offer |
+| The gym on the feed card | D94 | Offered (#1097, History rows and details) |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 
@@ -86,7 +86,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offered (#903, issue) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer |
-| Strength levels list, by the level reached | D81 | Offer |
+| Strength levels list, by the level reached | D81 | Fork (upstream's Strength levels card on Stats lists every graded lift by level since 1.4.4) |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
 | YouTube demo on an exercise's How to tab (upstream 1.4.4's card) | D101 | Fork |
 
@@ -144,7 +144,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Heart rate full screen with zones and the cardio set's time | D80 | Offer |
 | Month widget on the home screen | D44 | Offer (upstream roadmap #125) |
 | Smaller APK: no barcode scanner, R8 shrinking | D50 | Fork (the scanner serves the gym check-in the fork hides) |
-| A newer version offers itself in the app, with Install and Not now | D77 | Offer |
+| A newer version offers itself in the app, with Install and Not now | D77 | Offered (#1098) |
 
 ## Release and security (tooling)
 
