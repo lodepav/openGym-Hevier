@@ -14,7 +14,7 @@
 // Native: the HevierMedia plugin (frontend/android/app/src/hevier/java/.../HevierMediaPlugin.java):
 //   status()                                → { bundled, version, bytes }
 //       bundled: the APK carries public/exercise-media (the full APK, or a debug build);
-//       version: the media installed in storage (files/exercise-media/), or null; bytes: their size
+//       version: the media installed in storage (no_backup/exercise-media/: kept by an update, left out of Auto Backup and its 25 MB cap), or null; bytes: their size
 //   network()                               → { metered }  the active connection is metered (mobile data)
 //   download({ url, sha256, version, bytes }) → resolves { version } once installed;
 //       'progress' events { phase: 'download' | 'unpack', fraction }; rejects with a code:

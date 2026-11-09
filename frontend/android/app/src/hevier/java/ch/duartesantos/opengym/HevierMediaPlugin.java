@@ -40,7 +40,7 @@ import java.util.zip.ZipFile;
 /**
  * [hevier] The exercise pictures downloaded once, kept across updates (hevier/DECISIONS.md D115).
  * The lean APK carries no public/exercise-media; this plugin downloads the media zip into the
- * app's own storage (files/exercise-media/, which an update keeps) and answers
+ * app's own storage (no_backup/exercise-media/, which an update keeps and Auto Backup leaves out) and answers
  * https://localhost/exercise-media/... from there, so the web code's URLs never change. The
  * contract is in frontend/src/hevier/lib/media-pack.js:
  *
@@ -92,7 +92,7 @@ public class HevierMediaPlugin extends Plugin {
 
     /** What a run killed half-way (the app closed or crashed) left behind. */
     private void cleanLeftovers() {
-        File files = getContext().getFilesDir();
+        File files = getContext().getNoBackupFilesDir();
         File old = new File(files, DIR + ".old");
         File fresh = new File(files, DIR + ".new");
         // Killed between the two renames: the old copy is the only one, so it goes back.
@@ -103,7 +103,7 @@ public class HevierMediaPlugin extends Plugin {
     }
 
     private File mediaDir() {
-        return new File(getContext().getFilesDir(), DIR);
+        return new File(getContext().getNoBackupFilesDir(), DIR);
     }
 
     @PluginMethod
@@ -174,7 +174,7 @@ public class HevierMediaPlugin extends Plugin {
     /** One download, on its own thread: fetch, check, unpack, swap, then answer every waiting call. */
     private void run(String url, String sha256, String version, long bytes) {
         File part = new File(getContext().getCacheDir(), PART);
-        File files = getContext().getFilesDir();
+        File files = getContext().getNoBackupFilesDir();
         File fresh = new File(files, DIR + ".new");
         File old = new File(files, DIR + ".old");
         String code = null;

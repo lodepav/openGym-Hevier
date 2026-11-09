@@ -56,7 +56,7 @@ export function makeMediaZip(stagedDir, outDir, repo) {
   // writes each file's mtime (as local time), so every staged file gets one fixed time, read in UTC.
   for (const p of paths) utimesSync(join(media, p), FIXED, FIXED)
   // -0 stores, -X leaves out extra attributes (uid, times), -@ reads the sorted list from stdin.
-  execFileSync('zip', ['-q', '-0', '-X', file, '-@'], { cwd: media, env: { ...process.env, TZ: 'UTC' }, input: paths.join('\n') + '\n', stdio: ['pipe', 'ignore', 'inherit'], maxBuffer: 1 << 26 })
+  execFileSync('zip', ['-q', '-0', '-X', file, '-@'], { cwd: media, env: { ...process.env, TZ: 'UTC' }, input: paths.join('\n') + '\n', stdio: ['pipe', 'ignore', 'inherit'] })
   const digest = sha256(readFileSync(file))
   writeFileSync(file + '.sha256', `${digest}  ${basename(file)}\n`)
   return { version, url: mediaUrl(repo, version), sha256: digest, bytes: statSync(file).size, file }

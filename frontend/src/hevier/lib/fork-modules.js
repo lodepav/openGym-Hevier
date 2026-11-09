@@ -13,7 +13,7 @@ export const moduleOn = (S, id) => isOn(S, id)
 export const FORK_PARTS = {
   effort: ['D6: the workout’s effort column (through upstream’s effortOf)'],
   plates: ['D84: the plate line under a set', 'D69: automatic warm-ups where a routine progresses (through upstream’s warmupAutoOf)'],
-  strength: ['D19: the level in an exercise’s details', 'D81: the list of every exercise by level'],
+  strength: ['D19: the level in an exercise’s details', 'D99: weekly sets per muscle'],
   body: ['D12: the body-weight Home widget', 'D14: Measures on Profile'],
   health: ['D79: the heart-rate strap, its button, live reading and Settings', 'D80: the strap’s full screen', 'D91: its workout card'],
   motivation: ['D59: the streak (Home widget, Calendar)', 'D87: sharing a workout or a month as a picture', 'D22, D51: the record marks on a set and a finished workout'],
@@ -22,7 +22,6 @@ export const FORK_PARTS = {
   hvGyms: ['D28, D36, D43, D82, D96: machine brands and cable setups', 'D47: gyms nearby', 'D46, D86: backups per gym'],
   hvStats: ['D23: the monthly report', 'D88: exercise time', 'D81: the Strength levels list'],
 }
-FORK_PARTS.strength = ['D19: the level in an exercise’s details', 'D99: weekly sets per muscle']
 
 // The fork's own modules (D97, D114), listed on Settings → Modules beside upstream's (seam S54) and
 // stored in upstream's `S.modules` under their `hv` ids, so they sync per module as upstream's do.
