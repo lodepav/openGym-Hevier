@@ -14,6 +14,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,7 +25,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -141,7 +141,7 @@ public class HevierMediaPlugin extends Plugin {
         File f = new File(mediaDir(), VERSION_FILE);
         if (!f.isFile()) return null;
         try {
-            String v = new String(Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8).trim();
+            String v = new String(readAll(f), StandardCharsets.UTF_8).trim();
             return v.isEmpty() ? null : v;
         } catch (IOException e) {
             return null;
@@ -349,10 +349,10 @@ public class HevierMediaPlugin extends Plugin {
         return total;
     }
 
-    private static void deleteTree(File f) {
+    static void deleteTree(File f) {
         if (!f.exists()) return;
         // A link is deleted, never followed.
-        if (f.isDirectory() && !Files.isSymbolicLink(f.toPath())) {
+        if (f.isDirectory() && !isLink(f)) {
             File[] list = f.listFiles();
             if (list != null) for (File c : list) deleteTree(c);
         }
@@ -383,6 +383,32 @@ public class HevierMediaPlugin extends Plugin {
             return f.getPath().startsWith(base + File.separator) ? f : null;
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    /** The whole of a file, read through a plain stream. */
+    static byte[] readAll(File f) throws IOException {
+        try (InputStream in = new FileInputStream(f)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            return out.toByteArray();
+        }
+    }
+
+    /**
+     * Whether f itself is a symbolic link: its canonical path, taken with only its parent folder
+     * resolved, differs from the path it is reached by. A path that cannot be resolved counts as a
+     * link, so a delete never walks into it.
+     */
+    static boolean isLink(File f) {
+        try {
+            File parent = f.getAbsoluteFile().getParentFile();
+            File reached = parent == null ? f.getAbsoluteFile() : new File(parent.getCanonicalFile(), f.getName());
+            return !reached.getCanonicalFile().equals(reached.getAbsoluteFile());
+        } catch (IOException e) {
+            return true;
         }
     }
 

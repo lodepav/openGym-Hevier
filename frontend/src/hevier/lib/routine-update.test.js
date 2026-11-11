@@ -4,6 +4,8 @@ import { buildCombinedEntries } from '../../lib/session-merge.js'
 import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts, setDelta } from './routine-update.js'
+import { makeSideSet } from '../../lib/workout-model.js'
+import { toSideHold } from './hold-set.js'
 
 const id = re => EXDB.find(e => re.test(e.n)).id
 const SQUAT = id(/^barbell full squat$/i)
@@ -182,6 +184,21 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(setDelta({ target: { sets: 3, mode: 'cardio' }, sets: rows(4) })).toBe(0)
     expect(setDelta({ target: { sets: 3, intensifier: { type: 'restpause' } }, sets: rows(4) })).toBe(0)
     expect(setDelta({ target: { sets: 3, pyramid: [{ r: 12 }, { r: 10 }, { r: 8 }] }, sets: rows(4) })).toBe(0)
+  })
+
+  it('counts a per-side hold (an L/R pair) as one set, and a timed exercise’s L/R rows as upstream does (D89)', () => {
+    const side = () => ({ ...makeSideSet({ w: 10, r: 20 }), done: true })
+    const pair = toSideHold(side(), 30).map(h => ({ ...h, done: true }))
+    const target = { id: 'x', sets: 3, reps: 10, mode: 'reps', side: true }
+    expect(setDelta({ id: 'x', target, sets: [side(), side(), ...pair] })).toBe(0)
+    expect(setDelta({ id: 'x', target, sets: [side(), side(), ...pair, side()] })).toBe(1)
+    expect(setDelta({ id: 'x', target, sets: [side(), ...pair] })).toBe(-1)
+    // A timed per-side exercise lays each set out as an L and an R row: 3 sets are 6 rows.
+    const timed = { id: 'p', sets: 3, sec: 30, mode: 'time', side: true }
+    const half = k => ({ side: k, sec: 30, w: 0, done: true })
+    const rows = n => Array.from({ length: n }, () => [half('L'), half('R')]).flat()
+    expect(setDelta({ id: 'p', target: timed, sets: rows(3) })).toBe(0)
+    expect(setDelta({ id: 'p', target: timed, sets: rows(4) })).toBe(1)
   })
 
   it('offers nothing for an edited past workout', () => {

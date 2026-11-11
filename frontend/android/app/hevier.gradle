@@ -5,11 +5,16 @@
 // Go Hevier's own version (D52), from hevier/VERSION, in place of upstream's: versionName as written,
 // versionCode major·10000 + minor·100 + patch, so each fork release installs over the one before
 // (minor and patch stay below 100).
+// Android 13 (API 33) and later only (D116), in place of upstream's 24 (variables.gradle stays as it
+// is): the fork is built and checked on Android 15 and 16, and from 13 up its own Java takes the same
+// paths there, so nothing ships that is never run. A phone on Android 12 or older keeps the release
+// it has.
 def hevierVersion = file("$rootDir/../../hevier/VERSION").text.trim()
 def hevierParts = hevierVersion.tokenize('.').collect { it as int }
 android {
     defaultConfig {
         applicationId "ch.duartesantos.opengym.hevier"
+        minSdkVersion 33
         versionName hevierVersion
         versionCode hevierParts[0] * 10000 + hevierParts[1] * 100 + hevierParts[2]
     }

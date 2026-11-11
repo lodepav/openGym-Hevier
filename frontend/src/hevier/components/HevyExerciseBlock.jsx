@@ -21,7 +21,7 @@ import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   setSpanAt, lastEntryFor,
 } from '../../lib/history.js'
-import { isWarmupRow, isFailureSet, isSideSet, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
+import { isWarmupRow, isFailureSet, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { dropGrid, loadKindFor, baseWeightFor, inventoryFor } from '../../lib/plates.js'
 import { effortColor } from '../../lib/effort.js'
@@ -181,7 +181,9 @@ export default function HevyExerciseBlock(props) {
       const reps = k => (isSideSet(p) ? p.sides[k]?.r : p && !isHoldRow(p) && p.r > 0 ? p.r : (entry.target?.reps || 0) / 2)
       editSets(sets => {
         const back = fromSideHold(sets[at], sets[at + 1], reps('L'), reps('R'))
-        const done = from && isSideSet(p) ? { ...back, sides: { L: { ...back.sides.L, w: p.sides.L.w || 0 }, R: { ...back.sides.R, w: p.sides.R.w || 0 } } } : back
+        // A set last time logged as one row held one side's reps (D75): both sides take its weight.
+        const wOf = k => (isSideSet(p) ? p.sides[k].w : p.w) || 0
+        const done = from && !isHoldRow(p) ? syncSideAggregate({ ...back, sides: { L: { ...back.sides.L, w: wOf('L') }, R: { ...back.sides.R, w: wOf('R') } } }) : back
         return [...sets.slice(0, at), done, ...sets.slice(at + 2)]
       })
       firm(['Lw', 'Lr', 'Rw', 'Rr'].map(k => [at, k]))
@@ -260,11 +262,11 @@ export default function HevyExerciseBlock(props) {
   const copyPrev = (i, p, side) => {
     if (!p) return
     // A hold last time makes a per-side set a hold on each side (D89), and a per-side set last
-    // time makes a hold pair a per-side set again.
+    // time, or a rep set logged as one row (D75), makes a hold pair a per-side set again.
     // A ticked set keeps its kind: last time's of another kind is not copied onto it.
     const ticked = setTicked(entry.sets, isPairTail(entry.sets, i) ? i - 1 : i)
     if (side && isHoldRow(p)) return ticked ? undefined : setHold(i, true, p)
-    if (!side && entry.sets[i]?.side && isSideSet(p)) return ticked ? undefined : setHold(i, false, p)
+    if (!side && entry.sets[i]?.side && (isSideSet(p) || (holdCols && !isHoldRow(p)))) return ticked ? undefined : setHold(i, false, p)
     if (side) {
       const sd = isSideSet(p) ? p.sides[side] : null
       if (!sd) return

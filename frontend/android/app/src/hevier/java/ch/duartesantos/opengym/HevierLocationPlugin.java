@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
@@ -87,7 +86,7 @@ public class HevierLocationPlugin extends Plugin {
         // GPS answers only a precise grant; the fused and network providers answer either.
         boolean fine = hasFine(ctx);
         String provider = null;
-        for (String p : new String[] { Build.VERSION.SDK_INT >= 31 ? LocationManager.FUSED_PROVIDER : null, fine ? LocationManager.GPS_PROVIDER : null, LocationManager.NETWORK_PROVIDER }) {
+        for (String p : new String[] { LocationManager.FUSED_PROVIDER, fine ? LocationManager.GPS_PROVIDER : null, LocationManager.NETWORK_PROVIDER }) {
             if (p != null && lm.getAllProviders().contains(p) && lm.isProviderEnabled(p)) {
                 provider = p;
                 break;
@@ -107,39 +106,19 @@ public class HevierLocationPlugin extends Plugin {
             else call.reject("no fix");
         };
         try {
-            if (Build.VERSION.SDK_INT >= 30) {
-                CancellationSignal cancel = new CancellationSignal();
-                lm.getCurrentLocation(used, cancel, ctx.getMainExecutor(), loc -> {
-                    if (loc == null) {
-                        fallback.run();
-                        return;
-                    }
-                    if (done.getAndSet(true)) return;
-                    answer(call, loc);
-                });
-                main.postDelayed(() -> {
-                    cancel.cancel();
+            CancellationSignal cancel = new CancellationSignal();
+            lm.getCurrentLocation(used, cancel, ctx.getMainExecutor(), loc -> {
+                if (loc == null) {
                     fallback.run();
-                }, 25_000);
-            } else {
-                lm.requestSingleUpdate(used, new android.location.LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location loc) {
-                        if (done.getAndSet(true)) return;
-                        answer(call, loc);
-                    }
-
-                    @Override
-                    public void onStatusChanged(String p, int s, android.os.Bundle b) {}
-
-                    @Override
-                    public void onProviderEnabled(String p) {}
-
-                    @Override
-                    public void onProviderDisabled(String p) {}
-                }, Looper.getMainLooper());
-                main.postDelayed(fallback, 25_000);
-            }
+                    return;
+                }
+                if (done.getAndSet(true)) return;
+                answer(call, loc);
+            });
+            main.postDelayed(() -> {
+                cancel.cancel();
+                fallback.run();
+            }, 25_000);
         } catch (SecurityException e) {
             call.reject("location not allowed");
         }

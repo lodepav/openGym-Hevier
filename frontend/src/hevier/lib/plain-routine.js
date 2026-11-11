@@ -3,7 +3,7 @@
 // warm-ups too, and the routine's own numbers where it was never done; nothing is worked out:
 // no progression rule, no warm-up ramp. A routine's "Progression & auto warm-ups" switch
 // (`routine.hvProg`, a fork-only field upstream ignores) gives it upstream's way back.
-import { isWarmupRow, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
+import { isWarmupRow, isSideSet, hasCompletedWork, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 import { modeOf } from '../../lib/history.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
@@ -122,7 +122,8 @@ export function refillRows(H, S, e, routine, label, was) {
     if (!isPairTail(rows, i)) unit++
     if (isPairHead(rows, i) || isPairTail(rows, i)) return [row]
     const b = base[unit]
-    if (row.done || !b || isWarmupRow(b) !== isWarmupRow(row)) return [row]
+    // A per-side set with one side ticked is not done, but its ticked side is logged work.
+    if (hasCompletedWork(row) || !b || isWarmupRow(b) !== isWarmupRow(row)) return [row]
     const start = { ...row }
     for (const k of NUMS) {
       if (b[k] !== undefined) start[k] = b[k]

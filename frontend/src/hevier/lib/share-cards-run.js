@@ -139,9 +139,9 @@ let galleryP = null
 const gallery = () => (galleryP ||= import('@capacitor/core').then(({ registerPlugin }) => ({ G: registerPlugin('HevierGallery') })))
 
 /**
- * Saves the picture: into the gallery on Android 10 and later ('gallery'); on an older phone, or if
- * that fails, through the share sheet, where "Save to device" or Drive take it ('shared'); in a
- * browser as a download ('downloaded'). Null when the share sheet was dismissed.
+ * Saves the picture: into the gallery on Android ('gallery'); if that fails, through the share
+ * sheet, where "Save to device" or Drive take it ('shared'); in a browser as a download
+ * ('downloaded'). Null when the share sheet was dismissed.
  */
 export async function saveCardImage(blob, name) {
   if (MOBILE && (await isAndroid())) {
@@ -149,7 +149,7 @@ export async function saveCardImage(blob, name) {
       const { G } = await gallery()
       await G.save({ data: toBase64(new Uint8Array(await blob.arrayBuffer())), name })
       return 'gallery'
-    } catch { /* Android 9 or older, or no room: the share sheet below */ }
+    } catch { /* no room, or no gallery: the share sheet below */ }
   }
   if (MOBILE) { try { await shareExportBlob(blob, name); return 'shared' } catch { return null } }
   download(blob, name)
