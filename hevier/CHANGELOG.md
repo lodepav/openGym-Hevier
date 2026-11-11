@@ -2,6 +2,22 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.7.0 · 2026-11-11
+
+Based on openGym 1.4.4.
+
+### Before you update
+
+- This release needs Android 13 or later. A phone on Android 12 or older keeps the version it has.
+
+### New
+
+- a hold pair is one set for the routine, a ticked side survives a label change, PREVIOUS on a hold half stays in its set, and the app needs Android 13 or later
+
+### Fixes and changes
+
+- four stale facts out of the merge guide and the skills
+
 ## 2.6.0 · 2026-11-09
 
 Based on openGym 1.4.4.
