@@ -82,7 +82,9 @@ publish() {  # version, lean apk, full apk
   notes+=$'\n\nInstall go-hevier-'"$ver"'.apk, or update from Settings → About & updates. It downloads the exercise pictures once (about '"$mb"' MB) and keeps them across updates.'
   notes+=$'\n\ngo-hevier-full-'"$ver"'.apk carries the pictures inside, for a first install without a connection. Each download is checked against its .sha256 file.'
   echo; echo "$notes"; echo
-  [[ "$(git branch --show-current)" == hevier/main ]] && git push -q origin hevier/main
+  # The pre-push hook may run the whole suite: without this build's flags, which upstream's tests
+  # do not expect (the release commit's fixture is not a doc, so the earlier pass does not cover it).
+  [[ "$(git branch --show-current)" == hevier/main ]] && env -u VITE_MOBILE -u VITE_HEVIER -u VITE_HEVIER_MEDIA -u VITE_UPDATE_REPO git push -q origin hevier/main
   # The pictures before the app's tag: an app release must never point at a zip that is not there.
   publish_media || {
     rm -rf "$dir"
