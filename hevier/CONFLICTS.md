@@ -49,8 +49,6 @@ hevier/tools/emulator.sh
 
 # 7. Land it
 git checkout hevier/main && git merge --ff-only sync/$TARGET && git branch -d sync/$TARGET
-# then bring the active phase branch up to date:
-git checkout hevier/ux && git merge hevier/main
 ```
 
 Never `git push --force` a `hevier/*` branch, and never commit to `main`.

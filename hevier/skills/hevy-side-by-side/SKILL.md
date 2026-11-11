@@ -22,7 +22,7 @@ The reference is local only: `hevier/reference/` is gitignored. If it is missing
 5. **Filter with the decisions.** `hevier/DECISIONS.md` overrides Hevy: mark differences a
    decision chose on purpose (e.g. D2 grey prefilled values, D8 progression behind ⋮, D16
    Settings pages, openGym extras) as *intended*, and never propose removing openGym
-   functionality. Theme and accent are still open (phase 2): note colour differences but
-   don't treat them as bugs until that is decided.
+   functionality. The theme is decided (D17: Hevy's dark theme with Hevy blue, only), so a
+   colour that differs from Hevy's dark screens is a difference to list.
 
 Fix only what the user asks for; by default, report the list and propose an order.

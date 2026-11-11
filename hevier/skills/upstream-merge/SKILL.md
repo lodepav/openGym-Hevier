@@ -1,6 +1,6 @@
 ---
 name: upstream-merge
-description: Merge a new upstream openGym release into the fork (hevier/main, then hevier/ux), resolve conflicts by the fork's rules, and check for silent drift. Use when asked to sync, update from upstream or merge a tag.
+description: Merge a new upstream openGym release into the fork (hevier/main), resolve conflicts by the fork's rules, and check for silent drift. Use when asked to sync, update from upstream or merge a tag.
 ---
 
 # Upstream merge
@@ -37,12 +37,12 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    frontend/src/components/ExerciseBlock*` and list what the fork's screens should pick up.
 7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
-   minimise, resume, finish, see it in history, start it again, see the progressed weights.
+   minimise, resume, finish, see it in history, start it again, see each set open at what was done last time (D69).
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
    rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed
    with the merge. Anything drift turns up that the user would see is a decision too: ask.
 8. **Land.** Commit message body: the conflicted files with the rule used for each, seams
    added, moved or removed, and drift items skipped. `git checkout hevier/main && git merge
-   --ff-only sync/$TARGET`, then `git checkout hevier/ux && git merge hevier/main`. Push only
+   --ff-only sync/$TARGET`. Push only
    when the user asks. Never force-push a `hevier/*` branch, never commit to `main`.
