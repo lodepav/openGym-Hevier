@@ -3,7 +3,6 @@ package ch.duartesantos.opengym;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -16,9 +15,9 @@ import java.io.OutputStream;
 
 /**
  * [hevier] Saves a picture into the phone's gallery (hevier/DECISIONS.md D87): a workout's share
- * card, into Pictures/Go Hevier. Through MediaStore, which on Android 10 and later needs no
- * permission for the app's own pictures; on older phones `save` refuses and the page falls back to
- * the share sheet, so no storage permission is asked for. No dependency.
+ * card, into Pictures/Go Hevier. Through MediaStore, which needs no permission for the app's own
+ * pictures, so no storage permission is asked for; if `save` fails the page falls back to the share
+ * sheet. No dependency.
  *
  *   const G = registerPlugin('HevierGallery');
  *   await G.save({ data: base64Png, name: 'go-hevier-2026-10-23.png' });   // { uri }
@@ -30,10 +29,6 @@ public class HevierGalleryPlugin extends Plugin {
 
     @PluginMethod
     public void save(PluginCall call) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            call.reject("unsupported");
-            return;
-        }
         String data = call.getString("data");
         String name = call.getString("name", "go-hevier.png");
         if (data == null || data.isEmpty()) {

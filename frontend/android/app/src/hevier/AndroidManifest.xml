@@ -5,8 +5,9 @@
      which needs no permission (D44). "Find gyms nearby" (D47) uses the location permissions
      upstream's manifest declares for its gym reminder, asked for on its first tap, app open.
      For a Bluetooth heart-rate strap (D79) it asks for Nearby devices, scanning declared not for
-     location (Android 12 on; before, the scan needs the location already asked for), and declares
-     the foreground service that records the strap while a workout runs.
+     location, and declares the foreground service that records the strap while a workout runs.
+     The app installs on Android 13 and later only (D116, hevier.gradle), so it declares nothing that
+     only older Android reads.
      It removes upstream's camera permission, which only its barcode scan of a gym check-in uses,
      hidden in the fork (D12), whose scanner the fork leaves out (D50), and the background location
      and location foreground service upstream's gym reminder needs (1.4.3), hidden in the fork too
@@ -73,10 +74,8 @@
             android:permission="${applicationId}.permission.READ_STRENGTH" />
     </application>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
+        android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <permission android:name="${applicationId}.permission.READ_STRENGTH" android:protectionLevel="signature" />

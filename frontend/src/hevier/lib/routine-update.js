@@ -18,6 +18,7 @@ import { routineSlotIndex, routineChangesFromEntry, replaceSlotExercise } from '
 import { routineFromSession } from '../../lib/session-routines.js'
 import { modeOf, setsFromRows, cleanupSg } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
+import { setUnits } from './hold-set.js'
 import { isPyramid } from '../../lib/pyramid.js'
 
 // A pyramid's rows are its plan's, a rest-pause set builds its own rows and cardio is one block:
@@ -29,7 +30,11 @@ export function setDelta(entry) {
   const target = entry?.target || {}
   const opened = Math.round(Number(target.sets ?? entry?.planned?.sets)) || 0
   if (!opened || !countsSets(target)) return 0
-  return setsFromRows(target, (entry.sets || []).filter(row => !isWarmupRow(row)).length) - opened
+  const work = (entry.sets || []).filter(row => !isWarmupRow(row))
+  // A per-side hold in a reps exercise is an L/R pair, one set (D89). A timed exercise's per-side
+  // sets are L/R rows too, and upstream's setsFromRows already counts those as one.
+  const n = modeOf(target) === 'time' ? work.length : setUnits(work).length
+  return setsFromRows(target, n) - opened
 }
 
 const withSets = (slot, delta) => (delta && countsSets(slot)

@@ -126,6 +126,20 @@ describe('hevier plain routines (D69)', () => {
     // Not a plain routine's: upstream's rows stay.
     expect(refillRows(S, S, e, { ...legs, hvProg: true }, 'Technogym', 'Life Fitness')).toBe(null)
   })
+
+  it('keeps a per-side set with one side ticked when the brand changes (D82)', () => {
+    const sp = { ...press, side: true }
+    const sl = { ...legs, ex: [sp] }
+    const sd = (w, r, done = true) => ({ w, r, done })
+    const day = (d, brand, w) => ({ d, routineId: sl.id, entries: [{ id: 'press', hvBrand: brand, sets: [{ sides: { L: sd(w, 10), R: sd(w, 10) }, w, r: 20, done: true }] }] })
+    const S = { ...labelled('city'), workouts: [day('2026-10-01', 'Life Fitness', 20), day('2026-10-08', 'Technogym', 50)] }
+    const built = buildPlannedEntry(S, sp, sl).sets
+    const row = { ...built[0], sides: { L: { ...built[0].sides.L, done: true }, R: built[0].sides.R }, done: false }
+    const e = { id: 'press', rid: sl.id, target: sp, sets: [row, ...built.slice(1)] }
+    const out = refillRows(S, S, e, sl, 'Technogym', 'Life Fitness')
+    expect(out[0].sides.L).toMatchObject({ w: 20, done: true })
+    expect(out[0].sides.R).toMatchObject({ w: 20 })
+  })
 })
 
 describe('withoutForecast (D85)', () => {

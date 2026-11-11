@@ -12,7 +12,6 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
@@ -26,7 +25,6 @@ import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,8 +33,7 @@ import java.util.Map;
  * [hevier] A Bluetooth heart-rate strap (hevier/DECISIONS.md D79): finds straps nearby, and while
  * a workout runs has HevierHrStrapService record the one picked. Any strap, armband or watch that
  * pushes its heart rate over Bluetooth's standard Heart Rate profile (0x180D) will do. Nearby
- * devices is the only permission (no location: the scan is declared neverForLocation); before
- * Android 12 a scan needs location instead.
+ * devices is the only permission (no location: the scan is declared neverForLocation).
  *
  *   const H = registerPlugin('HevierHrStrap');
  *   await H.status();                    // { bluetooth: 'on'|'off'|'none', permission, state, session, address, bpm, at }
@@ -54,7 +51,6 @@ import java.util.Map;
     name = "HevierHrStrap",
     permissions = {
         @Permission(alias = "nearby", strings = { Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT }),
-        @Permission(alias = "legacy", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
     }
 )
 public class HevierHrStrapPlugin extends Plugin {
@@ -84,16 +80,10 @@ public class HevierHrStrapPlugin extends Plugin {
         };
     }
 
-    private String alias() {
-        return Build.VERSION.SDK_INT >= 31 ? "nearby" : "legacy";
-    }
-
     private boolean has() {
         Context ctx = getContext();
-        if (Build.VERSION.SDK_INT >= 31)
-            return ctx.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-                && ctx.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
-        return ctx.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return ctx.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+            && ctx.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
     }
 
     private BluetoothAdapter adapter() {
@@ -107,7 +97,7 @@ public class HevierHrStrapPlugin extends Plugin {
         boolean le = getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         JSObject o = new JSObject();
         o.put("bluetooth", a == null || !le ? "none" : a.isEnabled() ? "on" : "off");
-        o.put("permission", has() ? "granted" : getPermissionState(alias()).toString());
+        o.put("permission", has() ? "granted" : getPermissionState("nearby").toString());
         o.put("state", HevierHrStrapService.state);
         o.put("session", HevierHrStrapService.session);
         o.put("address", HevierHrStrapService.address);
@@ -124,7 +114,7 @@ public class HevierHrStrapPlugin extends Plugin {
             call.resolve(o);
             return;
         }
-        requestPermissionForAlias(alias(), call, "afterPermission");
+        requestPermissionForAlias("nearby", call, "afterPermission");
     }
 
     @PermissionCallback
@@ -212,8 +202,7 @@ public class HevierHrStrapPlugin extends Plugin {
         i.putExtra("address", address);
         for (String k : new String[] { "name", "title", "connecting", "live", "recording" }) i.putExtra(k, call.getString(k, ""));
         try {
-            if (Build.VERSION.SDK_INT >= 26) getContext().startForegroundService(i);
-            else getContext().startService(i);
+            getContext().startForegroundService(i);
             call.resolve();
         } catch (Exception e) {
             // Android refuses a foreground service started from the background; the next opening tries again.
@@ -233,7 +222,7 @@ public class HevierHrStrapPlugin extends Plugin {
         JSObject o = new JSObject();
         try {
             File f = session == null ? null : HevierHrStrapService.file(getContext(), session);
-            o.put("text", f != null && f.exists() ? new String(Files.readAllBytes(f.toPath()), StandardCharsets.US_ASCII) : "");
+            o.put("text", f != null && f.exists() ? new String(HevierMediaPlugin.readAll(f), StandardCharsets.US_ASCII) : "");
             call.resolve(o);
         } catch (Exception e) {
             call.reject(e.getMessage(), "failed");

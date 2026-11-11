@@ -157,4 +157,51 @@ public class HevierMediaPluginTest {
         HevierMediaPlugin.dropAll(base);
         assertArrayEquals(new String[] { "other" }, base.list());
     }
+
+    // ── the plain reads and the delete that never follows a link ────────────────────────────────
+
+    @Test
+    public void readAllReadsTheWholeFile() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        byte[] big = new byte[20_000];
+        for (int i = 0; i < big.length; i++) big[i] = (byte) i;
+        File f = new File(base, "big.bin");
+        Files.write(f.toPath(), big);
+        assertArrayEquals(big, HevierMediaPlugin.readAll(f));
+        File empty = new File(base, "empty");
+        Files.write(empty.toPath(), new byte[0]);
+        assertEquals(0, HevierMediaPlugin.readAll(empty).length);
+        dirWith(base, "exercise-media", "1.2.3");
+        assertEquals("1.2.3", new String(HevierMediaPlugin.readAll(new File(new File(base, "exercise-media"), "still.webp")), "UTF-8"));
+    }
+
+    @Test(expected = java.io.IOException.class)
+    public void readAllOfAMissingFileFails() throws Exception {
+        HevierMediaPlugin.readAll(new File(Files.createTempDirectory("media").toFile(), "missing"));
+    }
+
+    @Test
+    public void aLinkIsToldFromAFolder() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        File real = dirWith(base, "real", "x");
+        File link = new File(base, "link");
+        Files.createSymbolicLink(link.toPath(), real.toPath());
+        assertTrue(HevierMediaPlugin.isLink(link));
+        assertFalse(HevierMediaPlugin.isLink(real));
+        assertFalse(HevierMediaPlugin.isLink(new File(real, "still.webp")));
+        // reached through a linked folder, the file itself is still no link
+        assertFalse(HevierMediaPlugin.isLink(new File(link, "still.webp")));
+    }
+
+    @Test
+    public void aDeleteRemovesTheLinkNotWhatItPointsTo() throws Exception {
+        File base = Files.createTempDirectory("media").toFile();
+        File outside = Files.createTempDirectory("outside").toFile();
+        dirWith(outside, "keep", "mine");
+        File media = dirWith(base, "exercise-media", "a");
+        Files.createSymbolicLink(new File(media, "out").toPath(), outside.toPath());
+        HevierMediaPlugin.deleteTree(media);
+        assertFalse(media.exists());
+        assertEquals("mine", read(outside, "keep"));
+    }
 }

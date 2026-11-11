@@ -203,6 +203,39 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
+  it('a tap on PREVIOUS on either half of a hold pair, when last time was one rep row, makes it that per-side set (D75, D89)', () => {
+    const past = [{ id: 'w1', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [reps(40, 8, { done: true }), reps(45, 6, { done: true })] }] }]
+    const half = (k, extra = {}) => ({ side: k, mode: 'time', sec: 30, w: 10, done: false, ...extra })
+    const both = (w, r) => ({ L: { w, r }, R: { w, r } })
+    for (const at of [0, 1]) {
+      render([{ id: EX, target: { sets: 2, reps: 16, side: true }, sets: [half('L'), half('R'), reps(70, 5)] }], past)
+      act(() => container.querySelectorAll('.hv-prev')[at].click())
+      act(() => vi.advanceTimersByTime(1))
+      expect(sets().length).toBe(2)
+      expect(sets()[0]).toMatchObject({ w: 40, r: 16, sides: both(40, 8) })
+      expect(sets()[0].mode).toBeUndefined()
+      expect(sets()[1]).toEqual(reps(70, 5))
+      // Copied, so firm: none of the set's four fields is the grey hint.
+      const nums = [...container.querySelectorAll('.hv-num')].slice(0, 4)
+      expect(nums.some(n => n.className.includes('hv-hint'))).toBe(false)
+      act(() => root.unmount()); container.remove(); root = null
+    }
+    // The pair as the last set takes last time's second set.
+    for (const at of [1, 2]) {
+      render([{ id: EX, target: { sets: 2, reps: 16, side: true }, sets: [reps(70, 5), half('L'), half('R')] }], past)
+      act(() => container.querySelectorAll('.hv-prev')[at].click())
+      expect(sets()[0]).toEqual(reps(70, 5))
+      expect(sets().length).toBe(2)
+      expect(sets()[1]).toMatchObject({ w: 45, r: 12, sides: both(45, 6) })
+      act(() => root.unmount()); container.remove(); root = null
+    }
+    // A pair with a half ticked keeps its kind, and the set after it is untouched.
+    render([{ id: EX, target: { sets: 2, reps: 16, side: true }, sets: [half('L', { done: true }), half('R'), reps(70, 5)] }], past)
+    act(() => container.querySelectorAll('.hv-prev')[1].click())
+    expect(sets().map(s => s.side ?? null)).toEqual(['L', 'R', null])
+    expect(sets()[2]).toEqual(reps(70, 5))
+  })
+
   it('a tick that sets records puts the trophy on that set and says so, once (D22, D51)', () => {
     render([{ id: EX, target: { sets: 3, reps: 8 }, sets: [reps(60, 8), reps(70, 8), reps(70, 8)] }],
       [{ id: 'w1', d: '2026-10-09', start: 1, end: 2, entries: [{ id: EX, sets: [{ w: 65, r: 8, done: true }] }] }])

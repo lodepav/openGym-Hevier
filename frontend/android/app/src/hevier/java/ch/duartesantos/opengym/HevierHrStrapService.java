@@ -23,7 +23,6 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -56,8 +55,7 @@ public class HevierHrStrapService extends Service {
     static final UUID HR_MEASUREMENT = uuid16(0x2A37);
     static final UUID CCCD = uuid16(0x2902);
     static final String CHANNEL_ID = "hevier-hr-strap";
-    // Android 7 cannot tell whose card is up (no channels): there the two stay apart.
-    static final int NOTIFICATION_ID = Build.VERSION.SDK_INT >= 26 ? RestAlert.COUNTDOWN_ID : 7913;
+    static final int NOTIFICATION_ID = RestAlert.COUNTDOWN_ID;
     static final String DIR = "hevier-hr";
     static final String TAG = "HevierHrStrap";
 
@@ -320,7 +318,7 @@ public class HevierHrStrapService extends Service {
         }
 
         // The strap's GATT server was rebuilt on a link that stayed up: its new subscription is
-        // off, so subscribe again (Android 12+; older ones fall to the watchdog).
+        // off, so subscribe again.
         @Override
         public void onServiceChanged(BluetoothGatt g) {
             main.post(() -> {
@@ -332,12 +330,6 @@ public class HevierHrStrapService extends Service {
         public void onCharacteristicChanged(BluetoothGatt g, BluetoothGattCharacteristic c, byte[] value) {
             if (HR_MEASUREMENT.equals(c.getUuid())) record(value);
         }
-
-        @Override
-        @SuppressWarnings("deprecation")
-        public void onCharacteristicChanged(BluetoothGatt g, BluetoothGattCharacteristic c) {
-            if (Build.VERSION.SDK_INT < 33 && HR_MEASUREMENT.equals(c.getUuid())) record(c.getValue());
-        }
     };
 
     /** Asks for Heart Rate Measurement's notifications; false when the strap has none. */
@@ -347,11 +339,7 @@ public class HevierHrStrapService extends Service {
         BluetoothGattDescriptor d = c == null ? null : c.getDescriptor(CCCD);
         if (d == null) return false;
         g.setCharacteristicNotification(c, true);
-        if (Build.VERSION.SDK_INT >= 33) g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        else {
-            d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            g.writeDescriptor(d);
-        }
+        g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return true;
     }
 
@@ -416,14 +404,14 @@ public class HevierHrStrapService extends Service {
 
     private Notification build(String text) {
         NotificationManager nm = getSystemService(NotificationManager.class);
-        if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(CHANNEL_ID) == null) {
+        if (nm.getNotificationChannel(CHANNEL_ID) == null) {
             NotificationChannel ch = new NotificationChannel(CHANNEL_ID, title, NotificationManager.IMPORTANCE_LOW);
             ch.setShowBadge(false);
             nm.createNotificationChannel(ch);
         }
         Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
         PendingIntent tap = open == null ? null : PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CHANNEL_ID) : new Notification.Builder(this);
+        Notification.Builder b = new Notification.Builder(this, CHANNEL_ID);
         b.setSmallIcon(R.drawable.ic_stat_dumbbell).setContentTitle(title).setContentText(text).setOngoing(true).setOnlyAlertOnce(true).setShowWhen(false);
         if (tap != null) b.setContentIntent(tap);
         return b.build();
@@ -432,7 +420,7 @@ public class HevierHrStrapService extends Service {
     /** The rest countdown's card, while it is the one up; null otherwise. */
     private Notification restCard() {
         NotificationManager nm = getSystemService(NotificationManager.class);
-        if (nm == null || Build.VERSION.SDK_INT < 26) return null;
+        if (nm == null) return null;
         for (StatusBarNotification s : nm.getActiveNotifications()) {
             if (s.getId() == NOTIFICATION_ID && RestAlert.COUNTDOWN_CHANNEL_ID.equals(s.getNotification().getChannelId())) return s.getNotification();
         }
@@ -455,8 +443,7 @@ public class HevierHrStrapService extends Service {
         cardText = text;
         Notification rest = restCard();
         Notification n = rest != null ? rest : build(text);
-        if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
-        else startForeground(NOTIFICATION_ID, n);
+        startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
     }
 
     private void notifyText(String text) {
