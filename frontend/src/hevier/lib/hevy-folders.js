@@ -4,6 +4,7 @@
 // openGym is kept.
 import { fetchHevyPages } from '../../lib/import-hevy.js'
 import { cleanFolderName, folderOf } from './routine-folders.js'
+import { within } from './within.js'
 
 /** Hevy's folders, [{ id, title, index }]. */
 export const fetchHevyFolders = (key, pages = fetchHevyPages) =>
@@ -31,7 +32,8 @@ export function nameFolders(parsed, folders) {
 export async function importHevyFolders(key, data, pages) {
   if (!data?.routines?.routines?.length) return
   let folders = []
-  try { folders = await fetchHevyFolders(key, pages) } catch { folders = [] }
+  // 20 s: folders that never answer must not hold the import's sheet, whose Cancel is off meanwhile.
+  try { folders = await within(fetchHevyFolders(key, pages), 20e3) } catch { folders = [] }
   data.hvFolders = folders   // for D33's review, which reads the routines again
   nameFolders(data.routines, folders)
 }

@@ -105,6 +105,16 @@ describe('hevier: the rest of the Hevy API (D31)', () => {
     expect(later.workouts[0].routineId).toBe('R2')
   })
 
+  it('gives each session its own nearest workout: two a minute apart do not both take the first routine', () => {
+    const d = '2026-09-10', at = 1e12
+    const first = { id: 'a', d, start: at, routineId: null, entries: [] }
+    const second = { id: 'b', d, start: at + 60000, routineId: null, entries: [] }
+    const S = { workouts: [first, second], routines: [{ id: 'RA', hevyId: 'ra', ex: [] }, { id: 'RB', hevyId: 'rb', ex: [] }] }
+    const sessions = [{ d, start: at, hvHevyRoutine: 'ra' }, { d, start: at + 60000, hvHevyRoutine: 'rb' }]
+    expect(more.linkRoutines(S, sessions, 1)).toBe(2)
+    expect([first.routineId, second.routineId]).toEqual(['RA', 'RB'])
+  })
+
   it('fills in an imported custom exercise\'s muscles and equipment, not one edited since', () => {
     const p = parseHevyWorkouts([hevyWorkout({ exercises: [{ exercise_template_id: 'c1', title: 'Grip Crusher (Cable)', sets: [{ type: 'normal', weight_kg: 20, reps: 10 }] }] })], T, { unit: 'kg' })
     const S = { workouts: [], routines: [], customEx: [], bodyweight: [], exWeights: {} }
