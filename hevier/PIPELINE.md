@@ -11,6 +11,17 @@ The refresh notes up to 2026-11-08 and the rows of v1.4.2, v1.4.3 and v1.4.4, al
 Note, D45's suggestions, D37's Share, the `hevier.css` restyle and D100's Wear OS link left out of
 the APK are built. The v1.4.4 notes and rows are in the archive.
 
+**Checked 2026-11-12: still no v1.4.5 tag.** `release-1.4.5` moved to `4df89397b` (2026-11-11,
+iOS build 70, Android versionCode 44): 153 commits since the last check, 797 past v1.4.4 (4,238
+files, about 399,000 lines added). They are release QA: watch sync (Wear OS, Garmin, Apple Watch),
+the live widget, right-to-left layouts, accessibility and server fixes, with no new npm dependency
+and no manifest change. What meets the fork is in "Since 2026-11-09" under "What release-1.4.5
+brings". `upstream/main` (`50ab7f24e`) gained three Cloudflare failover commits for the website,
+nothing for the fork. **Nothing moved on the fork's PRs and issues**: no comment, no close, no
+milestone. The fork itself is at Go Hevier 2.7.0 (2026-11-11) with D114 (more of the fork in
+Modules), D115 (the lean APK that downloads its pictures) and D116 (Android 13 and later); the
+1.4.5 round (D103 to D113) still waits for the tag.
+
 **Checked 2026-11-09: v1.4.5 is about to be tagged.** `release-1.4.5` (`e8f028cd`, 2026-11-09) is
 633 commits past v1.4.4, with the version strings already at 1.4.5 (`pretag-146`: iOS build 65,
 Android versionCode 39, Helm chart 0.2.4, the API reference rebuilt). Its milestone is still due
@@ -37,13 +48,34 @@ git branch -r | grep release-                        # new release branches?
 git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}'   # since our base
 ```
 
-## What release-1.4.5 brings (2026-11-09, `e8f028cd`, not tagged yet)
+## What release-1.4.5 brings (2026-11-09, `e8f028cd`; rechecked 2026-11-12 at `4df89397b`, not tagged yet)
 
 Read from its CHANGELOG (`## Unreleased (v1.4.5)`, 450 lines) and the Android build files. **No
 new npm dependency** in `frontend`, `api` or `mcp`. The upstream files the fork has seams in that
 1.4.5 changes: S1, S2, S3, S6, S7, S8, S9, S11, S16, S17, S19, S20, S29, S32, S34, S37, S40, S41,
-S44, S51, S52, S54 and S55, so expect conflicts in most of them. The rows the fork must act on come
-first.
+S44, S51, S52, S54 and S55, so expect conflicts in most of them. Counted by file on 2026-11-12 (any
+seam in a file 1.4.5 changes, whether or not the change is near it), these join them: S10, S12,
+S13, S14, S15, S21, S22, S23, S36, S38, S39, S45, S48, S49, S50, S56, S57 and S58, most of them
+in `sheets.jsx`. The rows the fork must act on come first.
+
+**Since 2026-11-09** (153 commits, read from the commit subjects and the changelog's 11 new lines):
+
+| Upstream | Fork impact |
+|---|---|
+| **Sheets are dialogs** (`1cf8fef93`): named, focused when they open, Tab kept inside, focus back to the opener; **screen readers** name set fields, settings switches and the rest timer's 15 s buttons | `sheets.jsx` holds 13 of the fork's seams, so this is where the merge conflicts gather. The fork's own sheets and `HevyExerciseBlock`'s set fields should get the same names and focus (STANDARDS' A rules): a point for the UX round after the merge. |
+| **Sideways strips never scroll vertically** (`0c2650485`): one shared rule in `index.css`, and `strips.test.js` fails a new `overflow-x` strip left out of it | The test reads upstream's CSS. Check the fork's strips in `hevier.css` (filter chips, the Home cards) against the same rule by hand. |
+| **Workout screen polish** (`c587add30`, `8ae999f76`): 44 px steppers and tick targets, focus rings, chip press states; a per-side weight at Largest text no longer clips | Upstream's workout screen, which the fork replaces. The same checks belong in `screens.mjs` at Largest text (the D17 row below). |
+| **Exercise settings: Sets stops at 50, Reps at 1000** (`5919214bd`) | Meets D90's typo checks and D15's routine table: use upstream's limits there too, so a typo cannot build a 999-row workout from the fork's editor. |
+| **Exercise history: Best and PR use the assistance-aware comparison** (`617a15b7d`) | **Meets D51** (the help is the weight, least help is the record): check both agree on an assisted exercise after the merge. |
+| **Leg press and hack squat no longer credit the calves** (#1034, `7b890962d`) | **Meets D74**: the catalogue's targets change under the fork's main-muscle rules; rerun `hvVolume`'s counts for those two. |
+| **A paused workout lets the screen sleep** (`0e2ecc24e`) | Comes with D107's Pause: the fork's keep-awake must let go too. |
+| **Log set from the notification on a per-side exercise ticks the open side** (`20ac492fe`); starting a workout no longer opens Android's "Alarms & reminders" (`86ca315f4`) | **D110** (upstream's workout notification beside D44) and D72 (right side first): the open side is the fork's order. The exact-alarm fix is taken as is. |
+| **Settings → Wear OS watch on Android** (`93c8dc65c`), and Modules' Watch module names Garmin (`e211b1288`) | **D100 and D106**: Wear OS is out of the APK, so the new page is hidden with it; Garmin stays, so its Settings page and the Watch module do too (D102's part list). |
+| **Weekly cardio goals** of your own, per activity, in minutes, distance or sessions (`d25bfe539`) | Upstream's Stats card; D109 keeps the new screens out. Nothing to build. |
+| **Backup import: a broken row no longer takes Home, History and Stats down** (`9f5299033`) | Taken as is; the fork's Home and History read the same rows, so check a broken row there once. |
+| Watch sync (a set logged at the wrist is never dropped, the rest counts from the tick at the wrist), the live widget on iOS, Garmin link recovery, right-to-left set rows and charts, light-theme contrast, account delete clearing Coach and library data, a rate limit on the connector sign-in | Nothing for the fork, beyond `watch-sync.js` staying upstream's. |
+
+The rows below are from 2026-11-09 and still hold.
 
 **The fork's own PRs and issues, built by upstream** (credited in the changelog):
 
@@ -118,7 +150,8 @@ dates (1.4.5 2026-11-29 with 36 open items, 1.4.6 12-13 with 16, 1.4.7 12-27 wit
 holds much of 1.4.6 to 1.4.12: body composition and the Android widget (1.4.6), circuits, distance
 and new progression rules (1.4.7), the shoulder split (1.4.8), OIDC (1.4.9), trainers, the Coach
 and MCP write (1.4.10), share cards and levels (1.4.11) and Garmin (1.4.12). Expect the later
-milestones to shrink. Refresh:
+milestones to shrink. **2026-11-12:** the milestones are exactly as on 2026-11-09, dates and open
+counts alike, and ROADMAP.md on `release-1.4.5` has not changed. Refresh:
 
 ```bash
 for n in $(gh api repos/DuarteSantos8/openGym/milestones --jq '.[].number'); do
@@ -146,7 +179,7 @@ What would meet the fork's own work (milestone in brackets; "roadmap" = in ROADM
 | **CSV export** (1.4.3, #647) | Check it carries the fork's entry labels (`hvBrand`, `hvCable`) or leaves them out cleanly; D34's Hevy export is separate. |
 | Accounts (password, OIDC), trainer role, MCP write, the iOS app | No fork impact expected (iOS out of scope). |
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08 and 2026-11-09)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09 and 2026-11-12)
 
 On 2026-10-25 upstream closed #672, #677, #690, #694, #736, #766, #767 and #768 unmerged: each
 came into 1.4.3 through `release-1.4.3`, and the maintainer's closing comment says so. Checked
@@ -200,6 +233,23 @@ credited in its changelog. GitHub still shows them open; upstream usually closes
 it tags. Only **#901** (equipment by group) is not in it. After the tag, close what is released with
 a thank-you, and decide whether #901 is still worth offering.
 
+**2026-11-12:** nothing moved, so the table below stands as written. No comment, close or milestone
+on any of the fork's PRs or issues since 2026-11-09 (only #1084 is merged), and none of the open
+ones (#901, #1085, #1090, #1091, #1092, #1097, #1098) is in `release-1.4.5`'s 153 new commits. The
+timezone and shuffled-order failures of #1083 are not fixed there either. #988, #1022, #1034 and
+#1042 are unchanged, though #1034's leg press and hack squat fix is in the branch. The maintainer
+is in release QA (five builds in three days), so expect answers after the tag.
+
+**#815 against upstream's own version** (`8a91a9c34`, 2026-11-06, "idea by @lodepav"; no comment
+or review on the PR itself): taken are the workout and exercise notes, a routine's rest timers and
+its rep ranges. **Left out:** the body measurements beside the weight, the routine a workout was
+done from, a custom exercise's muscles and equipment from its template (and filling in an earlier
+import's), and the hint when the Hevy account shows the other unit. Folders were never in #815.
+The routine links and the folders are offered as #1158 (table below); the other three stay the
+fork's at the 1.4.5 merge (D31). **Not worth offering after all:** D90's "under a third of last
+time" check is already upstream's (`typo-check.js`), and its cardio-timer check needs D53's
+count-up timer, which upstream does not have.
+
 | # | What | State |
 |---|---|---|
 | #672 | Hevy titles land on the exercise Hevy's own artwork shows (D29) | Closed, 3 of its 4 commits in `release-1.4.3`. **Not taken:** the last, "map Hevy templates to the exercise their own artwork shows" (`fc5ba8450`, pushed after the review), which regenerates `hevy-id-map.js` from the thumbnails: 429 of Hevy's 451 templates mapped, where 1.4.3 has 297, so 132 still import as custom and 78 land elsewhere. **Offered again as #807** (2026-10-25, on `release-1.4.3`, regenerated there: 429 of Hevy's 503 templates mapped, 1.4.3's own title rows kept), the maintainer told why |
@@ -247,6 +297,9 @@ a thank-you, and decide whether #901 is still worth offering.
 | #1093 | A set of a reps exercise as a timed hold (D89, S48) | Issue opened 2026-11-09, offering a PR; S48 goes if upstream builds it |
 | #1097 | History rows and workout details name the workout's gym, with two gyms or more (D94) | PR opened 2026-11-09 on release-1.4.5 |
 | #1098 | A newer APK offers itself when the app opens, once per version, About's question with Not now (D77) | PR opened 2026-11-09 on release-1.4.5; replaces the fork's UpdateNotice when merged |
+| #1156 | The seconds wheel in steps of 5, a Settings choice (D48, S28): branch `upstream-pr/wheel-step`, `294d8aca4` | PR opened 2026-11-12 on release-1.4.5 (Built on release-1.4.5 on 2026-11-12, upstream's suite green). Drops S28 when merged |
+| #1157 | Weekly sets per muscle: count main muscles only, off by default (D42): branch `upstream-pr/main-muscle-sets`, `b71d518cc` | PR opened 2026-11-12 on release-1.4.5 (Built 2026-11-12, suite green). Upstream already counts a supporting muscle 0.4, so only the switch is new |
+| #1158 | Hevy API import: workouts filed under their routine (#815's leftover) and Hevy's routine folders (D30, D31, S20): branch `upstream-pr/hevy-links-folders`, `72787752b` | PR opened 2026-11-12 on release-1.4.5 (Built 2026-11-12, suite green). S20 goes when merged |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)
 
@@ -271,6 +324,22 @@ exercise), #1021 (the duration after a break), #1011 and #1012 (carries and sled
 | #1024 to #1033, #1041, #1028 | Wear OS fixes, iPhone Liquid Glass | Nothing: Wear OS is out of the fork (D100), and iOS is not built. |
 | #1008, #1023, #1026, #1039 | Chinese, Bangla, Japanese, Danish | Locales: take upstream's (rule C). |
 | #1013, #1014, #1015, #1018, #1019, #1025, #1032, #1035, #1037 | Tennis, Health Connect steps, video markers, Coach effort and streaming, a web image crash, Nix, first-launch language | Server, Coach, health or packaging: nothing for the fork. |
+
+**New since 2026-11-09 that meets the fork** (2026-11-12, titles only, none on a milestone, 193 PRs open)
+
+| # | What | For the fork |
+|---|---|---|
+| #1117 (issue), #1118 (PR) | The finish summary says "Next time: 0 kg · a bit lighter" with progression off and no weight in the routine | **The fork's D85** (no "Next time" without progression) hides this already. If #1118 lands, check D85 still wins, or drop it for upstream's line. |
+| #1121 (issue), #1132 (PR) | The CSV import ignores AM/PM: Hevy workouts get 0-minute durations or start 12 hours early | **Meets D33 and the Hevy import the fork uses.** Check the user's Hevy CSV for it (workouts after noon, D88's durations); if it shows, the fix is upstream's importer, so follow #1132 rather than patching the fork. |
+| #1105 (issue), #1120, #1122, #1123, #1126, #1127, #1129 (PRs) | Settings tidied in steps: the first screen in four headed groups, one Watches row, headings, one home for files and backups, search finding every row | **Meets D16** (the fork's Settings in five groups) and S11 / S12: expect conflicts there, and decide at that merge whether the fork's groups move onto upstream's. |
+| #1134 (PR) | Move an exercise from one routine to another | D15's routine table is the fork's: a Hevy-like idea to take only if it lands. |
+| #1142 (issue), #1144 (PR) | The admin panel and Settings loop on back; pop the history instead of pushing | Near the fork's #1092 and S16 (Android back): two fixes to the same history, read #1144 before rebasing #1092. |
+| #1140, #1141 (issues) | Exercise facets against set-level modifiers; commonality ranking in search | Near D43's cable setups (#1081) and D28's brands as labels on a set, and the picker's order (Hevy sorts by name). Watch, nothing to build. |
+| #1115 (PR), #1111 (issue) | A cardio interval measured by time, distance or calories; flights or steps for the stepmill | D53's TIME column and D105's set fields: one more field for the set row if it lands. |
+| #1133 (issue) | Several sets within a superset cause progression | Nothing: progression is off in the fork (D61, D69). |
+| #1139, #1143, #1149, #1151, #1100, #1107, #1108 | Watches: set types from the wrist, Wear OS rest timer, a link sign, Apple Watch pages | Nothing: Wear OS is out of the APK (D100), iOS is not built. |
+| #1135 to #1138, #1145 to #1148, #1150, #1099, #1152 | Coach and ChatGPT, MCP, webhooks | Nothing (D11, Coach off). |
+| #1103, #1102, #1116, #1119, #1125, #1106, #1112, #1113, #1128, #1130 | Share cards, Your year, Stats tile order, heart rate in the .fit file, FitNotes, Apple Health, Focus mode | Upstream's screens: nothing for the fork. |
 
 ## Open pull requests (2026-10-16, new ones added 2026-10-21)
 
