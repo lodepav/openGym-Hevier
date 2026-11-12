@@ -62,7 +62,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
-| Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4) |
+| Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4; a routine that repeats its last workout offered as #1161) |
 
 ## Gyms, machines and labels
 
@@ -73,7 +73,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offered (#1081, issue) |
 | Exercise search by machine brand | D36 | Offered (#1082, issue) |
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Fork (upstream has its own gym search on OpenStreetMap, `lib/gym-places.js`) |
-| Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork |
+| Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork (body weight as a profile's own tick offered as #1159, issue) |
 | Gym filter says how many exercises it hid, and shows them on a tap | D67 | Offered (#905, the count and Show all equipment; built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Equipment chosen by group (Free weights, Machines …) | D63 | Offered (#901, the explorer's strip, open and not in release-1.4.5; a gym's checklist to follow) |
 
@@ -132,7 +132,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (the fix table is in 1.4.3, #672, but for #793's rows; the regenerated template map, #807, built in release-1.4.5) |
 | Routine folders from the Hevy API | D30 | Offered (#1158, into upstream 1.4.5's own routine folders, D108; S20 goes when merged) |
-| More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offered (#815; upstream built notes, rest timers and rep ranges in release-1.4.5 and left out the measurements, routine links, custom exercises' muscles and the unit hint. The routine links are offered again with D30's folders, #1158) |
+| More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offered (#815; upstream built notes, rest timers and rep ranges in release-1.4.5 and left out the measurements, routine links, custom exercises' muscles and the unit hint. All four are offered again with D30's folders, #1158; S21 goes when merged) |
 | Review of exercise matches before an import, remembered | D33 | Offered (#931, built in release-1.4.5 with #849 as one Check and choose step; upstream's replaces the fork's at the merge, D103) |
 | Earlier Hevy imports' notes get their line breaks back (new imports keep them upstream since 1.4.3, #690) | D54 | Fork |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
