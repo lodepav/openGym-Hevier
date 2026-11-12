@@ -37,6 +37,9 @@ describe('hevier rest and timer wheels (D48)', () => {
     render(66)
     expect(seconds().getAttribute('aria-valuenow')).toBe('1')
     expect(read.current()).toBe(65)
+    // A screen reader hears what the wheels show.
+    expect(seconds().getAttribute('aria-valuetext')).toMatch(/5/)
+    expect(seconds().getAttribute('aria-valuetext')).not.toMatch(/6/)
   })
 
   it('without the hook, upstream’s second-by-second wheel', () => {

@@ -7,8 +7,11 @@ const info = { hasUpdate: true, latestVersion: '1.3.0', apkUrl: 'https://x/app.a
 const install = vi.fn(async () => {})
 const checksum = vi.fn(async () => 'a'.repeat(64))
 vi.mock('../../lib/mobile.js', async orig => ({ ...(await orig()), MOBILE: true, isAndroid: async () => true }))
+const check = vi.fn(async () => info)
+const reset = vi.fn()
 vi.mock('../../lib/update.js', () => ({
-  checkForUpdate: async () => info,
+  checkForUpdate: (...a) => check(...a),
+  resetUpdateCheck: (...a) => reset(...a),
   fetchChecksum: (...a) => checksum(...a),
   downloadAndInstall: (...a) => install(...a),
 }))
@@ -22,14 +25,26 @@ describe('initUpdateNotice', () => {
     vi.useFakeTimers()
     let S = { active: null }
     initUpdateNotice({ get: () => S })
-    // Another sheet open (the pictures' question, D115): not on top of it, but at the next return.
+    // Another sheet open (the pictures' question, D115): not on top of it, but once it is closed,
+    // also when GitHub cannot be asked again by then.
     const { useUI } = await import('../../store/useUI.js')
     useUI.getState().openSheet(() => null)
     await vi.advanceTimersByTimeAsync(4000)
     expect(menu).not.toHaveBeenCalled()
+    expect(localStorage.getItem(SEEN_KEY)).toBe(null)
+    check.mockImplementationOnce(async () => { throw new Error('offline') })
     useUI.getState().closeAll()
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(menu).toHaveBeenCalledTimes(1)
+    // The session's answer is asked again only after an hour.
+    expect(reset).toHaveBeenCalledTimes(1)
     document.dispatchEvent(new Event('visibilitychange'))
     await vi.advanceTimersByTimeAsync(1000)
+    expect(reset).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(61 * 60000)
+    document.dispatchEvent(new Event('visibilitychange'))
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(reset).toHaveBeenCalledTimes(2)
     expect(menu).toHaveBeenCalledTimes(1)
     const o = menu.mock.calls[0][0]
     expect(o.title).toContain('1.3.0')

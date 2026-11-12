@@ -163,11 +163,15 @@ export function linkRoutines(S, parsedWorkouts, now = Date.now()) {
   const touched = new Set()
   for (const p of parsedWorkouts || []) {
     if (!p?.hvHevyRoutine) continue
+    // One session is one workout: the nearest one still without a routine, so two sessions a
+    // minute apart each find their own.
+    let best = null, gap = LINK_MS
     for (const w of list) {
-      if (w.d !== p.d || w.routineId || w.hvHevyRoutine || !(Math.abs((w.start || 0) - (p.start || 0)) <= LINK_MS)) continue
-      w.hvHevyRoutine = p.hvHevyRoutine
-      touched.add(w)
+      if (w.d !== p.d || w.routineId || w.hvHevyRoutine) continue
+      const g = Math.abs((w.start || 0) - (p.start || 0))
+      if (g <= gap && (!best || g < gap)) { best = w; gap = g }
     }
+    if (best) { best.hvHevyRoutine = p.hvHevyRoutine; touched.add(best) }
   }
   const byHevy = new Map((S.routines || []).filter(r => r?.hevyId).map(r => [String(r.hevyId), r.id]))
   let linked = 0

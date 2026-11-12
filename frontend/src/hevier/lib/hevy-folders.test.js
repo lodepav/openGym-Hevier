@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchHevyFolders, importHevyFolders, applyHevyFolders } from './hevy-folders.js'
 import { hooks } from '../hooks.js'
 import { parseHevyRoutines, mergeHevyRoutines } from '../../lib/import-hevy.js'
@@ -25,6 +25,20 @@ async function importRoutines(S, raw, folders = pages) {
   applyHevyFolders(S, data.routines, res)
   return S
 }
+it('imports the routines without folders when the folders never answer', async () => {
+  vi.useFakeTimers()
+  try {
+    const data = { routines: parseHevyRoutines([routine('a', 'Push', 7)], T, { unit: 'kg' }) }
+    const done = importHevyFolders('k', data, () => new Promise(() => {}))
+    await vi.advanceTimersByTimeAsync(20e3)
+    await done
+    expect(data.hvFolders).toEqual([])
+    expect(data.routines.routines[0].hvFolder).toBe(null)
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
 const byHevy = (S, id) => S.routines.find(r => r.hevyId === id)
 
 describe('hevier Hevy routine folders (D30)', () => {

@@ -6,8 +6,8 @@ import { t } from '../../lib/i18n.js'
 import { menuSheet } from '../../sheets.jsx'
 import { useUI } from '../../store/useUI.js'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
-import { checkForUpdate, downloadAndInstall, fetchChecksum } from '../../lib/update.js'
-import { shouldOffer, readSeen, writeSeen } from '../lib/update-notice.js'
+import { checkForUpdate, resetUpdateCheck, downloadAndInstall, fetchChecksum } from '../../lib/update.js'
+import { offerNow, readSeen, writeSeen } from '../lib/update-notice.js'
 
 function Progress({ bind }) {
   const [text, setText] = useState(t('Starting download…'))
@@ -51,17 +51,35 @@ function offer(info) {
   })
 }
 
-/** At launch and on every return to the app: a newer release, not yet offered, with no workout open. */
+// Upstream keeps the check's answer for the session: after this long it is asked again, so a
+// release made while the app stayed open is still found (GitHub allows 60 an hour).
+const RECHECK_MS = 60 * 60000
+
+/** At launch and on every return to the app: a newer release, not yet offered. With a workout open
+ *  or another sheet up (the pictures' question, D115) the offer waits, and is made once that is over. */
 let started = false
 export function initUpdateNotice(store) {
   if (!MOBILE || started) return
   started = true
+  const busy = () => !!store.get()?.active || useUI.getState().sheets.length > 0
+  let askedAt = 0
+  let held = null        // the update an offer waits for: still offered if asking again fails
+  let retrying = false
   const check = async () => {
     if (document.hidden || !(await isAndroid())) return
-    const info = await checkForUpdate().catch(() => null)
-    // Not over another sheet (the pictures' question, D115): the next return to the app offers it.
-    if (shouldOffer(info, readSeen(), !!store.get()?.active) && !useUI.getState().sheets.length) offer(info)
+    if (Date.now() - askedAt > RECHECK_MS) { resetUpdateCheck(); askedAt = Date.now() }
+    const info = await checkForUpdate().catch(() => null) || held
+    const now = offerNow(info, readSeen(), busy())
+    held = now === 'wait' ? info : null
+    if (now === 'offer') offer(info)
   }
+  const retry = () => {
+    if (!held || retrying || busy()) return
+    retrying = true
+    setTimeout(() => { retrying = false; check() }, 1000)
+  }
+  store.subscribe?.(retry)
+  useUI.subscribe(retry)
   setTimeout(check, 4000)
   document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(check, 1000) })
 }
