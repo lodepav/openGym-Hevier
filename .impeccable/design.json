@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-13T17:44:47+00:00",
+  "title": "Design System: Go Hevier",
+  "extensions": {
+    "colorMeta": {
+      "hevy-blue": {
+        "role": "primary",
+        "displayName": "Hevy Blue",
+        "tonalRamp": [
+          "oklch(15% 0.086 253)",
+          "oklch(27% 0.152 253)",
+          "oklch(38% 0.190 253)",
+          "oklch(50% 0.190 253)",
+          "oklch(61% 0.190 253)",
+          "oklch(72% 0.190 253)",
+          "oklch(84% 0.152 253)",
+          "oklch(95% 0.086 253)"
+        ]
+      },
+      "hevy-blue-pressed": {
+        "role": "primary",
+        "displayName": "Hevy Blue, pressed",
+        "tonalRamp": [
+          "oklch(15% 0.077 255)",
+          "oklch(27% 0.136 255)",
+          "oklch(38% 0.170 255)",
+          "oklch(50% 0.170 255)",
+          "oklch(61% 0.170 255)",
+          "oklch(72% 0.170 255)",
+          "oklch(84% 0.136 255)",
+          "oklch(95% 0.077 255)"
+        ]
+      },
+      "done-green": {
+        "role": "secondary",
+        "displayName": "Done Green",
+        "tonalRamp": [
+          "oklch(15% 0.081 150)",
+          "oklch(27% 0.144 150)",
+          "oklch(38% 0.180 150)",
+          "oklch(50% 0.180 150)",
+          "oklch(61% 0.180 150)",
+          "oklch(72% 0.180 150)",
+          "oklch(84% 0.144 150)",
+          "oklch(95% 0.081 150)"
+        ]
+      },
+      "warmup-yellow": {
+        "role": "secondary",
+        "displayName": "Warm-up Yellow",
+        "tonalRamp": [
+          "oklch(15% 0.072 80)",
+          "oklch(27% 0.128 80)",
+          "oklch(38% 0.160 80)",
+          "oklch(50% 0.160 80)",
+          "oklch(61% 0.160 80)",
+          "oklch(72% 0.160 80)",
+          "oklch(84% 0.128 80)",
+          "oklch(95% 0.072 80)"
+        ]
+      },
+      "failure-red": {
+        "role": "secondary",
+        "displayName": "Failure Red",
+        "tonalRamp": [
+          "oklch(15% 0.086 30)",
+          "oklch(27% 0.152 30)",
+          "oklch(38% 0.190 30)",
+          "oklch(50% 0.190 30)",
+          "oklch(61% 0.190 30)",
+          "oklch(72% 0.190 30)",
+          "oklch(84% 0.152 30)",
+          "oklch(95% 0.086 30)"
+        ]
+      },
+      "superset-purple": {
+        "role": "tertiary",
+        "displayName": "Superset Purple",
+        "tonalRamp": [
+          "oklch(15% 0.090 318)",
+          "oklch(27% 0.160 318)",
+          "oklch(38% 0.200 318)",
+          "oklch(50% 0.200 318)",
+          "oklch(61% 0.200 318)",
+          "oklch(72% 0.200 318)",
+          "oklch(84% 0.160 318)",
+          "oklch(95% 0.090 318)"
+        ]
+      },
+      "caution-orange": {
+        "role": "tertiary",
+        "displayName": "Caution Orange",
+        "tonalRamp": [
+          "oklch(15% 0.077 68)",
+          "oklch(27% 0.136 68)",
+          "oklch(38% 0.170 68)",
+          "oklch(50% 0.170 68)",
+          "oklch(61% 0.170 68)",
+          "oklch(72% 0.170 68)",
+          "oklch(84% 0.136 68)",
+          "oklch(95% 0.077 68)"
+        ]
+      },
+      "amoled-black": {
+        "role": "neutral",
+        "displayName": "AMOLED Black",
+        "tonalRamp": [
+          "#000000",
+          "#1b1d22",
+          "#262930",
+          "#353941",
+          "#4b505a",
+          "#9a9ea7",
+          "#d5d7dc",
+          "#ffffff"
+        ]
+      },
+      "card-grey": {
+        "role": "neutral",
+        "displayName": "Card Grey"
+      },
+      "fill-grey": {
+        "role": "neutral",
+        "displayName": "Fill Grey"
+      },
+      "control-grey": {
+        "role": "neutral",
+        "displayName": "Control Grey"
+      },
+      "next-tick-grey": {
+        "role": "neutral",
+        "displayName": "Next Tick Grey"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline"
+      },
+      "ink-white": {
+        "role": "neutral",
+        "displayName": "Ink White"
+      },
+      "ink-grey": {
+        "role": "neutral",
+        "displayName": "Ink Grey"
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Ink Faint"
+      },
+      "ink-ghost": {
+        "role": "neutral",
+        "displayName": "Ink Ghost"
+      },
+      "on-blue": {
+        "role": "neutral",
+        "displayName": "On Blue"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The live heart rate on the strap screen only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "A routine's name on its page and in its editor."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The page bar's title, an exercise's name, a card's title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Rows, feed lines, buttons."
+      },
+      "value": {
+        "displayName": "Value",
+        "purpose": "The weight and reps in a set row, tabular."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "The set table's column heads."
+      }
+    },
+    "shadows": [
+      {
+        "name": "inset-ring",
+        "value": "inset 0 0 0 2px #008cff",
+        "purpose": "Today's date, the next set's tick, a focused field."
+      },
+      {
+        "name": "next-set-edge",
+        "value": "inset 4px 0 0 #008cff",
+        "purpose": "The blue bar down the left of the set to do next."
+      },
+      {
+        "name": "drag-lift",
+        "value": "0 10px 18px rgba(0,0,0,.55)",
+        "purpose": "A row while it is dragged (as a drop-shadow filter, with brightness 1.25)."
+      },
+      {
+        "name": "sticky-fade",
+        "value": "0 -8px 16px #000000",
+        "purpose": "The picker's Add bar fading the list beneath it."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.32,.72,0,1)",
+        "purpose": "Upstream's one easing, for presses and state changes."
+      },
+      {
+        "name": "fast",
+        "value": "140ms",
+        "purpose": "Press feedback."
+      },
+      {
+        "name": "med",
+        "value": "220ms",
+        "purpose": "Sheets and larger state changes."
+      },
+      {
+        "name": "press-scale",
+        "value": "0.97",
+        "purpose": "A button or chip while held; small round controls use 0.92."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled blue action on a screen: Start Routine, Save, Add.",
+      "html": "<button class=\"ds-btn-primary\">Start Routine</button>",
+      "css": ".ds-btn-primary{font-family:Roboto,system-ui,sans-serif;background:#008cff;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:15px;font-weight:600;width:100%;transition:transform 140ms cubic-bezier(.32,.72,0,1),background 140ms}.ds-btn-primary:hover,.ds-btn-primary:active{background:#0070d6}.ds-btn-primary:active{transform:scale(.97)}.ds-btn-primary:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Grey fill, regular weight: tiles, New Routine, Add Exercise.",
+      "html": "<button class=\"ds-btn-secondary\">New Routine</button>",
+      "css": ".ds-btn-secondary{font-family:Roboto,system-ui,sans-serif;background:#262930;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:15px;font-weight:500;min-height:40px;width:100%;transition:transform 140ms cubic-bezier(.32,.72,0,1),background 140ms}.ds-btn-secondary:hover,.ds-btn-secondary:active{background:#353941}.ds-btn-secondary:active{transform:scale(.97)}.ds-btn-secondary:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Red text on fill grey, never a red fill.",
+      "html": "<button class=\"ds-btn-danger\">Discard Workout</button>",
+      "css": ".ds-btn-danger{font-family:Roboto,system-ui,sans-serif;background:#262930;color:#e34b37;border:0;border-radius:8px;padding:9px 14px;font-size:15px;font-weight:500;width:100%;transition:background 140ms}.ds-btn-danger:hover,.ds-btn-danger:active{background:#353941}.ds-btn-danger:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Page Bar",
+      "kind": "nav",
+      "refersTo": "page-bar",
+      "description": "The one bar on every page: bare chevron, centred title, plain actions, a hairline.",
+      "html": "<div class=\"ds-pagebar\"><button class=\"ds-pagebar-back\" aria-label=\"Back\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 5l-7 7 7 7\"/></svg></button><div class=\"ds-pagebar-title\">Log Workout</div><div class=\"ds-pagebar-end\"><button class=\"ds-pagebar-finish\">Finish</button></div></div>",
+      "css": ".ds-pagebar{font-family:Roboto,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);align-items:center;column-gap:6px;min-height:44px;padding:4px 8px;background:#000;color:#fff;border-bottom:.5px solid #2a2d34}.ds-pagebar-back{background:none;border:0;color:#fff;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}.ds-pagebar-title{text-align:center;font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-pagebar-end{display:flex;justify-content:flex-end}.ds-pagebar-finish{background:#008cff;color:#fff;border:0;border-radius:6px;min-height:32px;padding:0 14px;font-size:14px;font-weight:600}.ds-pagebar-finish:hover{background:#0070d6}.ds-pagebar-back:focus-visible,.ds-pagebar-finish:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Set Table",
+      "kind": "custom",
+      "refersTo": "set-row",
+      "description": "The signature: flat 44px rows, a ticked green band, a striped row, the next set with its blue edge.",
+      "html": "<div class=\"ds-set\"><div class=\"ds-set-head\"><span>SET</span><span>PREVIOUS</span><span>KG</span><span>REPS</span><span>✓</span></div><div class=\"ds-set-row ds-set-done\"><b class=\"ds-set-w\">W</b><span class=\"ds-set-prev\">40kg x 10</span><b>40</b><b>10</b><i class=\"ds-set-chk ds-set-on\">✓</i></div><div class=\"ds-set-row ds-set-stripe ds-set-next\"><b>1</b><span class=\"ds-set-prev\">80kg x 8</span><b>80</b><b>8</b><i class=\"ds-set-chk\">✓</i></div><div class=\"ds-set-row\"><b>2</b><span class=\"ds-set-prev\">80kg x 7</span><b class=\"ds-set-hint\">80</b><b class=\"ds-set-hint\">7</b><i class=\"ds-set-chk\">✓</i></div></div>",
+      "css": ".ds-set{font-family:Roboto,system-ui,sans-serif;background:#000;color:#fff;font-variant-numeric:tabular-nums}.ds-set-head,.ds-set-row{display:grid;grid-template-columns:34px minmax(0,1fr) 58px 58px 36px;column-gap:6px;align-items:center;text-align:center;padding:0 20px}.ds-set-head{font-size:11px;letter-spacing:.04em;color:#9a9ea7;padding-bottom:4px}.ds-set-row{min-height:44px}.ds-set-row b{font-size:16px;font-weight:600}.ds-set-row b:first-child{font-size:15px}.ds-set-w{color:#efab03}.ds-set-prev{font-size:14px;color:rgba(154,158,167,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-set-hint{color:rgba(154,158,167,.8);font-weight:500 !important}.ds-set-stripe{background:#1b1d22}.ds-set-done{background:rgba(47,191,91,.22)}.ds-set-next{background:#353941;box-shadow:inset 4px 0 0 #008cff}.ds-set-next b{font-weight:700}.ds-set-chk{font-style:normal;justify-self:center;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:#353941;color:rgba(154,158,167,.8);font-size:14px}.ds-set-next .ds-set-chk{background:#4b505a;color:#9a9ea7;box-shadow:inset 0 0 0 2px #008cff}.ds-set-on{background:#2fbf5b;color:#fff}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A range or filter pill; the picked one is blue.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip-on\">Duration</button><button class=\"ds-chip\">Volume</button><button class=\"ds-chip\">Reps</button></div>",
+      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{font-family:Roboto,system-ui,sans-serif;padding:6px 12px;border-radius:999px;border:0;font-size:13px;background:#262930;color:#fff;transition:background 140ms}.ds-chip:hover{background:#353941}.ds-chip-on,.ds-chip-on:hover{background:#008cff;color:#fff}.ds-chip:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A routine on the Workout tab: card grey, 12px corners, no border, no shadow.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-t\">Push A</div><div class=\"ds-card-s\">Bench Press, Overhead Press, Triceps Pushdown</div><button class=\"ds-card-b\">Start Routine</button></div>",
+      "css": ".ds-card{font-family:Roboto,system-ui,sans-serif;background:#1b1d22;color:#fff;border-radius:12px;padding:16px}.ds-card-t{font-size:17px;font-weight:600}.ds-card-s{font-size:14px;color:#9a9ea7;margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-card-b{width:100%;background:#008cff;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:15px;font-weight:600}.ds-card-b:hover{background:#0070d6}.ds-card-b:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A filled field with no border; focus is an inset blue ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"Routine title\">",
+      "css": ".ds-input{font-family:Roboto,system-ui,sans-serif;width:100%;box-sizing:border-box;background:#1b1d22;color:#fff;border:0;border-radius:12px;padding:13px 15px;font-size:17px;outline:none;transition:box-shadow 140ms}.ds-input::placeholder{color:rgba(154,158,167,.8)}.ds-input:focus{box-shadow:inset 0 0 0 2px #008cff}"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "page-bar",
+      "description": "Three tabs: Home, Workout, Profile. Grey at rest, blue when open.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-tab-on\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11l8-7 8 7v9H4z\"/></svg><span>Home</span></button><button class=\"ds-tab\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\"><path d=\"M3 12h18M6 8v8M18 8v8M9 6v12M15 6v12\"/></svg><span>Workout</span></button><button class=\"ds-tab\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1-4 4-6 8-6s7 2 8 6\"/></svg><span>Profile</span></button></nav>",
+      "css": ".ds-tabs{font-family:Roboto,system-ui,sans-serif;display:flex;justify-content:space-around;padding:7px 6px 6px;background:#000;border-top:.5px solid rgba(42,45,52,.7)}.ds-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:#9a9ea7;font-size:10px;font-weight:500;transition:color 140ms}.ds-tab svg{color:#fff}.ds-tab-on,.ds-tab-on svg{color:#008cff}.ds-tab:focus-visible{outline:2.5px solid #008cff;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Familiar Rack",
+    "overview": "Everything is where a Hevy user's hand already goes. The look is borrowed on purpose: Hevy's dark surfaces, its blue, its set table, its page bar. Nothing asks to be noticed. A new screen is right when someone who trained with Hevy for years does not stop to look at it.\n\nThe mood is flat, dense and quiet. Rows are compact, parts are split by hairlines, and there is no decoration. The numbers are the content and the interface gets out of their way. Buttons, rows and fields are plain and compact: bare glyphs, grey fills, small corners, small text, styled no more than it takes to find them and hit them.\n\nIt is not upstream openGym's iOS look: no large titles, no inset rounded cards on every screen, no tinted icon tiles, no Apple system colours. It is not a gamified fitness app either: no gradients, no glow, no badges, no confetti, no hero numbers for show.",
+    "keyCharacteristics": [
+      "A black page with flat content on it. Cards are the exception, not the frame.",
+      "One accent. Blue means \"you can tap this\" or \"this is next\".",
+      "Colour appears with state: green when a set is done, yellow for a warm-up or a record, red for failure or a destructive action.",
+      "Tabular numbers everywhere, so a column of sets lines up.",
+      "One page bar on every screen: a bare chevron, a small centred title, plain actions."
+    ],
+    "rules": [
+      {
+        "name": "The One Blue Rule",
+        "body": "Blue is the only colour that means \"tap\" or \"next\". A thing that is not tappable and not next is never blue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Earned Colour Rule",
+        "body": "Green, yellow and red show up because something happened: a set was ticked, a record fell, a set failed. They are never used to decorate a resting screen.",
+        "section": "colors"
+      },
+      {
+        "name": "The Grey Until Touched Rule",
+        "body": "A value the app filled in is faint grey and medium weight. It turns white and bold once it is typed or its set is ticked (D2).",
+        "section": "colors"
+      },
+      {
+        "name": "The No Large Title Rule",
+        "body": "A page names itself in the 17px bar. Nothing on a page is set above 22px except a live readout that is the page's whole point.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Any number that can change or sit in a column uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat At Rest Rule",
+        "body": "Nothing at rest casts a shadow. A shadow means the thing is in the user's hand.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** put a new screen's title in the one page bar: bare chevron, centred 17px/600, plain actions (D49).",
+      "**Do** let lists, tables and feed cards run edge to edge, split by half-pixel hairlines.",
+      "**Do** keep blue for what can be tapped and what is next, and let green, yellow and red appear only with state.",
+      "**Do** draw with the tokens in `theme.css` (`--bg`, `--surface`, `--surface-2`, `--surface-3`, `--label`, `--label-2`, `--label-3`, `--sep`, `--acc`), scoped under `:root[data-ui=\"hevier\"]`.",
+      "**Do** keep every target at 44px by extending it invisibly, not by making the control bigger.",
+      "**Do** set every changing number in tabular figures.",
+      "**Do** keep the faint grey (`--label-3`) at 4.5:1 on a card."
+    ],
+    "donts": [
+      "**Don't** bring back upstream's iOS look: large titles, inset rounded cards as a page's frame, tinted icon tiles, filled circles behind header icons, Apple's system colours.",
+      "**Don't** add what a gamified fitness app has: gradients, glow, badges, confetti, big numbers for decoration.",
+      "**Don't** give anything at rest a shadow.",
+      "**Don't** fill a danger button red or tint it; red is its text on fill grey.",
+      "**Don't** offer a light theme or an accent choice (D17). The light token block exists only for upstream's timer flash.",
+      "**Don't** add a second typeface, or set anything above 22px that is not a live readout.",
+      "**Don't** put a border around a card, a chip or a field."
+    ]
+  }
+}
