@@ -18,9 +18,10 @@ export const FORK_PARTS = {
   health: ['D79: the heart-rate strap, its button, live reading and Settings', 'D80: the strap’s full screen', 'D91: its workout card'],
   motivation: ['D59: the streak (Home widget, Calendar)', 'D87: sharing a workout or a month as a picture', 'D22, D51: the record marks on a set and a finished workout'],
   integrations: ['D34: Send to Hevy', 'D93, D95: OpenBite’s phase and the strength feedback'],
-  hvExercise: ['D114: the optional categories of an exercise’s settings'],
+  hvExercise: ['D114: the optional categories of an exercise’s settings', 'D73: other names', 'D76: the main muscle choice'],
+  hvWorkout: ['D10: the Timer and Stopwatch', 'D101, D58: the How to video and the picker’s chart button'],
   hvGyms: ['D28, D36, D43, D82, D96: machine brands and cable setups', 'D47: gyms nearby', 'D46, D86: backups per gym'],
-  hvStats: ['D23: the monthly report', 'D88: exercise time', 'D81: the Strength levels list'],
+  hvStats: ['D23: the monthly report', 'D88: exercise time', 'D81: the Strength levels list', 'D68: the Calendar and planned days'],
 }
 
 // The fork's own modules (D97, D114), listed on Settings → Modules beside upstream's (seam S54) and
@@ -29,16 +30,19 @@ export const FORK_PARTS = {
 // they are.
 export const FORK_MODULES = [
   { id: 'hvExercise', group: 'training', icon: 'slider', tint: 'var(--blue)', title: 'Exercise settings',
-    desc: 'Progression, plate loading, drop-sets and units in an exercise’s settings.' },
+    desc: 'Progression, plate loading, drop-sets, units, other names and the main muscle of an exercise.' },
+  { id: 'hvWorkout', group: 'training', icon: 'stopwatch', tint: 'var(--orange)', title: 'Workout extras',
+    desc: 'The Timer and Stopwatch, and exercise demos.' },
   { id: 'hvGyms', group: 'training', icon: 'pin', tint: 'var(--green)', title: 'Gyms',
     desc: 'Machine brands per gym, gyms nearby and backups per gym.' },
   { id: 'hvStats', group: 'extras', icon: 'chart', tint: 'var(--blue)', title: 'Statistics extras',
-    desc: 'The monthly report, exercise time and the strength levels list.' },
+    desc: 'The monthly report, exercise time, the strength levels list and the calendar.' },
 ]
 export const forkModuleCopy = () => ({
-  hvExercise: [t('Exercise settings'), t('Progression, plate loading, drop-sets and units in an exercise’s settings.')],
+  hvExercise: [t('Exercise settings'), t('Progression, plate loading, drop-sets, units, other names and the main muscle of an exercise.')],
+  hvWorkout: [t('Workout extras'), t('The Timer and Stopwatch, and exercise demos.')],
   hvGyms: [t('Gyms'), t('Machine brands per gym, gyms nearby and backups per gym.')],
-  hvStats: [t('Statistics extras'), t('The monthly report, exercise time and the strength levels list.')],
+  hvStats: [t('Statistics extras'), t('The monthly report, exercise time, the strength levels list and the calendar.')],
 })
 
 /** Upstream's setModule for its own modules, and the same write for the fork's. */

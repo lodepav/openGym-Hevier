@@ -85,7 +85,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
         <div className="hv-title">{editing ? t('Edit workout') : A.name || t('Log workout')}</div>
         {!editing && !A.backfill && partOn(S, 'health', 'strap') && <StrapButton />}
-        {!editing && !A.backfill && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
+        {!editing && !A.backfill && partOn(S, 'hvWorkout', 'clock') && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={() => {
           // A set's count-up timer still running stops here, its time written in (D53).

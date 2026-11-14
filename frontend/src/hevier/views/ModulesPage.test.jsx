@@ -36,7 +36,7 @@ describe('hevier: Settings → Modules (S54)', () => {
   it('D114: lists the fork’s modules in their groups, and their switches write S.modules', () => {
     Object.assign(hooks, { hiddenModules: HIDDEN_MODULES, forkModules: FORK_MODULES, forkModuleCopy, setModule: setAnyModule })
     render()
-    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Exercise settings', 'Gyms', 'Body', 'Health', 'Motivation', 'Integrations', 'Statistics extras'])
+    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Exercise settings', 'Workout extras', 'Gyms', 'Body', 'Health', 'Motivation', 'Integrations', 'Statistics extras'])
     const sw = [...container.querySelectorAll('.module-row')].find(r => r.textContent.includes('Gyms')).querySelector('[role="switch"]')
     act(() => sw.click())
     expect(useStore.getState().S.modules.hvGyms).toBe(false)

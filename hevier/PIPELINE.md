@@ -240,6 +240,20 @@ timezone and shuffled-order failures of #1083 are not fixed there either. #988, 
 #1042 are unchanged, though #1034's leg press and hack squat fix is in the branch. The maintainer
 is in release QA (five builds in three days), so expect answers after the tag.
 
+**2026-11-14:** two of the fork's issues now have a PR by cubetes built on them, each crediting
+the fork. **#1083 → #1197**, merged into `release-1.4.5` on 2026-11-14: tests only, the timezone
+fix the fork found (local dates in the streak, Community and Stats tests) plus the 19
+shuffled-order failures; the fork closed the issue with thanks the same day, and `upstream-pr/streak-tz` is not needed any
+more. **#1089 → #1201**, open on `release-1.4.5`: `persist` asks whether the workout moved (start,
+finish, a set or exercise added or removed, a tick), typed values wait the usual 800 ms, the line
+the issue drew; when it merges, compare it with the fork's own handling. #1087 is only listed as
+related in #1105 (the Settings tidy-up), nothing built. The other issues (#1077 to #1082, #1088,
+#1093, #1159) have no answer, no PR and nothing in the branch (`02996aae7`). None of the fork's
+open PRs moved since 2026-11-12. The three small ones went out as PRs the same day, each built
+on `release-1.4.5` with upstream's suite green: **#1213** (for #1079), **#1211** (for #1082) and
+**#1214** (for #1159), rows below. Still issues only, waiting for an answer: #1077, #1078, #1080,
+#1081, #1087, #1088 and #1093.
+
 **#815 against upstream's own version** (`8a91a9c34`, 2026-11-06, "idea by @lodepav"; no comment
 or review on the PR itself): taken are the workout and exercise notes, a routine's rest timers and
 its rep ranges. **Left out:** the body measurements beside the weight, the routine a workout was
@@ -280,17 +294,17 @@ count-up timer, which upstream does not have.
 | #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open; **built in release-1.4.5** as Numbers per gym, with the fork's brand-as-label design credited |
 | #1077 | Security gates before a release: the advisories each release fixed from the one before, Trivy and gitleaks over every tag, and six gates to suggest (D26, D38; `release-check.sh` offered as the example) | Issue opened 2026-11-09; PRs for the dependency and secret gates offered |
 | #1078 | A Timer and a Stopwatch in the workout, for time that is not a set (D10) | Issue opened 2026-11-09; port offered |
-| #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; PR offered |
+| #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; **PR #1213** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/settings-keep-on-close`, `4c439fcfb`, suite green): `exConfigSheet`'s `opts.autosave`, the sheet saves on unmount only when what it would store differs from when it opened. S50 goes when merged. Two of upstream's `Workout.noprog` tests pressed Save there and were adapted. CodeRabbit: an exercise unit changed by a sync while the sheet is open looked like an edit (fixed 2026-11-14, the comparison runs before the unit conversion) |
 | #1080 | A Bluetooth heart-rate strap recorded live (D79, D80); asks plugin or hand-written service | Issue opened 2026-11-09 |
 | #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
-| #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; PR offered |
-| #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented |
+| #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; **PR #1211** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/brand-search`, `639766dbf`, suite green): `lib/brand-search.js` on upstream's `S.exGym` brands and `entry.brand`, wired in the picker only (the Library and the explorer offered). CodeRabbit: "l ife" matches Life Fitness through the whole-query match (not changed: that match keeps the hit while a brand is typed; not answered on the PR yet). If merged, D36's picker search can move onto it once the fork's brands are upstream's (D104 keeps them the fork's for now) |
+| #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented. **Fixed by cubetes's #1197**, merged into `release-1.4.5` on 2026-11-14 (credited); the fork closed the issue 2026-11-14 |
 | #1084 | The updater falls back to the API's asset link (S56) | **Merged into release-1.4.5** (2026-11-09): S56 goes at the 1.4.5 merge |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 | #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |
 | #1088 | Health Connect as the only source of weigh-ins while reading from it (D32) | Issue opened 2026-11-09 |
-| #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; PR offered |
+| #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; **cubetes's #1201** (2026-11-13, open on `release-1.4.5`, credited) builds it as the issue suggested, so no PR from the fork |
 | #1090 | Zepp toolchain npm overrides (S55): 62 findings to 0, tests and build unchanged | PR opened 2026-11-09 on release-1.4.5; drops S55 when merged |
 | #1091 | Auto-backup: choose how many copies to keep (5, 14, 30 or 60; S52) | PR opened 2026-11-09 on release-1.4.5; drops S52 when merged (the fork sets 5) |
 | #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; S16 keeps only the fork's tab list when merged |
@@ -300,7 +314,7 @@ count-up timer, which upstream does not have.
 | #1156 | The seconds wheel in steps of 5, a Settings choice (D48, S28): branch `upstream-pr/wheel-step`, `a664d632a` | PR opened 2026-11-12 on release-1.4.5 (Built on release-1.4.5 on 2026-11-12, upstream's suite green). Drops S28 when merged. CodeRabbit: the spinbuttons announce the shown duration (fixed 2026-11-12) |
 | #1157 | Weekly sets per muscle: count main muscles only, off by default (D42): branch `upstream-pr/main-muscle-sets`, `3e805404e` | PR opened 2026-11-12 on release-1.4.5 (Built 2026-11-12, suite green). Upstream already counts a supporting muscle 0.4, so only the switch is new. CodeRabbit: a logged generic shoulder counts all three heads (fixed 2026-11-12) |
 | #1158 | Hevy API import: workouts filed under their routine and Hevy's routine folders (D30, D31, S20), and since 2026-11-12 the rest of #815's leftovers (D31, S21): body measurements, custom exercises' muscles and equipment with the backfill, the account's unit: branch `upstream-pr/hevy-links-folders`, `8708b5194` | PR opened 2026-11-12 on release-1.4.5, extended the same day (suite green). CodeRabbit's four findings: three fixed (a 20 s limit on the optional reads, a session links only its nearest workout, a time-zone-proof test), the fourth (count updated routines in the toast) declined as upstream's own behaviour. S20 and S21 go when merged |
-| #1159 | An equipment profile's body weight as a tick of its own (D62, S36): unticked, the filter hides body-weight exercises; a profile saved before counts as ticked | Issue opened 2026-11-12, offering a PR; near #1016 (custom equipment), the same sheet |
+| #1159 | An equipment profile's body weight as a tick of its own (D62, S36): unticked, the filter hides body-weight exercises; a profile saved before counts as ticked | Issue opened 2026-11-12; **PR #1214** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/bodyweight-tick`, `b0eb87967`, suite green): a saved profile carries `bwV: 1`, `bodyWeightOf(p)` in `lib/equipment.js`, the starter plans' fit follows, the Coach does not yet (said on the PR, offered as a follow-up). CodeRabbit: a custom body-weight exercise that needs your own kit follows the kit (fixed 2026-11-14). The fork's D62 mark must be mapped onto `bwV` at that merge; S36's body-weight half goes |
 | #1161 | A routine's **Repeat last workout** switch (D69, S40): `routine.startFromLast`, the profile's "Your last session" for one routine with no rule, on upstream's own from-last path: branch `upstream-pr/routine-repeat-last`, `fbd00b6e5` | PR opened 2026-11-12 on release-1.4.5 (suite green). CodeRabbit: bands stay as last time and the MCP preview keeps a deload routine's numbers (fixed), back-off sets still apply (declined, as under the profile's setting). If merged, check whether D69's `hvProg` off can become upstream's switch on: upstream's fill copies the last set into a set not done and has no grey values, which D69 kept its own fill for |
 
 **New since 2026-11-06 that meets the fork** (2026-11-08, titles only, none on a milestone)

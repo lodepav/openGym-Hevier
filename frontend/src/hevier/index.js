@@ -33,6 +33,7 @@ import { initProgDefault } from './lib/prog-default.js'
 import { initExUnits } from './lib/ex-unit.js'
 import { HIDDEN_MODULES, moduleOn, FORK_MODULES, forkModuleCopy, setAnyModule } from './lib/fork-modules.js'
 import { partOn } from './lib/module-parts.js'
+import { moduleRow } from './views/ModuleParts.jsx'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { holdMode } from './lib/hold-mode.js'
@@ -43,6 +44,7 @@ import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
+import { initClockOff } from './lib/clock-off-run.js'
 import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { askMedia } from './components/MediaSection.jsx'
@@ -74,6 +76,7 @@ function install() {
   hooks.backupKeep = 5                                    // auto-backup keeps the newest 5 copies, not 14 (S52, D20)
   hooks.hiddenModules = HIDDEN_MODULES                    // modules whose features the fork never shows (S54, D97)
   Object.assign(hooks, { forkModules: FORK_MODULES, forkModuleCopy, setModule: setAnyModule }) // the fork's own modules (S54, D114)
+  hooks.moduleRow = moduleRow                             // a module's parts unfold under its row (S54, D102)
   hooks.exPart = part => partOn(state(), 'hvExercise', part) && (part !== 'plates' || moduleOn(state(), 'plates'))  // an exercise's settings show the categories switched on (S58, D114)
   hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
   hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
@@ -88,6 +91,7 @@ function install() {
   initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
+  initClockOff(store)                                     // a Timer countdown ends when Timer and Stopwatch are switched off (D117)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
   initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)

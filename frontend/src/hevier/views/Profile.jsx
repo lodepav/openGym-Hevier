@@ -14,7 +14,7 @@ import WeeklyChart from '../components/WeeklyChart.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { usePhasedS } from '../lib/shared-phase-run.js'
-import { anyPartOn } from '../lib/module-parts.js'
+import { anyPartOn, partOn } from '../lib/module-parts.js'
 
 export const PAGE = 10
 
@@ -48,7 +48,7 @@ export default function Profile() {
       {tile('chartLine', t('Statistics'), () => nav('/stats'))}
       {tile('dumbbell', t('Exercises'), () => nav('/library'))}
       {anyPartOn(S, 'body') && tile('figure', t('Measures'), () => nav('/measures'))}
-      {tile('calendar', t('Calendar'), () => nav('/calendar'))}
+      {partOn(S, 'hvStats', 'calendar') && tile('calendar', t('Calendar'), () => nav('/calendar'))}
     </div>
     <h4 className="sec">{t('Workouts')}</h4>
     <WorkoutFeed S={S} />

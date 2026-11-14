@@ -815,3 +815,13 @@
   :root[data-ui="hevier"] .lrow.sp-root-row:has(.lrow-v){display:flex}
   :root[data-ui="hevier"] .lrow.sp-root-row .lrow-v{text-align:end;max-width:62%;font-size:var(--fs-body);-webkit-line-clamp:3;line-clamp:3}
 }
+/* D102: a module's parts unfold under its row on Settings → Modules. The disclosure button lies over
+   the row up to the module's switch, so a tap on the switch flips the module only. */
+:root[data-ui="hevier"] .hv-modrow-open{position:absolute;inset:0;inset-inline-end:calc(var(--pad) + 59px);padding:0;border:0;background:none;color:inherit}
+:root[data-ui="hevier"] .hv-modrow-open:active{background:var(--press-fill)}
+:root[data-ui="hevier"] .hv-modrow-open:focus-visible{outline-offset:-3px;border-radius:0}
+:root[data-ui="hevier"] .hv-modrow>.sw{position:relative;z-index:1}
+:root[data-ui="hevier"] .hv-modrow>.lrow-v{white-space:nowrap}
+:root[data-ui="hevier"] .sect-b .hv-modparts>.lrow{padding-inline:calc(var(--pad) + 36px) var(--pad)}
+:root[data-ui="hevier"] .hv-modparts>.lrow::before,:root[data-ui="hevier"] .hv-modparts+.lrow::before{content:'';position:absolute;inset-inline-start:calc(var(--pad) + 36px);inset-inline-end:0;top:0;height:var(--hair);background:var(--sep)}
+:root[data-ui="hevier"] .hv-modparts-off{margin:0;padding:0 var(--pad) 11px calc(var(--pad) + 36px);font-size:var(--fs-footnote);color:var(--label-2)}
