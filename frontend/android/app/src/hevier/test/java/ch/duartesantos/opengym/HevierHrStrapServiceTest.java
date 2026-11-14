@@ -25,4 +25,12 @@ public class HevierHrStrapServiceTest {
         assertFalse(HevierHrStrapService.findDue(600_000, 45_000));
         assertTrue(HevierHrStrapService.findDue(600_000, 60_000));
     }
+
+    @Test
+    public void theRestCardAndTheWorkoutCardAreNotPostedOver() {
+        assertTrue(HevierHrStrapService.isCard(RestAlert.COUNTDOWN_CHANNEL_ID));
+        assertTrue(HevierHrStrapService.isCard(WorkoutNotification.CHANNEL_ID));   // upstream 1.4.5's card (D110)
+        assertFalse(HevierHrStrapService.isCard(HevierHrStrapService.CHANNEL_ID));
+        assertFalse(HevierHrStrapService.isCard(null));
+    }
 }

@@ -145,7 +145,7 @@ final class WorkoutNotification {
         if (attrs == null || state == null) return;
         if (!allowed(ctx)) return;
         try {
-            nm.notify(RestAlert.COUNTDOWN_ID, card(ctx, attrs, state));
+            nm.notify(RestAlert.COUNTDOWN_ID, RestAlert.hevierHeart(ctx, card(ctx, attrs, state))); // [hevier] S51
         } catch (Exception e) {
             Log.w("openGym", "workout card not posted", e);
         }
@@ -154,6 +154,8 @@ final class WorkoutNotification {
     static void cancel(Context ctx) {
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) nm.cancel(RestAlert.COUNTDOWN_ID);
+        Runnable gone = RestAlert.hevierRestGone; // [hevier] S51: the strap's own text is back (it holds the id, so the cancel left the card up)
+        if (gone != null) gone.run();
     }
 
     private static void ensureChannel(Context ctx, NotificationManager nm) {

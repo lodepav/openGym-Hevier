@@ -321,6 +321,7 @@ public class RestTimerService extends Service {
             Notification n = card && Build.VERSION.SDK_INT >= 36
                     ? WorkoutNotification.rest(this, left, totalMs, paused, pauseLabel, resumeLabel, plusLabel, skipLabel)
                     : null;
+            n = RestAlert.hevierHeart(this, n); // [hevier] S51
             if (n == null) n = RestAlert.countdownNotification(
                     this, left, totalMs, paused, pauseLabel, resumeLabel, minusLabel, plusLabel, skipLabel, accent, ink,
                     card ? WorkoutNotification.upNext(this) : null);

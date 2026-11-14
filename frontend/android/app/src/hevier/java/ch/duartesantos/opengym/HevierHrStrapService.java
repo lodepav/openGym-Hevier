@@ -47,7 +47,9 @@ import java.util.UUID;
  * A workout has one card (D91): this service shares the rest countdown's notification id, which
  * Android allows two foreground services and keeps up until the last of them lets go. While a rest
  * runs its card shows, with the bpm in its header (RestAlert.hevierSubText); when the rest goes,
- * this service's own text comes back (RestAlert.hevierRestGone).
+ * this service's own text comes back (RestAlert.hevierRestGone). Upstream's workout card (1.4.5)
+ * has the same id: while it is up it is the card, with the bpm in its header, and this service
+ * posts nothing over it (D110).
  */
 @SuppressLint("MissingPermission")   // the plugin starts it only with Bluetooth allowed
 public class HevierHrStrapService extends Service {
@@ -417,14 +419,18 @@ public class HevierHrStrapService extends Service {
         return b.build();
     }
 
-    /** The rest countdown's card, while it is the one up; null otherwise. */
+    /** The rest countdown's card or the workout card, while one is up; null otherwise. */
     private Notification restCard() {
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm == null) return null;
         for (StatusBarNotification s : nm.getActiveNotifications()) {
-            if (s.getId() == NOTIFICATION_ID && RestAlert.COUNTDOWN_CHANNEL_ID.equals(s.getNotification().getChannelId())) return s.getNotification();
+            if (s.getId() == NOTIFICATION_ID && isCard(s.getNotification().getChannelId())) return s.getNotification();
         }
         return null;
+    }
+
+    static boolean isCard(String channel) {
+        return RestAlert.COUNTDOWN_CHANNEL_ID.equals(channel) || WorkoutNotification.CHANNEL_ID.equals(channel);
     }
 
     /** The bpm for the rest card's header: only a live reading, and only with the app off screen. */
@@ -435,6 +441,7 @@ public class HevierHrStrapService extends Service {
     // The rest countdown let go of the card, which stays up as it was, since this service holds it too.
     private void restGone() {
         if (!running) return;
+        if (WorkoutNotification.active(this) && WorkoutNotification.allowed(this)) return;   // the workout card comes back instead
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm != null) nm.notify(NOTIFICATION_ID, build(cardText));
     }
@@ -450,7 +457,10 @@ public class HevierHrStrapService extends Service {
         if (!running) return;
         cardText = text;
         RestAlert.hevierSubText = heartLine();
-        if (restCard() != null) return;
+        if (restCard() != null) {
+            if (WorkoutNotification.active(this)) WorkoutNotification.refresh(getApplicationContext());   // the card draws the line
+            return;
+        }
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm != null) nm.notify(NOTIFICATION_ID, build(text));
     }
@@ -479,6 +489,9 @@ public class HevierHrStrapService extends Service {
     @Override
     public void onDestroy() {
         close();
+        // Android takes this service's notification down with it: a workout still running gets its card back.
+        Context app = getApplicationContext();
+        if (WorkoutNotification.active(app)) new Handler(Looper.getMainLooper()).postDelayed(() -> WorkoutNotification.refresh(app), 300);
         state = "off";
         session = null;
         Listener l = listener;
