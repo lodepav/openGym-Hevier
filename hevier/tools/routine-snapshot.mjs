@@ -28,7 +28,7 @@ const STATE = 'JSON.parse(localStorage.gym_state_v1)'
 // Clicks the n-th visible button with exactly this text (`cdp.mjs click` matches part of a text,
 // and "Done" would hit a set's tick). -1 is the last one.
 const clickExact = (text, n = 0) => `(() => {
-  const bs = [...document.querySelectorAll('button')].filter(b => b.offsetParent !== null && b.textContent.trim() === ${JSON.stringify(text)})
+  const bs = [...document.querySelectorAll('button')].filter(b => b.offsetParent !== null && !b.disabled && b.textContent.trim() === ${JSON.stringify(text)})
   const b = bs.at(${n})
   if (!b) return false
   b.scrollIntoView({ block: 'center' }); b.click()
@@ -70,7 +70,8 @@ async function snapshot() {
     let S = await read()
     if (S.active) throw new Error('a workout is in progress: finish or discard it first')
     const out = { settings: settingsSnapshot(S), routines: [] }
-    for (let i = 0; i < (S.routines || []).length; i++) {
+    // A routine without exercises has a disabled button: it cannot open, so it is not counted.
+    for (let i = 0; i < (S.routines || []).filter(r => r.ex?.length).length; i++) {
       await evaluate(cdp, 'location.hash = "#/workout"')
       // The app may still be starting: wait for the button, then for the session, up to 20 s each.
       if (!await until(() => evaluate(cdp, clickExact('Start Routine', i)))) throw new Error(`no Start Routine button ${i + 1} on the Workout tab`)
@@ -120,11 +121,12 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     process.exit(2)
   }
   // Exit 2: it could not run, which is not a difference (exit 1).
+  const before = args[1] ? (() => { try { return load(args[2]) } catch (e) { console.error(`routine-snapshot: ${args[2]} cannot be read: ${e.message}`); process.exit(2) } })() : null
   const snap = await snapshot().catch(e => { console.error('routine-snapshot: ' + e.message); process.exit(2) })
   writeFileSync(out, JSON.stringify(snap, null, 2) + '\n')
   const probes = snap.routines.filter(r => r.probe)
   console.log(`${snap.routines.length} routines, ${snap.routines.reduce((n, r) => n + r.exercises.length, 0)} exercises, ${probes.length} warm-up probe${probes.length === 1 ? '' : 's'} → ${out}`)
   for (const r of probes) console.log(`  ${r.routine} (progression ${r.hvProg ? 'on' : 'off'}): warm-ups ${r.probe.before.join(', ')} → ${r.probe.after.join(', ')}`)
   if (!probes.length) console.log('  No routine opens with an untouched warm-up: the warm-up probe saw nothing.')
-  process.exit(args[1] ? report(load(args[2]), snap) : 0)
+  process.exit(before ? report(before, snap) : 0)
 }

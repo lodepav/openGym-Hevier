@@ -43,8 +43,9 @@ fi
 "$ADB" shell am force-stop "$APP"
 # Extracting only adds and replaces: what the last run left in the WebView's storage would come
 # back as the newer copy of the state, so that storage goes first (the pictures stay).
-"$ADB" shell "run-as $APP sh -c 'rm -rf app_webview shared_prefs files/opengym-state*.json'"
-"$ADB" exec-in run-as "$APP" tar -xf - < "$PROFILE"
+{ "$ADB" shell "run-as $APP sh -c 'rm -rf app_webview shared_prefs files/opengym-state*.json'" \
+  && "$ADB" exec-in run-as "$APP" tar -xf - < "$PROFILE"; } \
+  || { echo "routine check: could not restore the profile into $APP (is the debug app installed?)" >&2; exit 2; }
 "$ADB" shell monkey -p "$APP" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 sleep 5
 

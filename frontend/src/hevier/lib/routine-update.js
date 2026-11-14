@@ -74,7 +74,8 @@ export function routineUpdate(S, session, routine) {
       // Per side switched in the exercise's settings (D75), with the plan's reps the sheet set
       // for it (both sides' total when on), never progression's prescription.
       const side = !!entry.target?.side
-      if (side !== !!slot.side && slot.mode !== 'cardio') {
+      // A mode switched with it is not written back, so the flag would land on the wrong kind of slot.
+      if (side !== !!slot.side && modeOf({ ...entry.target, id: entry.id }) === modeOf(slot)) {
         if (side) slot.side = true
         // Switched off stays off where a default would put it back on; elsewhere no flag, as upstream.
         else if (sideDefault(S, slot.id)) slot.side = false

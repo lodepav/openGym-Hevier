@@ -218,6 +218,14 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(u.ex[1]).toEqual({ id: BENCH, sets: 3, reps: 16, weight: 60, side: true })
   })
 
+  it('Per side switched on together with a change to Time is not written to a reps slot', () => {
+    const S = state()
+    const A = start(S)
+    resheet(S, A.entries[1], { sets: 3, mode: 'time', sec: 45, weight: 60, side: true })
+    // No change at all, so no routine is offered an update.
+    expect(one(S, A)).toBeUndefined()
+  })
+
   it('a rep range switched on per side keeps the range the sheet gave it', () => {
     const r = routine()
     r.ex[1] = { ...r.ex[1], reps: 12, repsMin: 8 }
