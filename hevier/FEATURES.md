@@ -51,6 +51,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The gym on the feed card | D94 | Offered (#1097, History rows and details) |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
+| Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down | D118 | Fork |
 
 ## Routines
 
@@ -63,6 +64,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4; a routine that repeats its last workout offered as #1161) |
+| Undo after deleting a folder or a routine from the editor; a new routine opens with an empty title; the ⚠ tells its reason on a tap | D118 | Fork |
 
 ## Gyms, machines and labels
 
@@ -91,6 +93,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength levels list, by the level reached | D81 | Fork (upstream's Strength levels card on Stats lists every graded lift by level since 1.4.4) |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
 | YouTube demo on an exercise's How to tab (upstream 1.4.4's card) | D101 | Fork |
+| Create “<text>” in the picker when a search finds nothing | D118 | Fork |
 
 ## Statistics and history
 
@@ -107,6 +110,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, released in v1.4.4: the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
 | Weekly sets per muscle against a target range (upstream 1.4.4's card), counted by the fork's main muscle | D99 | Fork |
+| Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
+| A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
 
 ## Home, navigation and look
 
@@ -126,6 +131,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
 | Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
+| Switches that can do nothing are disabled and say which module they need | D118 | Fork |
 
 ## Hevy import and export
 
@@ -137,6 +143,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Review of exercise matches before an import, remembered | D33 | Offered (#931, built in release-1.4.5 with #849 as one Check and choose step; upstream's replaces the fork's at the merge, D103) |
 | Earlier Hevy imports' notes get their line breaks back (new imports keep them upstream since 1.4.3, #690) | D54 | Fork |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
+| Import from Hevy link in the empty Workout tab and feed; a toast when Send to Hevy has stopped on its key | D118 | Fork |
 
 ## Android and phone
 
