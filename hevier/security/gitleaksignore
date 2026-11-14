@@ -5,3 +5,13 @@
 
 # Upstream test: a made-up base64url VAPID public key ("any base64url string"), not a secret.
 477fc07f8bd71c859ae5059c475f6f178ca443b2:frontend/src/lib/push.test.js:generic-api-key:15
+
+# Upstream 1.4.5: the name of a localStorage key ('gym_sister_nutrition_v1'), not a secret.
+2e7e546002ca24de54bc09098541ad7dc4b919a0:frontend/src/lib/sister-nutrition.js:generic-api-key:26
+# Upstream 1.4.5 docs: the placeholder "OIDC_CLIENT_SECRET=<credentials tab>" in a Keycloak example.
+b5fb590769b7c78793ea501727a978079437618d:docs/SELF_HOSTING.md:generic-api-key:611
+# Upstream 1.4.5 test: made-up keys ("sk-abc12345", "sk-proj-abcdefgh12345678", "9f8e7d6c5b4a3f2e1d") that check error texts are redacted.
+0d011e196dbcf4d583f0549297294f79e81af48b:api/test/coach-failure.test.js:generic-api-key:58
+0d011e196dbcf4d583f0549297294f79e81af48b:api/test/coach-failure.test.js:generic-api-key:108
+0d011e196dbcf4d583f0549297294f79e81af48b:api/test/coach-failure.test.js:generic-api-key:166
+0d011e196dbcf4d583f0549297294f79e81af48b:api/test/coach-failure.test.js:generic-api-key:169

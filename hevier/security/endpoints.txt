@@ -42,3 +42,15 @@ buymeacoffee.com                     # About's support link, hidden
 ko-fi.com                            # About's support link, hidden
 
 play.google.com                      # upstream 1.4.4's Rate openGym on Google Play row, hidden in the fork (D100)
+# Upstream 1.4.5
+api.minimax.io                       # coach provider (MiniMax), user-supplied key; fetched only when the user picks it (api/coach/core/providers.js)
+platform.minimax.io                  # the link to MiniMax's key page, opened by the user, never fetched
+platform.openai.com                  # the link to OpenAI's key page, same
+platform.claude.com                  # the link to Anthropic's key page (Coach setup, Admin), same
+aistudio.google.com                  # the link to Gemini's key page, same
+chatgpt.com                          # Assistants: the link to ChatGPT's connector settings (lib/assistants.js), opened by the user
+gemini.google.com                    # Assistants: the link to Gemini's settings, same
+claude.ai                            # text in a Coach setup subtitle and the Assistants page, never fetched
+apps.garmin.com                      # the Garmin page's link to the watch app in the Connect IQ store (lib/garmin-view.js), opened by the user (D106)
+cloud.example.com                    # placeholder text in the WebDAV backup's address field
+nutrition.example.com                # placeholder text in the sister app's address field (Integrations)
