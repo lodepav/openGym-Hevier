@@ -1,0 +1,911 @@
+{
+  "r-plain@g-city": {
+    "name": "Upper Plain",
+    "gym": "g-city",
+    "exercises": [
+      {
+        "id": "0047",
+        "target": {
+          "sets": 3,
+          "reps": 8,
+          "weight": 60,
+          "warmupSets": 1
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 42.5,
+            "r": 8,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 8,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 7,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 6,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1178",
+        "target": {
+          "sets": 2,
+          "reps": 24,
+          "weight": 16
+        },
+        "plan": "off",
+        "side": true,
+        "dbLoad": null,
+        "sideOrder": "RL",
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 20,
+            "r": 21,
+            "sides": {
+              "L": {
+                "w": 20,
+                "r": 12
+              },
+              "R": {
+                "w": 20,
+                "r": 9
+              }
+            },
+            "hvLast": "LR"
+          },
+          {
+            "kind": "work",
+            "w": 20,
+            "r": 20,
+            "sides": {
+              "L": {
+                "w": 20,
+                "r": 11
+              },
+              "R": {
+                "w": 20,
+                "r": 9
+              }
+            },
+            "hvLast": "LR"
+          }
+        ]
+      },
+      {
+        "id": "0739",
+        "target": {
+          "sets": 3,
+          "reps": 10,
+          "weight": 140
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": "Hammer Strength",
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 165,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 165,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 165,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1323",
+        "target": {
+          "sets": 3,
+          "reps": 12,
+          "weight": 50
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 52.5,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 52.5,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 52.5,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "4170",
+        "target": {
+          "sets": 2,
+          "weight": 0,
+          "sec": 45
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 0,
+            "sec": 60
+          },
+          {
+            "kind": "work",
+            "w": 0,
+            "sec": 50
+          }
+        ]
+      },
+      {
+        "id": "2138",
+        "target": {
+          "sets": 1
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "min": 30,
+            "speed": 8.5
+          }
+        ]
+      },
+      {
+        "id": "0032",
+        "target": {
+          "sets": 2,
+          "reps": 5,
+          "weight": 100
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 100,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 100,
+            "r": 5
+          }
+        ]
+      }
+    ]
+  },
+  "r-plain@g-weekend": {
+    "name": "Upper Plain",
+    "gym": "g-weekend",
+    "exercises": [
+      {
+        "id": "0047",
+        "target": {
+          "sets": 3,
+          "reps": 8,
+          "weight": 60,
+          "warmupSets": 1
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 42.5,
+            "r": 8,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 8,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 7,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 65,
+            "r": 6,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1178",
+        "target": {
+          "sets": 2,
+          "reps": 24,
+          "weight": 16
+        },
+        "plan": "off",
+        "side": true,
+        "dbLoad": null,
+        "sideOrder": "RL",
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 20,
+            "r": 21,
+            "sides": {
+              "L": {
+                "w": 20,
+                "r": 12
+              },
+              "R": {
+                "w": 20,
+                "r": 9
+              }
+            },
+            "hvLast": "LR"
+          },
+          {
+            "kind": "work",
+            "w": 20,
+            "r": 20,
+            "sides": {
+              "L": {
+                "w": 20,
+                "r": 11
+              },
+              "R": {
+                "w": 20,
+                "r": 9
+              }
+            },
+            "hvLast": "LR"
+          }
+        ]
+      },
+      {
+        "id": "0739",
+        "target": {
+          "sets": 3,
+          "reps": 10,
+          "weight": 140
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": "Technogym",
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 120,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 120,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 120,
+            "r": 10,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1323",
+        "target": {
+          "sets": 3,
+          "reps": 12,
+          "weight": 50
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": "2:1",
+        "sets": [
+          {
+            "kind": "work",
+            "w": 30,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 30,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 30,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "4170",
+        "target": {
+          "sets": 2,
+          "weight": 0,
+          "sec": 45
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 0,
+            "sec": 60
+          },
+          {
+            "kind": "work",
+            "w": 0,
+            "sec": 50
+          }
+        ]
+      },
+      {
+        "id": "2138",
+        "target": {
+          "sets": 1
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "min": 30,
+            "speed": 8.5
+          }
+        ]
+      },
+      {
+        "id": "0032",
+        "target": {
+          "sets": 2,
+          "reps": 5,
+          "weight": 100
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 100,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 100,
+            "r": 5
+          }
+        ]
+      }
+    ]
+  },
+  "r-prog@g-city": {
+    "name": "Strength Prog",
+    "gym": "g-city",
+    "exercises": [
+      {
+        "id": "0047",
+        "target": {
+          "sets": 3,
+          "reps": 5,
+          "weight": 75
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 20,
+            "r": 10
+          },
+          {
+            "kind": "warmup",
+            "w": 30,
+            "r": 5
+          },
+          {
+            "kind": "warmup",
+            "w": 45,
+            "r": 3
+          },
+          {
+            "kind": "warmup",
+            "w": 60,
+            "r": 1
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          }
+        ]
+      },
+      {
+        "id": "0043",
+        "target": {
+          "sets": 3,
+          "reps": 5,
+          "weight": 107.5,
+          "warmupSets": 2
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 50,
+            "r": 5
+          },
+          {
+            "kind": "warmup",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          }
+        ]
+      },
+      {
+        "id": "0739",
+        "target": {
+          "sets": 2,
+          "reps": 12,
+          "weight": 130
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": "Hammer Strength",
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 51.25,
+            "r": 8
+          },
+          {
+            "kind": "warmup",
+            "w": 77.5,
+            "r": 4
+          },
+          {
+            "kind": "warmup",
+            "w": 103.75,
+            "r": 1
+          },
+          {
+            "kind": "work",
+            "w": 130,
+            "r": 12
+          },
+          {
+            "kind": "work",
+            "w": 130,
+            "r": 12
+          }
+        ]
+      }
+    ]
+  },
+  "r-prog@g-weekend": {
+    "name": "Strength Prog",
+    "gym": "g-weekend",
+    "exercises": [
+      {
+        "id": "0047",
+        "target": {
+          "sets": 3,
+          "reps": 5,
+          "weight": 75
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 20,
+            "r": 10
+          },
+          {
+            "kind": "warmup",
+            "w": 30,
+            "r": 5
+          },
+          {
+            "kind": "warmup",
+            "w": 40,
+            "r": 3
+          },
+          {
+            "kind": "warmup",
+            "w": 60,
+            "r": 1
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 75,
+            "r": 5
+          }
+        ]
+      },
+      {
+        "id": "0043",
+        "target": {
+          "sets": 3,
+          "reps": 5,
+          "weight": 107.5,
+          "warmupSets": 2
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 50,
+            "r": 5
+          },
+          {
+            "kind": "warmup",
+            "w": 75,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          },
+          {
+            "kind": "work",
+            "w": 107.5,
+            "r": 5
+          }
+        ]
+      },
+      {
+        "id": "0739",
+        "target": {
+          "sets": 2,
+          "reps": 12,
+          "weight": 130
+        },
+        "plan": "up",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": "Technogym",
+        "cable": null,
+        "sets": [
+          {
+            "kind": "warmup",
+            "w": 50,
+            "r": 8
+          },
+          {
+            "kind": "warmup",
+            "w": 70,
+            "r": 4
+          },
+          {
+            "kind": "work",
+            "w": 130,
+            "r": 12
+          },
+          {
+            "kind": "work",
+            "w": 130,
+            "r": 12
+          }
+        ]
+      }
+    ]
+  },
+  "r-arms@g-city": {
+    "name": "Arms",
+    "gym": "g-city",
+    "exercises": [
+      {
+        "id": "1048",
+        "target": {
+          "sets": 3,
+          "reps": 12,
+          "weight": 8
+        },
+        "plan": "off",
+        "side": false,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1323",
+        "target": {
+          "sets": 2,
+          "reps": 12,
+          "weight": 45
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 45,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 45,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      }
+    ]
+  },
+  "r-arms@g-weekend": {
+    "name": "Arms",
+    "gym": "g-weekend",
+    "exercises": [
+      {
+        "id": "1048",
+        "target": {
+          "sets": 3,
+          "reps": 12,
+          "weight": 8
+        },
+        "plan": "off",
+        "side": false,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": null,
+        "sets": [
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 9,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      },
+      {
+        "id": "1323",
+        "target": {
+          "sets": 2,
+          "reps": 12,
+          "weight": 45
+        },
+        "plan": "off",
+        "side": null,
+        "dbLoad": null,
+        "sideOrder": null,
+        "brand": null,
+        "cable": "2:1",
+        "sets": [
+          {
+            "kind": "work",
+            "w": 28,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          },
+          {
+            "kind": "work",
+            "w": 28,
+            "r": 12,
+            "weightOrigin": "manual",
+            "hvLast": 1
+          }
+        ]
+      }
+    ]
+  }
+}
