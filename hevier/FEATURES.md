@@ -5,7 +5,7 @@ Each fork feature is listed once, with the decision that describes it in [DECISI
 | Mark | Meaning |
 |---|---|
 | **Fork** | Belongs to the fork only. It is Hevy's look, it concerns Hevy, or it is a choice that only suits the fork. |
-| **Offer** | A general improvement that upstream's own UI would benefit from. It could be offered as an issue or a pull request, with the user's go-ahead (RULES.md: `hevier-upstream/<topic>`). |
+| **Offer** | A general improvement that upstream's own UI would benefit from. It could be offered as an issue or a pull request, with the user's go-ahead (RULES.md: `upstream-pr/<topic>`). |
 | **Offered** | Already offered upstream. The issue or PR number is given. |
 | **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
 
@@ -32,7 +32,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue: a Timer and a Stopwatch in the workout) |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
 | "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
-| Weight unit per exercise (e.g. one machine in lb) | D41 | Ported (upstream's #657, released in v1.4.4, replaces it at the merge: decided 2026-11-03) |
+| The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer (upstream 1.4.5 runs timed holds by themselves, but has no count-up timer on a cardio set) |
 | Workout note at the top of the workout and on the feed cards | D54 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
@@ -100,7 +100,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Sets per muscle: main muscle only, or secondaries in part too | D42 | Offered (#1157: upstream already counts a supporting muscle 0.4; the PR adds the main-muscles-only switch, off by default) |
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer (upstream 1.4.5 adds rep records 1 to 12 and numbers per gym; Hevy's kinds per label are the fork's) |
 | Monthly report | D23 | Fork (upstream 1.4.5 has its own Your month, left out of the fork's UI, D109) |
-| Beat last time: ↑ = ↓ per set on Workout Detail | D66 | Ported (#907: upstream built its own, released in v1.4.4; it replaces D66 at the merge) |
+| Beat last time: ↑ = ↓ against the PREVIOUS column's set, on Workout Detail and the workout's rows (upstream's comparison and switch since 1.4.4, #907) | D66 | Fork |
 | Exercises kept out of progression are kept out of the statistics too (a deload routine's still count) | D57 | Offered (#813, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Fork (upstream's week streak has freezes and excused weeks of its own) |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |

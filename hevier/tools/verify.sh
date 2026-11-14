@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # The check that guards hevier/main: no conflict marker, the seams, the decision index,
-# the release tools' tests, the whole test suite and the fork's build. The pre-push hook
+# the release tools' tests, the whole test suite and the fork's build, and for what changed
+# the api and mcp suites, the locale check and the fork's Java tests. The pre-push hook
 # and the release run this; see the verify skill.
 #
 #   hevier/tools/verify.sh    # about 3.5 minutes
@@ -44,6 +45,31 @@ diff <(hevier/tools/decision-index.sh) hevier/DECISIONS-INDEX.md || {
   exit 1
 }
 node --test hevier/tools/*.test.mjs >/dev/null
+
+# What changed since the last pass, working tree included; without one, the last commit (a
+# merge into hevier/main brings its whole branch). The steps below run only for their files.
+base="$(cat "$STAMP" 2>/dev/null || true)"
+# A stamp from another branch (worktrees share it): from where the two parted, not the last commit.
+base="$(git merge-base "$base" HEAD 2>/dev/null || echo 'HEAD^')"
+changed="$(git diff --name-only --no-renames "$base"; git ls-files --others --exclude-standard)"
+touched() { grep -qE "$1" <<<"$changed"; }
+# CI has no stamp and sees only a push's last commit, so there the two small suites always run.
+if [[ -n "${CI:-}" ]] || touched '^api/'; then (cd api && "$ROOT/hevier/tools/heavy.sh" npm test); fi
+if [[ -n "${CI:-}" ]] || touched '^mcp/'; then (cd mcp && "$ROOT/hevier/tools/heavy.sh" npm test); fi
+if touched '^frontend/src/locales/'; then (cd frontend && node scripts/check-locales.mjs); fi
+if touched '^frontend/android/'; then
+  if [[ -n "${CI:-}" ]]; then
+    echo "verify: the Android project changed; the fork's Java tests are skipped in CI, which has no Android SDK"
+  # A worktree that never ran `cap sync` has no generated Gradle files; the push from the main
+  # checkout runs them.
+  elif [[ ! -e frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle ]]; then
+    echo "verify: the Android project changed; the fork's Java tests are skipped here, the Android project is not synced (cap sync)"
+  else
+    (cd frontend/android && JAVA_HOME="$HOME/.local/opt/jdk21" ANDROID_HOME="$HOME/Android/Sdk" \
+      "$ROOT/hevier/tools/heavy.sh" ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
+  fi
+fi
+
 cd frontend
 # Fewer workers beside the emulator (the verify skill).
 workers=4

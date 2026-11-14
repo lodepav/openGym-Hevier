@@ -1,6 +1,7 @@
 // The hand-offs of the fork's hook seams: each entry names its seam (hevier/SEAMS.md lists where it
 // sits). Upstream's code asks this object first; the fork fills it in only with the flag on
-// (hevier/index.js). Empty, as in upstream's own tests, everything is upstream's. No imports, so
+// (hevier/index.js, and hevier/routes.jsx with the views' install* for the six built from
+// sheets.jsx). Empty, as in upstream's own tests, everything is upstream's. No imports, so
 // the seams add nothing to what the upstream files load.
 export const hooks = {
   finish: null,   // () => void: Finish was asked for (the session is not saved yet) (S9)

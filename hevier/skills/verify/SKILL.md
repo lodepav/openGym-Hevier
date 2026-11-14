@@ -17,8 +17,8 @@ user says so. The `commit-msg` hook refuses a merge into `hevier/main` without
 `Release-note: <text>` in the merge's body goes first in the notes, under Before you update, for
 what someone must know before updating (a feature that hides itself).
 
-`.github/workflows/hevier-checks.yml` runs the same script on every push to `hevier/main`, once
-Actions is on for the repo. `frontend/src/hevier/upgrade/` holds what each release saved, and the
+`.github/workflows/hevier-checks.yml` runs the same script on every push to `hevier/main`.
+`frontend/src/hevier/upgrade/` holds what each release saved, and the
 test that the current code still reads it; `hevier/tools/upgrade-fixture.sh <version>` adds one.
 
 Whole suites and builds take turns through `hevier/tools/heavy.sh`, a lock shared with OpenBite's
@@ -45,6 +45,8 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
   ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
 ```
 
+`verify.sh` runs the last two by itself when their files changed (below).
+
 - A diff from the decision index (`verify.sh` checks it) means a decision was added or reworded without the index:
   run `hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md` and commit it with the change.
 
@@ -60,12 +62,14 @@ node scripts/check-locales.mjs            # only if a locale or t() key was touc
 
 When merging a branch into `hevier/main`, or upstream into the fork (the `upstream-merge`
 skill), or when asked to "check everything": the script, which covers conflict markers, seams,
-the decision index, the release tools, the whole suite and the fork build.
+the decision index, the release tools, the whole suite and the fork build. For what changed since
+its last pass (or, without one, in the last commit) it also runs `npm test` in `api/` and `mcp/`,
+`node scripts/check-locales.mjs` for `frontend/src/locales/`, and the Gradle step above for
+`frontend/android/app/src/hevier*`; in CI it skips the Gradle step and says so, as there is no
+Android SDK there. `api/` and `mcp/` need `npm ci` once a clone.
 
 ```bash
-../hevier/tools/verify.sh                 # ~3.5 min: Bash timeout 400000
-cd ../api && npm test                     # only if api/ changed since the last merge
-cd ../mcp && npm test                     # only if mcp/ changed since the last merge
+../hevier/tools/verify.sh                 # ~3.5 min, more when api/, mcp/ or Java changed: Bash timeout 600000
 ```
 
 - A red **upstream** test means a seam or a fork wrapper changed behaviour it shouldn't have.

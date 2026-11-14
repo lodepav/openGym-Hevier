@@ -13,7 +13,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierSecretPlugin.class);
         // The home-screen month widget (D44).
         activity.registerFlavorPlugin(HevierWidgetPlugin.class);
-        // The one-off position, the gym picker's "Find gyms nearby" (D47), until upstream's v1.4.3.
+        // The one-off position, the gym picker's "Find gyms nearby" (D47), until upstream's currentPosition accepts an approximate grant.
         activity.registerFlavorPlugin(HevierLocationPlugin.class);
         // The Bluetooth heart-rate strap, recorded while a workout runs (D79).
         activity.registerFlavorPlugin(HevierHrStrapPlugin.class);
