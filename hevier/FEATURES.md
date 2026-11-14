@@ -112,6 +112,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Weekly sets per muscle against a target range (upstream 1.4.4's card), counted by the fork's main muscle | D99 | Fork |
 | Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
 | A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
+| Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Fork |
 
 ## Home, navigation and look
 

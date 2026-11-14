@@ -11,6 +11,7 @@ import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
+import { isPlain } from '../lib/plain-routine.js'
 import { installExercisePicker } from './ExercisePickerHevy.jsx'
 import { fromSpeed } from '../../lib/speed.js'
 import { clampIncline } from '../../lib/incline.js'
@@ -130,6 +131,19 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelector('.hv-plates').textContent).toContain('per side')
   })
 
+  it('with Effort on warm-ups off, a warm-up row has no effort button and a work row keeps it (D120)', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup', rir: 4 }), reps(60, 8)] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
+    const effs = () => [...container.querySelectorAll('.hv-row')].map(r => r.querySelectorAll('.hv-eff').length)
+    expect(effs()).toEqual([1, 1])
+    act(() => useStore.getState().update(s => { s.hvWarmupEffort = false }))
+    expect(effs()).toEqual([0, 1])
+    // The empty cell keeps the grid: the warm-up row has as many cells as the work row.
+    const [warm, work] = container.querySelectorAll('.hv-row')
+    expect(warm.children.length).toBe(work.children.length)
+    expect(sets()[0].rir).toBe(4)   // the logged effort stays stored
+  })
+
   it('ticks a set through upstream’s pipeline: done, timestamped, rest started', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     act(() => container.querySelector('.hv-chk').click())
@@ -151,6 +165,24 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[0].className).not.toContain('hv-hint')
     expect(nums[1].className).toContain('hv-hint')
     expect(nums[2].className).toContain('hv-hint')
+  })
+
+  it('a new working weight leaves the warm-ups alone unless the routine has progression on (D69)', () => {
+    const open = hvProg => {
+      render([{ id: EX, rid: 'r1', target: { sets: 1, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup' }), reps(100, 8)] }])
+      act(() => useStore.setState(st => ({ S: { ...st.S, routines: [{ id: 'r1', name: 'Upper A', ex: [], ...(hvProg ? { hvProg } : {}) }] } })))
+      typeInto(container.querySelectorAll('.hv-num')[2], '120')
+      expect(sets()[1].w).toBe(120)
+      return sets()[0].w
+    }
+    hooks.plainRoutine = { is: isPlain }
+    try {
+      expect(open(false)).toBe(40)
+      act(() => root.unmount())
+      container.remove()
+      // upstream's own (#156): the open warm-up follows the work weight
+      expect(open(true)).not.toBe(40)
+    } finally { hooks.plainRoutine = null }
   })
 
   it('a typed value stays bold on its own set when a set above it goes (D2)', () => {

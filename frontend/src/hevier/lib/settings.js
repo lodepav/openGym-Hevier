@@ -111,6 +111,9 @@ export function appendToSection(tree, title, el) {
 // Off by default (D84), and off with upstream's Plates and warm-ups module (D97).
 export const plateLineOn = S => S?.hvPlateLine === true && moduleOn(S, 'plates')
 
+/** Whether a warm-up row has an effort cell (D120): on unless switched off. */
+export const warmupEffortOn = S => S?.hvWarmupEffort !== false
+
 // Options relabelled, per page and row title: Weight decimals reads 0.5 / 0.25 upstream, but its
 // second choice shows any weight to the hundredth, 20.41 kg included (DECISIONS.md D40).
 export const RELABELLED = { units: { 'Weight decimals': { 1: 0.1, 2: 0.01 } } }

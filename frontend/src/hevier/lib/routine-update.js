@@ -1,8 +1,9 @@
 // Hevy's "Update routine?" after a workout (hevier/DECISIONS.md D35). What a
 // routine workout changed in each routine it was built from: exercises added, removed or swapped,
 // the order, the number of work sets, and what upstream's per-exercise Update routine already
-// copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry). Weights and reps are
-// never written back: the progression engine moves those from what was logged.
+// copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry), and Per side. Weights
+// and reps are never written back (bar the plan's reps when Per side switches): the progression
+// engine moves those from what was logged.
 //
 // Read from the session as it stood at Save, since a finished record drops an exercise that has
 // no ticked set, and an exercise left undone is not one taken out. Each running entry keeps the
@@ -20,6 +21,7 @@ import { modeOf, setsFromRows, cleanupSg } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
 import { setUnits } from './hold-set.js'
 import { isPyramid } from '../../lib/pyramid.js'
+import { sideDefault } from './one-limb.js'
 
 // A pyramid's rows are its plan's, a rest-pause set builds its own rows and cardio is one block:
 // their row count says nothing about the sets planned.
@@ -68,6 +70,18 @@ export function routineUpdate(S, session, routine) {
       for (const { key, to } of routineChangesFromEntry(routine, entries, i)?.changes || []) {
         if (to) slot[key] = to
         else delete slot[key]
+      }
+      // Per side switched in the exercise's settings (D75), with the plan's reps the sheet set
+      // for it (both sides' total when on), never progression's prescription.
+      const side = !!entry.target?.side
+      if (side !== !!slot.side && slot.mode !== 'cardio') {
+        if (side) slot.side = true
+        // Switched off stays off where a default would put it back on; elsewhere no flag, as upstream.
+        else if (sideDefault(S, slot.id)) slot.side = false
+        else delete slot.side
+        const plan = entry.planned || {}
+        if (plan.reps > 0) slot.reps = plan.reps
+        if (plan.repsMin > 0) slot.repsMin = plan.repsMin
       }
       if (!same(slot, routine.ex[a])) summary.changed++
       ex.push(slot)

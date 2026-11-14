@@ -20,6 +20,14 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    the ones that need a decision and ask the user about each, with options and a
    recommendation (CONFLICTS.md, "Decide what a release brings"). Record each answer in
    DECISIONS.md. Never decide one yourself; an open item keeps the merge off `hevier/main`.
+3a. **Note how every routine opens, before the merge.** Build and install `hevier/main` as it
+   is (`emulator-check` skill), restore the test profile (`hevier/ux/JOURNEYS.md`, "The test
+   profile"), then `node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-before.json`.
+   It starts every routine, saves what each opens with (gym, brands, cable setups, per side, side
+   order, every set, the settings and fork fields), types a new weight into a first work set to
+   see what the warm-ups do, and discards. Its last lines must show a warm-up probe for a routine
+   with progression off (warm-ups unchanged, D69) and one with it on (they follow); "saw nothing"
+   means the profile lost its warm-up routines: fix the profile first.
 4. **Merge on a throwaway branch.** `git checkout -b sync/$TARGET hevier/main`, then
    `git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"`.
 5. **Resolve.** Classify each file with `git diff --name-only --diff-filter=U` and apply
@@ -33,6 +41,15 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
 7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
    minimise, resume, finish, see it in history, start it again, see each set open at what was done last time (D69).
+   **Compare with before the merge:** restore the test profile again on the merged build and run
+   `node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-after.json --diff <scratchpad>/routines-before.json`.
+   Any line it prints (a brand or per-side setting gone, a set opening at other numbers, a
+   warm-up that moves, a setting or module part reset) is a regression unless a decision of
+   step 3 explains it: show the user the lines, never land over them. `routine-open.test.js`
+   (in `verify`) checks the same on a fixture profile; a failure there after a merge is the same
+   question, and its snapshot is rewritten only for a change a decision explains.
+   Once the merge has landed, `hevier/tools/routine-check.sh --accept` keeps the merged build's
+   snapshot as the baseline the next release is checked against.
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
    rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed

@@ -28,6 +28,7 @@ export const STORED_FIELDS = [
   { field: 'hvStrength', at: 'S', sample: { '0043': { lv: [60, 80, 100, 130, 160], u: 'kg', d: '2026-10-17' } } },
   { field: 'hvTimerSec', at: 'S', sample: 120 },
   { field: 'hvVolume', at: 'S', sample: 'weight' },
+  { field: 'hvWarmupEffort', at: 'S', sample: false },
   { field: 'hvBw', at: 'gym', sample: 1 },
   { field: 'hvHevyRoutine', at: 'workout', sample: 'b459cba5-cd6d-463c-abd6-54f8eafcadcb' },
   { field: 'hvPhase', at: 'workout', sample: { p: 'cut', r: -0.5 } },

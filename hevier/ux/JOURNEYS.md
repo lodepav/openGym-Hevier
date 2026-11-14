@@ -40,15 +40,23 @@ from `~/Downloads/workout_data.csv`, loaded as the hevy-csv-test-data note descr
 - Effort set to RIR (D6), Volume as sets per muscle (D18)
 - one routine with progression on (D69) and the rest left at the default, off
 - a routine in a folder, and one per-side exercise (D75) in a routine
+- a routine with progression off whose exercise has a warm-up slot and a logged warm-up, and one
+  with progression on whose exercise has a warm-up ramp (D69): `tools/routine-snapshot.mjs` types
+  into each to see what the warm-ups do
 
 The mixed profile is the point: the bugs live where two settings meet.
 
 **Set up on 2026-10-25** (gyms Holmes Place and Weekend Gym, the leg press 0739 Life Fitness and
 Hammer, cable 1323 ×2, the bench press 0047 in lb, Push Day with progression on, Leg Day in the
-Legs folder with a per-side slot) and saved on this machine as `~/.cache/hevier/ux-profile.tar`,
+Legs folder with a per-side slot; on 2026-11-14 Pull Day's barbell row 0027 got one warm-up set
+and a logged Pull Day with a warm-up, and Push Day's 0334 two ramp warm-ups) and saved on this
+machine as `~/.cache/hevier/ux-profile.tar`,
 outside the repo. Restore it before a round (as above, with `SNAP` pointing at it) rather than
 setting it up again. If it is gone, set the fields through the store over CDP (the `useStore`
-module's export with `getState().S`, then `update(S => …)`).
+module's export with `getState().S`, then `update(S => …)`). An edit of the WebView's
+`localStorage` alone is lost at the next start: the app reads `files/opengym-state.json` first, so
+stop the app, edit that file (`run-as`), set its `_ts` to now (the newer of the two copies wins)
+and start it again.
 
 ## J1 The routine lifter (the most common day)
 
