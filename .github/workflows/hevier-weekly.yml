@@ -1,0 +1,33 @@
+# The release check's source gates (D26) once a week, so a new CVE in a pinned package shows up
+# before release day, not on it. The same gates as `release-check.sh --sources-only` locally: the
+# release tools' tests, gitleaks over hevier/main's history, Trivy over the lockfiles, the npm
+# package baseline. The APK and working-tree gates stay on the release machine.
+# GitHub reads `schedule` and `workflow_dispatch` from the default branch's copy of this file only,
+# so it runs once hevier/main is the repository's default branch (or the file is on it).
+name: Hevier weekly gates
+
+on:
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sources:
+    if: github.repository == 'lodepav/openGym-Hevier'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: hevier/main
+          persist-credentials: false
+          # gitleaks reads the whole history of HEAD.
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: hevier/tools/install-scanners.sh
+      - run: hevier/tools/release-check.sh --sources-only
