@@ -18,7 +18,8 @@ import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { MOBILE } from '../../lib/mobile.js'
 import AppIconRow from '../../components/AppIconRow.jsx'
-import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, appendToSection, GymsPage } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, appendToSection, GymsPage, warmupEffortOn } from '../lib/settings.js'
+import { EFFORT, effortOf } from '../../lib/history.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
@@ -88,6 +89,17 @@ function PlateLineRow() {
   </Row>
 }
 
+// D120: an effort cell on warm-up rows, on by default, offered only while effort is RIR or RPE.
+function WarmupEffortRow() {
+  const S = useStore(s => s.S)
+  const update = useStore(s => s.update)
+  if (!EFFORT[effortOf(S)]) return null
+  return <Row icon="gauge" iconTint="var(--purple)" title={t('Effort on warm-ups')}
+    subtitle={t('An effort to rate on each warm-up set, as on work sets.')}>
+    <Switch checked={warmupEffortOn(S)} onChange={v => update(s => { s.hvWarmupEffort = v })} aria-label={t('Effort on warm-ups')} />
+  </Row>
+}
+
 /** Seams S11 and S12's hand-off. */
 // Rows upstream draws as a component of their own, left out of every page: the app icon picker (D100, D17).
 const HIDDEN_TYPES = [AppIconRow]
@@ -103,7 +115,8 @@ export function installSettings() {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES), t)
       if (id === 'about') return <>{aboutPage(out, t)}<MediaSection key="hv-media" /></>
-      if (id === 'workout') return appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />)
+      if (id === 'workout') return appendToSection(appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />),
+        t('Logging'), <WarmupEffortRow key="hv-warmup-effort" />)
       return out
     },
     hides: hiddenSetting,

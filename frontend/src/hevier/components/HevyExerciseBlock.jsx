@@ -57,7 +57,7 @@ import { setColumns, viewOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
 import { sideOrderOf } from '../lib/side-order.js'
-import { plateLineOn } from '../lib/settings.js'
+import { plateLineOn, warmupEffortOn } from '../lib/settings.js'
 import { withDrop, withBurst, withFailure, withSideField } from '../lib/set-rows.js'
 import { useTouchedFields } from './useTouchedFields.js'
 import { setLoads, plateLineAt } from '../lib/plate-line.js'
@@ -125,6 +125,8 @@ export default function HevyExerciseBlock(props) {
   const colsOf = s => (holdCols && isHoldRow(s) ? holdCols : cols)
   const modeAt = s => (isHoldRow(s) ? 'time' : mode)
   const effOn = mode === 'reps' && !!effortCol
+  // D120: with Effort on warm-ups off, a warm-up row keeps an empty cell; its stored effort stays.
+  const effAt = s => warmupEffortOn(S) || !isWarmupRow(s)
   // Hevy's count-up timer on each cardio set and hold (D53), in place of upstream's countdown;
   // not for a workout logged into the past, which is typed in.
   const canPlay = !editing && !A?.backfill
@@ -431,7 +433,7 @@ export default function HevyExerciseBlock(props) {
         aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
-      {effOn && effortCell(s, i, side)}
+      {effOn && (effAt(s) ? effortCell(s, i, side) : <span />)}
       {goOn && !playAt(s) && <span />}
       {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] ? ' on' : '')} disabled={s.done}
         aria-label={t('Timed hold') + ', ' + t('Set {0}', workNumber(i))} onClick={() => holdClock(s, i)}><Icon name="timer" /></button>}

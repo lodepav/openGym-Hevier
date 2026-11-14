@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { moduleOn, widgetOn, FORK_PARTS, FORK_MODULES, setAnyModule } from './fork-modules.js'
 import { MODULE_IDS } from '../../lib/modules.js'
-import { plateLineOn } from './settings.js'
+import { plateLineOn, warmupEffortOn } from './settings.js'
 
 describe('hevier: upstream’s Modules in the fork’s screens (D97)', () => {
   it('is upstream’s isOn: a module never set is on', () => {
@@ -31,5 +31,10 @@ describe('hevier: upstream’s Modules in the fork’s screens (D97)', () => {
     expect(plateLineOn({})).toBe(false)
     expect(plateLineOn({ hvPlateLine: true })).toBe(true)
     expect(plateLineOn({ hvPlateLine: true, modules: { plates: false } })).toBe(false)
+  })
+  it('keeps the effort cell on warm-ups unless switched off (D120)', () => {
+    expect(warmupEffortOn({})).toBe(true)
+    expect(warmupEffortOn({ hvWarmupEffort: true })).toBe(true)
+    expect(warmupEffortOn({ hvWarmupEffort: false })).toBe(false)
   })
 })

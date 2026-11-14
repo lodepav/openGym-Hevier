@@ -131,6 +131,19 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelector('.hv-plates').textContent).toContain('per side')
   })
 
+  it('with Effort on warm-ups off, a warm-up row has no effort button and a work row keeps it (D120)', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup', rir: 4 }), reps(60, 8)] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
+    const effs = () => [...container.querySelectorAll('.hv-row')].map(r => r.querySelectorAll('.hv-eff').length)
+    expect(effs()).toEqual([1, 1])
+    act(() => useStore.getState().update(s => { s.hvWarmupEffort = false }))
+    expect(effs()).toEqual([0, 1])
+    // The empty cell keeps the grid: the warm-up row has as many cells as the work row.
+    const [warm, work] = container.querySelectorAll('.hv-row')
+    expect(warm.children.length).toBe(work.children.length)
+    expect(sets()[0].rir).toBe(4)   // the logged effort stays stored
+  })
+
   it('ticks a set through upstream’s pipeline: done, timestamped, rest started', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     act(() => container.querySelector('.hv-chk').click())

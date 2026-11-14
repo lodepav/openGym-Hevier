@@ -123,3 +123,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D117** The parts of a module unfold under it on Settings → Modules, and more of the fork joins them.
 - **D118** Ease of use, from the 2026-11-14 review: one reorder list in a workout, Undo on every routine delete, and switches that say what they need.
 - **D119** Six statistics from what is already logged.
+- **D120** Effort on warm-ups can be switched off.

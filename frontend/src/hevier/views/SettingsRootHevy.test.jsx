@@ -91,6 +91,25 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(useStore.getState().S.hvPlateLine).toBe(true)
   })
 
+  it('Effort on warm-ups follows Plates to load in Logging while effort is RIR or RPE, on until switched off (D120)', () => {
+    render('workout', { effort: 'rir' })
+    const rows = titles()
+    expect(rows.indexOf('Effort on warm-ups')).toBe(rows.indexOf('Plates to load') + 1)
+    const sw = () => [...container.querySelectorAll('.lrow')].find(r => r.textContent.includes('Effort on warm-ups')).querySelector('[role="switch"]')
+    expect(sw().getAttribute('aria-checked')).toBe('true')
+    expect(sw().getAttribute('aria-label')).toBe('Effort on warm-ups')
+    act(() => sw().click())
+    expect(useStore.getState().S.hvWarmupEffort).toBe(false)
+    act(() => sw().click())
+    expect(useStore.getState().S.hvWarmupEffort).toBe(true)
+  })
+
+  it('Effort on warm-ups is not offered while effort is off, its choice kept', () => {
+    render('workout', { effort: 'none', hvWarmupEffort: false })
+    expect(titles()).not.toContain('Effort on warm-ups')
+    expect(useStore.getState().S.hvWarmupEffort).toBe(false)
+  })
+
   it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
     render('look')
     const rows = titles()
