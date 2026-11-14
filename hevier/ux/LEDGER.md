@@ -138,3 +138,24 @@ Notes for the user: the test profile has no routine with a full history and prog
 the relay was seen on a seeded one; upstream itself moves a typed row when a warm-up becomes a
 work set; the seeded history's tick times are 0–1 s apart, so exercise time was looked at on a
 demo workout added for the screenshots and removed again.
+
+## Round 6 (2026-11-14, after the upstream 1.4.5 merge: J1 routine lifter, J2 Hevy switcher)
+
+On `sync/v1.4.5` at `4c32b3335` plus the strap commit. J1 finished in about 20 taps, as round 1;
+J2 as round 1 (the import summary not opened: no Hevy CSV on the device). The earlier fixes hold;
+round 1's U2 (the rest bar's − 15s and + 15s names) is fixed by upstream 1.4.5. J3 to J7 are
+still to run after this merge.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R6-U1 | low | A1 | The routine card's name and the exercise name in the workout and the editor are 22 dp tall | **open**: an invisible hit area, nothing visible changes (minor) |
+| R6-U2 | low | A5 | The routine editor's fields are spoken "KG Set 1", "REPS Set 1" | **open**: the live workout's names (minor) |
+| R6-U3 | low | H4 | Data & backup: Delete workouts only and Reset everything read as part of Bring data in | **open**: a gap above an untitled section in `theme.css` (minor) |
+| R6-U4 | low | A1 | Exercise details: the Brand and Range choosers are 34 and 30 dp tall | **open**: slightly visible, so discuss |
+
+Improvements, open: one wording for the delete toast ("Set 4 gone." and "Set removed"); "Edit
+Workout" and "Edit workout" on Workout Detail; Nice work's card writes a 0 kg set as a bare "8"
+(upstream's); Import from another app does not say where Hevy's CSV comes from (upstream's row).
+
+Note for the user: with a weight field focused by script on the headless emulator, the cells to
+its right were drawn about 20 dp left of where the page has them; worth one look on a real phone.
