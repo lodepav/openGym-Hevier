@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PARTS, hasParts, partOn, partSwitch, anyPartOn, setPart } from './module-parts.js'
+import { PARTS, hasParts, partOn, partSwitch, anyPartOn, setPart, needOf } from './module-parts.js'
 import { MODULE_IDS, applyPreset } from '../../lib/modules.js'
 import { FORK_MODULES } from './fork-modules.js'
 import { mergeStates } from '../../lib/sync-merge.js'
@@ -61,11 +61,32 @@ describe('hevier: a switch per part inside a module (D102)', () => {
     setPart(s, 'hvStats', 'levels', true)
     expect(partOn(s, 'hvStats', 'levels')).toBe(true)
   })
+  it('Lift trends is a part of Statistics extras, on until switched off', () => {
+    expect(partOn({}, 'hvStats', 'trends')).toBe(true)
+    const s = {}
+    setPart(s, 'hvStats', 'trends', false)
+    expect(s.hvModuleParts).toEqual({ 'hvStats.trends': false })
+    expect(partOn(s, 'hvStats', 'trends')).toBe(false)
+    expect(partOn({ modules: { hvStats: false } }, 'hvStats', 'trends')).toBe(false)
+  })
   it('D114: a fork module off hides its parts, and a preset leaves it as it is', () => {
     const s = { modules: { hvGyms: false } }
     expect(partOn(s, 'hvGyms', 'nearby')).toBe(false)
     applyPreset(s, 'all')
     expect(s.modules.hvGyms).toBe(false)
     expect(partOn({}, 'hvGyms', 'brands')).toBe(true)
+  })
+})
+
+describe('hevier: what a part or a setting also needs', () => {
+  it('names the module Plate loading, the Strength levels list and Plates to load need, and whether it is on', () => {
+    const s = { modules: { plates: false } }
+    expect(needOf(s, 'hvExercise.plates')).toEqual({ mod: 'plates', title: 'Plates and warm-ups', on: false })
+    expect(needOf(s, 'hvPlateLine')).toEqual({ mod: 'plates', title: 'Plates and warm-ups', on: false })
+    expect(needOf(s, 'hvStats.levels')).toEqual({ mod: 'strength', title: 'Strength levels', on: true })
+    s.modules.strength = false
+    expect(needOf(s, 'hvStats.levels').on).toBe(false)
+    expect(needOf(s, 'hvStats.report')).toBeNull()
+    expect(needOf(s, 'body.photos')).toBeNull()
   })
 })

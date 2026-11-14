@@ -15,7 +15,6 @@ const MAX_STEP = 18
 const speed = depth => Math.round(MIN_STEP + (MAX_STEP - MIN_STEP) * Math.min(1, depth / EDGE))
 const LONG_PRESS = 400   // ms held still before a row lifts
 const SLOP = 8           // px a finger may wander while it is held
-const scrollTop = () => window.scrollY || document.scrollingElement?.scrollTop || 0
 
 export function useDragReorder(count, onMove) {
   const listRef = useRef(null)
@@ -38,6 +37,9 @@ export function useDragReorder(count, onMove) {
     return () => el.removeEventListener('touchmove', hold)
   }, [count])   // the list mounts only once it has rows: a routine made on this visit had none
 
+  // What scrolls: the sheet the list is in, else the page.
+  const sheet = () => listRef.current?.closest?.('.sheet') || null
+  const scrollTop = () => { const sc = sheet(); return sc ? sc.scrollTop : window.scrollY || document.scrollingElement?.scrollTop || 0 }
   const rowsOf = () => [...(listRef.current?.children || [])].filter(el => el.hasAttribute('data-reorder-row'))
   // Where the held row is now, in page coordinates, and the slot that puts it at.
   const track = () => {
@@ -52,9 +54,11 @@ export function useDragReorder(count, onMove) {
   const scrollLoop = () => {
     const g = gesture.current
     if (!g) return
+    const sc = sheet()
     const vh = window.visualViewport?.height || window.innerHeight
-    const step = g.y < EDGE ? -speed(EDGE - g.y) : g.y > vh - EDGE ? speed(g.y - vh + EDGE) : 0
-    if (step) { window.scrollBy?.(0, step); track() }
+    const top = sc ? Math.max(0, sc.getBoundingClientRect().top) : 0
+    const step = g.y < top + EDGE ? -speed(top + EDGE - g.y) : g.y > vh - EDGE ? speed(g.y - vh + EDGE) : 0
+    if (step) { if (sc) sc.scrollTop += step; else window.scrollBy?.(0, step); track() }
     g.raf = step ? requestAnimationFrame(scrollLoop) : 0
   }
   const end = commit => {

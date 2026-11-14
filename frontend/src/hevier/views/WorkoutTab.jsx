@@ -10,6 +10,7 @@ import { effectiveRoutines, effectiveRoutineIds } from '../../lib/history.js'
 import { todayISO, uid, exCount } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { pinState } from '../../lib/queue.js'
+import { DEMO } from '../../lib/demo.js'
 import { deleteRoutine } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
 import { DEFAULT_GLYPH } from '../../lib/glyphs.js'
@@ -22,7 +23,7 @@ import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
 import { discardActive } from '../components/HevyTabBar.jsx'
 import {
-  folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
+  folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, deleteFolder, restoreFolder,
   cleanFolderName, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders, stillEmpty, folderOf, FOLDER_MAX,
 } from '../lib/routine-folders.js'
 
@@ -114,9 +115,11 @@ export default function WorkoutTab() {
           setEmpty(empty.map(n => (n === name ? next : n)))
         },
       }) },
+      // With an Undo, as a routine's delete has (Plan.jsx deleteRoutineWithUndo).
       { icon: 'trash', label: t('Delete Folder'), sub: t('Its routines move to My Routines'), danger: true, onClick: () => {
-        update(s => { s.routines = removeFolder(s.routines, name) })
-        setEmpty(empty.filter(n => n !== name))
+        let snap = null
+        update(s => { snap = deleteFolder(s, name) })
+        useUI.getState().toast(t('“{0}” gone.', name), { action: t('Undo'), onAction: () => update(s => { restoreFolder(s, snap) }) })
       } },
     ],
   })
@@ -201,6 +204,7 @@ export default function WorkoutTab() {
         </section>)}
       </div>
     </>}
-    {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}</div>}
+    {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}
+      {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>}
   </div>
 }

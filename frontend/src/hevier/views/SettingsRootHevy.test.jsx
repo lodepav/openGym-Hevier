@@ -80,6 +80,17 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(useStore.getState().S.hvPlateLine).toBe(true)
   })
 
+  it('Plates to load is disabled and says what it needs while Plates and warm-ups is off, its choice kept', () => {
+    render('workout', { modules: { plates: false }, hvPlateLine: true })
+    const row = [...container.querySelectorAll('.lrow')].find(r => r.textContent.includes('Plates to load'))
+    expect(row.querySelector('.lrow-s').textContent).toBe('Needs Plates and warm-ups')
+    const sw = row.querySelector('[role="switch"]')
+    expect(sw.disabled).toBe(true)
+    expect(sw.getAttribute('aria-checked')).toBe('true')
+    expect(sw.getAttribute('aria-label')).toBe('Plates to load')
+    expect(useStore.getState().S.hvPlateLine).toBe(true)
+  })
+
   it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
     render('look')
     const rows = titles()

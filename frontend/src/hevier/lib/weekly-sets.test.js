@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { forkWeeklySets, GROUP_OF, mostRoom } from './weekly-sets.js'
+import { forkWeeklySets, GROUP_OF, mostRoom, weeksInRange } from './weekly-sets.js'
 import { EXDB } from '../../lib/exercises.js'
 import { TARGET_MUSCLES } from '../../lib/muscle-targets.js'
 import { mainMuscleOf } from './main-muscle.js'
@@ -30,5 +30,28 @@ describe('hevier: weekly sets per muscle, counted the fork’s way (D99)', () =>
     const rows = forkWeeklySets(S({ muscleTargets: { chest: [2, 4] } }), today)
     expect(rows.find(r => r.slug === 'chest').status).toBe('in')
     expect(mostRoom(rows).slug).toBe('deltoids')   // the first in body order with nothing yet (upstream's rule)
+  })
+})
+
+describe('hevier: weeks in range per muscle', () => {
+  // Imported history: a day and its sets, no clock and no routine.
+  const day = (d, id, n) => ({ d, routineId: null, entries: [{ id, sets: sets(n) }] })
+  it('has nothing without at least two complete weeks trained', () => {
+    expect(weeksInRange({ workouts: [] }, today)).toEqual({})
+    expect(weeksInRange({ weekStart: 1, workouts: [day('2026-10-27', BENCH.id, 3), day('2026-11-02', BENCH.id, 3)] }, today)).toEqual({})
+  })
+  it('counts the complete weeks in range, an empty week skipped, by hand', () => {
+    const S = { weekStart: 1, muscleTargets: { chest: [2, 4] }, workouts: [
+      day('2026-08-31', BENCH.id, 3),   // nine weeks back: outside the eight
+      day('2026-09-29', BENCH.id, 4),   // in
+      // the week of 5 Oct: nothing logged, skipped
+      day('2026-10-13', CURL.id, 3),    // no chest: a miss
+      day('2026-10-20', BENCH.id, 9),   // above: a miss
+      day('2026-10-27', BENCH.id, 3),   // in
+      day('2026-11-02', BENCH.id, 9),   // the running week, left out
+    ] }
+    const r = weeksInRange(S, today)
+    expect(r.chest).toEqual({ hit: 2, of: 4 })
+    expect(r.biceps.of).toBe(4)
   })
 })

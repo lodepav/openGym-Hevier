@@ -1,6 +1,7 @@
 // Profile → Statistics → Exercise time (D88): how long each exercise takes, from its sets' tick
 // times (lib/exercise-time.js), over 30 days, 90 days, a year or all. A row is the exercise, its
-// average time a session and, under it, its sessions and total. Longest first; ↓ / ↑ turns it
+// average time a session and, under it, its sessions and total, and its typical time between sets
+// against the rest set for it (lib/set-gaps.js). Longest first; ↓ / ↑ turns it
 // round, and Muscle or Gym puts the rows into sections (the main muscle, D74 / D76; the gym the
 // exercise was done at, D28). A tap opens exercise details.
 import { useMemo, useState } from 'react'
@@ -14,6 +15,7 @@ import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { BackTo } from './Statistics.jsx'
 import { timedSessions, timeSections, periodSince } from '../lib/exercise-time.js'
+import { setGaps } from '../lib/set-gaps.js'
 import { elapsedWords } from '../lib/elapsed.js'
 import { mainMuscleOf } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
@@ -29,6 +31,8 @@ export default function ExerciseTime() {
   const log = usePhasedS(st).workouts   // D93
   const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO())),
     [log, period])
+  // Per exercise over the whole period, the same number in whichever section its row shows.
+  const gaps = useMemo(() => setGaps(log, periodSince(period, todayISO()), st), [log, period, st])
   const sections = timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) })
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
     : key ? t(key) : t('Other'))
@@ -50,9 +54,11 @@ export default function ExerciseTime() {
       {by && <h4 className="sec">{title(sec.key)} <span className="dim">· {secs(sec.total)} {t('total')}</span></h4>}
       <div className="list">{sec.rows.map(r => {
         const ex = exOr(r.id)
+        const g = gaps.get(r.id)
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
           <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
             <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')} · {secs(r.total)} {t('total')}</span>
+            {g && <span className="small dim">{g.rest > 0 ? t('Between sets {0} · rest set to {1}', secs(g.gap), elapsedWords(g.rest)) : t('Between sets {0} · no rest timer', secs(g.gap))}</span>}
           </span>
           <b><span className="hv-sr">{t('Average')}: </span>{secs(r.avg)}</b>
         </button>

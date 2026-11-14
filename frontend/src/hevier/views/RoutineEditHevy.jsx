@@ -15,7 +15,7 @@ import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, pickedExerciseConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
 import { fmtRest, REST_MAX } from '../../lib/duration.js'
-import { deleteRoutine, replaceSlotExercise } from '../../lib/routines.js'
+import { replaceSlotExercise } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
 import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
 import { MOBILE, printHtml } from '../../lib/mobile.js'
@@ -25,10 +25,11 @@ import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { glyphOf } from '../../lib/glyphs.js'
 import {
-  glyphPicker, exercisePicker, exConfigSheet, confirmSheet, supersetSheet, menuSheet, exerciseDetailSheet,
+  glyphPicker, exercisePicker, exConfigSheet, supersetSheet, menuSheet, exerciseDetailSheet,
 } from '../../sheets.jsx'
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { removeRoutineExercise, reorderRoutineUnit } from '../../views/RoutineEdit.jsx'
+import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { useSupersetTarget, exercisePickerSheet } from './ExercisePickerHevy.jsx'
 import { BackupsSheet } from '../components/BackupsSheet.jsx'
@@ -233,7 +234,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
-      {noEquip && (why => <span className="hv-warn" role="img" aria-label={why} title={why}><Icon name="warning" /></span>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
+      {noEquip && (why => <button type="button" className="iconbtn hv-warn" aria-label={why} title={why} onClick={() => toast(why)}><Icon name="warning" /></button>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     <input className="hv-notes hv-notes-in" value={note} maxLength={NOTE_MAX} placeholder={t('Add routine notes here')}
@@ -262,7 +263,8 @@ export default function RoutineEditHevy() {
   useEffect(() => { if (!r) nav('/workout', { replace: true }) }, [!!r])
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
-  const [name, setName] = useState(r?.name || '')
+  // A new routine's default name shows as the placeholder, so the first key typed starts the name (D2: no select on focus).
+  const [name, setName] = useState(r?.name === t('New routine') ? '' : r?.name || '')
   const setR = fn => update(s => { const x = s.routines.find(y => y.id === id); if (x) fn(x) })
   // The picker's "Add superset": a quick add goes to the end of the routine.
   const exOf = () => useStore.getState().S.routines.find(y => y.id === id)?.ex || []
@@ -302,10 +304,8 @@ export default function RoutineEditHevy() {
         } },
         r.ex.length > 0 && { icon: 'share', label: t('Print / Save as PDF'), onClick: printRoutine },
       ] },
-      { items: [{ icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => confirmSheet({
-        title: t('Delete routine?'), message: t('“{0}” and its exercises will be removed.', r.name), confirmText: t('Delete'), danger: true,
-        onConfirm: () => { update(s => { deleteRoutine(s, id) }); back() },
-      }) }] },
+      // The Workout tab's delete, with its Undo: the toast is the app's, so it outlives this page.
+      { items: [{ icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => { if (deleteRoutineWithUndo(id)) back() } }] },
     ],
   })
 
@@ -320,7 +320,7 @@ export default function RoutineEditHevy() {
       <button type="button" className="btn primary pill hv-finish" onClick={back}>{t('Done')}</button>
     </PageBar>
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}
-      onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('Routine') }) }} />
+      onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('New routine') }) }} />
 
     {r.ex.length ? <div ref={reorder.listRef} className={'hv-units' + (reorder.drag ? ' is-reordering' : '')}>
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}

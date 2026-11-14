@@ -145,6 +145,42 @@ describe('hevier: routine editor (M3)', () => {
     expect(useStore.getState().S.routines[0].name).toBe('Push Day')
   })
 
+  it('a new routine’s default name is the placeholder; typing replaces it, emptying keeps it', () => {
+    render([], { name: 'New routine' })
+    const title = container.querySelector('.hv-rtitle')
+    expect(title.value).toBe('')
+    expect(title.placeholder).toBe('Routine title')
+    typeInto(title, 'P')
+    expect(useStore.getState().S.routines[0].name).toBe('P')
+    typeInto(title, '')
+    expect(useStore.getState().S.routines[0].name).toBe('New routine')
+  })
+
+  it('⋯ → Delete routine leaves the page with an Undo that puts it back', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    act(() => container.querySelector('[aria-label="More, Leg Day"]').click())
+    const menu = sheet()
+    act(() => byTextIn(menu, '.menu-item', 'Delete routine').click())
+    expect(useStore.getState().S.routines).toHaveLength(0)
+    expect(path).toBe('/routines')
+    expect(useUI.getState().toastMsg).toBe('“Leg Day” gone.')
+    act(() => useUI.getState().runToastAction())
+    expect(useStore.getState().S.routines.map(r => r.name)).toEqual(['Leg Day'])
+  })
+
+  it('the warning sign of an exercise the gym lacks says why on a tap', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    act(() => {
+      useStore.getState().update(s => { s.equipProfiles = [{ id: 'g1', name: 'City Gym', items: [] }] })
+      localStorage.setItem('hevier_ex_gym', 'g1')
+    })
+    act(() => root.render(<MemoryRouter initialEntries={['/plan/r/r1']}><Routes>{hevierRoutes}</Routes></MemoryRouter>))
+    const warn = container.querySelector('button.hv-warn')
+    expect(warn.getAttribute('aria-label')).toMatch(/^Needs .+, which City Gym doesn’t have$/)
+    act(() => warn.click())
+    expect(useUI.getState().toastMsg).toBe(warn.getAttribute('aria-label'))
+  })
+
   it('an exercise’s note is saved as it is typed, a space typed last left in the field', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 0 }])
     const field = container.querySelector('.hv-notes-in')

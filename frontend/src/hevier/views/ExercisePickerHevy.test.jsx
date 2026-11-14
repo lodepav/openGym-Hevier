@@ -72,6 +72,24 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(useUI.getState().sheets).toHaveLength(0)
   })
 
+  it('with nothing found, Create “…” opens the new exercise named as typed', () => {
+    open(vi.fn())
+    expect(container.querySelector('.hv-pk-create')).toBeNull()
+    search('Qqzxj curl')
+    const create = container.querySelector('.hv-pk-create')
+    expect(create.textContent).toBe('Create “Qqzxj curl”')
+    const before = useUI.getState().sheets.length
+    click(create)
+    expect(useUI.getState().sheets.length).toBe(before + 1)
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const r = createRoot(host)
+    act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect([...host.querySelectorAll('input')].some(i => i.value === 'Qqzxj curl')).toBe(true)
+    act(() => r.unmount())
+    host.remove()
+  })
+
   it('the chart button opens the exercise without picking or ticking it', () => {
     const onPick = vi.fn()
     open(onPick)

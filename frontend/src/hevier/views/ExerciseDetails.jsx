@@ -28,6 +28,7 @@ import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
+import { sideBalance } from '../lib/side-balance.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
@@ -76,6 +77,7 @@ function Summary({ ex, sum, st }) {
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const last = points.at(-1)
   const r = sum.records
+  const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   const records = [
     r.best && { k: 'best', label: t(MAIN_LABEL[sum.metric]), v: fmtNum(r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
     r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(r.e1rm.v) + ' ' + unit, d: r.e1rm.d },
@@ -100,6 +102,8 @@ function Summary({ ex, sum, st }) {
         {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
           aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
       </div>}
+      {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
+        : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
       {records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('Personal Records')}</h4>
         <div className="list">{records.map(x => <div key={x.k} className="item hv-xd-rec">

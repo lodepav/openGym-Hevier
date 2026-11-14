@@ -18,12 +18,12 @@ import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { MOBILE } from '../../lib/mobile.js'
 import AppIconRow from '../../components/AppIconRow.jsx'
-import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, appendToSection, plateLineOn, GymsPage } from '../lib/settings.js'
+import { SETTINGS_GROUPS, prunePage, relabelPage, hiddenSetting, appendToSection, GymsPage } from '../lib/settings.js'
 import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { MediaSection } from '../components/MediaSection.jsx'
-import { partOn } from '../lib/module-parts.js'
+import { partOn, needOf } from '../lib/module-parts.js'
 
 function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
   const restSec = useStore(s => s.S.restSec)
@@ -77,11 +77,14 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
 }
 
 // D84: the plate line under a set, off by default, among upstream's Logging rows.
+// With Plates and warm-ups off it is disabled and says so, its stored choice kept (needOf).
 function PlateLineRow() {
-  const on = useStore(s => plateLineOn(s.S))
+  const S = useStore(s => s.S)
+  const need = needOf(S, 'hvPlateLine')
   const update = useStore(s => s.update)
-  return <Row icon="plate" iconTint="var(--orange)" title={t('Plates to load')} subtitle={t('A line under a set: the plates on each side of the bar.')}>
-    <Switch checked={on} onChange={v => update(s => { s.hvPlateLine = v })} aria-label={t('Plates to load')} />
+  return <Row icon="plate" iconTint="var(--orange)" title={t('Plates to load')} className={need.on ? '' : 'dis'}
+    subtitle={need.on ? t('A line under a set: the plates on each side of the bar.') : t('Needs {0}', t(need.title))}>
+    <Switch checked={S.hvPlateLine === true} disabled={!need.on} onChange={v => update(s => { s.hvPlateLine = v })} aria-label={t('Plates to load')} />
   </Row>
 }
 

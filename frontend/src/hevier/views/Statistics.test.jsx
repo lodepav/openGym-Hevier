@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
-import { todayISO } from '../../lib/format.js'
+import { todayISO, isoOf } from '../../lib/format.js'
 import { hevierRoutes, HevyTabBar } from '../routes.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -54,6 +54,14 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
+  })
+
+  it('Weekly sets per muscle: how many past weeks each muscle was in range', () => {
+    const back = n => { const d = new Date(todayISO() + 'T12:00:00'); d.setDate(d.getDate() - 7 * n); return isoOf(d) }
+    render(['/stats'], { muscleTargets: { chest: [2, 4] }, workouts: [workout(back(2)), { ...workout(back(1)), id: 'w1' }] })
+    const chest = [...container.querySelectorAll('.hv-wsets .sbar-row')].find(r => r.textContent.startsWith('Chest'))
+    expect(chest.querySelector('.hv-wsets-past').textContent).toBe('2/2')
+    expect(chest.getAttribute('aria-label')).toContain('In range 2 of 2 weeks')
   })
 
   it('an empty history says so instead of an empty map', () => {

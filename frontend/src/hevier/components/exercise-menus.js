@@ -7,12 +7,14 @@ import { canBeWarmup, setSpanAt, EFFORT } from '../../lib/history.js'
 import { REST_MAX, fmtRest } from '../../lib/duration.js'
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { isWarmupRow, isFailureSet, isDropSet, isRestPauseSet } from '../../lib/workout-model.js'
-import { menuSheet, effortPickerSheet, exerciseDetailSheet, exerciseHistorySheet, barWeightSheet } from '../../sheets.jsx'
+import { menuSheet, effortPickerSheet, exerciseHistorySheet, barWeightSheet } from '../../sheets.jsx'
 import { isHoldRow, canBeHold, setTicked } from '../lib/hold-set.js'
 import { exUnitChoice, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setSideOrder } from '../lib/side-order.js'
 import { brandSheet } from './GymLabels.jsx'
 import { partOn } from '../lib/module-parts.js'
+import { moduleOn } from '../lib/fork-modules.js'
+import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
 import { useStore } from '../../store/useStore.js'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
@@ -99,8 +101,7 @@ export function exerciseMenu(p, x) {
     titleClass: exerciseNameClass(ex),
     sections: [
       { items: [
-        p.onMoveUp && { icon: 'chevronUp', label: t('Move up'), onClick: p.onMoveUp, disabled: p.busy || !p.canMoveUp },
-        p.onMoveDown && { icon: 'chevronDown', label: t('Move down'), onClick: p.onMoveDown, disabled: p.busy || !p.canMoveDown },
+        p.onReorder && { icon: 'chevronsUpDown', label: t('Reorder exercises'), onClick: () => reorderExercisesSheet(p.onReorder), disabled: p.busy },
         p.onSwap && { icon: 'swap', label: t('Replace exercise'), onClick: p.onSwap, disabled: p.busy },
         !p.superset && p.onPairPrev && { icon: 'link', label: t('Make superset with previous'), onClick: p.onPairPrev },
         !p.superset && p.onPairNext && { icon: 'link', label: t('Make superset with next'), onClick: p.onPairNext },
@@ -112,7 +113,7 @@ export function exerciseMenu(p, x) {
           sub: guidance ? t(guidance.policyLabel) + ' · ' + t(...guidance.why) : t('Sets, reps, rest, progression'),
           onClick: p.onProgressionSettings },
         p.onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => p.onNoProg(entry.noProg !== true) },
-        plateLoading && mode === 'reps' && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
+        plateLoading && mode === 'reps' && partOn(S, 'hvExercise', 'plates') && moduleOn(S, 'plates') && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
         // Any exercise can carry a label (D28), not only a machine, whose line is always there.
         !x.hasLabel && partOn(useStore.getState().S, 'hvGyms', 'brands') && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(p.entryIdx) },
         p.routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: p.routineUpdate.sub, onClick: p.routineUpdate.run },
@@ -121,11 +122,10 @@ export function exerciseMenu(p, x) {
             { label: t('Left first'), on: first === 'L', onClick: () => update(s => { setSideOrder(s, entry.id, false) }) },
             { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
           ] }] }) },
-        mode === 'reps' && !bw && { icon: 'ruler', label: t('Weight unit'),
+        mode === 'reps' && !bw && partOn(S, 'hvExercise', 'units') && { icon: 'ruler', label: t('Weight unit'),
           sub: convertsUnit ? (unitChoice?.step != null ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice.step)) : exUnit) : t('{0}, as the profile', unit),
           onClick: () => unitMenu(S, update, entry.id) },
         { icon: 'history', label: t('History'), sub: last ? t('Last time') + ' ' + fmtDate(last.d) : undefined, onClick: () => exerciseHistorySheet(entry.id) },
-        { icon: 'info', label: t('How to do it'), onClick: () => exerciseDetailSheet(ex) },
       ] },
       { items: [
         p.onRemoveExercise && { icon: 'xmark', label: t('Remove exercise'), danger: true, disabled: p.busy, onClick: p.onRemoveExercise },

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, tn } from '../../lib/i18n.js'
+import { DEMO } from '../../lib/demo.js'
 import { historyRows } from '../../views/History.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -19,9 +20,11 @@ import { anyPartOn, partOn } from '../lib/module-parts.js'
 export const PAGE = 10
 
 export function WorkoutFeed({ S }) {
+  const nav = useNavigate()
   const [n, setN] = useState(PAGE)
   const ws = historyRows(usePhasedS(S)).filter(r => r.w).map(r => r.w)   // D93
-  if (!ws.length) return <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No workouts yet. Your first one will land here.')}</div>
+  if (!ws.length) return <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No workouts yet. Your first one will land here.')}
+    {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>
   return <>
     <PhaseFilter />
     {ws.slice(0, n).map(w => <WorkoutCard key={w.id || w.start} w={w} />)}

@@ -10,6 +10,8 @@ vi.mock('../../lib/mobile.js', async orig => ({
   readJsonFile: async () => file,
   writeJsonFile: async (name, v) => { saved.push([name, JSON.parse(JSON.stringify(v))]) },
 }))
+const toast = vi.hoisted(() => vi.fn())
+vi.mock('../../store/useUI.js', () => ({ useUI: { getState: () => ({ toast }) } }))
 vi.mock('./secret.js', () => ({ getSecret: async () => 'k1', putSecret: async () => true, removeSecret: async () => {} }))
 
 const T0 = Date.parse('2026-10-15T16:00:00Z')
@@ -37,6 +39,7 @@ beforeEach(async () => {
   })
   vi.resetModules()   // the export state and the retry clock are the module's own
   mod = await import('./hevy-export-sync.js')
+  toast.mockClear()
 })
 afterEach(() => vi.unstubAllGlobals())
 
@@ -94,5 +97,26 @@ describe('sendToHevy: the ordinary pass', () => {
     await mod.sendToHevy(getState, { now: T0 + 4061e3 })
     expect(calls).toHaveLength(2)
     expect(st.last).toMatchObject({ sent: 1, error: null })
+  })
+})
+
+describe('sendToHevy: telling that it has stopped', () => {
+  it('a refused key on a pass with a workout shows one toast, not again until a pass gets through', async () => {
+    status = 401
+    await mod.sendToHevy(getState, { now: T0 + 4000e3 })
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledTimes(1))
+    expect(toast).toHaveBeenCalledWith('Send to Hevy stopped: Hevy refused the key. Check Settings → Integrations')
+    await mod.sendToHevy(getState, { now: T0 + 4100e3 })
+    // Send now's own line says it: no toast either.
+    await mod.sendToHevy(getState, { now: T0 + 4110e3, force: true })
+    expect(calls).toHaveLength(3)
+    // A pass that gets through lets the next stop tell again.
+    status = 200
+    await mod.sendToHevy(getState, { now: T0 + 4200e3, force: true })
+    S.workouts.push({ ...S.workouts[0], id: 'b', start: T0 + 1, end: T0 + 7200e3 })
+    status = 401
+    await mod.sendToHevy(getState, { now: T0 + 4300e3 })
+    S.workouts.pop()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledTimes(2))
   })
 })

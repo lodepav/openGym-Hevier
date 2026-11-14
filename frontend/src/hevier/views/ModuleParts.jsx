@@ -8,7 +8,7 @@ import { t } from '../../lib/i18n.js'
 import { isOn } from '../../lib/modules.js'
 import { Row, Switch } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
-import { PARTS, hasParts, partSwitch, setPart } from '../lib/module-parts.js'
+import { PARTS, hasParts, partSwitch, setPart, needOf } from '../lib/module-parts.js'
 
 /** `hooks.moduleRow`: upstream's row of module `mod`, with its parts under it when it has any. */
 export const moduleRow = (mod, row) => hasParts(mod) ? <ModuleParts key={mod} mod={mod} row={row} /> : row
@@ -30,10 +30,15 @@ export function ModuleParts({ mod, row }) {
       <Icon name={open ? 'chevronDown' : 'chevronRight'} className="lrow-c" />,
       row.props.children)}
     <div id={id} className="hv-modparts" role="group" aria-label={t('Parts of {0}', name)} hidden={!open}>
-      {open && parts.map(p => <Row key={p.id} title={t(p.title)} subtitle={t(p.desc)} className={on ? '' : 'dis'}>
-        <Switch aria-label={t(p.title)} checked={partSwitch(S, mod, p.id)} disabled={!on}
-          onChange={v => update(s => { setPart(s, mod, p.id, v) })} />
-      </Row>)}
+      {open && parts.map(p => {
+        // A part that also needs another module says so while that one is off (needOf).
+        const need = needOf(S, mod + '.' + p.id)
+        const stuck = !!need && !need.on
+        return <Row key={p.id} title={t(p.title)} subtitle={on && stuck ? t('Needs {0}', t(need.title)) : t(p.desc)} className={on && !stuck ? '' : 'dis'}>
+          <Switch aria-label={t(p.title)} checked={partSwitch(S, mod, p.id)} disabled={!on || stuck}
+            onChange={v => update(s => { setPart(s, mod, p.id, v) })} />
+        </Row>
+      })}
       {open && !on && <p className="hv-modparts-off">{t('{0} is off, so all of it is hidden.', name)}</p>}
     </div>
   </>

@@ -2,7 +2,7 @@ import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
   folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
   cleanFolderName, stillEmpty, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders, moveFoldersIntoS,
-  FOLDERS_KEY, CLOSED_KEY,
+  deleteFolder, restoreFolder, FOLDERS_KEY, CLOSED_KEY,
 } from './routine-folders.js'
 import { mergeStates, stampChange } from '../../lib/sync-merge.js'
 
@@ -56,6 +56,36 @@ describe('hevier routine folders', () => {
     expect(cleanFolderName('  ')).toBeNull()
     expect(cleanFolderName('x'.repeat(60))).toHaveLength(40)
     expect(stillEmpty(list, ['Push', 'Arms'])).toEqual(['Arms'])
+  })
+
+  it('deleting a folder and its Undo put back its name, its place and its fold', () => {
+    const s = { routines: structuredClone(list), hvFolders: ['Arms'], hvFoldersClosed: ['Push'] }
+    const snap = deleteFolder(s, 'Push')
+    expect(ids(s.routines)).toEqual(ids(list))
+    expect(s.routines.some(r => r.folder === 'Push')).toBe(false)
+    expect(s.hvFoldersClosed).toBeUndefined()
+    restoreFolder(s, snap)
+    expect(s.routines).toEqual(list)
+    expect(folderNames(s.routines, readEmptyFolders(s))).toEqual(['Push', 'Legs', 'Arms'])
+    expect(s.hvFoldersClosed).toEqual(['Push'])
+  })
+
+  it('an empty folder comes back at its place among the empty ones, open if it was', () => {
+    const s = { routines: [R('a')], hvFolders: ['Arms', 'Back', 'Core'] }
+    const snap = deleteFolder(s, 'Back')
+    expect(s.hvFolders).toEqual(['Arms', 'Core'])
+    restoreFolder(s, snap)
+    expect(s.hvFolders).toEqual(['Arms', 'Back', 'Core'])
+    expect(s.hvFoldersClosed).toBeUndefined()
+  })
+
+  it('Undo leaves a routine moved to another folder meanwhile where it is', () => {
+    const s = { routines: structuredClone(list) }
+    const snap = deleteFolder(s, 'Push')
+    s.routines = moveToFolder(s.routines, 'p2', 'Legs')
+    restoreFolder(s, snap)
+    expect(s.routines.find(r => r.id === 'p1').folder).toBe('Push')
+    expect(s.routines.find(r => r.id === 'p2').folder).toBe('Legs')
   })
 
   it('a folder set on one device survives a sync with a rename made on another', () => {

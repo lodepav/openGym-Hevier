@@ -184,7 +184,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <h4 className="sec">{browsing ? t('All Exercises') : t('{0} exercises', list.length)}</h4>
       <div className="list">
         {list.slice(0, shown).map(e => row(e, 'a'))}
-        {list.length === 0 && <div className="empty">{t('No exercises found')}</div>}
+        {list.length === 0 && <div className="empty">{t('No exercises found')}
+          {q.trim() && <button type="button" className="btn hv-pk-create" onClick={create}>{t('Create “{0}”', q.trim())}</button>}</div>}
       </div>
     </>}
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}

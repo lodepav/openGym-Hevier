@@ -30,6 +30,7 @@ import { anyRunning, stopAll } from '../lib/set-timer.js'
 import { insertAfter, placeAt } from '../lib/add-at-end.js'
 import { exOr } from '../../lib/exercises.js'
 import { partOn } from '../lib/module-parts.js'
+import { unitMoveSteps } from '../lib/reorder-units.js'
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -62,6 +63,17 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     ],
   })
 
+  // Reorder exercises: a drag is played as upstream's one-step moves, which also keep the rest
+  // timer and the progress marks on their exercises; a refused step (a timed set running) ends it.
+  const reorder = (from, to) => {
+    for (const { at, dir } of unitMoveSteps(useStore.getState().S.active?.entries, from, to)) {
+      const was = useStore.getState().S.active
+      const p = blockProps(at)
+      ;(dir < 0 ? p.onMoveUp : p.onMoveDown)()
+      if (useStore.getState().S.active === was) break
+    }
+  }
+
   const block = (idx, unit) => {
     const props = blockProps(idx)
     const entry = A.entries[idx]
@@ -70,6 +82,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       onUnpair={unit.length > 1 ? () => unpairAt(idx) : null}
       onPairPrev={idx > 0 ? () => pairAt(idx - 1, idx) : null}
       onPairNext={idx < A.entries.length - 1 ? () => pairAt(idx, idx + 1) : null}
+      onReorder={units.length > 1 ? reorder : null}
       onSetRowRef={(i, el) => bindSetRef(entry, i, el)} />
   }
 

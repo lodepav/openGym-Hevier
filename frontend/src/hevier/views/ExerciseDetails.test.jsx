@@ -60,6 +60,19 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(rows).toEqual(['6', '8'])
   })
 
+  it('compares left and right over the per-side sessions', () => {
+    open(log)
+    expect(container.querySelector('.hv-xd-sides')).toBeNull()
+    act(() => root.unmount())
+    container.remove()
+    // Epley: left 30 × 6 = 36, right 30 × 9 = 39, right 8 % stronger in each of three sessions.
+    const side = (w, r) => ({ w, r, done: true })
+    const ws = [3, 2, 1].map(n => { const d = new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+      return { id: 's' + n, d, entries: [{ id: EX.id, sets: [{ w: 30, r: 15, done: true, sides: { L: side(30, 6), R: side(30, 9) } }] }] } })
+    open(ws)
+    expect(container.querySelector('.hv-xd-sides').textContent).toBe('Right is 8% stronger (last 3 sessions)')
+  })
+
   it('History lists each session under its workout’s name', () => {
     open(log)
     tab('History')
