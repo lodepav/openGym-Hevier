@@ -145,6 +145,16 @@ describe('hevier: routine editor (M3)', () => {
     expect(useStore.getState().S.routines[0].name).toBe('Push Day')
   })
 
+  it('an exercise’s note is saved as it is typed, a space typed last left in the field', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 0 }])
+    const field = container.querySelector('.hv-notes-in')
+    typeInto(field, 'Belt on ')
+    expect(slot().note).toBe('Belt on')
+    expect(field.value).toBe('Belt on ')
+    typeInto(field, '')
+    expect(slot().note).toBeUndefined()
+  })
+
   it('a handle moves an exercise, and a superset moves as one', () => {
     const [A, B, C] = EXDB.filter(e => /barbell/i.test(e.eq || '')).slice(0, 3).map(e => e.id)
     render([{ id: A, mode: 'reps', sets: 3, reps: 8, weight: 0 },

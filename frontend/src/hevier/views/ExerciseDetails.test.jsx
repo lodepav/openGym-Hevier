@@ -138,6 +138,12 @@ describe('hevier: exercise details (seam S10)', () => {
     } finally { hooks.exName = null }
   })
 
+  it('names the main muscle, the others and the equipment under the picture', () => {
+    open(log)
+    const lines = [...container.querySelectorAll('.hv-xd-facts span')].map(s => s.textContent)
+    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Shoulders', 'Equipment: barbell'])
+  })
+
   it('without the hook it is upstream’s sheet', () => {
     hooks.exerciseDetail = null
     open(log)

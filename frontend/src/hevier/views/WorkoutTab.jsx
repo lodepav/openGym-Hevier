@@ -89,7 +89,7 @@ export default function WorkoutTab() {
     writeClosedFolders(s, was.includes(key) ? was.filter(k => k !== key) : [...was, key])
   })
   const newFolder = then => nameSheet({
-    title: t('New folder'), placeholder: t('Folder name'), saveLabel: t('Create'), max: FOLDER_MAX,
+    title: t('New Folder'), placeholder: t('Folder name'), saveLabel: t('Create'), max: FOLDER_MAX,
     onSave: v => { const name = cleanFolderName(v); if (!name) return; setEmpty([...empty, name]); then?.(name) },
   })
   const moveTo = (r, name) => update(s => { s.routines = moveToFolder(s.routines, r.id, name) })
@@ -98,15 +98,15 @@ export default function WorkoutTab() {
     items: [
       { icon: 'clipboard', label: t('My Routines'), on: !folderOf(r), onClick: () => moveTo(r, null) },
       ...folderNames(S.routines, empty).map(n => ({ icon: 'folder', label: n, on: folderOf(r) === n, onClick: () => moveTo(r, n) })),
-      { icon: 'plus', label: t('New folder'), onClick: () => newFolder(n => moveTo(r, n)) },
+      { icon: 'plus', label: t('New Folder'), onClick: () => newFolder(n => moveTo(r, n)) },
     ],
   })
   const folderMore = name => menuSheet({
     title: name,
     items: [
       { icon: 'plus', label: t('New Routine'), sub: t('In this folder'), onClick: () => newRoutine(name) },
-      { icon: 'pencil', label: t('Rename folder'), onClick: () => nameSheet({
-        title: t('Rename folder'), value: name, saveLabel: t('Save'), max: FOLDER_MAX,
+      { icon: 'pencil', label: t('Rename Folder'), onClick: () => nameSheet({
+        title: t('Rename Folder'), value: name, saveLabel: t('Save'), max: FOLDER_MAX,
         onSave: v => {
           const next = cleanFolderName(v)
           if (!next) return
@@ -114,7 +114,7 @@ export default function WorkoutTab() {
           setEmpty(empty.map(n => (n === name ? next : n)))
         },
       }) },
-      { icon: 'trash', label: t('Delete folder'), sub: t('Its routines move to My Routines'), danger: true, onClick: () => {
+      { icon: 'trash', label: t('Delete Folder'), sub: t('Its routines move to My Routines'), danger: true, onClick: () => {
         update(s => { s.routines = removeFolder(s.routines, name) })
         setEmpty(empty.filter(n => n !== name))
       } },
@@ -186,7 +186,7 @@ export default function WorkoutTab() {
 
     <div className="hv-rhead"><h4 className="sec">{t('Routines')}</h4>
       <button type="button" className="iconbtn" aria-label={t('Schedule')} title={t('Schedule')} onClick={() => nav('/plan')}><Icon name="calendar" /></button>
-      <button type="button" className="iconbtn" aria-label={t('New folder')} title={t('New folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
+      <button type="button" className="iconbtn" aria-label={t('New Folder')} title={t('New Folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
     </div>
     <div className="hv-rbtns">
       <button type="button" className="btn" onClick={() => newRoutine()}><Icon name="clipboard" />{t('New Routine')}</button>

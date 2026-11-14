@@ -17,7 +17,7 @@ import { speedUnitOf } from '../../lib/speed.js'
 import { isFav, toggleFav } from '../../lib/favourites.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
-  menuSheet, detailTags, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
+  menuSheet, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
 import { Segmented, Button } from '../../components/ui.jsx'
@@ -46,17 +46,15 @@ const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
 // Hevy's lines under the picture: the name in bold, then "Primary: Chest" and "Secondary: …" as
-// text. The muscles are D74's (the main one, then the others); the equipment is upstream's
-// detailTags', which marks it with the kettlebell (the body part `acc`, read when an exercise has
-// no muscle at all).
+// text. The muscles are D74's (the main one, then the others; with none, the exercise's own muscle
+// in upstream's words, else its body part); the equipment is the exercise's own.
 function ExerciseFacts({ ex }) {
-  const tags = detailTags(ex)
-  const of = test => tags.filter(test).map(tg => tg.label).join(', ')
   const { primary, secondary } = musclesShown(ex, s => MUSCLE_NAME[s] || s)
+  const other = MUSCLE_NAME[ex.tg] || ex.tg || ex.bp
   const lines = [
-    [t('Primary'), (primary && t(primary)) || of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
+    [t('Primary'), (primary && t(primary)) || (other ? t(other) : '')],
     [t('Secondary'), secondary.map(m => t(m)).join(', ')],
-    [t('Equipment'), of(tg => tg.icon === 'kettlebell')],
+    [t('Equipment'), ex.eq ? t(ex.eq) : ''],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">
     <b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>

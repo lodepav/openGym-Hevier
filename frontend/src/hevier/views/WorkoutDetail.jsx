@@ -82,7 +82,7 @@ function ExerciseSets({ w, e, st, recs, trends = [], time }) {
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
         <span>{s.side && <span className="hv-lr">{s.side === 'L' ? t('L') : t('R')}</span>}{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
         <PrBadge recs={at(i)} />
-        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
+        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{sanitizeHr(s.hr).avg}</span>}
       </div>
       {/* A set's note (upstream 1.4.4, D5): under its row. */}
       {setNoteOf(s) && <div className="hv-wd-setnote"><Icon name="note" /><span>{setNoteOf(s)}</span></div>}</Fragment>)}

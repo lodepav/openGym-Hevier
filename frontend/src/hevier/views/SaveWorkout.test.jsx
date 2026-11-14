@@ -79,6 +79,32 @@ describe('hevier: Save Workout (seam S9)', () => {
     expect(seen.at(-1)[0].entries[0].hvGym).toBe('g1')
   })
 
+  it('gives the session its own name back when a typed title is cleared again', () => {
+    render('/workout/save', logged())
+    const was = { name: useStore.getState().S.active.name, customName: useStore.getState().S.active.customName }
+    const title = container.querySelector('.hv-stitle')
+    typeInto(title, 'L')
+    typeInto(title, '')
+    const now = useStore.getState().S.active
+    expect({ name: now.name, customName: now.customName }).toEqual(was)
+    typeInto(title, was.name + 'x')
+    typeInto(title, was.name)
+    const back = useStore.getState().S.active
+    expect({ name: back.name, customName: back.customName }).toEqual(was)
+  })
+
+  it('keeps a typed title and description in the session when the page goes without Save', () => {
+    render('/workout/save', logged())
+    typeInto(container.querySelector('.hv-stitle'), '  Heavy legs ')
+    typeInto(container.querySelector('.hv-sdesc'), 'Felt strong')
+    act(() => root.unmount())
+    expect(useStore.getState().S.active).toMatchObject({ name: 'Heavy legs', customName: true, note: 'Felt strong' })
+    root = createRoot(container)
+    act(() => root.render(<MemoryRouter initialEntries={['/workout/save']}><Routes>{hevierRoutes}</Routes></MemoryRouter>))
+    expect(container.querySelector('.hv-stitle').value).toBe('Heavy legs')
+    expect(container.querySelector('.hv-sdesc').value).toBe('Felt strong')
+  })
+
   it('saves the title and description through upstream’s finish, then shows Nice work!', () => {
     render('/workout/save', logged())
     typeInto(container.querySelector('.hv-stitle'), 'Heavy legs')

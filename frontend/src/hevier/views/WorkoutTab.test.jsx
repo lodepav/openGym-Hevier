@@ -67,7 +67,7 @@ describe('hevier: routine folders and reordering', () => {
 
   it('a new folder is kept in S until a routine goes into it', () => {
     render([R('a')])
-    act(() => container.querySelector('[aria-label="New folder"]').click())
+    act(() => container.querySelector('[aria-label="New Folder"]').click())
     const host = sheet()
     const input = host.querySelector('input')
     act(() => {
@@ -105,7 +105,7 @@ describe('hevier: routine folders and reordering', () => {
     render([R('p1', 'Push')])
     act(() => container.querySelector('.hv-folders .hv-fhead .iconbtn').click())
     const menu = sheet()
-    act(() => item(menu, 'Delete folder').click())
+    act(() => item(menu, 'Delete Folder').click())
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
     expect(ids()).toEqual(['p1'])
   })

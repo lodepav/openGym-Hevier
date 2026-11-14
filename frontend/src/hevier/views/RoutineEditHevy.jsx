@@ -145,10 +145,11 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     onDone: v => edit(c => { const next = { ...c }; if (v > 0) next.restSec = v; else delete next.restSec; return next }),
   })
   const [note, setNote] = useState(e.note || '')
-  useEffect(() => { setNote(e.note || '') }, [e.note])
-  const saveNote = () => edit(c => {
+  // The note is saved as it is typed; its own save coming back leaves the field (a space typed last) alone.
+  useEffect(() => { setNote(n => (n.trim().slice(0, NOTE_MAX) === (e.note || '') ? n : e.note || '')) }, [e.note])
+  const saveNote = text => edit(c => {
     const next = { ...c }
-    const v = note.trim().slice(0, NOTE_MAX)
+    const v = text.trim().slice(0, NOTE_MAX)
     if (v) next.note = v; else delete next.note
     return next
   })
@@ -198,7 +199,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const grid = { '--nc': cols.length }
   const cell = (row, c) => {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
-    if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}</span>
+    if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
     if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range"
       onClick={() => useUI.getState().openSheet(close => <RangeSheet from={row.repsMin} to={row.reps} close={close}
         onDone={(a, b) => edit(cfg => setRange(cfg, a, b))} />)}>{row.repsMin}–{row.reps}</button>
@@ -232,11 +233,11 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
-      {noEquip && <span className="hv-warn" title={t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name)}><Icon name="warning" /></span>}
+      {noEquip && (why => <span className="hv-warn" role="img" aria-label={why} title={why}><Icon name="warning" /></span>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     <input className="hv-notes hv-notes-in" value={note} maxLength={NOTE_MAX} placeholder={t('Add routine notes here')}
-      onChange={ev => setNote(ev.target.value)} onBlur={saveNote} aria-label={t('Notes')} />
+      onChange={ev => { setNote(ev.target.value); saveNote(ev.target.value) }} aria-label={t('Notes')} />
     <button type="button" className="hv-rest" onClick={openRest}><Icon name="timer" />{t('Rest Timer: {0}', restText)}</button>
     <div className="hv-rt-row hv-rt-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}
