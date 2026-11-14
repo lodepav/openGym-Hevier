@@ -460,7 +460,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
   })
 })
 
-describe('hevier: Workout extras and Set arrows on the workout screen (D117)', () => {
+describe('hevier: Workout extras on the workout screen (D117)', () => {
   const offClock = [{ hvModuleParts: { 'hvWorkout.clock': false } }, { modules: { hvWorkout: false } }]
   const set = patch => act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
 
@@ -488,17 +488,5 @@ describe('hevier: Workout extras and Set arrows on the workout screen (D117)', (
     set(offClock[1])
     act(() => container.querySelector('.hv-go').click())
     expect(sets()[0].hvRun).toBeTruthy()
-  })
-
-  it('a ticked set’s arrow and its words go with Set arrows (D66)', () => {
-    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true })] }] }]
-    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 9, { done: true })] }], past)
-    expect(container.querySelector('.hv-set .hv-trend')).toBeTruthy()
-    expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
-    for (const off of [{ hvModuleParts: { 'hvStats.arrows': false } }, { modules: { hvStats: false } }]) {
-      set({ modules: {}, hvModuleParts: {}, ...off })
-      expect(container.querySelector('.hv-set .hv-trend')).toBeNull()
-      expect(container.querySelector('.hv-set').getAttribute('aria-label')).not.toContain('last time')
-    }
   })
 })

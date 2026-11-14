@@ -124,7 +124,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
 | A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered (#1087, issue) |
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |
-| A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and four more parts (Calendar, Set arrows, Other names, Main muscle) | D117 | Fork |
+| A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
 | Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 
 ## Hevy import and export

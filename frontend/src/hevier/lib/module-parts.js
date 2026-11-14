@@ -70,7 +70,6 @@ export const PARTS = {
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
     // D117
     { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
-    { id: 'arrows', title: 'Set arrows', desc: 'Each ticked set marked against the same set last time, in a workout and on a finished one.' },
   ],
 }
 
