@@ -32,4 +32,9 @@ jobs:
           git fetch -q upstream main
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: frontend
+      # verify.sh runs these two suites on every CI run.
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: api
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: mcp
       - run: hevier/tools/verify.sh

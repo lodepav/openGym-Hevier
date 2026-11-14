@@ -2,7 +2,7 @@
 // The Workout tab's routines (hevier/DECISIONS.md D13): folders, Move to folder, drag handles.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { MemoryRouter, Routes } from 'react-router-dom'
+import { MemoryRouter, Routes, Route, useParams } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -67,7 +67,7 @@ describe('hevier: routine folders and reordering', () => {
 
   it('a new folder is kept in S until a routine goes into it', () => {
     render([R('a')])
-    act(() => container.querySelector('[aria-label="New folder"]').click())
+    act(() => container.querySelector('[aria-label="New Folder"]').click())
     const host = sheet()
     const input = host.querySelector('input')
     act(() => {
@@ -105,9 +105,34 @@ describe('hevier: routine folders and reordering', () => {
     render([R('p1', 'Push')])
     act(() => container.querySelector('.hv-folders .hv-fhead .iconbtn').click())
     const menu = sheet()
-    act(() => item(menu, 'Delete folder').click())
+    act(() => item(menu, 'Delete Folder').click())
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
     expect(ids()).toEqual(['p1'])
+  })
+
+  it('deleting a folder offers an Undo that puts back its routines, its place and its fold', () => {
+    render([R('a'), R('p1', 'Push'), R('l1', 'Legs'), R('p2', 'Push')], { hvFoldersClosed: ['Push'] })
+    act(() => container.querySelector('.hv-folders .hv-fhead .iconbtn').click())
+    const menu = sheet()
+    act(() => item(menu, 'Delete Folder').click())
+    expect(heads()).toEqual(['My Routines (3)', 'Legs (1)'])
+    expect(useUI.getState().toastMsg).toBe('“Push” gone.')
+    act(() => useUI.getState().runToastAction())
+    expect(heads()).toEqual(['My Routines (1)', 'Push (2)', 'Legs (1)'])
+    expect(useStore.getState().S.hvFoldersClosed).toEqual(['Push'])
+  })
+})
+
+function Page() { return <div id="page">{useParams().page}</div> }
+
+describe('hevier: the empty Workout tab', () => {
+  it('points to the Hevy import on Settings → Integrations', () => {
+    render([])
+    act(() => root.render(<MemoryRouter initialEntries={['/workout']}><Routes>{hevierRoutes}
+      <Route path="/settings/:page" element={<Page />} /></Routes></MemoryRouter>))
+    const link = [...container.querySelectorAll('button')].find(b => b.textContent === 'Import from Hevy')
+    act(() => link.click())
+    expect(container.querySelector('#page').textContent).toBe('integrations')
   })
 })
 

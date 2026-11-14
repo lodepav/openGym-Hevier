@@ -93,3 +93,28 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(path).toBe('/settings/modules')
   })
 })
+
+describe('hevier: a part that also needs another module', () => {
+  const partRow = (mod, title) => [...partsOf(mod).querySelectorAll('.lrow')].find(r => r.querySelector('.lrow-t').textContent === title)
+  it('is disabled and says what it needs while that module is off, its choice kept', () => {
+    render('/settings/modules', { modules: { plates: false, strength: false }, hvModuleParts: { 'hvExercise.plates': true } })
+    act(() => row('Exercise settings').querySelector('.hv-modrow-open').click())
+    act(() => row('Statistics extras').querySelector('.hv-modrow-open').click())
+    const plates = partRow('Exercise settings', 'Plate loading')
+    expect(plates.querySelector('.lrow-s').textContent).toBe('Needs Plates and warm-ups')
+    expect(plates.querySelector('[role="switch"]').disabled).toBe(true)
+    expect(plates.querySelector('[role="switch"]').getAttribute('aria-checked')).toBe('true')
+    const levels = partRow('Statistics extras', 'Strength levels list')
+    expect(levels.querySelector('.lrow-s').textContent).toBe('Needs Strength levels')
+    expect(levels.querySelector('[role="switch"]').disabled).toBe(true)
+    expect(partRow('Exercise settings', 'Progression').querySelector('[role="switch"]').disabled).toBe(false)
+  })
+  it('works as before once that module is on', () => {
+    render('/settings/modules')
+    act(() => row('Exercise settings').querySelector('.hv-modrow-open').click())
+    const plates = partRow('Exercise settings', 'Plate loading')
+    expect(plates.querySelector('.lrow-s').textContent).toContain('The bar, plates and weight stack')
+    act(() => plates.querySelector('[role="switch"]').click())
+    expect(useStore.getState().S.hvModuleParts['hvExercise.plates']).toBe(false)
+  })
+})

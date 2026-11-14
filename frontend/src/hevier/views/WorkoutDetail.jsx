@@ -12,7 +12,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol } from '../../lib/format.js'
+import { fmtVol, fmtDate } from '../../lib/format.js'
 import { sessionSections, sessionVolume } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -45,6 +45,8 @@ import { setMark } from '../lib/history-rows.js'
 import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
 import { Fragment } from 'react'
+import { workoutCompare } from '../lib/workout-compare.js'
+import { signed } from '../lib/delta.js'
 
 export const DETAIL_PATH = '/workout-detail'
 
@@ -82,13 +84,28 @@ function ExerciseSets({ w, e, st, recs, trends = [], time }) {
         {/* A record says more than an arrow: the set shows only its badge (D66). */}
         <span>{s.side && <span className="hv-lr">{s.side === 'L' ? t('L') : t('R')}</span>}{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
         <PrBadge recs={at(i)} />
-        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" />{sanitizeHr(s.hr).avg}</span>}
+        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{sanitizeHr(s.hr).avg}</span>}
       </div>
       {/* A set's note (upstream 1.4.4, D5): under its row. */}
       {setNoteOf(s) && <div className="hv-wd-setnote"><Icon name="note" /><span>{setNoteOf(s)}</span></div>}</Fragment>)}
       {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
   </div>
+}
+
+// "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
+// stats row's own numbers (volume only where the row shows it, D18). A number that did not change
+// is left out; with none left the line reads "Same as 3 Nov".
+function VsLast({ st, w, mode }) {
+  const c = workoutCompare(st, w)
+  if (!c) return null
+  const part = (n, fmt) => (n ? signed(n, fmt)?.text : null)
+  const parts = [
+    mode === 'weight' && part(Math.round(c.volume * 10) / 10, v => fmtVol(v, st.unit)),
+    part(c.sets, n => tn('{0} set', '{0} sets', n)),
+    c.minutes != null && part(c.minutes, n => t('{0} min', n)),
+  ].filter(Boolean)
+  return <div className="hv-wd-vs">{parts.length ? t('{0} vs {1}', parts.join(' · '), fmtDate(c.prev.d)) : t('Same as {0}', fmtDate(c.prev.d))}</div>
 }
 
 export function WorkoutDetail() {
@@ -126,6 +143,7 @@ export function WorkoutDetail() {
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} mode={muscleMode(st)} />}
+    <VsLast st={st} w={w} mode={mode} />
     {sanitizeHr(w.hr) && <div className="hv-wd-hrline"><Icon name="heart" />
       {t('Heart rate {0} avg · {1} max', sanitizeHr(w.hr).avg, sanitizeHr(w.hr).max)}</div>}
     {w.note && <p className="hv-wd-note">{w.note}</p>}

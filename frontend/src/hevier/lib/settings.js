@@ -23,13 +23,13 @@ export const SETTINGS_GROUPS = [
 export const HIDDEN_ROWS = {
   workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
-  look: ['Theme', 'Accent color', 'Gym check-in', 'Seasonal themes',
+  look: ['Theme', 'Accent color', 'Seasonal themes',
     // 1.4.4 (D100): no NFC stickers, no app icon picker (its search hit; the row goes by type), no
     // Assistant or Siri shortcuts (the manifest overlay removes them). Upstream's new Home cards come
     // back as Home widgets (D98).
     'Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges'],
-  // The gym filter is the picker's (D62): no switch, no active profile here.
-  equipment: ['Filter by equipment', 'Active profile'],
+  // The gym filter is the picker's (D62): no switch, no active gym here.
+  equipment: ['Filter by equipment', 'Active gym'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).
   advanced: ['Weight and reps buttons', 'Drop and burst shortcuts on every set', 'Exercise chips at the top',
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise',
@@ -85,27 +85,6 @@ export function prunePage(page, tree, tr, types = []) {
     if (!kids.length && (isSection || node.type === Fragment)) return null
     const extra = isSection && stale.has(node.props.footer) ? { footer: undefined } : {}
     return kids.length ? cloneElement(node, extra, ...kids) : cloneElement(node, { ...extra, children: undefined })
-  }
-  return walk(tree)
-}
-
-/**
- * A page's element tree with `el` put in right before the first Section titled `title` (`title`
- * already translated), or the tree as it was when there is none. The fork's own rows on an
- * upstream page (DECISIONS.md D27) go in this way, beside upstream's own.
- */
-export function insertBeforeSection(tree, title, el) {
-  let done = false
-  const walk = node => {
-    if (done || !isValidElement(node) || node.props.children === undefined) return node
-    const kids = Children.toArray(node.props.children)
-    const at = kids.findIndex(k => isValidElement(k) && k.type === Section && k.props.title === title)
-    if (at >= 0) {
-      done = true
-      return cloneElement(node, {}, ...kids.slice(0, at), el, ...kids.slice(at))
-    }
-    const next = kids.map(walk)
-    return done ? cloneElement(node, {}, ...next) : node
   }
   return walk(tree)
 }

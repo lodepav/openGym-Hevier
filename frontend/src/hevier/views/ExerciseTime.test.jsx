@@ -74,4 +74,18 @@ describe('hevier: exercise time page', () => {
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
   })
+
+  it('shows the typical time between sets against the rest set, with five gaps or more, grouped too', () => {
+    // Bench: six sets 2:30 apart (five gaps) at the default rest of 1:30; squat only two sets.
+    const w = { ...log[0], end: start + 60 * MIN, entries: [
+      { id: BENCH, hvGym: 'g1', sets: [5, 7.5, 10, 12.5, 15, 17.5].map(set) },
+      { id: SQUAT, hvGym: 'g1', sets: [set(20), set(25)] },
+    ] }
+    render('/exercise-time', [w])
+    const row = name => [...container.querySelectorAll('.hv-report-row')].find(b => new RegExp(name, 'i').test(b.textContent))
+    expect(row('bench').textContent).toContain('Between sets 2min 30s · rest set to 1min 30s')
+    expect(row('squat').textContent).not.toContain('Between sets')
+    act(() => chip('Gym').click())
+    expect(row('bench').textContent).toContain('Between sets 2min 30s')
+  })
 })

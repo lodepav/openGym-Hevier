@@ -101,6 +101,14 @@ describe('Routine page (D37)', () => {
     expect(path).toBe('/workout')
   })
 
+  it('says how long the routine usually takes, from its saved workouts', () => {
+    const w = min => ({ d: '2026-11-01', start: 1000, end: 1000 + min * 60000, routineIds: ['r1'], routineId: 'r1', name: 'Leg Day', entries: [] })
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], undefined, { workouts: [w(50)] })
+    expect(container.querySelector('.hv-sub').textContent).not.toContain('Usually')
+    act(() => useStore.setState(st => ({ S: { ...st.S, workouts: [w(50), w(65), w(55)] } })))
+    expect(container.querySelector('.hv-sub').textContent).toContain('3 sets · Usually 55min')
+  })
+
   it('a routine that is gone goes back to the Workout tab', () => {
     render([], '/plan/r/nope/view')
     expect(path).toBe('/workout')

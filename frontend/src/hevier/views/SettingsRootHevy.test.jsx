@@ -2,6 +2,9 @@
 // Settings through seams S11 and S12 (hevier/DECISIONS.md D16): Hevy's titled root over upstream's
 // pages, and upstream's pages without the rows that only steer upstream's workout layouts.
 import React, { act } from 'react'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -77,6 +80,17 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(useStore.getState().S.hvPlateLine).toBe(true)
   })
 
+  it('Plates to load is disabled and says what it needs while Plates and warm-ups is off, its choice kept', () => {
+    render('workout', { modules: { plates: false }, hvPlateLine: true })
+    const row = [...container.querySelectorAll('.lrow')].find(r => r.textContent.includes('Plates to load'))
+    expect(row.querySelector('.lrow-s').textContent).toBe('Needs Plates and warm-ups')
+    const sw = row.querySelector('[role="switch"]')
+    expect(sw.disabled).toBe(true)
+    expect(sw.getAttribute('aria-checked')).toBe('true')
+    expect(sw.getAttribute('aria-label')).toBe('Plates to load')
+    expect(useStore.getState().S.hvPlateLine).toBe(true)
+  })
+
   it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
     render('look')
     const rows = titles()
@@ -101,10 +115,14 @@ describe('hevier: Settings (seams S11, S12)', () => {
     render('equipment', { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
     const rows = titles()
     expect(rows).not.toContain('Filter by equipment')
-    expect(rows).not.toContain('Active profile')
+    expect(rows).not.toContain('Active gym')
     expect(rows).toEqual(expect.arrayContaining(['Plates', 'Dumbbells', 'City Gym', 'Add gym']))
-    expect(container.textContent).toContain('Each gym’s equipment')
-    expect(hiddenSetting({ page: 'equipment', title: 'Active profile' })).toBe(true)
+    // Upstream's Your gym section goes with its one row, and the gyms' footer with it: once, under Add gym.
+    const text = container.textContent
+    expect(text.split('Each gym’s equipment. The exercise picker shows what the workout’s gym has; outside a workout, choose a gym in its equipment filter.')).toHaveLength(2)
+    expect(text).not.toContain('Your gym')
+    expect([...container.querySelectorAll('.sect-t')].map(h => h.textContent)).toEqual(['Equipment at City Gym'])
+    expect(hiddenSetting({ page: 'equipment', title: 'Active gym' })).toBe(true)
   })
 
   it('a search never offers a row the page leaves out', () => {
@@ -137,5 +155,30 @@ describe('hevier: Settings (seams S11, S12)', () => {
     hooks.settings = null
     render('workout')
     expect(titles()).toContain('Layout')
+  })
+
+  // An upstream rename would bring a hidden row back without a word: each title must still be
+  // upstream's. Rows upstream draws only on a phone are looked for in its source instead.
+  it('every hidden row is still one of upstream’s, by its title', () => {
+    hooks.settings = null
+    const PHONE_ONLY = {
+      look: ['Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts'],
+      reminders: ['Gym reminder'],
+      about: ['Rate openGym on the App Store', 'Rate openGym on Google Play'],
+    }
+    // happy-dom's URL only takes http(s), so the files are found by path.
+    const src = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const upstream = ['views/Settings.jsx', 'components/AppIconRow.jsx', 'components/VoiceShortcuts.jsx']
+      .map(f => readFileSync(resolve(src, f), 'utf8')).join('\n')
+    const missing = {}
+    for (const [page, rows] of Object.entries(HIDDEN_ROWS)) {
+      // A gym set up, so the equipment page draws its gym rows.
+      render(page, { equipProfiles: [{ id: 'g1', name: 'Home', equipment: [] }] })
+      const shown = titles()
+      act(() => root.unmount()); container.remove()
+      const gone = rows.filter(k => !(PHONE_ONLY[page]?.includes(k) ? upstream.includes(`t('${k}')`) : shown.includes(k)))
+      if (gone.length) missing[page] = gone
+    }
+    expect(missing).toEqual({})
   })
 })

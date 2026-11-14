@@ -6,7 +6,7 @@
 // group (forearms, lower back, neck…) has no range, as upstream's.
 import { TARGET_MUSCLES, targetOf, statusOf, roundSets, mostRoom } from '../../lib/muscle-targets.js'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
-import { weekKey, weekStartOf, todayISO } from '../../lib/format.js'
+import { weekKey, weekStartOf, todayISO, isoOf } from '../../lib/format.js'
 import { muscleSets, muscleMode } from './volume.js'
 
 // The fork's main-muscle names (D74, Hevy's) in upstream's groups.
@@ -40,6 +40,31 @@ export function forkWeeklySets(S, today = todayISO()) {
     const sets = roundSets(by[slug] || 0)
     return { slug, name: MUSCLE_NAME[slug], sets, lo, hi, status: statusOf(sets, [lo, hi]) }
   })
+}
+
+/**
+ * How often each group's week was in its range over the last `weeks` complete weeks, the running
+ * one left out: `{ [slug]: { hit, of } }`. A week with no workout at all is skipped, not a miss;
+ * with fewer than two weeks left, `{}`. The ranges are today's.
+ */
+export function weeksInRange(S, today = todayISO(), weeks = 8) {
+  const ws = weekStartOf(S)
+  const trained = new Set((S?.workouts || []).filter(w => w?.d).map(w => weekKey(w.d, ws)))
+  const out = {}
+  let of = 0
+  for (let k = 1; k <= weeks; k++) {
+    const d = new Date(today + 'T12:00:00')
+    d.setDate(d.getDate() - 7 * k)
+    const day = isoOf(d)
+    if (!trained.has(weekKey(day, ws))) continue
+    of++
+    for (const r of forkWeeklySets(S, day)) {
+      out[r.slug] ??= { hit: 0, of: 0 }
+      out[r.slug].of++
+      if (r.status === 'in') out[r.slug].hit++
+    }
+  }
+  return of < 2 ? {} : out
 }
 
 export { mostRoom }

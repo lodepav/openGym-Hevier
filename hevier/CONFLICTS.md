@@ -40,12 +40,13 @@ git checkout -b sync/$TARGET hevier/main
 git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"
 #    rerere re-applies resolutions it has seen before; check them anyway (git diff)
 
-# 5. Resolve (rules below), then
-cd frontend && npm ci && npm test && npm run build && node scripts/check-locales.mjs && cd ..
-cd api && npm ci && npm test && cd ..
+# 5. Resolve (rules below), then the gate (the verify skill): the whole suite and the fork
+#    build, and the api, mcp, locale and fork Java checks for what changed
+(cd frontend && npm ci) && (cd api && npm ci) && (cd mcp && npm ci)
+hevier/tools/verify.sh
 
 # 6. Device check (see "Verification")
-hevier/tools/emulator.sh
+HEADLESS=1 hevier/tools/emulator.sh
 
 # 7. Land it
 git checkout hevier/main && git merge --ff-only sync/$TARGET && git branch -d sync/$TARGET
@@ -144,13 +145,29 @@ In a conflict hunk (style `zdiff3`) you see three versions:
 
 ### Seam-specific notes
 
-- **S3/S4 `views/Workout.jsx`.** The file upstream changes most often after `sheets.jsx`.
-  The fork only adds `'hevy'` to the layout list, one render branch, and header/footer
-  branches. If upstream added new props to `blockProps` or `ExerciseBlock`, the merge is clean
-  but `HevyWorkout` may need to *use* them (see "silent drift").
-- **S5 `sheets.jsx`.** Only the default layout at session creation. If `beginWorkout` was
-  split or renamed, follow `S.workoutView` to where `s.active.workoutView` is now
-  snapshotted.
+- **S3 `views/Workout.jsx`.** The file upstream changes most often after `sheets.jsx`.
+  The fork only adds two imports and `if (HEVIER) return <HevyWorkout …/>` before
+  `ActiveWorkout`'s final `return`, after every hook. If upstream added new props to `blockProps`
+  or `ExerciseBlock`, the merge is clean but `HevyWorkout` may need to *use* them (see "silent drift").
+- **S9 `sheets.jsx`.** The finish: `finishWorkout` calls `hooks.finish`, `doFinishWorkout` calls
+  `hooks.done` before `FinishSummary` opens, and the export line names three functions. Keep
+  upstream's new finish steps and put each hook back at the same point; re-export a renamed function.
+- **S36 `sheets.jsx` (`EquipmentProfileSheet`).** Four `hooks.gymSheet` calls: the ticks it opens
+  with, `saved(p)` in both save branches, the chips and the note. Take upstream's sheet and wrap
+  its new equivalents; a new save branch gets its own `saved(p)`.
+- **S50 `sheets.jsx` (`ExConfig`, `exConfigSheet`) and `views/Workout.jsx`.** The `autosave`
+  prop, the save-on-close effect, the Done button and `{ autosave: true }` in
+  `openProgressionSettings`. If upstream changed how `ExConfig` saves, the effect calls the new save.
+- **S58 `sheets.jsx` (`ExConfig`).** `exPart(part)` guards around categories of the sheet. Keep
+  upstream's new rows; a row moved into another category takes that category's guard, and a new
+  category stays unguarded until a decision says otherwise.
+- **S40 `lib/session-start.js` (`planEntry`, under `buildPlannedEntry`).** A logic file: the
+  `plain` lines that turn off the prescription and upstream's warm-ups and hand the rows to
+  `hooks.plainRoutine.rows` (D69). Take upstream's code and put each `plain` check back on its new
+  steps (Rule A); don't grow the seam.
+- **S54 `views/Modules.jsx` (`ModulesPage`).** The `hooks` import, the fork's modules' copy and
+  `setModule`, the `shown` list without the hidden modules, its count, and `hvRow` around each
+  row. Keep upstream's page and re-apply each on its new names.
 - **S2 `App.jsx`.** If upstream changed the tab-bar conditions (`noTabs`, `inWorkout`), keep
   upstream's conditions and swap only the component.
 - **S6 `lib/update.js`.** If upstream rewrote the updater, re-introduce
@@ -193,34 +210,30 @@ A clean merge can still break the fork. After every sync, check these:
    `frontend/public/manifest.json`: bring the change into `frontend/public/hevier/manifest.json`,
    whose `start_url` and `scope` are `../` and whose name is Hevier (`pwa-icons.test.js` checks
    both resolve the same).
-7. **Exercise detail tags changed?** `git diff <old>..<new> -- frontend/src/lib/exercises.js | grep -n detailTags`.
-   The fork's exercise details (`hevier/views/ExerciseDetails.jsx`, `ExerciseFacts`) sorts
-   upstream's `detailTags` into Primary, Secondary and Equipment by their **icon names**
-   (`figureStrength`, `kettlebell`), so a renamed icon empties those lines without any test
-   failing (review 2026-10-18, item 2.2). Open an exercise's details on the emulator and check
-   the three lines; when that code is next touched, read the exercise's own muscles and
-   equipment instead.
-8. **Android libraries changed?** The APK's Java dependencies are locked
+7. **Android libraries changed?** The APK's Java dependencies are locked
    (`frontend/android/app/src/hevier/gradle.lockfile`, review G1), so an upstream merge that
    bumps Capacitor, a plugin or an AndroidX library fails the Android build with "dependency lock
    state" errors, though nothing conflicted. Write the lock again
    (`cd frontend/android && ./gradlew :app:dependencies --write-locks`), read its diff, run
    `hevier/tools/release-check.sh` (Trivy scans the lockfile) and commit it with the merge.
+8. **A hidden Settings row renamed?** The fork hides upstream's Settings rows by their English
+   title (`HIDDEN_ROWS` in `frontend/src/hevier/lib/settings.js`, D16). A test under
+   `frontend/src/hevier` checks that every title there still exists on upstream's page, so when
+   upstream renames a row it fails, naming the title. Rename the entry in `HIDDEN_ROWS` to match.
 
 ## Verification (required before landing)
 
-1. `cd frontend && npm test`: upstream's suite **and** `src/hevier/**`, all green. A red
+1. `hevier/tools/verify.sh`: upstream's suite **and** `src/hevier/**`, all green, and the fork
+   build; also the api, mcp, locale and fork Java checks when those files changed. A red
    upstream test means a seam or wrapper changed behaviour it shouldn't have. Fix the fork,
    never the test.
-2. `npm run build` and `node scripts/check-locales.mjs`.
-3. `hevier/tools/emulator.sh`, then the smoke walk (cdp.mjs): start a routine, log two sets,
-   minimise, resume, finish, open history, start the same routine and see progressed
-   weights. Screenshot each step into the scratchpad and compare with
-   `hevier/reference/*/after-*.png`.
-4. **The UX journeys** (`hevier/ux/JOURNEYS.md`, the `ux-review` skill): every journey again on
+2. `HEADLESS=1 hevier/tools/emulator.sh`, then the smoke walk (cdp.mjs): start a routine, log
+   two sets, minimise, resume, finish, see it in history, start it again, see each set open at
+   what was done last time (D69). Screenshot each step into the scratchpad.
+3. **The UX journeys** (`hevier/ux/JOURNEYS.md`, the `ux-review` skill): every journey again on
    the test profile, to see that each still finishes roughly as before and nothing broke with
    the release. Compare with the last rounds in `hevier/ux/LEDGER.md`.
-5. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
+4. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
    files and how each was resolved (rule letter), any seam added, moved or removed, and any
    silent-drift items skipped.
 

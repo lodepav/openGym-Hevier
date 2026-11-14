@@ -22,7 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * [hevier] The home-screen month widget (hevier/DECISIONS.md D44, PLAN.md §5 item 21): this
+ * [hevier] The home-screen month widget (hevier/DECISIONS.md D44): this
  * month's calendar, trained days filled in the calendar's colours (strength blue, cardio green,
  * deload orange), the planned days from today on a dot in their routine's colour (D68), today
  * ringed, and the month's "N workouts · N sets". It draws from the snapshot

@@ -31,7 +31,7 @@ presented Hevy's way. New behaviour gets a decision in DECISIONS.md first.
 | `main` | A pure mirror of `upstream/main`, fast-forward only, never a fork commit. |
 | `hevier/main` | The fork's trunk. Merges `main` (or, better, upstream's release tags) and the fork's feature branches, `--no-ff`. |
 | `hevier/<topic>` | One branch per feature or fix, merged into `hevier/main` when done. |
-| `hevier-upstream/<topic>` | A pull request to upstream, branched from `main`, only with the user's go. |
+| `upstream-pr/<topic>` | A pull request to upstream, branched from `main`, only with the user's go. |
 
 Sync is always **upstream → `main` → `hevier/main`**, by merge, never rebase: a merge solves a
 conflict once, and `rerere` (enabled with `merge.conflictStyle zdiff3`) remembers it. Prefer
@@ -61,7 +61,9 @@ conflict on every upstream edit to them).
 
 - Everything the fork adds is in `frontend/src/hevier/` (`lib/` pure helpers with a test beside
   each, `components/`, `views/`, `hevier.css` and `theme.css`), switched on by
-  `VITE_HEVIER=1` (`flag.js`). `index.js` is the only module the seams import.
+  `VITE_HEVIER=1` (`flag.js`). The seams import only these fork modules: `index.js` (`main.jsx`),
+  `hooks.js` (17 upstream files), `flag.js` (`App.jsx`, `Workout.jsx`), `routes.jsx` (`App.jsx`),
+  `views/HevyWorkout.jsx` (`Workout.jsx`) and `build/boot-look.js` (`vite.config.js`).
 - `VITE_HEVIER` is unset in `npm test`, so **upstream's tests keep testing upstream's UI**,
   unmodified. The fork's tests render its components directly or stub the flag
   (`vi.stubEnv('VITE_HEVIER', '1')`). `contract.test.js` asserts the upstream exports and props
@@ -111,5 +113,4 @@ conflict on every upstream edit to them).
 |---|---|
 | Upstream restructures `Workout.jsx` around `blockProps` / layouts | `contract.test.js` fails loudly; the fix is in the fork's adapter, not in upstream code. |
 | Upstream adds a workout-screen feature the Hevy layout doesn't render | Read each sync's CHANGELOG for workout-screen items and add them to `HevyWorkout` (CONFLICTS.md, "silent drift"). |
-| `S.workoutView = 'hevy'` reaches an upstream build (a shared server, a backup imported into official openGym) | Upstream reads unknown values as `cards`, so it degrades safely. Keep that test. |
 | Upstream renames a class or CSS variable and an override silently stops matching | Nothing conflicts, the look just regresses: a screenshot pass per upstream sync (CONFLICTS.md step 6). |

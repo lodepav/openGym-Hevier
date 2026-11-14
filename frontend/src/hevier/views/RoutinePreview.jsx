@@ -18,7 +18,8 @@ import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
-import { restTimerText } from '../lib/elapsed.js'
+import { restTimerText, durationWords } from '../lib/elapsed.js'
+import { usualLength } from '../lib/routine-length.js'
 import { tableShape, routineRows, workCount } from '../lib/routine-table.js'
 import { folderOf } from '../lib/routine-folders.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
@@ -77,6 +78,7 @@ export default function RoutinePreview() {
   const units = supersetUnits(r.ex)
   const load = r.ex.length ? loadOfRoutine(r) : null
   const sets = r.ex.reduce((n, e) => n + workCount(e), 0)
+  const usual = usualLength(S, r)
   // A session already open is resumed, as the Workout tab's own Start does (upstream's startFlow).
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))
   return <div className="hv-routine hv-rview">
@@ -86,7 +88,7 @@ export default function RoutinePreview() {
       <button type="button" className="iconbtn" aria-label={t('Edit routine')} onClick={() => nav('/plan/r/' + r.id)}><Icon name="pencil" /></button>
     </PageBar>
     <h2 className="hv-rv-name">{r.name}</h2>
-    <p className="hv-sub">{[folderOf(r), exCount(r.ex.length), r.ex.length ? t('{0} sets', sets) : null].filter(Boolean).join(' · ')}</p>
+    <p className="hv-sub">{[folderOf(r), exCount(r.ex.length), r.ex.length ? t('{0} sets', sets) : null, usual && t('Usually {0}', durationWords(usual))].filter(Boolean).join(' · ')}</p>
     <button type="button" className="btn primary hv-rv-start" disabled={!r.ex.length} onClick={start}>
       {S.active ? t('Resume') : t('Start Routine')}
     </button>

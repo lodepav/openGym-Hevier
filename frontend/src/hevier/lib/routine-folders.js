@@ -119,6 +119,34 @@ export const writeClosedFolders = (s, keys) => writeList(s, 'hvFoldersClosed', C
 /** The empty folders still worth keeping: a folder a routine now carries is no longer empty. */
 export const stillEmpty = (routines, names) => names.filter(n => !(routines || []).some(r => folderOf(r) === n))
 
+/** Deletes folder `name` in store draft `s`: its routines go to My Routines in place, and it leaves
+ *  the empty and folded lists. Returns what `restoreFolder` needs to put it back. */
+export function deleteFolder(s, name) {
+  const empty = stillEmpty(s.routines, readEmptyFolders(s))
+  const snap = {
+    name, ids: (s.routines || []).filter(r => folderOf(r) === name).map(r => r.id),
+    emptyAt: empty.indexOf(name), closed: readClosedFolders(s).includes(name),
+  }
+  s.routines = removeFolder(s.routines, name)
+  writeEmptyFolders(s, empty.filter(n => n !== name))
+  writeClosedFolders(s, readClosedFolders(s).filter(k => k !== name))
+  return snap
+}
+
+/** Undo of `deleteFolder`: the name back on each of its routines still in My Routines (they kept
+ *  their places, so the folder's place comes back with them), an empty one back at its place in
+ *  the list, and folded again if it was. */
+export function restoreFolder(s, snap) {
+  const ids = new Set(snap.ids)
+  s.routines = (s.routines || []).map(r => (ids.has(r.id) && !folderOf(r) ? withFolder(r, snap.name) : r))
+  if (snap.emptyAt >= 0) {
+    const empty = readEmptyFolders(s).filter(n => n !== snap.name)
+    empty.splice(Math.min(snap.emptyAt, empty.length), 0, snap.name)
+    writeEmptyFolders(s, stillEmpty(s.routines, empty))
+  }
+  if (snap.closed) writeClosedFolders(s, [...readClosedFolders(s), snap.name])
+}
+
 /** Moves the empty and folded folders this device kept before into `s`, once; true when it did. */
 export function moveFoldersIntoS(s) {
   let moved = false

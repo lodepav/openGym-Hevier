@@ -7,38 +7,11 @@
 // began. A pause longer than upstream's forgotten-session gap is a break, not the next exercise's;
 // a tick before the start or past the end (catching up the log later, a workout logged into the
 // past) is left out. A workout with no tick times (imported, or older) has none.
-import { FORGOTTEN_GAP_MS } from '../../lib/finish-workout.js'
-import { hasCompletedWork, isSideSet } from '../../lib/workout-model.js'
+import { entryTimes } from '../../lib/exercise-time.js'
 import { entryExcluded } from '../../lib/history.js'
 
-// A ticked row's own length, as upstream's sessionEnd reads it.
-function rowLengthMs(set) {
-  const n = v => (Number(v) > 0 ? Number(v) : 0)
-  if (isSideSet(set)) return (n(set.sides.L?.sec) + n(set.sides.R?.sec)) * 1000
-  return n(set.min) * 60000 + n(set.sec) * 1000
-}
-
-/** Each entry's time in ms, by its index (`undefined` for an entry with none); [] when none has. */
-export function entryTimes(w, gap = FORGOTTEN_GAP_MS) {
-  const start = Number(w?.start)
-  if (!Number.isFinite(start) || !Array.isArray(w?.entries)) return []
-  const end = Number(w.end)
-  const last = Number.isFinite(end) ? end + gap : Infinity
-  const ticks = []
-  w.entries.forEach((e, idx) => (e?.sets || []).forEach(s => {
-    if (hasCompletedWork(s) && Number.isFinite(s.at) && s.at >= start && s.at <= last) ticks.push({ idx, at: s.at, len: rowLengthMs(s) })
-  }))
-  ticks.sort((a, b) => a.at - b.at)
-  const out = []
-  let prev = start
-  for (const { idx, at, len } of ticks) {
-    // Past a forgotten gap, the set's own length only.
-    const reach = Math.max(at, prev + len)
-    out[idx] = (out[idx] || 0) + (at - len - prev > gap ? len : reach - prev)
-    prev = reach
-  }
-  return out
-}
+// The per-entry times are upstream's own now; the fork adds the sessions and sections on top.
+export { entryTimes }
 
 /**
  * Every timed session of an exercise in `workouts` from `since` (an ISO day, '' for all), one per

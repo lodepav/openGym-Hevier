@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- [hevier] Go Hevier's adaptive icon: upstream's layers, plus the monochrome one Android 13+
-     draws in the wallpaper's colours when themed icons are on (hevier/PLAN.md item 20). -->
+     draws in the wallpaper's colours when themed icons are on (the plan's item 20, in git history: git show c20ee364:hevier/PLAN.md). -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background>
         <inset android:drawable="@mipmap/ic_launcher_background" android:inset="16.7%" />

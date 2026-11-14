@@ -10,6 +10,7 @@ import { effectiveRoutines, effectiveRoutineIds } from '../../lib/history.js'
 import { todayISO, uid, exCount } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { pinState } from '../../lib/queue.js'
+import { DEMO } from '../../lib/demo.js'
 import { deleteRoutine } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
 import { DEFAULT_GLYPH } from '../../lib/glyphs.js'
@@ -22,7 +23,7 @@ import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
 import { discardActive } from '../components/HevyTabBar.jsx'
 import {
-  folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, removeFolder,
+  folderGroups, folderNames, reorderInGroup, reorderFolders, moveToFolder, renameFolder, deleteFolder, restoreFolder,
   cleanFolderName, readEmptyFolders, writeEmptyFolders, readClosedFolders, writeClosedFolders, stillEmpty, folderOf, FOLDER_MAX,
 } from '../lib/routine-folders.js'
 
@@ -89,7 +90,7 @@ export default function WorkoutTab() {
     writeClosedFolders(s, was.includes(key) ? was.filter(k => k !== key) : [...was, key])
   })
   const newFolder = then => nameSheet({
-    title: t('New folder'), placeholder: t('Folder name'), saveLabel: t('Create'), max: FOLDER_MAX,
+    title: t('New Folder'), placeholder: t('Folder name'), saveLabel: t('Create'), max: FOLDER_MAX,
     onSave: v => { const name = cleanFolderName(v); if (!name) return; setEmpty([...empty, name]); then?.(name) },
   })
   const moveTo = (r, name) => update(s => { s.routines = moveToFolder(s.routines, r.id, name) })
@@ -98,15 +99,15 @@ export default function WorkoutTab() {
     items: [
       { icon: 'clipboard', label: t('My Routines'), on: !folderOf(r), onClick: () => moveTo(r, null) },
       ...folderNames(S.routines, empty).map(n => ({ icon: 'folder', label: n, on: folderOf(r) === n, onClick: () => moveTo(r, n) })),
-      { icon: 'plus', label: t('New folder'), onClick: () => newFolder(n => moveTo(r, n)) },
+      { icon: 'plus', label: t('New Folder'), onClick: () => newFolder(n => moveTo(r, n)) },
     ],
   })
   const folderMore = name => menuSheet({
     title: name,
     items: [
       { icon: 'plus', label: t('New Routine'), sub: t('In this folder'), onClick: () => newRoutine(name) },
-      { icon: 'pencil', label: t('Rename folder'), onClick: () => nameSheet({
-        title: t('Rename folder'), value: name, saveLabel: t('Save'), max: FOLDER_MAX,
+      { icon: 'pencil', label: t('Rename Folder'), onClick: () => nameSheet({
+        title: t('Rename Folder'), value: name, saveLabel: t('Save'), max: FOLDER_MAX,
         onSave: v => {
           const next = cleanFolderName(v)
           if (!next) return
@@ -114,9 +115,11 @@ export default function WorkoutTab() {
           setEmpty(empty.map(n => (n === name ? next : n)))
         },
       }) },
-      { icon: 'trash', label: t('Delete folder'), sub: t('Its routines move to My Routines'), danger: true, onClick: () => {
-        update(s => { s.routines = removeFolder(s.routines, name) })
-        setEmpty(empty.filter(n => n !== name))
+      // With an Undo, as a routine's delete has (Plan.jsx deleteRoutineWithUndo).
+      { icon: 'trash', label: t('Delete Folder'), sub: t('Its routines move to My Routines'), danger: true, onClick: () => {
+        let snap = null
+        update(s => { snap = deleteFolder(s, name) })
+        useUI.getState().toast(t('“{0}” gone.', name), { action: t('Undo'), onAction: () => update(s => { restoreFolder(s, snap) }) })
       } },
     ],
   })
@@ -186,7 +189,7 @@ export default function WorkoutTab() {
 
     <div className="hv-rhead"><h4 className="sec">{t('Routines')}</h4>
       <button type="button" className="iconbtn" aria-label={t('Schedule')} title={t('Schedule')} onClick={() => nav('/plan')}><Icon name="calendar" /></button>
-      <button type="button" className="iconbtn" aria-label={t('New folder')} title={t('New folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
+      <button type="button" className="iconbtn" aria-label={t('New Folder')} title={t('New Folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
     </div>
     <div className="hv-rbtns">
       <button type="button" className="btn" onClick={() => newRoutine()}><Icon name="clipboard" />{t('New Routine')}</button>
@@ -201,6 +204,7 @@ export default function WorkoutTab() {
         </section>)}
       </div>
     </>}
-    {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}</div>}
+    {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}
+      {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>}
   </div>
 }

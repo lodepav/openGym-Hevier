@@ -62,6 +62,7 @@ export function SaveWorkout() {
   // Warm-ups and body weight as the profile counts them (#719, #794; D18's 1.4.4 note).
   const volume = useStore(s => (s.S.active ? sessionVolume(s.S.active, s.S) : 0))
   const [title, setTitle] = useState(A?.name || '')
+  const was = useRef({ name: A?.name, customName: A?.customName })
   const [note, setNote] = useState(A?.note || '')
   const [min, setMin] = useState(state?.durationMin ?? null)   // null: the session's own length, still running
   const [, tick] = useState(0)
@@ -84,18 +85,26 @@ export function SaveWorkout() {
   // The minutes of `h` hours and `m` minutes as typed, a cleared field being 0.
   const hm = (h, m) => Math.max(0, Math.round(Number(h) || 0) * 60 + Math.round(Number(m) || 0))
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/workout', { replace: true }))
+  // The title and description go into the session as they are typed, so going back or an app
+  // kill keeps them; Save writes them once more.
+  const keep = (title, note) => useStore.getState().update(s => {
+    if (!s.active) return
+    const name = title.trim().slice(0, TITLE_MAX)
+    // A title cleared or typed back to what the page opened with: that name as it was, as a Save
+    // with it untouched leaves the session.
+    if (!name || name === was.current.name) {
+      s.active.name = was.current.name
+      if (was.current.customName) s.active.customName = true; else delete s.active.customName
+    } else if (name !== s.active.name) { s.active.name = name; s.active.customName = true }
+    const text = note.trim().slice(0, NOTE_MAX)
+    if (text) s.active.note = text; else delete s.active.note
+  })
 
   const save = () => {
     const problem = durationProblem(A, min)
     if (problem) { useUI.getState().toast(t(problem)); return }
     const update = useStore.getState().update
-    update(s => {
-      if (!s.active) return
-      const name = title.trim().slice(0, TITLE_MAX)
-      if (name && name !== s.active.name) { s.active.name = name; s.active.customName = true }
-      const text = note.trim().slice(0, NOTE_MAX)
-      if (text) s.active.note = text; else delete s.active.note
-    })
+    keep(title, note)
     const { S: cur0 } = useStore.getState()
     const cur = cur0.active
     const ref = { id: cur.id, d: cur.d, start: cur.start }
@@ -118,7 +127,7 @@ export function SaveWorkout() {
       <button type="button" className="btn primary pill hv-finish" onClick={save}>{t('Save')}</button>
     </PageBar>
     <input className="hv-stitle" value={title} maxLength={TITLE_MAX} placeholder={t('Workout title')}
-      aria-label={t('Workout title')} onChange={e => setTitle(e.target.value)} />
+      aria-label={t('Workout title')} onChange={e => { setTitle(e.target.value); keep(e.target.value, note) }} />
     <div className="hv-stats">
       <div><span>{t('Duration')}</span><b className="acc">{durationWords(len * 60000)}</b></div>
       {mode === 'weight' && <div><span>{t('Volume')}</span><b>{fmtNum(Math.round(volume))} {unit}</b></div>}
@@ -144,7 +153,7 @@ export function SaveWorkout() {
     </div>
     <h4 className="sec">{t('Description')}</h4>
     <textarea className="input hv-sdesc" rows={4} maxLength={NOTE_MAX} value={note}
-      placeholder={t('How did your workout go? Leave some notes here…')} onChange={e => setNote(e.target.value)} />
+      placeholder={t('How did your workout go? Leave some notes here…')} onChange={e => { setNote(e.target.value); keep(title, e.target.value) }} />
     <button type="button" className="btn hv-danger hv-sdiscard" onClick={() => discard(nav)}>{t('Discard Workout')}</button>
   </div>
 }

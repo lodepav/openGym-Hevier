@@ -167,4 +167,20 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(timed))
     expect(container.querySelector('.hv-extime').textContent).toBe('Exercise time: 12min')
   })
+  it('compares the workout with the same routine’s last one, under the stats', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    expect(container.querySelector('.hv-wd-vs')).toBeNull()   // the week before has another name
+    // 2 × 60 × 8 = 960 against 1 × 55 × 8 = 440 kg; 60 min against 50.
+    act(() => useStore.getState().update(s => {
+      s.hvVolume = 'weight'
+      Object.assign(s.workouts[0], { name: 'Push Day', end: s.workouts[0].start + 50 * 60000 })
+    }))
+    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set · +10 min vs 3 Oct')
+    // A number that did not change is left out, and with none left the line says so.
+    act(() => useStore.getState().update(s => { s.workouts[0].end = s.workouts[0].start + 60 * 60000 }))
+    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set vs 3 Oct')
+    act(() => useStore.getState().update(s => { s.workouts[0].entries = JSON.parse(JSON.stringify(W.entries)) }))
+    expect(container.querySelector('.hv-wd-vs').textContent).toBe('Same as 3 Oct')
+  })
 })

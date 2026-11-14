@@ -290,6 +290,8 @@
 :root[data-ui="hevier"] .hv-rt-range{background:none;padding:8px 0;font-size:16px;font-weight:600;color:var(--label);text-align:center}
 :root[data-ui="hevier"] .hv-ss-btn{background:none;padding:0;display:flex;align-items:center;gap:8px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-warn{color:var(--orange);display:flex}
+/* the routine editor's warning sign is a button, sized like the ⋮ beside it */
+:root[data-ui="hevier"] .hv-exhd .hv-warn{background:none;margin:0}
 :root[data-ui="hevier"] .hv-rsettings{margin-top:18px}
 :root[data-ui="hevier"] .hv-rsettings-note{margin:6px 2px 16px}
 :root[data-ui="hevier"] .hv-rmap{margin-top:12px}
@@ -315,6 +317,13 @@
 :root[data-ui="hevier"] :is(.hv-rcard, .hv-fhead, .hv-routine .hv-exhd){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 :root[data-ui="hevier"] .is-reordering [data-reorder-row][style*="z-index"]{filter:brightness(1.25) drop-shadow(0 10px 18px rgba(0,0,0,.55))}
 :root[data-ui="hevier"] [data-reorder-row]{transition:transform .18s var(--ease)}
+/* The workout's Reorder exercises sheet (ReorderExercisesSheet.jsx): Hevy's list shows its grips */
+:root[data-ui="hevier"] .hv-reorder{margin-bottom:12px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+:root[data-ui="hevier"] .hv-reorder .hv-ro-unit{background:var(--bg)}
+:root[data-ui="hevier"] .hv-reorder .hv-ro-unit.ss{border-inline-start:3px solid var(--purple)}
+:root[data-ui="hevier"] .hv-reorder .item.hv-pk-row{gap:12px;min-height:56px}
+:root[data-ui="hevier"] .hv-reorder .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;padding:6px 4px;overflow:visible;clip-path:none}
+:root[data-ui="hevier"] .hv-ro-done{width:100%}
 :root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;text-align:start}
 :root[data-ui="hevier"] .hv-folder{margin-bottom:10px}
 :root[data-ui="hevier"] .hv-fhead{display:flex;align-items:center;gap:4px;min-height:40px}
@@ -341,6 +350,9 @@
 :root[data-ui="hevier"] .hv-pb-back .icn{font-size:22px;--icon-stroke:2.2}
 :root[data-ui="hevier"] .hv-pagebar .hv-link{flex:0 1 auto;min-width:0;min-height:44px;padding:0 8px;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-pk-hd .hv-link{min-height:44px;padding:0 8px;font-size:16px}
+:root[data-ui="hevier"] .hv-pk .empty .hv-pk-create{display:block;width:auto;max-width:100%;margin:14px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the empty Workout tab's and feed's way to the Hevy import */
+:root[data-ui="hevier"] .empty .hv-empty-import{min-height:44px;padding:0 12px;font-size:15px;font-weight:600}
 :root[data-ui="hevier"] .hv-pagebar .hv-finish{margin-inline-start:4px}
 :root[data-ui="hevier"] .hv-stitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 12px;color:var(--label)}
 :root[data-ui="hevier"] .hv-save .hv-stats{margin:0 0 14px;padding-bottom:14px;border-bottom:var(--hair) solid var(--sep)}
@@ -401,6 +413,8 @@
 :root[data-ui="hevier"] .hv-xd-facts b{font-size:20px;font-weight:700;color:var(--label);margin-bottom:4px}
 :root[data-ui="hevier"] .hv-xd-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-xd-chips .chip.on{background:var(--blue);color:#fff}
+/* Left against right, an exercise logged per side. */
+:root[data-ui="hevier"] .hv-xd-sides{margin:8px 2px 4px;font-size:14px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-rec .grow{display:flex;flex-direction:column}
 :root[data-ui="hevier"] .hv-xd-reps{display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-rh,:root[data-ui="hevier"] .hv-xd-rr{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:8px 2px}
@@ -473,6 +487,8 @@
 :root[data-ui="hevier"] .hv-wd-gym .icn{width:14px;height:14px}
 :root[data-ui="hevier"] .hv-wd-t{font-size:22px;font-weight:700;margin:2px 0 10px}
 :root[data-ui="hevier"] .hv-wd .hv-stats{margin:0 0 14px}
+/* This workout against the same routine's last one, under the stats. */
+:root[data-ui="hevier"] .hv-wd-vs{margin:-6px 0 14px;font-size:13px;color:var(--label-2);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd-note{font-size:15px;white-space:pre-wrap;margin:0 0 12px}
 :root[data-ui="hevier"] .hv-wd-split{display:grid;grid-template-columns:7.5em 1fr 4.5em;align-items:center;gap:8px;font-size:14px}
 :root[data-ui="hevier"] .hv-wd-split b{text-align:end;font-weight:500;color:var(--label-2)}
@@ -775,6 +791,8 @@
 :root[data-ui="hevier"] .hv-extime-sort{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-extime-sort .hv-chip{display:inline-flex;align-items:center;gap:4px;min-height:32px}
 :root[data-ui="hevier"] .hv-extime-sort .icn{width:14px;height:14px}
+:root[data-ui="hevier"] .hv-lift-state{white-space:nowrap}
+:root[data-ui="hevier"] .hv-lift-state .hv-trend{margin-inline:0 4px}
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
@@ -801,6 +819,7 @@
 /* D99: weekly sets per muscle, upstream's bars with the fork's counts; its Home line. */
 :root[data-ui="hevier"] .hv-wsets .sbar-list{margin-top:6px}
 :root[data-ui="hevier"] .hv-wsets-ft{display:flex;justify-content:flex-end;margin-top:6px}
+:root[data-ui="hevier"] .hv-wsets-past{margin-inline-start:8px;font-size:12px;color:var(--label-2);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wsets-home{display:flex;align-items:center;gap:10px;width:100%;text-align:start;color:inherit;font:inherit}
 :root[data-ui="hevier"] .hv-wsets-home>span{flex:1;min-width:0}
 /* D98: upstream's countdown of the week as a Home widget. */

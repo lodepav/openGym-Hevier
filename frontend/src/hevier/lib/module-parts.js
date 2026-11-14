@@ -14,7 +14,7 @@
 // the fork's own modules Gyms (`hvGyms`) and Statistics extras (`hvStats`, lib/fork-modules.js),
 // which the Strength levels list moved into (its old switch, `strength.list`, still decides until
 // the new one is set: `was`).
-import { isOn } from '../../lib/modules.js'
+import { isOn, MODULE } from '../../lib/modules.js'
 
 export const PARTS = {
   strength: [
@@ -70,6 +70,7 @@ export const PARTS = {
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
     // D117
     { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
+    { id: 'trends', title: 'Lift trends', desc: 'Each exercise of the last 3 weeks, rising, holding or falling.' },
   ],
 }
 
@@ -97,4 +98,15 @@ export const anyPartOn = (S, mod) => isOn(S, mod) && (PARTS[mod] || []).some(p =
 export function setPart(s, mod, part, on) {
   if (!partOf(mod, part)) return
   s.hvModuleParts = { ...(s.hvModuleParts && typeof s.hvModuleParts === 'object' ? s.hvModuleParts : {}), [key(mod, part)]: !!on }
+}
+
+// What a part or a setting can do nothing without: another module (D84, D114). While that is
+// off its switch is disabled, its stored choice kept for when the module is back.
+const NEEDS = { 'hvExercise.plates': 'plates', 'hvStats.levels': 'strength', hvPlateLine: 'plates' }
+
+/** What `what` (a part as 'module.part', or a setting's field) also needs: `{ mod, title, on }`,
+ *  the module's id, its title (to translate) and whether it is on; null when it needs nothing. */
+export function needOf(S, what) {
+  const mod = NEEDS[what]
+  return mod ? { mod, title: MODULE[mod].title, on: isOn(S, mod) } : null
 }

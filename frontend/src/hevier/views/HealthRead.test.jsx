@@ -10,8 +10,6 @@ import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO } from '../../lib/format.js'
 import { bwSheet } from '../../sheets.jsx'
-import { Section } from '../../components/ui.jsx'
-import { insertBeforeSection } from '../lib/settings.js'
 import { hevierRoutes } from '../routes.jsx'
 import { DETAIL_PATH } from './WorkoutDetail.jsx'
 
@@ -47,7 +45,7 @@ describe('hevier: Health Connect reads (D27)', () => {
       <Routes>{hevierRoutes}<Route path="*" element={<div id="elsewhere" />} /></Routes>
     </MemoryRouter>)
     expect(container.querySelector('.hv-wd-hrline').textContent).toBe('Heart rate 128 avg · 161 max')
-    expect([...container.querySelectorAll('.hv-wd-hr')].map(x => x.textContent)).toEqual(['141'])
+    expect([...container.querySelectorAll('.hv-wd-hr')].map(x => x.textContent)).toEqual(['Heart rate: 141'])
   })
 
   it('a workout without one shows none', async () => {
@@ -71,13 +69,5 @@ describe('hevier: Health Connect reads (D27)', () => {
     expect(day).toMatchObject({ d: todayISO(), w: 80 })
     expect(day.src).toBeUndefined()
     expect(day.ins.map(x => x.src || 'typed')).toEqual(['hc', 'typed'])
-  })
-
-  it('goes in right before upstream’s “Bring data in” section', () => {
-    const tree = <div><Section title="Backup" /><div><Section title="Bring data in" /></div></div>
-    const out = insertBeforeSection(tree, 'Bring data in', <i key="x" id="mine" />)
-    const inner = out.props.children[1].props.children
-    expect(inner.map(k => k.props.id || k.props.title)).toEqual(['mine', 'Bring data in'])
-    expect(insertBeforeSection(tree, 'Nope', <i key="x" />)).toBe(tree)
   })
 })

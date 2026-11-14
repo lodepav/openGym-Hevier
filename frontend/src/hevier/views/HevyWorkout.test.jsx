@@ -490,3 +490,61 @@ describe('hevier: Workout extras on the workout screen (D117)', () => {
     expect(sets()[0].hvRun).toBeTruthy()
   })
 })
+
+describe('hevier: the exercise ⋮ menu', () => {
+  const [B, C, D] = EXDB.filter(e => e.id !== EX && modeOfId(e.id) === 'reps').slice(0, 3).map(e => e.id)
+  const one = id => ({ id, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] })
+  const menuItems = (n = 0) => {
+    act(() => container.querySelectorAll('.hv-more')[n].click())
+    const items = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).filter(Boolean)
+    useUI.setState({ sheets: [] })
+    return items
+  }
+  const set = patch => act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
+
+  it('Reorder exercises replaces Move up and down, moves a superset as one block, and the rest timer follows its exercise', () => {
+    render([one(EX), { ...one(B), sg: 's' }, { ...one(C), sg: 's' }, one(D)])
+    act(() => container.querySelector('.hv-chk').click())
+    expect(useUI.getState().timer.forIdx).toBe(0)
+    const items = menuItems()
+    expect(items.map(x => x.label)).not.toContain('Move up')
+    expect(items.map(x => x.label)).not.toContain('Move down')
+    act(() => items.find(x => x.label === 'Reorder exercises').onClick())
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const r = createRoot(host)
+    act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const ids = () => useStore.getState().S.active.entries.map(e => e.id)
+    const grip = i => host.querySelectorAll('.hv-grip')[i]   // one per exercise, in the list's order
+    const key = (el, k) => act(() => el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true })))
+    expect(host.querySelectorAll('[data-reorder-row]')).toHaveLength(3)
+    expect(grip(0).getAttribute('aria-label')).toMatch(/^Move ./)
+    key(grip(0), 'ArrowDown')
+    expect(ids()).toEqual([B, C, EX, D])
+    expect(useUI.getState().timer.forIdx).toBe(2)
+    key(grip(1), 'ArrowDown')   // the superset passes the exercise as one block
+    expect(ids()).toEqual([EX, B, C, D])
+    expect(useUI.getState().timer.forIdx).toBe(0)
+    act(() => r.unmount())
+    host.remove()
+  })
+
+  it('How to do it is left to the thumbnail and the name', () => {
+    render([one(EX)])
+    expect(menuItems().map(x => x.label)).not.toContain('How to do it')
+    expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it')
+  })
+
+  it('Weight unit and Plate loading go with their part of Exercise settings (D114)', () => {
+    render([one(EX), one(B)])
+    const labels = () => menuItems().map(x => x.label)
+    expect(labels()).toEqual(expect.arrayContaining(['Weight unit', 'Plate loading', 'Reorder exercises']))
+    set({ hvModuleParts: { 'hvExercise.units': false } })
+    expect(labels()).not.toContain('Weight unit')
+    expect(labels()).toContain('Plate loading')
+    for (const off of [{ hvModuleParts: { 'hvExercise.plates': false } }, { modules: { plates: false } }, { modules: { hvExercise: false } }]) {
+      set({ modules: {}, hvModuleParts: {}, ...off })
+      expect(labels()).not.toContain('Plate loading')
+    }
+  })
+})

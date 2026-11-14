@@ -10,6 +10,8 @@ import { baseline, pending, finish, exercisesOf, brandsOf, brandKey, setsOf, tem
 import { getSecret, putSecret, removeSecret } from './secret.js'
 import { within } from './within.js'
 import { partOn } from './module-parts.js'
+import { stopNotice } from './hevy-stop.js'
+import { t } from '../../lib/i18n.js'
 
 export const EXPORT_FILE = 'hevier-hevy-export.json'
 export const KEY_NAME = 'hevy-api-key'
@@ -241,17 +243,30 @@ export function sendToHevy(getState, { force = false, apply = null, now = Date.n
   return pass
 }
 
+// A refused or lost key is told once as a toast too (hevy-stop.js), in memory only.
+let stopTold = false
+const tellStop = (error, workouts, force) => {
+  const n = stopNotice(stopTold, { error, workouts, force })
+  stopTold = n.told
+  const msg = n.tell === 'auth' ? t('Send to Hevy stopped: Hevy refused the key. Check Settings → Integrations')
+    : t('Send to Hevy stopped: the key is gone from this phone. Check Settings → Integrations')
+  // Loaded only when it is needed, so this file stays free of the store (its tests run without a page).
+  if (n.tell) import('../../store/useUI.js').then(({ useUI }) => useUI.getState().toast(msg)).catch(() => {})
+}
+
 async function sendOnce(getState, apply, now, force) {
   const st = await loadExport()
   if (!st.on) return st
+  const todo = pending(getState(), st)
   // Nothing new to send (the usual pass): no Keystore read and no file write (battery).
   // Send now still goes the whole way, so a lost key shows.
-  if (!force && st.last) {
-    const todo = pending(getState(), st)
-    if (!todo.workouts.length && !todo.routines.length) return st
-  }
+  if (!force && st.last && !todo.workouts.length && !todo.routines.length) return st
   const key = await getSecret(KEY_NAME)
-  if (!key) { st.last = { at: now, sent: 0, refused: 0, error: 'nokey' }; await saveExport(st); told(st); return st }
+  if (!key) {
+    st.last = { at: now, sent: 0, refused: 0, error: 'nokey' }; await saveExport(st); told(st)
+    tellStop('nokey', todo.workouts.length, force)
+    return st
+  }
   const res = await exportOnce(getState(), st, {
     call: (m, p, b) => hevyCall(key, m, p, b),
     pages: (p, resultKey, pageSize) => fetchHevyPages(p, key, { resultKey, pageSize }),
@@ -263,6 +278,7 @@ async function sendOnce(getState, apply, now, force) {
   if (res.sent || res.refused || res.error || !st.last) st.last = { at: now, ...res }
   await saveExport(st)
   told(st)
+  tellStop(res.error, todo.workouts.length, force)
   return st
 }
 

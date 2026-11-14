@@ -26,14 +26,9 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    rule A (rebuild the seam on theirs), B (undeclared edit: take theirs, re-home it),
    C (locales: take theirs) or D (package files: take theirs). Never restore the old upstream
    code.
-6. **Silent drift.** Even after a clean merge, work through CONFLICTS.md's five checks:
-   - `npx vitest run src/hevier/contract.test.js`
-   - new Workout.jsx/components features missing from `HevyWorkout`
-   - `build:mobile` changes, to mirror in `hevier/tools/emulator.sh`
-   - renamed CSS selectors and variables that `hevier.css` uses
-   - new routes or tabs
-   Also diff the screens the fork copies or wraps: `git diff <old>..$TARGET --
-   frontend/src/views/Home.jsx frontend/src/views/Settings.jsx frontend/src/sheets.jsx
+6. **Silent drift.** Even after a clean merge, work through every item of CONFLICTS.md's
+   "Silent drift" list (eight checks), in order. Also diff the screens the fork copies or
+   wraps: `git diff <old>..$TARGET -- frontend/src/views/Home.jsx frontend/src/views/Settings.jsx frontend/src/sheets.jsx
    frontend/src/components/ExerciseBlock*` and list what the fork's screens should pick up.
 7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,

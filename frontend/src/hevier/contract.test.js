@@ -15,6 +15,7 @@ import * as routines from '../lib/routines.js'
 import * as muscles from '../lib/muscles.js'
 import { mergeHevyRoutines } from '../lib/import-hevy.js'
 import { HEVIER } from './flag.js'
+import pkg from '../../package.json'
 
 describe('hevier: upstream contract', () => {
   it('sheets.jsx still exports the flows the overlay calls', () => {
@@ -22,7 +23,7 @@ describe('hevier: upstream contract', () => {
       'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
       'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
       'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet',
-      'upstreamExerciseDetailSheet', 'detailTags', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
+      'upstreamExerciseDetailSheet', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
       'goalSheet', 'weighInsSheet']) {
       expect(typeof sheets[name], name).toBe('function')
     }
@@ -63,6 +64,11 @@ describe('hevier: upstream contract', () => {
     expect(res.added).toBe(2)
     expect(S.routines.map(r => r.hevyId || r.id)).toEqual(['mine', 'a', 'b', 'c'])
     expect(S.routines[1].id).toBe('old')
+  })
+
+  it('build:mobile is the one the fork’s scripts copy', () => {
+    // hevier/tools/emulator.sh, release-apk.sh and release-check.sh repeat these steps by hand: copy a change there.
+    expect(pkg.scripts['build:mobile']).toBe('VITE_MOBILE=1 vite build && node ../scripts/catalogue/stage-media.mjs dist && cap sync && node scripts/check-mobile-bundle.mjs')
   })
 
   it('the fork UI is off unless the build asks for it', () => {

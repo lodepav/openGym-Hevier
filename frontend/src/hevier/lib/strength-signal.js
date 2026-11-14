@@ -14,7 +14,7 @@ import { workoutPhase } from './shared-phase.js'
 import { workSets } from './volume.js'
 
 const DAY = 24 * 3600 * 1000
-const WINDOW_DAYS = 21     // the three weeks of "drop, repeat, drop"
+export const WINDOW_DAYS = 21     // the three weeks of "drop, repeat, drop"
 const GAP_DAYS = 14        // sessions this far apart restart the chain: a skipped stretch is not a drop
 const WEEKS_DAYS = 14      // how long a phase runs before "rising" or "not rising" can be said
 
@@ -25,9 +25,9 @@ const GROUP = { Lats: 'Back', 'Upper Back': 'Back', 'Lower Back': 'Back', Traps:
 export const muscleGroup = ex => { const m = mainMuscleOf(ex); return GROUP[m] || m }
 
 // Left out at the user's word: these rarely move much, so "not rising" there says little about food.
-const LEFT_OUT = new Set(['Calves', 'Abdominals', 'Obliques'])
+export const LEFT_OUT = new Set(['Calves', 'Abdominals', 'Obliques'])
 
-const dayNo = d => Math.floor(Date.parse(d + 'T12:00:00Z') / DAY)
+export const dayNo = d => Math.floor(Date.parse(d + 'T12:00:00Z') / DAY)
 const tenth = v => Math.round(v * 10) / 10
 
 /** One session's verdict from its sets' arrows, by majority: 1 better, -1 worse, 0 same, null none. */
@@ -69,9 +69,9 @@ export function readExercise(sessions) {
 const mostOf = (list, test) => list.length >= 2 && list.filter(test).length * 2 > list.length
 
 // Only loaded lifts: a bodyweight or assisted exercise changes with the weight a cut takes off.
-const compared = id => !isAssisted(id) && (EXIDX[id]?.eq || '') !== 'body weight'
+export const compared = id => !isAssisted(id) && (EXIDX[id]?.eq || '') !== 'body weight'
 
-function arrows(S, w, i) {
+export function arrows(S, w, i) {
   const e = w.entries[i]
   return workoutTrends(S, w, i).map((v, k) => {
     const s = e.sets?.[k]

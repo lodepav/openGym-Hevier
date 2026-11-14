@@ -17,7 +17,7 @@ import { speedUnitOf } from '../../lib/speed.js'
 import { isFav, toggleFav } from '../../lib/favourites.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
-  menuSheet, detailTags, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
+  menuSheet, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
 import { Segmented, Button } from '../../components/ui.jsx'
@@ -28,6 +28,7 @@ import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
+import { sideBalance } from '../lib/side-balance.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../lib/counted.js'
@@ -46,17 +47,15 @@ const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
 // Hevy's lines under the picture: the name in bold, then "Primary: Chest" and "Secondary: …" as
-// text. The muscles are D74's (the main one, then the others); the equipment is upstream's
-// detailTags', which marks it with the kettlebell (the body part `acc`, read when an exercise has
-// no muscle at all).
+// text. The muscles are D74's (the main one, then the others; with none, the exercise's own muscle
+// in upstream's words, else its body part); the equipment is the exercise's own.
 function ExerciseFacts({ ex }) {
-  const tags = detailTags(ex)
-  const of = test => tags.filter(test).map(tg => tg.label).join(', ')
   const { primary, secondary } = musclesShown(ex, s => MUSCLE_NAME[s] || s)
+  const other = MUSCLE_NAME[ex.tg] || ex.tg || ex.bp
   const lines = [
-    [t('Primary'), (primary && t(primary)) || of(tg => tg.icon === 'figureStrength') || of(tg => tg.acc)],
+    [t('Primary'), (primary && t(primary)) || (other ? t(other) : '')],
     [t('Secondary'), secondary.map(m => t(m)).join(', ')],
-    [t('Equipment'), of(tg => tg.icon === 'kettlebell')],
+    [t('Equipment'), ex.eq ? t(ex.eq) : ''],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">
     <b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
@@ -78,6 +77,7 @@ function Summary({ ex, sum, st }) {
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const last = points.at(-1)
   const r = sum.records
+  const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   const records = [
     r.best && { k: 'best', label: t(MAIN_LABEL[sum.metric]), v: fmtNum(r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
     r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(r.e1rm.v) + ' ' + unit, d: r.e1rm.d },
@@ -102,6 +102,8 @@ function Summary({ ex, sum, st }) {
         {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
           aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
       </div>}
+      {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
+        : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
       {records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('Personal Records')}</h4>
         <div className="list">{records.map(x => <div key={x.k} className="item hv-xd-rec">
