@@ -69,6 +69,7 @@ import { entryDbLoad, bellsIn, ownedWeightsFor, stepOwned } from '../lib/dumbbel
 import { HEVIER } from '../hevier/flag.js'
 import HevyWorkout from '../hevier/views/HevyWorkout.jsx'
 // [/hevier]
+import { hooks } from '../hevier/hooks.js' // [hevier] S59
 import { sessionGymView, gymsOf, activeGym, gymLabel, switchGym, reRoundOpenSets } from '../lib/gym-inventory.js'
 import { exView, viewEntry, inEntryUnit } from '../lib/ex-unit.js'
 import { setTrendOn, setTrendsFor, trendGlyph, trendLabel } from '../lib/set-trend.js'
@@ -120,6 +121,7 @@ function rerampOpen(s, e, i) {
   if (!e?.sets || isWarmupRow(e.sets[i]) || e.sets.findIndex(x => !isWarmupRow(x)) !== i) return
   const cfg = { ...(e.target || {}), id: e.id }
   if (modeOf(cfg) !== 'reps') return
+  if (hooks.plainRoutine?.is((s.routines || []).find(r => r.id === e.rid))) return // [hevier] S59: a routine without progression keeps its warm-ups (D69)
   const V = exView(s, e.id)
   e.sets = liveReramp(e.sets, dropGrid(V, cfg), barFloor(V, e.id), isAssisted(cfg))
 }

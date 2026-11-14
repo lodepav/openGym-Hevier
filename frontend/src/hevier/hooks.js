@@ -34,7 +34,7 @@ export const hooks = {
   equipFilter: null,     // (S) => { profile, has(ex) }: the gym upstream's muscle explorer filters by (S37)
   equipChips: null,      // { on(v, kinds), has(v, ex), Chips }: the muscle explorer's equipment strip (S38)
   muscleChips: null,     // { Chips, share(v, ex), name(v), map(v) }: the muscle explorer's muscles by group (S39)
-  plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40)
+  plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40), its warm-ups left alone (S59)
   exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
   setMode: null,         // (set) => 'time' | null: the kind of set a row is, before its exercise's (S48)
   integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
