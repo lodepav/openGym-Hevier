@@ -120,3 +120,31 @@ describe('hevier: Exercises', () => {
     expect(container.querySelector('.hv-pk-add')).toBeNull()
   })
 })
+
+describe('hevier: the Calendar behind Statistics extras (D117)', () => {
+  const offs = [{ hvModuleParts: { 'hvStats.calendar': false } }, { modules: { hvStats: false } }]
+  const tileShown = () => [...container.querySelectorAll('.hv-tile')].some(b => b.textContent.includes('Calendar'))
+  const again = (at, patch) => {
+    act(() => root.unmount()); container.remove()
+    render(at)
+    act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
+  }
+
+  it('Profile’s tile goes with the part', () => {
+    render('/profile')
+    expect(tileShown()).toBe(true)
+    for (const off of offs) { again('/profile', off); expect(tileShown()).toBe(false) }
+  })
+
+  it('/calendar, as the month widget’s tap opens it, lands on Profile with the part off', () => {
+    render('/calendar')
+    expect(path).toBe('/calendar')
+    expect(container.querySelector('.hv-cal')).toBeTruthy()
+    for (const off of offs) {
+      again('/calendar', off)
+      expect(path).toBe('/profile')
+      expect(container.querySelector('.hv-cal')).toBeNull()
+      expect(container.querySelector('.hv-profile')).toBeTruthy()
+    }
+  })
+})

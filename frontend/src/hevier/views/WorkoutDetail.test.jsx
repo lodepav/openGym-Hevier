@@ -168,3 +168,21 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(container.querySelector('.hv-extime').textContent).toBe('Exercise time: 12min')
   })
 })
+
+describe('hevier: Workout Detail’s set arrows behind Statistics extras (D117)', () => {
+  it('marks a set by default, and none with the part or the module off', () => {
+    const P = { id: 'p', d: '2026-10-03', start: start - 7 * 86400000, entries: [{ id: BENCH.id, sets: [{ w: 60, r: 10, done: true }] }] }
+    const T = { ...clone(W), id: 'wt', entries: [{ id: BENCH.id, sets: [{ w: 60, r: 9, done: true }] }] }
+    const show = patch => {
+      render()
+      act(() => useStore.getState().update(s => { s.workouts = [clone(P), clone(T)]; Object.assign(s, patch) }))
+      act(() => workoutDetailSheet(T))
+      const mark = container.querySelector('.hv-wd-row .hv-trend')
+      act(() => root.unmount()); container.remove()
+      return mark
+    }
+    expect(show({}).className).toContain('down')
+    expect(show({ hvModuleParts: { 'hvStats.arrows': false } })).toBeNull()
+    expect(show({ modules: { hvStats: false } })).toBeNull()
+  })
+})

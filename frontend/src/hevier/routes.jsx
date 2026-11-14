@@ -34,7 +34,6 @@ import StrengthLevels from './views/StrengthLevels.jsx'
 import ExerciseTime from './views/ExerciseTime.jsx'
 import { atTabRoot } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
-import { ModulePartsPage } from './views/ModuleParts.jsx'
 
 // Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
 // Workout Detail page (S14), every exercise picker the fork's Hevy picker (S13), and Settings is
@@ -105,7 +104,8 @@ export const hevierRoutes = [
   <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
   <Route key="hv-profile" path="/profile" element={<Profile />} />,
   <Route key="hv-stats" path="/stats" element={<StatsEntry />} />,
-  <Route key="hv-module-parts" path="/settings/modules/:mod" element={<ModulePartsPage />} />,
+  // D102: a module's parts unfold on Modules now; an old link to a module's own page lands there.
+  <Route key="hv-module-parts" path="/settings/modules/:mod" element={<Navigate to="/settings/modules" replace />} />,
   <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><PhaseFilter /><Stats /></WithBack>} />,
   <Route key="hv-measures" path="/measures" element={<Measures />} />,
   <Route key="hv-measurements" path="/measurements" element={<BackWhereFrom to="/measures"><Measurements /></BackWhereFrom>} />,

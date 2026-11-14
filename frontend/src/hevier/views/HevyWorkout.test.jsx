@@ -459,3 +459,46 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     p.done()
   })
 })
+
+describe('hevier: Workout extras and Set arrows on the workout screen (D117)', () => {
+  const offClock = [{ hvModuleParts: { 'hvWorkout.clock': false } }, { modules: { hvWorkout: false } }]
+  const set = patch => act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
+
+  it('the header’s Timer and Stopwatch button goes with the part; the duration stays', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
+    expect(container.querySelector('.hv-clockbtn')).toBeTruthy()
+    for (const off of offClock) {
+      set({ modules: {}, hvModuleParts: {}, ...off })
+      expect(container.querySelector('.hv-clockbtn')).toBeNull()
+      expect(container.querySelector('.hv-stats').textContent).toContain('Duration')
+    }
+  })
+
+  it('a timed hold’s big clock still opens with the Timer and Stopwatch off (D53, D89)', () => {
+    render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])
+    set(offClock[0])
+    act(() => container.querySelector('.hv-go').click())
+    expect(sets()[0].hvRun).toBeTruthy()
+    expect(useUI.getState().sheets).toHaveLength(1)
+  })
+
+  it('a cardio set’s timer still runs with the module off (D53)', () => {
+    const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
+    render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, speed: 10, done: false }] }])
+    set(offClock[1])
+    act(() => container.querySelector('.hv-go').click())
+    expect(sets()[0].hvRun).toBeTruthy()
+  })
+
+  it('a ticked set’s arrow and its words go with Set arrows (D66)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true })] }] }]
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 9, { done: true })] }], past)
+    expect(container.querySelector('.hv-set .hv-trend')).toBeTruthy()
+    expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
+    for (const off of [{ hvModuleParts: { 'hvStats.arrows': false } }, { modules: { hvStats: false } }]) {
+      set({ modules: {}, hvModuleParts: {}, ...off })
+      expect(container.querySelector('.hv-set .hv-trend')).toBeNull()
+      expect(container.querySelector('.hv-set').getAttribute('aria-label')).not.toContain('last time')
+    }
+  })
+})

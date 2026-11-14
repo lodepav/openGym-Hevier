@@ -202,3 +202,53 @@ describe('hevier: an exercise\'s History by phase and brand (D93, D96)', () => {
     expect(container.querySelector('.hv-xd-labels button')).toBeNull()
   })
 })
+
+describe('hevier: Workout extras and Exercise settings parts in exercise details (D117)', () => {
+  const vid = 'https://youtu.be/dQw4w9WgXcQ'
+  const log = [{ id: 'a', d: new Date(Date.now() - 20 * 86400000).toISOString().slice(0, 10), name: 'Push Day', start: day('2026-09-26'), end: day('2026-09-26') + 3600000,
+    entries: [{ id: EX.id, note: 'Form: ' + vid, notePin: true, sets: [{ w: 60, r: 8, done: true }] }] }]
+  const openWith = patch => { open(log); act(() => useStore.getState().update(s => { Object.assign(s, patch) })) }
+  const youtube = () => [...container.querySelectorAll('button')].some(b => b.textContent.includes('Watch on YouTube'))
+  const menuRows = () => {
+    act(() => container.querySelector('.hv-xd-bar [aria-label="More"]').click())
+    const host = document.createElement('div')
+    const r2 = createRoot(host)
+    act(() => r2.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const rows = [...host.querySelectorAll('.menu-item')].map(i => i.textContent)
+    act(() => r2.unmount())
+    return rows
+  }
+  const reopen = patch => { act(() => root.unmount()); container.remove(); openWith(patch) }
+
+  it('Exercise demos: the YouTube search and the pinned note’s video go, the steps stay', () => {
+    openWith({}); tab('How to')
+    expect(youtube()).toBe(true)
+    expect(container.querySelector('.youtube-video')).toBeTruthy()
+    for (const patch of [{ hvModuleParts: { 'hvWorkout.demos': false } }, { modules: { hvWorkout: false } }]) {
+      reopen(patch); tab('How to')
+      expect(youtube()).toBe(false)
+      expect(container.querySelector('.youtube-video')).toBeNull()
+      expect(container.querySelector('.hv-xd-howto .exnote.hv-xd-pin')).toBeTruthy()   // the note's text stays
+    }
+  })
+
+  it('Other names and Main muscle: off takes their ⋯ rows and the “Also called” line away, a chosen name stays', () => {
+    Object.assign(hooks, aliasHooks(() => useStore.getState().S))
+    try {
+      const names = { exAliases: { [EX.id]: ['Flat bench', 'Bench'] }, hvShownName: { [EX.id]: 'Bench' } }
+      openWith(names)
+      expect(menuRows().some(r => r.includes('Other names'))).toBe(true)
+      expect(menuRows().some(r => r.includes('Main muscle'))).toBe(true)
+      expect(container.querySelector('.hv-xd-aka')).toBeTruthy()
+      for (const off of [{ hvModuleParts: { 'hvExercise.names': false, 'hvExercise.muscle': false } }, { modules: { hvExercise: false } }]) {
+        reopen({ ...names, ...off })
+        const rows = menuRows()
+        expect(rows.some(r => r.includes('Other names'))).toBe(false)
+        expect(rows.some(r => r.includes('Main muscle'))).toBe(false)
+        expect(rows.some(r => r.includes('All details'))).toBe(true)
+        expect(container.querySelector('.hv-xd-aka')).toBeNull()
+        expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
+      }
+    } finally { hooks.exName = null }
+  })
+})

@@ -241,3 +241,24 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(new Set([...container.querySelectorAll('.hv-pk-row .ss')].map(el => el.textContent.split(' · ')[0]))).toEqual(new Set(['Biceps']))
   })
 })
+
+describe('hevier: the picker’s chart button behind Exercise demos (D117)', () => {
+  it('shows by default; off, the row has none and the thumbnail is the labelled way to the details', () => {
+    open(vi.fn())
+    search(BENCH.n)
+    expect(rowOf(BENCH).querySelector('.hv-pk-info')).toBeTruthy()
+    expect(rowOf(BENCH).querySelector('.hv-thumb').getAttribute('aria-hidden')).toBe('true')
+    for (const off of [{ hvModuleParts: { 'hvWorkout.demos': false } }, { modules: { hvWorkout: false } }]) {
+      act(() => root.unmount()); container.remove()
+      open(vi.fn(), undefined, [], off)
+      search(BENCH.n)
+      expect(rowOf(BENCH).querySelector('.hv-pk-info')).toBeNull()
+      const thumb = rowOf(BENCH).querySelector('.hv-thumb')
+      expect(thumb.getAttribute('aria-hidden')).toBeNull()
+      expect(thumb.getAttribute('aria-label')).toMatch(/^Details, barbell bench press$/i)
+      const n = useUI.getState().sheets.length
+      click(thumb)
+      expect(useUI.getState().sheets.length).toBe(n + 1)
+    }
+  })
+})

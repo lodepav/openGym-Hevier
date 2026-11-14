@@ -166,9 +166,10 @@ function HowTo({ ex, st }) {
   // The note pinned last time (upstream's pinnedNoteFor; lastEntryFor's answer carries no note, so
   // the pin never showed here before 2026-11-03).
   const note = pinnedNoteFor(st, ex.id)?.note || ''
+  const demos = partOn(st, 'hvWorkout', 'demos') // D117: off leaves the text and pictures
   return <div className="hv-xd-howto">
     {/* D101: a YouTube link in the pinned note plays here too, as upstream's Media plays a routine note's. */}
-    <Media ex={ex} notes={note || undefined} />
+    <Media ex={ex} notes={(demos && note) || undefined} />
     {note && <div className="exnote hv-xd-pin"><Icon name="pin" /> {note}</div>}
     {descFor(ex) && <div className="exnote">{descFor(ex)}</div>}
     {steps.length > 0
@@ -176,7 +177,7 @@ function HowTo({ ex, st }) {
         <ol className="steps-list">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></>
       : !descFor(ex) && <div className="empty small">{t('No instructions yet')}</div>}
     {/* D101: upstream 1.4.4's YouTube search for the exercise (#613), opened only on the tap. */}
-    {youtubeSearchUrl(ex) && <Button variant="ghost" icon="play" className="hv-xd-yt" onClick={() => openExternal(youtubeSearchUrl(ex))}>{t('Watch on YouTube')}</Button>}
+    {demos && youtubeSearchUrl(ex) && <Button variant="ghost" icon="play" className="hv-xd-yt" onClick={() => openExternal(youtubeSearchUrl(ex))}>{t('Watch on YouTube')}</Button>}
   </div>
 }
 
@@ -214,9 +215,9 @@ function ExerciseDetails({ ex, close }) {
           useUI.getState().toast(now ? t('Added to favourites') : t('Removed from favourites'))
         } },
         { icon: 'plus', label: t('Add to my plan'), onClick: () => addToRoutineSheet(ex) },
-        { icon: 'pencil', label: t('Other names'), sub: aliasesOf(st, ex.id).join(', ') || t('Found by the search'), onClick: () => aliasSheet(ex) },
+        partOn(st, 'hvExercise', 'names') && { icon: 'pencil', label: t('Other names'), sub: aliasesOf(st, ex.id).join(', ') || t('Found by the search'), onClick: () => aliasSheet(ex) },
         // D76: the muscle its sets count for, as the user chooses it.
-        { icon: 'figureStrength', label: t('Main muscle'), sub: (t(mainMuscleOf(ex)) || t('None')) + (st.hvMainMuscle?.[ex.id] ? ' · ' + t('your choice') : ''), onClick: () => mainMuscleSheet(ex) },
+        partOn(st, 'hvExercise', 'muscle') && { icon: 'figureStrength', label: t('Main muscle'), sub: (t(mainMuscleOf(ex)) || t('None')) + (st.hvMainMuscle?.[ex.id] ? ' · ' + t('your choice') : ''), onClick: () => mainMuscleSheet(ex) },
         { icon: 'gear', chevron: true, label: t('All details'), sub: t('Plate loading, estimated 1RM'), onClick: () => upstreamExerciseDetailSheet(ex) },
       ] },
       isCustomEx(ex) && { items: [
@@ -230,7 +231,7 @@ function ExerciseDetails({ ex, close }) {
       <h3 className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</h3>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </div>
-    {aka.length > 0 && <button type="button" className="hv-xd-aka" onClick={() => aliasSheet(ex)}>
+    {aka.length > 0 && partOn(st, 'hvExercise', 'names') && <button type="button" className="hv-xd-aka" onClick={() => aliasSheet(ex)}>
       {t('Also called')} <span>{aka.join(' · ')}</span></button>}
     <Segmented className="hv-xd-tabs" value={tab} onChange={setTab} options={[
       { value: 'summary', label: t('Summary') }, { value: 'history', label: t('History') }, { value: 'howto', label: t('How to') },

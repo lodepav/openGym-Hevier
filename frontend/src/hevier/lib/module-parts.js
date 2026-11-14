@@ -50,6 +50,14 @@ export const PARTS = {
     { id: 'plates', title: 'Plate loading', desc: 'The bar, plates and weight stack of an exercise. Also needs Plates and warm-ups.' },
     { id: 'intensity', title: 'Drop-sets, rest-pause and pyramids', desc: 'Sets that change shape, and the last set to failure.' },
     { id: 'units', title: 'Weight unit and dumbbells', desc: 'An exercise’s own kg or lb, and what a dumbbell weight means.' },
+    // D117: off hides the choice; a name or a muscle already chosen stays.
+    { id: 'names', title: 'Other names', desc: 'Other names for an exercise, each found by the search, and one shown as its name.' },
+    { id: 'muscle', title: 'Main muscle', desc: 'Choose the muscle an exercise counts for.' },
+  ],
+  // D117: the set timers of a cardio set or a hold stay core.
+  hvWorkout: [
+    { id: 'clock', title: 'Timer and Stopwatch', desc: 'The clock in the workout’s header, for time that isn’t a set.' },
+    { id: 'demos', title: 'Exercise demos', desc: 'The video in an exercise’s How to, and the chart button on each row when you add an exercise.' },
   ],
   hvGyms: [
     { id: 'brands', title: 'Machine brands and cable setups', desc: 'A brand or cable setup per gym on a machine exercise, and records per machine.' },
@@ -60,6 +68,9 @@ export const PARTS = {
     { id: 'report', title: 'Monthly report', desc: 'Your month in numbers, on Statistics.' },
     { id: 'time', title: 'Exercise time', desc: 'How long each exercise takes, on a workout and on a page of its own.' },
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
+    // D117
+    { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
+    { id: 'arrows', title: 'Set arrows', desc: 'Each ticked set marked against the same set last time, in a workout and on a finished one.' },
   ],
 }
 

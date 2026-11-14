@@ -23,6 +23,7 @@ export const hooks = {
   forkModules: null,    // the fork's own modules, listed with upstream's (S54, D114)
   forkModuleCopy: null, // () => { id: [title, desc] } for them (S54)
   setModule: null,      // (draft, id, on) that writes upstream's modules and the fork's (S54)
+  moduleRow: null,      // (id, row) => element: a module's row, with its parts unfolding under it (S54, D102)
   exPart: null,         // part => whether an Exercise settings category shows (S58, D114)
   tourPresetOnly: false, // true: the first-run card asks only how much app, and the tour is never offered (S53, D97, D100)
   defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)

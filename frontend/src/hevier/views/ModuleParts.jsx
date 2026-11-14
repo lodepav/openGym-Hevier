@@ -1,53 +1,40 @@
-// A module's own page with a switch per part (hevier/DECISIONS.md D102), at /settings/modules/<id>,
-// reached from "Parts of a module" under Settings → Modules. The parts and the rules are
-// lib/module-parts.js; the module's name and words are upstream's (lib/modules-copy.js), or the
-// fork's for its own modules (D114).
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+// A module's parts, each with its switch (hevier/DECISIONS.md D102), unfolded in place under the
+// module's row on Settings → Modules (seam S54, `hooks.moduleRow`). The parts and the rules are
+// lib/module-parts.js. The row holds upstream's switch, so the disclosure is a button of its own
+// laid over the rest of the row rather than the row itself (a button cannot hold a button).
+import { cloneElement, useId, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { isOn } from '../../lib/modules.js'
-import { moduleCopy } from '../../lib/modules-copy.js'
-import { Row, Section, Switch } from '../../components/ui.jsx'
-import { BackTo } from './Statistics.jsx'
+import { Row, Switch } from '../../components/ui.jsx'
+import Icon from '../../components/Icon.jsx'
 import { PARTS, hasParts, partSwitch, setPart } from '../lib/module-parts.js'
-import { HIDDEN_MODULES, forkModuleCopy } from '../lib/fork-modules.js'
 
-const copy = () => ({ ...moduleCopy(), ...forkModuleCopy() })
+/** `hooks.moduleRow`: upstream's row of module `mod`, with its parts under it when it has any. */
+export const moduleRow = (mod, row) => hasParts(mod) ? <ModuleParts key={mod} mod={mod} row={row} /> : row
 
-export const partsPath = mod => '/settings/modules/' + mod
-
-/** The modules with a page of parts, in Settings → Modules' order. */
-export const modulesWithParts = () => Object.keys(PARTS).filter(m => hasParts(m) && !HIDDEN_MODULES.includes(m))
-
-/** "Parts of a module", the section the fork adds under Settings → Modules. */
-export function ModulePartsSection() {
-  const nav = useNavigate()
-  const S = useStore(s => s.S)
-  const mc = copy()
-  return <Section title={t('Parts of a module')} footer={t('Keep a module and hide one of its parts. A module that is off hides all of them.')}>
-    {modulesWithParts().map(m => {
-      const n = PARTS[m].filter(p => partSwitch(S, m, p.id)).length
-      return <Row key={m} title={mc[m][0]} accessory="chevron" onClick={() => nav(partsPath(m))}
-        value={!isOn(S, m) ? t('Off') : n === PARTS[m].length ? t('All') : t('{0} of {1}', n, PARTS[m].length)} />
-    })}
-  </Section>
-}
-
-export function ModulePartsPage() {
-  const { mod } = useParams()
+export function ModuleParts({ mod, row }) {
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
-  if (!modulesWithParts().includes(mod)) return <Navigate to="/settings/modules" replace />
-  const [name] = copy()[mod]
+  const [open, setOpen] = useState(false)
+  const id = useId()
+  const name = row.props.title
   const on = isOn(S, mod)
-  return <div className="narrow hv-modparts">
-    <BackTo label={t('Modules')} to="/settings/modules" title={name} />
-    {!on && <p className="sect-f">{t('{0} is off, so all of it is hidden. Switch it on in Modules to choose its parts.', name)}</p>}
-    <Section footer={t('Nothing gets deleted: switch a part back on and it’s all still there.')}>
-      {PARTS[mod].map(p => <Row key={p.id} title={t(p.title)} subtitle={t(p.desc)}>
+  const parts = PARTS[mod]
+  const n = parts.filter(p => partSwitch(S, mod, p.id)).length
+  return <>
+    {cloneElement(row, { className: row.props.className + ' hv-modrow' },
+      <button type="button" className="hv-modrow-open" aria-expanded={open} aria-controls={id}
+        aria-label={t('Parts of {0}', name)} onClick={() => setOpen(o => !o)} />,
+      !open && <span className="lrow-v">{!on ? t('Off') : n === parts.length ? t('All') : t('{0} of {1}', n, parts.length)}</span>,
+      <Icon name={open ? 'chevronDown' : 'chevronRight'} className="lrow-c" />,
+      row.props.children)}
+    <div id={id} className="hv-modparts" role="group" aria-label={t('Parts of {0}', name)} hidden={!open}>
+      {open && parts.map(p => <Row key={p.id} title={t(p.title)} subtitle={t(p.desc)} className={on ? '' : 'dis'}>
         <Switch aria-label={t(p.title)} checked={partSwitch(S, mod, p.id)} disabled={!on}
           onChange={v => update(s => { setPart(s, mod, p.id, v) })} />
       </Row>)}
-    </Section>
-  </div>
+      {open && !on && <p className="hv-modparts-off">{t('{0} is off, so all of it is hidden.', name)}</p>}
+    </div>
+  </>
 }

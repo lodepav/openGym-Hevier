@@ -100,6 +100,7 @@ export default function ModulesPage() {
   // [hevier] S54: modules whose features the fork does not show at all are not listed (D97)
   // and the fork's own modules join their group (D114)
   const shown = [...MODULES.filter(m => !(hooks.hiddenModules || []).includes(m.id)), ...(hooks.forkModules || [])]
+  const hvRow = hooks.moduleRow || ((id, row) => row) // and a module's parts unfold under its row (D102)
   // [/hevier]
   return <div className="modules">
     <p className="sect-f modules-intro">{t('Switch off what you don’t use. Nothing gets deleted: switch it back on and it’s all still there.')}</p>
@@ -110,11 +111,11 @@ export default function ModulesPage() {
     </Section>
     {GROUPS.map((g, gi) => <Section key={g.id} title={gc[g.id]}
       footer={gi === GROUPS.length - 1 ? t('Logging, plans, history, the exercise library and the basic stats are always on.') : null}>
-      {shown.filter(m => m.group === g.id).map(m => ( // [hevier] S54: shown
+      {shown.filter(m => m.group === g.id).map(m => hvRow(m.id, ( // [hevier] S54: shown, hvRow
         <Row key={m.id} icon={m.icon} iconTint={m.tint} title={mc[m.id][0]} subtitle={mc[m.id][1]} className="module-row" tour={'module-' + m.id}>
           <Switch aria-label={mc[m.id][0]} checked={isOn(S, m.id)} onChange={v => flip(m.id, v)} />
         </Row>
-      ))}
+      ))/* [hevier] S54: hvRow closes */)}
     </Section>)}
   </div>
 }

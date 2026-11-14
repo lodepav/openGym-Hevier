@@ -120,3 +120,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D114** More of the fork joins Modules: new parts, and three modules of its own.
 - **D115** The exercise pictures are a download of their own, kept across updates.
 - **D116** Android 13 and later only.
+- **D117** The parts of a module unfold under it on Settings → Modules, and more of the fork joins them.

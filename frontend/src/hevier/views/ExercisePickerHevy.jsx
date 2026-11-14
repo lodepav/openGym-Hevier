@@ -143,17 +143,19 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // The thumbnail and Hevy's chart button open the exercise's details without picking it.
   const details = (ev, e) => { ev.stopPropagation(); exerciseDetailSheet(e) }
+  // D117: with the chart button switched off, the thumbnail is the way to the details a screen reader hears.
+  const chartOn = partOn(st, 'hvWorkout', 'demos')
   // A screen reader hears the row as its exercise, and in a multi pick whether it is ticked; the
   // thumbnail repeats the chart button, so only the chart button is in its reading order.
   // The name is the row's button, stretched over it; the thumbnail and the chart button sit above it.
   const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row tap-host' + (isOn(e) ? ' on' : '')}>
-    <button className="hv-thumb" aria-hidden="true" tabIndex={-1} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
+    <button className="hv-thumb" {...(browse || chartOn ? { 'aria-hidden': 'true', tabIndex: -1 } : { type: 'button', 'aria-label': t('Details') + ', ' + exerciseNameText(e) })} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
     <button type="button" className="grow item-open tap-main" onClick={() => tap(e)}
       aria-label={[exerciseNameText(e), t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
       <span className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</span>
       <span className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</span>
     </button>
-    {!browse && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
+    {!browse && chartOn && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
     {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
   </div>
 

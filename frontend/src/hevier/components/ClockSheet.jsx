@@ -15,10 +15,8 @@ import { applyRestLeft } from '../../components/RestTimer.jsx'
 import { Button, Segmented } from '../../components/ui.jsx'
 import { RUN, GOAL, goalLeft, runningSec, startRun, stopped, moveGoal } from '../lib/set-timer.js'
 import { elapsed, running, startW, stopW, resetW, ofSession, showing, stopwatchText, stopwatchShort, useStopwatch } from '../lib/stopwatch.js'
+import { isClockTimer as isClock } from '../lib/clock-off-run.js'
 
-// A countdown the Timer started is marked on upstream's timer (`hvClock`), which its ticks carry
-// over; a rest after a set starts a new timer without it, so the mark is the Timer's alone.
-const isClock = tm => !!tm && tm.hvClock === true && !tm.ready
 const lastTimer = S => (S.hvTimerSec > 0 ? S.hvTimerSec : S.restSec > 0 ? S.restSec : 90)
 
 function TimerTab() {

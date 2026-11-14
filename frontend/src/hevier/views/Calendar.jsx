@@ -4,7 +4,7 @@
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -58,7 +58,13 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   </div>
 }
 
+// D117: with the part off, the page (and the month widget's tap, which opens it) lands on Profile.
 export default function Calendar() {
+  const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
+  return on ? <CalendarPage /> : <Navigate to="/profile" replace />
+}
+
+function CalendarPage() {
   const nav = useNavigate()
   const st = useStore(s => s.S)
   const [view, setView] = useState('month')
