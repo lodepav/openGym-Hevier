@@ -109,6 +109,15 @@ publish() {  # version, lean apk, full apk
 # before it is trusted with either. release-check.sh runs them again with the other gates.
 node --test hevier/tools/*.test.mjs >/dev/null || { echo "the release tools' tests fail: node --test hevier/tools/*.test.mjs" >&2; exit 2; }
 hevier/tools/verify.sh || { echo "the checks fail: nothing released" >&2; exit 2; }
+# Every routine of the test profile opens as it did at the last release: a debug build of this
+# commit on the emulator (routine-check.sh, about 5 minutes; ROUTINE_CHECK=0 leaves it out). An
+# emulator this started is stopped again, so the release build has the memory.
+if [[ "${ROUTINE_CHECK:-1}" != 0 ]]; then
+  WAS_UP="$("$ANDROID_HOME/platform-tools/adb" get-state 2>/dev/null || true)"
+  hevier/tools/routine-check.sh --build || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
+  [[ -n "$WAS_UP" ]] || "$ANDROID_HOME/platform-tools/adb" emu kill >/dev/null 2>&1 || true
+  (cd frontend/android && ./gradlew --stop -q) >/dev/null 2>&1 || true
+fi
 # Gradle's daemon takes about 40 s to start: start it now, while the notes are read, so the build
 # below finds it running (the build waits for this first: a busy daemon would make it start another).
 (cd frontend/android && nice -n 19 ./gradlew help -q --max-workers=2) >/dev/null 2>&1 & WARM=$!

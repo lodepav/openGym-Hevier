@@ -48,6 +48,8 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    step 3 explains it: show the user the lines, never land over them. `routine-open.test.js`
    (in `verify`) checks the same on a fixture profile; a failure there after a merge is the same
    question, and its snapshot is rewritten only for a change a decision explains.
+   Once the merge has landed, `hevier/tools/routine-check.sh --accept` keeps the merged build's
+   snapshot as the baseline the next release is checked against.
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
    rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed

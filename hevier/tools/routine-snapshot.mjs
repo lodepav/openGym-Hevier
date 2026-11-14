@@ -22,6 +22,7 @@ import { connect, evaluate } from './cdp.mjs'
 import { openedSnapshot, settingsSnapshot, diffSnapshots } from '../../frontend/src/hevier/lib/routine-open.js'
 
 const sleep = ms => new Promise(ok => setTimeout(ok, ms))
+const until = async (ok, tries = 40) => { for (let n = 0; n < tries; n++) { if (await ok()) return true; await sleep(500) } return false }
 const STATE = 'JSON.parse(localStorage.gym_state_v1)'
 
 // Clicks the n-th visible button with exactly this text (`cdp.mjs click` matches part of a text,
@@ -71,9 +72,10 @@ async function snapshot() {
     const out = { settings: settingsSnapshot(S), routines: [] }
     for (let i = 0; i < (S.routines || []).length; i++) {
       await evaluate(cdp, 'location.hash = "#/workout"')
+      // The app may still be starting: wait for the button, then for the session, up to 20 s each.
+      if (!await until(() => evaluate(cdp, clickExact('Start Routine', i)))) throw new Error(`no Start Routine button ${i + 1} on the Workout tab`)
+      await until(async () => (await read()).active)
       await sleep(1000)
-      if (!await evaluate(cdp, clickExact('Start Routine', i))) throw new Error(`no Start Routine button ${i + 1} on the Workout tab`)
-      await sleep(2000)
       S = await read()
       const opened = openedSnapshot(S)
       if (!opened) throw new Error(`routine ${i + 1} did not start`)
@@ -117,7 +119,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     console.error('usage: routine-snapshot.mjs <out.json> [--diff <before.json>] | --compare <before.json> <after.json>')
     process.exit(2)
   }
-  const snap = await snapshot()
+  // Exit 2: it could not run, which is not a difference (exit 1).
+  const snap = await snapshot().catch(e => { console.error('routine-snapshot: ' + e.message); process.exit(2) })
   writeFileSync(out, JSON.stringify(snap, null, 2) + '\n')
   const probes = snap.routines.filter(r => r.probe)
   console.log(`${snap.routines.length} routines, ${snap.routines.reduce((n, r) => n + r.exercises.length, 0)} exercises, ${probes.length} warm-up probe${probes.length === 1 ? '' : 's'} → ${out}`)
