@@ -11,6 +11,22 @@ one's state, milestone, base branch and the upstream branch that already carries
 `--json`). The older dated log, the roadmap read of 2026-10-18, the open-PR lists of 2026-10-16
 and 2026-10-21 and the other-forks scans are in [archive/PIPELINE-2026-11.md](archive/PIPELINE-2026-11.md).
 
+**v1.4.5 is merged** into the fork (2026-11-14, tagged the same day; branch `sync/v1.4.5`). The
+fork's own code for what upstream now has is gone (D103): Forgotten workouts replaces D60's All
+done?, Check and choose replaces D33's import review (the fork's matches, per-side sets and brand
+labels still run under the user's picks, S19), `lib/counted-log.js` replaces D57's helper, Shown as
+replaces D73's shown name. Seams S23, S32, S39, S41 and S56 went, S34 and S19 shrank, S60 (no
+microphone, D106) and S61 (All statistics without the new screens, D109) came. What D109 and D104
+leave out is hidden: the Journal, Tools, Your month, daily form, levels, deload weeks, Numbers per
+gym, Community, the Wear OS and Zepp pages. Garmin is in the APK and Watch is a module again
+(D106). Every routine opens as before the merge (`routine-check.sh`: no difference). **Still to
+build on top, each its own branch:** D105 (the new set fields in the fork's set row), D107 (Pause,
+next exercise after the rest, the record trophy), D108 (upstream's routine folders, favourites, a
+routine from a past workout, Start picks), D111 (rest before the next exercise, text size), D112
+(the Profile picture). The rows hidden until then are in `HIDDEN_ROWS` (`hevier/lib/settings.js`).
+The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
+#903) were closed 2026-11-14; #901 is still open.
+
 **v1.4.4 is merged** into the fork (#5, 2026-11-03), and the fork's PRs that came after it (#3,
 #4, #7, #11, #14) are in `hevier/main` at `5bb06f501` (2026-11-08): D97, D98, D99, D101, D102, D5's
 Note, D45's suggestions, D37's Share, the `hevier.css` restyle and D100's Wear OS link left out of
@@ -183,23 +199,23 @@ count-up timer, which upstream does not have.
 | #754, #766, #767, #768 | Dependency bumps: Vite and Vitest past their CVEs, in-range bumps, mcp on zod 4, `@capacitor/assets` through npx (S44) | All closed; all four in `release-1.4.3` (#766 with #769) |
 | #788 | Each exercise filed under the muscle it is known for (D74's catalogue targets) | **Released in v1.4.4** (credited); closed 2026-11-03 |
 | #806 | The release gate's CVEs: body-parser, fast-uri, zod, ip-address 10.7.4, happy-dom 21 (S44) | **Released in v1.4.4** (credited); closed 2026-11-03 |
-| #807 | #672's last commit: Hevy templates mapped by their artwork (D29) | **Built in release-1.4.5** (credited); still open on GitHub |
+| #807 | #672's last commit: Hevy templates mapped by their artwork (D29) | **Released in v1.4.5** (credited); closed 2026-11-14 |
 | #811 | Ask before logging a likely typo (D90's weight and rep checks) | **Released in v1.4.4** (credited); closed 2026-11-03 |
 | #812 | How long each exercise takes (D88) | **Released in v1.4.4** (credited), a Stats card without the fork's Muscle and Gym grouping; closed 2026-11-03 |
-| #813 | An exercise kept out of progression is kept out of the statistics, a deload routine's still counted (D57) | **Built in release-1.4.5** (credited); still open on GitHub |
+| #813 | An exercise kept out of progression is kept out of the statistics, a deload routine's still counted (D57) | **Released in v1.4.5** (credited); closed 2026-11-14 |
 | #814 | A default progression rule for the profile (D61, D69) | **Released in v1.4.4** (its commit; the changelog doesn't name it); closed 2026-11-03 |
-| #815 | More from the Hevy API import: notes, rest and rep ranges, measurements, routine links, muscles (D31) | **Built in release-1.4.5** (credited); still open on GitHub (notes, rest timers, rep ranges) |
+| #815 | More from the Hevy API import: notes, rest and rep ranges, measurements, routine links, muscles (D31) | **Released in v1.4.5** (credited); closed 2026-11-14 (notes, rest timers, rep ranges) |
 | #837 | Back from a page opened from a sheet keeps its place (S47) | **Released in v1.4.4** (merged 2026-10-27): seam S47 goes at the merge |
 | #901 | Explorer: equipment by group, each opening on its kinds (D63; PR 1 of 3, then a gym checklist by group, then muscle groups after #900) | Open; **not in release-1.4.5** either, though its muscle half (#900) is: rebase or close it after the 1.4.5 tag. Asked on the PR 2026-11-12 whether the groups are wanted at all, with the gym checklist by group as the follow-up |
-| #902 | A picked exercise starts the way it was logged last time (D55, D75, S32) | **Built in release-1.4.5** (credited); still open on GitHub |
-| #905 | A search filtered by a gym says how many it hid (D67) | **Built in release-1.4.5** (credited); still open on GitHub |
-| #906 | All done? for a workout left running (D60) | **Built in release-1.4.5** (credited); still open on GitHub, grown into Forgotten workouts (45 minutes, finishes by itself) |
-| #931 | Import: check each exercise's match before importing, and remember the pick (D33) | **Built in release-1.4.5** (credited); still open on GitHub, together with #849 as one "Check and choose" step |
-| #900 | Muscle filter: pick a group, or open it into its muscles (D64) | Issue open; **built in release-1.4.5** with #885 (credited) |
-| #903 | Show one of an exercise's other names as its name (D73, S41) | Issue open; **built in release-1.4.5** as Shown as (credited) |
+| #902 | A picked exercise starts the way it was logged last time (D55, D75, S32) | **Released in v1.4.5** (credited); closed 2026-11-14 |
+| #905 | A search filtered by a gym says how many it hid (D67) | **Released in v1.4.5** (credited); closed 2026-11-14 |
+| #906 | All done? for a workout left running (D60) | **Released in v1.4.5** (credited); closed 2026-11-14, grown into Forgotten workouts (45 minutes, finishes by itself) |
+| #931 | Import: check each exercise's match before importing, and remember the pick (D33) | **Released in v1.4.5** (credited); closed 2026-11-14, together with #849 as one "Check and choose" step |
+| #900 | Muscle filter: pick a group, or open it into its muscles (D64) | Issue closed 2026-11-14; **released in v1.4.5** with #885 (credited) |
+| #903 | Show one of an exercise's other names as its name (D73, S41) | Issue closed 2026-11-14; **released in v1.4.5** as Shown as (credited) |
 | #907 | Mark each set against the same set last time (D66) | Issue closed 2026-11-03; **built by upstream, released in v1.4.4** (credited): it replaces D66 at the merge |
-| #638 | Split shoulders into front, side and rear delts (D65) | Issue open, on the v1.4.8 milestone, but **built in release-1.4.5**: three delts and the lats apart, in every muscle map |
-| #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open; **built in release-1.4.5** as Numbers per gym, with the fork's brand-as-label design credited |
+| #638 | Split shoulders into front, side and rear delts (D65) | Issue open, on the v1.4.8 milestone, but **released in v1.4.5**: three delts and the lats apart, in every muscle map |
+| #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open; **released in v1.4.5** as Numbers per gym, with the fork's brand-as-label design credited |
 | #1077 | Security gates before a release: the advisories each release fixed from the one before, Trivy and gitleaks over every tag, and six gates to suggest (D26, D38; `release-check.sh` offered as the example) | Issue opened 2026-11-09; PRs for the dependency and secret gates offered |
 | #1078 | A Timer and a Stopwatch in the workout, for time that is not a set (D10) | Issue opened 2026-11-09; port offered |
 | #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; **PR #1213** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/settings-keep-on-close`, `4c439fcfb`, suite green): `exConfigSheet`'s `opts.autosave`, the sheet saves on unmount only when what it would store differs from when it opened. S50 goes when merged. Two of upstream's `Workout.noprog` tests pressed Save there and were adapted. CodeRabbit: an exercise unit changed by a sync while the sheet is open looked like an edit (fixed 2026-11-14, the comparison runs before the unit conversion); second round: a unit switched in the sheet itself looked like one too (four more rounds, settled in `2d4f864b9`: the loads are compared per unit, or as stored where a unit has no baseline, and everything else with the opening; reviewed with no actionable comments, all threads resolved) |
@@ -207,7 +223,7 @@ count-up timer, which upstream does not have.
 | #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
 | #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; **PR #1211** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/brand-search`, `639766dbf`, suite green): `lib/brand-search.js` on upstream's `S.exGym` brands and `entry.brand`, wired in the picker only (the Library and the explorer offered). CodeRabbit: "l ife" matches Life Fitness through the whole-query match (not changed: that match keeps the hit while a brand is typed; answered on the PR 2026-11-14). If merged, D36's picker search can move onto it once the fork's brands are upstream's (D104 keeps them the fork's for now) |
 | #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented. **Fixed by cubetes's #1197**, merged into `release-1.4.5` on 2026-11-14 (credited); the fork closed the issue 2026-11-14 |
-| #1084 | The updater falls back to the API's asset link (S56) | **Merged into release-1.4.5** (2026-11-09): S56 goes at the 1.4.5 merge |
+| #1084 | The updater falls back to the API's asset link (S56) | **Merged into release-1.4.5** (2026-11-09): S56 went with the 1.4.5 merge |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 | #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |

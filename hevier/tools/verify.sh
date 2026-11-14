@@ -23,10 +23,12 @@ fi
 
 already_checked() {
   clean && [[ -f "$STAMP" ]] || return 1
-  local last
+  local last names
   last="$(cat "$STAMP")"
   git merge-base --is-ancestor "$last" HEAD 2>/dev/null || return 1
-  ! git diff --name-only "$last" HEAD | grep -qvE '\.md$|^hevier/VERSION$'
+  # Read whole first: in a pipe, grep -q stops a long list early and pipefail turns that into "only docs".
+  names="$(git diff --name-only "$last" HEAD)"
+  [[ -z "$names" ]] || ! grep -qvE '\.md$|^hevier/VERSION$' <<<"$names"
 }
 if already_checked; then
   echo "verify: passed at $(git rev-parse --short "$(cat "$STAMP")"), and only docs changed since"

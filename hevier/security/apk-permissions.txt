@@ -20,6 +20,19 @@ android.permission.health.WRITE_WEIGHT           # upstream: weigh-ins to Health
 android.permission.health.READ_HEART_RATE        # upstream's heart-rate read (1.4.3, D27), when switched on
 android.permission.health.READ_WEIGHT            # upstream's weigh-in read (1.4.3, D27), when switched on
 android.permission.health.READ_HEALTH_DATA_HISTORY # its first weigh-in read a year back (#801, D27)
+android.permission.health.READ_EXERCISE          # upstream 1.4.5 (D106): other apps' exercise sessions as activities, when switched on, the last 30 days
+android.permission.health.READ_SLEEP             # upstream 1.4.5 (D106): last night's sleep for its daily form, when switched on; hidden in the fork (D109)
+android.permission.health.READ_STEPS             # the same (D106)
+android.permission.health.READ_RESTING_HEART_RATE # the same (D106)
+android.permission.health.READ_HEART_RATE_VARIABILITY # the same (D106)
+android.permission.health.READ_BODY_FAT          # upstream 1.4.5 (D106): a smart scale's readings beside the weigh-in, when switched on
+android.permission.health.READ_LEAN_BODY_MASS    # the same (D106)
+android.permission.health.READ_BODY_WATER_MASS   # the same (D106)
+android.permission.health.READ_BONE_MASS         # the same (D106)
+android.permission.health.READ_BASAL_METABOLIC_RATE # the same (D106)
+android.permission.health.WRITE_ACTIVE_CALORIES_BURNED # upstream 1.4.5 (D106): a finished workout's calories to Health Connect, when switched on
+android.permission.MODIFY_AUDIO_SETTINGS         # upstream 1.4.5 declares it beside its voice-clip recording (D106): a normal permission, no prompt; RECORD_AUDIO itself is removed
+android.permission.POST_PROMOTED_NOTIFICATIONS   # upstream 1.4.5 (D106, D110): the workout notification as a Live Update on Android 16
 android.permission.ACCESS_COARSE_LOCATION        # the gym picker's "Find gyms nearby" (D47): one position, on that tap, app open
 android.permission.ACCESS_FINE_LOCATION          # the same (D47); Android asks for both together and the user may grant approximate only
 android.permission.BLUETOOTH_SCAN               # the heart-rate strap (D79): finds straps on a tap in Settings, declared neverForLocation
