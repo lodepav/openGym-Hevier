@@ -14,6 +14,8 @@ export const hooks = {
   importExercise: null,  // (title, source, pick) => id | key | null: an imported exercise's match, before upstream's (S19)
   importDone: null,      // (parsed) => parsed: an import's parse result, keys turned back into ids (S19)
   hevyFolders: null,     // { fetch(key, data), merged(S, parsed, res) }: Hevy's routine folders (S20)
+  statsOff: null,        // keys of upstream's Stats rows and cards left out: 'j', 't', 'month', 'form', 'level' (S61)
+  noMic: false,          // true: recording a voice clip is not offered (S60, D106)
   importView: null,      // (again, first) => parsed: the Hevy sheet's second read, with the fork's steps (S19)
   weighIns: null,        // (opts) => true when upstream's weigh-in sheet is not to open (S22)
   noDumbbellsRowOff: false, // true: the dumbbell sheet has no "I own no dumbbells" switch (S49)

@@ -25,6 +25,7 @@ import { unlock, chime } from '../lib/sound.js'
 import { soundErrorText } from './OwnSounds.jsx'
 import { Section, Row, Slider, Button, TextField } from './ui.jsx'
 import Icon from './Icon.jsx'
+import { hooks } from '../hevier/hooks.js' // [hevier] S60
 
 const toast = m => useUI.getState().toast(m)
 const S_ = () => useStore.getState().S
@@ -196,7 +197,7 @@ function MomentClips({ moment }) {
       </button>
       <Button variant="ghost" size="sm" icon="trash" aria-label={t('Remove {0}', c.name)} title={t('Remove')} onClick={() => { update(s => { removeVoiceClip(s, c.id) }); toast(t('Clip removed.')) }} />
     </div>)}
-    {!full && canRecord() && (rec
+    {!full && canRecord() && !hooks.noMic && (rec /* [hevier] S60: no microphone in the fork's APK (D106) */
       ? <Row icon="stop" iconTint="var(--red)" title={t('Stop recording')} subtitle={t('{0} of {1} seconds', rec.secs, CLIP_SEC)} className="voice-rec" onClick={stopRec} />
       : <Row icon={busy ? 'hourglass' : 'mic'} iconTint="var(--red)" title={busy ? t('Loading…') : t('Record a clip')} onClick={() => { if (!busy) startRec() }} />)}
     {/* Your own voice from somewhere else, or someone else's (TestFlight 11-08): any audio file this

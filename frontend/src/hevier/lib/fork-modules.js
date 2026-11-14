@@ -39,6 +39,7 @@ export const FORK_MODULES = [
     desc: 'The monthly report, exercise time, lift trends, the strength levels list and the calendar.' },
 ]
 export const forkModuleCopy = () => ({
+  watch: [t('Watch'), t('Log sets from your wrist on a Garmin watch.')],   // upstream's module, the one watch the fork links (D106)
   hvExercise: [t('Exercise settings'), t('Progression, plate loading, drop-sets, units, other names and the main muscle of an exercise.')],
   hvWorkout: [t('Workout extras'), t('The Timer and Stopwatch, and exercise demos.')],
   hvGyms: [t('Gyms'), t('Machine brands per gym, gyms nearby and backups per gym.')],
@@ -54,10 +55,11 @@ export function setAnyModule(s, id, on) {
 }
 
 // Upstream's modules whose every feature the fork leaves out or keeps off (Form videos and Gym
-// check-in, D100 and D12; Watch, no watch app in the fork; AI Coach, D11; Seasonal themes, D17).
+// check-in, D100 and D12; AI Coach, D11; Seasonal themes, D17; Community, D109). Watch is listed
+// since 1.4.5: upstream's Garmin link is in the APK (D106).
 // Settings → Modules does not list them (seam S54, the user's choice 2026-11-03); what they store
 // is left as it is, so a preset still writes them.
-export const HIDDEN_MODULES = ['videos', 'watch', 'checkin', 'coach', 'seasonal']
+export const HIDDEN_MODULES = ['videos', 'checkin', 'coach', 'seasonal', 'community']
 
 // The Home widgets (D12) a module part switches (D102); the others are core.
 const WIDGET_PART = {

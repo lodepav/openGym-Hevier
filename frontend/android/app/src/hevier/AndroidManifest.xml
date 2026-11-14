@@ -86,6 +86,8 @@
         <provider android:authorities="io.github.lodepav.openbite.develop.phase" />
     </queries>
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <!-- D106: no microphone. Recording a voice clip is hidden; picking an audio file stays. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
     <uses-permission android:name="android.permission.NFC" tools:node="remove" />
     <uses-feature android:name="android.hardware.nfc" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />

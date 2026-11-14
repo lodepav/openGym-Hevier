@@ -1004,6 +1004,7 @@ export const goalSheet = () => ui().openSheet(close => <GoalSheet close={close} 
 // weight unit below. Only with gyms set up (Settings → Equipment): without one there is nothing
 // to split by. The brand is for the gym the numbers are read for now (the running session's).
 function GymSplitRow({ ex }) {
+  if (hooks.exPart && !hooks.exPart('pergym')) return null // [hevier] S58: numbers per gym are the fork's own (D104)
   const st = useStore(s => s.S)
   const gyms = gymsOf(st)
   const gymId = currentGymId(st)
@@ -1690,7 +1691,7 @@ function ExerciseHistory({ exId }) {
   // session is this exercise's own, so it follows the same unit.
   const full = exView(useStore(s => s.S), exId)
   // An exercise kept per gym (#988) can show one gym or brand at a time, or all of them.
-  const places = useMemo(() => (isGymSplit(full, exId) ? placesOf(full, exId) : []), [full.workouts, full.exGym, exId])
+  const places = useMemo(() => (isGymSplit(full, exId) && !(hooks.exPart && !hooks.exPart('pergym')) ? placesOf(full, exId) : []), [full.workouts, full.exGym, exId]) // [hevier] S58: no All gyms chooser (D104)
   const [place, setPlace] = useState('')
   const placeOn = places.some(p => p.key === place) ? place : ''
   const st = useMemo(() => onlyPlace(full, exId, placeOn), [full, exId, placeOn])

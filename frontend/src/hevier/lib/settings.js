@@ -21,13 +21,20 @@ export const SETTINGS_GROUPS = [
 
 // Rows by their English title (the key upstream passes to t()), per page.
 export const HIDDEN_ROWS = {
-  workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations'],
+  workout: ['Shown under each exercise', 'Layout', 'Collapse completed exercises', 'Skip completed exercises', 'Exercise animations',
+    // 1.4.5: the fork's routine page is the preview (D113); no daily check-in (D107, D109); leaving
+    // the gym needs upstream's gym reminder, which the fork has not (D47).
+    'Preview before starting', 'Daily check-in', 'End by itself when I leave the gym',
+    // Until the fork's workout has them (D107, D108): upstream's switches would steer nothing here.
+    'Record trophies', 'Cheer on a record', 'How close to a record', 'Next exercise when the rest ends', 'Start button'],
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Seasonal themes',
     // 1.4.4 (D100): no NFC stickers, no app icon picker (its search hit; the row goes by type), no
     // Assistant or Siri shortcuts (the manifest overlay removes them). Upstream's new Home cards come
     // back as Home widgets (D98).
-    'Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges'],
+    'Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges',
+    // 1.4.5 (D109): no recovery sessions, no activities from other apps.
+    'Recovery counts for the streak', 'Sport counts for the streak'],
   // The gym filter is the picker's (D62): no switch, no active gym here.
   equipment: ['Filter by equipment', 'Active gym'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).
@@ -35,18 +42,24 @@ export const HIDDEN_ROWS = {
     'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise',
     'Planned sessions start from', 'Muscle map at the top',
     // 1.4.4 (D100): holds that run themselves, for now (D53, D89 time them).
-    'Timed holds start by themselves'],
+    'Timed holds start by themselves',
+    // 1.4.5 (D109): no deload weeks.
+    'Deload weeks', 'Suggest a deload when I need one'],
   // The fork's gyms are D47's.
   reminders: ['Gym reminder'],
+  // D41's step per exercise is the only one (D111).
+  units: ['Weight step'],
+  // Garmin only (D106, D121): the Wear OS listener is not in the APK, and no Zepp OS watch (D100).
+  watches: ['Wear OS watch', 'Zepp OS watch'],
   // No support rows: the section goes with them (2026-10-26, the user's choice).
   // The modules the fork never shows (D97, S54 leaves them off the page): no search hit either.
-  modules: ['Form videos', 'Watch', 'Gym check-in', 'AI Coach', 'Seasonal themes'],
+  modules: ['Form videos', 'Gym check-in', 'AI Coach', 'Seasonal themes', 'Community'],
   about: ['Rate openGym on the App Store', 'Rate openGym on Google Play', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors',
     // 1.4.4 (D100): the tour and its tutorials point at upstream's screens, which the fork replaces.
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
 }
 // Pages left out whole: not found by the search, nor any row on them.
-export const HIDDEN_PAGES = ['gym', 'themes', 'zepp']   // zepp: no Zepp OS watch (D100)
+export const HIDDEN_PAGES = ['gym', 'themes', 'zepp', 'wear']   // no Zepp OS or Wear OS watch (D100, D121)
 // A section whose footer speaks of rows that are gone loses the footer.
 const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.']
 
@@ -67,9 +80,10 @@ function titleOf(node) {
  * A page's element tree without the hidden rows. `tr` is the translation the page rendered its
  * titles with, so a row is matched in any language. A section left with no rows goes too.
  * `types`: components upstream draws a row with instead of a titled Row, left out wherever they
- * are (the caller's, so this stays free of views: Android's app icon picker, D100).
+ * are (the caller's, so this stays free of views: Android's app icon picker, D100). `props`: a Map
+ * of such a component to the props it is drawn with instead, for one that hides a row itself.
  */
-export function prunePage(page, tree, tr, types = []) {
+export function prunePage(page, tree, tr, types = [], props = new Map()) {
   const hiddenTypes = new Set(types)
   const hide = new Set((HIDDEN_ROWS[page] || []).map(k => tr(k)))
   const stale = new Set(STALE_FOOTERS.map(k => tr(k)))
@@ -77,6 +91,7 @@ export function prunePage(page, tree, tr, types = []) {
   const walk = node => {
     if (!isValidElement(node)) return node
     if (hide.has(titleOf(node)) || hiddenTypes.has(node.type)) return null
+    if (props.has(node.type)) return cloneElement(node, props.get(node.type))
     if (node.props.children === undefined) return node
     const kids = Children.toArray(node.props.children).map(walk).filter(k => k != null && k !== false)
     const isSection = node.type === Section

@@ -909,7 +909,7 @@ export default function Stats() {
       className="stats-link month-story" onClick={() => openMonthStory(storyMonth)} />,
     ...wrapped.map(y => <Row key={y} title={t('Your year')} value={y === thisYear ? t('So far') : String(y)} accessory="chevron"
       className="stats-link" onClick={() => openWrapped(y)} />),
-  ].filter(Boolean)
+  ].filter(r => r && !hooks.statsOff?.includes(r.key)) // [hevier] S61: no links to the screens the fork leaves out (D109)
   const statsLinks = linkRows.length > 0 && <>
     <h4 className="sec">{t('More')}</h4>
     <div className="sect-b stats-links" data-stats-links>{linkRows}</div>
@@ -948,7 +948,7 @@ export default function Stats() {
     {/* The month's challenges and the trophy shelf (lib/challenges.js), folded to one line. */}
     {workouts.length > 0 && motivationOn && <ChallengesStatsCard S={S} />}
     {/* Daily form (v1.4.5): vitals from the phone's health store and what the check-ins say. */}
-    {on('health') && <DailyFormCard S={S} />}
+    {on('health') && !hooks.statsOff?.includes('form') && <DailyFormCard S={S} /> /* [hevier] S61 */}
     {/* Cardio minutes a week, with a goal if you set one (D#84). */}
     {workouts.length > 0 && <CardioWeekCard S={S} />}
 

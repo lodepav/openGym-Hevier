@@ -183,11 +183,14 @@ describe('hevier: Settings (seams S11, S12)', () => {
     const PHONE_ONLY = {
       look: ['Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts'],
       reminders: ['Gym reminder'],
+      workout: ['End by itself when I leave the gym'],
+      watches: ['Wear OS watch', 'Zepp OS watch'],
+      modules: ['Community'],   // only with a server that has the library on
       about: ['Rate openGym on the App Store', 'Rate openGym on Google Play'],
     }
     // happy-dom's URL only takes http(s), so the files are found by path.
     const src = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-    const upstream = ['views/Settings.jsx', 'components/AppIconRow.jsx', 'components/VoiceShortcuts.jsx']
+    const upstream = ['views/Settings.jsx', 'views/settings-pages.js', 'components/AppIconRow.jsx', 'components/VoiceShortcuts.jsx', 'components/ForgottenRows.jsx']
       .map(f => readFileSync(resolve(src, f), 'utf8')).join('\n')
     const missing = {}
     for (const [page, rows] of Object.entries(HIDDEN_ROWS)) {
@@ -195,7 +198,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
       render(page, { equipProfiles: [{ id: 'g1', name: 'Home', equipment: [] }] })
       const shown = titles()
       act(() => root.unmount()); container.remove()
-      const gone = rows.filter(k => !(PHONE_ONLY[page]?.includes(k) ? upstream.includes(`t('${k}')`) : shown.includes(k)))
+      const gone = rows.filter(k => !(PHONE_ONLY[page]?.includes(k) ? upstream.includes(`'${k}'`) : shown.includes(k)))
       if (gone.length) missing[page] = gone
     }
     expect(missing).toEqual({})

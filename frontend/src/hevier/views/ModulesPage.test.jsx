@@ -23,20 +23,21 @@ function render(patch = {}) {
 const rows = () => [...container.querySelectorAll('.module-row .lrow-t')].map(e => e.textContent)
 
 describe('hevier: Settings → Modules (S54)', () => {
-  it('leaves out Form videos, Watch, Gym check-in, AI Coach and Seasonal themes', () => {
+  it('leaves out Form videos, Gym check-in, AI Coach, Seasonal themes and Community', () => {
     hooks.hiddenModules = HIDDEN_MODULES
     render()
-    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Body', 'Health', 'Motivation', 'Integrations'])
+    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Watch', 'Body', 'Health', 'Motivation', 'Integrations'])
   })
   it('counts the modules it lists', () => {
     hooks.hiddenModules = HIDDEN_MODULES
     render({ modules: { body: false, videos: false } })
-    expect(container.textContent).toContain('6 of 7 modules on.')
+    expect(container.textContent).toContain('7 of 8 modules on.')
   })
   it('D114: lists the fork’s modules in their groups, and their switches write S.modules', () => {
     Object.assign(hooks, { hiddenModules: HIDDEN_MODULES, forkModules: FORK_MODULES, forkModuleCopy, setModule: setAnyModule })
     render()
-    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Exercise settings', 'Workout extras', 'Gyms', 'Body', 'Health', 'Motivation', 'Integrations', 'Statistics extras'])
+    expect(container.textContent).toContain('Log sets from your wrist on a Garmin watch.')
+    expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Watch', 'Exercise settings', 'Workout extras', 'Gyms', 'Body', 'Health', 'Motivation', 'Integrations', 'Statistics extras'])
     const sw = [...container.querySelectorAll('.module-row')].find(r => r.textContent.includes('Gyms')).querySelector('[role="switch"]')
     act(() => sw.click())
     expect(useStore.getState().S.modules.hvGyms).toBe(false)

@@ -26,6 +26,8 @@ import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { MediaSection } from '../components/MediaSection.jsx'
 import { partOn, needOf } from '../lib/module-parts.js'
+import { DeloadRows } from '../../components/DeloadCard.jsx'
+import ForgottenRows from '../../components/ForgottenRows.jsx'
 
 function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const restSec = useStore(s => s.S.restSec)
@@ -103,7 +105,9 @@ function WarmupEffortRow() {
 
 /** Seams S11 and S12's hand-off. */
 // Rows upstream draws as a component of their own, left out of every page: the app icon picker (D100, D17).
-const HIDDEN_TYPES = [AppIconRow]
+const HIDDEN_TYPES = [AppIconRow, DeloadRows]   // and upstream's deload weeks (D109)
+// Forgotten workouts without "End by itself when I leave the gym", which needs upstream's gym reminder (D47).
+const TYPE_PROPS = new Map([[ForgottenRows, { mobile: false }]])
 
 export function installSettings() {
   hooks.settings = {
@@ -114,7 +118,7 @@ export function installSettings() {
       <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
-      const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES), t)
+      const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)
       if (id === 'about') return <>{aboutPage(out, t)}<MediaSection key="hv-media" /></>
       if (id === 'workout') return appendToSection(appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />),
         t('Logging'), <WarmupEffortRow key="hv-warmup-effort" />)

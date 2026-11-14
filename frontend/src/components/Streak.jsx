@@ -13,6 +13,7 @@ import { freezeLine } from '../lib/streak-explain.js'
 import { levelOf, earnedBadges, pinnedBadges, pinnedIds, togglePin, PIN_MAX } from '../lib/levels.js'
 import { monthLabel } from '../lib/challenge-copy.js'
 import { useUI } from '../store/useUI.js'
+import { hooks } from '../hevier/hooks.js' // [hevier] S61
 
 /* The week streak's extras (lib/streak.js): the best run and the freezes under the streak, the
    milestone badges on Stats, and Home's little party when a week is done or a badge is reached.
@@ -168,7 +169,7 @@ export function StreakCard ({ info, onHelp }) {
       </div>
     </div>
     <StreakBadges info={info} />
-    <LevelBar info={info} />
+    {!hooks.statsOff?.includes('level') && <LevelBar info={info} /> /* [hevier] S61: no levels and badges (D109) */}
     {info.next
       ? <div className="streak-next">
         <div className="pbar-t small"><span>{nextLine}</span><span className="pbar-n">{info.current} / {info.next}</span></div>
