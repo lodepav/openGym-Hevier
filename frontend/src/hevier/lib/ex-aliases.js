@@ -6,6 +6,7 @@
 
 import { exerciseAliases, normalizeAliases, shownNameOf } from '../../lib/exercise-aliases.js'
 import { exOr } from '../../lib/exercises.js'
+import { aliasMatches, nameKey, rememberPicks } from '../../lib/import-choices.js'
 
 export const ALIAS_MAX = 80 // upstream's longest other name (exercise-aliases.js)
 
@@ -80,4 +81,22 @@ export function moveShownNames(s) {
   const all = { ...(s.exShownName || {}) }
   for (const [id, name] of Object.entries(old)) if (typeof name === 'string' && name && all[id] == null) all[id] = name
   s.exShownName = all
+}
+
+/**
+ * D33's import picks (`S.hvImportMap`, "app|title" → exercise id) become upstream's remembered
+ * picks, another name of the exercise (D103). A title upstream already remembers keeps its pick,
+ * and "keep as your own" needs none: the exercise an earlier import made is found again.
+ */
+export function moveImportPicks(s) {
+  const old = s.hvImportMap
+  delete s.hvImportMap
+  if (!old || typeof old !== 'object') return
+  const have = aliasMatches(s)
+  const picks = new Map()
+  for (const [key, id] of Object.entries(old)) {
+    const name = key.slice(key.indexOf('|') + 1)
+    if (typeof id === 'string' && id !== 'custom' && name && !have.has(nameKey(name))) picks.set(nameKey(name), { name, id })
+  }
+  rememberPicks(s, picks)
 }

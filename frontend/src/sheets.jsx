@@ -763,7 +763,9 @@ function HevyImportSheet({ close }) {
   // Read again from what Hevy sent when a choice changes (#931, #849); the key is long gone.
   const view = useMemo(() => {
     if (!payload || !choicesChanged(choices)) return payload
-    try { return parseHevyAccount(payload.raw, choiceOpts(S(), choices)) } catch { return payload }
+    // [hevier] S19: the fork's steps after the fetch, again on what was read again
+    try { const again = parseHevyAccount(payload.raw, choiceOpts(S(), choices)); return hooks.importView ? hooks.importView(again, payload) : again } catch { return payload }
+    // [/hevier]
   }, [payload, choices])
   const [wantWorkouts, setWantWorkouts] = useState(true)
   const [wantRoutines, setWantRoutines] = useState(true)

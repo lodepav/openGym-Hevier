@@ -13,8 +13,8 @@ import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../..
 import { isPerSide } from '../../lib/history.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
-import { FIXES, choiceKey, titleLabel, outcomeOf, matchTitle, readKey, brandNorm } from './hevy-import.js'
-import { choicesFor } from './import-review.js'
+import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
+import { pickFor } from '../../lib/import-choices.js'
 
 const LB_TO_KG = 0.45359237
 const NOTE_MAX = 280
@@ -207,14 +207,13 @@ const norm = s => String(s || '').toLowerCase().replace(/\(brand:[^)]*\)/g, ' ')
 
 /**
  * The Hevy template for each openGym exercise, from the account's templates (`/v1/exercise_templates`):
- * the user's own review choice (D33), D29's fix table, an imported custom exercise's own template,
+ * the user's own pick, one of the exercise's other names (D103), D29's fix table, an imported custom exercise's own template,
  * upstream's map read backwards, then a template of the same title. Returns exId → { id, type } | null.
  */
 export function templateFinder(templates, S) {
   const all = (templates || []).filter(t => t?.id != null)
   const found = new Map()
   const put = (exId, t) => { if (exId && !found.has(exId)) found.set(exId, { id: String(t.id), type: t.type || null }) }
-  const choices = S?.hvImportMap || {}
   // Keyed as the import keys a title, your own brands cut off it the same way.
   const own = choicesFor(S)
   // A template whose title carries a brand ("Leg Press (Machine) (brand: LifeFitness)", and a
@@ -231,7 +230,7 @@ export function templateFinder(templates, S) {
     if (k && !branded.has(k)) branded.set(k, { id: String(t.id), type: t.type || null })
     return false
   })
-  for (const t of list) { const v = choices[choiceKey(t.title, 'Hevy', own)]; if (v && v !== 'custom') put(canonicalExId(v), t) }
+  for (const t of list) { const v = pickFor(own.aliases, titleName(t.title, 'Hevy', own), own.customEx); if (v) put(canonicalExId(v), t) }
   for (const t of list) {
     // The fix table, else upstream's Hevy title map (since 1.4.3 it holds what the table had); a
     // custom template named like a built-in is left to the id pass below, built-ins first.

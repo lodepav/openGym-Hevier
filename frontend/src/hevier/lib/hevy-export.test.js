@@ -128,7 +128,7 @@ describe('hevier export to Hevy: what is pending (D34)', () => {
 describe('hevier export to Hevy: templates (D34)', () => {
   const hevyOf = id => Object.keys(HEVY_ID_MAP).find(k => HEVY_ID_MAP[k] === id)
 
-  it('finds the template each exercise came from, by the review, the fix table, an import, upstream\'s map or the title', () => {
+  it('finds the template each exercise came from, by your pick, the fix table, an import, upstream\'s map or the title', () => {
     const sq = hevyOf(squat)
     expect(sq).toBeTruthy()
     const templates = [
@@ -140,7 +140,7 @@ describe('hevier export to Hevy: templates (D34)', () => {
     ]
     const S = {
       customEx: [{ id: importId('im', 'Hevy|C1'), n: 'grip crusher', custom: true }, { id: 'cx1', n: 'my plank', custom: true }],
-      hvImportMap: { 'Hevy|odd lift': '0463' },
+      exAliases: { '0463': ['Odd Lift'] },
     }
     const find = templateFinder(templates, S)
     expect(find(squat)).toEqual({ id: sq, type: 'weight_reps' })

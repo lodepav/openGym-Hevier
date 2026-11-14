@@ -38,7 +38,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |
-| "Still training?" after five hours | D60 | Offered (#906, built in release-1.4.5 as Forgotten workouts, after 45 quiet minutes; it replaces D60 at the merge, D103) |
+| "Still training?" after five hours | D60 | Ported (#906, upstream's Forgotten workouts since 1.4.5, after 45 quiet minutes; the fork's own is gone, D103) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer (upstream 1.4.5 adds a rest before the next exercise, #487, #1020; not after one side) |
 | The next set to do is highlighted | D71 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
@@ -87,7 +87,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Shoulder heads: front, side and rear delts | D65 | Offered (#638; built in release-1.4.5 in every muscle map, with the lats apart: it replaces D65 at the merge) |
 | One main muscle per exercise from reviewed name rules (squats as quads, tibialis work as shins …) | D74 | Offered (#788, released in v1.4.4: the catalogue targets, shoulder heads as delts) |
 | The main muscle can be chosen per exercise | D76 | Offered (a comment on #199) |
-| One of an exercise's other names (upstream's, #624) shown as its name | D73 | Offered (#903, issue; built in release-1.4.5 as Shown as, D103) |
+| One of an exercise's other names (upstream's, #624) shown as its name | D73 | Ported (#903, upstream's Shown as since 1.4.5; `S.hvShownName` moved into it, D103) |
 | Chart button in the picker opens exercise details | D58 | Fork |
 | Strength level from thresholds you type in | D19 | Offer (upstream's levels come from published tables by body weight, sex and age; typed thresholds are the fork's) |
 | Strength levels list, by the level reached | D81 | Fork (upstream's Strength levels card on Stats lists every graded lift by level since 1.4.4) |
@@ -141,7 +141,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Import fixes: brand brackets, a fix table of Hevy titles, one-limb sets | D29 | Offered (the fix table is in 1.4.3, #672, but for #793's rows; the regenerated template map, #807, built in release-1.4.5) |
 | Routine folders from the Hevy API | D30 | Offered (#1158, into upstream 1.4.5's own routine folders, D108; S20 goes when merged) |
 | More from the Hevy API: measurements, rep ranges, rest, notes, routine links, custom exercises' muscles | D31 | Offered (#815; upstream built notes, rest timers and rep ranges in release-1.4.5 and left out the measurements, routine links, custom exercises' muscles and the unit hint. All four are offered again with D30's folders, #1158; S21 goes when merged) |
-| Review of exercise matches before an import, remembered | D33 | Offered (#931, built in release-1.4.5 with #849 as one Check and choose step; upstream's replaces the fork's at the merge, D103) |
+| Review of exercise matches before an import, remembered | D33 | Ported (#931, upstream's Check and choose since 1.4.5; the fork's review is gone and its picks moved into upstream's, D103) |
 | Earlier Hevy imports' notes get their line breaks back (new imports keep them upstream since 1.4.3, #690) | D54 | Fork |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
 | Import from Hevy link in the empty Workout tab and feed; a toast when Send to Hevy has stopped on its key | D118 | Fork |

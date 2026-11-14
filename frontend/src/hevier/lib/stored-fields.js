@@ -16,14 +16,12 @@ export const STORED_FIELDS = [
   { field: 'hvHome', at: 'S', sample: { order: ['week', 'routines'], hidden: ['week'] } },
   { field: 'hvHrMax', at: 'S', sample: { max: 190, born: 1990 } },
   { field: 'hvImportCable', at: 'S', sample: { 'Hevy|lat pulldown (cable)': '2:1' } },
-  { field: 'hvImportMap', at: 'S', sample: { 'Hevy|odd lift': '0463' } },
   { field: 'hvMachines', at: 'S', sample: { '8878': { g1: 'Life Fitness' } } },
   { field: 'hvMainMuscle', at: 'S', sample: { '0043': 'Glutes' } },
   { field: 'hvModuleParts', at: 'S', sample: { 'body.photos': false } },
   { field: 'hvMuscleSets', at: 'S', sample: 'share' },
   { field: 'hvOneLimb', at: 'S', sample: 1 },
   { field: 'hvPlateLine', at: 'S', sample: true },
-  { field: 'hvShownName', at: 'S', sample: { '0043': 'Back squat' } },
   { field: 'hvSideOrder', at: 'S', sample: { '0043': 'RL' } },
   { field: 'hvStrength', at: 'S', sample: { '0043': { lv: [60, 80, 100, 130, 160], u: 'kg', d: '2026-10-17' } } },
   { field: 'hvTimerSec', at: 'S', sample: 120 },
@@ -50,6 +48,6 @@ export const STORED_FIELDS = [
  * (an import's parsed data, gone once it is applied); `hvPairR` (a previous-sets read).
  */
 export const NOT_STORED = ['hvClock', 'hvExercise', 'hvGyms', 'hvStats', 'hvWorkout', 'hvFolder', 'hvFolderAt', 'hvFolderId',
-  'hvMeasures', 'hvRaw', 'hvRedo', 'hvSource', 'hvTemplates', 'hvTitles', 'hvUnit', 'hvPairR']
+  'hvMeasures', 'hvRaw', 'hvTemplates', 'hvUnit', 'hvPairR']
 /** Legacy, deleted by a migration: ex-aliases.js, ex-unit.js and previous-sets.js move them. */
-export const LEGACY = ['hvAliases', 'hvExUnit', 'hvPrevious']
+export const LEGACY = ['hvAliases', 'hvExUnit', 'hvPrevious', 'hvShownName', 'hvImportMap']

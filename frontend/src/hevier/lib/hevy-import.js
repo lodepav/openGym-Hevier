@@ -1,5 +1,6 @@
 // The fork's step in upstream's Hevy import (hevier/DECISIONS.md D29, seam S19). Upstream's importers
-// ask `importExercise(title, source)` before their own match; an answer is an exercise id, or a key
+// ask `importExercise(title, source, pick)` before their own match (`pick`: the user's own, from
+// upstream's Check and choose, D103); an answer is an exercise id, or a key
 // that also carries a brand, a cable setup and one-limb sets, which `importDone` turns back into the
 // id, the entry's D28 brand (`hvBrand`), its D43 setup (`hvCable`) and upstream's per-side sets once
 // the parse is finished.
@@ -10,9 +11,10 @@
 // is matched by the steps in `STEPS`, the first answer winning, else by upstream.
 import { EXIDX, canonicalExId, isOneLimb } from '../../lib/exercises.js'
 import { importId, priorCustom, matchExercise, matchHevyTitle, bpFromName } from '../../lib/import-csv.js'
+import { pickFor, nameKey, aliasMatches } from '../../lib/import-choices.js'
 import { isWarmupRow, syncSideAggregate } from '../../lib/workout-model.js'
 import { volumeFactor } from '../../lib/dumbbells.js'
-import { MACHINE_EQ, BRAND_MAX } from './gym-labels.js'
+import { MACHINE_EQ, BRAND_MAX, knownBrands } from './gym-labels.js'
 
 // Hevy's English title (lower case) → catalogue id, `side` for a one-limb title. Each row was
 // checked against the catalogue's artwork; each is also a fix for upstream's lib/hevy-id-map.js
@@ -135,10 +137,23 @@ export function readKey(id) {
 }
 
 /*
- * `choices` is the user's say over an import, `{ map: S.hvImportMap, cables: S.hvImportCable,
- * known: Set of the custom exercise ids, customEx, brands }` (import-review.js's `choicesFor`), or
- * null for none. Every function below that reads it takes it as its last argument.
+ * `choices` is what the profile says about an import, `{ aliases: upstream's remembered picks (its
+ * aliasMatches), cables: S.hvImportCable, known: Set of the custom exercise ids, customEx, brands }`
+ * (`choicesFor` below), or null for none. Every function below that reads it takes it as its last argument.
  */
+
+// One choices object per version of what it reads, so the memo below holds for a whole parse.
+let last = null
+/** The profile's `choices` for an import or an export. */
+export function choicesFor(S) {
+  const of = [S?.exAliases, S?.customEx, S?.hvImportCable, S?.hvMachines, S?.workouts]
+  if (!last || of.some((v, i) => v !== last.of[i])) {
+    // Your own brands, by their letters and digits, for a title's single bracket.
+    const brands = new Map(knownBrands(S).map(b => [brandNorm(b), b]).filter(([k]) => k.length >= 2))
+    last = { of, ctx: { aliases: aliasMatches(S), cables: S?.hvImportCable || null, known: new Set((S?.customEx || []).map(c => c?.id)), customEx: S?.customEx || [], brands } }
+  }
+  return last.ctx
+}
 
 /** The brand and cable setup a title carries ('' for none), as the import reads them: D29's
  *  "(brand: X)", a Hevy title's second bracket or one of your own brands; D43's "(x2)". */
@@ -147,19 +162,28 @@ export function titleLabel(title, source, choices) {
   return { brand: brand || '', cable: cable || '' }
 }
 
-/** The review's key for a title: the app and the title without its brand and cable tag, lower case (D33). */
-export const choiceKey = (title, source, choices) => source + '|' + partsOf(title, source, choices).name.toLowerCase()
+/** A title without its brand and cable tag, as the picks and the export name it. */
+export const titleName = (title, source, choices) => partsOf(title, source, choices).name
+/** A title's key for its cable setup: the app and the title without its brand and cable tag, lower case. */
+const choiceKey = (title, source, choices) => source + '|' + partsOf(title, source, choices).name.toLowerCase()
 /** The cable review's key: the review's, and the brand when there is one, so a brand's setup is its own (D43). */
 export function cableKey(title, source, choices) {
   const { brand } = partsOf(title, source, choices)
   return choiceKey(title, source, choices) + (brand ? '|' + brand.toLowerCase() : '')
 }
 
-/** The review's choice for a title: an exercise that still exists, 'custom', or null. */
-function choiceOf(title, source, choices) {
-  const v = choices?.map?.[choiceKey(title, source, choices)]
-  if (v === 'custom') return v
-  return v && (EXIDX[v] || choices.known?.has(v)) ? v : null
+/**
+ * The user's pick for a title: an exercise, 'custom' (keep it as your own), or null for none.
+ * `pick` is upstream's for the whole title (undefined: none, null: your own). A title that carries
+ * a brand or a cable tag has no pick of its own in a new file, so it takes the one remembered for
+ * its name without them.
+ */
+function choiceOf(title, source, choices, pick) {
+  if (pick === null) return 'custom'
+  if (pick) return pick
+  const { name } = partsOf(title, source, choices)
+  if (nameKey(name) === nameKey(title)) return null
+  return pickFor(choices?.aliases, name, choices?.customEx) || null
 }
 
 /** The cable setup a title is imported with: its tag, else the review's choice (its brand's, else
@@ -185,10 +209,12 @@ const STEPS = [
   t => { const id = t.hevy && oneLimbOf(t.name); return id ? { id, side: true } : null },
 ]
 
-function answer(title, source, choices) {
+function answer(title, source, choices, pick) {
   const { name, brand } = partsOf(title, source, choices)
   const cable = cableFor(title, source, choices)
-  const own = choiceOf(title, source, choices)
+  const own = choiceOf(title, source, choices, pick)
+  // Kept as your own with nothing to carry: upstream's own answer for that pick.
+  if (own === 'custom' && !brand && !cable) return null
   if (own === 'custom') return keyOf({ id: customId(source, name), side: false, brand, cable, n: name.toLowerCase() })
   const t = { name, source, hevy: source === 'Hevy', own, choices }
   let found = null
@@ -214,31 +240,26 @@ const NONE = {}
  * The fork's answer for an exercise title, or null to leave it to upstream: a plain catalogue id
  * when there is nothing else to carry, else a key for `importDone`.
  */
-export function matchTitle(title, source, choices = null) {
+export function matchTitle(title, source, choices = null, pick) {
   const c = choices || NONE
   if (!memos.has(c)) memos.set(c, new Map())
   const memo = memos.get(c)
-  const k = source + '|' + title
-  if (!memo.has(k)) memo.set(k, answer(title, source, choices))
+  const k = source + '|' + title + '|' + pick
+  if (!memo.has(k)) memo.set(k, answer(title, source, choices, pick))
   return memo.get(k)
 }
 
-/**
- * What a title becomes: { id, chosen }, `id` null for an exercise of the user's own that an
- * import makes. For the review's list.
- */
+/** What a title becomes: { id }, null for an exercise of the user's own that an import makes. */
 export function outcomeOf(title, source, choices) {
-  const chosen = !!choiceOf(title, source, choices)
   const a = matchTitle(title, source, choices)
   const k = readKey(a) || { id: a }
   const id = k.id ?? upstreamMatch(partsOf(title, source, choices).name, source)
-  return { id: id && !k.n ? id : null, chosen }
+  return { id: id && !k.n ? id : null }
 }
 
 /**
- * Upstream's two hooks (seam S19), reading the user's choices from `getChoices()` for each title.
- * The titles a parse asks about are collected, and `importDone` hands them on as `hvTitles` for
- * the review.
+ * Upstream's two hooks (seam S19), reading the profile's choices from `getChoices()` for each title.
+ * The titles a parse asks about are collected for `importDone`, which reads the file's own brands.
  */
 export function importHooks(getChoices) {
   let titles = new Map()
@@ -247,29 +268,19 @@ export function importHooks(getChoices) {
   // weigh-ins) leaves nothing in the next import's review.
   let asking = false
   return {
-    importExercise(title, source) {
+    importExercise(title, source, pick) {
       if (!asking) { titles = new Map(); asking = true; queueMicrotask(() => { asking = false }) }
-      titles.set(source + '|' + title, { title, source })
-      return matchTitle(title, source, getChoices())
+      titles.set(source + '|' + title, { title, source, pick })
+      return matchTitle(title, source, getChoices(), pick)
     },
     importDone(parsed) {
       const asked = [...titles.values()]
       titles = new Map()
       const choices = getChoices()
       const learnt = withFileBrands(asked, choices)
-      return finishImport(learnt === choices ? parsed : rebrand(parsed, asked, choices, learnt), labelled(asked, learnt))
+      return finishImport(learnt === choices ? parsed : rebrand(parsed, asked, choices, learnt))
     },
   }
-}
-
-/** The titles a parse asked about, as the review lists them: name, brand and cable tag, once each. */
-function labelled(asked, choices) {
-  const out = new Map()
-  for (const { title, source } of asked) {
-    const { name, cable, brand } = partsOf(title, source, choices)
-    out.set(cableKey(title, source, choices), { title: name, source, cable, brand })
-  }
-  return [...out.values()]
 }
 
 /**
@@ -300,9 +311,9 @@ function rebrand(parsed, asked, before, after) {
   const made = new Set((parsed.customEx || []).filter(c => !before?.known?.has(c.id)).map(c => c.id))
   const to = new Map()
   const names = new Set()
-  for (const { title, source } of asked) {
-    const was = matchTitle(title, source, before)
-    const now = matchTitle(title, source, after)
+  for (const { title, source, pick } of asked) {
+    const was = matchTitle(title, source, before, pick)
+    const now = matchTitle(title, source, after, pick)
     if (was === now) continue
     const old = was || customId(source, title)
     if (was ? !readKey(was) : !made.has(old)) continue
@@ -338,10 +349,13 @@ const fresh = (parsed, made) => [...made.values()].filter(c => !parsed.customEx.
 // Two stacks (×2) count both, as upstream counts a dumbbell logged per bell.
 const workVol = entries => entries.reduce((a, e) => a + volumeFactor(e) * e.sets.reduce((b, s) => b + (isWarmupRow(s) ? 0 : (s.w || 0) * (s.r || 0)), 0), 0)
 
-/** A parse result with the fork's keys turned back into ids, brands and per-side sets, and the titles it asked about. */
-function finishImport(parsed, hvTitles) {
+/** A parse result with the fork's keys turned back into ids, brands and per-side sets. */
+function finishImport(parsed) {
   if (!parsed || parsed.error) return parsed
-  return { ...byName(parsed, done(parsed)), hvTitles }
+  const out = byName(parsed, done(parsed))
+  // Check and choose lists each name with what it becomes: the exercise a key stands for.
+  const plain = id => { const k = readKey(id); return k ? k.id : id }
+  return Array.isArray(out.names) ? { ...out, names: out.names.map(n => ({ ...n, id: plain(n.id), auto: plain(n.auto) })) } : out
 }
 
 // Upstream's Hevy API import matches by Hevy's template id alone, never by name, so a title its

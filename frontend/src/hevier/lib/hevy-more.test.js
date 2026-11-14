@@ -130,6 +130,16 @@ describe('hevier: the rest of the Hevy API (D31)', () => {
     expect(await more.fetchUnit('k', async () => ({ ok: false }))).toBe(null)
   })
 
+  it('the sheet\'s second read gets the fork\'s steps again, from what the first read kept', () => {
+    const first = { hvFolders: [{ id: 7, title: 'Push', index: 0 }], hvMeasures: [{ d: '2026-10-01', neck: 38 }], hvTemplates: T, hvUnit: 'lb' }
+    const again = { workouts: { kind: 'workouts', n: 1 }, routines: { kind: 'routines', routines: [{ name: 'A', hvFolderId: 7 }] }, hvRaw: { templates: T } }
+    const out = more.viewAgain(again, first, p => ({ ...p, done: true }))
+    expect(out.workouts).toEqual({ kind: 'workouts', n: 1, done: true })
+    expect(out.routines.routines[0]).toMatchObject({ name: 'A', hvFolder: 'Push', hvFolderAt: 0 })
+    expect(out).toMatchObject({ hvMeasures: first.hvMeasures, hvTemplates: T, hvUnit: 'lb' })
+    expect(out.hvRaw).toBeUndefined()
+  })
+
   it('keeps the raw measurements and templates on upstream\'s result only with the hook set', async () => {
     const realFetch = globalThis.fetch
     const pages = { exercise_templates: T, workouts: [hevyWorkout()], routines: [], body_measurements: [{ date: '2026-10-01', weight_kg: 80, neck_cm: 38 }] }

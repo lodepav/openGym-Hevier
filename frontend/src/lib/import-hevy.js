@@ -190,7 +190,10 @@ function makeResolver(templates, customEx, matches) {
     // Your pick on the summary (lib/import-choices.js) beats the table; "keep it as your own"
     // still finds the one an earlier import made.
     const pick = pickFor(matches, title, customEx)
-    const id = pick === undefined ? auto : pick === null ? (own ? own.id : null) : pick
+    // [hevier] S19: a pick keeps the title's brand, cable setup and sides, the fork's answer for it
+    const picked = pick !== undefined && hooks.importExercise ? hooks.importExercise(title, 'Hevy', pick) : null
+    const id = picked || (pick === undefined ? auto : pick === null ? (own ? own.id : null) : pick)
+    // [/hevier]
     if (!names.has(key) && title) names.set(key, { key: nameKey(title), name: title, id: id || ownId, auto: auto || ownId })
     if (id) {
       if (EXIDX[id] && !EXIDX[id].custom) matchedIds.add(id)

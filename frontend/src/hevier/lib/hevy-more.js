@@ -9,6 +9,7 @@ import { importId } from '../../lib/import-csv.js'
 import { normalizeMeasurementEntry, DEFAULT_MEASUREMENT_KEYS } from '../../lib/measurements.js'
 import { stampWorkout } from '../../lib/sync-merge.js'
 import { MUSCLE_MODEL } from '../../lib/muscles.js'
+import { nameFolders } from './hevy-folders.js'
 
 const LINK_MS = 2 * 60000      // an earlier import's workout starting this close to a Hevy one is that one
 const pos = v => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : null }
@@ -183,8 +184,19 @@ export async function fetched(key, data, get) {
   data.hvTemplates = (raw.templates || []).filter(t => t?.id != null)
     .map(({ id, title, equipment, primary_muscle_group, secondary_muscle_groups }) => ({ id, title, equipment, primary_muscle_group, secondary_muscle_groups }))
   data.hvUnit = await fetchUnit(key, get)
-  // for D33's review, which reads the import again once a match is changed
-  if (raw.workouts || raw.routines) data.hvSource = { workouts: raw.workouts || [], routines: raw.routines || [], templates: raw.templates || [] }
+}
+
+/**
+ * Upstream's sheet reads what Hevy sent again when a choice changes (Check and choose): the fork's
+ * steps after the fetch, on that second read, from what the first one kept. `importDone` is S19's.
+ */
+export function viewAgain(again, first, importDone) {
+  again.workouts = importDone(again.workouts)
+  again.routines = importDone(again.routines)
+  if (first.hvFolders) nameFolders(again.routines, first.hvFolders)
+  delete again.hvRaw
+  for (const k of ['hvFolders', 'hvMeasures', 'hvTemplates', 'hvUnit']) if (k in first) again[k] = first[k]
+  return again
 }
 
 /** Whether the sheet has something new to import besides upstream's three. */

@@ -5,9 +5,7 @@ import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
 import { hooks, installFinishHook } from './hooks.js'
-import { importHooks } from './lib/hevy-import.js'
-import { choicesFor, keep } from './lib/import-review.js'
-import { ReviewRow } from './components/ImportReview.jsx'
+import { importHooks, choicesFor } from './lib/hevy-import.js'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
 import * as hevyMore from './lib/hevy-more.js'
 import { HevyMoreRows, moreToast } from './components/HevyMoreRows.jsx'
@@ -24,7 +22,7 @@ import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
 import { initLabelRefill } from './lib/label-refill-run.js'
-import { moveAliases, moveShownNames } from './lib/ex-aliases.js'
+import { moveAliases, moveShownNames, moveImportPicks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
@@ -44,7 +42,6 @@ import { initFieldReveal } from './lib/field-reveal.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
 import { initClockOff } from './lib/clock-off-run.js'
-import { initStillTraining } from './lib/still-training-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { askMedia } from './components/MediaSection.jsx'
 import { initMediaPack } from './lib/media-pack-run.js'
@@ -61,6 +58,7 @@ function install() {
 
   // Look: the installed PWA is Go Hevier, in blue, not upstream's lime openGym (D39); no seasonal
   // themes (D17).
+  try { localStorage.removeItem('hevier_still') } catch { /* D60's answer, upstream's Forgotten workouts asks since 1.4.5 (D103) */ }
   applyForkIcons()
   applyForkName()
   initSeasonsOff(store)
@@ -82,7 +80,6 @@ function install() {
   initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
   hooks.statsS = useStatsS                                // All statistics and Structural balance follow the phase filter (S34, D93)
-  initStillTraining(store)                                // Still training? after five hours (D60)
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
   initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
@@ -98,12 +95,12 @@ function install() {
   hooks.equipFilter = explorerFilter
   hooks.equipChips = equipChips
 
-  // Imports: the fork's matches, one-limb sets and brand labels (S19, D29), with the user's own
-  // choices from the review (S23, D33); Hevy's routine
+  // Imports: the fork's matches, one-limb sets and brand labels (S19, D29), under the user's own
+  // picks from upstream's Check and choose (D103); Hevy's routine
   // folders (S20, D30) and the rest of what its API holds (S21, D31). Notes an earlier Hevy CSV
   // import left with `\n` get their line breaks back (D54).
   Object.assign(hooks, importHooks(() => choicesFor(state())))
-  hooks.importReview = { keep, Row: ReviewRow }
+  hooks.importView = (again, first) => hevyMore.viewAgain(again, first, hooks.importDone)
   hooks.hevyFolders = { fetch: importHevyFolders, merged: applyHevyFolders }
   hooks.hevyMore = { ...hevyMore, Rows: HevyMoreRows, toast: moreToast }
   initNoteFix(store)
@@ -123,9 +120,10 @@ function install() {
   const moveNames = () => {
     if ('hvAliases' in state()) store.update(moveAliases)
     if ('hvShownName' in state()) store.update(moveShownNames)
+    if ('hvImportMap' in state()) store.update(moveImportPicks)   // D33's picks are other names too (D103)
   }
   moveNames()
-  store.watch(['hvAliases', 'hvShownName'])?.(moveNames)
+  store.watch(['hvAliases', 'hvShownName', 'hvImportMap'])?.(moveNames)
 
   // Android: weigh-ins from Health Connect only while upstream's read of them is on
   // (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a

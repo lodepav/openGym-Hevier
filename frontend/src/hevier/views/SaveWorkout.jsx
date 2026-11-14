@@ -53,8 +53,6 @@ const discard = nav => confirmSheet({
 
 export function SaveWorkout() {
   const nav = useNavigate()
-  // Still training?'s Finish opens the page with the length ending at the last ticked set (D60).
-  const { state } = useLocation()
   const A = useStore(s => s.S.active)
   const gym = useStore(s => { const g = workoutGym(s.S, s.S.active); return g ? (gymName(s.S, g) || t('Removed gym')) : '' })
   const unit = useStore(s => s.S.unit)
@@ -64,7 +62,7 @@ export function SaveWorkout() {
   const [title, setTitle] = useState(A?.name || '')
   const was = useRef({ name: A?.name, customName: A?.customName })
   const [note, setNote] = useState(A?.note || '')
-  const [min, setMin] = useState(state?.durationMin ?? null)   // null: the session's own length, still running
+  const [min, setMin] = useState(null)   // null: the session's own length, still running
   const [, tick] = useState(0)
   useEffect(() => { const id = setInterval(() => tick(n => n + 1), 15000); return () => clearInterval(id) }, [])
   // D93: OpenBite's phase, read as the page opens so Save has it at once. A workout logged into the

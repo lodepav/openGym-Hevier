@@ -34,7 +34,7 @@ export async function importHevyFolders(key, data, pages) {
   let folders = []
   // 20 s: folders that never answer must not hold the import's sheet, whose Cancel is off meanwhile.
   try { folders = await within(fetchHevyFolders(key, pages), 20e3) } catch { folders = [] }
-  data.hvFolders = folders   // for D33's review, which reads the routines again
+  data.hvFolders = folders   // for the sheet's second read (hevy-more.js viewAgain)
   nameFolders(data.routines, folders)
 }
 

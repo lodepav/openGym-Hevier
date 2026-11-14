@@ -244,24 +244,41 @@ describe('hevier cable setup from the title (D43)', () => {
     expect(readKey(importExercise('Lat Pulldown (Cable) (LifeFitness)', 'Strong'))).toBeNull()
   })
 
-  it('a parse that never finished leaves no titles for the next import’s review', async () => {
-    importExercise('Qwerty Zorb', 'Hevy')
-    await Promise.resolve()
-    const p = parseImport(csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)]), { unit: 'kg', customEx: [] })
-    expect(p.hvTitles.map(x => x.title)).toEqual(['Seated Leg Curl (Machine)'])
-  })
-
-  it('your own exercise from an earlier import stays yours over a fix row, unless the review chose', () => {
+  it('your own exercise from an earlier import stays yours over a fix row, unless you picked', () => {
     const customEx = [{ id: 'imOld', n: 'seated leg curl (machine)', custom: true, eq: 'custom', tg: '' }]
     const rows = csv([row('Seated Leg Curl (Machine)', 0, 'normal', 40, 10)])
-    useChoices({ map: null, cables: null, known: new Set(['imOld']), customEx })
+    useChoices({ cables: null, known: new Set(['imOld']), customEx })
     expect(entriesOf(parseImport(rows, { unit: 'kg', customEx }))[0].id).toBe('imOld')
-    useChoices({ map: { 'Hevy|seated leg curl (machine)': '0599' }, cables: null, known: new Set(['imOld']), customEx })
-    expect(entriesOf(parseImport(rows, { unit: 'kg', customEx }))[0].id).toBe('0599')
+    // Upstream's Check and choose: the pick for the name (D103).
+    const matches = new Map([['seated leg curl (machine)', '0599']])
+    expect(entriesOf(parseImport(rows, { unit: 'kg', customEx, matches }))[0].id).toBe('0599')
   })
 
-  it('a cable the review set is imported with that setup; the title’s own tag wins', () => {
-    useChoices({ map: null, cables: { 'Hevy|lat pulldown (cable)': '2:1' }, known: new Set() })
+  it('a pick keeps the title’s brand and sides, and a branded title takes the pick remembered for its name', () => {
+    const rows = csv([row('Odd Pulldown (brand: LifeFitness)', 0, 'normal', 40, 10)])
+    // Picked on the summary, for the whole title.
+    useChoices({ cables: null, known: new Set(), customEx: [] })
+    const picked = parseImport(rows, { unit: 'kg', customEx: [], matches: new Map([['odd pulldown (brand: lifefitness)', '0599']]) })
+    expect(entriesOf(picked)[0]).toMatchObject({ id: '0599', hvBrand: 'LifeFitness' })
+    expect(picked.customEx).toEqual([])
+    // Remembered as another name of the exercise, without the brand.
+    useChoices({ aliases: new Map([['odd pulldown', '0599']]), cables: null, known: new Set(), customEx: [] })
+    expect(entriesOf(parseImport(rows, { unit: 'kg', customEx: [] }))[0]).toMatchObject({ id: '0599', hvBrand: 'LifeFitness' })
+    // "Keep it as your own" with a brand: your own exercise, named without the brand, with the brand on the entry.
+    const own = parseImport(rows, { unit: 'kg', customEx: [], matches: new Map([['odd pulldown (brand: lifefitness)', null]]) })
+    expect(entriesOf(own)[0].hvBrand).toBe('LifeFitness')
+    expect(own.customEx.map(c => c.n)).toEqual(['odd pulldown'])
+  })
+
+  it('Check and choose lists a branded title with the exercise it becomes, not the fork’s key', () => {
+    useChoices({ cables: null, known: new Set(), customEx: [] })
+    const p = parseImport(csv([row('Seated Leg Curl (Machine) (brand: LifeFitness)', 0, 'normal', 40, 10)]), { unit: 'kg', customEx: [] })
+    for (const n of p.names || []) { expect(readKey(n.id)).toBeNull(); expect(readKey(n.auto)).toBeNull() }
+    expect((p.names || []).length).toBe(1)
+  })
+
+  it('a cable setup chosen earlier is imported with that setup; the title’s own tag wins', () => {
+    useChoices({ cables: { 'Hevy|lat pulldown (cable)': '2:1' }, known: new Set() })
     const p = parseImport(csv([
       row('Lat Pulldown (Cable)', 0, 'normal', 60, 10),
       row('Lat Pulldown (Cable) (x2)', 0, 'normal', 30, 10, '15 Oct 2026, 16:27'),
@@ -273,7 +290,7 @@ describe('hevier cable setup from the title (D43)', () => {
 describe('hevier: a single bracket that is your own brand (review T12)', () => {
   afterEach(() => useChoices(null))
   it('is cut out as that brand, in your spelling, from any app; anything else stays in the title', () => {
-    useChoices({ map: null, cables: null, known: new Set(), customEx: [], brands: new Map([['lifefitness', 'LifeFitness']]) })
+    useChoices({ cables: null, known: new Set(), customEx: [], brands: new Map([['lifefitness', 'LifeFitness']]) })
     expect(readKey(importExercise('Face Pull (Lifefitness)', 'Hevy'))).toMatchObject({ brand: 'LifeFitness' })
     expect(readKey(importExercise('Leg Press (Life Fitness)', 'Strong'))).toMatchObject({ brand: 'LifeFitness' })
     expect(readKey(importExercise('Hip Thrust (Paused)', 'Strong'))?.brand || '').toBe('')
@@ -284,7 +301,7 @@ describe('hevier: a brand the same file names counts for its single brackets (D2
   beforeEach(() => Object.assign(hooks, { importExercise, importDone }))
   afterEach(() => { Object.assign(hooks, { importExercise: null, importDone: null }); useChoices(null) })
   it('on a fresh install, "Face Pull (LifeFitness)" is the face pull with that brand, not your own exercise', () => {
-    useChoices({ map: null, cables: null, known: new Set(), customEx: [], brands: new Map() })
+    useChoices({ cables: null, known: new Set(), customEx: [], brands: new Map() })
     const p = parseImport(csv([
       row('Lat Pulldown (Cable) (brand: LifeFitness)', 0, 'normal', 50, 10),
       row('Face Pull (LifeFitness)', 0, 'normal', 20, 15),
@@ -296,6 +313,5 @@ describe('hevier: a brand the same file names counts for its single brackets (D2
     expect(face.hvBrand).toBe('LifeFitness')
     expect(p.customEx.map(c => c.n).sort()).toEqual(['hip thrust (paused)', 'lying neck rotation'])
     expect(p.unmatchedNames.map(n => n.toLowerCase()).sort()).toEqual(['hip thrust (paused)', 'lying neck rotation'])
-    expect(p.hvTitles.find(t => t.title === 'Face Pull')).toMatchObject({ brand: 'LifeFitness' })
   })
 })

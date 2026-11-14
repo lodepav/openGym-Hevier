@@ -791,8 +791,8 @@ export function parseWorkoutRows(rows, map, source, { unit = 'kg', customEx = []
       }
       resolved.set(exact, id)
     }
-    // [hevier] S19: the fork's match first, per exact title (`key` is a word bag that drops "weighted")
-    if (hooks.importExercise) id = hooks.importExercise(name, source) || id
+    // [hevier] S19: the fork's match first, per exact title (`key` is a word bag that drops "weighted"), told the pick
+    if (hooks.importExercise) id = hooks.importExercise(name, source, fileId ? undefined : pickFor(matches, name, customEx)) || id
     // [/hevier]
     let st = stats.get(exact)
     if (!st) stats.set(exact, st = { name, sets: 0, sessions: new Set() })
