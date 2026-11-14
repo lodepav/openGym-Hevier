@@ -79,7 +79,7 @@ api	get-proto@1.0.1
 api	gopd@1.2.0
 api	has-symbols@1.1.0
 api	hasown@2.0.4
-api	hono@4.13.13
+api	hono@4.13.16
 api	http-errors@2.0.1
 api	http_ece@1.2.0
 api	https-proxy-agent@7.0.6
@@ -474,7 +474,7 @@ mcp	gopd@1.2.0
 mcp	has-flag@4.0.0
 mcp	has-symbols@1.1.0
 mcp	hasown@2.0.4
-mcp	hono@4.13.13
+mcp	hono@4.13.16
 mcp	html-escaper@2.0.2
 mcp	http-errors@2.0.1
 mcp	iconv-lite@0.7.3
