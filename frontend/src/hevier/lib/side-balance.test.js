@@ -18,6 +18,11 @@ describe('hevier: left against right (side-balance)', () => {
     expect(sideBalance(sessions([day('2026-01-01', [pair([30, 6], [30, 9])]), day('2026-01-02', [pair([30, 6], [30, 9])])]), ROW)).toBeNull()
   })
 
+  it('says nothing when the two sides were the same every time (an import splits one number in two)', () => {
+    const same = d => day(d, [pair([30, 8], [30, 8])])
+    expect(sideBalance(sessions([same('2026-01-01'), same('2026-01-02'), same('2026-01-03')]), ROW)).toBeNull()
+  })
+
   it('holds each side’s best estimated 1RM, the last five sessions, by hand', () => {
     // Epley: 30 × 6 = 36, 30 × 9 = 39, so right leads by 39 / 36 = 8.3 %. The oldest session
     // (left far stronger) is the sixth back and left out; the kept-out one (D57) never counts.

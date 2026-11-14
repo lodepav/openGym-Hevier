@@ -26,6 +26,8 @@ export function sideBalance(sessions, exId, { last = 5, min = 3, within = 3 } = 
     if (L > 0 && R > 0) ratios.push(R / L)
   }
   if (ratios.length < min) return null
+  // Never logged apart: an import splits one number in two, which says nothing about the sides.
+  if (ratios.every(x => x === 1)) return null
   const r = ratios.reduce((a, b) => a + b, 0) / ratios.length
   const pct = Math.round(((r >= 1 ? r : 1 / r) - 1) * 100)
   return { even: pct <= within, side: r >= 1 ? 'R' : 'L', pct, n: ratios.length }
