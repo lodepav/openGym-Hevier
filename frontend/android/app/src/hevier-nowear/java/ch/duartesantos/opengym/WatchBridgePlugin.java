@@ -1,1 +1,0 @@
-../../../../../fdroid/java/ch/duartesantos/opengym/WatchBridgePlugin.java

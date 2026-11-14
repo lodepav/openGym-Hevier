@@ -316,9 +316,9 @@ describe('pickApk: Standard, Plus and HD', () => {
   })
 })
 
-// [hevier] S56: on 2026-11-09 github.com's download link for a release's checksum answered 504
+// On 2026-11-09 github.com's download link for a release's checksum answered 504
 // every time, while the API's link to the same asset (assets[].url, asked for octet-stream) worked.
-describe('the API asset link as a fallback (S56)', () => {
+describe('the API asset link as a fallback', () => {
   const HEX = 'b'.repeat(64)
   const API = 'https://api.github.com/repos/o/r/releases/assets/'
   const ACCEPT = { Accept: 'application/octet-stream' }
@@ -360,7 +360,7 @@ describe('the API asset link as a fallback (S56)', () => {
   })
 })
 
-describe('the API asset link as a fallback on the phone (S56)', () => {
+describe('the API asset link as a fallback on the phone', () => {
   const HEX = 'c'.repeat(64)
   const API = 'https://api.github.com/repos/o/r/releases/assets/'
   const ACCEPT = { Accept: 'application/octet-stream' }

@@ -24,7 +24,7 @@ import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
 import { initLabelRefill } from './lib/label-refill-run.js'
-import { aliasHooks, moveAliases } from './lib/ex-aliases.js'
+import { moveAliases, moveShownNames } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
@@ -36,9 +36,8 @@ import { partOn } from './lib/module-parts.js'
 import { moduleRow } from './views/ModuleParts.jsx'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
-import { holdMode } from './lib/hold-mode.js'
 import { rowMode } from './lib/hold-set.js'
-import { sideDefault, initSideRoutines } from './lib/one-limb.js'
+import { initSideRoutines } from './lib/one-limb.js'
 import { useStatsS } from './lib/shared-phase-run.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
@@ -50,7 +49,7 @@ import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { askMedia } from './components/MediaSection.jsx'
 import { initMediaPack } from './lib/media-pack-run.js'
 import { gymSheet, explorerFilter } from './lib/gym-filter.js'
-import { GymEquipmentChips, equipChips, muscleChips } from './components/EquipGroups.jsx'
+import { GymEquipmentChips, equipChips } from './components/EquipGroups.jsx'
 
 const store = storeAdapter(useStore, (msg, opts) => useUI.getState().toast(msg, opts))
 const state = () => useStore.getState().S
@@ -65,7 +64,6 @@ function install() {
   applyForkIcons()
   applyForkName()
   initSeasonsOff(store)
-  Object.assign(hooks, aliasHooks(state))                 // an exercise's other names, one shown as its name (S41, D73)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
@@ -79,13 +77,11 @@ function install() {
   hooks.moduleRow = moduleRow                             // a module's parts unfold under its row (S54, D102)
   hooks.exPart = part => partOn(state(), 'hvExercise', part) && (part !== 'plates' || moduleOn(state(), 'plates'))  // an exercise's settings show the categories switched on (S58, D114)
   hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
-  hooks.defaultMode = id => holdMode(state(), id)             // a plank or a wall sit starts as a timed hold (S32, D55)
-  hooks.defaultSide = id => sideDefault(state(), id)         // an exercise last logged per side starts per side (S32, D75)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   initProgDefault(store)                                  // the profile's default rule is Off until chosen (D61, upstream's #814)
   initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)
-  hooks.statsS = useStatsS                                // All statistics leave out the kept-out exercises (S34, D57) and follow the phase filter (D93)
+  hooks.statsS = useStatsS                                // All statistics and Structural balance follow the phase filter (S34, D93)
   initStillTraining(store)                                // Still training? after five hours (D60)
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
   initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
@@ -97,11 +93,10 @@ function install() {
   initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)
 
   // Gyms and equipment: body weight is equipment like the rest, the checklist in groups (S36, D62,
-  // D63), and the By muscle explorer filters by the picker's gym, by group (S37–S39).
+  // D63), and the By muscle explorer filters by the picker's gym, its equipment by group (S37, S38).
   hooks.gymSheet = { ...gymSheet(t), Chips: GymEquipmentChips }
   hooks.equipFilter = explorerFilter
   hooks.equipChips = equipChips
-  hooks.muscleChips = muscleChips
 
   // Imports: the fork's matches, one-limb sets and brand labels (S19, D29), with the user's own
   // choices from the review (S23, D33); Hevy's routine
@@ -124,9 +119,13 @@ function install() {
   movePrevious()
   store.watch(['hvPrevious'])?.(movePrevious)
   // D73's names, moved into upstream's other names once (a backup or another device may bring them back).
-  const moveNames = () => { if ('hvAliases' in state()) store.update(moveAliases) }
+  // D73's shown name is upstream's exShownName since 1.4.5 (D103), moved the same way.
+  const moveNames = () => {
+    if ('hvAliases' in state()) store.update(moveAliases)
+    if ('hvShownName' in state()) store.update(moveShownNames)
+  }
   moveNames()
-  store.watch(['hvAliases'])?.(moveNames)
+  store.watch(['hvAliases', 'hvShownName'])?.(moveNames)
 
   // Android: weigh-ins from Health Connect only while upstream's read of them is on
   // (S22, D32); new workouts and changed routines to Hevy (D34); the month widget, a

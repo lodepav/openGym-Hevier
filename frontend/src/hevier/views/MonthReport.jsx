@@ -15,7 +15,7 @@ import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../li
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
-import { countedWorkouts } from '../lib/counted.js'
+import { countedWorkouts } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'

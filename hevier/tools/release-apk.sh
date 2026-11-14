@@ -212,6 +212,7 @@ assemble() {  # signed apk to write; run in frontend/
 }
 cd frontend
 nice -n 19 ../hevier/tools/heavy.sh npx vite build
+node scripts/check-season-clock.mjs dist
 
 # The full APK: the pictures inside, as before.
 node ../scripts/catalogue/stage-media.mjs dist

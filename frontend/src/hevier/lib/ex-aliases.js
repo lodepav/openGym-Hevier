@@ -1,10 +1,10 @@
 // An exercise's other names (hevier/DECISIONS.md D73). The names are upstream's (#624): a
 // built-in's in `S.exAliases`, a custom exercise's on its own `aliases`, found by upstream's
-// search. The fork adds only which one is shown in place of the exercise's own name everywhere
-// upstream's exerciseNameFor names it (seam S41), in `S.hvShownName` (`{ [exId]: 'Pec deck' }`,
-// a fork-only field, so it syncs and is backed up). Nothing logged changes.
+// search. Which one is shown in place of the exercise's own name is upstream's too since 1.4.5
+// (#903, from the fork's issue): `S.exShownName` (`{ [exId]: 'Pec deck' }`). The fork's own
+// `S.hvShownName` moves into it once (`moveShownNames`, D103). Nothing logged changes.
 
-import { exerciseAliases, normalizeAliases } from '../../lib/exercise-aliases.js'
+import { exerciseAliases, normalizeAliases, shownNameOf } from '../../lib/exercise-aliases.js'
 import { exOr } from '../../lib/exercises.js'
 
 export const ALIAS_MAX = 80 // upstream's longest other name (exercise-aliases.js)
@@ -21,8 +21,7 @@ export const aliasesOf = (S, id) => (id != null ? exerciseAliases(exOf(S, id), S
 
 /** The name shown in place of the exercise's own, or null. */
 export function shownAlias(S, id) {
-  const v = id != null ? S?.hvShownName?.[id] : null
-  return typeof v === 'string' && aliasesOf(S, id).includes(v) ? v : null
+  return id != null ? shownNameOf(exOf(S, id), S?.exShownName, S?.exAliases || {}) : null
 }
 
 // Writes the names where upstream's editor does, and the shown one beside them.
@@ -30,9 +29,9 @@ function put(s, id, names, show) {
   const c = customOf(s, id)
   if (c) c.aliases = names
   else s.exAliases = { ...s.exAliases, [id]: names }
-  const all = { ...(s.hvShownName || {}) }
-  if (show && names.includes(show)) all[id] = show; else delete all[id]
-  if (Object.keys(all).length) s.hvShownName = all; else delete s.hvShownName
+  // null, not a missing key, as upstream's editor writes it: the sync merges this map key by key.
+  const shown = show && names.includes(show) ? show : null
+  if (shown || s.exShownName?.[id] != null) s.exShownName = { ...(s.exShownName || {}), [id]: shown }
 }
 
 /** Adds a name to exercise `id` (a draft of S); one it already has, in any case, is not added
@@ -72,7 +71,13 @@ export function moveAliases(s) {
   }
 }
 
-/** What seam S41 hands to upstream: the shown name. */
-export const aliasHooks = get => ({
-  exName: ex => shownAlias(get(), ex?.id),
-})
+/** The fork's `S.hvShownName`, moved once into upstream's `S.exShownName` (1.4.5, D103): a name
+ *  already picked there stays. */
+export function moveShownNames(s) {
+  const old = s.hvShownName
+  delete s.hvShownName
+  if (!old || typeof old !== 'object') return
+  const all = { ...(s.exShownName || {}) }
+  for (const [id, name] of Object.entries(old)) if (typeof name === 'string' && name && all[id] == null) all[id] = name
+  s.exShownName = all
+}

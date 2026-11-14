@@ -3,7 +3,8 @@
 // what the workout's gym has (D28's gym line); outside one it shows the gym last chosen in the
 // picker itself, kept on the device (`hevier_ex_gym`). Body weight is a piece of equipment like
 // any other here: a gym that does not tick it hides the body-weight exercises.
-import { eqAvailable, profileEquipment, accessoriesOf } from '../../lib/equipment.js'
+import { eqAvailable, profileEquipment, accessoriesOf, kitAvailable } from '../../lib/equipment.js'
+import { profileMachines } from '../../lib/machine-kinds.js'
 import { workoutGym } from './gym-labels.js'
 
 const KEY = 'hevier_ex_gym'
@@ -27,7 +28,8 @@ export function gymHas(p, ex) {
   if (!p) return true
   const have = gymEquipment(p)
   if (ex?.eq === BW && !have.includes(BW)) return false
-  return eqAvailable(have, ex)
+  // Upstream 1.4.5's machine kinds and own kit decide as in its own filter (equipment.js exAvailable).
+  return kitAvailable(p, ex) && eqAvailable(have, ex, profileMachines(p))
 }
 
 /**

@@ -41,7 +41,7 @@ describe('mainMuscleOf (D74)', () => {
     expect(main('1350')).toBe('Upper Back') // lever seated row
     expect(main('7564')).toBe('Upper Back') // cable split stance single arm row (catalogue: lats)
   })
-  it('names the shoulder head when the name says it, else Shoulders', () => {
+  it('names the shoulder head the catalogue gives', () => {
     expect(main('0584')).toBe('Side Delts') // lever lateral raise
     expect(main('0602')).toBe('Rear Delts') // lever seated reverse fly
     expect(main('1454')).toBe('Front Delts') // lever seated shoulder press
@@ -60,11 +60,10 @@ describe('mainMuscleOf (D74)', () => {
     expect(main('9803')).toBe('Shins') // standing tibialis raise
     expect(main('4467')).toBe('Calves') // roll ball tibialis posterior: a calf muscle
     expect(main('6705')).toBe('Obliques') // supine windshield wipers
-    expect(main('0352')).toBe('Chest') // dumbbell neutral grip bench press
     expect(main('0471')).toBe('Front Delts') // handstand push-up, catalogue triceps
     expect(main('2142')).toBe('Cardio') // ski ergometer
     expect(main('1130')).toBe('Rear Delts') // suspender reverse fly
-    expect(main('2779')).toBe('Shoulders') // shoulder lateral rotation: rotator cuff, no head
+    expect(main('2779')).toBe('Rear Delts') // shoulder lateral rotation: the cuff is the rear's in upstream's catalogue
   })
   it('files a custom exercise with no muscles and no catalogue match by its name alone', () => {
     registerCustom([

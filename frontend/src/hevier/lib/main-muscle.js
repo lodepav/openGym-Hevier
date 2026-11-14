@@ -3,12 +3,12 @@
 // (#788, the fork's PR) the catalogue's target (`tg`) is the muscle each lift is known for, so a
 // catalogue exercise is filed by its target (upstream's `primaries`, unordered, only when it has
 // none). A custom exercise is filed by its own primary muscle, else by the catalogue exercise its
-// name finds, else by the name rules below. A shoulder exercise is then one of D65's heads when
-// its name says which. Nothing is stored.
+// name finds, else by the name rules below. A shoulder exercise is filed under its head, which
+// the catalogue names since 1.4.5 (#638, D103). Nothing is stored.
 import { matchExercise, matchHevyTitle } from '../../lib/import-csv.js'
 import { EXIDX, isCustomEx, smOf } from '../../lib/exercises.js'
 import { muscleWeightsOf } from '../../lib/muscles.js'
-import { headOf, HEAD_NAME } from './delt-heads.js'
+import { HEAD_NAME } from './delt-heads.js'
 
 // Hevy's muscle names over the catalogue's `tg` spellings, upstream's muscle slugs (a custom
 // exercise's `primaries`, the catalogue's muscle model) and the ones a custom exercise stores.
@@ -22,6 +22,9 @@ const LABEL = {
   traps: 'Traps', trapezius: 'Traps', triceps: 'Triceps', 'upper back': 'Upper Back',
   'upper-back': 'Upper Back', 'serratus anterior': 'Serratus', serratus: 'Serratus',
   'hip-flexors': 'Hip Flexors', tibialis: 'Shins', shins: 'Shins',
+  // Upstream 1.4.5's shoulder heads (#638), as the catalogue and the muscle model spell them.
+  'front delts': 'Front Delts', 'side delts': 'Side Delts', 'rear delts': 'Rear Delts',
+  'front-delts': 'Front Delts', 'side-delts': 'Side Delts', 'rear-delts': 'Rear Delts',
   // Secondary spellings exercise details shows (`sm`).
   shoulders: 'Shoulders', 'rear deltoids': 'Rear Delts', 'latissimus dorsi': 'Lats', rhomboids: 'Upper Back',
   'lower back': 'Lower Back', 'hip flexors': 'Hip Flexors', core: 'Abdominals', abdominals: 'Abdominals',
@@ -39,7 +42,7 @@ const RULES = [
   [/(zercher|goblet|high low) carry|anti rotation|flutter kick|plank march/i, 'Abdominals'],
   [/oblique|twist(?!ing bench)|side (bend|bent|lean|sit[- ]?up|stretch crunch|hip|swing|floor tap)|hip side raise|russian|wood ?chop|windmill|side plank|side bridge|side crunch|side jackknife|wiper|(torso|trunk|body) rotation|rotational throw|landmine 180|lateral (bend|flexion)|lumbar rotation/i, 'Obliques'],
   [/superman/i, 'Lower Back'],
-  [/push press|pike push|handstand/i, 'Shoulders'],
+  [/push press|pike push|handstand/i, HEAD_NAME.front],
   [/push[- ]?up/i, 'Chest'],
   [/march sit/i, 'Quadriceps'],
   [/^(?!.*step).*(hip flex(ion|ors?)\b(?!.*(quad|knee))|iliopsoas|knee raise|leg raise|knee drive)/i, 'Hip Flexors'],
@@ -106,12 +109,9 @@ export function mainMuscleOf(ex, auto = false) {
   const own = !auto && ex.id != null ? chosenOf(ex.id) : null
   if (typeof own === 'string' && own) return own
   const custom = ex.custom || isCustomEx(ex)
-  const muscle = custom
+  return custom
     ? muscleLabel(first(ex.primaries) || ex.tg) || byName(ex)
     : muscleLabel(ex.tg) || muscleLabel(first(ex.primaries))
-  if (muscle !== 'Shoulders') return muscle
-  const head = headOf({ ...ex, tg: 'delts' })
-  return head ? HEAD_NAME[head] : muscle
 }
 
 const isHead = m => /Delts$/.test(m)

@@ -38,6 +38,7 @@ if [[ "${1:-}" != "--no-build" ]]; then
   cd "$ROOT/frontend"
   [[ -d node_modules ]] || npm ci
   ../hevier/tools/heavy.sh npx vite build
+  node scripts/check-season-clock.mjs dist
   if [[ -n "${LEAN:-}" ]]; then rm -rf dist/exercise-media; else node ../scripts/catalogue/stage-media.mjs dist; fi
   npx cap sync
   node scripts/check-mobile-bundle.mjs

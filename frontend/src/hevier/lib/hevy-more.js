@@ -1,61 +1,28 @@
-// What else the Hevy API import brings (hevier/DECISIONS.md D31, seam S21): body measurements, a
-// routine exercise's rest and rep range, a workout's description and exercise notes, the routine a
-// workout was done from, a custom exercise's muscles and equipment, and Hevy's weight unit. The
-// parse calls `day`, `exercise`, `workout` and `routineExercise` while it reads; the sheet calls
-// `fetched` after upstream's fetch and `merged` after upstream's merge.
+// What else the Hevy API import brings (hevier/DECISIONS.md D31, seam S21): body measurements, the
+// routine a workout was done from, a custom exercise's muscles and equipment, and Hevy's weight
+// unit. Notes, rest and rep ranges are upstream's own since 1.4.5 (from the fork's #815, D103). The
+// parse calls `day` and `workout` while it reads; the sheet calls `fetched` after upstream's fetch
+// and `merged` after upstream's merge.
 import { HEVY_API } from '../../lib/import-hevy.js'
 import { within } from './within.js'
 import { importId } from '../../lib/import-csv.js'
-import { normalizeRepRange } from '../../lib/rep-range.js'
 import { normalizeMeasurementEntry, DEFAULT_MEASUREMENT_KEYS } from '../../lib/measurements.js'
 import { stampWorkout } from '../../lib/sync-merge.js'
+import { MUSCLE_MODEL } from '../../lib/muscles.js'
 
-const NOTE_MAX = 280
 const LINK_MS = 2 * 60000      // an earlier import's workout starting this close to a Hevy one is that one
-const text = v => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim() : '')
 const pos = v => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : null }
 
 /* ------------------------------------------------------------------ workouts (the parse) -- */
 
-/** A Hevy workout read into the parse's `day`: its description and routine id. */
+/** A Hevy workout read into the parse's `day`: the routine it was done from. */
 export function day(d, w) {
-  const hv = d.hv || (d.hv = { note: '', routine: null, notes: new Map() })
-  if (!hv.note) hv.note = text(w?.description)
-  if (hv.routine == null && w?.routine_id != null && w.routine_id !== '') hv.routine = String(w.routine_id)
+  if (d.hevyRoutine == null && w?.routine_id != null && w.routine_id !== '') d.hevyRoutine = String(w.routine_id)
 }
 
-/** A Hevy exercise of that workout, resolved to `id`: its notes. */
-export function exercise(d, id, ex) {
-  const n = text(ex?.notes)
-  if (!n || !d.hv) return
-  d.hv.notes.set(id, [...(d.hv.notes.get(id) || []), n])
-}
-
-/** The parse's finished workout: the note, the entries' notes and the Hevy routine id. */
+/** The parse's finished workout: the Hevy routine id. */
 export function workout(w, d) {
-  const hv = d?.hv
-  if (!hv) return
-  if (hv.note && !w.note) w.note = hv.note
-  if (hv.routine) w.hvHevyRoutine = hv.routine
-  for (const e of w.entries) {
-    const n = (hv.notes.get(e.id) || []).join(' · ').slice(0, NOTE_MAX)
-    if (n && !e.note) e.note = n
-  }
-}
-
-/* ------------------------------------------------------------------ routines (the parse) -- */
-
-/** A routine exercise's config from its Hevy exercise: the rest and the rep range. */
-export function routineExercise(cfg, he) {
-  const rest = pos(he?.rest_seconds)
-  if (rest) cfg.restSec = Math.round(rest)
-  if (cfg.mode !== 'reps') return
-  const work = (he.sets || []).filter(s => !/warm/i.test(String(s?.type || '')))
-  const range = work.map(s => s?.rep_range).find(r => r && pos(r.start) && pos(r.end))
-  if (!range) return
-  const lo = Math.round(Math.min(range.start, range.end)), hi = Math.round(Math.max(range.start, range.end))
-  if (lo === hi) { cfg.reps = hi; return }
-  Object.assign(cfg, normalizeRepRange(hi, lo), { prog: 'double' })
+  if (d?.hevyRoutine) w.hvHevyRoutine = d.hevyRoutine
 }
 
 /* ------------------------------------------------------------------------ measurements -- */
@@ -110,7 +77,7 @@ function mergeMeasures(S, entries) {
 const MUSCLE = {
   abdominals: 'abs', shoulders: 'deltoids', biceps: 'biceps', triceps: 'triceps', forearms: 'forearm',
   quadriceps: 'quadriceps', hamstrings: 'hamstring', calves: 'calves', glutes: 'gluteal',
-  abductors: 'gluteal', adductors: 'adductors', lats: 'upper-back', upper_back: 'upper-back',
+  abductors: 'gluteal', adductors: 'adductors', lats: 'lats', upper_back: 'upper-back',
   traps: 'trapezius', lower_back: 'lower-back', chest: 'chest',
 }
 const EQUIPMENT = {
@@ -144,7 +111,7 @@ function fillCustoms(S, templates) {
     if (!eq && !primaries.length) continue
     if (eq) c.eq = eq
     if (primaries.length) {
-      Object.assign(c, { tg: primaries[0], primaries, secondaries, sm: secondaries, muscleGroups: [...primaries, ...secondaries] })
+      Object.assign(c, { tg: primaries[0], primaries, secondaries, sm: secondaries, muscleGroups: [...primaries, ...secondaries], mv: MUSCLE_MODEL })   // mv: named after 1.4.5's lats and upper back split
     }
     n++
   }

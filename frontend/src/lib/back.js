@@ -50,6 +50,15 @@ export function makeBackHandler({ getSheets, getLocation = () => ({}), closeShee
   }
 }
 
+// A full-screen layer that is not a sheet (the circuit player, components/CircuitPlayer.jsx) takes a
+// back press while it is up and no sheet sits on it: `fn` closes it and answers true.
+let overlayBack = null
+export function setOverlayBack(fn) { overlayBack = typeof fn === 'function' ? fn : null }
+export function overlayTakesBack() {
+  if (!overlayBack || useUI.getState().sheets.length) return false
+  try { return overlayBack() === true } catch { return false }
+}
+
 // Registers the listener for the native shell. No-op in web builds, where the browser
 // (or the PWA shell) walks history on its own and there is no plugin to talk to.
 export async function initBackButton() {
@@ -69,7 +78,7 @@ export async function initBackButton() {
     })
     // The app tour takes a back press first: it closes (lib/tour.js).
     // [hevier] S16
-    const sub = await App.addListener('backButton', ev => (tourBack() ? 'tour' : handler(hooks.backEvent ? hooks.backEvent(ev) : ev)))
+    const sub = await App.addListener('backButton', ev => (tourBack() ? 'tour' : overlayTakesBack() ? 'overlay' : handler(hooks.backEvent ? hooks.backEvent(ev) : ev)))
     // [/hevier]
     return () => sub.remove()
   } catch (e) {

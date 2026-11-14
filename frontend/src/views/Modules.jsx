@@ -11,7 +11,8 @@ import { MOBILE } from '../lib/mobile.js'
 import { DEMO } from '../lib/demo.js'
 import { platformNow } from '../lib/platform-now.js'
 import { api } from '../lib/api.js'
-import { MODULES, GROUPS, PRESETS, isOn, presetOf, presetModules, applyPreset, setModule, turnedOff, onCount } from '../lib/modules.js'
+import { libraryOn } from '../lib/shared-api.js'
+import { MODULES, GROUPS, PRESETS, isOn, presetOf, presetModules, applyPreset, setModule, turnedOff, moduleBuilt } from '../lib/modules.js'
 import { readWatchStatus, readGarminLink } from '../lib/watch-settings.js'
 import { moduleCopy, groupCopy, presetCopy } from '../lib/modules-copy.js'
 import { confirmSheet } from '../sheets.jsx'
@@ -31,7 +32,7 @@ function useConnections() {
     const put = patch => { if (!gone) setFound(f => ({ ...f, ...patch })) }
     if (MOBILE) {
       import('../lib/health-sync.js').then(m => m.loadHealth()).then(h => {
-        if (h && (h.on || h.readHr || h.readWeight)) put({ health: platformNow() === 'android' ? 'Health Connect' : 'Apple Health' })
+        if (h && (h.on || h.readHr || h.readWeight || h.readBody || h.readVitals)) put({ health: platformNow() === 'android' ? 'Health Connect' : 'Apple Health' })
       }).catch(() => {})
       // An Apple Watch that has reported in, or a Garmin the watch link found (docs/GARMIN.md).
       if (readWatchStatus() || readGarminLink()) put({ watch: true })
@@ -97,9 +98,12 @@ export default function ModulesPage() {
     ...PRESETS.map(p => ({ value: p.id, label: pc[p.id][0], subtitle: pc[p.id][1] })),
     { value: 'custom', label: t('Custom'), subtitle: t('Your own mix. Flip the switches below.') },
   ]
+  // Community only where the server has a library (LIBRARY=on): elsewhere it would switch nothing.
+  const libOn = useStore(st => libraryOn(st.config, st.user))
+  // openGym Offline has no Coach, Integrations or Community (lib/build-caps.js): not offered at all.
   // [hevier] S54: modules whose features the fork does not show at all are not listed (D97)
   // and the fork's own modules join their group (D114)
-  const shown = [...MODULES.filter(m => !(hooks.hiddenModules || []).includes(m.id)), ...(hooks.forkModules || [])]
+  const shown = [...MODULES.filter(m => moduleBuilt(m.id) && (m.id !== 'community' || libOn) && !(hooks.hiddenModules || []).includes(m.id)), ...(hooks.forkModules || [])]
   const hvRow = hooks.moduleRow || ((id, row) => row) // and a module's parts unfold under its row (D102)
   // [/hevier]
   return <div className="modules">

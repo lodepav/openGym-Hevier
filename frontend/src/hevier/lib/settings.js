@@ -16,7 +16,7 @@ export const SETTINGS_GROUPS = [
   { title: 'Stats', ids: ['hv:volume'] },
   // Upstream's Modules page (1.4.4, D97): which parts of the app, the fork's with them.
   { title: 'App', ids: ['modules', 'units', 'look'] },
-  { title: 'Data & more', ids: ['data', 'integrations', 'coach', 'about'] },
+  { title: 'Data & more', ids: ['data', 'integrations', 'watches', 'coach', 'about'] },
 ]
 
 // Rows by their English title (the key upstream passes to t()), per page.

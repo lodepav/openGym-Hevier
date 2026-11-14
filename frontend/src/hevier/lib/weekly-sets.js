@@ -1,5 +1,5 @@
 // Weekly sets per muscle against a target range, counted the fork's way (hevier/DECISIONS.md D99).
-// The ranges and their editor are upstream 1.4.4's (lib/muscle-targets.js: ten groups, defaults from
+// The ranges and their editor are upstream 1.4.4's (lib/muscle-targets.js: its groups, defaults from
 // hypertrophy research, S.muscleTargets); the sets held against them are the fork's own count
 // (D18, D42): each work set for its exercise's main muscle (D74), or a secondary muscle in part when
 // Settings → Muscle sets says so. The fork's muscles fold into upstream's groups; a muscle with no
@@ -11,8 +11,9 @@ import { muscleSets, muscleMode } from './volume.js'
 
 // The fork's main-muscle names (D74, Hevy's) in upstream's groups.
 export const GROUP_OF = {
-  Chest: 'chest', 'Upper Back': 'upper-back', Lats: 'upper-back', Traps: 'upper-back',
-  Shoulders: 'deltoids', 'Front Delts': 'deltoids', 'Side Delts': 'deltoids', 'Rear Delts': 'deltoids',
+  Chest: 'chest', 'Upper Back': 'upper-back', Lats: 'lats', Traps: 'upper-back',
+  // A plain Shoulders (a custom exercise's) counts for the front, the head upstream gives it most of.
+  Shoulders: 'front-delts', 'Front Delts': 'front-delts', 'Side Delts': 'side-delts', 'Rear Delts': 'rear-delts',
   Biceps: 'biceps', Triceps: 'triceps', Quadriceps: 'quadriceps', Hamstrings: 'hamstring',
   Glutes: 'gluteal', Calves: 'calves', Abdominals: 'abs', Obliques: 'abs',
 }

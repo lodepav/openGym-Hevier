@@ -32,16 +32,16 @@ describe('Exercise settings categories (S58, D114)', () => {
 
   it('without the hook every category shows', () => {
     open({ sets: 3, reps: 10, weight: 40, mode: 'reps' })
-    expect(heads()).toEqual(expect.arrayContaining(['Drop-set / rest-pause', 'Weight unit', 'Plate loading']))
+    expect(heads()).toEqual(expect.arrayContaining(['Set type', 'Weight unit', 'Plate loading']))
   })
 
   it('hides a category that is off, but not what the exercise already uses', () => {
     hooks.exPart = () => false
     open({ sets: 3, reps: 10, weight: 40, mode: 'reps' })
-    for (const h of ['Drop-set / rest-pause', 'Weight unit', 'Plate loading']) expect(heads()).not.toContain(h)
+    for (const h of ['Set type', 'Weight unit', 'Plate loading']) expect(heads()).not.toContain(h)
     expect(host.textContent).not.toContain('Pyramid sets')
     act(() => root.unmount()); host.remove()
     open({ sets: 3, reps: 10, weight: 40, mode: 'reps', intensifier: { type: 'dropset', count: 1, pct: 20 } })
-    expect(heads()).toContain('Drop-set / rest-pause')
+    expect(heads()).toContain('Set type')
   })
 })

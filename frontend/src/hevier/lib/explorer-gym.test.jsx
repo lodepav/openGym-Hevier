@@ -8,7 +8,7 @@ import { DEF, useStore } from '../../store/useStore.js'
 import MuscleExplorer from '../../components/MuscleExplorer.jsx'
 import { hooks } from '../hooks.js'
 import { explorerFilter, rememberGym } from './gym-filter.js'
-import { equipChips, muscleChips } from '../components/EquipGroups.jsx'
+import { equipChips } from '../components/EquipGroups.jsx'
 import { EQUIP_GROUPS } from './equip-groups.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -26,14 +26,13 @@ function render(extra) {
   root = createRoot(host)
   act(() => root.render(<MuscleExplorer onDetail={() => {}} />))
 }
-const chestCount = () => Number([...host.querySelectorAll('.chips .chip')].find(b => b.textContent.startsWith('Chest')).querySelector('.dim').textContent)
+const chestCount = () => Number([...host.querySelectorAll('.chips .chip')].find(b => b.textContent.startsWith('Chest') && b.querySelector('.dim')).querySelector('.dim').textContent)
 
 afterEach(() => {
   act(() => root.unmount())
   host.remove()
   hooks.equipFilter = null
   hooks.equipChips = null
-  hooks.muscleChips = null
   localStorage.clear()
 })
 
@@ -58,7 +57,7 @@ describe('hevier: muscle explorer by gym (seam S37)', () => {
   it('its equipment strip is by group, a chevron opening a group’s kinds (D63, seam S38)', () => {
     hooks.equipChips = equipChips
     render({})
-    act(() => [...host.querySelectorAll('.chips .chip')].find(b => b.textContent.startsWith('Chest')).click())
+    act(() => [...host.querySelectorAll('.chips .chip')].find(b => b.textContent.startsWith('Chest') && b.querySelector('.dim')).click())
     const strip = () => [...host.querySelectorAll('.hv-eqg-chip')]
     const group = label => strip().find(c => c.textContent === label)
     expect(group('Free weights')).toBeTruthy()
@@ -77,28 +76,4 @@ describe('hevier: muscle explorer by gym (seam S37)', () => {
     expect(count()).toBeLessThan(all)             // the group held more than its dumbbells
     expect(group('Free weights').className).toContain('some')
   })
-
-  it('its muscle chips are by group, a chevron opening a group’s muscles (D64, seam S39)', () => {
-    hooks.muscleChips = muscleChips
-    render({})
-    const chip = label => [...host.querySelectorAll('.hv-eqg-chip')].find(c => c.querySelector('.hv-eqg-t').firstChild.textContent === label)
-    const n = c => Number(c.querySelector('.dim').textContent)
-    expect(chip('Biceps')).toBeUndefined()
-    const arms = chip('Arms')
-    act(() => arms.querySelector('.hv-eqg-t').click())
-    expect(host.textContent).toContain('Exercises for Arms')
-    act(() => chip('Arms').querySelector('.hv-eqg-x').click())
-    const biceps = [...host.querySelectorAll('.hv-eqg-strip .chip')].find(c => c.firstChild.textContent === 'Biceps')
-    expect(n(biceps)).toBeLessThan(n(chip('Arms')))
-    act(() => biceps.click())
-    expect(host.textContent).toContain('Exercises for Biceps')
-    expect(chip('Arms').className).toContain('some')
-    act(() => chip('Shoulders').querySelector('.hv-eqg-x').click())        // its heads (D65)
-    const heads = [...host.querySelectorAll('.hv-eqg-strip .chip')]
-    expect(heads.map(c => c.firstChild.textContent)).toEqual(['Front Delts', 'Side Delts', 'Rear Delts'])
-    act(() => heads[2].click())
-    expect(host.textContent).toContain('Exercises for Rear Delts')
-    expect(host.textContent).toContain('Also trains')                      // rows, by their rear delts
-  })
 })
-

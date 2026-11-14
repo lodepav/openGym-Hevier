@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { sideBalance } from './side-balance.js'
 import { exerciseSummary } from './exercise-summary.js'
-import { countedS } from './counted.js'
+import { countedS } from '../../lib/counted-log.js'
 import { EXDB } from '../../lib/exercises.js'
 
 const ROW = EXDB.find(e => /^lever seated row$/i.test(e.n)).id

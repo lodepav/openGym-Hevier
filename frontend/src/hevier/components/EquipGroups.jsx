@@ -5,9 +5,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { t } from '../../lib/i18n.js'
 import Icon from '../../components/Icon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
-import { MUSCLES, MUSCLE_NAME } from '../../lib/muscles.js'
-import { headOfSlug, HEAD_NAME } from '../lib/delt-heads.js'
-import { explorerMuscles, groupBy, groupOfMuscle, groupOfName, nameGroups, muscleGroupValue, muscleGroupIdOf, muscleGroupLabel, explorerShare } from '../lib/muscle-groups.js'
+import { groupOfName, nameGroups, muscleGroupValue, muscleGroupIdOf } from '../lib/muscle-groups.js'
 import { groupKinds, groupState, toggleGroup, groupValue, groupIdOf, groupOf, eqOnAmong, eqMatches } from '../lib/equip-groups.js'
 
 const Chevron = ({ open, label, onClick, className }) => <button type="button" className={className}
@@ -174,22 +172,3 @@ export function MuscleFilterSheet({ value, names, onPick, close }) {
     </div></div>
   </>
 }
-
-/** Seam S39: the By muscle explorer's muscle chips by group, with each one's exercise count. */
-function MuscleStrip({ value, onChange, catalog }) {
-  const groups = groupBy(explorerMuscles(MUSCLES), groupOfMuscle)
-  const count = v => catalog.filter(e => explorerShare(v, e)).length
-  return <div style={{ marginTop: 10 }}><GroupStrip groups={groups} value={value || ''} onChange={v => onChange(v || null)}
-    anyLabel={t('All')} gv={muscleGroupValue} gidOf={muscleGroupIdOf} kindGroup={groupOfMuscle}
-    kindLabel={m => t(slugName(m))} count={count} /></div>
-}
-// A muscle is outlined on the body map; a group is filled in, its muscles all at full.
-const mapProps = v => {
-  const g = muscleGroupIdOf(v)
-  if (g) return { load: Object.fromEntries(groupBy(MUSCLES, groupOfMuscle).find(x => x.id === g)?.kinds.map(m => [m, 1]) || []) }
-  // A head (D65) has no region of its own: the shoulder is outlined.
-  return { selected: headOfSlug(v) ? 'deltoids' : v }
-}
-const slugName = m => { const h = headOfSlug(m); return h ? HEAD_NAME[h] : MUSCLE_NAME[m] }
-const muscleName = v => { const g = muscleGroupIdOf(v); return t(g ? muscleGroupLabel(g) : slugName(v)) }
-export const muscleChips = { Chips: MuscleStrip, share: explorerShare, name: muscleName, map: mapProps }

@@ -11,7 +11,7 @@ import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/wee
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
-import { countedWorkouts } from '../lib/counted.js'
+import { countedWorkouts } from '../../lib/counted-log.js'
 import { sessionVolume } from '../../lib/history.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }

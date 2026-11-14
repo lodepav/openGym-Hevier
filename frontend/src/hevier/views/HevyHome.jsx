@@ -30,7 +30,7 @@ import { fieldSig } from '../lib/store-watch.js'
 import { homeWidgets, readHome, writeHome, ALWAYS_ON, UPSTREAM_SWITCH } from '../lib/home-layout.js'
 import { widgetOn } from '../lib/fork-modules.js'
 import { WeeklySetsWidget } from '../components/WeeklySetsCard.jsx'
-import { countedS } from '../lib/counted.js'
+import { countedS } from '../../lib/counted-log.js'
 import { HOME_CARDS } from '../components/HomeCards.jsx'
 
 const TITLE = {

@@ -12,7 +12,6 @@ import { fixture, ROUTINES, PLAIN, CITY, WEEKEND, TODAY, NOW, BENCH, CALF, PRESS
 import { hooks } from '../hooks.js'
 import { isPlain, plainRows } from './plain-routine.js'
 import { sideDefault } from './one-limb.js'
-import { holdMode } from './hold-mode.js'
 import { rowMode } from './hold-set.js'
 import { entryBrand, workoutGym } from './gym-labels.js'
 import { buildCombinedEntries, deriveSessionName } from '../../lib/session-merge.js'
@@ -50,12 +49,10 @@ describe('hevier: what each routine opens with', () => {
   beforeAll(() => {
     // The fork's hooks a session's build reads (hevier/index.js install), on the profile in use.
     hooks.plainRoutine = { is: isPlain, rows: plainRows }
-    hooks.defaultSide = id => sideDefault(current, id)
-    hooks.defaultMode = id => holdMode(current, id)
     hooks.setMode = rowMode
   })
   afterAll(() => {
-    Object.assign(hooks, { plainRoutine: null, defaultSide: null, defaultMode: null, setMode: null })
+    Object.assign(hooks, { plainRoutine: null, setMode: null })
     // A case left out by a -t filter keeps its kept copy; a routine gone from the fixture goes.
     if (WRITE) writeFileSync(FILE, JSON.stringify(Object.fromEntries(CASES.map(c => [c.key, now[c.key] ?? kept[c.key]])), null, 2) + '\n')
   })

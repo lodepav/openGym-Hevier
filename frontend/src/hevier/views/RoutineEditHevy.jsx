@@ -279,7 +279,7 @@ export default function RoutineEditHevy() {
   const added = []
   const addExercise = () => exercisePicker((ex, quick) => {
     if (quick) {
-      setR(x => x.ex.push({ id: ex.id, ...pickedExerciseConfig(ex.id) }))
+      setR(x => x.ex.push({ id: ex.id, ...pickedExerciseConfig(ex.id, undefined, useStore.getState().S) }))
       if (added.push(exerciseNameText(ex)) === 1) queueMicrotask(() => {
         toast(added.length > 1 ? t('{0} added to {1}', tn('{0} exercise', '{0} exercises', added.length), r.name)
           : t('“{0}” added to {1}', added[0], r.name))

@@ -272,6 +272,8 @@ const MUSCLE = {
   glutes: 'glutes', gluteal: 'glutes', calves: 'calves', adductors: 'adductors', abductors: 'abductors',
   abs: 'abdominals', core: 'abdominals', obliques: 'abdominals', 'serratus anterior': 'chest',
   pectorals: 'chest', chest: 'chest', delts: 'shoulders', deltoids: 'shoulders', shoulders: 'shoulders',
+  'front delts': 'shoulders', 'side delts': 'shoulders', 'rear delts': 'shoulders',
+  'front-delts': 'shoulders', 'side-delts': 'shoulders', 'rear-delts': 'shoulders',
   biceps: 'biceps', triceps: 'triceps', forearms: 'forearms', forearm: 'forearms',
   lats: 'lats', 'upper back': 'upper_back', 'upper-back': 'upper_back', traps: 'traps', trapezius: 'traps',
   spine: 'lower_back', 'lower back': 'lower_back', 'lower-back': 'lower_back',

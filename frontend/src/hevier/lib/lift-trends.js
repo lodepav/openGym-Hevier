@@ -7,7 +7,7 @@
 import { exOr } from '../../lib/exercises.js'
 import { entryExcluded } from '../../lib/history.js'
 import { entryLastKey } from './gym-labels.js'
-import { countedS } from './counted.js'
+import { countedS } from '../../lib/counted-log.js'
 import { exerciseSummary } from './exercise-summary.js'
 import { workoutRecords } from './records.js'
 import { WINDOW_DAYS, LEFT_OUT, dayNo, compared, arrows, sessionVerdict, readExercise, muscleGroup } from './strength-signal.js'

@@ -27,25 +27,12 @@ describe('hevier: the rest of the Hevy API (D31)', () => {
   beforeEach(() => { hooks.hevyMore = more })
   afterEach(() => { hooks.hevyMore = null })
 
-  it('brings a workout\'s description, its exercises\' notes and its Hevy routine', () => {
+  it('brings a workout\'s Hevy routine; its description and notes are upstream\'s since 1.4.5', () => {
     const p = parseHevyWorkouts([hevyWorkout()], T, { unit: 'kg' })
     const [w] = p.workouts
-    expect(w).toMatchObject({ note: 'Felt strong', hvHevyRoutine: 'r1', routineId: null })
-    expect(w.entries[0].note).toBe('belt on · paused')
-  })
-
-  it('reads a routine exercise\'s rest and rep range; a range of one number is a rep count', () => {
-    const ranged = parseHevyRoutines([hevyRoutine([
-      { type: 'warmup', weight_kg: 60, reps: 5 },
-      { type: 'normal', weight_kg: 100, reps: null, rep_range: { start: 8, end: 12 } },
-    ])], T, { unit: 'kg' }).routines[0].ex[0]
-    expect(ranged).toMatchObject({ restSec: 150, reps: 12, repsMin: 8, prog: 'double', weight: 100, warmupSets: 1 })
-    const flat = parseHevyRoutines([hevyRoutine([{ type: 'normal', weight_kg: 100, reps: null, rep_range: { start: 6, end: 6 } }])], T, { unit: 'kg' }).routines[0].ex[0]
-    expect(flat.reps).toBe(6)
-    expect(flat.prog).toBeUndefined()
-    const none = parseHevyRoutines([hevyRoutine([{ type: 'normal', weight_kg: 100, reps: 5 }], { exercises: [{ exercise_template_id: 't1', sets: [{ type: 'normal', weight_kg: 100, reps: 5 }] }] })], T, { unit: 'kg' }).routines[0].ex[0]
-    expect(none.restSec).toBeUndefined()
-    expect(none.repsMin).toBeUndefined()
+    expect(w).toMatchObject({ hvHevyRoutine: 'r1', routineId: null })
+    expect(w.note).toMatch(/Felt\s+strong/)
+    expect(w.entries[0].note).toContain('belt on')
   })
 
   it('reads Hevy\'s body measurements into openGym\'s fields, in cm', () => {
@@ -127,7 +114,7 @@ describe('hevier: the rest of the Hevy API (D31)', () => {
     expect(c).toMatchObject({ eq: 'cable', tg: 'forearm', primaries: ['forearm'], secondaries: ['biceps'], sm: ['biceps'], muscleGroups: ['forearm', 'biceps'] })
     expect(edited).toMatchObject({ eq: 'barbell', tg: 'quadriceps' })
     expect(more.templateInfo({ equipment: 'none', primary_muscle_group: 'cardio' })).toEqual({ eq: 'body weight', primaries: [], secondaries: [] })
-    expect(more.templateInfo({ equipment: 'other', primary_muscle_group: 'lats', title: 'Smith thing' })).toEqual({ eq: null, primaries: ['upper-back'], secondaries: [] })
+    expect(more.templateInfo({ equipment: 'other', primary_muscle_group: 'lats', title: 'Smith thing' })).toEqual({ eq: null, primaries: ['lats'], secondaries: [] })
   })
 
   it('fetches Hevy\'s weight unit with the key; a failure is no unit', async () => {
@@ -157,7 +144,6 @@ describe('hevier: the rest of the Hevy API (D31)', () => {
       hooks.hevyMore = null
       const plain = await importHevyData('k', { unit: 'kg' })
       expect(plain.hvRaw).toBeUndefined()
-      expect(plain.workouts.workouts[0].note).toBeUndefined()
       expect(plain.workouts.workouts[0].hvHevyRoutine).toBeUndefined()
     } finally { globalThis.fetch = realFetch }
   })

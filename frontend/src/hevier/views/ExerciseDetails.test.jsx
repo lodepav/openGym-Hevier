@@ -11,7 +11,6 @@ import { modeOf } from '../../lib/history.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
-import { aliasHooks } from '../lib/ex-aliases.js'
 import { capWords } from '../../lib/format.js'
 import { useStatsPhase } from '../lib/shared-phase-run.js'
 
@@ -132,10 +131,9 @@ describe('hevier: exercise details (seam S10)', () => {
   })
 
   it('other names: the switched-on one is the title, the rest and the own name are “Also called” (D73)', () => {
-    Object.assign(hooks, aliasHooks(() => useStore.getState().S))
     try {
       open(log)
-      act(() => useStore.getState().update(s => { s.exAliases = { [EX.id]: ['Flat bench', 'Bench'] }; s.hvShownName = { [EX.id]: 'Bench' } }))
+      act(() => useStore.getState().update(s => { s.exAliases = { [EX.id]: ['Flat bench', 'Bench'] }; s.exShownName = { [EX.id]: 'Bench' } }))
       expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
       expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called ' + capWords(EX.n) + ' · Flat bench')
       act(() => container.querySelector('.hv-xd-aka').click())
@@ -148,13 +146,13 @@ describe('hevier: exercise details (seam S10)', () => {
       expect(container.querySelector('.hv-xd-bar h3').textContent).toBe(EX.n)
       expect(container.querySelector('.hv-xd-aka').textContent).toBe('Also called Flat bench · Bench')
       act(() => r2.unmount())
-    } finally { hooks.exName = null }
+    } finally { useStore.getState().update(s => { s.exShownName = {} }) }
   })
 
   it('names the main muscle, the others and the equipment under the picture', () => {
     open(log)
     const lines = [...container.querySelectorAll('.hv-xd-facts span')].map(s => s.textContent)
-    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Shoulders', 'Equipment: barbell'])
+    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Front Delts', 'Equipment: barbell'])
   })
 
   it('without the hook it is upstream’s sheet', () => {
@@ -252,9 +250,8 @@ describe('hevier: Workout extras and Exercise settings parts in exercise details
   })
 
   it('Other names and Main muscle: off takes their ⋯ rows and the “Also called” line away, a chosen name stays', () => {
-    Object.assign(hooks, aliasHooks(() => useStore.getState().S))
     try {
-      const names = { exAliases: { [EX.id]: ['Flat bench', 'Bench'] }, hvShownName: { [EX.id]: 'Bench' } }
+      const names = { exAliases: { [EX.id]: ['Flat bench', 'Bench'] }, exShownName: { [EX.id]: 'Bench' } }
       openWith(names)
       expect(menuRows().some(r => r.includes('Other names'))).toBe(true)
       expect(menuRows().some(r => r.includes('Main muscle'))).toBe(true)
@@ -268,6 +265,6 @@ describe('hevier: Workout extras and Exercise settings parts in exercise details
         expect(container.querySelector('.hv-xd-aka')).toBeNull()
         expect(container.querySelector('.hv-xd-bar h3').textContent).toBe('Bench')
       }
-    } finally { hooks.exName = null }
+    } finally { useStore.getState().update(s => { s.exShownName = {} }) }
   })
 })

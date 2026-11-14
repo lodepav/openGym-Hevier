@@ -12,7 +12,7 @@ import { DAYS, MONTHS_LONG, weekStartOf, weekOrder } from '../../lib/format.js'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { workSets } from './volume.js'
 import { dayKind, planKind, monthCells } from './calendar.js'
-import { countedWorkouts } from './counted.js'
+import { countedWorkouts } from '../../lib/counted-log.js'
 
 export const WIDGET_SNAPSHOT_VERSION = 1
 

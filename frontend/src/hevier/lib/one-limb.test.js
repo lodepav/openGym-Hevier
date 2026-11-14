@@ -1,7 +1,6 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { EXIDX } from '../../lib/exercises.js'
 import { defaultConfig, pickedExerciseConfig, isPerSide } from '../../lib/history.js'
-import { hooks } from '../hooks.js'
 import { sideDefault, withSide, sideRoutines } from './one-limb.js'
 import { matchTitle, readKey } from './hevy-import.js'
 
@@ -9,20 +8,17 @@ const S0 = (workouts = []) => ({ unit: 'kg', workouts, routines: [] })
 const side = (w, r) => ({ w, r, done: true, sides: { L: { w, r, done: true }, R: { w, r, done: true } } })
 
 describe('hevier one-limb exercises start per side (D75)', () => {
-  afterEach(() => { hooks.defaultSide = null })
-
   it('a custom or other exercise last logged per side starts per side too', () => {
     expect(sideDefault(S0(), '0085')).toBe(false)
     const S = S0([{ d: '2026-10-01', entries: [{ id: '0085', sets: [side(60, 8)] }] }])
     expect(sideDefault(S, '0085')).toBe(true)
   })
 
-  it('upstream’s pickedExerciseConfig takes it through the seam, and only then', () => {
+  it('upstream’s pickedExerciseConfig starts it per side too, given the profile (1.4.5, from the fork’s #902)', () => {
     const S = S0([{ d: '2026-10-01', entries: [{ id: '0085', sets: [side(60, 8)] }] }])
     expect(pickedExerciseConfig('0085').side).toBeUndefined()
-    hooks.defaultSide = id => sideDefault(S, id)
-    expect(pickedExerciseConfig('0085')).toMatchObject({ mode: 'reps', side: true, reps: 20 })
-    expect(pickedExerciseConfig('0085', 'time')).toMatchObject({ mode: 'time', side: true, sec: 45 })
+    expect(pickedExerciseConfig('0085', undefined, S)).toMatchObject({ mode: 'reps', side: true, reps: 20 })
+    expect(pickedExerciseConfig('0085', 'time', S)).toMatchObject({ mode: 'time', side: true, sec: 45 })
     expect(pickedExerciseConfig('0025').side).toBeUndefined()
     // defaultConfig, spread under saved targets, never adds it: per side switched off stays off.
     expect(isPerSide({ ...defaultConfig('0085'), sets: 3, reps: 12, mode: 'reps' })).toBe(false)

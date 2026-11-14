@@ -1,8 +1,8 @@
 // A one-limb exercise starts per side (hevier/DECISIONS.md D75). Upstream's 1.4.3 does this for a
 // catalogue exercise its name says is done one arm or leg at a time (`isOneLimb`,
-// `pickedExerciseConfig`, from the fork's #736). The fork adds, through seam S32, any exercise
-// whose last logged work sets were per side, and turns routine slots per side (`withSide`,
-// `sideRoutines`). An entry whose settings are already set stays as it is.
+// `pickedExerciseConfig`, from the fork's #736), and 1.4.5 for any exercise whose last logged work
+// sets were per side (`lastLoggedShape`, from the fork's #902). The fork turns routine slots per
+// side (`withSide`, `sideRoutines`). An entry whose settings are already set stays as it is.
 import { EXIDX, isCardio, isOneLimb } from '../../lib/exercises.js'
 import { lastEntryFor } from '../../lib/history.js'
 import { isSideSet } from '../../lib/workout-model.js'

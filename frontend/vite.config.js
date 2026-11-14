@@ -110,7 +110,9 @@ const appVersion = process.env.APP_BUILD ? `${ownVersion}+${process.env.APP_BUIL
 // [/hevier]
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(appVersion), __UPSTREAM_VERSION__: JSON.stringify(pkgVersion) }, // [hevier] S29
+  // __SEASON_CLOCK__: the seasonal QA date hook (src/lib/season-clock.js), only in a build made
+  // with VITE_SEASON_CLOCK=1 for screenshots. false everywhere else, so the hook is compiled out.
+  define: { __APP_VERSION__: JSON.stringify(appVersion), __UPSTREAM_VERSION__: JSON.stringify(pkgVersion), __SEASON_CLOCK__: JSON.stringify(process.env.VITE_SEASON_CLOCK === '1') }, // [hevier] S29
   plugins: [react(), umami, flavor, swStamp, catalogueMedia, bootLook(process.env.VITE_HEVIER === '1')], // [hevier] S45
   base: './',
   server: {

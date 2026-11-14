@@ -68,7 +68,7 @@ describe('hevier: upstream contract', () => {
 
   it('build:mobile is the one the fork’s scripts copy', () => {
     // hevier/tools/emulator.sh, release-apk.sh and release-check.sh repeat these steps by hand: copy a change there.
-    expect(pkg.scripts['build:mobile']).toBe('VITE_MOBILE=1 vite build && node ../scripts/catalogue/stage-media.mjs dist && cap sync && node scripts/check-mobile-bundle.mjs')
+    expect(pkg.scripts['build:mobile']).toBe('VITE_MOBILE=1 vite build && node scripts/check-season-clock.mjs dist && node ../scripts/catalogue/stage-media.mjs dist && cap sync && node scripts/check-mobile-bundle.mjs')
   })
 
   it('the fork UI is off unless the build asks for it', () => {

@@ -48,7 +48,7 @@ describe('hevier: gym filter (D62)', () => {
   it('names what a gym lacks for an exercise: its equipment, its bench or bar, body weight (D67)', () => {
     const INCLINE = EXDB.find(e => e.eq === 'dumbbell' && /^dumbbell incline bench press$/i.test(e.n))
     const db = gym('a', ['dumbbell'], { hvBw: 1 })
-    expect(gymLacks(db, INCLINE)).toEqual(['bench'])
+    expect(gymLacks(db, INCLINE)).toEqual(['bench', 'adjustable bench'])   // an incline needs one that tilts (1.4.5)
     expect(gymLacks(db, CURL)).toEqual([])
     expect(gymLacks(db, PULLUP)).toEqual(['body weight', 'pull-up bar'])
     expect(gymLacks(gym('b', []), PUSHUP)).toEqual([])    // saved before D62: has body weight

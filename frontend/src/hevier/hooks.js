@@ -27,18 +27,14 @@ export const hooks = {
   moduleRow: null,      // (id, row) => element: a module's row, with its parts unfolding under it (S54, D102)
   exPart: null,         // part => whether an Exercise settings category shows (S58, D114)
   tourPresetOnly: false, // true: the first-run card asks only how much app, and the tour is never offered (S53, D97, D100)
-  defaultMode: null,     // (id) => 'time' | null: a freshly added exercise's mode, before upstream's (S32)
-  defaultSide: null,     // (id) => bool: a freshly added exercise is per side (S32, D75)
   statsS: null,          // (S) => S, a React hook: the log upstream's statistics pages read (S34)
   gymSheet: null,        // { equipment(p), saved(p), note(), Chips }: an equipment profile's sheet, a gym's (S36)
   equipFilter: null,     // (S) => { profile, has(ex) }: the gym upstream's muscle explorer filters by (S37)
   equipChips: null,      // { on(v, kinds), has(v, ex), Chips }: the muscle explorer's equipment strip (S38)
-  muscleChips: null,     // { Chips, share(v, ex), name(v), map(v) }: the muscle explorer's muscles by group (S39)
   plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40), its warm-ups left alone (S59)
-  exName: null,          // (ex) => name | null: the name shown in place of an exercise's own (S41)
   setMode: null,         // (set) => 'time' | null: the kind of set a row is, before its exercise's (S48)
   integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
-  hevyMore: null,        // { day, exercise, workout, routineExercise, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
+  hevyMore: null,        // { day, workout, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }
 
 export const SAVE_PATH = '/workout/save'

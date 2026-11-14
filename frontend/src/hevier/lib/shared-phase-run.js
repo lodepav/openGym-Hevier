@@ -2,7 +2,6 @@
 // statistics pages' filter, one choice across them, All again each time the app starts.
 import { create } from 'zustand'
 import { MOBILE, isAndroid } from '../../lib/mobile.js'
-import { countedS } from './counted.js'
 import { phaseFromRow, phasedS } from './shared-phase.js'
 import { partOn } from './module-parts.js'
 
@@ -29,5 +28,5 @@ export const usePhasedS = S => {
   return phasedS(S, partOn(S, 'integrations', 'openbite') ? phase : null) // D114: OpenBite's part off, no filter
 }
 
-/** Seam S34's hook, called while upstream's statistics pages render: counted (D57), then filtered. */
-export const useStatsS = S => usePhasedS(countedS(S))
+/** Seam S34's hook, called while upstream's statistics pages render, on the log upstream already counted (D57). */
+export const useStatsS = usePhasedS

@@ -13,7 +13,7 @@ export const EQUIP_GROUPS = [
   { id: 'ball', label: 'Balls & rollers', kinds: ['stability ball', 'bosu ball', 'roller', 'wheel roller', 'massage ball'] },
   { id: 'cardio', label: 'Cardio machines', kinds: ['stationary bike', 'elliptical machine', 'skierg machine', 'stepmill machine', 'upper body ergometer'] },
   // The accessories a gym ticks (upstream's ACCESSORIES): no exercise names them as its equipment.
-  { id: 'acc', label: 'Bench & bar', kinds: ['bench', 'pull-up bar'] },
+  { id: 'acc', label: 'Bench & bar', kinds: ['bench', 'adjustable bench', 'pull-up bar'] },
   { id: 'other', label: 'Other', kinds: ['rope', 'tire', 'hammer'] },
 ]
 

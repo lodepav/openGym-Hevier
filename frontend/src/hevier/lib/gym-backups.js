@@ -113,7 +113,7 @@ export function swapEntry(s, index, toId, slot = null) {
   if (!current || list(current.sets).some(x => x?.done === true)) return false
   const routine = routineOf(s, current.rid)
   if (!routine) return false
-  const full = { ...(slot || pickedExerciseConfig(toId)), id: toId }
+  const full = { ...(slot || pickedExerciseConfig(toId, undefined, s)), id: toId }
   const built = buildPlannedEntry(sessionHistory(s), full, routine, { noProg: builtOutOfProgression(current, routine) })
   const replacement = { id: toId, ...built, rid: current.rid, ...(current.noProg === true ? { noProg: true } : {}) }
   return !!swapActiveExercise(A, index, replacement)

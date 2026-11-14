@@ -13,6 +13,7 @@ import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
 import { Section, Row, Switch } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import { AvatarFace } from '../../components/Avatar.jsx'
 import { menuSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { volumeMode, muscleMode } from '../lib/volume.js'
@@ -26,7 +27,7 @@ import HevyExportSection from '../components/HevyExportSection.jsx'
 import { MediaSection } from '../components/MediaSection.jsx'
 import { partOn, needOf } from '../lib/module-parts.js'
 
-function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
+function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const restSec = useStore(s => s.S.restSec)
   const body = useStore(s => s.S.body)
   const gyms = useStore(s => s.S.equipProfiles)
@@ -66,7 +67,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, initial }) {
     return <Section key={g.title} title={t(g.title)}>
       {/* Upstream's account card (views/Settings.jsx SettingsRoot), as a row of its group. */}
       {g.account && <button className="lrow tap sp-acct" onClick={() => open('account')}>
-        <span className={'sp-avatar' + (initial ? ' on' : '')} aria-hidden="true">{initial || <Icon name="personCircle" />}</span>
+        <AvatarFace name={faceName} />
         <span className="lrow-m"><span className="lrow-t">{acct.title}</span><span className="lrow-s">{acct.sub}</span></span>
         <Icon name="chevronRight" className="lrow-c" />
       </button>}
