@@ -201,6 +201,59 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(setDelta({ id: 'p', target: timed, sets: rows(4) })).toBe(1)
   })
 
+  // The workout's exercise settings, saved: the entry rebuilt from the new config as Workout.jsx does.
+  const resheet = (S, e, cfg) => {
+    const built = buildPlannedEntry(S, { ...cfg, id: e.id }, S.routines[0])
+    Object.assign(e, { target: built.target, plan: built.plan, planned: built.planned, sets: built.sets })
+  }
+  const ONE = '1178'   // a one-limb catalogue exercise (D75)
+
+  it('Per side switched on in the workout is a change, the slot per side at the target’s reps', () => {
+    const S = state()
+    const A = start(S)
+    // The sheet's per-side reps are both sides' total, rounded up to even.
+    resheet(S, A.entries[1], { sets: 3, mode: 'reps', reps: 16, weight: 60, side: true })
+    const u = one(S, A)
+    expect(u.summary).toMatchObject({ changed: 1, added: 0, removed: 0, swapped: 0 })
+    expect(u.ex[1]).toEqual({ id: BENCH, sets: 3, reps: 16, weight: 60, side: true })
+  })
+
+  it('a rep range switched on per side keeps the range the sheet gave it', () => {
+    const r = routine()
+    r.ex[1] = { ...r.ex[1], reps: 12, repsMin: 8 }
+    const S = state(r)
+    const A = start(S)
+    resheet(S, A.entries[1], { sets: 3, mode: 'reps', reps: 24, repsMin: 16, weight: 60, side: true })
+    expect(one(S, A).ex[1]).toMatchObject({ side: true, reps: 24, repsMin: 16, weight: 60 })
+  })
+
+  it('Per side switched off: a plain exercise loses the flag, a one-limb one keeps it off (D75)', () => {
+    const r = routine()
+    r.ex[1] = { ...r.ex[1], reps: 16, side: true }
+    r.ex[2] = { id: ONE, sets: 3, reps: 20, weight: 20, side: true }
+    const S = state(r)
+    const A = start(S)
+    resheet(S, A.entries[1], { sets: 3, mode: 'reps', reps: 8, weight: 60 })
+    resheet(S, A.entries[2], { sets: 3, mode: 'reps', reps: 10, weight: 20 })
+    const u = one(S, A)
+    expect(u.summary.changed).toBe(2)
+    expect(u.ex[1]).toEqual({ id: BENCH, sets: 3, reps: 8, weight: 60 })
+    expect(u.ex[2]).toEqual({ id: ONE, sets: 3, reps: 10, weight: 20, side: false })
+  })
+
+  it('an untouched per-side, switched-off one-limb or plain slot is no change', () => {
+    const r = routine()
+    r.ex[0] = { id: ONE, sets: 3, reps: 20, weight: 20, side: true }
+    r.ex[1] = { id: ONE, sets: 3, reps: 10, weight: 20, side: false }
+    const S = state(r)
+    expect(routineUpdates(S, start(S))).toEqual([])
+    // The sheet saved as it opened is no change either.
+    const A = start(S)
+    resheet(S, A.entries[0], r.ex[0])
+    resheet(S, A.entries[2], r.ex[2])
+    expect(routineUpdates(S, A)).toEqual([])
+  })
+
   it('offers nothing for an edited past workout', () => {
     const S = state()
     const A = start(S)
