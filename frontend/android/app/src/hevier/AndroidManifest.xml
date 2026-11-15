@@ -22,7 +22,9 @@
      stay, D37), the nine other launcher icons with Christmas and Halloween among them (one icon, D17;
      the picker is hidden), the long-press and Assistant shortcuts on the one left, and the Wear OS
      watch's exported listener service (no watch app in the fork; hevier.gradle leaves its library
-     and plugin out of the build). -->
+     and plugin out of the build).
+     Garmin's Connect IQ binding service is removed too (D106, 2026-11-15): the SDK exports it to any
+     app with no permission, so the Garmin watch link is off in the fork and its settings hidden. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
@@ -49,6 +51,7 @@
         <activity-alias android:name=".IconHalloween" tools:node="remove" />
         <activity-alias android:name=".IconChristmas" tools:node="remove" />
         <service android:name=".WatchListenerService" tools:node="remove" />
+        <service android:name="com.garmin.android.connectiq.IQGarminBindingService" tools:node="remove" />
         <receiver
             android:name=".HevierMonthWidget"
             android:exported="false"
