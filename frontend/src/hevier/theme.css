@@ -1,51 +1,71 @@
-/* Phase 2, step 1: Hevy's look as overrides of upstream's tokens (D17,
-   hevier/DECISIONS.md D17). Upstream's whole UI and the fork's components draw with these
-   custom properties, so this one block restyles both without touching index.css.
+/* The fork's look (D123, replacing D17's palette): OpenBite's warm greys, weights and radii on an
+   AMOLED black page. Upstream's whole UI and the fork's components draw with these custom
+   properties, so this one block restyles both without touching index.css.
 
-   Seam S15 (App.jsx) keeps the root on data-theme="dark" with the "sky" preset, so the block
-   below is the fork's one look. The light block exists only for upstream's timer flash, which
-   blinks the theme to light and back (components/TimerFlash.jsx).
-
-   Hevy blue, warm-up yellow and failure red are measured from Hevy's own screenshots
-   (hevier/reference/web). Hevy's site shows only its light mode, so the dark surfaces are an
-   estimate: a black page (AMOLED, D17), slightly lifted cards, cool grey secondary text. */
+   No accent here: seam S15 (App.jsx) pins only the dark theme, and upstream's applyAccent sets
+   --acc, --acc-2 and --on-acc from the user's pick. This block has the same weight as upstream's
+   presets and loads later, so an accent token here would beat every pick. The meaning colours that
+   step aside from the accent (--hv-cardio, --hv-warmup, …) are set on the root by
+   lib/meaning-colours-run.js. The light block exists only for upstream's timer flash, which blinks
+   the theme to light and back (components/TimerFlash.jsx). */
 
 :root[data-ui="hevier"] {
   --bg:        #000000;   /* AMOLED black page (D17) */
   --bg-el:     #000000;   /* sheets, bars */
-  --surface:   #1b1d22;   /* cards, grouped lists */
-  --surface-2: #262930;   /* pressed, nested, input fills */
-  --surface-3: #353941;   /* controls: segmented track, switch off */
+  --surface:   #16140f;   /* upstream's fields and groups keep a faint fill; the fork's cards are black with a hairline */
+  --surface-2: #16140f;   /* wells: inputs, secondary buttons, chips */
+  --surface-3: #1f1d19;   /* the next set, unticked boxes, segmented track */
+  --surface-raised: #1f1d19;   /* dialogs, the floating timer */
+  --raised-line:    #38352f;
 
-  --label:     #ffffff;
-  --label-2:   #9a9ea7;   /* Hevy's grey secondary text */
-  --label-3:   rgba(154,158,167,.8);   /* 4.5:1 on the cards, for the grey prefilled values */
-  --label-4:   rgba(154,158,167,.25);
+  --label:     #ece8e1;
+  --label-2:   #a39e94;
+  --label-3:   #a09b91;   /* solid, so prefilled values keep 4.5:1 on the next set's row too */
+  --label-4:   rgba(163,158,148,.25);
+  --label-dim: #a39e94;
 
-  --sep:       #2a2d34;
-  --sep-op:    rgba(42,45,52,.7);
+  --sep:       #38352f;
+  --sep-op:    rgba(56,53,47,.7);
 
   --blue:   #008cff;
   --yellow: #efab03;
   --red:    #e34b37;
   --green:  #2fbf5b;
 
-  --acc:      #008cff;
-  --acc-2:    #0070d6;
-  --on-acc:   #ffffff;
+  --r-sm:   14px;
+  --r:      20px;
+  --r-card: 26px;
+  --r-lg:   26px;
+  --r-xl:   32px;
 
-  --r-card: 12px;
+  --hv-font: 'Nunito', Roboto, system-ui, sans-serif;   /* @font-face comes from build/boot-look.js */
+  --hv-card-line: inset 0 0 0 1px var(--sep);   /* a card's edge, drawn inside so no box grows */
+  /* the fork's own set-table colours (hevier.css) */
+  --hv-stripe:     #0b0a08;          /* alternate set rows */
+  --hv-next-tick:  #48433b;          /* the next set's unticked box, a step above --surface-3 */
+  --hv-tick:       var(--acc);       /* a ticked box and the tint of its row: done always wears the accent (D123) */
+  --hv-tick-ink:   var(--on-acc);
 
   color-scheme: dark;
 }
 
-/* Only during the timer flash. */
+/* Upstream's white ink on these presets is under 4.5:1; black reads 5.3:1 or more. A kept
+   preset only: the fork's own picks are stored as custom colours, with upstream's own ink. */
+:root[data-ui="hevier"]:not([data-theme="light"]):is([data-accent="sky"], [data-accent="violet"], [data-accent="pink"], [data-accent="red"]) {
+  --on-acc: #000000;
+}
+
+/* Only during the timer flash. No accent tokens either: the flash wears the accent's own ink. */
 :root[data-ui="hevier"][data-theme="light"] {
   --bg:        #ffffff;
   --bg-el:     #f7f8fa;
   --surface:   #f2f3f5;
   --surface-2: #e7e9ec;
   --surface-3: #dcdfe3;
+  --surface-raised: #ffffff;   /* upstream's light values, which the dark block above now overrides */
+  --raised-line:    rgba(60,60,67,.10);
+  --label-dim:      var(--label-2);
+  --hv-stripe:      #f2f3f5;
 
   --label:     #111317;
   --label-2:   #6b7079;
@@ -55,10 +75,12 @@
   --sep:       #e3e5e8;
   --sep-op:    rgba(227,229,232,.8);
 
-  --on-acc:    #ffffff;
-
   color-scheme: light;
 }
+
+/* OpenBite's type: Nunito, body 500; titles 700, big numbers 800, labels and buttons 700 where
+   each is set (here and in hevier.css). */
+:root[data-ui="hevier"] body{font-family:var(--hv-font);font-weight:500}
 
 /* ---------- Type and density (phase 2, step 2) ----------
    Upstream's pages, restyled by selector. The fork's own components are in hevier.css. */
@@ -70,25 +92,28 @@
 :root[data-ui="hevier"] .hdr .iconbtn{background:none}
 
 /* Buttons: 15px, a tighter pad, Hevy's 8px corners. */
-:root[data-ui="hevier"] .btn{padding:9px 14px;border-radius:8px;font-size:15px;letter-spacing:0}
+:root[data-ui="hevier"] .btn{padding:9px 14px;border-radius:999px;font-size:15px;letter-spacing:0}
 /* Hevy's small buttons (Log, the header's Finish / Done) are about 30 px tall; this rule
    above would otherwise make them as big as the full-width ones */
 :root[data-ui="hevier"] .btn.sm{padding:6px 12px;font-size:14px}
-:root[data-ui="hevier"] .btn.hv-finish{padding:0 14px;min-height:32px;font-size:14px;border-radius:6px}
+:root[data-ui="hevier"] .btn.hv-finish{padding:0 14px;min-height:32px;font-size:14px;border-radius:999px}
 :root[data-ui="hevier"] .btn .icn{font-size:17px}
-:root[data-ui="hevier"] .btn{font-weight:500}
-:root[data-ui="hevier"] .btn.primary{font-weight:600}
+:root[data-ui="hevier"] .btn{font-weight:700}
+/* Pills and chips as OpenBite's: round, labels 700. */
+:root[data-ui="hevier"] :is(.chip, .chip.on, .tag){font-weight:700}
+:root[data-ui="hevier"] .tag{border-radius:999px}
 
 /* ---------- Sheets (phase 2, step 3) ----------
    Hevy's sheets: a centred, smaller title; each group of rows one rounded card with hairlines
    between rows; bare leading glyphs instead of filled icon tiles. :where() keeps the row rules at
    the fork's base weight, so upstream's own states (the effort picker's tinted pick) still win. */
-:root[data-ui="hevier"] .sheet{border-radius:16px 16px 0 0}
-:root[data-ui="hevier"] .sheet .grab{margin:4px auto 12px}
-:root[data-ui="hevier"] .sheet h3{font-size:17px;font-weight:500;text-align:center;letter-spacing:-.01em;margin-bottom:12px}
+/* A black sheet over the black page is told apart by its top hairline and the scrim. */
+:root[data-ui="hevier"] .sheet{border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:inset 0 1px 0 var(--sep)}
+:root[data-ui="hevier"] .sheet .grab{margin:4px auto 12px;background:var(--sep)}
+:root[data-ui="hevier"] .sheet h3{font-size:17px;font-weight:700;text-align:center;letter-spacing:-.01em;margin-bottom:12px}
 /* A title that shares its bar (the picker's Create, exercise details' ⋯) keeps the bar's spacing. */
 :root[data-ui="hevier"] .sheet :is(.hv-pk-hd, .hv-xd-bar) > h3{margin:0}
-:root[data-ui="hevier"] :where(.menu-list){gap:0;background:var(--surface);border-radius:12px;overflow:hidden}
+:root[data-ui="hevier"] :where(.menu-list){gap:0;background:var(--surface);border-radius:var(--r);overflow:hidden}
 :root[data-ui="hevier"] :where(.menu-list .menu-item){position:relative;border-radius:0;background:none;min-height:50px}
 :root[data-ui="hevier"] :where(.menu-list .menu-item:active){background:var(--surface-2)}
 :root[data-ui="hevier"] :where(.menu-list .menu-item + .menu-item)::before{
@@ -122,15 +147,15 @@
 :root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting #app{padding-bottom:calc(90px + var(--sab))}
 
 /* ---------- Settings (phase 2, step 5) ----------
-   Hevy's Settings are edge-to-edge lists under grey section bands, not inset cards, with plain
-   outline icons. A Settings page is the .narrow that holds .sp-nav (views/Settings.jsx). */
+   Hevy's Settings are edge-to-edge lists under section titles on the black page (D123), not inset
+   cards, with plain outline icons. A Settings page is the .narrow that holds .sp-nav (views/Settings.jsx). */
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b{margin-inline:calc(-1 * var(--pad));border-radius:0;background:none}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow{padding-inline:var(--pad)}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow + .lrow::before{inset-inline-start:var(--pad)}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-b > .lrow:has(.lrow-i) + .lrow:has(.lrow-i)::before{inset-inline-start:calc(var(--pad) + 36px)}
-:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-t{margin-inline:calc(-1 * var(--pad));padding:8px var(--pad);background:var(--surface);font-size:14px}
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-t{margin-inline:calc(-1 * var(--pad));padding:8px var(--pad);background:var(--bg);font-size:14px}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-f{padding-inline:0}
-/* The grey title bands are the gap between groups, as Hevy's: upstream's margin under each group read as an empty row. */
+/* The title bands are the gap between groups, as Hevy's: upstream's margin under each group read as an empty row. */
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect{margin-bottom:0}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect-f{padding-bottom:12px}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .lrow-t{font-size:16px}
@@ -146,7 +171,7 @@
    subtitle or its own buttons). */
 :root[data-ui="hevier"] .sp-nav + .sp-root-title{
   margin:-54px 0 10px;min-height:44px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;font-weight:600;line-height:1.2;letter-spacing:0;pointer-events:none;
+  font-size:17px;font-weight:700;line-height:1.2;letter-spacing:0;pointer-events:none;
 }
 /* The Settings root's bar sits on the PageBar's line and ends in its hairline. */
 :root[data-ui="hevier"] .sp-nav:has(+ .sp-root-title){margin-top:-8px}
@@ -165,11 +190,11 @@
 :root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > .iconbtn:first-child{justify-self:start}
 :root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > :nth-child(2){margin:0 !important;text-align:center;min-width:0}
 :root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) > :nth-child(n+3){justify-self:end}
-:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) h1{font-size:17px;font-weight:600;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) h1{font-size:17px;font-weight:700;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hdr:has(> .iconbtn:first-child) .sub{display:none}
 :root[data-ui="hevier"] .hdr > .iconbtn:first-child .icn{font-size:22px;--icon-stroke:2.2}
 :root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)){margin:-44px 0 10px;min-height:44px;justify-content:center;pointer-events:none}
-:root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)) h1{font-size:17px;font-weight:600;letter-spacing:0}
+:root[data-ui="hevier"] .hv-back + .hdr:not(:has(.sub, button)) h1{font-size:17px;font-weight:700;letter-spacing:0}
 
 /* Section headings line up with the content's edge, as Hevy's do (upstream indents them 4px).
    The Settings bands above set their own padding. */
@@ -179,3 +204,13 @@
    the fork's near-black). */
 :root[data-ui="hevier"] .btn.danger{background:var(--surface-2);color:var(--red)}
 :root[data-ui="hevier"] .btn.danger:active{background:var(--surface-3)}
+
+/* ---------- Upstream's screens on the warm black (D123) ----------
+   Upstream's dark segmented control and its floating parts carry cool literals or no edge on
+   black; these give them the warm greys and a hairline. :where() leaves the fork's own tabs (.hv-xd-tabs) to their rules. */
+:root[data-ui="hevier"]:not([data-theme="light"]) :where(.seg){background:var(--surface-3)}
+:root[data-ui="hevier"]:not([data-theme="light"]) :where(.seg-sel){background:var(--hv-next-tick);box-shadow:none}
+:root[data-ui="hevier"] .seg button{font-weight:700}
+:root[data-ui="hevier"] .seg button:not(.on){font-weight:500}
+:root[data-ui="hevier"] #toast{background:var(--surface-raised);box-shadow:var(--hv-card-line)}
+:root[data-ui="hevier"] #timer{-webkit-backdrop-filter:none;backdrop-filter:none}

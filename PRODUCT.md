@@ -27,7 +27,8 @@ release still merges without a fight.
 
 ## Positioning
 
-openGym's functionality, Hevy's UX and UI. A Hevy element is a new way to show or reach
+openGym's functionality, Hevy's UX, OpenBite's look (D123: AMOLED black, Nunito, warm greys,
+an accent the user chooses). A Hevy element is a new way to show or reach
 something openGym already has. Where the two differ in behaviour, openGym's behaviour wins,
 presented Hevy's way. No account, no telemetry, no third-party service is needed.
 
@@ -68,8 +69,10 @@ presented Hevy's way. No account, no telemetry, no third-party service is needed
 ## Brand Commitments
 
 - Name: Go Hevier (D39). App id `ch.duartesantos.opengym.hevier`.
-- Hevy's dark theme with Hevy blue, and no other theme (D17). The boot screen is upstream's
-  barbell in Hevy blue on AMOLED black (D83).
+- AMOLED black, no other theme (D17), in OpenBite's look: Nunito, warm greys, cards with a
+  hairline (D123). The accent is the user's: green #34d08a by default, Hevy's blue next, and a few
+  more that clash with no meaning colour. The boot screen's barbell and the launcher icon follow it
+  (D83, D123).
 - Voice: plain and human, short sentences, no em dashes.
 
 ## Evidence on Hand

@@ -8,7 +8,7 @@ with each request's original wording) is done. It is in git history: `git show c
 
 ## Scope
 
-**openGym's functionality, Hevy's UX and UI.** A Hevy element is built as a new way to show or
+**openGym's functionality, Hevy's UX, OpenBite's look** (D123). A Hevy element is built as a new way to show or
 reach something openGym already has. Where openGym and Hevy differ in *behaviour* (openGym's
 progression prefill against Hevy's empty fields, for example), openGym's behaviour wins,
 presented Hevy's way. New behaviour gets a decision in DECISIONS.md first.

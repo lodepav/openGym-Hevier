@@ -124,10 +124,10 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Workout tab: Quick Start, Today card, routine cards | D13 | Fork |
 | Profile: weekly chart, dashboard, workout list | D14 | Fork |
 | Settings root regrouped under five titles; layout-only rows hidden | D16 | Fork |
-| Hevy's dark AMOLED theme with Hevy blue, only | D17 | Fork |
+| Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |
 | One Hevy page bar everywhere | D49 | Fork |
 | App name "Go Hevier" | D39 | Fork |
-| Boot screen in Hevy blue on AMOLED black | D83 | Fork |
+| Boot screen in the accent on AMOLED black | D83, D123 | Fork |
 | Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
 | A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered (#1087, issue) |
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |

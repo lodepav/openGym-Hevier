@@ -1,18 +1,22 @@
 // The share cards' canvas and their way out (hevier/DECISIONS.md D87): share-cards.js decides
 // what each card says and where; this paints it, on black or over the user's photo, and saves
 // the picture to the gallery (HevierGalleryPlugin.java, seam S46) or hands it to the share sheet.
-import { mapColors, viewAspect, CARD_FONT } from '../../lib/workout-card.js'
+import { mapColors, viewAspect, CARD_FONT as SYSTEM_FONT } from '../../lib/workout-card.js'
 import { MUSCLES, INERT } from '../../lib/muscles.js'
 import { MOBILE, isAndroid, shareExportBlob } from '../../lib/mobile.js'
 import { toBase64 } from '../../lib/media-store-fs.js'
-import { layoutShareCard } from './share-cards.js'
+import { useStore } from '../../store/useStore.js'
+import { layoutShareCard, cardColours } from './share-cards.js'
+import { wornHex } from './accents.js'
 
-const ACC = '#008cff'   // Hevy blue (D17)
-// A calendar day's kind (calendar.js) in the Calendar page's colours, and a change up or down.
-const KIND = { strength: ACC, cardio: '#2fbf5b', deload: '#ff9f0a', up: '#2fbf5b', down: '#ff453a', onLight: '#000' }
-const COLORS = {
-  black: { label: '#fff', label2: '#9a9aa0', acc: ACC, tile: '#1c1c1e', track: '#2c2c2e', ...KIND },
-  photo: { label: '#fff', label2: 'rgba(255,255,255,0.8)', acc: ACC, tile: 'rgba(0,0,0,0.45)', track: 'rgba(255,255,255,0.2)', ...KIND },
+// D123: the fork's font, with upstream's system stack behind it while Nunito is missing.
+const CARD_FONT = `Nunito,${SYSTEM_FONT}`
+const WEIGHTS = [400, 600, 700]
+// A canvas measures and draws with whatever face is loaded now: wait for Nunito, or lines are cut to the fallback's widths.
+const fontsReady = () => Promise.all(WEIGHTS.map(w => document.fonts?.load(`${w} 40px Nunito`))).catch(() => {})
+const surfaces = {
+  black: { label: '#fff', label2: '#9a9aa0', tile: '#1c1c1e', track: '#2c2c2e' },
+  photo: { label: '#fff', label2: 'rgba(255,255,255,0.8)', tile: 'rgba(0,0,0,0.45)', track: 'rgba(255,255,255,0.2)' },
 }
 
 /** The picked picture, decoded and turned upright; null when it cannot be read. */
@@ -20,8 +24,9 @@ export async function loadPhoto(file) {
   try { return await createImageBitmap(file, { imageOrientation: 'from-image' }) } catch { return null }
 }
 
-/** One card as a PNG blob, or null when the canvas fails. `photo` is an ImageBitmap or null. */
-export async function cardImage(card, { photo = null } = {}) {
+/** One card as a PNG blob, or null when the canvas fails. `photo` is an ImageBitmap or null; `accent` a '#rrggbb'. */
+export async function cardImage(card, { photo = null, accent = wornHex(useStore.getState().S) } = {}) {
+  await fontsReady()
   const geometry = card.kind === 'muscles' ? (await import('../../lib/body-paths.js')).default : null
   const shape = geometry && (geometry[card.body] || geometry.male)
   const canvas = document.createElement('canvas')
@@ -32,13 +37,13 @@ export async function cardImage(card, { photo = null } = {}) {
   const layout = layoutShareCard(card, { measure, photo: !!photo, map: shape ? { aspect } : null })
   canvas.width = layout.width
   canvas.height = layout.height
-  draw(ctx, layout, photo, shape ? { body: shape, levels: card.levels } : null)
+  draw(ctx, layout, photo, shape ? { body: shape, levels: card.levels } : null, cardColours(accent))
   return new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
 }
 
-function draw(ctx, layout, photo, map) {
+function draw(ctx, layout, photo, map, kinds) {
   const { width, height, items } = layout
-  const colors = photo ? COLORS.photo : COLORS.black
+  const colors = { ...(photo ? surfaces.photo : surfaces.black), ...kinds }
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, width, height)
   if (photo) {
@@ -53,7 +58,7 @@ function draw(ctx, layout, photo, map) {
     ctx.fillStyle = g
     ctx.fillRect(0, layout.shadeFrom, width, height - layout.shadeFrom)
   }
-  const shades = mapColors({ label: '#ffffff', surface: '#000000', acc: ACC })
+  const shades = mapColors({ label: '#ffffff', surface: '#000000', acc: kinds.acc })
   ctx.textBaseline = 'alphabetic'
   for (const it of items) {
     if (it.kind === 'bar') {

@@ -46,9 +46,10 @@ export const STORED_FIELDS = [
 /**
  * Not stored: `hvClock` (on upstream's timer in useUI); `hvExercise`, `hvGyms`, `hvStats`,
  * `hvWorkout` (the fork's module ids, D114, inside hvModuleParts' keys); `hvFolder` … `hvUnit`
- * (an import's parsed data, gone once it is applied); `hvPairR` (a previous-sets read).
+ * (an import's parsed data, gone once it is applied); `hvPairR` (a previous-sets read); `hvAccentId`
+ * (accents.js, the offered accent a profile wears, read from `accent`).
  */
 export const NOT_STORED = ['hvClock', 'hvExercise', 'hvGyms', 'hvStats', 'hvWorkout', 'hvFolder', 'hvFolderAt', 'hvFolderId',
-  'hvMeasures', 'hvRaw', 'hvTemplates', 'hvUnit', 'hvPairR']
+  'hvMeasures', 'hvRaw', 'hvTemplates', 'hvUnit', 'hvPairR', 'hvAccentId']
 /** Legacy, deleted by a migration: ex-aliases.js, ex-unit.js and previous-sets.js move them. */
 export const LEGACY = ['hvAliases', 'hvExUnit', 'hvPrevious', 'hvShownName', 'hvImportMap']

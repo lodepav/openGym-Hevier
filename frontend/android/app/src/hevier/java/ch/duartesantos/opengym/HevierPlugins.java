@@ -27,5 +27,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierMediaPlugin.class);
         // The phone's font size zooms the text, as before 1.4.5; after upstream's TextScalePlugin (D122).
         activity.registerFlavorPlugin(HevierTextZoomPlugin.class);
+        // The launcher icon follows the accent, switched when the app goes to the background (D123).
+        activity.registerFlavorPlugin(HevierIconPlugin.class);
     }
 }

@@ -23,6 +23,8 @@
      the picker is hidden), the long-press and Assistant shortcuts on the one left, and the Wear OS
      watch's exported listener service (no watch app in the fork; hevier.gradle leaves its library
      and plugin out of the build).
+     D123 adds launcher aliases of its own, one per offered accent besides the green IconDefault, all
+     off by default; HevierIconPlugin keeps exactly one on.
      Garmin's Connect IQ binding service is removed too (D106, 2026-11-15): the SDK exports it to any
      app with no permission, so the Garmin watch link is off in the fork and its settings hidden. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -40,6 +42,60 @@
         </activity>
         <activity-alias android:name=".IconDefault" tools:node="merge">
             <meta-data android:name="android.app.shortcuts" tools:node="remove" />
+        </activity-alias>
+        <!-- D123: the launcher icon in each other offered accent, off until HevierIconPlugin switches
+             to one when the app goes to the background; IconDefault above is the green one. -->
+        <activity-alias
+            android:name=".IconHvBlue"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_hv_blue"
+            android:roundIcon="@mipmap/ic_launcher_hv_blue_round"
+            android:label="@string/title_activity_main"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconHvTeal"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_hv_teal"
+            android:roundIcon="@mipmap/ic_launcher_hv_teal_round"
+            android:label="@string/title_activity_main"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconHvBrand"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_hv_brand"
+            android:roundIcon="@mipmap/ic_launcher_hv_brand_round"
+            android:label="@string/title_activity_main"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconHvPink"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_hv_pink"
+            android:roundIcon="@mipmap/ic_launcher_hv_pink_round"
+            android:label="@string/title_activity_main"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity-alias>
         <activity-alias android:name=".IconLight" tools:node="remove" />
         <activity-alias android:name=".IconMono" tools:node="remove" />

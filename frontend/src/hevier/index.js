@@ -28,6 +28,9 @@ import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
 import { initProgDefault } from './lib/prog-default.js'
+import { initLookDefault } from './lib/look-default.js'
+import { initMeaningColours } from './lib/meaning-colours-run.js'
+import { initAccentIcon } from './lib/accent-icon-run.js'
 import { initExUnits } from './lib/ex-unit.js'
 import { HIDDEN_MODULES, moduleOn, FORK_MODULES, forkModuleCopy, setAnyModule } from './lib/fork-modules.js'
 import { partOn } from './lib/module-parts.js'
@@ -62,6 +65,9 @@ function install() {
   applyForkIcons()
   applyForkName()
   initSeasonsOff(store)
+  initLookDefault(store)                                  // a profile that never chose an accent wears OpenBite's green (D123)
+  initMeaningColours(store)                               // meaning colours step aside from the accent (D123)
+  initAccentIcon(store)                                   // the launcher icon follows a newly picked accent (D123)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
