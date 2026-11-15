@@ -27,8 +27,8 @@ The argument picks one. With no argument, run `status`.
 
 - `status`: read REWORK.md and report in a few lines: the interview's status, the north star (or
   that it is not set), the screen being grilled and its open branch, the next screen (the highest
-  ranked that is not started or reopened), friction items not yet tied to a screen. Change
-  nothing.
+  ranked that is not started or reopened), friction items not yet tied to a screen, and whether
+  builds still wait for D123 on `hevier/main`. Change nothing.
 - `friction`: the user gives friction notes (from the gym, a review, a screenshot). Add each as
   a row of the friction list with the next free F number and today's date, tie it to a screen,
   and put the F number in that screen's Friction cell. A note about a part of a screen (the rest
@@ -54,10 +54,11 @@ The argument picks one. With no argument, run `status`.
 2. Read the decisions for the area: grep `hevier/DECISIONS.md` for the screen, its views and its
    fields (`hevier/DECISIONS-INDEX.md` lists them all). Read the full rows of those that touch
    it. A decision whose reason is that Hevy does it ("Hevy's X", "as Hevy does", a Hevy
-   reference) is open to change now; the others hold unless the user reopens them. The north
+   reference, or a code comment or `reference/SCREENS.md` entry that names Hevy as the reason)
+   is open to change now; the others hold unless the user reopens them. The north
    star may narrow this.
-3. Read the screen's code (`frontend/src/hevier/views/`, `components/`, the routes in
-   `frontend/src/hevier/routes.jsx`) enough to know what it shows, from where it is reached and
+3. Read the screen's code (its files in REWORK.md's Screens table, under
+   `frontend/src/hevier/`; for navigation also upstream's `frontend/src/App.jsx` routes) enough to know what it shows, from where it is reached and
    where it leads, and which seams in `hevier/SEAMS.md` it uses.
 4. Check upstream: `git fetch upstream`, then look for changes to the screen's upstream views on
    upstream's branches and in `hevier/PIPELINE.md`. Upstream has a designer at work, so it may be
@@ -65,7 +66,9 @@ The argument picks one. With no argument, run `status`.
 5. Count the baseline: the taps and steps of the screen's main task on its journeys
    (`hevier/ux/JOURNEYS.md`), from the code or, if the emulator is free (no other session is
    using it, memory "coordinate heavy runs"), on screen with `hevier/tools/cdp.mjs`, with a
-   screenshot. Write it into the screen's Baseline cell.
+   screenshot, with the user's own settings where they change the count (the weigh-in sheet,
+   the last gym). Write it into the screen's Baseline cell as `task: n taps`, one per main task.
+   Navigation's main tasks are the top jobs from Usage, each counted from opening the app.
 
 Do not ask anything this answers. "Where else is X reachable from?" is a grep, not a question.
 
@@ -80,7 +83,8 @@ Interview the user about the screen until there is a shared understanding of eve
   detail, and recommend one. A layout option can be a plain text mockup.
 - **Walk the tree in this order**, and finish a branch before opening the next. Skip what does
   not apply.
-  1. The job (start from Usage and ask only what it does not answer): what the user comes to
+  1. The job (start from Usage and ask only what it does not answer; for navigation, the top
+     jobs and how often each comes up): what the user comes to
      this screen to do, in which journey (J1 to J7), how often, and in which hand and moment
      (between sets, at home).
   2. What stays, what goes, what merges with something else.
@@ -161,8 +165,10 @@ Usage section, which ranks the screens and is where every later grill starts.
    answers" count as answered: turn each into a short confirmation folded into the step it
    belongs to, and spend the questions on going deeper ("you compare with the last session:
    which numbers, on which screen?").
-2. Gather facts from the user's own data before asking. Ask for a Go Hevier backup first: it
-   has gyms, brands, per side, routines and the settings switched on. The Hevy export
+2. Gather facts from the user's own data before asking. Unless one was given, the very first
+   message only asks for a Go Hevier backup (the app's backup export in Settings): it has gyms,
+   brands, per side, routines and the settings switched on. Without one, go on with the Hevy
+   export and ask what it cannot show. The Hevy export
    `~/Downloads/workout_data.csv` (memory "Hevy CSV test data") is the older history: workouts
    per week, typical length, exercises and sets, how often supersets, warm-ups, timed or cardio
    sets, notes. If the newest source's last workout is more than 14 days before today, ask for a
@@ -173,7 +179,9 @@ Usage section, which ranks the screens and is where every later grill starts.
 **Ask open questions; give a guess only for a counted fact.** "You logged supersets in 3 of 254
 workouts, so rarely; right?" is fine. For jobs, importance and which stats matter, ask first and
 offer nothing: a guess there anchors the answer. The first message sums up the facts in a few
-lines, then asks the first question. One question per message. Walk these steps in order and
+lines, then asks the first question. One open question per message; a short confirmation of an
+earlier answer may ride along with it. A step with many topics (step 1) takes several
+questions. Walk these steps in order and
 finish one before the next:
 
 1. The training week: when, where and how long they train, which gyms, phone in hand or in a
@@ -236,8 +244,10 @@ Purpose", "Positioning" and "Product Principles", and `hevier/DECISIONS-INDEX.md
 The `north-star` grill settles, one branch at a time, each question with a recommended answer:
 
 - the aim in one sentence (the current draft is in REWORK.md);
+- (whether the three tabs stay is left to the Navigation grill, unless the user wants it fixed
+  here);
 - what stays fixed: openGym's logic, the four fork rules, the Hevy import and sync to Hevy, the
-  look from D123, one layout and portrait (D1, D24), whether the three tabs (D11) stay;
+  look from D123, one layout and portrait (D1, D24);
 - which existing decisions are open: by default every decision whose reason is Hevy (grep `Hevy`
   in `hevier/DECISIONS.md` for the list);
 - in one question: how much may change per release, and whether a reworked screen keeps the old

@@ -98,7 +98,7 @@ before the build and after it, against the target in its decision.
 
 | Rank | Screen | Main files (`frontend/src/hevier/`) | Journeys | Friction | Baseline | Result | Status |
 |---|---|---|---|---|---|---|---|
-| 0 | Navigation: the tabs and where things live | `components/HevyTabBar.jsx`, `routes.jsx` | all | | | | not started |
+| 0 | Navigation: the tabs and where things live | `components/HevyTabBar.jsx`, `routes.jsx`; upstream's `frontend/src/App.jsx` | all | | | | not started |
 | 1 | Live workout: set table, rest timer, PREVIOUS | `views/HevyWorkout.jsx` | J1, J3, J4, J7 | F1 | | | not started |
 | 2 | Add / replace exercise picker | `views/ExercisePickerHevy.jsx` | J1, J2, J6 | | | | not started |
 | 3 | Save workout and the finished screen | `views/SaveWorkout.jsx` | J1 | | | | not started |
