@@ -29,6 +29,9 @@
 # both APKs and their .sha256 files. The APKs are kept nowhere else: they are built in a temporary
 # folder, deleted at the end. A publish that fails takes the tag back, so the same version can be
 # run again (keep).
+#
+# CHECK_ONLY=1 builds, signs and runs every gate, then stops before the tag: nothing is pushed or
+# published. A version it commits stays committed, and the next run releases it as it is.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -270,6 +273,7 @@ hevier/tools/release-check.sh --no-sources --no-build --apk "$OUT" || REST_OK=
 hevier/tools/release-check.sh --no-sources --no-build --apk "$FULL" || REST_OK=
 [[ -n "$SRC_OK" && -n "$REST_OK" ]] || {
   echo; echo "release check failed: nothing tagged or published" >&2; exit 1; }
+[[ "${CHECK_ONLY:-}" == 1 ]] && { echo; echo "Go Hevier $VER passed every gate; CHECK_ONLY: nothing tagged or published"; exit 0; }
 
 git tag -a "gohevier-v$VER" -m "Go Hevier $VER" && echo "tagged gohevier-v$VER"
 publish "$VER" "$OUT" "$FULL"
