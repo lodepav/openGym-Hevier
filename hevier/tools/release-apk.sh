@@ -229,7 +229,13 @@ rm -rf dist/exercise-media
 npx cap sync
 [[ ! -e android/app/src/main/assets/public/exercise-media ]] \
   || { echo "cap sync left exercise-media in the Android assets" >&2; exit 1; }
-node scripts/check-mobile-bundle.mjs
+# The bundle half of the check only: its picture half (#962) wants the pictures this APK leaves out.
+node --input-type=module -e '
+  import { checkMobileBundle } from "./scripts/check-mobile-bundle.mjs"
+  const problems = checkMobileBundle(process.cwd())
+  for (const p of problems) console.error("✗ " + p)
+  process.exit(problems.length ? 1 : 0)
+'
 assemble "$OUT"
 if unzip -Z1 "$OUT" | grep '^assets/public/exercise-media/' >/dev/null; then
   echo "$(basename "$OUT") still carries exercise pictures" >&2; exit 1
