@@ -109,7 +109,7 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D103** Where upstream built the fork's own PR, upstream's version replaces the fork's.
 - **D104** Numbers per gym stay the fork's (D28, D82, D96).
 - **D105** 1.4.5's new set fields all get a place in the fork's set row
-- **D106** The APK takes Garmin, and no microphone.
+- **D106** No Garmin watch link, and no microphone.
 - **D107** The fork's workout gets Pause, the next exercise after the rest, and the record trophy.
 - **D108** Routines: upstream's folders, favourites, a routine from a past workout, and Start picks.
 - **D109** 1.4.5's new screens stay out of the fork's UI

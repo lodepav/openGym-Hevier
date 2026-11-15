@@ -184,7 +184,6 @@ describe('hevier: Settings (seams S11, S12)', () => {
       look: ['Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts'],
       reminders: ['Gym reminder'],
       workout: ['End by itself when I leave the gym'],
-      watches: ['Wear OS watch', 'Zepp OS watch'],
       modules: ['Community'],   // only with a server that has the library on
       about: ['Rate openGym on the App Store', 'Rate openGym on Google Play'],
     }

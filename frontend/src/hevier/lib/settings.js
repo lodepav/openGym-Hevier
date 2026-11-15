@@ -16,7 +16,7 @@ export const SETTINGS_GROUPS = [
   { title: 'Stats', ids: ['hv:volume'] },
   // Upstream's Modules page (1.4.4, D97): which parts of the app, the fork's with them.
   { title: 'App', ids: ['modules', 'units', 'look'] },
-  { title: 'Data & more', ids: ['data', 'integrations', 'watches', 'coach', 'about'] },
+  { title: 'Data & more', ids: ['data', 'integrations', 'coach', 'about'] },
 ]
 
 // Rows by their English title (the key upstream passes to t()), per page.
@@ -49,17 +49,15 @@ export const HIDDEN_ROWS = {
   reminders: ['Gym reminder'],
   // D41's step per exercise is the only one (D111).
   units: ['Weight step'],
-  // Garmin only (D106, D121): the Wear OS listener is not in the APK, and no Zepp OS watch (D100).
-  watches: ['Wear OS watch', 'Zepp OS watch'],
   // No support rows: the section goes with them (2026-10-26, the user's choice).
   // The modules the fork never shows (D97, S54 leaves them off the page): no search hit either.
-  modules: ['Form videos', 'Gym check-in', 'AI Coach', 'Seasonal themes', 'Community'],
+  modules: ['Form videos', 'Gym check-in', 'AI Coach', 'Seasonal themes', 'Community', 'Watch'],
   about: ['Rate openGym on the App Store', 'Rate openGym on Google Play', 'Buy me a coffee', 'Ko-fi', 'GitHub Sponsors',
     // 1.4.4 (D100): the tour and its tutorials point at upstream's screens, which the fork replaces.
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
 }
 // Pages left out whole: not found by the search, nor any row on them.
-export const HIDDEN_PAGES = ['gym', 'themes', 'zepp', 'wear']   // no Zepp OS or Wear OS watch (D100, D121)
+export const HIDDEN_PAGES = ['gym', 'themes', 'zepp', 'wear', 'garmin', 'watch', 'watches']   // no watch at all (D100, D121, D106)
 // A section whose footer speaks of rows that are gone loses the footer.
 const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.']
 
