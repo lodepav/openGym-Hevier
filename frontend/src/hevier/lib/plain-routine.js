@@ -8,7 +8,8 @@ import { modeOf } from '../../lib/history.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
-import { isHoldRow, toHold, toSideHold, isPairHead, isPairTail } from './hold-set.js'
+import { dbLoadFor, historyAs } from '../../lib/dumbbells.js'
+import { isHoldRow, toHold, toReps, toSideHold, isPairHead, isPairTail } from './hold-set.js'
 
 /** Whether a routine keeps upstream's progression and warm-up ramp. Off unless switched on. */
 export const progressionOn = routine => routine?.hvProg === true
@@ -67,7 +68,9 @@ export function fill(row, prev, mode) {
   // A hold last time in a reps exercise (D89) opens as that hold again.
   if (isHoldRow(prev) && !isSideSet(row)) return prev.sec > 0 ? own({ ...toHold(row, prev.sec), w: prev.w || 0 }) : row
   if (isSideSet(prev) || !(prev.r > 0)) return row
-  return own({ ...row, w: prev.w || 0, r: prev.r })
+  // A hold row (made one in the session, or a warm-up become a work set) takes reps as a rep set.
+  const base = isHoldRow(row) ? toReps(row, prev.r) : row
+  return own({ ...base, w: prev.w || 0, r: prev.r })
 }
 
 /**
@@ -109,7 +112,9 @@ export function refillRows(H, S, e, routine, label, was) {
   const cfg = { ...(e.target || {}), id: e.id }
   const base = buildPlannedEntry(H, cfg, routine, { noProg: true }).sets
   const lookup = { ...e, rid: routine.id }
-  const prevOn = l => previousSetsFor(H, lookup, previousMode(S), { label: l })
+  // Last time in the exercise's dumbbell meaning, as the build reads it (session-start.js planEntry).
+  const st = historyAs(H, e.id, dbLoadFor(H, cfg))
+  const prevOn = l => previousSetsFor(st, lookup, previousMode(S), { label: l })
   const [prev, old] = [prevOn(label), prevOn(was)]
   const mode = modeOf(cfg)
   const filled = (start, p) => (p && isWarmupRow(p) === isWarmupRow(start) ? fill(start, p, mode) : start)

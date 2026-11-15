@@ -85,8 +85,12 @@ export function learnSwap(s, { rid, from, to, gymId }) {
   return false
 }
 
-/** The swaps the live session's gym asks for: [{ index, from, to }], nothing ticked on any. */
-export function plannedSwaps(S) {
+/**
+ * The swaps the live session's gym asks for: [{ index, from, to }], nothing ticked on any. After a
+ * move from gym `fromGym`, an exercise that gym's pick swapped in counts as its slot's own: it goes
+ * back to the slot's exercise, or to what the new gym picks.
+ */
+export function plannedSwaps(S, fromGym = null) {
   const A = S?.active
   if (!live(A)) return []
   const gymId = workoutGym(S, A)
@@ -94,9 +98,12 @@ export function plannedSwaps(S) {
   const out = []
   list(A.entries).forEach((e, index) => {
     if (!e?.rid || list(e.sets).some(x => x?.done === true)) return
-    const slot = list(routineOf(S, e.rid)?.ex).find(x => x?.id === e.id)
-    const to = gymPick(S, slot, gymId)
-    if (to) out.push({ index, from: e.id, to })
+    const slots = list(routineOf(S, e.rid)?.ex)
+    const slot = slots.find(x => x?.id === e.id)
+      || (fromGym ? slots.find(x => x?.id !== e.id && gymPick(S, x, fromGym) === e.id) : null)
+    if (!slot) return
+    const to = gymPick(S, slot, gymId) || slot.id
+    if (to !== e.id) out.push({ index, from: e.id, to })
   })
   return out
 }
@@ -116,23 +123,36 @@ export function swapEntry(s, index, toId, slot = null) {
   const full = { ...(slot || pickedExerciseConfig(toId)), id: toId }
   const built = buildPlannedEntry(sessionHistory(s), full, routine, { noProg: builtOutOfProgression(current, routine) })
   const replacement = { id: toId, ...built, rid: current.rid, ...(current.noProg === true ? { noProg: true } : {}) }
-  return !!swapActiveExercise(A, index, replacement)
+  // Upstream's swap moves the current-exercise marker to the slot; an automatic one must not.
+  const cur = A.cur
+  const ok = !!swapActiveExercise(A, index, replacement)
+  if (ok) A.cur = cur
+  return ok
 }
 
-/** Makes the gym's swaps (plannedSwaps) on the draft `s`; returns what was swapped. */
-export function applyGymSwaps(s) {
+const slotNamed = (s, index, id) => list(routineOf(s, s.active?.entries?.[index]?.rid)?.ex).find(x => x?.id === id) || null
+
+/**
+ * Makes the gym's swaps (plannedSwaps, `fromGym` the gym the session moved from) on the draft `s`;
+ * returns what was swapped, each with the gym it was made for.
+ */
+export function applyGymSwaps(s, fromGym = null) {
+  const gymId = workoutGym(s, s.active)
   const done = []
-  for (const p of plannedSwaps(s)) if (swapEntry(s, p.index, p.to)) done.push(p)
+  for (const p of plannedSwaps(s, fromGym)) if (swapEntry(s, p.index, p.to, slotNamed(s, p.index, p.to))) done.push({ ...p, gymId })
   return done
 }
 
-/** Undoes `applyGymSwaps`'s swaps that are still untouched, and forgets them for the gym. */
+/** Undoes `applyGymSwaps`'s swaps that are still untouched, and forgets them for the gym that made them. */
 export function undoGymSwaps(s, done) {
   const A = s.active
-  const gymId = workoutGym(s, A)
   for (const p of done) {
     if (A?.entries?.[p.index]?.id !== p.to) continue
-    const slot = list(routineOf(s, A.entries[p.index].rid)?.ex).find(x => x?.id === p.from)
-    if (swapEntry(s, p.index, p.from, slot) && gymId) remember(s, p.from, gymId, null)
+    const back = slotNamed(s, p.index, p.from)
+    const slots = list(routineOf(s, A.entries[p.index].rid)?.ex)
+    if (!swapEntry(s, p.index, p.from, back)) continue
+    // What the gym took for the slot, if the swap brought a backup in (a swap back to a slot's own exercise took nothing).
+    const took = back || slots.find(x => x?.id !== p.to && backupsOf(s, x).includes(p.to))
+    if (took && p.gymId) remember(s, took.id, p.gymId, null)
   }
 }

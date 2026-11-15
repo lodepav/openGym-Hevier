@@ -16,6 +16,11 @@ describe('hevier: a past set\'s mark, W for a warm-up and H for a hold (D89)', (
     const rows = [rep(20, 10), hold(10, 30, { side: 'L' }), hold(10, 25, { side: 'R' })]
     expect(rows.map((_, i) => setMark(rows, i))).toEqual([1, 'H', ''])
   })
+
+  it('marks the R half of a pair whose L half was not done, which Workout Detail leaves out', () => {
+    const rows = [rep(20, 10), hold(10, 30, { side: 'L', done: false }), hold(10, 25, { side: 'R' })]
+    expect(setMark(rows, 2)).toBe('H')
+  })
 })
 
 describe('hevier: an exercise\'s History lists its holds (D89)', () => {

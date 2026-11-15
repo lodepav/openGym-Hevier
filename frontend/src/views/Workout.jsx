@@ -951,6 +951,7 @@ const shiftRowRefs = (idx, from, by) => {
 /** The number a set row shows: counted per phase (warm-ups and work sets each from 1), and a
  *  timed per-side L/R pair as one set. */
 export function setNumberAt(sets, i) {
+  if (hooks.setNumber) return hooks.setNumber(sets, i) // [hevier] S60: the fork's table counts only an L/R pair as one set (D89)
   const s = sets[i]
   const warm = isWarmupRow(s)
   const phaseNum = sets.slice(0, i + 1).filter(x => isWarmupRow(x) === warm).length

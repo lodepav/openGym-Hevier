@@ -218,6 +218,9 @@ export const entryLastKey = e => lastKey(e?.hvBrand, e && isCable(e.id) ? cableO
 export const sessionLabelKey = (S, A, idx) => lastKey(entryBrand(S, A, idx), entryCable(S, A, idx))
 /** The last-time key exercise `exId` starts with in the session (none open: one about to start). */
 export function startLabelKey(S, exId) {
+  // An exercise rebuilt while open (its settings, a swap back) keeps the brand and setup chosen on it.
+  const idx = list(S?.active?.entries).findIndex(e => e?.id === exId)
+  if (idx >= 0) return sessionLabelKey(S, S.active, idx)
   const gym = workoutGym(S, S?.active || {})
   return lastKey(brandDefault(S, exId, gym), isCable(exId) ? cableDefault(S, exId, gym) || '1:1' : null)
 }

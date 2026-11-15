@@ -43,7 +43,7 @@ import DurationField from './DurationField.jsx'
 import { isHoldRow, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, setTicked, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
-import { RUN, secOf, fieldValue, stopped, startRun, runningSec } from '../lib/set-timer.js'
+import { RUN, secOf, fieldValue, stopped, startRun, runningSec, stoppedRows } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
@@ -374,6 +374,16 @@ export default function HevyExerciseBlock(props) {
     update(st => { const e = st.active?.entries[entryIdx]; if (e?.sets[i]) e.sets[i] = stopped(e.sets[i], modeAt(e.sets[i])) }, true)
     if (timeCol) touch(i, timeCol.f)
   }
+  // A timer stopped outside the block (the big clock's Stop, its end in hold-clock-run.js) wrote
+  // the time actually held: firm, as stopTimer makes it.
+  const runsSeen = useRef(entry.sets)
+  useEffect(() => {
+    for (const i of stoppedRows(runsSeen.current, entry.sets)) {
+      const timeCol = colsOf(entry.sets[i]).find(c => c.dur)
+      if (timeCol) touch(i, timeCol.f)
+    }
+    runsSeen.current = entry.sets
+  }, [entry.sets]) // eslint-disable-line react-hooks/exhaustive-deps
   // D89: a hold's ⏱ opens the big clock, counting its seconds down (the set's, else 45 s); on a
   // hold already running it opens that clock again.
   const holdClock = (s, i) => {

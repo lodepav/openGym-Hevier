@@ -66,4 +66,15 @@ describe('a gym’s backups at run time (D46)', () => {
     await tick()
     expect(getState().hvGymSwaps).toEqual({})
   })
+
+  it('a move to a gym that took nothing puts back what the old gym swapped in', async () => {
+    base({ [PRESS]: { g1: HACK } })
+    useStore.getState().update(s => { s.equipProfiles.push({ id: 'g2', name: 'Home' }) })
+    start(40)
+    await tick()
+    expect(getState().active.entries[0].id).toBe(HACK)
+    useStore.getState().update(s => { s.activeEquipId = 'g2'; s.active = { ...s.active, gym: { id: 'g2', name: 'Home' } } })   // as switchGym does
+    await tick()
+    expect(getState().active.entries[0].id).toBe(PRESS)
+  })
 })

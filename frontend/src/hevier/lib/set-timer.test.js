@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN, goalLeft, dueGoals, moveGoal } from './set-timer.js'
+import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN, goalLeft, dueGoals, moveGoal, stoppedRows } from './set-timer.js'
 import { digitsIn, fromDigits, showDigits } from './duration-entry.js'
 
 const T = Date.parse('2026-10-18T10:00:00')
@@ -80,5 +80,14 @@ describe('hevier hold goal (D89)', () => {
     expect(s.hvGoal).toBe(45)
     startRun(A, 0, 0, 1000)
     expect(A.entries[0].sets[0].hvGoal).toBeUndefined()
+  })
+})
+
+describe('stoppedRows', () => {
+  it('lists the rows whose timer stopped, none when rows came or went', () => {
+    const run = { sec: 30, [RUN]: T }
+    expect(stoppedRows([{ sec: 30 }, run, run], [{ sec: 30 }, { sec: 42 }, run])).toEqual([1])
+    expect(stoppedRows([run, { sec: 30 }], [{ sec: 42 }])).toEqual([])
+    expect(stoppedRows([{ sec: 30 }], [{ sec: 31 }])).toEqual([])
   })
 })

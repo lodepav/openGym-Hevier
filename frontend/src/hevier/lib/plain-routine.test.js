@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { finishCompare } from '../../lib/finish-compare.js'
-import { isPlain, progressionOn, plainRows, filledFromLast, refillRows, withoutForecast } from './plain-routine.js'
+import { isPlain, progressionOn, plainRows, filledFromLast, refillRows, withoutForecast, fill } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { hooks } from '../hooks.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -139,6 +139,27 @@ describe('hevier plain routines (D69)', () => {
     const out = refillRows(S, S, e, sl, 'Technogym', 'Life Fitness')
     expect(out[0].sides.L).toMatchObject({ w: 20, done: true })
     expect(out[0].sides.R).toMatchObject({ w: 20 })
+  })
+  it('rebuilds an open exercise at last time on the brand chosen on it, not the gym’s default (D82)', () => {
+    const open = { start: 1, entries: [{ id: 'press', rid: legs.id, hvBrand: 'Technogym', sets: [] }] }
+    expect(pick(buildPlannedEntry(labelled('city', open), press, legs).sets)).toEqual([['S', 180, 8], ['S', 180, 7]])
+  })
+
+  it('refills with last time read in the exercise’s dumbbell meaning, as the build does (D82)', () => {
+    const each = { ...press, dbLoad: 'each' }
+    const legsEach = { ...legs, ex: [each] }
+    const S = labelled('city')
+    S.workouts = S.workouts.map(w => ({ ...w, entries: w.entries.map(x => ({ ...x, target: { dbLoad: 'total' } })) }))
+    const e = { id: 'press', rid: legs.id, target: each, sets: buildPlannedEntry(S, each, legsEach).sets }
+    expect(pick(e.sets)).toEqual([['S', 70, 10], ['S', 45, 10]])
+    expect(pick(refillRows(S, S, e, legsEach, 'Technogym', 'Life Fitness'))).toEqual([['S', 90, 8], ['S', 90, 7]])
+  })
+
+  it('a hold row filled from a rep set last time becomes a rep set (D89)', () => {
+    const out = fill({ w: 0, mode: 'time', sec: 40, done: false }, W(60, 8), 'reps')
+    expect(out).toMatchObject({ w: 60, r: 8 })
+    expect(out.mode).toBeUndefined()
+    expect(out.sec).toBeUndefined()
   })
 })
 

@@ -72,6 +72,57 @@ describe('a gym’s backups (D46)', () => {
   })
 })
 
+describe('review fixes (D46)', () => {
+  it('an automatic swap and its Undo leave the current exercise where it was', () => {
+    const S = state({ swaps: { [PRESS]: { g1: HACK } } })
+    S.active.entries.unshift({ id: SQUAT, target: { id: SQUAT }, sets: [{ w: 60, r: 5 }] })
+    S.active.cur = 0
+    const done = applyGymSwaps(S)
+    expect(S.active.entries[1].id).toBe(HACK)
+    expect(S.active.cur).toBe(0)
+    undoGymSwaps(S, done)
+    expect(S.active.entries[1].id).toBe(PRESS)
+    expect(S.active.cur).toBe(0)
+  })
+
+  it('Undo forgets the swap at the gym that made it, even after the session moved gym', () => {
+    const S = state({ swaps: { [PRESS]: { g1: HACK, g2: HACK } } })
+    const done = applyGymSwaps(S)
+    S.activeEquipId = 'g2'
+    undoGymSwaps(S, done)
+    expect(learnedBackup(S, PRESS, 'g1')).toBe(null)
+    expect(learnedBackup(S, PRESS, 'g2')).toBe(HACK)
+  })
+
+  it('on a gym move, a backup the old gym swapped in goes back unless the new gym took it too', () => {
+    const S = state({ swaps: { [PRESS]: { g1: HACK } } })
+    applyGymSwaps(S)
+    S.activeEquipId = 'g2'
+    expect(plannedSwaps(S, 'g1')).toEqual([{ index: 0, from: HACK, to: PRESS }])
+    const done = applyGymSwaps(S, 'g1')
+    expect(S.active.entries[0].id).toBe(PRESS)
+    expect(S.active.entries[0].sets).toHaveLength(3)
+    undoGymSwaps(S, done)
+    expect(S.active.entries[0].id).toBe(HACK)
+    expect(learnedBackup(S, PRESS, 'g1')).toBe(HACK)    // undoing the revert forgets nothing
+    const T = state({ swaps: { [PRESS]: { g1: HACK, g2: SQUAT } } })
+    applyGymSwaps(T)
+    T.activeEquipId = 'g2'
+    expect(plannedSwaps(T, 'g1')).toEqual([{ index: 0, from: HACK, to: SQUAT }])
+    const moved = applyGymSwaps(T, 'g1')
+    undoGymSwaps(T, moved)
+    expect(T.active.entries[0].id).toBe(HACK)
+    expect(learnedBackup(T, PRESS, 'g2')).toBe(null)
+  })
+
+  it('a backup the user picked that no gym took stays on a gym move', () => {
+    const S = state()
+    S.active.entries[0] = { ...S.active.entries[0], id: HACK }
+    S.activeEquipId = 'g2'
+    expect(plannedSwaps(S, 'g1')).toEqual([])
+  })
+})
+
 describe('missing at a gym (D86)', () => {
   const missing = map => { const S = state(); S.hvGymMissing = map; return S }
 
