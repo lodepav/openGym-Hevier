@@ -103,6 +103,8 @@ function CalendarPage() {
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
   return <div className="hv-cal">
+    {/* The bar, streak, Month/Year switch and key stay pinned while the months scroll under them. */}
+    <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
     {/* The streak is Motivation's (D97); the rest days stay. */}
     {(partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak">
@@ -115,6 +117,7 @@ function CalendarPage() {
       <span><i className="k-cardio" />{t('Cardio')}</span>
       <span><i className="k-deload" />{t('Deload')}</span>
       <span><i className="k-plan" />{t('Planned')}</span>
+    </div>
     </div>
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
