@@ -36,6 +36,7 @@ export const hooks = {
   equipChips: null,      // { on(v, kinds), has(v, ex), Chips }: the muscle explorer's equipment strip (S38)
   plainRoutine: null,    // { is(routine), rows(H, S, cfg, routine, sets) }: a routine without progression's rows (S40), its warm-ups left alone (S59)
   setMode: null,         // (set) => 'time' | null: the kind of set a row is, before its exercise's (S48)
+  setNumber: null,       // (sets, i) => number: the number set row i shows, before upstream's (S62)
   integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
   hevyMore: null,        // { day, workout, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
 }

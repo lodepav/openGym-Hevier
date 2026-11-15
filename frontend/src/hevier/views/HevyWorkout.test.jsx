@@ -15,6 +15,7 @@ import { isPlain } from '../lib/plain-routine.js'
 import { installExercisePicker } from './ExercisePickerHevy.jsx'
 import { fromSpeed } from '../../lib/speed.js'
 import { clampIncline } from '../../lib/incline.js'
+import { stopped } from '../lib/set-timer.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -323,6 +324,19 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0]).toMatchObject({ sec: 75, done: true })
     expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('a hold stopped from the big clock or its own end is firm, not a grey hint (D2, D89)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    const now = Date.now()
+    render([{ id: EX, target: { mode: 'time', sets: 2, sec: 30 }, sets: [{ w: 0, sec: 30, done: false }, { w: 0, sec: 30, done: false, hvRun: now, hvGoal: 60 }] }])
+    vi.setSystemTime(now + 42_000)
+    // What ClockSheet's Stop and hold-clock-run.js write: the time held, outside the block.
+    act(() => useStore.getState().update(st => { st.active.entries[0].sets[1] = stopped(st.active.entries[0].sets[1], 'time') }))
+    expect(sets()[1].sec).toBe(42)
+    const nums = container.querySelectorAll('.hv-num')
+    expect(nums[3].className).not.toContain('hv-hint')
+    expect(nums[1].className).toContain('hv-hint')
   })
 
   it('cardio speed typed in mph is stored in km/h, and the incline is clamped (M1)', () => {

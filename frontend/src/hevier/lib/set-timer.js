@@ -33,6 +33,12 @@ export function stopped(s, mode, now = Date.now()) {
   return { ...rest, [fieldOf(mode)]: fieldValue(mode, sec) }
 }
 
+/** The rows of `after` whose timer `before` had running and that are stopped now (none when rows
+ *  were added or removed, which renumbers them). */
+export const stoppedRows = (before, after) => (before?.length === after?.length
+  ? after.flatMap((s, i) => (before[i]?.[RUN] && !s?.[RUN] ? [i] : []))
+  : [])
+
 /** Seconds left of a running set's goal at `now`, or null when it has none. */
 export const goalLeft = (s, now = Date.now()) => (s?.[RUN] && s[GOAL] > 0 ? s[GOAL] - runningSec(s, now) : null)
 

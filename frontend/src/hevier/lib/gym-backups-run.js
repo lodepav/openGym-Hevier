@@ -38,11 +38,11 @@ export function initGymBackups(store) {
   if (started) return
   started = true
   const { get: getState, update, subscribe, toast } = store
-  const swapNow = () => {
+  const swapNow = (fromGym = null) => {
     const S = getState()
-    if (!partOn(S, 'hvGyms', 'backups') || !plannedSwaps(S).length) return // D114
+    if (!partOn(S, 'hvGyms', 'backups') || !plannedSwaps(S, fromGym).length) return // D114
     let done = []
-    update(s => { done = applyGymSwaps(s) })
+    update(s => { done = applyGymSwaps(s, fromGym) })
     if (!done.length) return
     const gym = gymName(getState(), workoutGym(getState(), getState().active)) || t('this gym')
     toast(t('Swapped for {0}: {1}', gym, done.map(p => `${nameOf(p.from)} → ${nameOf(p.to)}`).join(', ')), {
@@ -64,6 +64,9 @@ export function initGymBackups(store) {
     // A routine just started, or the session's gym changed: the gym's swaps.
     const begun = A && sessionKey(A) !== sessionKey(P)
     const moved = A && P && sessionKey(A) === sessionKey(P) && workoutGym(st.S, A) !== workoutGym(prev.S, P)
-    if (begun || moved) setTimeout(swapNow, 0)
+    if (begun || moved) {
+      const fromGym = moved ? workoutGym(prev.S, P) : null
+      setTimeout(() => swapNow(fromGym), 0)
+    }
   })
 }

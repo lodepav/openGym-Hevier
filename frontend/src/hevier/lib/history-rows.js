@@ -11,13 +11,14 @@ import { isHoldRow, isPairTail } from './hold-set.js'
 
 const objectOf = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
 
-/** Row `i`'s mark in `rows`: 'W', 'H', '' for the R half of an L/R hold pair, else its number
- *  among the work sets that are not holds, an L/R pair one set. */
+/** Row `i`'s mark in `rows`: 'W', 'H', '' for the R half of an L/R hold pair whose L half was
+ *  done (shown), else its number among the work sets that are not holds, an L/R pair one set. */
 export function setMark(rows, i) {
   const s = rows?.[i]
   if (!s) return ''
   if (isWarmupRow(s)) return 'W'
-  if (isPairTail(rows, i)) return ''
+  // A past session lists only done rows: an R half without its L half takes the pair's mark.
+  if (isPairTail(rows, i)) return hasCompletedWork(rows[i - 1]) ? '' : setMark(rows, i - 1)
   if (isHoldRow(s)) return 'H'
   let n = 0
   for (let j = 0; j <= i; j++) {

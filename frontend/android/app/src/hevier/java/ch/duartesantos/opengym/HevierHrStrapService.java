@@ -15,6 +15,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -202,6 +203,8 @@ public class HevierHrStrapService extends Service {
         // A direct connect is quick while the strap is in reach; after a drop, autoConnect waits
         // for it to come back for as long as it takes, at the radio's own low duty cycle.
         gatt = device.connectGatt(this, auto, callback, BluetoothDevice.TRANSPORT_LE);
+        // No client (the stack busy or restarting) means no callback either: try again.
+        if (gatt == null) retry();
     }
 
     private void retry() {
@@ -334,15 +337,15 @@ public class HevierHrStrapService extends Service {
         }
     };
 
-    /** Asks for Heart Rate Measurement's notifications; false when the strap has none. */
+    /** Asks for Heart Rate Measurement's notifications; false when the strap has none, or the ask was not queued. */
     private boolean subscribe(BluetoothGatt g) {
         BluetoothGattService svc = g.getService(HR_SERVICE);
         BluetoothGattCharacteristic c = svc == null ? null : svc.getCharacteristic(HR_MEASUREMENT);
         BluetoothGattDescriptor d = c == null ? null : c.getDescriptor(CCCD);
         if (d == null) return false;
         g.setCharacteristicNotification(c, true);
-        g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        return true;
+        // A write the stack did not queue (busy GATT) never reaches onDescriptorWrite: the caller drops the link.
+        return g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) == BluetoothStatusCodes.SUCCESS;
     }
 
     // Refusals that mean "pair first": insufficient authentication or encryption, and the stack's
