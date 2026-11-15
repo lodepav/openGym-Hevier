@@ -1,7 +1,7 @@
 # openGym-Hevier — fork notes
 
 This repository is a fork of [openGym](https://github.com/DuarteSantos8/openGym) that gives the
-Android app a [Hevy](https://www.hevy.com/)-like user experience and look, while keeping
+Android app a [Hevy](https://www.hevy.com/)-like user experience in OpenBite's look (D123), while keeping
 openGym's training logic (progression, 1RM, recovery, sync, storage) and staying easy to update
 from upstream.
 

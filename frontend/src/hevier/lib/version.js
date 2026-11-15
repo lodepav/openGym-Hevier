@@ -2,7 +2,7 @@
 // __APP_VERSION__ from hevier/VERSION (seam S29), which the updater and the APK read; upstream's
 // openGym version stays as __UPSTREAM_VERSION__. Upstream's About page and Settings root name only
 // the first, as openGym's: the fork renames them here, in the page's tree (seam S12), not in Settings.jsx.
-import { Children, cloneElement, isValidElement } from 'react'
+import { Children, cloneElement, createElement, isValidElement } from 'react'
 import { Row } from '../../components/ui.jsx'
 
 const own = () => (typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev')
@@ -12,6 +12,8 @@ const upstream = () => (typeof __UPSTREAM_VERSION__ === 'string' ? __UPSTREAM_VE
 export const versionLine = (tr = s => s, mine = own(), theirs = upstream()) =>
   'Go Hevier ' + mine + ' · ' + tr('based on openGym {0}', theirs)
 
+export const FONT_LICENCE = 'Nunito font, SIL Open Font License 1.1'
+
 const VERSION_RE = /\d+\.\d+\.\d+[^\s)]*/
 
 /** A debug build (hevier/tools/emulator.sh): it never checks for updates (seam S6). */
@@ -19,9 +21,9 @@ export const DEBUG_BUILD = import.meta.env.VITE_HEVIER_DEBUG === '1'
 
 /**
  * Upstream's About page with both versions: the Version row's value, the update row's title (a
- * newer Go Hevier, not openGym), and the footer's version, left out as the row shows it. In a debug build the update row says
+ * newer Go Hevier, not openGym), the footer's version, left out as the row shows it, and the font's licence at the footer's end. In a debug build the update row says
  * updates come with the release app instead. Anything else, or a page whose shape changed in a
- * merge, is left as it is.
+ * merge, is left as it is (the font's line still added to the footer).
  */
 export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream(), debug = DEBUG_BUILD) {
   const versionTitle = tr('Version')
@@ -39,11 +41,13 @@ export function aboutPage(tree, tr = s => s, mine = own(), theirs = upstream(), 
     if (typeof p.className === 'string' && p.className.split(' ').includes('sp-version')) {
       const kids = Children.toArray(p.children)
       const at = kids.findIndex((k, i) => k === mine && kids[i - 1] === 'openGym v')
-      if (at < 1) return node
+      // The licence the bundled font asks to be named (D123); a licence name, so not translated.
+      const font = [createElement('br', { key: 'hv-font-br' }), FONT_LICENCE]
+      if (at < 1) return cloneElement(node, {}, ...kids, ...font)
       // The Version row above names both versions; the footer keeps the licence and source only
       // (one place for the version, as Hevy has).
       const after = kids[at + 1] === ' · ' ? at + 2 : at + 1
-      return cloneElement(node, {}, ...kids.slice(0, at - 1), ...kids.slice(after))
+      return cloneElement(node, {}, ...kids.slice(0, at - 1), ...kids.slice(after), ...font)
     }
     if (p.children === undefined) return node
     const kids = Children.toArray(p.children)

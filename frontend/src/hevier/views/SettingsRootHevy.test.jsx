@@ -110,11 +110,13 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(useStore.getState().S.hvWarmupEffort).toBe(false)
   })
 
-  it('offers no theme, accent or gym check-in, keeping the rest of Look & Home (D17, D12)', () => {
+  it('offers no theme or gym check-in, and the fork’s Accent row in place of upstream’s, keeping the rest of Look & Home (D17, D12, D123)', () => {
     render('look')
     const rows = titles()
     expect(rows).not.toContain('Theme')
     expect(rows).not.toContain('Accent color')
+    expect(rows[0]).toBe('Accent')
+    expect(container.querySelector('.hv-accent-row input[type="color"]')).toBeTruthy()
     expect(rows).toContain('Body diagram')
     expect(rows).not.toContain('Gym check-in')
     expect(rows).toContain('Body weight')

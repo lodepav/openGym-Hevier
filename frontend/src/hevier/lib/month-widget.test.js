@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB, isCardio } from '../../lib/exercises.js'
-import { widgetSnapshot, summaryOf } from './month-widget.js'
+import { widgetSnapshot, summaryOf, widgetColours } from './month-widget.js'
+import { accentFields, DEFAULT_GREEN, HEVY_BLUE } from './accents.js'
 
 const BENCH = EXDB.find(e => /bench press/i.test(e.n) && /barbell/i.test(e.eq || '')).id
 const RUN = EXDB.find(e => isCardio(e)).id
@@ -49,5 +50,17 @@ describe('hevier month widget snapshot (D44)', () => {
   it('a day of cardio only is cardio', () => {
     const s = widgetSnapshot({ workouts: [W('2026-10-03', [{ id: RUN, sets: [{ min: 30, done: true }] }])] }, '2026-10-17')
     expect(s.kinds['2026-10-03']).toBe('cardio')
+  })
+
+  it('carries the calendar’s colours for the worn accent (D123)', () => {
+    expect(widgetColours(accentFields(DEFAULT_GREEN))).toEqual({ strength: DEFAULT_GREEN, cardio: HEVY_BLUE, deload: '#ff9f0a' })
+    expect(widgetColours(accentFields(HEVY_BLUE))).toEqual({ strength: HEVY_BLUE, cardio: '#2fbf5b', deload: '#ff9f0a' })
+    // A kept orange: deload steps aside to violet.
+    expect(widgetColours(accentFields('#ff9500')).deload).toBe('#bf5af2')
+    // A dark custom colour is drawn as the page lifts it on black.
+    const dark = widgetColours(accentFields('#1a0a40')).strength
+    expect(dark).toMatch(/^#[0-9a-f]{6}$/)
+    expect(dark).not.toBe('#1a0a40')
+    expect(widgetSnapshot(accentFields(HEVY_BLUE), '2026-10-17').colours.strength).toBe(HEVY_BLUE)
   })
 })

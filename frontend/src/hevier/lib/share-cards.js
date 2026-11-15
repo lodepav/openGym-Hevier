@@ -22,6 +22,9 @@ import { hevySetText, hevySetLabel } from './set-text.js'
 import { byExercise, change, monthWorkouts } from './month-report.js'
 import { monthCells, dayKind } from './calendar.js'
 import { durationWords } from './elapsed.js'
+import { cleanHex, inkOn, readableIn } from '../../lib/accent.js'
+import { DEFAULT_GREEN } from './accents.js'
+import { LABEL, meaningColours } from './meaning-colours.js'
 
 export const SHARE_W = 1080
 export const SHARE_H = 1350
@@ -164,6 +167,21 @@ export function monthCards(S, { y, mo, report: r, workouts = [], byDay = {}, ws 
   return cards
 }
 
+// The card is drawn on black, so the text colour a meaning may fall back to is white here.
+const onCard = c => (c === LABEL ? '#ffffff' : c)
+
+/**
+ * The colours a card's layout names, under the accent `accentHex` (D123): strength and "better"
+ * wear the accent as the page draws it, cardio, deload and "worse" step aside from it
+ * (meaningColours), and each filled day's number has the ink that reads on it.
+ */
+export function cardColours(accentHex) {
+  const acc = readableIn(cleanHex(accentHex) || DEFAULT_GREEN, 'dark')
+  const m = meaningColours(acc)
+  // Every cardio and deload colour (green, orange, blue, violet, white) reads best in black.
+  return { acc, strength: acc, cardio: onCard(m.cardio), deload: onCard(m.deload), up: acc, down: onCard(m.fail), onStrength: inkOn(acc), onLight: '#000' }
+}
+
 /**
  * Where everything goes on one card. `measure(text, weight, size)` is a width in pixels (the
  * canvas's in the app, a fake in the tests). `photo`: the card is drawn over a picture, so its
@@ -243,9 +261,9 @@ export function layoutShareCard(card, { measure, photo = false, map = null }) {
       if (!c) return
       const cx = mid(i % 7), cy = y + rowH * Math.floor(i / 7) + rowH / 2
       if (c.kind) items.push({ kind: 'dot', x: cx, y: cy, r: radius, color: c.kind })
-      // A number on green or orange is black, as the Calendar page writes it (D17).
+      // A number on a filled day takes that fill's ink (cardColours), as the Calendar page writes it.
       items.push({ kind: 'text', text: String(c.day), x: cx, y: cy + 12, size: 34, weight: c.kind ? 700 : 400,
-        color: !c.kind ? 'label2' : c.kind === 'strength' ? 'label' : 'onLight', align: 'center' })
+        color: !c.kind ? 'label2' : c.kind === 'strength' ? 'onStrength' : 'onLight', align: 'center' })
     })
     y += rowH * rows
   } else if (card.kind === 'muscles') {
