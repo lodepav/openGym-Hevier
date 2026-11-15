@@ -2,6 +2,28 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 2.8.0 · 2026-11-15
+
+Based on openGym 1.4.5.
+
+### New
+
+- warm-ups stay when the working weight changes, Update routine keeps a Per side switch, Effort on warm-ups can be switched off, and a regression harness for what a routine opens with
+- a reorder list in the workout, Undo on routine deletes, six new statistics, and the 2026-11-14 review's upkeep
+- a module's parts unfold under it on Settings → Modules, and Workout extras, Calendar, Other names and Main muscle can be switched off
+
+### Fixes and changes
+
+- Progression off keeps a rep range and a blocking Step in view
+- fixes from an open-code-review pass
+- Update routine leaves out a Per side switch made with a change to Time, and the routine check tells "could not run" from a difference
+- hono 4.13.16 in api and mcp, for five CVEs
+- the update offer waits for a workout or a sheet and comes after, a Hevy session links only its nearest workout, and the timer wheel reads out what it shows
+
+### From openGym
+
+- hevier: merge upstream v1.4.5
+
 ## 2.7.0 · 2026-11-11
 
 Based on openGym 1.4.4.
