@@ -35,6 +35,13 @@ describe('hevier set timer (D53)', () => {
     expect(A.entries[1].sets[0]).toEqual({ sec: 30 })
     expect(anyRunning(A)).toBe(false)
   })
+  it('a typed time is kept: the timer counts on from it (R7-U4)', () => {
+    const A = session()
+    startRun(A, 0, 0, T, 0, 600)
+    expect(runningSec(A.entries[0].sets[0], T + 30_000)).toBe(630)
+    stopAll(A, T + 30_000)
+    expect(A.entries[0].sets[0].min).toBe(10.5)
+  })
   it('a ticked set does not start', () => {
     const A = session()
     startRun(A, 1, 1, T)

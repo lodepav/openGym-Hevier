@@ -113,6 +113,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
 | A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
 | Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Fork |
+| The phone's font size zooms all text again, the fork's screens included, as before 1.4.5 | D122 | Fork |
 
 ## Home, navigation and look
 

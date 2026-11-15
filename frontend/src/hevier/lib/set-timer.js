@@ -61,12 +61,13 @@ export function stopAll(active, now = Date.now()) {
   })
 }
 
-/** Starts set `si` of entry `ei` at `now`, stopping any other first (in place); a `goal` in seconds counts it down. */
-export function startRun(active, ei, si, now = Date.now(), goal = 0) {
+/** Starts set `si` of entry `ei` at `now`, stopping any other first (in place); a `goal` in seconds
+ *  counts it down; `from` seconds already on the set (a typed time) count on from there. */
+export function startRun(active, ei, si, now = Date.now(), goal = 0, from = 0) {
   stopAll(active, now)
   const s = active?.entries?.[ei]?.sets?.[si]
   if (!s || s.done) return
-  s[RUN] = now
+  s[RUN] = now - Math.max(0, from) * 1000
   if (goal > 0) s[GOAL] = Math.round(goal); else delete s[GOAL]
 }
 

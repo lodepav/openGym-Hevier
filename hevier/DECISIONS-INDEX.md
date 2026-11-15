@@ -125,3 +125,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D119** Six statistics from what is already logged.
 - **D120** Effort on warm-ups can be switched off.
 - **D121** What the merge of openGym 1.4.5 settled, 2026-11-14.
+- **D122** The phone's font size zooms the text, as before 1.4.5.

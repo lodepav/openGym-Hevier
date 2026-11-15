@@ -117,6 +117,8 @@
 :root[data-ui="hevier"] .hv-unit .swfront{background:var(--bg)}
 :root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row{padding-inline:calc(var(--pad) + 4px);border-radius:0}
 :root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{margin-inline:calc(-1 * var(--pad));padding-inline:calc(var(--pad) + 4px);border-radius:0}
+/* A per-side pair inside a swipe row: the swipe row already reaches the edges. */
+:root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-pair > .hv-row{margin-inline:0}
 /* and alternate sets are striped, in the log and in the routine editor (each set is one unclassed
    wrapper in .hv-ex, so the stripe counts sets, not the drop and burst lines under them) */
 :root[data-ui="hevier"] .hv-ex > :nth-child(even of div:not([class])) :is(.hv-row, .hv-rt-row):not(.done){background:var(--surface)}
@@ -853,3 +855,6 @@
 /* The resume bar's Resume and Discard are 34 dp tall: the tap reaches 7 dp above and below (A1). */
 :root[data-ui="hevier"] #tabbar .hv-resumebar :is(.hv-resume-go, .hv-resume-x){position:relative}
 :root[data-ui="hevier"] #tabbar .hv-resumebar :is(.hv-resume-go, .hv-resume-x)::after{content:"";position:absolute;inset:-7px 0}
+/* A centred confirm (Discard workout?): 48 dp buttons, the second 16 dp below the first (A1). */
+:root[data-ui="hevier"] #modal-root .center .btn{min-height:48px}
+:root[data-ui="hevier"] #modal-root .center .btn ~ .btn{margin-top:8px}

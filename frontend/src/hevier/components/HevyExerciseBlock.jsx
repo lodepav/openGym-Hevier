@@ -368,7 +368,12 @@ export default function HevyExerciseBlock(props) {
   const prText = r => (!convertsUnit || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
     : r.kind === 'setVol' ? `${fmtNum(showWeight(r.w))} ${exUnit} × ${r.r}` : fmtNum(showWeight(r.v)) + ' ' + exUnit)
   // D53: ▶ starts the set's count-up timer (stopping any other), ■ writes its time in.
-  const startTimer = i => update(st => startRun(st.active, entryIdx, i), true)
+  // A time typed into the set is kept: ▶ counts on from it. One filled in from last time starts at 0.
+  const startTimer = i => {
+    const s = entry.sets[i], timeCol = colsOf(s).find(c => c.dur)
+    const from = timeCol && isTouched(i, timeCol.f) ? secOf(s, modeAt(s)) || 0 : 0
+    update(st => startRun(st.active, entryIdx, i, Date.now(), 0, from), true)
+  }
   const stopTimer = i => {
     const timeCol = colsOf(entry.sets[i]).find(c => c.dur)
     update(st => { const e = st.active?.entries[entryIdx]; if (e?.sets[i]) e.sets[i] = stopped(e.sets[i], modeAt(e.sets[i])) }, true)

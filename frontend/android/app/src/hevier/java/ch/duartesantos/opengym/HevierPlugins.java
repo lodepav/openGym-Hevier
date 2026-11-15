@@ -25,5 +25,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierStrengthPlugin.class);
         // The exercise pictures downloaded once, kept across updates (D115).
         activity.registerFlavorPlugin(HevierMediaPlugin.class);
+        // The phone's font size zooms the text, as before 1.4.5; after upstream's TextScalePlugin (D122).
+        activity.registerFlavorPlugin(HevierTextZoomPlugin.class);
     }
 }

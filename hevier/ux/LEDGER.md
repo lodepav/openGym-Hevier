@@ -166,12 +166,12 @@ Both finished, roughly as round 2 (21 and 30 taps). Fixes in `aec722eae`.
 
 | Id | Sev | Rule | Claim | Outcome |
 |---|---|---|---|---|
-| R7-U1 | low | H4 | A per-side set's rows sit 16 dp off the header and are wider than the screen | **discuss**: the fix narrows PREVIOUS |
+| R7-U1 | low | H4 | A per-side set's rows sit 16 dp off the header and are wider than the screen | **fixed** (the user: fix it): a pair inside a swipe row no longer bleeds twice; cells line up with the header, checked on screen |
 | R7-U2 | low | C4 | The picker says "1 exercises" | **fixed**: plural helper |
 | R7-U3 | low | H4 | The hold clock's title writes the exercise in lower case | **open**: the title is a string, the casing is CSS |
-| R7-U4 | low | H3 | ▶ on a set with a typed time starts at 0:00 and drops the typed time | **discuss**: D53 |
+| R7-U4 | low | H3 | ▶ on a set with a typed time starts at 0:00 and drops the typed time | **fixed** (the user: fix it): a typed time counts on from where it was, one filled in from last time starts at 0; test beside it, checked on screen |
 | R7-U5 | low | A1 | The Brand sheet's chips are 30 dp tall, close to Save | **open**: the chips' class is shared with other sheets |
-| R7-U6 | low | A1 | The Discard dialog's buttons are 37 dp, 8 dp apart; the resume bar's 34 dp | **fixed** for the resume bar (a hit area); the dialog is upstream's: **discuss** |
+| R7-U6 | low | A1 | The Discard dialog's buttons are 37 dp, 8 dp apart; the resume bar's 34 dp | **fixed**: the resume bar (a hit area), and the centred confirm's buttons are 48 dp, 16 dp apart (the user: fix it); checked on screen |
 
 ## Round 8 (2026-11-15, after the 1.4.5 merge: J5 numbers person, J6 planner, J7 low vision)
 
@@ -181,8 +181,9 @@ longer follow the phone's font size.
 | Id | Sev | Rule | Claim | Outcome |
 |---|---|---|---|---|
 | R8-U1 | medium | P1 | System back on Statistics, Plan and Exercises offered to exit | **fixed**: S16's `hooks.backPath`, test beside it; checked on screen |
-| R8-U2 | medium | A6, G7 | Since 1.4.5 the phone's font size no longer reaches the set row and most fork text | **discuss**: px to rem across the fork's CSS |
+| R8-U2 | medium | A6, G7 | Since 1.4.5 the phone's font size no longer reaches the set row and most fork text | **fixed** (the user: as before): D122 puts the WebView's text zoom back; at 200% the set rows wrap as round 4 left them; checked on screen |
 | R8-U3 | low | H4 | The weekly chart's first date label sits two bars too far left | **open** (minor) |
 | R8-U4 | low | H6 | Exercise details show no year on old dates | **fixed**: the year on a date from another year |
 | R8-U5 | low | H3 | Leaving a new routine empty keeps a "New routine" card | **discuss** |
 | R8-U6 | low | A2 | The Superset pill's text is 3.5:1 | **open**: Hevy's purple (SCREENS.md) |
+| R8-U7 | low | A6 | At 200% a cardio time of 10:10 is cut to "10:1" in the TIME cell | **open**: seen while checking D122 |

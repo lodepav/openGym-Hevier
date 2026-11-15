@@ -361,12 +361,12 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].speed).toBe(12)
     typeInto(container.querySelectorAll('.hv-num')[0], '1234')
     expect(sets()[0].min).toBeCloseTo(754 / 60)
-    // ▶, then the tick: the timer stops and its time is what is logged
+    // ▶ counts on from the typed 12:34 (R7-U4), then the tick: the timer stops and its time is what is logged
     act(() => container.querySelector('.hv-go').click())
-    vi.setSystemTime(Date.now() + (20 * 60 + 5) * 1000)
+    vi.setSystemTime(Date.now() + (7 * 60 + 26) * 1000)
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0].done).toBe(true)
-    expect(sets()[0].min).toBeCloseTo(1205 / 60)
+    expect(sets()[0].min).toBeCloseTo(1200 / 60)
     expect(sets()[0].hvRun).toBeUndefined()
   })
 
