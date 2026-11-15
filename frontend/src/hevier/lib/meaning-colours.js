@@ -1,5 +1,5 @@
 // D123: the meaning colours (cardio, deload, a drop set, warm-up, failure, superset, record, note)
-// step aside when the accent sits too close to one. Too close is an OKLab distance under MIN_APART:
+// step aside when the accent, or another meaning, sits too close. Too close is an OKLab distance under MIN_APART:
 // contrast cannot tell two hues of the same lightness apart. Done and "better than last time"
 // always wear the accent, so they are not here.
 import { MIN_APART, HEVY_BLUE } from './accents.js'
@@ -45,11 +45,29 @@ export function distance(a, b) {
 /** Whether two colours read as the same one. The text colour is never too close to anything. */
 export const tooClose = (a, b) => a !== LABEL && b !== LABEL && distance(a, b) < MIN_APART
 
-/** Each meaning's colour beside `accentHex`: its first value, its backup, or the text colour. */
+// Extra hues for a meaning whose first and backup are both taken (the teal, lime and pink accents):
+// each reads on black (contrast 4.5+) and sits MIN_APART from the others and from every MEANINGS colour.
+const POOL = ['#40c8e0', '#ff7eb6', '#a3e635']
+// The meanings that must differ from each other, in the order they claim a colour: warm-up before
+// deload, since their firsts (yellow, orange) are too close and warm-up is on every set row.
+const DISTINCT = ['warmup', 'fail', 'drop', 'superset', 'cardio', 'deload']
+
+/**
+ * Each meaning's colour beside `accentHex`, apart from the accent and from each other: its first
+ * value, its backup, a POOL hue, or the text colour. Firsts that are free claim first, then the
+ * displaced ones pick, so one clash does not move a meaning that was fine.
+ */
 export function meaningColours(accentHex) {
   const acc = String(accentHex || '').toLowerCase()
-  const ok = c => !/^#[0-9a-f]{6}$/.test(acc) || !tooClose(c, acc)
+  const taken = /^#[0-9a-f]{6}$/.test(acc) ? [acc] : []
+  const free = c => c !== LABEL && !taken.some(t => tooClose(c, t))
   const out = {}
-  for (const [k, [first, backup]] of Object.entries(MEANINGS)) out[k] = ok(first) ? first : ok(backup) ? backup : LABEL
+  for (const k of DISTINCT) if (free(MEANINGS[k][0])) taken.push(out[k] = MEANINGS[k][0])
+  for (const k of DISTINCT) if (!out[k]) {
+    out[k] = [MEANINGS[k][1], ...POOL].find(free) ?? LABEL
+    if (out[k] !== LABEL) taken.push(out[k])
+  }
+  // record and note have always shared the warm-up's colour, so they take its result.
+  out.record = out.note = out.warmup
   return out
 }

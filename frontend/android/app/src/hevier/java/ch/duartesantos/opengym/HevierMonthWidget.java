@@ -47,8 +47,8 @@ public class HevierMonthWidget extends AppWidgetProvider {
     // The calendar's colours under the default green accent, for a snapshot from before D123; the
     // app sends its own (month-widget.js `colours`).
     static final int STRENGTH = 0xFF34D08A;
-    static final int CARDIO = 0xFF008CFF;
-    static final int DELOAD = 0xFFFF9F0A;
+    static final int CARDIO = 0xFF40C8E0;
+    static final int DELOAD = 0xFFFF7EB6;
 
     static void save(Context ctx, String snapshot) {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, snapshot).apply();

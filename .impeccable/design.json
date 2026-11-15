@@ -379,7 +379,7 @@
     "keyCharacteristics": [
       "A pure black page. Exercises, feed workouts, routines and the Today row each sit in a black card with a hairline; Home's widgets and Settings run flat between hairlines.",
       "One accent, which the user chooses. It means \"tap this\", \"this is next\" and \"this is done\".",
-      "The other colours carry meanings (warm-up, failure, drop set, superset, cardio, deload, record, note), and each steps aside to a backup when the accent comes too close.",
+      "The other colours carry meanings (warm-up, failure, drop set, superset, cardio, deload, record, note), and each steps aside when the accent or another meaning comes too close.",
       "Warm greys and warm white text, never cool blue-greys.",
       "Tabular numbers everywhere, so a column of sets lines up.",
       "One page bar on every screen: a bare chevron, a small centred title, plain actions."
@@ -392,7 +392,7 @@
       },
       {
         "name": "The Step Aside Rule",
-        "body": "A meaning colour never takes the accent's place. When the user's accent is too close to one, the meaning moves to its backup; done and \"better than last time\" always wear the accent.",
+        "body": "A meaning colour never takes the accent's place. When the user's accent, or another meaning, is too close to one, the meaning moves to its backup or an extra hue; done and \"better than last time\" always wear the accent.",
         "section": "colors"
       },
       {

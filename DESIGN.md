@@ -14,6 +14,8 @@ colors:
   failure-red: "#e34b37"
   superset-violet: "#bf5af2"
   deload-orange: "#ff9f0a"
+  deload-pink: "#ff7eb6"
+  cardio-teal: "#40c8e0"
   amoled-black: "#000000"
   stripe-black: "#0b0a08"
   well-grey: "#16140f"
@@ -202,7 +204,7 @@ no hero numbers for show. Control sizes are Hevy's; D123 changed the skin, not t
   card with a hairline; Home's widgets and Settings run flat between hairlines.
 - One accent, which the user chooses. It means "tap this", "this is next" and "this is done".
 - The other colours carry meanings (warm-up, failure, drop set, superset, cardio, deload, record,
-  note), and each steps aside to a backup when the accent comes too close.
+  note), and each steps aside when the accent or another meaning comes too close.
 - Warm greys and warm white text, never cool blue-greys.
 - Tabular numbers everywhere, so a column of sets lines up.
 - One page bar on every screen: a bare chevron, a small centred title, plain actions.
@@ -226,21 +228,26 @@ The other hues are meanings, each with one job.
   synced fields (D123), so the notification, the rest countdown and the widgets follow it.
 
 ### Secondary: meaning colours
-Each has a first colour and a backup (`MEANINGS` in `meaning-colours.js`). When the accent sits
-under 0.12 OKLab from the first, the backup is used; if that is also too close, the text colour.
+Each has a first colour and a backup (`MEANINGS` in `meaning-colours.js`). A colour is free when it
+sits at least 0.12 OKLab from the accent and from the colours the other meanings already wear.
+Warm-up, failure, drop set, superset, cardio and deload never share a colour: each keeps its first
+when free, else its backup, else teal, pink or lime (the extra accents' colours). Record and note
+always wear the warm-up's colour.
 They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-drop`,
 `--hv-superset`, `--hv-deload`, `--hv-record` and `--hv-note`.
-- **Warm-up Yellow** (`warmup-yellow`): the W of a warm-up set. Backup: text colour. Also a
-  record's trophy and a note's mark, with the same backup.
-- **Failure Red** (`failure-red`): the F of a failure set. Backup: text colour. Red as such
+- **Warm-up Yellow** (`warmup-yellow`): the W of a warm-up set, a record's trophy and a note's
+  mark. Backup: teal (under an orange accent).
+- **Failure Red** (`failure-red`): the F of a failure set. Backup: teal (under a red accent). Red as such
   (`--red`) also marks Discard, danger buttons' text, the live heart and "less than last time";
   that red does not step aside.
 - **Drop Blue** (`hevy-blue`): the D of a drop set and a hold's mark. Backup: violet.
 - **Superset Violet** (`superset-violet`): the rule down a superset's card and its pill. Backup:
-  text colour.
-- **Cardio Green** (`cardio-green`): a cardio day in the calendar. Backup: Hevy's blue. Under the
-  default green accent cardio wears the blue.
-- **Deload Orange** (`deload-orange`): a deload day. Backup: violet. Orange as such (`--orange`)
+  teal or pink.
+- **Cardio Green** (`cardio-green`): a cardio day in the calendar. Backup: Hevy's blue, else teal.
+  Under the default green accent cardio wears teal (`cardio-teal`), as the blue is the drop set's.
+- **Deload Orange** (`deload-orange`): a deload day, but only when the warm-up is not yellow: the
+  two sit 0.04 apart, so with the warm-up's yellow on screen deload wears pink (`deload-pink`),
+  which is what the default green shows. Orange as such (`--orange`)
   also marks a warning line and the streak flame.
 
 ### Tertiary
@@ -268,8 +275,8 @@ They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-dro
 **The One Accent Rule.** The accent is the only colour that means "tap", "next" or "done". A
 thing that is none of those never wears it.
 
-**The Step Aside Rule.** A meaning colour never takes the accent's place. When the user's accent
-is too close to one, the meaning moves to its backup; done and "better than last time" always
+**The Step Aside Rule.** A meaning colour never takes the accent's place. When the user's accent, or another meaning, is too close
+to one, the meaning moves to its backup or an extra hue; done and "better than last time" always
 wear the accent.
 
 **The Earned Colour Rule.** Meaning colours show up because something is so: a set was warm-up,

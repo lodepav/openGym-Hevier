@@ -13,12 +13,12 @@ beforeEach(() => useStore.setState({ S: { ...JSON.parse(JSON.stringify(DEF)), ac
 describe('the meaning colours on the page (D123)', () => {
   it('sets them at launch and again when the accent changes, and keeps the accent for the boot screen', () => {
     initMeaningColours(storeAdapter(useStore, () => {}))
-    expect(css('--hv-cardio')).toBe('#008cff')
+    expect(css('--hv-cardio')).toBe('#40c8e0')
     expect(css('--hv-drop')).toBe('#008cff')
     expect(localStorage.getItem(ACCENT_KEY)).toBe('#34d08a')
     useStore.getState().update(s => { s.accentCustom = '#008cff' })
     expect(css('--hv-cardio')).toBe('#2fbf5b')
-    expect(css('--hv-drop')).toBe('#bf5af2')
+    expect(css('--hv-drop')).toBe('#40c8e0')
     expect(css('--hv-note')).toBe('#efab03')
     expect(localStorage.getItem(ACCENT_KEY)).toBe('#008cff')
   })
