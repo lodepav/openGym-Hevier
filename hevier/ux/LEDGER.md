@@ -148,9 +148,9 @@ still to run after this merge.
 
 | Id | Sev | Rule | Claim | Outcome |
 |---|---|---|---|---|
-| R6-U1 | low | A1 | The routine card's name and the exercise name in the workout and the editor are 22 dp tall | **open**: an invisible hit area, nothing visible changes (minor) |
-| R6-U2 | low | A5 | The routine editor's fields are spoken "KG Set 1", "REPS Set 1" | **open**: the live workout's names (minor) |
-| R6-U3 | low | H4 | Data & backup: Delete workouts only and Reset everything read as part of Bring data in | **open**: a gap above an untitled section in `theme.css` (minor) |
+| R6-U1 | low | A1 | The routine card's name and the exercise name in the workout and the editor are 22 dp tall | **fixed**: an invisible hit area, the card's over its exercise line |
+| R6-U2 | low | A5 | The routine editor's fields are spoken "KG Set 1", "REPS Set 1" | **fixed**: "Set 1, Weight (kg)", "Set 1, Reps" |
+| R6-U3 | low | H4 | Data & backup: Delete workouts only and Reset everything read as part of Bring data in | **fixed**: a 20 dp gap above an untitled settings section |
 | R6-U4 | low | A1 | Exercise details: the Brand and Range choosers are 34 and 30 dp tall | **open**: slightly visible, so discuss |
 
 Improvements, open: one wording for the delete toast ("Set 4 gone." and "Set removed"); "Edit
@@ -159,3 +159,30 @@ Workout" and "Edit workout" on Workout Detail; Nice work's card writes a 0 kg se
 
 Note for the user: with a weight field focused by script on the headless emulator, the cells to
 its right were drawn about 20 dp left of where the page has them; worth one look on a real phone.
+
+## Round 7 (2026-11-15, after the 1.4.5 merge: J3 two-gym lifter, J4 per-side and timer user)
+
+Both finished, roughly as round 2 (21 and 30 taps). Fixes in `aec722eae`.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R7-U1 | low | H4 | A per-side set's rows sit 16 dp off the header and are wider than the screen | **discuss**: the fix narrows PREVIOUS |
+| R7-U2 | low | C4 | The picker says "1 exercises" | **fixed**: plural helper |
+| R7-U3 | low | H4 | The hold clock's title writes the exercise in lower case | **open**: the title is a string, the casing is CSS |
+| R7-U4 | low | H3 | ▶ on a set with a typed time starts at 0:00 and drops the typed time | **discuss**: D53 |
+| R7-U5 | low | A1 | The Brand sheet's chips are 30 dp tall, close to Save | **open**: the chips' class is shared with other sheets |
+| R7-U6 | low | A1 | The Discard dialog's buttons are 37 dp, 8 dp apart; the resume bar's 34 dp | **fixed** for the resume bar (a hit area); the dialog is upstream's: **discuss** |
+
+## Round 8 (2026-11-15, after the 1.4.5 merge: J5 numbers person, J6 planner, J7 low vision)
+
+All three finished. J7 went differently: upstream 1.4.5 caps text at 140% and the fork's px sizes no
+longer follow the phone's font size.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R8-U1 | medium | P1 | System back on Statistics, Plan and Exercises offered to exit | **fixed**: S16's `hooks.backPath`, test beside it; checked on screen |
+| R8-U2 | medium | A6, G7 | Since 1.4.5 the phone's font size no longer reaches the set row and most fork text | **discuss**: px to rem across the fork's CSS |
+| R8-U3 | low | H4 | The weekly chart's first date label sits two bars too far left | **open** (minor) |
+| R8-U4 | low | H6 | Exercise details show no year on old dates | **fixed**: the year on a date from another year |
+| R8-U5 | low | H3 | Leaving a new routine empty keeps a "New routine" card | **discuss** |
+| R8-U6 | low | A2 | The Superset pill's text is 3.5:1 | **open**: Hevy's purple (SCREENS.md) |
