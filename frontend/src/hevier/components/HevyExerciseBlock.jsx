@@ -43,7 +43,7 @@ import DurationField from './DurationField.jsx'
 import { isHoldRow, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, setTicked, HOLD_SEC } from '../lib/hold-set.js'
 import Elapsed from './Elapsed.jsx'
 import HvIcon from './HvIcon.jsx'
-import { RUN, secOf, fieldValue, stopped, startRun, runningSec, stoppedRows } from '../lib/set-timer.js'
+import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stoppedRows } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
 import { previousText } from '../lib/set-text.js'
@@ -368,7 +368,8 @@ export default function HevyExerciseBlock(props) {
   const prText = r => (!convertsUnit || !['weight', 'e1rm', 'setVol'].includes(r.kind) ? recordValue(r, unit, t)
     : r.kind === 'setVol' ? `${fmtNum(showWeight(r.w))} ${exUnit} × ${r.r}` : fmtNum(showWeight(r.v)) + ' ' + exUnit)
   // D53: ▶ starts the set's count-up timer (stopping any other), ■ writes its time in.
-  // A time typed into the set is kept: ▶ counts on from it. One filled in from last time starts at 0.
+  // A time on the set made firm (typed, copied from PREVIOUS, or stopped) is kept: ▶ counts on from
+  // it. A grey hint from last time starts at 0.
   const startTimer = i => {
     const s = entry.sets[i], timeCol = colsOf(s).find(c => c.dur)
     const from = timeCol && isTouched(i, timeCol.f) ? secOf(s, modeAt(s)) || 0 : 0
@@ -415,7 +416,8 @@ export default function HevyExerciseBlock(props) {
     const p = prev[i]
     if (src && !src.done && modeAt(s) === 'cardio' && src[RUN]) {
       const ran = runningSec(src)
-      const ref = longRun(ran, secOf(src, 'cardio'), p ? secOf(p, 'cardio') : 0)
+      // Only what ran since ▶: a run counted on from a time on the set is not a forgotten timer.
+      const ref = longRun(sinceStart(src), secOf(src, 'cardio'), p ? secOf(p, 'cardio') : 0)
       if (ref) return ask(i, side, s, 'min', t('Timer still running?'),
         t('{0} is over twice this set’s time, {1}.', elapsedClock(ran), elapsedClock(ref)), elapsedClock(ran), () => stopTimer(i))
     }

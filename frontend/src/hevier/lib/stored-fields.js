@@ -38,6 +38,7 @@ export const STORED_FIELDS = [
   { field: 'hvLast', at: 'set', sample: 'LR' },
   { field: 'hvRun', at: 'set', sample: 1760716800000 },
   { field: 'hvGoal', at: 'set', sample: 60 },
+  { field: 'hvFrom', at: 'set', sample: 300 },
   { field: 'hvProg', at: 'routine', sample: true },
   { field: 'hvHevyFolder', at: 'routine', sample: 'PPL' },
 ]

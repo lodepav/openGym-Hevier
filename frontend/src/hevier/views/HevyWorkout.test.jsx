@@ -370,6 +370,18 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].hvRun).toBeUndefined()
   })
 
+  it('a run counted on from a typed time is not taken for a forgotten timer (D90, R7-U4)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id
+    render([{ id: run, target: { mode: 'cardio', sets: 1, min: 20 }, sets: [{ min: 20, done: false }] }])
+    typeInto(container.querySelectorAll('.hv-num')[0], '1500')
+    act(() => container.querySelector('.hv-go').click())
+    vi.setSystemTime(Date.now() + 16 * 60 * 1000)
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0].done).toBe(true)
+    expect(sets()[0].min).toBeCloseTo(31)
+  })
+
   it('a cardio timer left running asks at the tick: Fix it stops it, unticked (D90)', () => {
     vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     const run = EXDB.find(e => modeOfId(e.id) === 'cardio').id

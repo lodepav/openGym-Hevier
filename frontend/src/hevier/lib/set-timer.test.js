@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN, goalLeft, dueGoals, moveGoal, stoppedRows } from './set-timer.js'
+import { secOf, stopped, stopAll, startRun, runningSec, anyRunning, RUN, goalLeft, dueGoals, moveGoal, stoppedRows, sinceStart } from './set-timer.js'
 import { digitsIn, fromDigits, showDigits } from './duration-entry.js'
 
 const T = Date.parse('2026-10-18T10:00:00')
@@ -39,8 +39,11 @@ describe('hevier set timer (D53)', () => {
     const A = session()
     startRun(A, 0, 0, T, 0, 600)
     expect(runningSec(A.entries[0].sets[0], T + 30_000)).toBe(630)
+    // what ran since ▶ is on the set itself, for D90's check after a remount
+    expect(sinceStart(A.entries[0].sets[0], T + 30_000)).toBe(30)
     stopAll(A, T + 30_000)
     expect(A.entries[0].sets[0].min).toBe(10.5)
+    expect(A.entries[0].sets[0]).not.toHaveProperty('hvFrom')
   })
   it('a ticked set does not start', () => {
     const A = session()

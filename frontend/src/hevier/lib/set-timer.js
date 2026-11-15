@@ -10,6 +10,8 @@ export const RUN = 'hvRun'
 // A hold started on the big clock (D89) counts down to its seconds: the goal, also a fork-only
 // field of the running set, which a stop removes. The hold ends there on its own (hold-clock-run.js).
 export const GOAL = 'hvGoal'
+// The seconds a set counted on from (a time already on it when ▶ was tapped), dropped by a stop.
+export const FROM = 'hvFrom'
 
 /** A set's time in seconds, in `mode` ('cardio' or 'time'), or null when it has none. */
 export function secOf(s, mode) {
@@ -25,10 +27,13 @@ export const fieldOf = mode => (mode === 'cardio' ? 'min' : 'sec')
 /** Seconds a running set has counted at `now`, or null when it is not running. */
 export const runningSec = (s, now = Date.now()) => (s?.[RUN] ? Math.max(0, Math.floor((now - s[RUN]) / 1000)) : null)
 
+/** Seconds a running set has counted since its ▶, without the time it counted on from; null when not running. */
+export const sinceStart = (s, now = Date.now()) => (s?.[RUN] ? Math.max(0, runningSec(s, now) - (s[FROM] || 0)) : null)
+
 /** The set stopped at `now`, its time written in (no more than its goal); a set not running is returned as it is. */
 export function stopped(s, mode, now = Date.now()) {
   if (!s?.[RUN]) return s
-  const { [RUN]: _, [GOAL]: goal, ...rest } = s
+  const { [RUN]: _, [GOAL]: goal, [FROM]: __, ...rest } = s
   const sec = goal > 0 ? Math.min(goal, runningSec(s, now)) : runningSec(s, now)
   return { ...rest, [fieldOf(mode)]: fieldValue(mode, sec) }
 }
@@ -68,6 +73,7 @@ export function startRun(active, ei, si, now = Date.now(), goal = 0, from = 0) {
   const s = active?.entries?.[ei]?.sets?.[si]
   if (!s || s.done) return
   s[RUN] = now - Math.max(0, from) * 1000
+  if (from > 0) s[FROM] = Math.round(from); else delete s[FROM]
   if (goal > 0) s[GOAL] = Math.round(goal); else delete s[GOAL]
 }
 
