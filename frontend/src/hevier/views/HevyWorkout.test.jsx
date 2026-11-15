@@ -67,6 +67,21 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelectorAll('.hv-row')).toHaveLength(2)
   })
 
+  it('editing a saved workout shows its title at the top, and a tap renames it', () => {
+    const saved = { id: 'w1', d: '2026-10-15', name: 'Leg Day', entries: [{ id: EX, sets: [reps(60, 5, { done: true })] }] }
+    render([], [saved])
+    act(() => useStore.getState().update(s => { s.active = null }))
+    act(() => useStore.getState().update(s => { s.active = { ...clone(saved), cur: 0, editingWorkoutId: 'w1', editBase: { name: 'Leg Day', note: '', bw: null } } }))
+    const title = container.querySelector('.hv-wtitle')
+    expect(title.textContent).toBe('Leg Day')
+    act(() => title.click())
+    const host = document.createElement('div')
+    const r = createRoot(host)
+    act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(host.querySelector('input').value).toBe('Leg Day')
+    act(() => r.unmount())
+  })
+
   it('Sets counts ticked work sets, a per-side set once, as Workout Detail does (D18)', () => {
     const side = { w: 10, r: 16, done: true, sides: { L: { w: 10, r: 8, done: true }, R: { w: 10, r: 8, done: true } } }
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [
