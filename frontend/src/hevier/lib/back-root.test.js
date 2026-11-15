@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { decideBack } from '../../lib/back.js'
-import { isTabRoot, atTabRoot } from './back-root.js'
+import { isTabRoot, atTabRoot, backPath } from './back-root.js'
 
 describe('hevier: back on a tab screen', () => {
   it('knows the three tab screens', () => {
@@ -28,5 +28,12 @@ describe('hevier: back on a tab screen', () => {
 
   it('an open sheet still closes first', () => {
     expect(decideBack({ top: { id: 's' }, canGoBack: atTabRoot({ canGoBack: true }, '/home', false).canGoBack, exitArmed: false })).toBe('sheet')
+  })
+
+  it('Statistics, Plan and Exercises are pages in the fork, so back goes up from them (upstream reads them as tabs)', () => {
+    const on = path => decideBack({ top: undefined, pathname: backPath(path), canGoBack: atTabRoot({ canGoBack: false }, path, false, 1).canGoBack, exitArmed: false })
+    expect(['/stats', '/plan', '/library', '/library/'].map(on)).toEqual(['history', 'history', 'history', 'history'])
+    expect(on('/home')).toBe('arm-exit')
+    expect(backPath('/calendar')).toBe('/calendar')
   })
 })

@@ -10,6 +10,7 @@ export const hooks = {
   workoutDetail: null,    // (w) => void: a finished workout's details were asked for (S14)
   exercisePicker: null,   // (onPick, { title, like }) => sheet handle: an exercise picker was asked for (S13)
   backEvent: null,        // (ev) => ev: Android back's event before upstream's handler reads it (S16)
+  backPath: null,         // (path) => path: the path upstream's back handler reads (S16)
   settings: null,  // { root(props), page(id, tree), hides(hit) }: the Settings root and pages (S11, S12)
   importExercise: null,  // (title, source, pick) => id | key | null: an imported exercise's match, before upstream's (S19)
   importDone: null,      // (parsed) => parsed: an import's parse result, keys turned back into ids (S19)

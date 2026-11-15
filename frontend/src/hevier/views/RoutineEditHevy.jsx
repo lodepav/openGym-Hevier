@@ -195,8 +195,8 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const cols = shape.mode === 'cardio'
     ? [{ f: 'min', hd: t('MIN'), dec: false }, { f: 'speed', hd: speedUnit === 'mph' ? t('MPH') : t('KM/H'), dec: true,
       view: v => toSpeed(v, speedUnit), store: v => fromSpeed(v, speedUnit) }]
-    : [{ f: 'w', hd: (bw ? '+' : '') + S.unit.toUpperCase(), dec: true },
-      shape.mode === 'time' ? { f: 'sec', hd: t('SEC'), dec: false } : { f: 'r', hd: shape.ranged ? t('REP RANGE') : t('REPS'), dec: false }]
+    : [{ f: 'w', hd: (bw ? '+' : '') + S.unit.toUpperCase(), say: t('Weight ({0})', S.unit), dec: true },
+      shape.mode === 'time' ? { f: 'sec', hd: t('SEC'), say: t('Time'), dec: false } : { f: 'r', hd: shape.ranged ? t('REP RANGE') : t('REPS'), say: t('Reps'), dec: false }]
   const grid = { '--nc': cols.length }
   const cell = (row, c) => {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
@@ -210,7 +210,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     // Hevy's grey dash for a weight not set yet (0); typing one fills it
     return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : c.view && v != null ? c.view(v) : v ?? ''}
       placeholder={c.f === 'w' ? '–' : undefined}
-      aria-label={c.hd + ' ' + t('Set {0}', row.k + 1)}
+      aria-label={t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd)}
       onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv) : nv))} />
   }
   const swipe = workoutControls(S).swipeSets

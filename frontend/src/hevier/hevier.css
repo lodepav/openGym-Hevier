@@ -844,3 +844,12 @@
 :root[data-ui="hevier"] .sect-b .hv-modparts>.lrow{padding-inline:calc(var(--pad) + 36px) var(--pad)}
 :root[data-ui="hevier"] .hv-modparts>.lrow::before,:root[data-ui="hevier"] .hv-modparts+.lrow::before{content:'';position:absolute;inset-inline-start:calc(var(--pad) + 36px);inset-inline-end:0;top:0;height:var(--hair);background:var(--sep)}
 :root[data-ui="hevier"] .hv-modparts-off{margin:0;padding:0 var(--pad) 11px calc(var(--pad) + 36px);font-size:var(--fs-footnote);color:var(--label-2)}
+/* The routine's and the exercise's name are 22 dp tall: the tap reaches past them (A1), on a routine card over its exercise line. */
+:root[data-ui="hevier"] :is(.hv-name, .hv-rcard .hv-rname){position:relative}
+:root[data-ui="hevier"] .hv-name::after{content:"";position:absolute;inset:-6px 0}
+:root[data-ui="hevier"] .hv-rcard .hv-rname::after{content:"";position:absolute;inset:-8px 0 -22px}
+/* A settings section without a title stands apart from the one above it (Data & backup's delete rows). */
+:root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect + .sect:not(:has(> .sect-t)){margin-top:20px}
+/* The resume bar's Resume and Discard are 34 dp tall: the tap reaches 7 dp above and below (A1). */
+:root[data-ui="hevier"] #tabbar .hv-resumebar :is(.hv-resume-go, .hv-resume-x){position:relative}
+:root[data-ui="hevier"] #tabbar .hv-resumebar :is(.hv-resume-go, .hv-resume-x)::after{content:"";position:absolute;inset:-7px 0}

@@ -33,7 +33,7 @@ import MonthReport from './views/MonthReport.jsx'
 import StrengthLevels from './views/StrengthLevels.jsx'
 import ExerciseTime from './views/ExerciseTime.jsx'
 import LiftTrends from './views/LiftTrends.jsx'
-import { atTabRoot } from './lib/back-root.js'
+import { atTabRoot, backPath } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
 // Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
@@ -42,6 +42,7 @@ import { HEVIER } from './flag.js'
 // ./index.js because App imports this module after sheets.jsx, which they are built from.
 if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutDetail(); installSettings() }
 // Android back on a tab screen offers to exit (seam S16). The path is the HashRouter's.
+if (HEVIER) hooks.backPath = backPath
 if (HEVIER) hooks.backEvent = ev =>
   atTabRoot(ev, (location.hash.slice(1) || '/').split('?')[0], !!useStore.getState().S.active, window.history.state?.idx || 0)
 

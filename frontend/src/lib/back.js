@@ -68,7 +68,9 @@ export async function initBackButton() {
     const handler = makeBackHandler({
       getSheets: () => useUI.getState().sheets,
       getLocation: () => ({
-        pathname: window.location.hash.slice(1).split('?')[0] || '/',
+        // [hevier] S16: the fork's pages that upstream reads as tabs (hevier/lib/back-root.js)
+        pathname: (p => hooks.backPath ? hooks.backPath(p) : p)(window.location.hash.slice(1).split('?')[0] || '/'),
+        // [/hevier]
         key: window.history.state?.key ?? window.location.hash,
       }),
       closeSheet: id => useUI.getState().closeSheet(id),

@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exerciseNameText } from '../../lib/format.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
 import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
@@ -181,7 +181,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
     {/* D67: every match hidden by the gym, the hidden line comes first, clear of the keyboard */}
     {!(list.length === 0 && hidden.length > 0) && <>
-      <h4 className="sec">{browsing ? t('All Exercises') : t('{0} exercises', list.length)}</h4>
+      <h4 className="sec">{browsing ? t('All Exercises') : tn('{0} exercise', '{0} exercises', list.length)}</h4>
       <div className="list">
         {list.slice(0, shown).map(e => row(e, 'a'))}
         {list.length === 0 && <div className="empty">{t('No exercises found')}

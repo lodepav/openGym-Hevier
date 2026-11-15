@@ -43,6 +43,9 @@ import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
 import { workoutAs, currentDbLoad } from '../../lib/dumbbells.js'
 
+// A date of another year says its year: the history reaches back further than one (H6).
+const notThisYear = d => !!d && d.slice(0, 4) !== String(new Date().getFullYear())
+
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 
@@ -90,7 +93,7 @@ function Summary({ ex, sum, st }) {
     <ExerciseFacts ex={ex} />
     {!sum.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div> : <>
       <div className="hv-xd-head">
-        <div><b className="hv-xd-big">{last ? fmtNum(last.y) + ' ' + cu : '–'}</b>{last && <span className="muted"> {fmtDate(last.d, true)}</span>}</div>
+        <div><b className="hv-xd-big">{last ? fmtNum(last.y) + ' ' + cu : '–'}</b>{last && <span className="muted"> {fmtDate(last.d, true, notThisYear(last.d))}</span>}</div>
         <select className="hv-xd-range" value={range} aria-label={t('Range')} onChange={e => setRange(e.target.value)}>
           <option value="3m">{t('Last 3 months')}</option>
           <option value="1y">{t('Year')}</option>
@@ -107,7 +110,7 @@ function Summary({ ex, sum, st }) {
       {records.length > 0 && <>
         <h4 className="sec"><Icon name="trophy" /> {t('Personal Records')}</h4>
         <div className="list">{records.map(x => <div key={x.k} className="item hv-xd-rec">
-          <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true)}</span></span><b>{x.v}</b>
+          <span className="grow">{x.label}<span className="ss">{fmtDate(x.d, true, notThisYear(x.d))}</span></span><b>{x.v}</b>
         </div>)}</div>
       </>}
       {/* D19 follows the label the page shows (D28), every set under All. */}
@@ -116,7 +119,7 @@ function Summary({ ex, sum, st }) {
         <h4 className="sec">{t('Set Records')}</h4>
         <div className="hv-xd-reps">
           <div className="hv-xd-rh"><span>{t('Reps')}</span><span>{t('Personal Best')}</span></div>
-          {sum.reps.map(x => <div key={x.r} className="hv-xd-rr"><span>{x.r}</span><span>{fmtNum(x.w)} {unit}<em>{fmtDate(x.d, true)}</em></span></div>)}
+          {sum.reps.map(x => <div key={x.r} className="hv-xd-rr"><span>{x.r}</span><span>{fmtNum(x.w)} {unit}<em>{fmtDate(x.d, true, notThisYear(x.d))}</em></span></div>)}
         </div>
       </>}
     </>}
@@ -130,7 +133,7 @@ function History({ ex, sum, st }) {
     const w = byId.get(s.id)
     return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
       <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
-      <div className="hv-xd-sd">{fmtDate(s.d, true)}</div>
+      <div className="hv-xd-sd">{fmtDate(s.d, true, notThisYear(s.d))}</div>
       {/* The holds of a reps session too (D89), marked H as a warm-up is W. */}
       {(rows => rows.map((x, k) => {
         const mark = setMark(rows.map(y => y.s), k)

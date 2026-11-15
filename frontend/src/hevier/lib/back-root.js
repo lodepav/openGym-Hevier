@@ -13,3 +13,7 @@ export const isTabRoot = (path, active) =>
  *  canGoBack false on a page the app navigated to, and back then armed exit (emulator, Android 16). */
 export const atTabRoot = (ev, path, active, idx = 0) =>
   isTabRoot(path, active) ? { ...ev, canGoBack: false } : idx > 0 ? { ...ev, canGoBack: true } : ev
+
+/** The path upstream's back handler reads. Statistics, Plan and Exercises are upstream's tabs, so it
+ *  arms exit there; in the fork they are pages under Profile and the Workout tab, and back goes up. */
+export const backPath = path => /^\/(plan|stats|library)\/?$/i.test(path) ? '/hevier' + path : path
