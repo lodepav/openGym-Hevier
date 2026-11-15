@@ -117,6 +117,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       {volumeMode(S) === 'sets' && <MuscleLine entries={A.entries} reserve />}
       <GymRow />
     </div>
+    {/* Hevy's Edit Workout leads with the title; a tap opens the same rename as Settings. */}
+    {editing && <button type="button" className={'hv-wtitle' + (A.name ? '' : ' empty')} onClick={renameWorkoutSheet}>{A.name || t('Workout title')}</button>}
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
     {/* The workout's note, at the top as each exercise's is under its name (D54); Save Workout opens with it. */}

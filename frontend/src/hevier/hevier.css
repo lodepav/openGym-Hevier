@@ -93,6 +93,8 @@
 :root[data-ui="hevier"] .hv-notes{display:block;width:100%;text-align:start;background:none;padding:2px 0 6px;font-size:14px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-notes.has{color:var(--label)}
 :root[data-ui="hevier"] .hv-note,:root[data-ui="hevier"] .hv-notes{white-space:pre-wrap}
+:root[data-ui="hevier"] .hv-wtitle{display:block;width:100%;min-height:44px;text-align:start;background:none;border:0;padding:12px 0 4px;font-size:20px;font-weight:600;color:var(--label)}
+:root[data-ui="hevier"] .hv-wtitle.empty{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-wnote{padding:10px 0 12px;margin-bottom:8px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-rest{display:inline-flex;align-items:center;gap:6px;background:none;padding:2px 0 8px;color:var(--acc);font-size:14px}
 
