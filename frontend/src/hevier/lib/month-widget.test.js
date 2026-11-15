@@ -53,10 +53,10 @@ describe('hevier month widget snapshot (D44)', () => {
   })
 
   it('carries the calendar’s colours for the worn accent (D123)', () => {
-    expect(widgetColours(accentFields(DEFAULT_GREEN))).toEqual({ strength: DEFAULT_GREEN, cardio: HEVY_BLUE, deload: '#ff9f0a' })
-    expect(widgetColours(accentFields(HEVY_BLUE))).toEqual({ strength: HEVY_BLUE, cardio: '#2fbf5b', deload: '#ff9f0a' })
-    // A kept orange: deload steps aside to violet.
-    expect(widgetColours(accentFields('#ff9500')).deload).toBe('#bf5af2')
+    expect(widgetColours(accentFields(DEFAULT_GREEN))).toEqual({ strength: DEFAULT_GREEN, cardio: '#40c8e0', deload: '#ff7eb6' })
+    expect(widgetColours(accentFields(HEVY_BLUE))).toEqual({ strength: HEVY_BLUE, cardio: '#2fbf5b', deload: '#ff7eb6' })
+    // A kept orange: deload steps aside to pink (violet is the superset's).
+    expect(widgetColours(accentFields('#ff9500')).deload).toBe('#ff7eb6')
     // A dark custom colour is drawn as the page lifts it on black.
     const dark = widgetColours(accentFields('#1a0a40')).strength
     expect(dark).toMatch(/^#[0-9a-f]{6}$/)

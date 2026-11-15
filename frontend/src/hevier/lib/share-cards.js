@@ -178,7 +178,7 @@ const onCard = c => (c === LABEL ? '#ffffff' : c)
 export function cardColours(accentHex) {
   const acc = readableIn(cleanHex(accentHex) || DEFAULT_GREEN, 'dark')
   const m = meaningColours(acc)
-  // Every cardio and deload colour (green, orange, blue, violet, white) reads best in black.
+  // Every cardio and deload colour (its first, backup or extra hue, or white) is light and reads best in black.
   return { acc, strength: acc, cardio: onCard(m.cardio), deload: onCard(m.deload), up: acc, down: onCard(m.fail), onStrength: inkOn(acc), onLight: '#000' }
 }
 
