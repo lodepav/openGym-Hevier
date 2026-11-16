@@ -1,7 +1,7 @@
 // The rest between sets, docked at the bottom of the live workout (hevier/DECISIONS.md D127): the
 // countdown (a tap sets the time left on upstream's wheel), the next set beside it, +1 min, +2 min
 // and Skip. It is upstream's rest timer (store/useUI.js) drawn another way: upstream's bar steps
-// aside on this screen while there is a rest (hevier.css, body.hv-dock), and both go when it ends.
+// aside on this screen while there is a rest (hevier.css, body.hv-docked), and both go when it ends.
 // A timed set's countdown and a hold's count-in keep upstream's bar.
 import { useEffect } from 'react'
 import { useStore } from '../../store/useStore.js'
@@ -18,8 +18,8 @@ export default function RestDock() {
   const next = useStore(s => (timer && !timer.ready ? restNextLine(s.S, timer.forIdx) : ''))
   const mine = !!timer && !other
   useEffect(() => {
-    document.body.classList.toggle('hv-dock', mine)
-    return () => document.body.classList.remove('hv-dock')
+    document.body.classList.toggle('hv-docked', mine)
+    return () => document.body.classList.remove('hv-docked')
   }, [mine])
   if (!mine || timer.ready) return null
   const { addRest, skipRest } = useUI.getState()

@@ -622,13 +622,14 @@ describe('hevier: the open set and its exercise (D127)', () => {
     act(() => container.querySelector('.hv-chk').click())
     const dock = () => container.querySelector('.hv-dock')
     expect(dock()).toBeTruthy()
-    expect(document.body.classList.contains('hv-dock')).toBe(true)
+    expect(document.body.classList.contains('hv-docked')).toBe(true)
+    expect(document.body.classList.contains('hv-dock')).toBe(false)   // the panel's own class, position: fixed
     const left = useUI.getState().timer.left
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === '+1 min').click())
     expect(useUI.getState().timer.left).toBe(left + 60)
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === 'Skip').click())
     expect(dock()).toBeNull()
-    expect(document.body.classList.contains('hv-dock')).toBe(false)
+    expect(document.body.classList.contains('hv-docked')).toBe(false)
   })
 })
 

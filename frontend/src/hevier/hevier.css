@@ -133,6 +133,10 @@
 }
 /* a cardio set or a hold: ▶ / ■ of its count-up timer (D53) in a narrow track before the tick */
 :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,62px)) 34px 36px}
+/* D127: the effort in a narrow track of its own and the values no wider than they need, so
+   PREVIOUS keeps the room to read last time on one line */
+:root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,54px)) 40px 36px}
+:root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid.hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,54px)) 40px 34px 36px}
 :root[data-ui="hevier"] .hv-go-grid .hv-go{width:34px;height:34px;min-width:0;padding:0}
 :root[data-ui="hevier"] .hv-head{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--label-2);padding:0 4px 4px;text-align:center}
 
@@ -142,6 +146,9 @@
    SwipeRow's front clips, so the bleed goes on the swipe row; a row without one bleeds itself. They
    stop 1 px short of the card's sides, where its hairline is. A superset keeps its rows inside its rule. */
 :root[data-ui="hevier"] .hv-unit:not(.ss) .swrow{margin-inline:-11px;border-radius:0}
+/* D127: a closed exercise ends on a set row, whose band would cut the card's rounded bottom: room
+   below it clears the curve (the open one ends on + Set and + Warm-up, inset as they are) */
+:root[data-ui="hevier"] .hv-unit:not(.ss):not(:has(.hv-exopen)){padding-bottom:20px}
 :root[data-ui="hevier"] .hv-unit .swfront{background:var(--bg)}
 :root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row{padding-inline:15px;border-radius:0}
 :root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{margin-inline:-11px;padding-inline:15px;border-radius:0}
@@ -153,6 +160,10 @@
   :root[data-ui="hevier"] .hv-unit{margin-inline:calc(4px - var(--pad))}
   :root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row,
   :root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{padding-inline:8px}
+  /* D127: there the values and gaps give PREVIOUS a few more pixels, so "L 10kg × 11" stays on a line */
+  :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid{column-gap:4px;grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 36px}
+  :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid.hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 34px 36px}
+  :root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){font-size:18px}
 }
 /* and alternate sets are striped, in the log and in the routine editor (each set is one unclassed
    wrapper in .hv-ex, so the stripe counts sets, not the drop and burst lines under them) */
@@ -793,7 +804,7 @@
 :root[data-ui="hevier"] .btn.hv-finish::before{content:'';position:absolute;inset:-8px 0}
 /* At a large font, PREVIOUS wraps rather than hiding last time's reps, and a header cell is cut
    short rather than running into the next (A6). At the normal size both fit as before. */
-:root[data-ui="hevier"] .hv-row .hv-prev{white-space:normal;text-overflow:clip;line-height:1.2}
+:root[data-ui="hevier"] .hv-row .hv-prev{white-space:pre-line;text-overflow:clip;line-height:1.2}
 :root[data-ui="hevier"] .hv-head > *{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 
 /* Exercise time (D88): a label only a screen reader hears; the page's sort row. */
@@ -903,9 +914,9 @@
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .hv-sgroup > .sect-t{padding-top:14px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--label)}
 
 /* ---------- D127: the rest docked at the bottom of the live workout (components/RestDock.jsx) ---------- */
-/* upstream's bar steps aside for it, and the page keeps room so the last set stays above it */
-:root[data-ui="hevier"] body.hv-dock #timer.rest{display:none}
-:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-dock #app{padding-bottom:calc(210px + var(--sab))}
+/* upstream's bar steps aside for it (body.hv-docked; not .hv-dock, the panel's own class), and the page keeps room so the last set stays above it */
+:root[data-ui="hevier"] body.hv-docked #timer.rest{display:none}
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-docked #app{padding-bottom:calc(210px + var(--sab))}
 :root[data-ui="hevier"] .hv-dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--pad) calc(10px + var(--sab));background:var(--bg-el);border-top:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-dock-top{display:flex;align-items:center;gap:14px}
 :root[data-ui="hevier"] .hv-dock-clock{display:flex;flex-direction:column;align-items:flex-start;min-height:44px;background:none;border:0;padding:0;color:var(--label)}
@@ -920,7 +931,7 @@
 
 /* ---------- D132: the Finish sheet (components/FinishSheet.jsx) ---------- */
 :root[data-ui="hevier"] .hv-fin-hd h3{margin:0 0 2px}
-:root[data-ui="hevier"] .hv-fin-hd{margin-bottom:12px}
+:root[data-ui="hevier"] .hv-fin-hd{margin-bottom:12px;text-align:center}
 :root[data-ui="hevier"] .hv-fin-best{color:var(--hv-record,var(--yellow));margin-inline-end:3px}
 :root[data-ui="hevier"] .hv-fin-kv{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:12px}
 :root[data-ui="hevier"] .hv-fin-kv > span:first-child{color:var(--label-2)}

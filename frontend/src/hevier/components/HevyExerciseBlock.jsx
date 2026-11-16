@@ -49,7 +49,7 @@ import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stoppedRows } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
-import { previousText } from '../lib/set-text.js'
+import { previousCell } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
 import { shownWeight } from '../../lib/ex-unit.js'
@@ -136,9 +136,10 @@ export default function HevyExerciseBlock(props) {
   const playOn = (timed || cardio) && canPlay
   const playAt = s => playOn || (canPlay && isHoldRow(s))
   const goOn = playOn || (canPlay && entry.sets.some(isHoldRow))
-  const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
+  // D127: the effort gets a narrow track of its own (hevier.css .hv-eff-grid), so PREVIOUS keeps its room.
+  const grid = { '--nc': cols.length }
   // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
-  const goGrid = goOn ? ' hv-go-grid' : ''
+  const goGrid = (goOn ? ' hv-go-grid' : '') + (effOn ? ' hv-eff-grid' : '')
 
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), from lib/set-rows.js.
   const editSets = fn => update(s => { const e = s.active.entries[entryIdx]; e.sets = fn(e.sets, e) }, true)
@@ -472,7 +473,7 @@ export default function HevyExerciseBlock(props) {
     const p = prev[i]
     const sideTag = side || s.side
     // A half of a hold pair reads its own side of a per-side set last time.
-    const prevText = previousText(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
+    const prevText = previousCell(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     // A tap anywhere on a set but its tick opens it (D127); the tick moves on to the next.
     return <div ref={el => { rowEls.current[i + (side || '')] = el; if (side !== second) onSetRowRef?.(i, el) }} style={grid}
