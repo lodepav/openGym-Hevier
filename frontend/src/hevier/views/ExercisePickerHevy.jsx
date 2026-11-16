@@ -7,11 +7,14 @@
 // browsing (no ✓, a tap opens exercise details), is the fork's Exercises page (Lifts → All exercises).
 // "Add superset" adds the ticked exercises the same way, then links them with upstream's superset
 // pairing, through the target the open workout or routine editor registers (useSupersetTarget).
-import { useEffect, useRef, useState } from 'react'
+// D129: the live workout's Swap is titled with its exercise and lists, before the catalogue's
+// substitutes, what it was swapped for before and what was done at this gym (lib/swap-history.js),
+// each row one tap to Use; the live workout's Add lists what was done at this gym first.
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { exerciseNameText } from '../../lib/format.js'
+import { exerciseNameText, fmtDate } from '../../lib/format.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
@@ -31,8 +34,14 @@ import { armSwap } from '../lib/gym-backups-run.js'
 import { muscleOf, muscleOptions, recentIds, filterPicker, addedRun, brandsByExercise, brandMatches, hiddenByGym } from '../lib/exercise-picker.js'
 import { suggestedSubstitutes, relatedSubstitutes } from '../../lib/exercise-substitutes.js'
 import { partOn } from '../lib/module-parts.js'
+import { isBw } from '../../lib/history.js'
+import { speedUnitOf } from '../../lib/speed.js'
+import { previousText } from '../lib/set-text.js'
+import { exUnitOf, shown as inUnit } from '../lib/ex-unit.js'
+import { pastSwaps, doneHere } from '../lib/swap-history.js'
 
 const PAGE = 50
+const RECENT = 10   // as many as Recent Exercises lists
 const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym is `gymId`
 
 // What "Add superset" links into: { items() -> the list the picks were added to, end() -> the
@@ -42,10 +51,11 @@ const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym i
 // end, and placeAt(atEnd), which makes them go there or to the end (D78).
 let supersetTarget = null
 // "Insert after Bench Press" with the name cased as everywhere else and cut short, not the verb.
-const insertLabel = ex => {
-  const [pre, post = ''] = t('Insert after {0}', '\u0001').split('\u0001')
+const named = (text, ex) => {
+  const [pre, post = ''] = text.split('\u0001')
   return <>{pre && <span>{pre}</span>}<span className={'hv-pk-name ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>{post && <span>{post}</span>}</>
 }
+const insertLabel = ex => named(t('Insert after {0}', '\u0001'), ex)
 export function useSupersetTarget(target) {
   useEffect(() => { supersetTarget = target; return () => { if (supersetTarget === target) supersetTarget = null } })
 }
@@ -60,6 +70,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const likeEx = like ? (EXIDX[like] || all.find(e => e.id === like) || null) : null
   // Adding takes several at once; a titled pick (Replace, swap, Change exercise) takes one.
   const multi = !title && !browse
+  const swap = title === t('Swap exercise')
+  const liveAdd = multi && inWorkout(st, path)
   const [q, setQ] = useState('')
   // A swap opens on what trains the same muscle, as upstream's does (#473).
   const [muscle, setMuscle] = useState(() => muscleFilterValue(muscleOf(likeEx), likeEx))
@@ -74,6 +86,18 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // A gym, or a kind or a whole group of kinds (D63).
   const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
   const base = filterPicker(all, { muscle, avail }).filter(e => e.id !== like)
+  // D129: from the log, while nothing is typed; kept to what the filters keep.
+  const rid = swap ? (st.active?.entries || []).find(e => e?.id === like)?.rid : null
+  const hereGym = eq === GYM ? gymId : null
+  const hist = useMemo(() => (swap || liveAdd ? {
+    swaps: swap ? pastSwaps(st, like, rid) : [],
+    here: doneHere(st, hereGym),
+    logged: new Set((st.workouts || []).flatMap(w => (w?.entries || []).map(e => e?.id))),
+  } : null), [st.workouts, st.routines, like, rid, hereGym, swap, liveAdd]) // eslint-disable-line react-hooks/exhaustive-deps
+  const inBase = new Set(base.map(e => e.id))
+  const histRows = rs => (q.trim() ? [] : rs).filter(r => inBase.has(r.id)).map(r => ({ ...r, ex: EXIDX[r.id] || all.find(e => e.id === r.id) })).filter(r => r.ex)
+  const swapRows = histRows(hist?.swaps || [])
+  const hereRows = histRows(hist?.here || []).filter(r => !swapRows.some(x => x.id === r.id)).slice(0, swap ? undefined : RECENT)
   // D67: what the gym hid from the search, counted, and listed on a tap.
   const hidden = eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []
   let list = searchExercises(base, q)
@@ -86,22 +110,24 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   if (likeEx?.eq && !q.trim()) list = [...list].sort((a, b) => Number(b.eq === likeEx.eq) - Number(a.eq === likeEx.eq))
   // Browsing (nothing typed or narrowed) shows Recent Exercises above everything.
   const browsing = !q.trim() && !muscle && (eq === '' || eq === GYM)
-  const recent = browsing
+  const recent = browsing && !hist
     ? recentIds(st).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && e.id !== like && !e.missing)
     : []
 
   // D45: the slot's planned backups first, while nothing is typed (upstream 1.4.2's "Your backups").
-  const backupList = q.trim() ? [] : cleanBackups(backups, like).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && !e.missing)
+  // Not on a swap: D129 lists what the log says instead; the backups stay as data.
+  const backupList = q.trim() || swap ? [] : cleanBackups(backups, like).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && !e.missing)
   // D45's 1.4.4 note: upstream's swap suggestions (#674), up to three, under the backups: the same
   // movement and muscle first, else related ones, from what the gym and the filters leave, a planned
   // backup not twice. Only on a swap, while nothing is typed.
-  const pool = likeEx && !q.trim() ? list.filter(e => !backupList.includes(e)) : []
+  const pool = likeEx && !q.trim() ? list.filter(e => !backupList.includes(e) && !hist?.logged.has(e.id)) : []
   const closeMatches = pool.length ? suggestedSubstitutes(pool, likeEx) : []
   const suggested = closeMatches.length ? closeMatches : pool.length ? relatedSubstitutes(pool, likeEx) : []
   const suggestWhy = closeMatches.length ? t('Same movement and muscle')
     : suggested.some(e => e.cat !== likeEx?.cat) ? t('Same muscle, different exercise type. Check suitability.')
       : suggested.some(e => e.tg !== likeEx?.tg) ? t('Related muscles and exercise type. The movement may differ.')
         : t('Same muscle and exercise type. The movement may differ.')
+  const sugHead = !swap ? t('Suggested substitutes') : closeMatches.length ? t('Same movement, not tried yet') : t('Similar, not tried yet')
 
   const isOn = e => picked.some(p => p.id === e.id)
   const tap = e => {
@@ -148,21 +174,39 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // A screen reader hears the row as its exercise, and in a multi pick whether it is ticked; the
   // thumbnail repeats the chart button, so only the chart button is in its reading order.
   // The name is the row's button, stretched over it; the thumbnail and the chart button sit above it.
-  const row = (e, key, why) => <div key={key + e.id} className={'item hv-pk-row tap-host' + (isOn(e) ? ' on' : '')}>
-    <button className="hv-thumb" {...(browse || chartOn ? { 'aria-hidden': 'true', tabIndex: -1 } : { type: 'button', 'aria-label': t('Details') + ', ' + exerciseNameText(e) })} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
-    <button type="button" className="grow item-open tap-main" onClick={() => tap(e)}
-      aria-label={[exerciseNameText(e), t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
-      <span className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</span>
-      <span className="ss">{[t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')}</span>
-    </button>
-    {!browse && chartOn && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
-    {multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
-  </div>
+  // `line`: a row from the log says how often, when and the last set in place of the muscle (D129).
+  // On a swap the whole row is its Use button.
+  const row = (e, key, why, line) => {
+    const sub = line ?? [t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')
+    return <div key={key + e.id} className={'item hv-pk-row tap-host' + (isOn(e) ? ' on' : '')}>
+      <button className="hv-thumb" {...(browse || chartOn ? { 'aria-hidden': 'true', tabIndex: -1 } : { type: 'button', 'aria-label': t('Details') + ', ' + exerciseNameText(e) })} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
+      <button type="button" className="grow item-open tap-main" onClick={() => tap(e)}
+        aria-label={[swap ? t('Use {0}', exerciseNameText(e)) : exerciseNameText(e), sub].filter(Boolean).join(' · ')} aria-pressed={multi ? isOn(e) : undefined}>
+        <span className={'tt ' + exerciseNameClass(e)}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</span>
+        <span className="ss">{sub}</span>
+      </button>
+      {!browse && chartOn && <button type="button" className="iconbtn hv-pk-info" aria-label={t('Details') + ', ' + exerciseNameText(e)} onClick={ev => details(ev, e)}><Icon name="chart" /></button>}
+      {swap ? <span className="hv-pk-use" aria-hidden="true">{t('Use')}</span>
+        : multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
+    </div>
+  }
+  // "4 times · last 12 Oct · 27.5kg × 10", the set as the workout's PREVIOUS column writes it.
+  const histLine = r => {
+    const u = exUnitOf(st, r.id)
+    const set = r.last ? previousText(r.last, { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target,
+      show: w => inUnit(w, st.unit, u), speedUnit: speedUnitOf(st) }).replace(/ \((RPE|RIR) [^)]*\)/g, '') : ''
+    const when = r.d ? fmtDate(r.d) : ''
+    return (r.n === 1 ? [t('once'), when] : [t('{0} times', r.n), when && t('last {0}', when)]).concat(set).filter(Boolean).join(' · ')
+  }
+  const histSection = (head, rows, key) => rows.length > 0 && <section aria-label={head}>
+    <h4 className="sec">{head}</h4>
+    <div className="list">{rows.map(r => row(r.ex, key, null, histLine(r)))}</div>
+  </section>
 
   const eqLabel = eq === GYM ? profile?.name : groupIdOf(eq) ? t(EQUIP_GROUPS.find(g => g.id === groupIdOf(eq)).label) : eq ? t(eq) : t('All Equipment')
   return <div className="hv-pk">
     {browse ? browse({ create }) : <div className="hv-pk-hd">
-      <h3>{title === t('Swap exercise') ? t('Replace exercise') : title || t('Add Exercise')}</h3>
+      <h3>{swap ? (likeEx ? named(t('Swap {0}', '\u0001'), likeEx) : t('Swap exercise')) : title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>
     </div>}
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
@@ -173,9 +217,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}</button>
     </div>
     {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
-    {suggested.length > 0 && <section aria-label={t('Suggested substitutes')}>
-      <h4 className="sec">{t('Suggested substitutes')}</h4>
-      <p className="small dim hv-pk-why">{suggestWhy}</p>
+    {histSection(t('You swapped to these before'), swapRows, 'w')}
+    {histSection(hereGym ? t('You have done these here') : t('You have done these'), hereRows, 'd')}
+    {suggested.length > 0 && <section aria-label={sugHead}>
+      <h4 className="sec">{sugHead}</h4>
+      {!(swap && closeMatches.length) && <p className="small dim hv-pk-why">{suggestWhy}</p>}
       <div className="list">{suggested.map(e => row(e, 's'))}</div>
     </section>}
     {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
@@ -195,6 +241,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       : <button className="hv-pk-hidden" onClick={() => setShowHidden(PAGE)}>
         <span>{t('{0} hidden at {1}', hidden.length, profile?.name)}</span><span className="hv-link">{t('Show')}</span>
       </button>)}
+    {swap && <p className="small dim hv-pk-note">{t('A swap is for this workout only.')}</p>}
     {multi && picked.length > 0 && <div className={'hv-pk-add' + (after && canLink ? ' three' : '')}>
       {canLink && <button className="btn" onClick={addSuperset}>{t('Add superset')}</button>}
       {after && <button className="btn hv-pk-insert" onClick={() => addPicked(false)}>{insertLabel(after)}</button>}

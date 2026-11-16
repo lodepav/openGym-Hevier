@@ -503,6 +503,9 @@
 :root[data-ui="hevier"] .hv-pk .item.hv-pk-row.on{box-shadow:none}
 :root[data-ui="hevier"] .hv-pk-check{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--label-3);color:var(--on-acc);font-size:13px}
 :root[data-ui="hevier"] .hv-pk-check.on{background:var(--acc);border-color:var(--acc)}
+/* D129: a swap's row is one tap, its Use pill only the sign of it (the row is the button) */
+:root[data-ui="hevier"] .hv-pk-use{flex:none;padding:9px 14px;border-radius:999px;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:13px}
+:root[data-ui="hevier"] .hv-pk-note{margin:12px 0 0}
 :root[data-ui="hevier"] .hv-pk-info{flex:none;background:none;color:var(--label-2);margin-inline-end:-4px}
 :root[data-ui="hevier"] .hv-pk-more{width:100%;margin-top:8px}
 /* D67: what the gym filter hid from a search */

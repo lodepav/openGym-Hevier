@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
 import { buildCombinedEntries } from '../../lib/session-merge.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
+import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
 import { finishFacts, changedText } from './finish-facts.js'
+import { applyRoutineUpdates } from './routine-update.js'
 
 const id = re => EXDB.find(e => re.test(e.n)).id
 const BENCH = id(/^barbell bench press$/i)
@@ -59,6 +61,19 @@ describe('hevier finishFacts (D132)', () => {
     expect(changedText(f.changed)).toBe('1 added')
     expect(changedText({ added: 0, removed: 1, swapped: 2, changed: 0, moved: true })).toBe('1 removed · 2 swapped · new order')
     expect(changedText(null)).toBe('')
+  })
+
+  it('a swap leaves the routine alone and shows as swapped; the box writes it in (D129)', () => {
+    const S = state()
+    const A = start(S)
+    swapActiveExercise(A, 1, { id: CURL, ...buildPlannedEntry(S, { id: CURL, sets: 2, reps: 10, weight: 30 }, S.routines[0]), rid: 'r1' })
+    A.entries.forEach(e => e.sets.forEach(s => { s.done = true }))
+    expect(S.routines[0]).toEqual(routine())
+    const f = finishFacts(S, A)
+    expect(changedText(f.changed)).toBe('1 swapped')
+    const s = structuredClone(S)
+    applyRoutineUpdates(s, f.updates)
+    expect(s.routines[0].ex.map(e => e.id)).toEqual([BENCH, CURL])
   })
 
   it('a saved workout being edited never offers a routine update', () => {

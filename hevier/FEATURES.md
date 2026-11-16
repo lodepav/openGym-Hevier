@@ -30,6 +30,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Swipe left deletes a set, with undo | D9 | Fork |
 | Header: name, duration, heart rate, ⏱ Timer/Stopwatch and Finish; the gym and the workout note behind the name's chevron | D10, D127 | Fork |
 | Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
+| Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue: a Timer and a Stopwatch in the workout) |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
 | "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offer (upstream 1.4.3's #592 keeps added exercises) |
@@ -64,7 +65,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Routine page (read-only) before the editor | D37 | Fork |
 | The routine's page is the next session's plan: last time beside what each set opens with, warm-ups included; a tap on a weight or reps plans it for the next session only, without changing the routine; Today's card shows the same numbers | D128 | Fork |
 | Routine folders, long-press reorder | D13 | Fork |
-| Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
+| Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field (in the routine editor's Replace; the workout's Swap lists your own swaps instead, D129) | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4; a routine that repeats its last workout offered as #1161) |
