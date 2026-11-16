@@ -90,6 +90,7 @@ describe('Today: the week row drops what every planned name starts with', () => 
     const { shortNames } = await import('./today.js')
     expect(shortNames(['Plan Upper A', '', 'Plan Lower A', 'Plan Upper A'])).toEqual(['Upper A', '', 'Lower A', 'Upper A'])
     expect(shortNames(['Push', '', 'Pull'])).toEqual(['Push', '', 'Pull'])
+    expect(shortNames(['Plan Upper A', 'Cardio', 'Plan Lower A'])).toEqual(['Upper A', 'Cardio', 'Lower A'])
     expect(shortNames(['Plan A', '', 'Plan A'])).toEqual(['Plan A', '', 'Plan A'])
     expect(shortNames(['Plan', 'Plan B'])).toEqual(['Plan', 'Plan B'])
   })

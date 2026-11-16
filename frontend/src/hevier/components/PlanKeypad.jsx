@@ -42,7 +42,9 @@ export default function PlanKeypad({ rid, start, close }) {
     if (text.length > MAX_LEN || (k === '.' && (!weight || (typed ?? '').includes('.')))) return
     setTyped(text)
     const v = Number(text === '.' ? 0 : text)
-    if (text !== '' && Number.isFinite(v)) put(weight ? v : Math.round(v))
+    // Emptied, the number is last time's again: the 0 shown is not a plan.
+    if (text === '') write(null)
+    else if (Number.isFinite(v)) put(weight ? v : Math.round(v))
   }
   const step = dir => { setTyped(null); put(stepped(S, f.x.cfg, f.field, shown, dir)) }
   const next = () => {

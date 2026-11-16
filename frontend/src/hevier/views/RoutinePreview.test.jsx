@@ -126,6 +126,15 @@ describe('Routine page (D37, D128)', () => {
     expect(document.querySelector('.hv-kp')).toBeNull()
   })
 
+  it('a number deleted to nothing is last time’s again, not its first digit', () => {
+    render(PLAN, undefined, { workouts: [last] })
+    act(() => nums()[2].click())
+    key('7'); key('0')
+    expect(useStore.getState().S.hvPlan.r1.ex[EX][0]).toEqual({ w: 70 })
+    press('Delete'); press('Delete')
+    expect(useStore.getState().S.hvPlan?.r1).toBeUndefined()
+  })
+
   it('Start opens the workout with the plan; saved, the plan is used up', async () => {
     render(PLAN, undefined, { workouts: [last] })
     act(() => nums()[2].click())

@@ -51,14 +51,19 @@ export function sessionSets(S, ids) {
     ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(openedRow)) })))
 }
 
-/** The names without the words they all start with ("Plan Upper A", "Plan Lower A": "Upper A", "Lower A"),
- *  so a narrow day cell shows what tells the days apart. Left alone when that would empty one. */
+/** The names without the words that several of them start with ("Plan Upper A", "Plan Lower A", "Cardio":
+ *  "Upper A", "Lower A", "Cardio"), so a narrow day cell shows what tells the days apart. A group of names
+ *  is left alone when that would empty one of them. */
 export function shortNames(names) {
-  const used = [...new Set(names.filter(Boolean))].map(n => n.split(' '))
-  if (used.length < 2) return names
-  let k = 0
-  while (used.every(w => w.length > k + 1 && w[k] === used[0][k])) k++
-  return k ? names.map(n => (n ? n.split(' ').slice(k).join(' ') : n)) : names
+  const groups = {}
+  for (const n of new Set(names.filter(Boolean))) (groups[n.split(' ')[0]] ||= []).push(n.split(' '))
+  const cut = {}
+  for (const [first, used] of Object.entries(groups)) {
+    let k = 0
+    while (used.length > 1 && used.every(w => w.length > k + 1 && w[k] === used[0][k])) k++
+    cut[first] = k
+  }
+  return names.map(n => (n && cut[n.split(' ')[0]] ? n.split(' ').slice(cut[n.split(' ')[0]]).join(' ') : n))
 }
 
 /**

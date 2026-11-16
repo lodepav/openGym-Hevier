@@ -406,7 +406,7 @@
 :root[data-ui="hevier"] .hv-namesheet .input{width:100%;margin-bottom:14px}
 :root[data-ui="hevier"] .hv-namesheet .btn{width:100%}
 
-/* ---------- Save Workout and "Nice work!" (hevier/views/SaveWorkout.jsx) ---------- */
+/* ---------- The page bar ---------- */
 /* The one page bar (components/PageBar.jsx): ‹ · centred title · actions, the title centred on the
    screen whatever the sides hold */
 :root[data-ui="hevier"] .hv-pagebar{

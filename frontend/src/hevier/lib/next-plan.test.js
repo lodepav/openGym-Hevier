@@ -7,7 +7,7 @@ import {
   openWithPlan, endPlans, usedBy,
 } from './next-plan.js'
 import { planTurn } from './next-plan-run.js'
-import { fixture, PLAIN, BENCH, CALF, PLANK, BIKE, DEADLIFT, NOW, TODAY } from './routine-open.fixture.js'
+import { fixture, PLAIN, PROG, BENCH, CALF, PLANK, BIKE, DEADLIFT, NOW, TODAY } from './routine-open.fixture.js'
 import { hooks } from '../hooks.js'
 import { isPlain, plainRows } from './plain-routine.js'
 import { rowMode } from './hold-set.js'
@@ -193,6 +193,36 @@ describe('hevier: a plan is used up by the workout that opens with it (D128)', (
     expect(planTurn(gone, A)).toEqual({ ended: { id: 'a1', saved: false } })
     endPlans(gone, 'a1', false)
     expect(gone.hvPlan).toEqual({ [PLAIN.id]: { ex: { [BENCH]: { 0: { w: 70 } } } } })
+  })
+
+  it('a plan whose exercise is not in the workout (swapped at this gym) is not used up', () => {
+    const S = fixture()
+    plan(S, BENCH, '0', null, 'w', 70)
+    const A = start(S)
+    A.active.entries = A.active.entries.map(e => (e.id === BENCH ? { ...e, id: DEADLIFT } : e))
+    openWithPlan(A, [PLAIN.id])
+    expect(usedBy(A, 'a1')).toEqual([])
+    endPlans(A, 'a1', true)
+    expect(A.hvPlan).toEqual({ [PLAIN.id]: { ex: { [BENCH]: { 0: { w: 70 } } } } })
+  })
+
+  it('two routines with the same exercise each open with their own plan; a repeat has its own key', () => {
+    const S = fixture()
+    setPlanned(S, PLAIN.id, BENCH, '0', null, 'w', 70)
+    setPlanned(S, PROG.id, BENCH, '0', null, 'w', 90)
+    const { entries } = buildCombinedEntries(S, [PLAIN.id, PROG.id])
+    const laid = layPlan(S, entries)
+    const ws = e => e.sets.map(r => r.w)
+    const of = rid => ws(laid.find(e => e.rid === rid && e.id === BENCH))
+    expect([of(PLAIN.id).includes(70), of(PLAIN.id).includes(90)]).toEqual([true, false])
+    expect([of(PROG.id).includes(90), of(PROG.id).includes(70)]).toEqual([true, false])
+    // The same exercise twice in one routine: only the second is planned.
+    const R = fixture()
+    setPlanned(R, PLAIN.id, BENCH + '#2', '0', null, 'w', 80)
+    const one = buildCombinedEntries(R, [PLAIN.id]).entries
+    const bench = one.find(e => e.id === BENCH)
+    const twice = layPlan(R, [...one, { ...bench }])
+    expect(twice.filter(e => e.id === BENCH).map(e => ws(e).includes(80))).toEqual([false, true])
   })
 
   it('lays nothing on an edited saved workout, a past one logged, or one with a set ticked', () => {

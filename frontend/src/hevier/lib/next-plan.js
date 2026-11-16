@@ -247,9 +247,12 @@ export function lastText(p, { cfg, side = null, speedUnit, show = w => w }) {
 export function openWithPlan(s, rids) {
   const A = s.active
   if (!A || !rids?.length) return
-  A.entries = layPlan(s, A.entries, rids)
+  const before = A.entries
+  A.entries = layPlan(s, before, rids)
+  // Only a plan that reached the workout is its: one whose exercise was swapped away at this gym stays.
+  const laid = new Set(A.entries.filter((e, i) => e !== before[i]).map(e => e.rid))
   const all = { ...s.hvPlan }
-  for (const rid of rids) if (isMap(all[rid])) all[rid] = { ...all[rid], used: A.id }
+  for (const rid of rids) if (isMap(all[rid]) && laid.has(rid)) all[rid] = { ...all[rid], used: A.id }
   s.hvPlan = all
 }
 
