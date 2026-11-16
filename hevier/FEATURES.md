@@ -52,6 +52,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 | Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down | D118 | Fork |
+| A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offer |
 
 ## Routines
 

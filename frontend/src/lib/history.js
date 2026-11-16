@@ -598,7 +598,9 @@ export function bestWeightFor(S, exId, as) {
 export function effectiveRoutineIds(S, iso, today = todayISO()) {
   const ov = S.dayPlan[iso]
   if (ov === 'rest') return []
-  const pin = pinState(S, ov, today)
+  // [hevier] S63: a planned day trains what was picked (D124)
+  const pin = hooks.pinOn ? hooks.pinOn(S, iso, ov, today) : pinState(S, ov, today)
+  // [/hevier]
   if (!pin && ov && S.routines.some(r => r.id === ov)) return [ov]
   const wd = new Date(iso + 'T12:00:00').getDay()
   const weekday = [].concat(S.week[wd] || []).filter(id => S.routines.some(r => r.id === id))

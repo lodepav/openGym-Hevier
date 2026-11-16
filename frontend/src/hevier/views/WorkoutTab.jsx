@@ -9,7 +9,7 @@ import { EXIDX } from '../../lib/exercises.js'
 import { effectiveRoutines, effectiveRoutineIds } from '../../lib/history.js'
 import { todayISO, uid, exCount } from '../../lib/format.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { pinState } from '../../lib/queue.js'
+import { pinOn } from '../lib/plan-pins.js'
 import { DEMO } from '../../lib/demo.js'
 import { deleteRoutine } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
@@ -60,7 +60,7 @@ export default function WorkoutTab() {
   const todayIds = effectiveRoutineIds(S, todayISO())
   const today = effectiveRoutines(S, todayISO())
   const todayName = today.map(r => r.name).join(' + ')
-  const moved = S.dayPlan[todayISO()] !== undefined && pinState(S, S.dayPlan[todayISO()]) !== 'done'
+  const moved = S.dayPlan[todayISO()] !== undefined && pinOn(S, todayISO(), S.dayPlan[todayISO()]) !== 'done'
   const doneToday = S.workouts.some(w => w.d === todayISO() && today.some(r => (w.routineIds || [w.routineId]).includes(r.id)))
 
   // The same new routine Plan makes, opened straight in the editor.
