@@ -65,15 +65,16 @@ and start it again.
 
 Trains four days a week from routines and wants to be in and out.
 
-1. Open the app and start today's routine from Home's Today card, or from the Workout tab.
+1. Open the app. Today shows the next session with the sets it opens with (D134). Start it
+   from there, or open the plan, plan one heavier set, and start from the plan's page (D128).
 2. Do the first exercise: tick a set as prefilled, change the weight of the next one, tick it.
    Is it clear which set comes next, and what last time was?
-3. Let the rest timer run, adjust it by +15, then skip it.
-4. Swap an exercise for one of its backups (⋮ → Replace exercise).
+3. Let the rest timer run in the panel at the bottom, add a minute, then skip it (D127).
+4. Swap an exercise for one of its backups (the exercise's Swap button, D129).
 5. Delete a set by swiping, and undo the delete.
-6. Finish: Save Workout, then "Nice work!". Answer the "Update routine?" prompt with
-   **Keep original routine**.
-7. Find the workout on the Home feed and open it. Do the numbers agree with what was shown
+6. Finish: the sheet over the workout (D132). Leave "Update the routine too" unticked and
+   Save. Does Today show the workout as the last one, with "Workout saved"?
+7. Find the workout on the History tab and open it. Do the numbers agree with what was shown
    live (G8)?
 8. Clean up: delete that workout.
 
@@ -84,9 +85,9 @@ Has used Hevy for a year and wants their history and routines to come along.
 1. Settings → Data & backup: find the import. Read what it offers. **Do not import**: the
    history is already loaded. Open the CSV import's summary only if the file is already on the
    device, check **Check exercise matches** and **Check cable setups**, then cancel.
-2. Profile → Exercises: find the leg press by its brand ("life fitness"). Open its details.
+2. Lifts: find the leg press by its brand ("life fitness"). Open its page.
    Does the label chooser make sense?
-3. Workout tab: browse the routine folders, open a routine's page (a tap on its name), then
+3. Today → Routines: browse the routine folders, open a routine's page (a tap on its row), then
    its editor. Change an exercise's number of sets, then put it back (a rep range shows only
    with progression on, D69).
 4. Compare what was learned in Hevy: is anything named differently in a way that would confuse
@@ -110,7 +111,7 @@ Trains at a city gym on weekdays and a smaller one at weekends.
 Does rehab work: single-leg exercises, planks and the bike.
 
 1. Start an empty workout and add a single-leg exercise. Does it start per side? Log one set,
-   right first (⋮ → Side order).
+   right first (More → Side order).
 2. Add a plank. Use the set's ▶ timer, stop it, and tick the set.
 3. Add the bike. Type a time with the number pad (`1234` should read 12:34).
 4. Leave the app with the set timer running (Home button), wait 20 s, come back. Is the
@@ -121,12 +122,13 @@ Does rehab work: single-leg exercises, planks and the bike.
 
 Wants to know whether they are progressing.
 
-1. Profile: read the weekly chart, switch it between duration, sets and reps, and tap a week.
+1. History: read this week's three numbers. Open Statistics: read the weekly chart, switch it
+   between duration, sets and reps, and tap a week.
 2. Statistics: read the last 7 days and the sets per muscle. Is it clear what a set counts
    (D42's caption)?
 3. Open the Monthly report, go back a month, and tap a record.
-4. Open a lift's exercise details: Summary, records, the strength level section (do not save
-   levels), History.
+4. Lifts: open a lift's page (D131): the last sessions, the best at each rep count, the chart,
+   the strength level section (do not save levels), All history.
 5. Open a past workout's Workout Detail: do the ↑ = ↓ arrows explain themselves (D66)?
 6. Calendar: show earlier months, and a planned day.
 
@@ -134,17 +136,17 @@ Wants to know whether they are progressing.
 
 Sets up next month's training.
 
-1. Workout tab → Schedule: read the weekly plan. Change one day, then put it back.
+1. Today → Routines → Rotation (at the end of the list): read the weekly plan. Change one day, then put it back.
 2. Create a routine in a new folder: three exercises, one superset, a warm-up set, a rep range.
-   Reorder two exercises by long press, and once by the tap path (A8).
-3. Open ⋮ → Backups on one exercise: add a backup and mark it missing at one gym (D86).
+   Reorder two exercises by their handles, and once by the tap path (A8).
+3. Open ⋯ → Backups on one exercise in the editor: add a backup and mark it missing at one gym (D86).
 4. Delete the routine and the folder. Is each step confirmed or undoable?
 
 ## J7 Low vision, one hand, in the gym
 
 Wears no glasses at the gym and holds a phone in one hand between sets.
 
-1. Set `font_scale 2.0` and relaunch. Walk J1's steps 1–6 on Home, the Workout tab and the
+1. Set `font_scale 2.0` and relaunch. Walk J1's steps 1–6 on Today, the plan's page and the
    live workout (A6, G7).
 2. With TalkBack's view of the page (the AX tree), read a set row, the set-type letter, the
    tick, and the rest timer's buttons (A3, A5).

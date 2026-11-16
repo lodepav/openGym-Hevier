@@ -188,6 +188,11 @@
 /* D127: the opened set (lib/open-set.js): a taller, lighter row with an accent edge, its values large */
 :root[data-ui="hevier"] .hv-ex .hv-row.hv-open{min-height:60px;background:var(--surface-3) !important;box-shadow:inset 4px 0 0 var(--acc)}
 :root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){color:var(--label);font-weight:700;font-size:20px;min-height:44px}
+/* D127: the opened set's numbers are the largest on the page; its own tracks give them the room PREVIOUS can spare. */
+@media (min-width:401px){
+  :root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){font-size:26px;min-height:52px}
+  :root[data-ui="hevier"] .hv-row.hv-open.hv-eff-grid:not(.hv-go-grid){grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(56px,72px)) 40px 44px}
+}
 :root[data-ui="hevier"] .hv-row.hv-open .hv-num::placeholder{color:var(--label);font-weight:700}
 /* its tick at least 44 px, a step lighter than the row, with an accent ring */
 :root[data-ui="hevier"] .hv-row.hv-open .hv-chk{width:44px;height:44px}
@@ -220,7 +225,7 @@
 /* ---------- tabs and the minimised workout (hevier/components/HevyTabBar.jsx) ---------- */
 /* Opaque and black as the page, no blur (D123); the open tab's icon sits on a soft accent pill. */
 :root[data-ui="hevier"] #tabbar{background:var(--bg-el);border-top-color:var(--sep);-webkit-backdrop-filter:none;backdrop-filter:none}
-:root[data-ui="hevier"] #tabbar > button{font-weight:700}
+:root[data-ui="hevier"] #tabbar > button{font-weight:700;min-height:48px}
 :root[data-ui="hevier"] #tabbar > button .tab-ic{isolation:isolate}
 :root[data-ui="hevier"] #tabbar > button.on .tab-ic::before{content:'';position:absolute;z-index:-1;inset:-4px -18px;border-radius:999px;
   background:var(--surface-3);background:color-mix(in srgb,var(--acc) 20%,var(--bg-el))}
