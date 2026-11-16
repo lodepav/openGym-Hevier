@@ -79,13 +79,14 @@ export function pastSwaps(S, exId, rid) {
 }
 
 /**
- * The exercises logged at gym `gymId` (null: anywhere), most recent first:
+ * The exercises logged at gym `gymId` or with no gym saved (null: anywhere), most recent first:
  * `[{ id, n, at, d, mode, target, last }]`. The sheet keeps those its filters keep.
  */
 export function doneHere(S, gymId = null) {
   const hits = []
   for (const { w, at } of byTime(S)) {
-    if (gymId && savedGym(w) !== gymId) continue
+    // Most of a long log has no gym (an import, workouts from before gyms): those count as here.
+    if (gymId && savedGym(w) && savedGym(w) !== gymId) continue
     for (const e of list(w.entries)) {
       if (e?.id && metricRowsForEntry(e).length) hits.push({ e, w, at })
     }

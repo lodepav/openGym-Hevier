@@ -103,4 +103,9 @@ describe('hevier doneHere (D129)', () => {
     expect(rows[0].last).toMatchObject({ w: 14 })
     expect(doneHere(S).map(r => r.id)).toEqual([FLY, DB_BENCH, BENCH, SQUAT, CHEST_PRESS])
   })
+
+  it('counts a workout saved without a gym: only one known to be elsewhere is left out', () => {
+    const S = state([wk('2026-09-01', [CURL]), wk('2026-09-03', [ROW], { gym: 'g2' }), wk('2026-09-05', [FLY], { gym: 'g1' })])
+    expect(doneHere(S, 'g1').map(r => r.id)).toEqual([FLY, CURL])
+  })
 })
