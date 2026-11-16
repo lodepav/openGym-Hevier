@@ -7,6 +7,7 @@ import { nextPlanned } from './next-planned.js'
 import { queueView, weekTally } from '../../lib/queue.js'
 import { fmtNum, isoOf, startOfWeek, weekStartOf } from '../../lib/format.js'
 import { t } from '../../lib/i18n.js'
+import { shownWeight } from '../../lib/ex-unit.js'
 
 // One work row as text: "60 × 8", "× 12" on body weight, "45 s", "20 min".
 function rowText(row) {
@@ -29,25 +30,25 @@ export function setsText(rows) {
   return runs.map(x => (x.n > 1 ? t('{0} sets', x.n) + ' · ' : '') + x.v).join(', ')
 }
 
-// One set as it opens, as setsText reads it: a per-side set "40 × 8/7", a hold on each side "45/40 s".
-function openedRow(set) {
+// One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".
+function openedRow(set, show) {
   const [row, R] = set.rows
   const kind = set.kind === 'work' ? 'work' : 'warm'
-  const w = x => (x.w > 0 ? fmtNum(x.w) + ' × ' : '')
+  const w = x => (x.w > 0 ? fmtNum(show(x.w)) + ' × ' : '')
   const two = (a, b) => (a === b ? String(a) : a + '/' + b)
   if (isSideSet(row)) {
     const { L, R: r } = row.sides
     return { kind, text: L.w === r.w ? (w(L) || '× ') + two(L.r, r.r) : `${w(L)}${L.r} / ${w(r)}${r.r}` }
   }
   if (R) return { kind, text: w(row) + two(row.sec, R.sec) + ' s' }
-  return { kind, w: row.w, reps: row.r, sec: row.sec, min: row.min }
+  return { kind, w: row.w > 0 ? show(row.w) : row.w, reps: row.r, sec: row.sec, min: row.min }
 }
 
 /** The exercises of the routines `ids`, in order, each with the sets it opens with, the plan
  *  included (D128, the routine's page shows the same): [{ key, id, sets }]. */
 export function sessionSets(S, ids) {
   return (ids || []).flatMap(rid => nextSession(S, rid).map(x =>
-    ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(openedRow)) })))
+    ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(set => openedRow(set, w => shownWeight(S, x.id, w)))) })))
 }
 
 /** The names without the words that several of them start with ("Plan Upper A", "Plan Lower A", "Cardio":

@@ -7,7 +7,7 @@
 // The muscle line counts each set once for its main muscle (DECISIONS.md D18); D133 took the bars.
 // Heart rate (D27), when a watch saved one: the session's under the stats, each set's on its row.
 import HvIcon from '../components/HvIcon.jsx'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
@@ -45,7 +45,7 @@ import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setMark } from '../lib/history-rows.js'
 import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { workoutCompare } from '../lib/workout-compare.js'
 import { signed } from '../lib/delta.js'
 
@@ -109,6 +109,13 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
 // "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
 // stats row's own numbers (volume only where the row shows it, D18). A number that did not change
 // is left out; with none left the line reads "Same as 3 Nov".
+// The workout is gone (deleted here or in All details): back to the page it was opened from.
+function Gone() {
+  const nav = useNavigate()
+  useEffect(() => { if (window.history.state?.idx > 0) nav(-1); else nav('/home', { replace: true }) }, [nav])
+  return null
+}
+
 function VsLast({ st, w, mode }) {
   const c = workoutCompare(st, w)
   if (!c) return null
@@ -127,7 +134,7 @@ export function WorkoutDetail() {
   const st = useStore(s => s.S)
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
   // Deleted (here or in All details) or opened without a workout: back to where it came from.
-  if (!w) return <Navigate to="/home" replace />
+  if (!w) return <Gone />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
   const prs = workoutRecords(st, w)

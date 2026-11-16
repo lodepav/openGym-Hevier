@@ -40,6 +40,11 @@ describe('Today: the sets the next session opens with (D134)', () => {
       { key: 'ua:1', id: 'x2', sets: '× 10' },
     ])
   })
+
+  it('writes an exercise shown in lb in lb, as its page does (D41)', () => {
+    const s = S({ unit: 'kg', exUnit: { x1: { unit: 'lb', _ts: 1 } }, routines: [{ id: 'ua', name: 'Upper A', ex: [{ id: 'x1', sets: 3, reps: 8, weight: 60 }] }] })
+    expect(sessionSets(s, ['ua'])[0].sets).toMatch(/^3 sets · 132(\.\d+)? × 8$/)
+  })
 })
 
 describe('Today: the card shows what the routine’s page shows (D128)', () => {

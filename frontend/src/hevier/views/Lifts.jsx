@@ -18,6 +18,7 @@ import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy } from '../lib/lifts-list.js'
 import { mainMuscleOf } from '../lib/main-muscle.js'
+import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { previousText, noEffort } from '../lib/set-text.js'
 import { exUnitOf, shown } from '../lib/ex-unit.js'
 import { partOn } from '../lib/module-parts.js'
@@ -54,7 +55,10 @@ export default function Lifts() {
   const by = liftsBy(S)
   // Records are part of a row, so the list follows the log and what decides a record (records.js's key).
   const rows = useMemo(() => liftRows(S), [fieldSig(S, 'workouts'), fieldSig(S, 'hvModuleParts'), fieldSig(S, 'modules')]) // eslint-disable-line react-hooks/exhaustive-deps
-  const keep = q.trim() ? new Set(searchExercises(rows.map(r => exOr(r.id)), q).map(e => e.id)) : null
+  // By name, and by the brand it was logged on (D36), as the picker searches.
+  const trained = rows.map(r => exOr(r.id))
+  const keep = q.trim() ? new Set([...searchExercises(trained, q),
+    ...(partOn(S, 'hvGyms', 'brands') ? brandMatches(trained, brandsByExercise(S), q, searchExercises).map(m => m.ex) : [])].map(e => e.id)) : null
   const sections = liftSections(rows, { by, keep, muscleOf: id => mainMuscleOf(exOr(id)) })
   const chips = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],

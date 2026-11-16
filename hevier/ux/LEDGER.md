@@ -187,3 +187,28 @@ longer follow the phone's font size.
 | R8-U5 | low | H3 | Leaving a new routine empty keeps a "New routine" card | **discuss** |
 | R8-U6 | low | A2 | The Superset pill's text is 3.5:1 | **open**: Hevy's purple (SCREENS.md) |
 | R8-U7 | low | A6 | At 200% a cardio time of 10:10 is cut to "10:1" in the TIME cell | **open**: seen while checking D122 |
+
+## Round 9 (2026-11-16, the rework's build on `hevier/rework`: J1 routine lifter, J2 Hevy switcher)
+
+Both finished on the rebuilt screens (D125 to D136), J2 without the CSV summary (no Hevy CSV on the
+device). The numbers of the saved workout agree on the Finish sheet, the History card and Workout
+Detail.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R9-U1 | medium | H2 | Today's card gives an exercise shown in lb in kg, the plan page in lb | **fixed**: the card writes weights in the exercise's unit; test beside it |
+| R9-U2 | medium | H7, H4 | Lifts' search does not find an exercise by its brand (D36) | **fixed**: the picker's brand search |
+| R9-U3 | low | H6 | The exercise page's brand filter is a closed dropdown reading "All sets"; the mockup draws chips | **discuss** |
+| R9-U4 | medium | A1 | The effort buttons and the rest panel's buttons are 44 dp tall | **fixed**: 48 dp; the 4 dp gaps between effort buttons stay (seven in a row) |
+| R9-U5 | low | C2, H6 | The Finish sheet's warning and change line are worded differently from the mockup; "1 changed" has no noun | **discuss** |
+| R9-U6 | low | H4 | Today's routine name is grey, the mockup's is in full colour | **fixed** |
+| R9-U7 | low | P1 | Deleting a workout from Workout Detail lands on Today | **fixed**: back to the page it was opened from |
+| R9-U8 | low | C5 | Settings still says "Home" (Look & Home, On Home) | **open**: upstream's page, D136 left Settings as it is; needs seams |
+| R9-U9 | low | H4 | The editor's remove mark is a grey dash beside the grey dash of an empty weight | **discuss** |
+
+Improvements, all **open**: spoken set text ("90 kilograms, 6 reps"); the "Workout saved" toast's
+Open carries the undo arrow; "2 sets · 80 × 8, 80 × 7" on Today reads as two sets in all; closed
+exercises in the live workout keep the "Add brand" line while the open one has the pill; a routine
+that is not next shows no date on its page. Notes: a swap on an exercise with ticked sets asks
+first and keeps the old exercise, so it is 3 taps; the week row cuts "… Day" names; a routine alone
+in its folder has no handle.
