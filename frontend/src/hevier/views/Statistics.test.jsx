@@ -40,25 +40,33 @@ beforeEach(() => { localStorage.clear(); useUI.setState({ sheets: [], toastMsg: 
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: Statistics and Measures (M6)', () => {
-  it('Statistics: the last 7 days, sets per muscle by period, and upstream’s statistics behind a row', () => {
+  it('Statistics: the last 7 days, and upstream’s statistics behind a row; the sets per muscle are not here', () => {
     render(['/history-tab', '/stats'], { workouts: [workout(todayISO())] })
     expect(container.querySelectorAll('.hv-day')).toHaveLength(7)
     expect(container.querySelector('.hv-day.today.on')).toBeTruthy()
     expect(container.querySelector('.bodymap, svg')).toBeTruthy()
-    const chest = byText('.hv-mset', 'Chest')
-    expect(chest.querySelector('b').textContent).not.toBe('0')
-    act(() => byText('.hv-chip', 'Year').click())
-    expect(byText('.hv-chip', 'Year').getAttribute('aria-pressed')).toBe('true')
-    expect(byText('.hv-mset', 'Chest')).toBeTruthy()
+    expect(container.querySelector('.hv-mset, .hv-wsets')).toBeFalsy()
     act(() => byText('.hv-linkrow', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
   })
 
+  it('Sets per muscle is a page of its own, a row on Statistics: the counts by period, back to Statistics', () => {
+    render(['/stats'], { workouts: [workout(todayISO())] })
+    act(() => byText('.hv-linkrow', 'Sets per muscle').click())
+    expect(path).toBe('/muscle-sets')
+    expect(container.querySelector('.hv-title').textContent).toBe('Sets per muscle')
+    expect(byText('.hv-mset', 'Chest').querySelector('b').textContent).not.toBe('0')
+    act(() => byText('.hv-chip', 'Year').click())
+    expect(byText('.hv-chip', 'Year').getAttribute('aria-pressed')).toBe('true')
+    expect(byText('.hv-mset', 'Chest')).toBeTruthy()
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
+  })
+
   it('Weekly sets per muscle: how many past weeks each muscle was in range', () => {
     const back = n => { const d = new Date(todayISO() + 'T12:00:00'); d.setDate(d.getDate() - 7 * n); return isoOf(d) }
-    render(['/stats'], { muscleTargets: { chest: [2, 4] }, workouts: [workout(back(2)), { ...workout(back(1)), id: 'w1' }] })
+    render(['/muscle-sets'], { muscleTargets: { chest: [2, 4] }, workouts: [workout(back(2)), { ...workout(back(1)), id: 'w1' }] })
     const chest = [...container.querySelectorAll('.hv-wsets .sbar-row')].find(r => r.textContent.startsWith('Chest'))
     expect(chest.querySelector('.hv-wsets-past').textContent).toBe('2/2')
     expect(chest.getAttribute('aria-label')).toContain('In range 2 of 2 weeks')
@@ -67,6 +75,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('an empty history says so instead of an empty map', () => {
     render(['/stats'])
     expect(container.textContent).toContain('No workouts in the last 7 days.')
+    act(() => byText('.hv-linkrow', 'Sets per muscle').click())
     expect(container.textContent).toContain('No sets in this period yet.')
   })
 

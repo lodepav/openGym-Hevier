@@ -55,13 +55,12 @@ describe('hevier: History (D135)', () => {
     expect(container.querySelectorAll('.hv-wcard')).toHaveLength(2)
   })
 
-  it('the chips open the statistics; Sets per muscle opens Statistics on its card', () => {
+  it('the chips open the statistics; Sets per muscle opens its own page', () => {
     render()
     expect([...container.querySelectorAll('.hv-hlinks button')].map(b => b.textContent))
       .toEqual(['Calendar', 'Statistics', 'Month report', 'Sets per muscle', 'Body weight', 'More'])
     act(() => chip('Sets per muscle').click())
-    expect(path).toBe('/stats')
-    expect(state).toEqual({ at: 'sets' })
+    expect(path).toBe('/muscle-sets')
     act(() => root.unmount()); container.remove()
     render()
     act(() => chip('More').click())

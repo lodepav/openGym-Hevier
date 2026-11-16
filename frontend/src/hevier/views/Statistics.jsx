@@ -1,32 +1,25 @@
 // Hevy's Statistics page (hevier/DECISIONS.md D14; reference/SCREENS.md §6), opened from History:
-// Profile's weekly chart (D135), the last 7 days as a week strip and a body map, the set count per muscle group (week, month,
-// year, against the one before), then the monthly report (D23) and upstream's own statistics and
-// structural balance, whole.
-import { useEffect, useRef, useState } from 'react'
+// Profile's weekly chart (D135), the last 7 days as a week strip and a body map, then rows to the
+// sets per muscle (views/MuscleSets.jsx), the monthly report (D23) and upstream's own statistics
+// and structural balance, whole.
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
-import { fmtNum, todayISO, weekStartOf, DAYS } from '../../lib/format.js'
-import { signed } from '../lib/delta.js'
+import { todayISO, DAYS } from '../../lib/format.js'
 import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
-import { muscleSetCounts, lastDays, PERIODS, WEEK_HEAT } from '../lib/muscle-sets.js'
-import { muscleMode } from '../lib/volume.js'
+import { lastDays, WEEK_HEAT } from '../lib/muscle-sets.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { entryTimes } from '../lib/exercise-time.js'
 import { partOn } from '../lib/module-parts.js'
 import { isOn } from '../../lib/modules.js'
-import WeeklySetsCard from '../components/WeeklySetsCard.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import { HISTORY_PATH } from './History.jsx'
 
 const hasTimes = w => entryTimes(w).length > 0
-
-const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
-const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
 
 /** The page bar of a fork page under a tab: ‹ back to `to` (named `label`) and the page's title. */
 export function BackTo({ label, to, title, children }) {
@@ -54,33 +47,6 @@ function LastSevenDays({ S, today }) {
   </div>
 }
 
-function SetCounts({ S, today }) {
-  const [kind, setKind] = useState('week')
-  // History's Sets per muscle opens the page on this card.
-  const ref = useRef(null)
-  const at = useLocation().state?.at
-  useEffect(() => { if (at === 'sets') ref.current?.scrollIntoView?.({ block: 'start' }) }, [at])
-  const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S), mode: muscleMode(S) })
-  const max = Math.max(1, ...rows.map(r => r.sets))
-  return <div className="card hv-setcounts" ref={ref}>
-    <h2>{t('Set count per muscle group')}</h2>
-    <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
-      aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
-    {/* What the numbers count, under the chips where it is read first. */}
-    <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
-    {rows.length ? <div className="hv-msets">{rows.map(r => {
-      const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
-      return <div key={r.muscle} className="hv-mset">
-        <span className="hv-mset-n">{t(r.muscle)}</span>
-        <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>
-        <b>{fmtNum(r.sets)}</b>
-        <span className={'hv-mset-d' + (d ? (d.up ? ' up' : ' down') : '')}>{d?.text}</span>
-      </div>
-    })}
-    </div> : <div className="muted small" style={{ marginTop: 10 }}>{t('No sets in this period yet.')}</div>}
-  </div>
-}
-
 export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
@@ -95,10 +61,8 @@ export default function Statistics() {
     <div className="card hv-weekchart"><WeeklyChart /></div>
     <PhaseFilter />
     <LastSevenDays S={S} today={today} />
-    <SetCounts S={S} today={today} />
-    {/* D99: upstream's weekly sets against a range, counted the fork's way. */}
-    {partOn(S, 'strength', 'weekly') && <WeeklySetsCard S={S} />}
     <h4 className="sec">{t('More')}</h4>
+    <LinkRow icon="figureStrength" title={t('Sets per muscle')} sub={t('By week, month or year, and against your weekly range')} onClick={() => nav('/muscle-sets')} />
     {partOn(S, 'hvStats', 'report') && S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     {partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}
     {partOn(S, 'hvStats', 'time') && S.workouts.some(hasTimes) && <LinkRow icon="timer" title={t('Exercise time')} sub={t('How long each exercise takes')} onClick={() => nav('/exercise-time')} />}
