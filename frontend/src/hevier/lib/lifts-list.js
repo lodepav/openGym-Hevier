@@ -2,6 +2,7 @@
 // best, the most recently trained first or grouped by muscle group. The sets are upstream's
 // bestSetFor (lib/exercise-history.js): the last set is the best of the last session, the best the
 // best of all of them. A new best is a record the last session set (records.js, the feed's trophies).
+import { currentDbLoad } from '../../lib/dumbbells.js'
 import { metricRowsForEntry, metricModeForEntry, workoutAt, workoutDay } from '../../lib/history.js'
 import { bestSetFor } from '../../lib/exercise-history.js'
 import { groupBy, groupOfName } from './muscle-groups.js'
@@ -30,8 +31,9 @@ export function liftRows(S) {
   const rows = []
   for (const [id, x] of by) {
     const mode = metricModeForEntry(x.e)
-    const last = bestSetFor({ workouts: [x.w] }, id, mode)?.set || null
-    const best = bestSetFor({ workouts: x.ws }, id, mode)?.set || null
+    const as = currentDbLoad(S, id)   // a dumbbell's weight as it is counted now, as the exercise's page reads it
+    const last = bestSetFor({ workouts: [x.w] }, id, mode, as)?.set || null
+    const best = bestSetFor({ workouts: x.ws }, id, mode, as)?.set || null
     const newBest = workoutRecords(S, x.w).some(r => x.w.entries[r.i]?.id === id)
     rows.push({ id, d: workoutDay(x.w), at: x.at, mode, target: x.e.target || null, last, best, newBest })
   }

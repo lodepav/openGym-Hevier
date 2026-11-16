@@ -5,14 +5,14 @@
 const at = s => Math.max(Number(s?.at) || 0, Number(s?.sides?.L?.at) || 0, Number(s?.sides?.R?.at) || 0)
 const sideStarted = s => !!(s?.sides?.L?.done || s?.sides?.R?.done)
 
-/** The newest tick of session `A`: `{ idx, at }` of its exercise and its time; `at` 0 with none yet (`idx` 0). */
+/** The newest tick of session `A`: `{ idx, i, at }` of its exercise, its row and its time; `at` 0 with none yet (`idx` 0). */
 export function newestTick(A) {
-  let idx = 0, newest = 0
-  ;(A?.entries || []).forEach((e, k) => (e.sets || []).forEach(s => {
+  let idx = 0, i = null, newest = 0
+  ;(A?.entries || []).forEach((e, k) => (e.sets || []).forEach((s, j) => {
     const t = s.done || sideStarted(s) ? at(s) : 0
-    if (t > newest) { newest = t; idx = k }
+    if (t > newest) { newest = t; idx = k; i = j }
   }))
-  return { idx, at: newest }
+  return { idx, i, at: newest }
 }
 
 /** `{ idx, i }` of the next set of the running session `A`, or null when every set is done. */

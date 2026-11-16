@@ -37,6 +37,18 @@ describe('hevier openSet (D127)', () => {
     a.entries[1].sets[0] = s(true, 20)
     expect(openSet(a, null)).toEqual({ idx: 0, i: 1 })
   })
+  it('a per-side set with one side ticked stays open, in a superset and after a tap', () => {
+    const side = (l, at) => ({ sides: { L: { w: 10, r: 8, done: l, ...(at ? { at } : {}) }, R: { w: 10, r: 8, done: false } }, done: false })
+    const a = { entries: [{ id: 'a', sg: 'g', sets: [s(true, 10), s(false)] }, { id: 'b', sg: 'g', sets: [side(true, 20), side(false)] }] }
+    expect(openSet(a, null)).toEqual({ idx: 1, i: 0 })
+    const b = { entries: [{ id: 'b', sets: [side(false), side(false)] }] }
+    const pick = pickAt(b, 0, 1)
+    b.entries[0].sets[1] = side(true, 30)
+    expect(openSet(b, pick)).toEqual({ idx: 0, i: 1 })
+    // An L/R pair: the R row after the L row is ticked.
+    const p = { entries: [{ id: 'a', sg: 'g', sets: [s(false)] }, { id: 'c', sg: 'g', sets: [{ sec: 30, side: 'L', done: true, at: 40 }, { sec: 30, side: 'R', done: false }] }] }
+    expect(openSet(p, null)).toEqual({ idx: 1, i: 1 })
+  })
   it('a tapped exercise opens its first set left, or the exercise alone when it has none', () => {
     const a = A()
     expect(openSet(a, pickAt(a, 1))).toEqual({ idx: 1, i: 0 })

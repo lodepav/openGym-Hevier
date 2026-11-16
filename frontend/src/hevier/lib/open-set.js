@@ -35,7 +35,12 @@ export function openSet(A, pick) {
     if (pick.i == null) return { idx: pick.idx, i: null }
   }
   if (!A || A.editingWorkoutId) return null
-  return tick.at ? nextSetAfter(A, tick.idx) : nextSet(A)
+  if (!tick.at) return nextSet(A)
+  // A set half done (one side of a per-side set, the L row of a pair) is finished before anything else opens.
+  const rows = E[tick.idx].sets || []
+  const [from, count] = setSpanAt(rows, tick.i)
+  for (let i = from; i < from + count; i++) if (!rows[i].done) return { idx: tick.idx, i }
+  return nextSetAfter(A, tick.idx)
 }
 
 /** Whether row `i` of `rows` belongs to the opened set `open.i` (an L/R pair is one set). */

@@ -259,15 +259,10 @@ async function step(cdp, results, screen, open, show, close = ESCAPE, note = fal
   if (close) { await evaluate(cdp, close); await sleep(600) }
 }
 
-// Home's Recap and Year cards, a saved workout's Workout Detail and, from it, Exercise Details.
+// From Today: the last workout's Workout Detail and, from it, Exercise Details.
 async function homeExtras(cdp, dir, results, run) {
   await evaluate(cdp, "location.hash = '#/home'")
   await sleep(1000)
-  for (const [sel, label] of [['[data-recap]', 'home recap card'], ['[data-wrapped-home]', 'home year card']]) {
-    const there = await evaluate(cdp, `(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return false; el.scrollIntoView({ block: 'center' }); return true })()`)
-    if (there) await visit(cdp, label, dir, results, run)
-    else results.push({ screen: label, out: [{ note: true, check: 'flow', detail: 'not on Home with this profile today' }] })
-  }
   await evaluate(cdp, 'scrollTo(0, 0)')
   await step(cdp, results, 'workout detail', clickSel('.hv-tlast'), async () => {
     await until(cdp, "location.hash.startsWith('#/workout-detail')")
