@@ -88,7 +88,7 @@ describe('hevier: exercise details (seam S10)', () => {
   })
 
   it('an exercise pinned to lb reads in lb: the sessions, the bests, the rep counts and All history (D41)', () => {
-    open([{ ...log[0], entries: [{ id: EX.id, sets: [{ w: 50, r: 12, done: true }] }] }], S => { S.exUnit = withExUnit(S.exUnit, EX.id, 'lb') })
+    open([{ ...log[0], entries: [{ id: EX.id, sets: [{ w: 50, r: 12, done: true }] }] }], S => { S.exUnit = withExUnit(S.exUnit, EX.id, 'lb'); S.hvStrength = { [EX.id]: { lv: [40, 60, 80, 100, 120], u: 'kg' } } })
     expect(container.querySelector('.hv-xd-lsets').textContent).toMatch(/110\.23?×12/)
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toMatch(/^110\.23? lb$/)
@@ -98,6 +98,9 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
     // The chart plots lb too: its axis reaches past 100 where the stored 50 kg would not.
     expect([...container.querySelectorAll('.chart text')].some(x => Number(x.textContent.replace(',', '')) >= 100)).toBe(true)
+    // The strength level too: the kg levels and the best 1RM in lb, beside the tile above it.
+    expect(container.querySelector('.hv-sl-foot').textContent).toMatch(/Best 1RM 1[45]\d(\.\d+)? lb/)
+    expect(container.querySelector('.hv-sl-ticks').textContent).toMatch(/^88132\.5/)
     const all = sub('All history')
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23?×12/)
   })

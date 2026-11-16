@@ -95,6 +95,25 @@ describe('hevier: routine folders and reordering', () => {
     expect(ids()).toEqual(['l1', 'p1', 'p2'])
   })
 
+  it('Search routines lists the matches by name without folders, also from a folder folded shut', () => {
+    render([R('a'), { ...R('b', 'Legs'), name: 'Squat day' }], { hvFoldersClosed: ['Legs'] })
+    const type = v => act(() => {
+      const el = container.querySelector('input[aria-label="Search routines"]')
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v)
+      el.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    const names = () => [...container.querySelectorAll('.hv-rname-n')].map(x => x.textContent)
+    type('squ')
+    expect(names()).toEqual(['Squat day'])
+    expect(heads()).toEqual([])
+    expect(container.querySelector('.hv-grip')).toBeFalsy()
+    type('zzz')
+    expect(names()).toEqual([])
+    expect(container.textContent).toContain('No routine matches')
+    type('')
+    expect(heads().length).toBe(2)
+  })
+
   it('folds a folder shut and remembers it in S', () => {
     render([R('p1', 'Push')])
     act(() => [...container.querySelectorAll('.hv-ftoggle')][1].click())

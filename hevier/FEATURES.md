@@ -42,7 +42,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |
 | "Still training?" after five hours | D60 | Ported (#906, upstream's Forgotten workouts since 1.4.5, after 45 quiet minutes; the fork's own is gone, D103) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer (upstream 1.4.5 adds a rest before the next exercise, #487, #1020; not after one side) |
-| The next set to do opens large, with the effort button in the tick's place when effort is on; a tap opens another set | D71, D127 | Fork |
+| The next set to do opens large, with the effort button in the tick's place when effort is on, its dialog ending with Log without rating; a tap opens another set | D71, D127 | Fork |
 | The rest docks at the bottom of the workout: countdown, next set, +1 min, +2 min, Skip | D127 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |

@@ -70,6 +70,7 @@ longer needed gets removed, and so does its row.
 | S65 | `frontend/src/sheets.jsx` (`doFinishWorkout`, before `refillAfter`) | With `hooks.redoPass` set, a finished workout on a session the rotation pass already counted done starts the pass over from that session (`hevier/lib/rotation-restart.js`, D124), then upstream's refill runs as before. Unset, the workout only credits. | done |
 | S66 | `frontend/src/components/QueueRow.jsx` (the import of `hooks`, after `status`, the status div) | With `hooks.queueStatus` set, the rotation row's status line names the next day the Calendar shows (`hevier/lib/next-planned.js`, D124): the first day from today on, within 28 days, with no workout logged and something to train, as "Next: {0}, today" or "Next: {0} · day". A complete or waiting round, or nothing found, keeps upstream's line; the chips are upstream's. It applies on upstream's Home and the fork's. Unset, upstream's line. | done |
 | S67 | `frontend/src/sheets.jsx` (`DayOverride`, `changed`) | With `hooks.pinOn` set, the day sheet's " · changed for this day" reads the pin's state through the fork's rule (`hevier/lib/plan-pins.js`, D124), as S63 does. Unset, upstream's `pinState`. | done |
+| S68 | `frontend/src/sheets.jsx` (`EffortPicker`) | `EffortPicker` is exported. The live workout's effort button in the tick's place opens it in a sheet of its own with **Log without rating** under it (`hevier/components/HevyExerciseBlock.jsx`, D127). Upstream's `effortPickerSheet` is unchanged. Upstream could give its dialog a "no rating" row. | done |
 
 ## Upstream contracts the overlay depends on
 
@@ -112,7 +113,7 @@ When one of these changes upstream, the fork's adapter changes. Never revert ups
   `ExerciseBlock` for new behaviour (CONFLICTS.md, "silent drift").
 - Exports from `sheets.jsx`: `startFlow`, `beginWorkout`, `finishWorkout`,
   `finishWorkoutSheet`, `menuSheet`, `exerciseDetailSheet`, `exerciseHistorySheet`,
-  `exerciseNoteSheet`.
+  `exerciseNoteSheet`, `effortPickerSheet`, `EffortPicker` (S68).
 - `lib/history.js`: `lastEntryFor`, `effectiveRoutines`, `effectiveRoutineIds`.
 - Views the fork screens borrow from: `views/Plan.jsx` `deleteRoutineWithUndo`, `views/History.jsx`
   `historyRows`, `views/Stats.jsx` `FATIGUE_LEVELS`.

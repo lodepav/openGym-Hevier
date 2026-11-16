@@ -4,7 +4,7 @@
 // colour; a tap on a row opens its next session's page, a long press or ⋯ its menu. + Routine,
 // + Folder, Rotation (upstream's Plan screen), Empty workout and Explore sit at the end.
 // Starting goes through upstream's startFlow.
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -82,6 +82,8 @@ export default function WorkoutTab() {
   const update = useStore(s => s.update)
   const hold = useLongPress()
   const { next, text: when } = routineWhen(S, todayISO())
+  const [q, setQ] = useState('')
+  const found = q.trim() && S.routines.filter(r => r.name.toLowerCase().includes(q.trim().toLowerCase()))
 
   // The same new routine Plan makes, opened straight in the editor.
   const newRoutine = folder => {
@@ -197,7 +199,13 @@ export default function WorkoutTab() {
   return <div className="narrow hv-wtab">
     <PageBar title={t('Routines')} onBack={back} backLabel={t('Today')} />
 
-    {(S.routines.length > 0 || folders.length > 0) && <>
+    {S.routines.length > 0 && <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+      <input className="input" placeholder={t('Search routines')} aria-label={t('Search routines')} value={q} onChange={e => setQ(e.target.value)} />
+      {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>}
+    {/* A search lists the matches alone: no folders, so none is folded shut, and no handles. */}
+    {found && (found.length ? <div className="hv-rlist">{found.map(r => <div key={r.id}>{row(r.id, null)}</div>)}</div>
+      : <div className="hv-fempty">{t('No routine matches.')}</div>)}
+    {!found && (S.routines.length > 0 || folders.length > 0) && <>
       <section className="hv-folder">{head(groups[0])}{body(groups[0])}</section>
       <div ref={folderReorder.listRef} className={'hv-folders' + (folderReorder.drag ? ' is-reordering' : '')}>
         {folders.map((g, i) => <section key={g.name} data-reorder-row className="hv-folder" style={folderReorder.rowStyle(i)}>

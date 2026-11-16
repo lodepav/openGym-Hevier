@@ -3278,7 +3278,8 @@ export const glyphPicker = (current, onPick) => {
 // for the value between two presets. Presets are stored in RIR internally; a profile that logs
 // RPE sees the same buttons labelled on its own scale (toScale), coloured identically — the
 // colour is the effort, not the number, so 0 RIR and 10 RPE are both the "went to failure" end.
-function EffortPicker({ kind, value, onPick, close, cardio = false }) {
+// [hevier] S68: exported, the fork's dialog adds a tick under it (D127)
+export function EffortPicker({ kind, value, onPick, close, cardio = false }) {
   // Local mirror so the ticked preset and the exact field track typing live.
   const [v, setV] = useState(value ?? null)
   // The exact field used to write through on every change, and onPick concludes the set (issue

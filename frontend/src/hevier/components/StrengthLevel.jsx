@@ -33,8 +33,8 @@ function LevelsForm({ exId, unit, close }) {
   </form>
 }
 
-export default function StrengthLevel({ exId, oneRm, st }) {
-  const unit = st.unit
+// `oneRm` and the levels read in `unit`, the exercise's own (D41).
+export default function StrengthLevel({ exId, oneRm, st, unit = st.unit }) {
   const entry = st.hvStrength?.[exId]
   const lv = levelsIn(entry, unit)
   const [open, setOpen] = useState(false)

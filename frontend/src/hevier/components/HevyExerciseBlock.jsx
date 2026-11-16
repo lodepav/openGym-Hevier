@@ -31,11 +31,11 @@ import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { progressionGuidance } from '../../lib/progression-copy.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
-import { confirmSheet, effortPickerSheet, exerciseDetailSheet, exerciseNoteSheet, exerciseHistorySheet, setNoteSheet } from '../../sheets.jsx'
+import { confirmSheet, effortPickerSheet, EffortPicker, exerciseDetailSheet, exerciseNoteSheet, exerciseHistorySheet, setNoteSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
-import { Check } from '../../components/ui.jsx'
+import { Button, Check } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { isOpenRow } from '../lib/open-set.js'
@@ -346,12 +346,22 @@ export default function HevyExerciseBlock(props) {
     const src = side ? (s.sides?.[side] || {}) : s
     const v = src[effortCol.f] ?? null
     const color = effortColor(effortKind === 'rpe' ? (v == null ? null : 10 - v) : v)
-    const open = () => effortPickerSheet(effortKind, v, nv => {
-      if (side) setSide(i, side, effortCol.f, nv); else onField(i, effortCol.f, nv)
+    const log = () => {
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
       const freshSrc = side ? fresh?.sides?.[side] : fresh
-      if ((nv != null || asTick) && freshSrc && !freshSrc.done) tick(i, side)
-    })
+      if (freshSrc && !freshSrc.done) tick(i, side)
+    }
+    const onPick = nv => {
+      if (side) setSide(i, side, effortCol.f, nv); else onField(i, effortCol.f, nv)
+      if (nv != null || asTick) log()
+    }
+    // In the tick's place the dialog ends with a tick of its own: the set without a rating.
+    const open = () => (asTick
+      ? useUI.getState().openSheet(close => <>
+        <EffortPicker kind={effortKind} value={v} onPick={onPick} close={close} />
+        <Button icon="check" style={{ width: '100%', minHeight: 48, marginTop: 8, background: 'var(--surface-2)' }} onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
+      </>)
+      : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
       aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? t('log it with {0}', t(effortCol.hd)) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>

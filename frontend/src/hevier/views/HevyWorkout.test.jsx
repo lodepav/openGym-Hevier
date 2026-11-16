@@ -626,6 +626,27 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(sets().map(x => [!!x.done, x.rpe ?? null])).toEqual([[true, 8], [false, null]])
   })
 
+  it('the dialog of an unticked set has a tick at the bottom that logs it without a rating; a ticked set’s has none', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8, { done: true, rpe: 8 })] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
+    const sets = () => useStore.getState().S.active.entries[0].sets
+    const openSheet = sel => {
+      act(() => container.querySelector(sel).click())
+      const host = document.createElement('div')
+      const r = createRoot(host)
+      act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+      return { host, r }
+    }
+    const plain = host => [...host.querySelectorAll('button')].find(b => b.textContent.trim() === 'Log without rating')
+    const done = openSheet('.hv-row.done .hv-eff')
+    expect(plain(done.host)).toBeFalsy()
+    act(() => done.r.unmount())
+    const a = openSheet('.hv-row:not(.done) .hv-eff-tick')
+    act(() => plain(a.host).click())
+    act(() => a.r.unmount())
+    expect(sets().map(x => [!!x.done, x.rpe ?? null])).toEqual([[true, null], [true, 8]])
+  })
+
   it('the rest docks at the bottom: +1 min, +2 min and Skip, gone when it ends', () => {
     render([two()])
     act(() => container.querySelector('.hv-chk').click())
