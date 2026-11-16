@@ -28,7 +28,8 @@ import { folderOf } from '../lib/routine-folders.js'
 import { nextPlanned } from '../lib/next-planned.js'
 import { nextSession, planFields, lastText } from '../lib/next-plan.js'
 import { hevySetLabel } from '../lib/set-text.js'
-import { gymsOf, gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
+import { gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
+import { startGym } from '../lib/routine-brand.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
 
 export const previewPath = id => '/plan/r/' + id + '/view'
@@ -107,7 +108,7 @@ export default function RoutinePreview() {
   const noted = session.find(x => x.sets.some(s => s.plan))?.key
   const next = nextPlanned(S, todayISO())
   const when = next?.ids.includes(r.id) ? fmtDate(next.iso, true) : null
-  const gym = gymsOf(S).some(g => g.id === S.activeEquipId) ? S.activeEquipId : null
+  const gym = startGym(S)
   const plan = fid => useUI.getState().openSheet(close => <PlanKeypad rid={r.id} start={fid} close={close} />)
   // A session already open is resumed, as the Workout tab's own Start does (upstream's startFlow).
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))

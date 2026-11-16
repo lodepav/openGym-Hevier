@@ -24,6 +24,7 @@ import { finishFacts, changedText } from '../lib/finish-facts.js'
 import { partOn } from '../lib/module-parts.js'
 import { gymSheet } from './GymLabels.jsx'
 import { markDiscarded } from '../../lib/watch-sync.js'
+import { discardActive } from './HevyTabBar.jsx'
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the sheet.
 const discard = (nav, close) => confirmSheet({
@@ -31,9 +32,7 @@ const discard = (nav, close) => confirmSheet({
   onConfirm: () => {
     close()
     markDiscarded(useStore.getState().S.active?.id)   // a watch must not save it to Health (upstream #776)
-    useStore.getState().update(s => { s.active = null })
-    useUI.getState().stopRest()
-    useUI.getState().stopWork()
+    discardActive()
     nav('/home', { replace: true })
   },
 })

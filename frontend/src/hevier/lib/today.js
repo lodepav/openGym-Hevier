@@ -14,8 +14,7 @@ function rowText(row) {
   if (row.min != null) return row.min + ' min'
   const w = row.w > 0 ? fmtNum(row.w) + ' × ' : ''
   if (row.sec != null) return w + row.sec + ' s'
-  const reps = row.max ? t('Max') : row.repsMin != null && row.repsMin !== row.reps ? row.repsMin + '–' + row.reps : row.reps
-  return (w || '× ') + reps
+  return (w || '× ') + row.reps
 }
 
 /** A routine exercise's work sets as one line: "3 sets · 60 × 8", or each in turn ("80 × 8, 55 × 13"). */

@@ -248,7 +248,7 @@ export default function HevyExerciseBlock(props) {
   const plateLoading = !editing
   // D8: the ⋮ menu (exercise-menus.js).
   const openMore = () => exerciseMenu(props, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
-    unitChoice, guidance, last, plateLoading, hasLabel: hasLabel(S, S.active, entryIdx) })
+    unitChoice, guidance, plateLoading })
 
   // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes;
   // only with During a workout → Plates to load on (D84).

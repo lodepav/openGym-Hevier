@@ -31,7 +31,6 @@ describe('Today: the sets the next session opens with (D134)', () => {
     expect(setsText([{ kind: 'work', w: 0, reps: 12 }])).toBe('× 12')
     expect(setsText([{ kind: 'work', w: 0, sec: 45 }])).toBe('45 s')
     expect(setsText([{ kind: 'work', min: 20, speed: 8 }])).toBe('20 min')
-    expect(setsText([{ kind: 'work', w: 40, reps: 12, repsMin: 8 }])).toBe('40 × 8–12')
   })
 
   it('reads each routine exercise in order, through the routine table', () => {

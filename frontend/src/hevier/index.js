@@ -36,7 +36,6 @@ import { initExUnits } from './lib/ex-unit.js'
 import { HIDDEN_MODULES, moduleOn, FORK_MODULES, forkModuleCopy, setAnyModule } from './lib/fork-modules.js'
 import { partOn } from './lib/module-parts.js'
 import { moduleRow } from './views/ModuleParts.jsx'
-import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { rowMode, setNumberOf } from './lib/hold-set.js'
 import { pinOn } from './lib/plan-pins.js'
@@ -120,10 +119,10 @@ function install() {
   initNoteFix(store)
   // One-limb exercises already in a routine turn per side, once (D75).
   initSideRoutines(store)
-  // Home's layout and the empty and folded folders, kept on the device until 2026-10-20, move into
-  // S once, so they sync and are backed up (D12, D13).
+  // The empty and folded folders, kept on the device until 2026-10-20, move into
+  // S once, so they sync and are backed up (D13).
   const kept = k => { try { return localStorage.getItem(k) != null } catch { return false } }
-  if ([HOME_KEY, FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveHomeIntoS(s); moveFoldersIntoS(s) })
+  if ([FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveFoldersIntoS(s) })
   // The fork's Previous values switch is upstream's Last time means since 1.4.3 (D21); a sync from
   // an older build can bring the old field back, so it is moved whenever it shows up.
   const movePrevious = () => { if ('hvPrevious' in state()) store.update(movePreviousIntoLastFrom) }

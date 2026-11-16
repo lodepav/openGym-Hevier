@@ -36,7 +36,7 @@ import { suggestedSubstitutes, relatedSubstitutes } from '../../lib/exercise-sub
 import { partOn } from '../lib/module-parts.js'
 import { isBw } from '../../lib/history.js'
 import { speedUnitOf } from '../../lib/speed.js'
-import { previousText } from '../lib/set-text.js'
+import { previousText, noEffort } from '../lib/set-text.js'
 import { exUnitOf, shown as inUnit } from '../lib/ex-unit.js'
 import { pastSwaps, doneHere } from '../lib/swap-history.js'
 
@@ -193,8 +193,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // "4 times · last 12 Oct · 27.5kg × 10", the set as the workout's PREVIOUS column writes it.
   const histLine = r => {
     const u = exUnitOf(st, r.id)
-    const set = r.last ? previousText(r.last, { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target,
-      show: w => inUnit(w, st.unit, u), speedUnit: speedUnitOf(st) }).replace(/ \((RPE|RIR) [^)]*\)/g, '') : ''
+    const set = r.last ? previousText(noEffort(r.last), { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target,
+      show: w => inUnit(w, st.unit, u), speedUnit: speedUnitOf(st) }) : ''
     const when = r.d ? fmtDate(r.d) : ''
     return (r.n === 1 ? [t('once'), when] : [t('{0} times', r.n), when && t('last {0}', when)]).concat(set).filter(Boolean).join(' · ')
   }
