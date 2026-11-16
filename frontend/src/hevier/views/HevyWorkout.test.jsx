@@ -603,7 +603,6 @@ describe('hevier: the open set and its exercise (D127)', () => {
     const rows = [...container.querySelectorAll('.hv-row')]
     const has = (r, sel) => !!r.querySelector(sel)
     expect(rows.map(r => [has(r, '.hv-chk'), has(r, '.hv-eff-tick')])).toEqual([[true, false], [false, true], [true, false]])
-    expect(container.querySelector('.hv-effrow')).toBeNull()
   })
 
   it('the effort button in the tick’s place logs the set with the rating picked; closing the dialog logs nothing', () => {

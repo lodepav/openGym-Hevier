@@ -21,5 +21,5 @@ export function dockNext(S, forIdx) {
   const work = entry.sets.findLastIndex(x => !isWarmupRow(x))
   const cap = next.idx === forIdx && what && !isWarmupRow(entry.sets[next.i])
     ? t('Set {0} of {1}', setNumberOf(entry.sets, next.i), setNumberOf(entry.sets, work)) : name
-  return { cap, what: what || (cap === name ? '' : line) }
+  return { cap, what }
 }
