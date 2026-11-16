@@ -51,6 +51,16 @@ export function sessionSets(S, ids) {
     ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(openedRow)) })))
 }
 
+/** The names without the words they all start with ("Plan Upper A", "Plan Lower A": "Upper A", "Lower A"),
+ *  so a narrow day cell shows what tells the days apart. Left alone when that would empty one. */
+export function shortNames(names) {
+  const used = [...new Set(names.filter(Boolean))].map(n => n.split(' '))
+  if (used.length < 2) return names
+  let k = 0
+  while (used.every(w => w.length > k + 1 && w[k] === used[0][k])) k++
+  return k ? names.map(n => (n ? n.split(' ').slice(k).join(' ') : n)) : names
+}
+
 /**
  * This week as seven days from the profile's first weekday: [{ iso, day, kind, name, next }].
  * `kind` is 'done' (trained), 'plan' (a routine planned from today on, `name` its first),
@@ -60,13 +70,15 @@ export function weekStrip(S, today) {
   const byDay = workoutsByDay(S.workouts)
   const next = nextPlanned(S, today)?.iso
   const start = startOfWeek(today, weekStartOf(S))
-  return Array.from({ length: 7 }, (_, k) => {
+  const days = Array.from({ length: 7 }, (_, k) => {
     const d = new Date(start)
     d.setDate(start.getDate() + k)
     const iso = isoOf(d)
     const name = byDay[iso] ? '' : planTitle(S, iso, byDay, today)
     return { iso, day: d.getDay(), kind: byDay[iso] ? 'done' : name ? 'plan' : iso === today ? 'rest' : '', name, next: iso === next }
   })
+  const short = shortNames(days.map(d => d.name))
+  return days.map((d, i) => ({ ...d, short: short[i] }))
 }
 
 /** The round's progress, `{ done, of, round }`: a rotation's (or a coach week's) round while it

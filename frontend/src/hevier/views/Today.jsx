@@ -72,7 +72,7 @@ function Week({ S, today }) {
   return <div className="hv-tweek" role="group" aria-label={t('This week')}>{days.map(d =>
     <button key={d.iso} type="button" className={'hv-tday ' + d.kind + (d.next ? ' next' : '') + (d.iso === today ? ' today' : '')}
       aria-label={fmtDate(d.iso, true) + ', ' + word(d)} onClick={() => dayOverrideSheet(d.iso)}>
-      <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' ? d.name : d.kind === 'rest' ? t('rest') : '–'}</b>
+      <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' ? d.short : d.kind === 'rest' ? t('rest') : '–'}</b>
       <span aria-hidden="true">{t(DAYS[d.day])}</span>
     </button>)}</div>
 }
