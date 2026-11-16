@@ -52,7 +52,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 | Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down | D118 | Fork |
-| A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offer |
+| A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293) |
 
 ## Routines
 
@@ -62,7 +62,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Routine page (read-only) before the editor | D37 | Fork |
 | Routine folders, long-press reorder | D13 | Fork |
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
-| A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |
+| A gym's backups: the swap made at a gym is reused there | D46 | Offered (a comment on #1022, which asks for routines per gym; upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649, not learned per gym) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4; a routine that repeats its last workout offered as #1161) |
 | Undo after deleting a folder or a routine from the editor; a new routine opens with an empty title; the ⚠ tells its reason on a tap | D118 | Fork |
