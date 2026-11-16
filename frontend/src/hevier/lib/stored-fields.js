@@ -22,6 +22,7 @@ export const STORED_FIELDS = [
   { field: 'hvModuleParts', at: 'S', sample: { 'body.photos': false } },
   { field: 'hvMuscleSets', at: 'S', sample: 'share' },
   { field: 'hvOneLimb', at: 'S', sample: 1 },
+  { field: 'hvPlan', at: 'S', sample: { r1: { ex: { '0043': { w0: { r: 5 }, '0': { w: 102.5 } }, '1178': { '0': { L: { r: 12 } } } }, used: 'a1' } } },
   { field: 'hvPlateLine', at: 'S', sample: true },
   { field: 'hvSideOrder', at: 'S', sample: { '0043': 'RL' } },
   { field: 'hvStrength', at: 'S', sample: { '0043': { lv: [60, 80, 100, 130, 160], u: 'kg', d: '2026-10-17' } } },

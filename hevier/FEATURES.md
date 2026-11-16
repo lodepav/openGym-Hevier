@@ -62,6 +62,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | Hevy's routine editor table drawn from openGym's prescription | D15 | Fork |
 | Routine page (read-only) before the editor | D37 | Fork |
+| The routine's page is the next session's plan: last time beside what each set opens with, warm-ups included; a tap on a weight or reps plans it for the next session only, without changing the routine; Today's card shows the same numbers | D128 | Fork |
 | Routine folders, long-press reorder | D13 | Fork |
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |

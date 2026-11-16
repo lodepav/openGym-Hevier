@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { setsText, sessionSets, weekStrip, roundOf } from './today.js'
 import { pinOn } from './plan-pins.js'
 import { hooks } from '../hooks.js'
+import { isPlain, plainRows } from './plain-routine.js'
+import { setPlanned } from './next-plan.js'
+import { fixture, PLAIN, BENCH, CALF, PLANK } from './routine-open.fixture.js'
 
 // next-planned.test.js's case: a six-session pass, Upper A and Lower A done Sat 14 and Sun 15 Nov,
 // today Mon 16 Nov, the rest planned day by day from Tue 17.
@@ -37,6 +40,20 @@ describe('Today: the sets the next session opens with (D134)', () => {
       { key: 'ua:0', id: 'x1', sets: '3 sets · 60 × 8' },
       { key: 'ua:1', id: 'x2', sets: '× 10' },
     ])
+  })
+})
+
+describe('Today: the card shows what the routine’s page shows (D128)', () => {
+  beforeEach(() => { hooks.plainRoutine = { is: isPlain, rows: plainRows } })
+  afterEach(() => { hooks.plainRoutine = null })
+
+  it('last time’s sets, a per-side set each side, holds as seconds, and a planned number', () => {
+    const s = fixture()
+    const card = () => Object.fromEntries(sessionSets(s, [PLAIN.id]).map(x => [x.id, x.sets]))
+    expect(card()).toMatchObject({ [BENCH]: '65 × 8, 65 × 7, 65 × 6', [CALF]: '20 × 12/9, 20 × 11/9', [PLANK]: '60 s, 50 s' })
+    setPlanned(s, PLAIN.id, BENCH, '1', null, 'r', 8)
+    setPlanned(s, PLAIN.id, BENCH, '2', null, 'w', 62.5)
+    expect(card()[BENCH]).toBe('2 sets · 65 × 8, 62.5 × 6')
   })
 })
 

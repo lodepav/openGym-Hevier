@@ -48,6 +48,7 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    step 3 explains it: show the user the lines, never land over them. `routine-open.test.js`
    (in `verify`) checks the same on a fixture profile; a failure there after a merge is the same
    question, and its snapshot is rewritten only for a change a decision explains.
+   D128: check that upstream's start, start-from-last included (seam S40), still runs before the fork lays a routine's plan over it (`hevier/lib/next-plan.js` builds through `buildCombinedEntries`; `RoutinePreview.test.jsx` starts a planned routine for real and compares it with the page).
    Once the merge has landed, `hevier/tools/routine-check.sh --accept` keeps the merged build's
    snapshot as the baseline the next release is checked against.
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last

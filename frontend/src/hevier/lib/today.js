@@ -1,6 +1,7 @@
 // The Today tab (hevier/DECISIONS.md D134): the sets the next session opens with, the week as seven
 // days and the round's progress. views/Today.jsx draws them; the next day itself is next-planned.js's.
-import { routineRows } from './routine-table.js'
+import { nextSession } from './next-plan.js'
+import { isSideSet } from '../../lib/workout-model.js'
 import { planTitle, workoutsByDay } from './calendar.js'
 import { nextPlanned } from './next-planned.js'
 import { queueView, weekTally } from '../../lib/queue.js'
@@ -9,6 +10,7 @@ import { t } from '../../lib/i18n.js'
 
 // One work row as text: "60 × 8", "× 12" on body weight, "45 s", "20 min".
 function rowText(row) {
+  if (row.text) return row.text
   if (row.min != null) return row.min + ' min'
   const w = row.w > 0 ? fmtNum(row.w) + ' × ' : ''
   if (row.sec != null) return w + row.sec + ' s'
@@ -28,17 +30,25 @@ export function setsText(rows) {
   return runs.map(x => (x.n > 1 ? t('{0} sets', x.n) + ' · ' : '') + x.v).join(', ')
 }
 
-/**
- * The exercises of the routines `ids`, in order, each with the sets it opens with: [{ key, id, sets }].
- * shortcut: the routine's own plan, as its page shows it; D128 replaces it with what the session opens with.
- */
-export function sessionSets(S, ids) {
-  const out = []
-  for (const rid of ids || []) {
-    const r = (S.routines || []).find(x => x.id === rid)
-    if (r) r.ex.forEach((e, i) => out.push({ key: rid + ':' + i, id: e.id, sets: setsText(routineRows(e, r, S.unit)) }))
+// One set as it opens, as setsText reads it: a per-side set "40 × 8/7", a hold on each side "45/40 s".
+function openedRow(set) {
+  const [row, R] = set.rows
+  const kind = set.kind === 'work' ? 'work' : 'warm'
+  const w = x => (x.w > 0 ? fmtNum(x.w) + ' × ' : '')
+  const two = (a, b) => (a === b ? String(a) : a + '/' + b)
+  if (isSideSet(row)) {
+    const { L, R: r } = row.sides
+    return { kind, text: L.w === r.w ? (w(L) || '× ') + two(L.r, r.r) : `${w(L)}${L.r} / ${w(r)}${r.r}` }
   }
-  return out
+  if (R) return { kind, text: w(row) + two(row.sec, R.sec) + ' s' }
+  return { kind, w: row.w, reps: row.r, sec: row.sec, min: row.min }
+}
+
+/** The exercises of the routines `ids`, in order, each with the sets it opens with, the plan
+ *  included (D128, the routine's page shows the same): [{ key, id, sets }]. */
+export function sessionSets(S, ids) {
+  return (ids || []).flatMap(rid => nextSession(S, rid).map(x =>
+    ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(openedRow)) })))
 }
 
 /**
