@@ -106,9 +106,6 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
   </div>
 }
 
-// "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
-// stats row's own numbers (volume only where the row shows it, D18). A number that did not change
-// is left out; with none left the line reads "Same as 3 Nov".
 // The workout is gone (deleted here or in All details): back to the page it was opened from.
 function Gone() {
   const nav = useNavigate()
@@ -116,6 +113,9 @@ function Gone() {
   return null
 }
 
+// "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
+// stats row's own numbers (volume only where the row shows it, D18). A number that did not change
+// is left out; with none left the line reads "Same as 3 Nov".
 function VsLast({ st, w, mode }) {
   const c = workoutCompare(st, w)
   if (!c) return null

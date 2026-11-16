@@ -15,7 +15,6 @@ import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
 import { capWords } from '../../lib/format.js'
 import { useStatsPhase } from '../lib/shared-phase-run.js'
-import { setNav } from '../../lib/nav.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -97,6 +96,8 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
     expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
+    // The chart plots lb too: its axis reaches past 100 where the stored 50 kg would not.
+    expect([...container.querySelectorAll('.chart text')].some(x => Number(x.textContent.replace(',', '')) >= 100)).toBe(true)
     const all = sub('All history')
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23?×12/)
   })
