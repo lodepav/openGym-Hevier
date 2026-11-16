@@ -127,3 +127,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D121** What the merge of openGym 1.4.5 settled, 2026-11-14.
 - **D122** The phone's font size zooms the text, as before 1.4.5.
 - **D123** OpenBite's look on AMOLED black, with an accent you choose.
+- **D124** The rotation adapts to my plans.

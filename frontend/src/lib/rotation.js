@@ -34,6 +34,9 @@
 
 import { isoOf, todayISO, uid } from './format.js'
 import { queueOf, queueView } from './queue.js'
+// [hevier] S64: the fork's hooks
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 const routineIdsOf = w => (Array.isArray(w?.routineIds) ? w.routineIds : (w?.routineId ? [w.routineId] : []))
 const dayAfter = iso => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + 1); return isoOf(d) }
@@ -328,7 +331,9 @@ export function refillAfter(s, w, today = todayISO(), now = Date.now()) {
   // The same dates as lastCreditDay; with none of them left, the next pass starts today, as an
   // edit's does (saveRotation).
   const bound = [w.d, lastCreditDay(s, today)].filter(d => d && d <= latestDay(today)).sort().at(-1)
-  sweepPins(s, q.ids, today)
+  // [hevier] S64: a pass refill keeps the user's plans (D124)
+  if (!hooks.keepPinsOnRefill) sweepPins(s, q.ids, today)
+  // [/hevier]
   // The rotation's own label only — never the closing pass's (q.label): once adopted from a
   // planner, that would otherwise repeat its original week name ("US W1") on every pass this app
   // generates on its own from then on.

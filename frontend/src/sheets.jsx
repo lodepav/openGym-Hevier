@@ -4877,6 +4877,9 @@ function doFinishWorkout({ end: endAt, auto } = {}) {
     s.active = null
     // A rotation pass this app manages starts its next pass the moment the last session lands
     // (lib/rotation.js). A planner's queue is left alone: it completes and waits for its writer.
+    // [hevier] S65: redoing a session the pass has done starts the pass over from it (D124)
+    hooks.redoPass?.(s, w)
+    // [/hevier]
     refillAfter(s, w)
   })
   useStore.getState().autoBackupNow()
