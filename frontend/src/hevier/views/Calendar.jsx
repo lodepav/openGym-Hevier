@@ -31,7 +31,7 @@ export function openDay(iso, ws) {
 export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const ws = weekStartOf(st)
   const cells = monthCells(y, mo, ws)
-  const n = cells.filter(iso => iso && byDay[iso]).length
+  const n = cells.reduce((sum, iso) => sum + (iso && byDay[iso] ? byDay[iso].length : 0), 0)
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
     <h2 className="hv-cal-mh"><button type="button" className="hv-cal-mt" onClick={onTitle} disabled={!onTitle}>
       <b>{small ? t(MONTHS_LONG[mo]) : `${t(MONTHS_LONG[mo])} ${y}`}</b>

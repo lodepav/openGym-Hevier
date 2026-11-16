@@ -113,7 +113,7 @@
 :root[data-ui="hevier"] .hv-acts button:disabled{opacity:.5}
 :root[data-ui="hevier"] .hv-acts .hv-more .icn{transform:none}
 :root[data-ui="hevier"] .hv-ss{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-:root[data-ui="hevier"] .hv-sspill{background:var(--hv-superset,var(--purple));color:#000;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+:root[data-ui="hevier"] .hv-sspill{background:var(--hv-superset,var(--purple));color:#000;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
 :root[data-ui="hevier"] .hv-noprog{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-link{color:var(--acc);background:none;padding:0;font-size:13px}
 :root[data-ui="hevier"] .hv-note{font-size:14px;margin-bottom:4px}

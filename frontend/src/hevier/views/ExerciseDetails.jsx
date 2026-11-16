@@ -9,6 +9,8 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
+import { exConverted, exUnitOf, shownWeight } from '../../lib/ex-unit.js'
+import { mapSetWeights } from '../../lib/units.js'
 import { fmtNum, fmtDate, fmtVol, capWords, todayISO } from '../../lib/format.js'
 import { pinnedNoteFor, EFFORT } from '../../lib/history.js'
 import { hevySetLabel, noEffort } from '../lib/set-text.js'
@@ -74,10 +76,13 @@ function ExerciseFacts({ ex }) {
   return <div className="hv-xd-facts">{lines.map(([k, v]) => <span key={k}>{k}: {v}</span>)}</div>
 }
 
+// A set with its weights in the exercise's own unit (D41), as Lifts and the workout show it.
+const inUnit = (st, id, s) => (exConverted(st, id) ? mapSetWeights(s, w => shownWeight(st, id, w)) : s)
+
 // A set as one line of the last sessions: upstream's short form, without the effort (it has its own
 // place), a per-side set's two sides on one line.
 const shortSet = (ex, s, target, st) => {
-  const text = hevySetLabel(ex.id, noEffort(s), target, speedUnitOf(st))
+  const text = hevySetLabel(ex.id, inUnit(st, ex.id, noEffort(s)), target, speedUnitOf(st))
   return isSideSet(s) ? text.replace(' · ', ' ') : text
 }
 
@@ -107,13 +112,15 @@ function LastSessions({ ex, sum, st, onAll }) {
 
 // The best sets (D131): three tiles, the best session's volume under them, then the best at each
 // rep count, the ones from the last month in yellow with "new".
-function Bests({ sum, st }) {
-  const unit = st.unit
+function Bests({ ex, sum, st }) {
+  const unit = exUnitOf(st, ex.id)
+  const show = w => shownWeight(st, ex.id, w)
+  const weight = sum.metric === 'weight'
   const r = sum.records
   const tiles = [
-    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]), v: fmtNum(r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
-    r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(r.e1rm.v) + ' ' + unit, d: r.e1rm.d },
-    r.setVol && { k: 'setVol', label: t('Best set'), v: `${fmtNum(r.setVol.w)} × ${r.setVol.r}`, d: r.setVol.d },
+    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
+    r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
+    r.setVol && { k: 'setVol', label: t('Best set'), v: `${fmtNum(show(r.setVol.w))} × ${r.setVol.r}`, d: r.setVol.d },
   ].filter(Boolean)
   const reps = repBests(sum.reps, todayISO())
   return <>
@@ -121,12 +128,12 @@ function Bests({ sum, st }) {
       <h4 className="sec">{t('Best sets')}</h4>
       <div className="hv-xd-tiles">{tiles.map(x => <div key={x.k} className="hv-xd-tile">
         <small>{x.label}</small><b>{x.v}</b><small>{dateOf(x.d)}</small></div>)}</div>
-      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(r.sessionVol.v, unit)} · {dateOf(r.sessionVol.d)}</div>}
+      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {dateOf(r.sessionVol.d)}</div>}
     </section>}
     {reps.length > 0 && <section>
       <h4 className="sec">{t('Best at each rep count')}</h4>
       <div className="hv-xd-reps">{reps.map(x => <div key={x.r} className={'hv-xd-rr' + (x.isNew ? ' new' : '')}>
-        <span>{repsWord(x.r)}</span><b>{fmtNum(x.w)} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{dateOf(x.d)}</em>
+        <span>{repsWord(x.r)}</span><b>{fmtNum(show(x.w))} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{dateOf(x.d)}</em>
       </div>)}</div>
     </section>}
   </>
@@ -136,14 +143,16 @@ function Bests({ sum, st }) {
 function Chart({ ex, sum, st }) {
   const [range, setRange] = useState('1y')
   const [curve, setCurve] = useState('main')
-  const unit = st.unit
+  const unit = exUnitOf(st, ex.id)
   const curves = [
     { value: 'main', label: t(TILE_LABEL[sum.metric]), title: t(MAIN_LABEL[sum.metric]) },
     sum.series.e1rm && { value: 'e1rm', label: t('1RM'), title: t('One Rep Max') },
     sum.series.setVol && { value: 'setVol', label: t('Set volume'), title: t('Best Set Volume') },
   ].filter(Boolean)
   const on = sum.series[curve] ? curve : 'main'
-  const points = useMemo(() => inRange(sum.series[on], range), [sum, on, range])
+  // Every curve but a count of reps, seconds or minutes is a weight: in the exercise's unit (D41).
+  const lb = exConverted(st, ex.id) && (on !== 'main' || sum.metric === 'weight')
+  const points = useMemo(() => inRange(sum.series[on], range).map(p => (lb ? { ...p, y: shownWeight(st, ex.id, p.y) } : p)), [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   return <section>
@@ -179,7 +188,7 @@ function History({ ex, sum, st }) {
       {detailRows(sets).map(row => {
         const mark = row.head ? setMark(sets, row.i) : ''
         return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>
-          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : hevySetLabel(ex.id, row.s, rows[row.i].target, speedUnitOf(st))}</span>
+          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : hevySetLabel(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st))}</span>
           {/* A set's note (upstream 1.4.4, D5). */}
           {row.last && setNoteOf(sets[row.i]) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(sets[row.i])}</span>}</div>
       })}
@@ -333,7 +342,7 @@ function ExerciseDetails({ ex, close }) {
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
         : <LastSessions ex={ex} sum={hist} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
-      {sum.total > 0 && <Bests sum={sum} st={st} />}
+      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st} />}
       {sum.total > 0 && <Chart ex={ex} sum={sum} st={st} />}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}

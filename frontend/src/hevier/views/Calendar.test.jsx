@@ -47,6 +47,11 @@ afterEach(() => {
 describe('hevier: Calendar', () => {
   const w = { id: 'w1', d: today, start, end: start + 3600000, name: 'Leg Day', entries: [] }
 
+  it('the month counts workouts, two on one day as two', () => {
+    render('/calendar', [w, { ...w, id: 'w2', start: start + 7200000, end: start + 9000000 }])
+    expect([...container.querySelectorAll('.hv-cal-mt span')].some(x => x.textContent === '2 workouts')).toBe(true)
+  })
+
   it('fills today when trained and shows the streak', () => {
     render('/calendar', [w])
     const day = container.querySelector('.hv-cal-d.done')

@@ -6,6 +6,7 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
+import { withExUnit } from '../../lib/ex-unit.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
@@ -25,9 +26,10 @@ const EX = EXDB.find(e => /barbell bench press/i.test(e.n) && modeOf({ id: e.id 
 const day = d => new Date(d + 'T18:00:00').getTime()
 let root, container
 
-function open(workouts) {
+function open(workouts, edit) {
   const S = clone(DEF)
   S.workouts = workouts
+  edit?.(S)
   useStore.setState({ S, user: null })
   exerciseDetailSheet(EX)
   container = document.createElement('div')
@@ -84,6 +86,17 @@ describe('hevier: exercise details (seam S10)', () => {
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
     expect(rowTitles).toEqual(['How to'])
     expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place
+  })
+
+  it('an exercise pinned to lb reads in lb: the sessions, the bests, the rep counts and All history (D41)', () => {
+    open([{ ...log[0], entries: [{ id: EX.id, sets: [{ w: 50, r: 12, done: true }] }] }], S => { S.exUnit = withExUnit(S.exUnit, EX.id, 'lb') })
+    expect(container.querySelector('.hv-xd-lsets').textContent).toMatch(/110\.23?×12/)
+    const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
+    expect(tiles[0]).toMatch(/^110\.23? lb$/)
+    expect(tiles[2]).toMatch(/^110\.23? × 12$/)
+    expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
+    const all = sub('All history')
+    expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23?×12/)
   })
 
   it('marks each session against the one before, with its effort', () => {

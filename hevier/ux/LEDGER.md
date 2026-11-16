@@ -221,7 +221,7 @@ clock and a typed time all worked as decided.
 | Id | Sev | Rule | Claim | Outcome |
 |---|---|---|---|---|
 | R10-U1 | medium | G7, G2 | The opened cardio set cuts a time of 10:00 or more | **fixed**: a time in the opened row is 20 px |
-| R10-U2 | medium | G2, H6 | The rest panel's Next line is cut; the mockup gives weight × reps its own large line | **fixed** in part: the line wraps to two; the large line needs upstream's text split, **discuss** |
+| R10-U2 | medium | G2, H6 | The rest panel's Next line is cut; the mockup gives weight × reps its own large line | **fixed**: the caption, then the numbers on their own 22 px line (`lib/dock-next.js`), the clock 50 px |
 | R10-U3 | medium | A1 | Add Exercise, Settings, Discard Workout and the picker's add buttons are 37 dp tall | **fixed**: 48 dp |
 | R10-U4 | low | H6 | Search rows in the picker drop the "N times · last" line; the hidden list is not yours-first | **open** (minor) |
 | R10-U5 | low | A1 | The workout's gym line is 26 dp tall, 2 dp above the note row | **open**: the compact look (D7) |
@@ -231,3 +231,25 @@ Improvements, **open**: a weight typed on one side could fill the other side's u
 a 46 dp hit area; the opened set's PREVIOUS wraps "340kg × / 4". Notes: in a freestyle workout a
 brand change moves PREVIOUS but not the grey values a tick logs (D82 refills a routine's sets
 only); the header has two chevrons, Minimize and the title's.
+
+## Round 11 (2026-11-16, the rework's build: J5 numbers person, J6 planner)
+
+Both finished. Round 9's and 10's fixes hold on screen. Deleting the routine and the folder each
+gave a toast with Undo; Move up and down in the ⋮ covers a long drag.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R11-U1 | medium | H2, H4 | An exercise pinned to lb reads in kg on its own page and in All history, while Lifts reads lb | **fixed**: the sessions, the bests, the rep counts, the chart and All history are in the exercise's unit (D41) |
+| R11-U2 | low | G8, H4 | The Calendar's month title counts training days and calls them workouts | **fixed**: it counts workouts |
+| R11-U3 | low | A1 | The routines list's chips are 29 dp tall, the folder headers 31 dp | **open**, with R7-U5 (the same chip) |
+| R11-U4 | low | A1 | The Backups sheet's Add a backup and Done are 37 dp, its gym chips 25 dp | **fixed** for the two buttons (48 dp); the chips **open** with R7-U5 |
+| R11-U5 | low | H4 | In the editor and on the plan page the Superset pill wraps its icon above the word | **fixed**: one line |
+| R11-U6 | low | H4 | Last sessions write "20 Oct" and "80×8", the tiles "Tue, 20 Oct" and "60 × 12" | **open**: the short form keeps four sets on one line |
+| R11-U7 | low | H7 | The routines list has no "Search routines" field, which the mockup draws | **discuss** |
+
+Improvements, **open**: Statistics says "0s this week" where History's tile says "0"; the chart on
+Year says "No data yet" for an exercise last done over a year ago; "Rest day" in the Plan's day
+sheet has no `aria-pressed` (upstream's sheet); a drag past a tall superset needs a hold at the
+top edge (discuss). Notes: "1/5" beside a muscle has no visible legend (D119); "1s a session" on
+exercises whose sets were ticked seconds apart reads as a fault (D88); the Rotation chip opens a
+page titled Plan (D130); a done and a planned day on the Calendar are spoken alike (D68).
