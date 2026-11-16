@@ -892,7 +892,7 @@
 :root[data-ui="hevier"] .hv-lift{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-lift .grow{flex:1;min-width:0;display:flex;flex-direction:column}
 :root[data-ui="hevier"] .hv-lift .ss{font-size:13px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-lift-r{display:flex;flex-direction:column;align-items:flex-end;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-lift-r{display:flex;flex-direction:column;align-items:flex-end;text-align:end;max-width:55%;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-lift-r small{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-lift-r small.hv-pr{display:inline-flex;align-items:center;gap:3px;color:var(--hv-record,var(--yellow));font-weight:800}
 :root[data-ui="hevier"] .hv-lifts-none{margin-top:12px}

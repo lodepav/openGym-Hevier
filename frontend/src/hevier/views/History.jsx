@@ -15,6 +15,7 @@ import { SettingsGear } from './Today.jsx'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import { anyPartOn, partOn } from '../lib/module-parts.js'
 import { weekNumbers } from '../lib/history-week.js'
+import { roundOf } from '../lib/today.js'
 import { durationWords } from '../lib/elapsed.js'
 
 export const HISTORY_PATH = '/history-tab'
@@ -53,7 +54,7 @@ export default function History() {
   return <div className="narrow hv-history">
     <PageBar title={t('History')}><SettingsGear /></PageBar>
     <div className="hv-htiles">
-      <Tile label={t('This week')} value={n.planned ? t('{0} of {1}', n.done, n.planned) : n.done} sub={t('workouts')} />
+      <Tile label={roundOf(S, todayISO())?.round ? t('This round') : t('This week')} value={n.planned ? t('{0} of {1}', n.done, n.planned) : n.done} sub={t('workouts')} />
       <Tile label={t('Time')} value={n.ms ? durationWords(n.ms) : '0'} sub={t('this week')} />
       <Tile label={t('Sets')} value={n.sets} className={n.records ? 'hv-pr' : ''}
         sub={n.records ? <><Icon name="trophy" />{n.records === 1 ? t('1 record') : t('{0} records', n.records)}</> : t('this week')} />

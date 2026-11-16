@@ -27,9 +27,10 @@ import { fieldSig } from '../lib/store-watch.js'
 function LiftRow({ r, S, today }) {
   const ex = exOr(r.id)
   const muscle = mainMuscleOf(ex)
-  // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41).
+  // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41),
+  // and without the effort, which pushed a per-side set past the row.
   const text = set => previousText(set, { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target,
-    show: w => shown(w, S.unit, exUnitOf(S, r.id)), speedUnit: speedUnitOf(S) })
+    show: w => shown(w, S.unit, exUnitOf(S, r.id)), speedUnit: speedUnitOf(S) }).replace(/ \((RPE|RIR) [^)]*\)/g, '')
   return <button type="button" className="item hv-lift" onClick={() => exerciseDetailSheet(ex)}>
     <span className="hv-thumb"><Thumb ex={ex} /></span>
     <span className="grow">
