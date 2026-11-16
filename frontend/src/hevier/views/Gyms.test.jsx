@@ -12,7 +12,8 @@ import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { hevierRoutes } from '../routes.jsx'
-import { hooks, installFinishHook } from '../hooks.js'
+import { hooks } from '../hooks.js'
+import { installFinishHook } from '../components/FinishSheet.jsx'
 import { exerciseDetailsSheet } from './ExerciseDetails.jsx'
 import { NearbySheet } from '../components/GymLabels.jsx'
 
@@ -78,6 +79,7 @@ afterEach(() => {
 describe('hevier gyms and machine labels on screen (D28)', () => {
   it('the workout shows the active profile as its gym, and the gym can be changed', () => {
     render(<Workout />, { entries: [{ id: DB, target: { sets: 1, reps: 8 }, sets: [{ w: 20, r: 8, done: false }] }] })
+    act(() => container.querySelector('.hv-wname').click())   // the gym sits behind the name's chevron (D127)
     const row = container.querySelector('.hv-gym')
     expect(row.textContent).toContain('City Gym')
     act(() => row.click())
@@ -90,6 +92,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
 
   it('with no gym yet the line reads No gym, and a custom gym is added and picked from its sheet (D47)', () => {
     render(<Workout />, { entries: [{ id: DB, sets: [] }], extra: { equipProfiles: [], activeEquipId: null } })
+    act(() => container.querySelector('.hv-wname').click())
     expect(container.querySelector('.hv-gym').textContent).toContain('No gym')
     act(() => container.querySelector('.hv-gym').click())
     const menu = sheet()
@@ -163,13 +166,14 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(container.querySelector('.hv-brand').textContent).toContain('Life Fitness')
   })
 
-  it('Save Workout writes the gym and the brand onto the saved exercises', () => {
-    render(null, {
-      at: '/workout/save',
+  it('Save on the Finish sheet writes the gym and the brand onto the saved exercises', () => {
+    render(<Workout />, {
       entries: [{ id: CABLE, sets: [done(15, 12)] }, { id: DB, sets: [done(20, 8)] }],
       extra: { hvMachines: { [CABLE]: { g1: 'Life Fitness' } } },
     })
-    act(() => byText(container, '.hv-pagebar button', 'Save').click())
+    act(() => container.querySelector('.hv-finish').click())
+    const host = sheet()   // rendered outside act, so it is drawn before it is read
+    act(() => host.querySelector('.hv-fin-save').click())
     const w = S().workouts[0]
     expect(S().active).toBeNull()
     expect(w.entries.map(e => [e.id, e.hvGym, e.hvBrand])).toEqual([[CABLE, 'g1', 'Life Fitness'], [DB, 'g1', undefined]])

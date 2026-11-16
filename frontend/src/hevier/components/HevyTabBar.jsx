@@ -10,7 +10,6 @@ import { t } from '../../lib/i18n.js'
 import { confirmSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import Elapsed from './Elapsed.jsx'
-import { SAVE_PATH } from '../hooks.js'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import { retapTab } from '../../lib/scroll-top.js'
 import { HISTORY_PATH } from '../views/History.jsx'
@@ -57,8 +56,7 @@ export default function HevyTabBar() {
   // Upstream's condition for a live session away from its screen; a saved workout being edited
   // or one logged after the fact has no clock.
   const running = !!A && !A.editingWorkoutId && !A.backfill && A.start > 0
-  // The Save Workout page belongs to the session, like its own screen.
-  const pending = !!A && loc.pathname !== '/workout' && loc.pathname !== SAVE_PATH
+  const pending = !!A && loc.pathname !== '/workout'
   useEffect(() => {
     document.body.classList.toggle('hv-resume', pending)
     return () => document.body.classList.remove('hv-resume')

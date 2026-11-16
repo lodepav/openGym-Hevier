@@ -12,7 +12,8 @@ import { todayISO } from '../../lib/format.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { finishWorkout } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
-import { hooks, installFinishHook } from '../hooks.js'
+import { hooks } from '../hooks.js'
+import { installFinishHook } from '../components/FinishSheet.jsx'
 import { readSharedPhase, useStatsPhase, useStatsS } from '../lib/shared-phase-run.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -74,32 +75,40 @@ describe('a saved workout', () => {
   })
 })
 
-describe('Save Workout', () => {
+describe('the Finish sheet', () => {
   const active = extra => ({ id: 'hv1', d: todayISO(), start: Date.now() - 2700000, name: 'Leg Day', cur: 0,
     entries: [{ id: BENCH, target: { sets: 1, reps: 8 }, sets: [{ w: 60, r: 8, done: true, at: Date.now() - 60000 }] }], ...extra })
-  const save = () => act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Save').click())
+  let host, sheetRoot
+  // Finish asks the fork (S9), and the sheet is rendered on its own (as Gyms.test.jsx does).
+  const open = async patch => {
+    installFinishHook(nav)
+    render('/home', { active: active(patch) })
+    act(() => finishWorkout())
+    host = document.createElement('div')
+    document.body.appendChild(host)
+    sheetRoot = createRoot(host)
+    const top = useUI.getState().sheets.at(-1)
+    act(() => sheetRoot.render(<MemoryRouter>{top.render(() => {})}</MemoryRouter>))
+    await flush()
+  }
+  afterEach(() => { act(() => sheetRoot?.unmount()); host?.remove(); host = sheetRoot = null })
+  const save = () => act(() => host.querySelector('.hv-fin-save').click())
 
   it('writes OpenBite\'s phase on the saved record, not on the running session', async () => {
     readSharedPhase.mockResolvedValue({ p: 'cutting', r: -0.4, k: 3098 })
-    installFinishHook(nav)
-    render('/workout/save', { active: active() })
-    await flush()
+    await open()
     expect(useStore.getState().S.active.hvPhase).toBeUndefined()
     save()
     expect(useStore.getState().S.workouts[0].hvPhase).toEqual({ p: 'cutting', r: -0.4, k: 3098 })
   })
   it('writes nothing when OpenBite shares nothing', async () => {
-    installFinishHook(nav)
-    render('/workout/save', { active: active() })
-    await flush()
+    await open()
     save()
     expect(useStore.getState().S.workouts[0]).not.toHaveProperty('hvPhase')
   })
   it('does not ask for a workout logged into the past', async () => {
     readSharedPhase.mockResolvedValue({ p: 'cutting' })
-    installFinishHook(nav)
-    render('/workout/save', { active: active({ backfill: true, d: '2026-01-05' }) })
-    await flush()
+    await open({ backfill: true, d: '2026-01-05' })
     expect(readSharedPhase).not.toHaveBeenCalled()
   })
 })

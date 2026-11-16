@@ -21,6 +21,13 @@
 :root[data-ui="hevier"] .hv-bar .iconbtn,
 :root[data-ui="hevier"] .hv-more{background:none}
 :root[data-ui="hevier"] .hv-more .icn{transform:rotate(90deg)}
+:root[data-ui="hevier"] .hv-wname{display:flex;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--label);min-height:44px}
+:root[data-ui="hevier"] .hv-wname > span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-wname-chev{flex:none;font-size:14px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-wtime{flex:none;font-size:14px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums}
+/* the header's heart rate: the number alone, its label for screen readers only */
+:root[data-ui="hevier"] .hv-bar .hv-strap > span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-ui="hevier"] .hv-wdetails{margin-top:6px}
 :root[data-ui="hevier"] .hv-stats{display:flex;gap:28px;margin-top:8px}
 :root[data-ui="hevier"] .hv-stats div{display:flex;flex-direction:column;gap:2px}
 :root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
@@ -68,7 +75,7 @@
 :root[data-ui="hevier"] .hv-namesheet .row .btn{width:auto;flex:1}
 :root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
 :root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
-:root[data-ui="hevier"] .hv-wd .hv-mline,:root[data-ui="hevier"] .hv-save .hv-mline{margin:-6px 0 14px}
+:root[data-ui="hevier"] .hv-wd .hv-mline{margin:-6px 0 14px}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
 
 :root[data-ui="hevier"] .hv-unit{margin:0 0 12px}
@@ -91,6 +98,19 @@
 :root[data-ui="hevier"] .hv-thumb img{width:100%;height:100%;object-fit:cover}
 :root[data-ui="hevier"] .hv-name{flex:1;min-width:0;text-align:start;font-size:17px;font-weight:700;color:var(--acc);background:none;padding:0}
 :root[data-ui="hevier"] .hv-more{flex:none}
+/* D127: picture · name · brand on one line, the brand wrapping under the name when it must */
+:root[data-ui="hevier"] .hv-nameline{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:2px}
+:root[data-ui="hevier"] .hv-nameline .hv-name{flex:0 1 auto}
+:root[data-ui="hevier"] .hv-addbrand{min-height:32px;padding:0 10px;border-radius:999px;background:var(--surface-2);color:var(--label-2);font-size:13px}
+:root[data-ui="hevier"] .hv-openex{flex:none;background:none}
+:root[data-ui="hevier"] .hv-exnote{display:block;width:100%;text-align:start;background:none;border:0;padding:0;color:var(--label)}
+/* the open exercise's six buttons: Swap, Note, History, Rest, Reorder, More */
+:root[data-ui="hevier"] .hv-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;margin:2px 0 8px}
+:root[data-ui="hevier"] .hv-acts button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;padding:4px 2px;border-radius:var(--r-sm);background:var(--surface-2);color:var(--label);font-size:11px}
+:root[data-ui="hevier"] .hv-acts button > span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-acts button.on{color:var(--acc)}
+:root[data-ui="hevier"] .hv-acts button:disabled{opacity:.5}
+:root[data-ui="hevier"] .hv-acts .hv-more .icn{transform:none}
 :root[data-ui="hevier"] .hv-ss{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-sspill{background:var(--hv-superset,var(--purple));color:#000;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
 :root[data-ui="hevier"] .hv-noprog{display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -154,12 +174,20 @@
 /* D2: a value the progression engine filled in and nobody has touched yet */
 :root[data-ui="hevier"] .hv-num.hv-hint{color:var(--label-3);font-weight:500}
 :root[data-ui="hevier"] .hv-num::placeholder{color:var(--label-3);font-weight:500;opacity:1}
-/* the set to do next (lib/next-set.js): a lighter row with an accent edge, its values bright and bold */
-:root[data-ui="hevier"] .hv-ex .hv-row.hv-next:not(.done){background:var(--surface-3) !important;box-shadow:inset 4px 0 0 var(--acc)}
-:root[data-ui="hevier"] .hv-row.hv-next :is(.hv-num, .hv-num.hv-hint){color:var(--label);font-weight:700}
-:root[data-ui="hevier"] .hv-row.hv-next .hv-num::placeholder{color:var(--label);font-weight:700}
-/* its tick box a step lighter than the row (which has the box's own grey), with an accent ring */
-:root[data-ui="hevier"] .hv-row.hv-next .hv-chk:not(.on){background:var(--hv-next-tick);color:var(--label-2);box-shadow:inset 0 0 0 2px var(--acc)}
+/* D127: the opened set (lib/open-set.js): a taller, lighter row with an accent edge, its values large */
+:root[data-ui="hevier"] .hv-ex .hv-row.hv-open{min-height:60px;background:var(--surface-3) !important;box-shadow:inset 4px 0 0 var(--acc)}
+:root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){color:var(--label);font-weight:700;font-size:20px;min-height:44px}
+:root[data-ui="hevier"] .hv-row.hv-open .hv-num::placeholder{color:var(--label);font-weight:700}
+/* its tick at least 44 px, a step lighter than the row, with an accent ring */
+:root[data-ui="hevier"] .hv-row.hv-open .hv-chk{width:44px;height:44px}
+:root[data-ui="hevier"] .hv-row.hv-open .hv-chk:not(.on){background:var(--hv-next-tick);color:var(--label-2);box-shadow:inset 0 0 0 2px var(--acc)}
+/* the effort row under it: Other · 6 · 7 · 8 · 9 · 9.5 · 10, each at least 44 px */
+:root[data-ui="hevier"] .hv-effrow{display:grid;grid-template-columns:auto repeat(6,minmax(0,1fr));gap:4px;padding:6px 0 8px}
+:root[data-ui="hevier"] .hv-effrow button{min-height:44px;min-width:44px;border-radius:var(--r-sm);background:var(--surface-2);color:var(--label);font-size:15px;font-weight:600;padding:0 6px}
+:root[data-ui="hevier"] .hv-effrow button.on{background:var(--acc);color:var(--on-acc,#000)}
+:root[data-ui="hevier"] .hv-effrow .hv-effo{color:var(--label-2);font-weight:500}
+:root[data-ui="hevier"] .hv-effgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0 12px}
+:root[data-ui="hevier"] .hv-effgrid .btn{min-height:44px;width:auto;padding:0}
 :root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:999px;padding:4px 0;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-eff.empty{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-chk{border-radius:50%;justify-self:center;background:var(--surface-3);box-shadow:none;color:var(--label-3)}
@@ -169,13 +197,14 @@
 /* a per-side set's two lines are one band, and a dark line parts it from the set above (they
    overlapped by 4 px, which drew a lighter line between L and R instead) */
 :root[data-ui="hevier"] .hv-ex > div:not([class]) ~ div:not([class]) .hv-pair > .hv-row:first-child{box-shadow:inset 0 2px 0 var(--bg)}
-:root[data-ui="hevier"] .hv-ex > div:not([class]) ~ div:not([class]) .hv-pair > .hv-row.hv-next:first-child:not(.done){box-shadow:inset 4px 0 0 var(--acc),inset 0 2px 0 var(--bg)}
+:root[data-ui="hevier"] .hv-ex > div:not([class]) ~ div:not([class]) .hv-pair > .hv-row.hv-open:first-child{box-shadow:inset 4px 0 0 var(--acc),inset 0 2px 0 var(--bg)}
 :root[data-ui="hevier"] .hv-lr{display:inline-block;min-width:14px;margin-inline-end:4px;font-size:11px;font-weight:700;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-go{justify-self:center}
 :root[data-ui="hevier"] .hv-x{justify-self:center}
 :root[data-ui="hevier"] .hv-plates{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label-2);padding:2px 0 4px 44px}
 :root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--acc);padding:6px 12px;border-radius:999px}
-:root[data-ui="hevier"] .hv-addset{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;min-height:38px;border-radius:999px;background:var(--surface-2);color:var(--label);font-size:15px}
+:root[data-ui="hevier"] .hv-addrow{display:flex;gap:8px;margin-top:8px}
+:root[data-ui="hevier"] :is(.hv-addset, .hv-addwarm){flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:999px;background:var(--surface-2);color:var(--label);font-size:15px}
 
 /* ---------- tabs and the minimised workout (hevier/components/HevyTabBar.jsx) ---------- */
 /* Opaque and black as the page, no blur (D123); the open tab's icon sits on a soft accent pill. */
@@ -378,33 +407,8 @@
 /* the empty Workout tab's and feed's way to the Hevy import */
 :root[data-ui="hevier"] .empty .hv-empty-import{min-height:44px;padding:0 12px;font-size:15px;font-weight:600}
 :root[data-ui="hevier"] .hv-pagebar .hv-finish{margin-inline-start:4px}
-:root[data-ui="hevier"] .hv-stitle{width:100%;font-size:22px;font-weight:800;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 12px;color:var(--label)}
-:root[data-ui="hevier"] .hv-save .hv-stats{margin:0 0 14px;padding-bottom:14px;border-bottom:var(--hair) solid var(--sep)}
-/* Hevy's title is plain text with the stats' hairline under it, not an underlined field */
-:root[data-ui="hevier"] .hv-save .hv-stitle{font-size:20px;font-weight:700;border-bottom:0;padding:8px 0;margin:2px 0 6px}
 :root[data-ui="hevier"] .hv-warn{color:var(--orange);margin:-4px 0 12px}
 :root[data-ui="hevier"] .hv-sgroup{border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:18px}
-:root[data-ui="hevier"] .hv-srow{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px}
-:root[data-ui="hevier"] .hv-srow + .hv-srow{border-top:var(--hair) solid var(--sep)}
-:root[data-ui="hevier"] .hv-srow > span:first-child{color:var(--label-2);font-size:15px}
-:root[data-ui="hevier"] .hv-sval{display:flex;align-items:center;gap:6px}
-:root[data-ui="hevier"] .hv-sval .timef{color:var(--acc)}
-:root[data-ui="hevier"] .hv-smin{width:52px;text-align:end}
-:root[data-ui="hevier"] .hv-sdesc{width:100%;min-height:96px;margin-bottom:22px;font-size:15px}
-:root[data-ui="hevier"] .hv-sdiscard{width:100%;margin-bottom:24px;background:none}
-:root[data-ui="hevier"] .hv-done-top{text-align:center;padding:10px 0 18px}
-:root[data-ui="hevier"] .hv-done-ic{display:inline-flex;font-size:46px;color:var(--hv-record,var(--yellow))}
-:root[data-ui="hevier"] .hv-done-top h2{margin:6px 0 4px;font-size:22px;font-weight:700}
-:root[data-ui="hevier"] .hv-done-top p{margin:0;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-done-prs{display:flex;flex-direction:column;gap:6px;margin:12px 0}
-:root[data-ui="hevier"] .hv-done-pr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px}
-:root[data-ui="hevier"] .hv-done-pr .icn{color:var(--hv-record,var(--yellow))}
-:root[data-ui="hevier"] .hv-done-week{color:var(--label-2);margin:14px 0}
-/* no title: Done alone on the right */
-:root[data-ui="hevier"] .hv-done .hv-pagebar{grid-template-columns:minmax(0,1fr) 0 auto}
-/* D35: the Update routine prompt's summary of the changes */
-:root[data-ui="hevier"] .hv-ru-parts{display:block;margin-top:8px;color:var(--label-1,inherit);font-weight:600}
-:root[data-ui="hevier"] .hv-done-btn{width:100%;margin:18px 0 24px}
 
 /* ---------- Exercise details (hevier/views/ExerciseDetails.jsx) ---------- */
 :root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -646,9 +650,6 @@
 :root[data-ui="hevier"] .hv-wcard-hr .icn{color:var(--red);font-size:13px}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-cardio{background:var(--hv-cardio,var(--green))}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done.k-deload{background:var(--hv-deload,var(--orange))}
-:root[data-ui="hevier"] .hv-sgym{width:100%;background:none;border:0;border-top:var(--hair) solid var(--sep);padding:0;color:inherit;font:inherit;text-align:left}
-:root[data-ui="hevier"] .hv-sgym .hv-sval{display:inline-flex;align-items:center;gap:6px;color:var(--label)}
-:root[data-ui="hevier"] .hv-sgym .menu-chev{width:14px;height:14px;opacity:.5}
 :root[data-ui="hevier"] .hv-bar .iconbtn.hv-clockbtn{width:auto;min-width:36px;padding:0 8px;gap:4px}
 :root[data-ui="hevier"] .hv-swh{font-size:13px;font-variant-numeric:tabular-nums;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-swh.on{color:var(--acc)}
@@ -766,7 +767,6 @@
 :root[data-ui="hevier"] .hv-bk-gyms .chip:not(.on){text-decoration:line-through;color:var(--label-3)}
 
 /* D87: share cards — a swipeable strip of the cards, Black / Your photo, Save image and Share */
-:root[data-ui="hevier"] .hv-done-share{display:flex;width:100%;justify-content:center;gap:8px;margin:12px 0 4px}
 :root[data-ui="hevier"] .hv-share-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px}
 :root[data-ui="hevier"] .hv-share-strip::-webkit-scrollbar{display:none}
 :root[data-ui="hevier"] .hv-share-card{flex:0 0 100%;scroll-snap-align:center;padding:0 16px;box-sizing:border-box}
@@ -901,3 +901,44 @@
 /* ---------- Settings root's groups read as breaks (D136) ---------- */
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect.hv-sgroup + .sect.hv-sgroup{margin-top:28px;border-top:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .hv-sgroup > .sect-t{padding-top:14px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--label)}
+
+/* ---------- D127: the rest docked at the bottom of the live workout (components/RestDock.jsx) ---------- */
+/* upstream's bar steps aside for it, and the page keeps room so the last set stays above it */
+:root[data-ui="hevier"] body.hv-dock #timer.rest{display:none}
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-dock #app{padding-bottom:calc(210px + var(--sab))}
+:root[data-ui="hevier"] .hv-dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--pad) calc(10px + var(--sab));background:var(--bg-el);border-top:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] .hv-dock-top{display:flex;align-items:center;gap:14px}
+:root[data-ui="hevier"] .hv-dock-clock{display:flex;flex-direction:column;align-items:flex-start;min-height:44px;background:none;border:0;padding:0;color:var(--label)}
+:root[data-ui="hevier"] .hv-dock-clock b{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--acc)}
+:root[data-ui="hevier"] .hv-dock-cap{font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-dock-next{flex:1;min-width:0;display:flex;flex-direction:column}
+:root[data-ui="hevier"] .hv-dock-next b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-dock-bar{height:4px;margin:8px 0;border-radius:2px;background:var(--surface-3);overflow:hidden}
+:root[data-ui="hevier"] .hv-dock-bar i{display:block;height:100%;background:var(--acc);transform-origin:left}
+:root[data-ui="hevier"] .hv-dock-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+:root[data-ui="hevier"] .hv-dock-btns .btn{min-height:44px;width:auto}
+
+/* ---------- D132: the Finish sheet (components/FinishSheet.jsx) ---------- */
+:root[data-ui="hevier"] .hv-fin-hd h3{margin:0 0 2px}
+:root[data-ui="hevier"] .hv-fin-hd{margin-bottom:12px}
+:root[data-ui="hevier"] .hv-fin-best{color:var(--hv-record,var(--yellow));margin-inline-end:3px}
+:root[data-ui="hevier"] .hv-fin-kv{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:12px}
+:root[data-ui="hevier"] .hv-fin-kv > span:first-child{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-fin-durbtn{min-height:44px;background:none;border:0;padding:0 2px;color:var(--acc);font-weight:700;font-size:16px}
+:root[data-ui="hevier"] .hv-fin-dur{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-fin-min{width:52px;min-height:40px;text-align:end;color:var(--acc)}
+:root[data-ui="hevier"] .hv-fin-warn{color:var(--orange);margin:0 0 12px}
+:root[data-ui="hevier"] .hv-fin-chk{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;margin-bottom:12px;padding:8px 0;background:none;border:0;color:var(--label);text-align:start}
+:root[data-ui="hevier"] .hv-fin-chk b{display:block;font-weight:600}
+:root[data-ui="hevier"] .hv-fin-chk small{display:block;color:var(--label-2);font-size:13px}
+:root[data-ui="hevier"] .hv-fin-chk .chk{flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--label-3);color:transparent}
+:root[data-ui="hevier"] .hv-fin-chk .chk.on{background:var(--acc);box-shadow:none;color:var(--on-acc,#000)}
+:root[data-ui="hevier"] .hv-fin-save{width:100%;min-height:48px}
+:root[data-ui="hevier"] .hv-fin-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+:root[data-ui="hevier"] :is(.hv-fin-more, .hv-fin-discard){min-height:44px;background:none;border:0;padding:0 4px;color:var(--label-2);font-size:14px;display:inline-flex;align-items:center;gap:4px}
+:root[data-ui="hevier"] .hv-fin-discard{color:var(--red)}
+:root[data-ui="hevier"] .hv-fin-fields{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+:root[data-ui="hevier"] .hv-fin-gym{display:flex;justify-content:space-between;align-items:center;min-height:48px;background:none;border:0;border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);padding:0;color:var(--label);font:inherit}
+:root[data-ui="hevier"] .hv-fin-gym > span:first-child{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-fin-gym > span:last-child{display:inline-flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-fin-note{min-height:96px}

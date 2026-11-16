@@ -4786,7 +4786,7 @@ function FinishSummary({ w, prs, e1prs = [], additions = [], close }) {
 }
 export function finishWorkout() {
   if (S().active?.editingWorkoutId) { saveWorkoutEdits(); return }
-  // [hevier] S9: Finish opens the fork's Save Workout page, which saves through doFinishWorkout
+  // [hevier] S9: Finish opens the fork's Finish sheet, which saves through doFinishWorkout
   if (hooks.finish && S().active) { hooks.finish(); return }
   // [/hevier]
   const A = S().active
@@ -4891,13 +4891,13 @@ function doFinishWorkout({ end: endAt, auto } = {}) {
   // into s.active, which is gone. What it held is not logged, like any set left unchecked.
   useUI.getState().stopWork()
   beep(snd(), 880, 0.15); beep(snd(), 1100, 0.15, 0.18); beep(snd(), 1320, 0.3, 0.36)
-  // [hevier] S9: the fork shows its own summary of the saved workout
+  // [hevier] S9: the fork lands on Today with a message in place of the summary
   if (hooks.done) { hooks.done({ w: shown, prs, e1prs }); return }
   // [/hevier]
   ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} additions={additions} close={close} />, { kind: 'center', locked: true, wide: true })
 }
-// [hevier] S9: the fork's Save Workout page saves, and its summary reuses these sections
-export { doFinishWorkout, LastAndNext, CardioDone }
+// [hevier] S9: the fork's Finish sheet saves
+export { doFinishWorkout }
 // [/hevier]
 
 /**

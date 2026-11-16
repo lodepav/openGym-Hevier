@@ -22,8 +22,9 @@ import Statistics from './views/Statistics.jsx'
 import Measures from './views/Measures.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
 import RoutinePreview from './views/RoutinePreview.jsx'
-import { SaveWorkout, WorkoutDone } from './views/SaveWorkout.jsx'
-import { hooks, SAVE_PATH, DONE_PATH } from './hooks.js'
+import { hooks } from './hooks.js'
+import { installFinishHook } from './components/FinishSheet.jsx'
+import { nav } from '../lib/nav.js'
 import HevyTabBar from './components/HevyTabBar.jsx'
 import { installExerciseDetails } from './views/ExerciseDetails.jsx'
 import { installSettings } from './views/SettingsRootHevy.jsx'
@@ -39,10 +40,10 @@ import { atTabRoot, backPath } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
 // Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
-// Workout Detail page (S14), every exercise picker the fork's Hevy picker (S13), and Settings is
-// regrouped (S11, S12). Installed here rather than in
+// Workout Detail page (S14), every exercise picker the fork's Hevy picker (S13), Settings is
+// regrouped (S11, S12), and Finish opens the fork's Finish sheet (S9). Installed here rather than in
 // ./index.js because App imports this module after sheets.jsx, which they are built from.
-if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutDetail(); installSettings() }
+if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutDetail(); installSettings(); installFinishHook(nav) }
 // Android back on a tab screen offers to exit (seam S16). The path is the HashRouter's.
 if (HEVIER) hooks.backPath = backPath
 if (HEVIER) hooks.backEvent = ev =>
@@ -138,8 +139,6 @@ export const hevierRoutes = [
   <Route key="hv-plan" path="/plan" element={<PlanPage />} />,
   <Route key="hv-routine" path="/plan/r/:id" element={<RoutineEditHevy />} />,
   <Route key="hv-routine-view" path="/plan/r/:id/view" element={<RoutinePreview />} />,
-  <Route key="hv-save" path={SAVE_PATH} element={<SaveWorkout />} />,
-  <Route key="hv-done" path={DONE_PATH} element={<WorkoutDone />} />,
   <Route key="hv-detail" path={DETAIL_PATH} element={<WorkoutDetail />} />,
 ]
 

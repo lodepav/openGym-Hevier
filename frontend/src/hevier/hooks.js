@@ -1,6 +1,6 @@
 // The hand-offs of the fork's hook seams: each entry names its seam (hevier/SEAMS.md lists where it
 // sits). Upstream's code asks this object first; the fork fills it in only with the flag on
-// (hevier/index.js, and hevier/routes.jsx with the views' install* for the six built from
+// (hevier/index.js, and hevier/routes.jsx with the views' install* for those built from
 // sheets.jsx). Empty, as in upstream's own tests, everything is upstream's. No imports, so
 // the seams add nothing to what the upstream files load.
 export const hooks = {
@@ -43,17 +43,4 @@ export const hooks = {
   setNumber: null,       // (sets, i) => number: the number set row i shows, before upstream's (S62)
   integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
   hevyMore: null,        // { day, workout, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
-}
-
-export const SAVE_PATH = '/workout/save'
-export const DONE_PATH = '/workout/done'
-
-/** Points both hand-offs at the fork's pages (hevier/views/SaveWorkout.jsx). */
-export function installFinishHook(nav) {
-  hooks.finish = () => nav(SAVE_PATH)
-  // The summary takes the Save page's history entry, so back from it does not land on a page
-  // whose session is gone.
-  // Its records are the fork's, read from the log (D51), not upstream's `prs` / `e1prs`.
-  hooks.done = ({ w }) =>
-    nav(DONE_PATH, { replace: true, state: { ref: { id: w.id, d: w.d, start: w.start } } })
 }

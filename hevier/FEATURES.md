@@ -21,27 +21,28 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's set table as the only workout layout | D1 | Fork |
 | Prefilled values in grey until touched, as placeholders | D2 | Fork |
 | The plate line under a set off by default, a switch in During a workout | D84 | Fork |
-| "Next time" on the finish summary only for a routine with progression on | D85 | Fork |
 | PREVIOUS column: last time's set, tap to copy; a missing set is read from an older session | D3 | Fork |
 | No ± steppers; values typed on the number pad | D4 | Fork |
 | Set-type sheet (W / F / D labels), with drops nested under their set | D5 | Fork |
 | Effort column, only when RIR/RPE is on | D6 | Fork |
-| Hevy exercise block: notes, rest line, + Add Set | D7 | Fork |
+| Exercise block: picture, name and brand on one line; on the open exercise Swap, Note, History, Rest, Reorder and More, and + Set beside + Warm-up | D7, D127 | Fork |
 | Progression guidance behind ⋮ (Exercise settings), nothing about it on the card | D8 | Fork |
 | Swipe left deletes a set, with undo | D9 | Fork |
-| Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
+| Header: name, duration, heart rate, ⏱ Timer/Stopwatch and Finish; the gym and the workout note behind the name's chevron | D10, D127 | Fork |
+| Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue: a Timer and a Stopwatch in the workout) |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
-| "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
+| "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offer (upstream 1.4.3's #592 keeps added exercises) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer (upstream 1.4.5 runs timed holds by themselves, but has no count-up timer on a cardio set) |
-| Workout note at the top of the workout and on the feed cards | D54 | Fork |
+| Workout note behind the workout's name and on the feed cards | D54, D127 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |
 | "Still training?" after five hours | D60 | Ported (#906, upstream's Forgotten workouts since 1.4.5, after 45 quiet minutes; the fork's own is gone, D103) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer (upstream 1.4.5 adds a rest before the next exercise, #487, #1020; not after one side) |
-| The next set to do is highlighted | D71 | Fork |
+| The next set to do opens large with an effort row (Other, 6 to 10); a tap opens another set | D71, D127 | Fork |
+| The rest docks at the bottom of the workout: countdown, next set, +1 min, +2 min, Skip | D127 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Offered (#1093, issue: the hold set) |
@@ -52,7 +53,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The gym on the feed card | D94 | Offered (#1097, History rows and details) |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
-| Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down | D118 | Fork |
+| Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down, a button on the open exercise | D118, D127 | Fork |
 | A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offer |
 
 ## Routines

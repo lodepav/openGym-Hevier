@@ -4,7 +4,7 @@ import { HEVIER } from './flag.js'
 import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
-import { hooks, installFinishHook } from './hooks.js'
+import { hooks } from './hooks.js'
 import { importHooks, choicesFor } from './lib/hevy-import.js'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
 import * as hevyMore from './lib/hevy-more.js'
@@ -73,8 +73,6 @@ function install() {
   initAccentIcon(store)                                   // the launcher icon follows a newly picked accent (D123)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
-  // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
-  installFinishHook(nav)
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
   hooks.statsOff = ['j', 't', 'month', 'form', 'level']    // All statistics without the Journal, Tools, Your month, daily form and levels (S61, D109)

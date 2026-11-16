@@ -1,4 +1,4 @@
-// Hevy's "Update routine?" after a workout (hevier/DECISIONS.md D35). What a
+// The Finish sheet's "Update the routine too" (hevier/DECISIONS.md D35, D129, D132). What a
 // routine workout changed in each routine it was built from: exercises added, removed or swapped,
 // the order, the number of work sets, and what upstream's per-exercise Update routine already
 // copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry), and Per side. Weights
@@ -131,23 +131,11 @@ export function routineUpdates(S, session) {
     .map(r => routineUpdate(S, session, r)).filter(Boolean)
 }
 
-/** Writes the updates into a store draft; returns each routine's list as it was, for Undo. */
+/** Writes the updates into a store draft. */
 export function applyRoutineUpdates(s, updates) {
-  const before = []
   for (const u of updates) {
     const r = (s.routines || []).find(x => x.id === u.rid)
-    if (!r) continue
-    before.push({ rid: r.id, ex: structuredClone(r.ex) })
-    r.ex = structuredClone(u.ex)
-  }
-  return before
-}
-
-/** Puts the lists back (Undo). */
-export function undoRoutineUpdates(s, before) {
-  for (const b of before) {
-    const r = (s.routines || []).find(x => x.id === b.rid)
-    if (r) r.ex = structuredClone(b.ex)
+    if (r) r.ex = structuredClone(u.ex)
   }
 }
 

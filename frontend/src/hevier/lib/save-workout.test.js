@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sessionMin, durationProblem, applyDuration, workoutNumber, workoutsInDays } from './save-workout.js'
+import { sessionMin, durationProblem, applyDuration } from './save-workout.js'
 import { backfillStart } from '../../lib/backfill.js'
 
 const at = (iso, time) => backfillStart(iso, time)
@@ -29,13 +29,5 @@ describe('hevier save workout', () => {
     expect(applyDuration(list, list[1], null)).toBe(list)
     const timed = applyDuration(list, list[1], 40)
     expect(timed[1]).toMatchObject({ id: 'b', end: at('2026-10-16', '18:00') + 40 * 60000 })
-  })
-
-  it('counts which workout this is and the week up to it', () => {
-    const list = [W('a', '2026-10-01', '18:00', 50), W('b', '2026-10-10', '18:00', 50), W('c', '2026-10-14', '18:00', 50), W('d', '2026-10-16', '18:00', 50)]
-    expect(workoutNumber(list, list[3])).toBe(4)
-    expect(workoutNumber(list, { id: 'zz' })).toBe(0)
-    expect(workoutsInDays(list, list[3])).toBe(3)
-    expect(workoutsInDays(list, list[0])).toBe(1)
   })
 })

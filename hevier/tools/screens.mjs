@@ -300,12 +300,12 @@ async function liveWorkout(cdp, dir, results, run) {
     await visit(cdp, 'live workout, end', dir, results, run)
     await evaluate(cdp, 'scrollTo(0, 0)')
     await step(cdp, results, 'sheet: set type', clickSel('.hv-ex .hv-set'), () => visit(cdp, 'sheet: set type', dir, results, run))
-    await step(cdp, results, 'sheet: rest timer', clickSel('.hv-ex .hv-rest'), () => visit(cdp, 'sheet: rest timer', dir, results, run))
+    await step(cdp, results, 'sheet: rest timer', clickSel('.hv-ex .hv-acts button[aria-label^="Rest"]'), () => visit(cdp, 'sheet: rest timer', dir, results, run))
     await step(cdp, results, 'sheet: exercise details (live)', clickSel('.hv-ex .hv-name'), () => visit(cdp, 'sheet: exercise details (live)', dir, results, run))
     await step(cdp, results, 'sheet: exercise picker', clickSel('.hv-addex'), () => visit(cdp, 'sheet: exercise picker', dir, results, run))
     // The last set's Delete: its toast, with Undo. The fixture goes anyway.
     await step(cdp, results, 'toast', pressLast('.hv-ex .swpane.del button'), () => visit(cdp, 'toast', dir, results, run), null, true)
-    await step(cdp, results, 'save workout', "(location.hash = '#/workout/save', true)", () => visit(cdp, 'save workout', dir, results, run), "location.hash = '#/workout'")
+    await step(cdp, results, 'sheet: finish', clickSel('.hv-finish'), () => visit(cdp, 'sheet: finish', dir, results, run))
     await sleep(800)
     await step(cdp, results, 'dialog: discard', clickSel('.hv-foot .hv-danger'), async () => {
       await visit(cdp, 'dialog: discard', dir, results, run)

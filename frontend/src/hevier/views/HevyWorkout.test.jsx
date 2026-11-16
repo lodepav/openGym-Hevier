@@ -82,13 +82,22 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => r.unmount())
   })
 
-  it('Sets counts ticked work sets, a per-side set once, as Workout Detail does (D18)', () => {
-    const side = { w: 10, r: 16, done: true, sides: { L: { w: 10, r: 8, done: true }, R: { w: 10, r: 8, done: true } } }
-    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [
-      reps(40, 5, { done: true, phase: 'warmup' }), reps(60, 8, { done: true }), side, reps(60, 8),
-    ] }])
-    const sets = [...container.querySelectorAll('.hv-stats > div')].find(d => d.querySelector('span').textContent === 'Sets')
-    expect(sets.querySelector('b').textContent).toBe('2')
+  // The sets are counted on the Finish sheet now (lib/finish-facts.test.js, D18 there).
+  it('the header is name, duration and Finish; the gym and the workout note sit behind the name (D127)', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
+    expect(container.querySelector('.hv-stats')).toBeNull()
+    expect(container.textContent).not.toContain('Volume')
+    expect(container.querySelector('.hv-wtime')).toBeTruthy()
+    expect(container.querySelector('.hv-finish').textContent).toBe('Finish')
+    expect(container.querySelector('.hv-gym')).toBeNull()
+    expect(container.querySelector('.hv-wnote')).toBeNull()
+    const name = container.querySelector('.hv-wname')
+    expect(name.textContent).toBe('Leg Day')
+    act(() => name.click())
+    expect(name.getAttribute('aria-expanded')).toBe('true')
+    expect(container.querySelector('.hv-gym')).toBeTruthy()
+    expect(container.querySelector('.hv-wnote').textContent).toBe('Workout note')
+    expect(container.textContent).not.toContain('Add notes here')
   })
 
   // Upstream's check since 1.4.4 (#811, D90's 1.4.4 note): asked once, in upstream's words.
@@ -543,7 +552,7 @@ describe('hevier: Workout extras on the workout screen (D117)', () => {
     for (const off of offClock) {
       set({ modules: {}, hvModuleParts: {}, ...off })
       expect(container.querySelector('.hv-clockbtn')).toBeNull()
-      expect(container.querySelector('.hv-stats').textContent).toContain('Duration')
+      expect(container.querySelector('.hv-wtime')).toBeTruthy()
     }
   })
 
@@ -564,6 +573,65 @@ describe('hevier: Workout extras on the workout screen (D117)', () => {
   })
 })
 
+describe('hevier: the open set and its exercise (D127)', () => {
+  const two = (id = EX) => ({ id, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] })
+  const rows = () => [...container.querySelectorAll('.hv-row')]
+  const B = EXDB.filter(e => e.id !== EX && modeOfId(e.id) === 'reps')[0].id
+
+  it('the first set left is open, a tap opens another, and the tick moves on', () => {
+    render([two(), two(B)])
+    expect(rows().map(r => r.classList.contains('hv-open'))).toEqual([true, false, false, false])
+    act(() => rows()[3].querySelector('.hv-cell').click())
+    expect(rows().map(r => r.classList.contains('hv-open'))).toEqual([false, false, false, true])
+    act(() => rows()[3].querySelector('.hv-chk').click())
+    expect(rows().map(r => r.classList.contains('hv-open'))).toEqual([false, false, true, false])
+  })
+
+  it('only the open exercise has its six buttons and + Set beside + Warm-up', () => {
+    render([two(), two(B)])
+    const [a, b] = container.querySelectorAll('.hv-ex')
+    expect([...a.querySelectorAll('.hv-acts button')].map(x => x.textContent)).toEqual(['Swap', 'Note', 'History', expect.any(String), 'Reorder', 'More'])
+    expect(b.querySelector('.hv-acts')).toBeNull()
+    expect([...a.querySelectorAll('.hv-addrow button')].map(x => x.textContent)).toEqual(['Set', 'Warm-up'])
+    act(() => a.querySelector('.hv-addrow .hv-addwarm').click())
+    expect(sets().some(x => x.phase === 'warmup')).toBe(true)
+  })
+
+  it('an effort tap logs the open set with that RPE; on RIR the same effort is stored as RIR', () => {
+    render([two()])
+    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
+    const row = () => container.querySelector('.hv-effrow')
+    expect([...row().querySelectorAll('button')].map(b => b.textContent)).toEqual(['Other', '6', '7', '8', '9', '9.5', '10'])
+    act(() => [...row().querySelectorAll('button')].find(b => b.textContent === '9.5').click())
+    expect(sets()[0]).toMatchObject({ rpe: 9.5, done: true })
+    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
+    expect([...row().querySelectorAll('button')].map(b => b.textContent)).toEqual(['Other', '4', '3', '2', '1', '0.5', '0'])
+    act(() => [...row().querySelectorAll('button')].find(b => b.textContent === '2').click())
+    expect(sets()[1]).toMatchObject({ rir: 2, done: true })
+  })
+
+  it('a warm-up opens with the tick only, no effort row', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup' }), reps(60, 8)] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
+    expect(container.querySelector('.hv-row').classList.contains('hv-open')).toBe(true)
+    expect(container.querySelector('.hv-effrow')).toBeNull()
+  })
+
+  it('the rest docks at the bottom: +1 min, +2 min and Skip, gone when it ends', () => {
+    render([two()])
+    act(() => container.querySelector('.hv-chk').click())
+    const dock = () => container.querySelector('.hv-dock')
+    expect(dock()).toBeTruthy()
+    expect(document.body.classList.contains('hv-dock')).toBe(true)
+    const left = useUI.getState().timer.left
+    act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === '+1 min').click())
+    expect(useUI.getState().timer.left).toBe(left + 60)
+    act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === 'Skip').click())
+    expect(dock()).toBeNull()
+    expect(document.body.classList.contains('hv-dock')).toBe(false)
+  })
+})
+
 describe('hevier: the exercise ⋮ menu', () => {
   const [B, C, D] = EXDB.filter(e => e.id !== EX && modeOfId(e.id) === 'reps').slice(0, 3).map(e => e.id)
   const one = id => ({ id, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] })
@@ -575,14 +643,14 @@ describe('hevier: the exercise ⋮ menu', () => {
   }
   const set = patch => act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
 
-  it('Reorder exercises replaces Move up and down, moves a superset as one block, and the rest timer follows its exercise', () => {
+  it('Reorder is a button on the open exercise, moves a superset as one block, and the rest timer follows its exercise', () => {
     render([one(EX), { ...one(B), sg: 's' }, { ...one(C), sg: 's' }, one(D)])
     act(() => container.querySelector('.hv-chk').click())
     expect(useUI.getState().timer.forIdx).toBe(0)
     const items = menuItems()
     expect(items.map(x => x.label)).not.toContain('Move up')
-    expect(items.map(x => x.label)).not.toContain('Move down')
-    act(() => items.find(x => x.label === 'Reorder exercises').onClick())
+    expect(items.map(x => x.label)).not.toContain('Reorder exercises')
+    act(() => [...container.querySelectorAll('.hv-acts button')].find(b => b.textContent === 'Reorder').click())
     const host = document.createElement('div')
     document.body.appendChild(host)
     const r = createRoot(host)
@@ -608,10 +676,21 @@ describe('hevier: the exercise ⋮ menu', () => {
     expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it')
   })
 
+  it('More holds Per side, Superset, Weight unit, Exercise settings and Remove exercise, each with an icon (D127)', () => {
+    render([one(EX), one(B)])
+    const items = menuItems()
+    const labels = items.map(x => x.label)
+    expect(labels[0]).toBe('Per side')
+    expect(labels).toEqual(expect.arrayContaining(['Superset', 'Weight unit', 'Exercise settings', 'Remove exercise']))
+    expect(labels.at(-1)).toBe('Remove exercise')
+    expect(labels).not.toEqual(expect.arrayContaining(['Replace exercise']))
+    expect(items.every(x => x.icon)).toBe(true)
+  })
+
   it('Weight unit and Plate loading go with their part of Exercise settings (D114)', () => {
     render([one(EX), one(B)])
     const labels = () => menuItems().map(x => x.label)
-    expect(labels()).toEqual(expect.arrayContaining(['Weight unit', 'Plate loading', 'Reorder exercises']))
+    expect(labels()).toEqual(expect.arrayContaining(['Weight unit', 'Plate loading']))
     set({ hvModuleParts: { 'hvExercise.units': false } })
     expect(labels()).not.toContain('Weight unit')
     expect(labels()).toContain('Plate loading')

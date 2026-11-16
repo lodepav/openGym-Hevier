@@ -3,7 +3,7 @@ import { EXDB } from '../../lib/exercises.js'
 import { buildCombinedEntries } from '../../lib/session-merge.js'
 import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
-import { routineUpdates, applyRoutineUpdates, undoRoutineUpdates, summaryParts, setDelta } from './routine-update.js'
+import { routineUpdates, applyRoutineUpdates, summaryParts, setDelta } from './routine-update.js'
 import { makeSideSet } from '../../lib/workout-model.js'
 import { toSideHold } from './hold-set.js'
 
@@ -164,7 +164,7 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(routineUpdates(S, { ...start(S), editingWorkoutId: 'w', entries: [] })).toEqual([])
   })
 
-  it('applies all at once, and Undo puts the routine back', () => {
+  it('applies all at once', () => {
     const S = state()
     const A = start(S)
     A.entries.splice(1, 0, tick(added(S, CURL)))
@@ -172,10 +172,8 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     const us = routineUpdates(S, A)
     expect(summaryParts(us)).toMatchObject({ added: 1, removed: 1 })
     const s = structuredClone(S)
-    const before = applyRoutineUpdates(s, us)
+    applyRoutineUpdates(s, us)
     expect(s.routines[0].ex.map(e => e.id)).toEqual([SQUAT, CURL, BENCH])
-    undoRoutineUpdates(s, before)
-    expect(s.routines[0].ex).toEqual(S.routines[0].ex)
   })
 
   it('counts no added sets for cardio, a pyramid or rest-pause, whose rows are not its sets', () => {
