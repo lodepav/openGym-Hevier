@@ -627,6 +627,14 @@ describe('hevier: the open set and its exercise (D127)', () => {
     const left = useUI.getState().timer.left
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === '+1 min').click())
     expect(useUI.getState().timer.left).toBe(left + 60)
+    // Run out by itself, the panel goes and the page gives its room back, upstream's bar still aside.
+    expect(document.body.classList.contains('hv-dock-room')).toBe(true)
+    const running = useUI.getState().timer
+    act(() => useUI.setState({ timer: { ...running, left: 0, ready: true } }))
+    expect(dock()).toBeNull()
+    expect(document.body.classList.contains('hv-dock-room')).toBe(false)
+    expect(document.body.classList.contains('hv-docked')).toBe(true)
+    act(() => useUI.setState({ timer: running }))
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === 'Skip').click())
     expect(dock()).toBeNull()
     expect(document.body.classList.contains('hv-docked')).toBe(false)

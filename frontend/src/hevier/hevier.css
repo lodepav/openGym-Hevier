@@ -947,7 +947,7 @@
 /* ---------- D127: the rest docked at the bottom of the live workout (components/RestDock.jsx) ---------- */
 /* upstream's bar steps aside for it (body.hv-docked; not .hv-dock, the panel's own class), and the page keeps room so the last set stays above it */
 :root[data-ui="hevier"] body.hv-docked #timer.rest{display:none}
-:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-docked #app{padding-bottom:calc(210px + var(--sab))}
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-dock-room #app{padding-bottom:calc(210px + var(--sab))}
 :root[data-ui="hevier"] .hv-dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--pad) calc(10px + var(--sab));background:var(--bg-el);border-top:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-dock-top{display:flex;align-items:center;gap:14px}
 :root[data-ui="hevier"] .hv-dock-clock{display:flex;flex-direction:column;align-items:flex-start;min-height:44px;background:none;border:0;padding:0;color:var(--label)}

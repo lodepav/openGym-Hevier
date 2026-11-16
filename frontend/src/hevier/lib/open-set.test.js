@@ -24,6 +24,19 @@ describe('hevier openSet (D127)', () => {
     const a = A()
     expect(openSet(a, pickAt(a, 0, 0))).toEqual({ idx: 0, i: 0 })
   })
+  it('a ticked set tapped to be fixed gives way once another set is ticked', () => {
+    const a = A()
+    const pick = pickAt(a, 0, 0)
+    a.entries[0].sets[1] = s(true, 20)
+    expect(openSet(a, pick)).toEqual({ idx: 0, i: 2 })
+  })
+  it('in a superset the other exercise opens after a tick, as the rest panel says', () => {
+    const a = A()
+    a.entries[0].sg = a.entries[1].sg = 'g1'
+    expect(openSet(a, null)).toEqual({ idx: 1, i: 0 })
+    a.entries[1].sets[0] = s(true, 20)
+    expect(openSet(a, null)).toEqual({ idx: 0, i: 1 })
+  })
   it('a tapped exercise opens its first set left, or the exercise alone when it has none', () => {
     const a = A()
     expect(openSet(a, pickAt(a, 1))).toEqual({ idx: 1, i: 0 })

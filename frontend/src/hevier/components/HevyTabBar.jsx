@@ -16,9 +16,9 @@ import { HISTORY_PATH } from '../views/History.jsx'
 
 // Which tab an upstream route belongs to now that it is reached from a fork screen.
 const TAB_OF = {
-  home: 'today', checkin: 'today', workout: 'today', routines: 'today', plan: 'today', settings: 'today',
+  home: 'today', checkin: 'today', workout: 'today', routines: 'today', plan: 'today',
   lifts: 'lifts', library: 'lifts', muscles: 'lifts', strength: 'lifts', 'lift-trends': 'lifts', 'exercise-time': 'lifts',
-  [HISTORY_PATH.slice(1)]: 'history', profile: 'history', stats: 'history', history: 'history', calendar: 'history', report: 'history',
+  [HISTORY_PATH.slice(1)]: 'history', profile: 'history', stats: 'history', history: 'history', report: 'history',
   measures: 'history', measurements: 'history', 'progress-photos': 'history', 'structural-balance': 'history',
 }
 export const tabOf = path => TAB_OF[path.split('/')[1] || 'home'] || null

@@ -17,11 +17,13 @@ export default function RestDock() {
   const other = useUI(s => !!(s.work || s.countIn))
   const next = useStore(s => (timer && !timer.ready ? restNextLine(s.S, timer.forIdx) : ''))
   const mine = !!timer && !other
+  const shown = mine && !timer.ready
   useEffect(() => {
     document.body.classList.toggle('hv-docked', mine)
-    return () => document.body.classList.remove('hv-docked')
-  }, [mine])
-  if (!mine || timer.ready) return null
+    document.body.classList.toggle('hv-dock-room', shown)   // the page's room for the panel, while it is there
+    return () => document.body.classList.remove('hv-docked', 'hv-dock-room')
+  }, [mine, shown])
+  if (!shown) return null
   const { addRest, skipRest } = useUI.getState()
   const pct = timer.total > 0 ? Math.max(0, Math.min(1, timer.left / timer.total)) : 0
   return <div className="hv-dock" role="region" aria-label={t('Rest')}>
