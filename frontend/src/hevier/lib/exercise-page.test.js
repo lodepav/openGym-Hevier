@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { lastSessions, repBests } from './exercise-page.js'
+import { lastSessions, repBests, curveIn } from './exercise-page.js'
 
 const BENCH = EXDB.find(e => e.n === 'barbell bench press').id
 const set = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
@@ -44,5 +44,17 @@ describe('repBests', () => {
   it('marks the ones set in the last month new', () => {
     const got = repBests([{ r: 6, w: 72.5, d: '2026-08-04' }, { r: 9, w: 62.5, d: '2026-11-12' }, { r: 10, w: 55, d: '2026-10-17' }], '2026-11-16')
     expect(got.map(x => x.isNew)).toEqual([false, true, true])
+  })
+})
+
+describe('the chart in the exercise’s own unit (D41)', () => {
+  const pts = [{ t: 1, y: 50 }]
+  const lb = w => w * 2
+  it('a weight curve, the 1RM and the set volume are converted; reps, seconds and minutes are not', () => {
+    expect(curveIn(pts, 'main', 'weight', lb)).toEqual([{ t: 1, y: 100 }])
+    expect(curveIn(pts, 'e1rm', 'reps', lb)).toEqual([{ t: 1, y: 100 }])
+    expect(curveIn(pts, 'setVol', 'weight', lb)).toEqual([{ t: 1, y: 100 }])
+    expect(curveIn(pts, 'main', 'reps', lb)).toBe(pts)
+    expect(curveIn(pts, 'main', 'sec', lb)).toBe(pts)
   })
 })

@@ -21,6 +21,7 @@ import { mainMuscleOf } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { previousCell } from '../lib/set-text.js'
 import { exUnitOf, shown } from '../lib/ex-unit.js'
+import { mapSetWeights } from '../../lib/units.js'
 import { partOn } from '../lib/module-parts.js'
 import { isOn } from '../../lib/modules.js'
 import { fieldSig } from '../lib/store-watch.js'
@@ -30,8 +31,9 @@ function LiftRow({ r, S, today }) {
   const muscle = mainMuscleOf(ex)
   // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41),
   // without the effort, a per-side set as two lines, L over R.
-  const text = set => previousCell(set, { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target,
-    show: w => shown(w, S.unit, exUnitOf(S, r.id)), speedUnit: speedUnitOf(S) })
+  // The set is converted whole, so a per-side set, a hold and a carry follow the unit too.
+  const text = set => previousCell(mapSetWeights(set, w => shown(w, S.unit, exUnitOf(S, r.id))),
+    { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target, speedUnit: speedUnitOf(S) })
   return <button type="button" className="item hv-lift" onClick={() => exerciseDetailSheet(ex)}>
     <span className="hv-thumb"><Thumb ex={ex} /></span>
     <span className="grow">

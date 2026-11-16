@@ -94,6 +94,8 @@ describe('hevier: exercise details (seam S10)', () => {
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toMatch(/^110\.23? lb$/)
     expect(tiles[2]).toMatch(/^110\.23? × 12$/)
+    expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
+    expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
     const all = sub('All history')
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23?×12/)

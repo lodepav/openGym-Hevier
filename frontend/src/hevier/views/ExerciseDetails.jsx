@@ -33,7 +33,7 @@ import LineChart from '../../components/LineChart.jsx'
 import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
-import { lastSessions, repBests } from '../lib/exercise-page.js'
+import { lastSessions, repBests, curveIn } from '../lib/exercise-page.js'
 import { detailRows, effortScale, effortShown } from '../lib/side-rows.js'
 import { sideBalance } from '../lib/side-balance.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
@@ -150,9 +150,8 @@ function Chart({ ex, sum, st }) {
     sum.series.setVol && { value: 'setVol', label: t('Set volume'), title: t('Best Set Volume') },
   ].filter(Boolean)
   const on = sum.series[curve] ? curve : 'main'
-  // Every curve but a count of reps, seconds or minutes is a weight: in the exercise's unit (D41).
-  const lb = exConverted(st, ex.id) && (on !== 'main' || sum.metric === 'weight')
-  const points = useMemo(() => inRange(sum.series[on], range).map(p => (lb ? { ...p, y: shownWeight(st, ex.id, p.y) } : p)), [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
+  const lb = exConverted(st, ex.id)
+  const points = useMemo(() => { const p = inRange(sum.series[on], range); return lb ? curveIn(p, on, sum.metric, w => shownWeight(st, ex.id, w)) : p }, [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   return <section>

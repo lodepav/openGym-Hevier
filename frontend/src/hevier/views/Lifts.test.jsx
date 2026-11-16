@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 // The Lifts tab (hevier/DECISIONS.md D126, D135).
+import { withExUnit } from '../../lib/ex-unit.js'
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
@@ -61,6 +62,22 @@ describe('hevier: Lifts (D135)', () => {
     expect(a.querySelector('.hv-lift-r small').textContent).toBe('best 80 × 8')
     act(() => a.click())
     expect(useUI.getState().sheets).toHaveLength(1)
+  })
+
+  it('an exercise pinned to lb reads in lb, a per-side set too (D41)', () => {
+    const side = { w: 20.4117, r: 8, done: true }
+    const w = wo('2026-11-02', A.id, 80)
+    w.entries[0].sets = [{ sides: { L: side, R: side }, done: true }]
+    render({ workouts: [w], exUnit: withExUnit({}, A.id, 'lb') })
+    expect(container.querySelector('.hv-lift-r b').textContent).toBe('L 45×8\nR 45×8')
+  })
+
+  it('the search finds an exercise by the brand it was done on', () => {
+    const w = wo('2026-11-02', A.id, 80)
+    w.entries[0].hvBrand = 'Hammer'
+    render({ workouts: [w, wo('2026-11-03', B.id, 40)] })
+    type('hammer')
+    expect(names()).toEqual([exerciseNameFor(A)])
   })
 
   it('the search narrows the list; By muscle is kept in S', () => {

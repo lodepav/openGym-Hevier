@@ -80,3 +80,9 @@ export function repBests(reps, today, days = 30) {
   const since = new Date(new Date(today + 'T12:00:00').getTime() - days * DAY).toISOString().slice(0, 10)
   return (reps || []).map(x => ({ ...x, isNew: !!x.d && x.d >= since }))
 }
+
+/** A chart curve's points with each weight through `show` (the exercise's own unit, D41): every
+ *  curve but a main one that counts reps, seconds or minutes. */
+export const curveIn = (points, curve, metric, show) =>
+  (curve !== 'main' || metric === 'weight' ? points.map(p => ({ ...p, y: show(p.y) })) : points)
+
