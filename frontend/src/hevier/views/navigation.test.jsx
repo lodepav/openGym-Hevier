@@ -87,18 +87,17 @@ describe('hevier: navigation (seam S2)', () => {
     expect(path).toBe('/home')
   })
 
-  it('Routines: Start Empty Workout opens a session through upstream’s startFlow', () => {
+  it('Routines: Empty workout opens a session through upstream’s startFlow', () => {
     render('/routines')
-    act(() => byText('button', 'Start Empty Workout').click())
+    act(() => byText('button', 'Empty workout').click())
     const A = useStore.getState().S.active
     expect(A).toBeTruthy()
     expect(A.entries).toEqual([])
   })
 
-  it('Routines: a routine card starts that routine', () => {
+  it('Routines: a routine row starts that routine', () => {
     render('/routines', { routines: [{ id: 'r1', name: 'Push', emoji: '', ex: [{ id: EX, sets: 3, reps: 8 }] }] })
-    expect(container.querySelector('.hv-rpreview').textContent).not.toBe('')
-    act(() => byText('button', 'Start Routine').click())
+    act(() => container.querySelector('[aria-label="Start, Push"]').click())
     expect(useStore.getState().S.active.entries.map(e => e.id)).toEqual([EX])
   })
 

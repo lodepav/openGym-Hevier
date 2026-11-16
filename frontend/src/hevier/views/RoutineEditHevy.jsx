@@ -1,8 +1,9 @@
-// Hevy's "Edit Routine" over upstream's routine data (DECISIONS.md D15):
-// a title, then one block per exercise — thumbnail · blue name · ⋮, notes, "Rest Timer: …" and a
-// SET · KG · REPS table drawn from the exercise's prescription (lib/routine-table.js) — then
-// + Add Exercise, and below it the routine-wide progression, deload and body map upstream's
-// editor has. Every change saves as it is made, as upstream's editor does.
+// Hevy's "Edit Routine" over upstream's routine data (DECISIONS.md D15, D130):
+// a title, then one block per exercise — drag handle · thumbnail · name and brand · ⋮, the note
+// (written from ⋮ → Note), a SET · KG · REPS table drawn from the exercise's prescription
+// (lib/routine-table.js) with a remove mark on each set, and "+ Set", "+ Warm-up" and the rest
+// chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
+// upstream's editor has. Every change saves as it is made, as upstream's editor does.
 import { progressionOn } from '../lib/plain-routine.js'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -45,8 +46,11 @@ import { restTimerText } from '../lib/elapsed.js'
 import { NumberField, Row, SelectRow, Switch } from '../../components/ui.jsx'
 import {
   routineRows, tableShape, setWorkField, setRange, addRow, removeRow, makeWarmup, makeWork, canWarmUp,
-  canFail, setFailure, setMax, workCount,
+  canFail, setFailure, setMax, workCount, addWarmup, canAddWarmup,
 } from '../lib/routine-table.js'
+import { routineBrand, setRoutineBrand, startGym } from '../lib/routine-brand.js'
+import { knownBrands, gymName, BRAND_MAX } from '../lib/gym-labels.js'
+import { partOn } from '../lib/module-parts.js'
 
 // Double and triple progression's "8 to 12", Hevy's REP RANGE picker as two fields.
 function RangeSheet({ from, to, onDone, close }) {
@@ -61,6 +65,39 @@ function RangeSheet({ from, to, onDone, close }) {
     </div>
     <button type="button" className="btn primary" onClick={() => { close(); onDone(a, b) }}>{t('Done')}</button>
   </div>
+}
+
+// The exercise's note (D130: behind ⋮ → Note), a plain text sheet; an empty save removes it.
+function NoteSheet({ title, value, onSave, close }) {
+  const [v, setV] = useState(value || '')
+  const save = text => { close(); onSave(text) }
+  return <form className="hv-namesheet" onSubmit={ev => { ev.preventDefault(); save(v) }}>
+    <h3>{title}</h3>
+    <textarea className="input" rows={3} autoFocus value={v} maxLength={NOTE_MAX} placeholder={t('A cue for this exercise, shown in the workout')}
+      aria-label={t('Note')} onChange={ev => setV(ev.target.value)} />
+    <button type="submit" className="btn primary">{t('Save')}</button>
+    {value && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove note')}</button>}
+  </form>
+}
+
+// The brand on the name line (D130, as D127's): what the exercise opens with at the active gym.
+function BrandSheet({ exId, close }) {
+  const S = useStore.getState().S
+  const had = routineBrand(S, exId) || ''
+  const [v, setV] = useState(had)
+  const brands = knownBrands(S)
+  const save = b => { close(); useStore.getState().update(s => setRoutineBrand(s, exId, b)) }
+  const gym = gymName(S, startGym(S))
+  return <form className="hv-namesheet" onSubmit={ev => { ev.preventDefault(); save(v) }}>
+    <h3>{t('Brand')}</h3>
+    <p className="small dim">{gym ? t('Used for this exercise at {0} from now on.', gym) : t('Used for this exercise from now on.')}</p>
+    <input className="input" autoFocus value={v} maxLength={BRAND_MAX} placeholder={t('Brand or machine, e.g. Life Fitness')}
+      aria-label={t('Brand')} onChange={ev => setV(ev.target.value)} />
+    {brands.length > 0 && <div className="hv-xd-chips">{brands.map(b =>
+      <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} onClick={() => save(b)}>{b}</button>)}</div>}
+    <button type="submit" className="btn primary">{t('Save')}</button>
+    {had && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove brand')}</button>}
+  </form>
 }
 
 function RoutineExercise({ r, i, unitOf, S, grip, press }) {
@@ -128,6 +165,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
         // D45: the slot's planned backups, offered first by a swap mid-workout.
         { icon: 'shuffle', label: t('Backups'), sub: backupNames || t('None'), onClick: () => useUI.getState().openSheet(close => <BackupsSheet rid={r.id} i={i} exId={e.id} close={close} />) },
         i > 0 && { icon: 'link', label: linked ? t('Remove from superset') : t('Make superset with previous'), onClick: toggleLink },
+        { icon: 'note', label: t('Note'), sub: e.note || t('A cue for this exercise, shown in the workout'), onClick: openNote },
       ] },
       { items: [
         // D8 / D15: drop sets, rest-pause, back-off, pyramid, per side and progression live here.
@@ -145,15 +183,18 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     footer: t('Rest after each set of this exercise. 0:00 means your default rest.'),
     onDone: v => edit(c => { const next = { ...c }; if (v > 0) next.restSec = v; else delete next.restSec; return next }),
   })
-  const [note, setNote] = useState(e.note || '')
-  // The note is saved as it is typed; its own save coming back leaves the field (a space typed last) alone.
-  useEffect(() => { setNote(n => (n.trim().slice(0, NOTE_MAX) === (e.note || '') ? n : e.note || '')) }, [e.note])
   const saveNote = text => edit(c => {
     const next = { ...c }
     const v = text.trim().slice(0, NOTE_MAX)
     if (v) next.note = v; else delete next.note
     return next
   })
+  function openNote() {
+    useUI.getState().openSheet(close => <NoteSheet title={exerciseNameFor(ex)} value={e.note} onSave={saveNote} close={close} />)
+  }
+  const brandsOn = partOn(S, 'hvGyms', 'brands')
+  const brand = brandsOn ? routineBrand(S, e.id) : null
+  const openBrand = () => useUI.getState().openSheet(close => <BrandSheet exId={e.id} close={close} />)
 
   // A row takes out with an Undo, which puts the exercise back as it was while nothing else has
   // changed it since.
@@ -215,10 +256,12 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   }
   const swipe = workoutControls(S).swipeSets
   const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
-  const line = row => <div className="hv-rt-row" style={grid}>
+  const line = row => <div className="hv-rt-row hv-rt-x" style={grid}>
     <button type="button" className="hv-set" onClick={() => openSetType(row)}
       aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1)}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
+    <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
+      aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><Icon name="minus" /></button>
   </div>
 
   const meta = unitOf.get(i)?.length > 1 && unitOf.get(i)[0] === i ? supersetMeta(r.ex, unitOf.get(i)) : null
@@ -233,22 +276,29 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     <div className="hv-exhd" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
-      <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+      <div className="hv-nameline">
+        <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+        {brandsOn && (brand
+          ? <button type="button" className="hv-brand has" aria-label={t('Brand') + ': ' + brand} onClick={openBrand}><Icon name="machine" />{brand}</button>
+          : <button type="button" className="hv-addbrand" onClick={openBrand}>{t('+ Brand')}</button>)}
+      </div>
       {noEquip && (why => <button type="button" className="iconbtn hv-warn" aria-label={why} title={why} onClick={() => toast(why)}><Icon name="warning" /></button>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
-    <input className="hv-notes hv-notes-in" value={note} maxLength={NOTE_MAX} placeholder={t('Add routine notes here')}
-      onChange={ev => { setNote(ev.target.value); saveNote(ev.target.value) }} aria-label={t('Notes')} />
-    <button type="button" className="hv-rest" onClick={openRest}><Icon name="timer" />{t('Rest Timer: {0}', restText)}</button>
-    <div className="hv-rt-row hv-rt-head" style={grid} aria-hidden="true">
-      <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}
+    {e.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + e.note} onClick={openNote}>{e.note}</button>}
+    <div className="hv-rt-row hv-rt-x hv-rt-head" style={grid} aria-hidden="true">
+      <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}<span />
     </div>
     {rows.map((row, n) => <div key={n}>
       {swipe ? <SwipeRow deleteLabel={t('Remove')} closeKey={rows.length + ':' + n}
         canDelete={row.kind === 'warm' || workCount(e) > 1} onDelete={() => remove(row)}
         onBlocked={() => toast(t('Keep at least one set, champ'))}>{line(row)}</SwipeRow> : line(row)}
     </div>)}
-    <button type="button" className="hv-addset" onClick={() => edit(addRow)}><Icon name="plus" />{t('Add Set')}</button>
+    <div className="hv-addrow">
+      <button type="button" className="hv-addset" onClick={() => edit(addRow)}><Icon name="plus" />{t('Set')}</button>
+      {shape.mode !== 'cardio' && <button type="button" className="hv-addwarm" disabled={!canAddWarmup(e)} onClick={() => edit(addWarmup)}><Icon name="plus" />{t('Warm-up')}</button>}
+      <button type="button" className="hv-rtrest" aria-label={t('Rest') + ': ' + restText} onClick={openRest}><Icon name="timer" />{restText}</button>
+    </div>
   </div>
 }
 

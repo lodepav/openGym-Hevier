@@ -62,9 +62,11 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Feature | D | Mark |
 |---|---|---|
 | Hevy's routine editor table drawn from openGym's prescription | D15 | Fork |
+| Routine editor: a drag handle on each exercise, + Set beside + Warm-up, the rest as a chip, a remove mark on each set, the brand on the name line; the exercise's note behind ⋮ → Note | D130 | Fork |
 | Routine page (read-only) before the editor | D37 | Fork |
 | The routine's page is the next session's plan: last time beside what each set opens with, warm-ups included; a tap on a weight or reps plans it for the next session only, without changing the routine; Today's card shows the same numbers | D128 | Fork |
-| Routine folders, long-press reorder | D13 | Fork |
+| Routine folders, reordered by their handles | D13 | Fork |
+| Routines list: folders fold, each routine a row with its next planned day or when it was last done, the next one marked with an accent Start; a tap opens the next session's page, a long press or ⋯ moves, copies or deletes; + Routine, + Folder, Rotation, Empty workout and Explore at the end | D130 | Fork |
 | Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field (in the routine editor's Replace; the workout's Swap lists your own swaps instead, D129) | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offer (upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649; not learned per gym. Upstream's issue #1022 asks for routines per gym: a comment could point here) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
@@ -128,7 +130,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Today: the next session (when, where, the first five exercises and their sets), Start, the week in seven days, the round and the streak, Routines · Calendar · Empty workout, the last workout | D134 | Fork |
 | Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels, Trends and Exercise time | D135 | Fork |
 | History: this week in three numbers, chips to Calendar, Statistics, Month report, Sets per muscle, Body weight and More, the phase filter and the workout feed | D135 | Fork |
-| Routines page (the Workout tab until D126): Quick Start, Today card, routine cards | D13 | Fork |
+| Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
 | Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
 | Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |

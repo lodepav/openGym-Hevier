@@ -163,6 +163,12 @@ export function makeWarmup(cfg, row) {
   return { ...removeRow(cfg, row), warmupSets: warmupsOf(cfg) + 1 }
 }
 
+/** "+ Warm-up" (D130): one warm-up set more, up to the cap; cardio has none. */
+export const canAddWarmup = cfg => modeOf(cfg) !== 'cardio' && warmupsOf(cfg) < MAX_PLANNED_WARMUPS
+export function addWarmup(cfg) {
+  return canAddWarmup(cfg) ? { ...cfg, warmupSets: warmupsOf(cfg) + 1 } : cfg
+}
+
 /** Set type Normal on a warm-up: one warm-up fewer, one work set more. */
 export function makeWork(cfg) {
   return addRow(removeRow(cfg, { kind: 'warm' }))

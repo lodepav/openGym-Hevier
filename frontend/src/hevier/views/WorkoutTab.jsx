@@ -1,15 +1,16 @@
-// Hevy's Workout tab (hevier/DECISIONS.md D13; reference/SCREENS.md §1), since D126 the Routines page
-// on /routines, opened from Today: Quick Start, a Today card from openGym's schedule or rotation, then the
-// routines with Start Routine, in folders (lib/routine-folders.js), each lifted by a long press.
-// Starting goes through upstream's startFlow, and the schedule stays on upstream's Plan screen.
+// The Routines page on /routines, opened from Today (hevier/DECISIONS.md D130, after D13 and D126):
+// the routines in folders that fold (lib/routine-folders.js), each a row with its next planned day
+// or when it was last done (lib/routine-when.js), the next one marked with its Start in the accent
+// colour; a tap on a row opens its next session's page, a long press or ⋯ its menu. + Routine,
+// + Folder, Rotation (upstream's Plan screen), Empty workout and Explore sit at the end.
+// Starting goes through upstream's startFlow.
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { EXIDX } from '../../lib/exercises.js'
-import { effectiveRoutines, effectiveRoutineIds } from '../../lib/history.js'
 import { todayISO, uid, exCount } from '../../lib/format.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { pinOn } from '../lib/plan-pins.js'
+import { t } from '../../lib/i18n.js'
+import { routineWhen } from '../lib/routine-when.js'
 import { DEMO } from '../../lib/demo.js'
 import { deleteRoutine } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
@@ -44,24 +45,43 @@ export function startFlow(ids) {
 }
 const MINE = '\u0000mine'   // My Routines' key in the folded list: no folder name can be it
 
-// One folder's routines, reordered among themselves by a long press on a card (or its handle).
-function FolderList({ name, ids, card }) {
+// One folder's routines, reordered among themselves by their handles: a long press opens the menu (D130).
+function FolderList({ name, ids, row }) {
   const update = useStore(s => s.update)
   const reorder = useDragReorder(ids.length, (from, to) => update(s => { s.routines = reorderInGroup(s.routines, name, from, to) }))
   return <div ref={reorder.listRef} className={'hv-rlist' + (reorder.drag ? ' is-reordering' : '')}>
-    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{card(id, ids.length > 1 ? reorder.handle(i) : null, reorder.press(i))}</div>)}
+    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{row(id, ids.length > 1 ? reorder.handle(i) : null)}</div>)}
   </div>
+}
+
+const HOLD_MS = 450   // a press held this long opens the row's menu
+const SLOP = 8        // px a finger may wander while it is held
+
+// A long press on a row opens its menu; the click it ends with does not also open the row.
+function useLongPress() {
+  const p = useRef(null)
+  const cancel = () => { if (p.current?.timer) clearTimeout(p.current.timer); if (p.current && !p.current.fired) p.current = null }
+  return run => ({
+    onPointerDown: e => {
+      if (e.button != null && e.button !== 0) return
+      cancel()
+      p.current = { x: e.clientX, y: e.clientY, timer: setTimeout(() => { p.current.fired = true; p.current.timer = 0; navigator.vibrate?.(10); run() }, HOLD_MS) }
+    },
+    onPointerMove: e => { if (p.current?.timer && Math.hypot(e.clientX - p.current.x, e.clientY - p.current.y) > SLOP) cancel() },
+    onPointerUp: cancel,
+    onPointerCancel: cancel,
+    onPointerLeave: cancel,
+    onContextMenu: e => e.preventDefault(),
+    onClickCapture: e => { if (p.current?.fired) { p.current = null; e.preventDefault(); e.stopPropagation() } },
+  })
 }
 
 export default function WorkoutTab() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
-  const todayIds = effectiveRoutineIds(S, todayISO())
-  const today = effectiveRoutines(S, todayISO())
-  const todayName = today.map(r => r.name).join(' + ')
-  const moved = S.dayPlan[todayISO()] !== undefined && pinOn(S, todayISO(), S.dayPlan[todayISO()]) !== 'done'
-  const doneToday = S.workouts.some(w => w.d === todayISO() && today.some(r => (w.routineIds || [w.routineId]).includes(r.id)))
+  const hold = useLongPress()
+  const { next, text: when } = routineWhen(S, todayISO())
 
   // The same new routine Plan makes, opened straight in the editor.
   const newRoutine = folder => {
@@ -133,16 +153,19 @@ export default function WorkoutTab() {
     ],
   })
   const byId = new Map(S.routines.map(r => [r.id, r]))
-  const card = (id, grip, press) => {
+  const row = (id, grip) => {
     const r = byId.get(id)
-    return <div className="card hv-rcard" {...press}>
-      <div className="row between">
-        {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
-        <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>{r.name}</button>
-        <button type="button" className="iconbtn" aria-label={t('More') + ', ' + r.name} onClick={() => more(r)}><Icon name="more" /></button>
-      </div>
-      <div className="hv-rpreview">{r.ex.length ? preview(r) : exCount(0)}</div>
-      <button type="button" className="btn primary" aria-label={t('Start Routine') + ', ' + r.name} disabled={!r.ex.length} onClick={() => startFlow([r.id])}>{t('Start Routine')}</button>
+    const isNext = next.includes(id)
+    return <div className={'hv-rrow' + (isNext ? ' next' : '')} {...hold(() => more(r))}>
+      {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
+      <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>
+        <span className="hv-rname-n">{r.name}</span>
+        <span className="hv-rname-s">{isNext && <><b className="hv-rnext">{t('Next')}</b>{' · '}</>}
+          {[when.get(id), exCount(r.ex.length)].filter(Boolean).join(' · ')}</span>
+      </button>
+      <button type="button" className={'btn pill hv-rstart' + (isNext ? ' primary' : '')} aria-label={t('Start') + ', ' + r.name}
+        disabled={!r.ex.length} onClick={() => startFlow([r.id])}>{t('Start')}</button>
+      <button type="button" className="iconbtn" aria-label={t('More') + ', ' + r.name} onClick={() => more(r)}><Icon name="more" /></button>
     </div>
   }
   const folders = groups.slice(1)
@@ -167,35 +190,12 @@ export default function WorkoutTab() {
     </div>
   }
   const body = g => (closed.includes(g.name ?? MINE) ? null
-    : g.ids.length ? <FolderList name={g.name} ids={g.ids} card={card} />
+    : g.ids.length ? <FolderList name={g.name} ids={g.ids} row={row} />
       : <div className="hv-fempty">{g.name ? t('Empty folder. Add a routine with its ⋯ → New Routine, or a routine’s ⋯ → Move to folder.') : t('No routines outside a folder.')}</div>)
-  // Each name keeps its own casing class (lib/i18n-core.js exerciseNameClass), as upstream's lists do.
-  const preview = r => r.ex.map((e, i) => <span key={i} className={exerciseNameClass(EXIDX[e.id])}>
-    {i ? ', ' : ''}{EXIDX[e.id] ? exerciseNameFor(EXIDX[e.id]) : e.n || e.id}</span>)
 
   const back = useBack('/home')
   return <div className="narrow hv-wtab">
     <PageBar title={t('Routines')} onBack={back} backLabel={t('Today')} />
-
-    <h4 className="sec">{t('Quick Start')}</h4>
-    <button type="button" className="btn hv-quick" onClick={() => startFlow([])}><Icon name="plus" />{t('Start Empty Workout')}</button>
-
-    {today.length > 0 && <div className="card hv-today">
-      <div className="grow">
-        <div className="hv-sub">{t('Today')}{moved ? ' · ' + t('rescheduled') : ''}{doneToday ? ' · ' + t('done') : ''}</div>
-        <div className="hv-today-n">{todayName}</div>
-      </div>
-      <button type="button" className="btn primary pill" onClick={() => startFlow(todayIds)}>{t('Start')}</button>
-    </div>}
-
-    <div className="hv-rhead"><h4 className="sec">{t('Routines')}</h4>
-      <button type="button" className="iconbtn" aria-label={t('Schedule')} title={t('Schedule')} onClick={() => nav('/plan')}><Icon name="calendar" /></button>
-      <button type="button" className="iconbtn" aria-label={t('New Folder')} title={t('New Folder')} onClick={() => newFolder()}><Icon name="folder" /></button>
-    </div>
-    <div className="hv-rbtns">
-      <button type="button" className="btn" onClick={() => newRoutine()}><Icon name="clipboard" />{t('New Routine')}</button>
-      <button type="button" className="btn" onClick={starterPlanSheet}><Icon name="magnifier" />{t('Explore')}</button>
-    </div>
 
     {(S.routines.length > 0 || folders.length > 0) && <>
       <section className="hv-folder">{head(groups[0])}{body(groups[0])}</section>
@@ -205,6 +205,14 @@ export default function WorkoutTab() {
         </section>)}
       </div>
     </>}
+    {/* The rarely used entries sit at the end (D130): Empty workout is also on Today, Explore is the starter plans. */}
+    <div className="hv-chips hv-rend">
+      <button type="button" className="hv-chip" onClick={() => newRoutine()}>{t('+ Routine')}</button>
+      <button type="button" className="hv-chip" onClick={() => newFolder()}>{t('+ Folder')}</button>
+      <button type="button" className="hv-chip" onClick={() => nav('/plan')}>{t('Rotation')}</button>
+      <button type="button" className="hv-chip" onClick={() => startFlow([])}>{t('Empty workout')}</button>
+      <button type="button" className="hv-chip" onClick={starterPlanSheet}>{t('Explore')}</button>
+    </div>
     {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}
       {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>}
   </div>

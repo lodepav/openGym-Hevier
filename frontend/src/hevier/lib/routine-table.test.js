@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   routineRows, tableShape, setWorkField, setRange, addRow, removeRow, makeWarmup, makeWork,
-  setFailure, setMax, canWarmUp, workCount,
+  setFailure, setMax, canWarmUp, workCount, addWarmup, canAddWarmup,
 } from './routine-table.js'
 import { EXDB } from '../../lib/exercises.js'
 import { buildSets, modeOf } from '../../lib/history.js'
@@ -108,5 +108,17 @@ describe('hevier routine table (D15)', () => {
     const rows = buildSets({ unit: 'kg', workouts: [], exWeights: {} }, cfg, { useTarget: true, planReps: true })
     expect(workCount(cfg)).toBe(3)
     expect(rows.map(r => [r.w, r.r])).toEqual([[70, 6], [70, 6], [70, 6]])
+  })
+
+  it('+ Warm-up adds a warm-up and keeps the work sets, up to the cap; cardio gets none (D130)', () => {
+    const next = addWarmup(flat({ warmupSets: 1 }))
+    expect(next).toMatchObject({ sets: 3, warmupSets: 2 })
+    expect(routineRows(next, routine, 'kg').map(r => r.kind)).toEqual(['warm', 'warm', 'work', 'work', 'work'])
+    const full = flat({ warmupSets: 5 })
+    expect(canAddWarmup(full)).toBe(false)
+    expect(addWarmup(full)).toBe(full)
+    const run = { id: RUN, mode: 'cardio', min: 20 }
+    expect(canAddWarmup(run)).toBe(false)
+    expect(addWarmup(run)).toBe(run)
   })
 })

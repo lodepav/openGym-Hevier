@@ -215,7 +215,7 @@
 :root[data-ui="hevier"] .hv-plates{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label-2);padding:2px 0 4px 44px}
 :root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--acc);padding:6px 12px;border-radius:999px}
 :root[data-ui="hevier"] .hv-addrow{display:flex;gap:8px;margin-top:8px}
-:root[data-ui="hevier"] :is(.hv-addset, .hv-addwarm){flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:999px;background:var(--surface-2);color:var(--label);font-size:15px}
+:root[data-ui="hevier"] :is(.hv-addset, .hv-addwarm, .hv-rtrest){flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:999px;background:var(--surface-2);color:var(--label);font-size:15px}
 
 /* ---------- tabs and the minimised workout (hevier/components/HevyTabBar.jsx) ---------- */
 /* Opaque and black as the page, no blur (D123); the open tab's icon sits on a soft accent pill. */
@@ -250,18 +250,6 @@
 /* ---------- Workout tab (hevier/views/WorkoutTab.jsx) ---------- */
 /* Hevy's ⋯, folder and gear buttons are bare glyphs, here and on the three tabs */
 :root[data-ui="hevier"] :is(.hv-wtab, .hv-today-page, .hv-lifts, .hv-history) .iconbtn{background:none}
-:root[data-ui="hevier"] .hv-quick{width:100%;justify-content:flex-start;gap:8px;margin-bottom:14px}
-:root[data-ui="hevier"] .hv-today{display:flex;align-items:center;gap:12px}
-:root[data-ui="hevier"] .hv-today .grow{flex:1;min-width:0}
-:root[data-ui="hevier"] .hv-today-n{font-size:17px;font-weight:700}
-:root[data-ui="hevier"] .hv-today .btn{flex:none;width:auto;padding:0 18px;min-height:34px}
-:root[data-ui="hevier"] .hv-rhead{display:flex;align-items:center;gap:2px;margin:22px 0 8px}
-:root[data-ui="hevier"] .hv-rhead h4.sec{flex:1;margin:0}
-:root[data-ui="hevier"] .hv-rhead .iconbtn{width:36px;height:36px}
-:root[data-ui="hevier"] .hv-rbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-:root[data-ui="hevier"] .hv-rbtns .btn{gap:6px;font-size:14px;padding-inline:6px}
-:root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;min-width:0;text-align:start;background:none;padding:0;font-size:17px;font-weight:700;color:var(--label)}
-:root[data-ui="hevier"] .hv-rpreview{font-size:14px;color:var(--label-2);margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- feed cards (hevier/components/WorkoutCard.jsx) ---------- */
 :root[data-ui="hevier"] .hv-wcard{cursor:pointer}
@@ -337,8 +325,6 @@
 
 /* Routine editor (RoutineEditHevy.jsx): SET · KG · REPS, no PREVIOUS and no ✓ (D15) */
 :root[data-ui="hevier"] .hv-rtitle{width:100%;font-size:22px;font-weight:700;background:none;border:0;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));padding:10px 2px;margin:4px 0 14px;color:var(--label)}
-:root[data-ui="hevier"] .hv-notes-in{width:100%;background:none;border:0;padding:2px 0 6px;font:inherit;font-size:14px;color:var(--label)}
-:root[data-ui="hevier"] .hv-notes-in::placeholder{color:var(--label-3)}
 :root[data-ui="hevier"] .hv-rt-row{display:grid;align-items:center;column-gap:8px;grid-template-columns:minmax(40px,1fr) repeat(var(--nc,2),minmax(0,1fr));min-height:44px;padding:0 4px;border-radius:8px}
 /* SET takes an equal share, so SET · KG · REPS are evenly spaced and centred on the screen */
 /* the routine editor's rows run edge to edge like the log's (a superset keeps its rule) */
@@ -358,6 +344,15 @@
 :root[data-ui="hevier"] .hv-rsettings{margin-top:18px}
 :root[data-ui="hevier"] .hv-rsettings-note{margin:6px 2px 16px}
 :root[data-ui="hevier"] .hv-rmap{margin-top:12px}
+/* D130: the editor shows its drag handle, ends each set row with a remove mark, and has the rest as a chip */
+:root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
+:root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
+:root[data-ui="hevier"] .hv-rt-row.hv-rt-x{grid-template-columns:minmax(40px,1fr) repeat(var(--nc,2),minmax(0,1fr)) 44px}
+:root[data-ui="hevier"] .hv-rt-del{width:44px;height:44px;background:none;color:var(--label-3)}
+:root[data-ui="hevier"] .hv-addwarm:disabled{opacity:.5}
+:root[data-ui="hevier"] .hv-routine .hv-exnote{margin-bottom:6px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-routine .hv-nameline :is(.hv-addbrand, .hv-brand){position:relative}
+:root[data-ui="hevier"] .hv-routine .hv-nameline :is(.hv-addbrand, .hv-brand)::after{content:"";position:absolute;inset:-10px 0}
 /* Routine page (RoutinePreview.jsx, D37): the editor's table, read-only */
 :root[data-ui="hevier"] .hv-rv-name{font-size:22px;font-weight:700;margin:6px 2px 2px}
 :root[data-ui="hevier"] .hv-rview > .hv-sub{margin:0 2px 12px}
@@ -377,7 +372,7 @@
 :root[data-ui="hevier"] .hv-grip{background:none;padding:6px 4px;color:var(--label-3);display:flex;touch-action:none;cursor:grab}
 :root[data-ui="hevier"] .hv-grip:not(:focus-visible){position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}
 :root[data-ui="hevier"] .is-reordering .hv-grip{cursor:grabbing}
-:root[data-ui="hevier"] :is(.hv-rcard, .hv-fhead, .hv-routine .hv-exhd){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+:root[data-ui="hevier"] :is(.hv-fhead, .hv-routine .hv-exhd){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* a shadow or a brightened black is invisible on the black cards: the dragged row lifts to a fill and a hairline */
 :root[data-ui="hevier"] .is-reordering [data-reorder-row][style*="z-index"]{background:var(--surface-2);box-shadow:var(--hv-card-line)}
 :root[data-ui="hevier"] [data-reorder-row]{transition:transform .18s var(--ease)}
@@ -388,7 +383,16 @@
 :root[data-ui="hevier"] .hv-reorder .item.hv-pk-row{gap:12px;min-height:56px}
 :root[data-ui="hevier"] .hv-reorder .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;padding:6px 4px;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-ro-done{width:100%}
-:root[data-ui="hevier"] .hv-rcard .hv-rname{flex:1;text-align:start}
+/* D130: each routine a row (name, its day, Start, ⋯); the next one's Start in the accent colour; the grip shows */
+:root[data-ui="hevier"] .hv-rrow{display:flex;align-items:center;gap:8px;min-height:56px;border-bottom:var(--hair) solid var(--sep,rgba(127,127,127,.25));-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+:root[data-ui="hevier"] .hv-rrow .hv-rname{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:none;padding:8px 0;text-align:start;color:var(--label)}
+:root[data-ui="hevier"] .hv-rname-n{max-width:100%;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="hevier"] .hv-rname-s{font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-rnext{color:var(--acc);font-weight:700}
+:root[data-ui="hevier"] .hv-rstart{flex:none;width:auto;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:700}
+:root[data-ui="hevier"] .hv-rrow .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
+:root[data-ui="hevier"] .hv-rrow .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
+:root[data-ui="hevier"] .hv-rend{flex-wrap:wrap;margin:14px 0}
 :root[data-ui="hevier"] .hv-folder{margin-bottom:10px}
 :root[data-ui="hevier"] .hv-fhead{display:flex;align-items:center;gap:4px;min-height:40px}
 :root[data-ui="hevier"] .hv-ftoggle{flex:1;display:flex;align-items:center;gap:6px;background:none;padding:6px 0;font-size:15px;font-weight:600;color:var(--label-2);text-align:start}
@@ -687,8 +691,7 @@
 :where(:root[data-ui="hevier"]) .card{background:var(--bg);box-shadow:var(--hv-card-line)}
 
 /* Secondary buttons: smaller text than a main button, in OpenBite's 700. */
-:root[data-ui="hevier"] :is(.hv-rbtns .btn, .hv-quick, .hv-tlinks .btn){font-size:15px;font-weight:700;min-height:40px}
-:root[data-ui="hevier"] :is(.hv-rbtns .btn, .hv-quick) .icn{font-size:18px}
+:root[data-ui="hevier"] .hv-tlinks .btn{font-size:15px;font-weight:700;min-height:40px}
 
 /* Workout Detail: Hevy's small grey caps over each part, and Edit Workout at the end. */
 :root[data-ui="hevier"] .hv-wd h4.sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--label-2)}
@@ -793,10 +796,10 @@
 :root[data-ui="hevier"] .hv-share-acts .btn{flex:1}
 
 /* Round 3 of the UX review: the calendar's month titles are headings (A7), and the 36 dp icon
-   buttons of the monthly report's month bar and the Routines heading get a 48 dp target (A1). */
+   buttons of the monthly report's month bar get a 48 dp target (A1). */
 :root[data-ui="hevier"] .hv-cal-mh{margin:0;font:inherit}
-:root[data-ui="hevier"] :is(.hv-report-bar, .hv-rhead) .iconbtn{position:relative}
-:root[data-ui="hevier"] :is(.hv-report-bar, .hv-rhead) .iconbtn::before{content:'';position:absolute;inset:-6px}
+:root[data-ui="hevier"] .hv-report-bar .iconbtn{position:relative}
+:root[data-ui="hevier"] .hv-report-bar .iconbtn::before{content:'';position:absolute;inset:-6px}
 
 /* Round 4 (J7, low vision and one hand). Targets (A1) without moving anything: the tick reaches the
    row's right edge, the effort button the row's height, Finish, Save and Done 8 dp above and below. */
@@ -861,10 +864,9 @@
 :root[data-ui="hevier"] .sect-b .hv-modparts>.lrow{padding-inline:calc(var(--pad) + 36px) var(--pad)}
 :root[data-ui="hevier"] .hv-modparts>.lrow::before,:root[data-ui="hevier"] .hv-modparts+.lrow::before{content:'';position:absolute;inset-inline-start:calc(var(--pad) + 36px);inset-inline-end:0;top:0;height:var(--hair);background:var(--sep)}
 :root[data-ui="hevier"] .hv-modparts-off{margin:0;padding:0 var(--pad) 11px calc(var(--pad) + 36px);font-size:var(--fs-footnote);color:var(--label-2)}
-/* The routine's and the exercise's name are 22 dp tall: the tap reaches past them (A1), on a routine card over its exercise line. */
-:root[data-ui="hevier"] :is(.hv-name, .hv-rcard .hv-rname){position:relative}
+/* The exercise's name is 22 dp tall: the tap reaches past it (A1). */
+:root[data-ui="hevier"] .hv-name{position:relative}
 :root[data-ui="hevier"] .hv-name::after{content:"";position:absolute;inset:-6px 0}
-:root[data-ui="hevier"] .hv-rcard .hv-rname::after{content:"";position:absolute;inset:-8px 0 -22px}
 /* A settings section without a title stands apart from the one above it (Data & backup's delete rows). */
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect + .sect:not(:has(> .sect-t)){margin-top:20px}
 /* The resume bar's Resume and Discard are 34 dp tall: the tap reaches 7 dp above and below (A1). */
