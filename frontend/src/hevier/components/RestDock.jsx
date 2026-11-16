@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
-import { restNextLine } from '../../lib/rest-next.js'
+import { dockNext } from '../lib/dock-next.js'
 import { adjustRestSheet } from '../../components/RestTimer.jsx'
 
 const clock = sec => Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0')
@@ -15,7 +15,8 @@ const clock = sec => Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '
 export default function RestDock() {
   const timer = useUI(s => s.timer)
   const other = useUI(s => !!(s.work || s.countIn))
-  const next = useStore(s => (timer && !timer.ready ? restNextLine(s.S, timer.forIdx) : ''))
+  const S = useStore(s => s.S)
+  const next = timer && !timer.ready ? dockNext(S, timer.forIdx) : null
   const mine = !!timer && !other
   const shown = mine && !timer.ready
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function RestDock() {
         <span className="hv-dock-cap">{timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')}</span>
         <b role="timer">{clock(timer.left)}</b>
       </button>
-      {next && <div className="hv-dock-next"><span className="hv-dock-cap">{t('Next')}</span><b>{next}</b></div>}
+      {next && <div className="hv-dock-next"><span className="hv-dock-cap">{t('Next') + ' · ' + next.cap}</span>{next.what && <b>{next.what}</b>}</div>}
     </div>
     <div className="hv-dock-bar" aria-hidden="true"><i style={{ transform: `scaleX(${pct})` }} /></div>
     <div className="hv-dock-btns">

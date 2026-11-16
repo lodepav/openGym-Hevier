@@ -1,6 +1,6 @@
 // An exercise's page (hevier/DECISIONS.md D131): one page, no tabs. The animation, the filter (phase
 // and brand), the last sessions one line each, the best sets, the best at each rep count, the chart,
-// then rows into strength level, brand compare, exercise time and How to. "All history" opens the
+// then the strength level, the time a session takes, and rows into brand compare and How to. "All history" opens the
 // full list of sessions. Seam S10 sends upstream's exerciseDetailSheet here, so every place that
 // opens an exercise gets the same page. The numbers are upstream's read-back of the log
 // (lib/exercise-history.js) through hevier/lib/exercise-summary.js and exercise-page.js; upstream's
@@ -19,7 +19,6 @@ import { formulaOf } from '../../lib/onerm.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { isFav, toggleFav } from '../../lib/favourites.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
-import { nav, onSheetEntry } from '../../lib/nav.js'
 import {
   menuSheet, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
@@ -36,7 +35,6 @@ import { lastSessions, repBests } from '../lib/exercise-page.js'
 import { detailRows, effortScale, effortShown } from '../lib/side-rows.js'
 import { sideBalance } from '../lib/side-balance.js'
 import StrengthLevel from '../components/StrengthLevel.jsx'
-import { LEVELS, levelsIn, strengthLevel } from '../lib/strength-level.js'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
@@ -235,11 +233,6 @@ function CompareHistory({ ex }) {
   </div>
 }
 
-function StrengthSheet({ ex, oneRm }) {
-  const st = useStore(s => s.S)
-  return <div className="hv-xd-sub"><StrengthLevel exId={ex.id} oneRm={oneRm} st={st} /></div>
-}
-
 function HowTo({ ex }) {
   const st = useStore(s => s.S)
   const steps = instrFor(ex)
@@ -272,14 +265,6 @@ const LinkRow = ({ icon, title, sub, onClick }) => <button type="button" classNa
 
 const openSub = node => useUI.getState().openSheet(() => node)
 
-// Exercise time is a page: every sheet closes first, so none is left over it; the page takes the
-// sheet's history entry, as Workout Detail's opener does.
-function toTimePage() {
-  const replace = onSheetEntry()
-  useUI.getState().closeAll()
-  nav('/exercise-time', replace ? { replace: true } : undefined)
-}
-
 function ExerciseDetails({ ex, close }) {
   useLang()
   const st = useStore(s => s.S)
@@ -303,8 +288,6 @@ function ExerciseDetails({ ex, close }) {
   const time = useMemo(() => (partOn(st, 'hvStats', 'time')
     ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [listed, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
-  const levels = levelsIn(st.hvStrength?.[ex.id], st.unit)
-  const level = levels && e1rm ? strengthLevel(e1rm.v, levels).level : null
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -354,13 +337,10 @@ function ExerciseDetails({ ex, close }) {
       {sum.total > 0 && <Chart ex={ex} sum={sum} st={st} />}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
-        {e1rm && partOn(st, 'strength', 'details') && <LinkRow icon="trophy" title={t('Strength level')}
-          sub={level == null ? t('Compare strength') : level < 0 ? t('Below Beginner') : t(LEVELS[level])}
-          onClick={() => openSub(<StrengthSheet ex={ex} oneRm={e1rm.v} />)} />}
+        {e1rm && partOn(st, 'strength', 'details') && <StrengthLevel exId={ex.id} oneRm={e1rm.v} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
-        {time && <LinkRow icon="timer" title={t('Time on this exercise')} sub={t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}
-          onClick={toTimePage} />}
+        {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
         <LinkRow icon="info" title={t('How to')} onClick={() => openSub(<HowTo ex={ex} />)} />
       </section>
     </div>

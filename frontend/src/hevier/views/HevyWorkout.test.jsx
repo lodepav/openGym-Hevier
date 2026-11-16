@@ -163,9 +163,9 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(effs()).toEqual([1, 1])
     act(() => useStore.getState().update(s => { s.hvWarmupEffort = false }))
     expect(effs()).toEqual([0, 1])
-    // The empty cell keeps the grid: the warm-up row has as many cells as the work row.
+    // The empty cell keeps the grid: the work row's effort button spans the tick's track too.
     const [warm, work] = container.querySelectorAll('.hv-row')
-    expect(warm.children.length).toBe(work.children.length)
+    expect(warm.children.length).toBe(work.children.length + 1)
     expect(sets()[0].rir).toBe(4)   // the logged effort stays stored
   })
 
@@ -597,23 +597,12 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(sets().some(x => x.phase === 'warmup')).toBe(true)
   })
 
-  it('an effort tap logs the open set with that RPE; on RIR the same effort is stored as RIR', () => {
-    render([two()])
-    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
-    const row = () => container.querySelector('.hv-effrow')
-    expect([...row().querySelectorAll('button')].map(b => b.textContent)).toEqual(['Other', '6', '7', '8', '9', '9.5', '10'])
-    act(() => [...row().querySelectorAll('button')].find(b => b.textContent === '9.5').click())
-    expect(sets()[0]).toMatchObject({ rpe: 9.5, done: true })
-    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
-    expect([...row().querySelectorAll('button')].map(b => b.textContent)).toEqual(['Other', '4', '3', '2', '1', '0.5', '0'])
-    act(() => [...row().querySelectorAll('button')].find(b => b.textContent === '2').click())
-    expect(sets()[1]).toMatchObject({ rir: 2, done: true })
-  })
-
-  it('a warm-up opens with the tick only, no effort row', () => {
-    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup' }), reps(60, 8)] }])
-    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
-    expect(container.querySelector('.hv-row').classList.contains('hv-open')).toBe(true)
+  it('with effort on, a set not ticked has the effort button in the tick’s place; a ticked one keeps the tick, a warm-up without effort too', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(40, 5, { phase: 'warmup' }), reps(60, 8), reps(60, 8, { done: true, rpe: 8 })] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rpe'; s.hvWarmupEffort = false }))
+    const rows = [...container.querySelectorAll('.hv-row')]
+    const has = (r, sel) => !!r.querySelector(sel)
+    expect(rows.map(r => [has(r, '.hv-chk'), has(r, '.hv-eff-tick')])).toEqual([[true, false], [false, true], [true, false]])
     expect(container.querySelector('.hv-effrow')).toBeNull()
   })
 

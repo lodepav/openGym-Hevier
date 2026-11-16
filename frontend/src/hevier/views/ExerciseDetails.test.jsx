@@ -82,7 +82,8 @@ describe('hevier: exercise details (seam S10)', () => {
     // Twenty days ago is within the last month: new, in words.
     expect(rows.map(r => r.querySelector('.hv-xd-new')?.textContent)).toEqual(['new', 'new'])
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
-    expect(rowTitles).toEqual(['Strength level', 'How to'])
+    expect(rowTitles).toEqual(['How to'])
+    expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place
   })
 
   it('marks each session against the one before, with its effort', () => {
@@ -150,9 +151,9 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(sub('How to').querySelector('.hv-xd-howto')).toBeTruthy()
   })
 
-  it('Strength level: Compare strength folds the fields open, Save places the Best 1RM (D19)', () => {
+  it('Strength level, on the page: Compare strength folds the fields open, Save places the Best 1RM (D19)', () => {
     open(log)
-    const host = sub('Strength level')
+    const host = container.querySelector('.hv-xd-more')
     const sl = () => host.querySelector('.hv-sl')
     expect(sl().querySelector('input')).toBeNull()
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Compare strength').click())
@@ -170,7 +171,6 @@ describe('hevier: exercise details (seam S10)', () => {
     const best = Number(host.textContent.match(/Best 1RM ([\d.]+)/)[1])
     expect(best).toBeGreaterThan(70); expect(best).toBeLessThan(90)
     expect(sl().querySelector('.hv-sl-head').textContent).toMatch(/^Intermediate · [\d.]+ kg to Advanced$/)
-    expect([...container.querySelectorAll('.hv-linkrow')].find(r => r.textContent.startsWith('Strength level')).textContent).toBe('Strength levelIntermediate')
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Edit').click())
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Remove levels').click())
     expect(useStore.getState().S.hvStrength?.[EX.id]).toBeUndefined()
@@ -195,17 +195,13 @@ describe('hevier: exercise details (seam S10)', () => {
     } finally { useStore.getState().update(s => { s.exShownName = {} }) }
   })
 
-  it('Time on this exercise says its time a session and opens Exercise time, every sheet closed (D88)', () => {
+  it('Time on this exercise says its time a session, as a line (D88)', () => {
     const timed = clone(log)
     timed[0].entries[0].sets.forEach((s, i) => { s.at = day('2026-09-26') + (i + 1) * 4 * 60000 })
-    const go = vi.fn()
-    setNav(go)
     open(timed)
-    const row = [...container.querySelectorAll('.hv-linkrow')].find(r => r.textContent.startsWith('Time on this exercise'))
-    expect(row.textContent).toBe('Time on this exercise8min a session')
-    act(() => row.click())
-    expect(go).toHaveBeenCalledWith('/exercise-time')
-    expect(useUI.getState().sheets).toHaveLength(0)
+    const row = container.querySelector('.hv-xd-time')
+    expect(row.textContent).toBe('Time on this exercise · 8min a session')
+    expect(row.closest('button')).toBeNull()
   })
 
   it('names the main muscle, the others and the equipment under the picture, on one line', () => {

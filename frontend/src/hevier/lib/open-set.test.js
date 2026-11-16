@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { openSet, pickAt, isOpenRow, nextLine, effortIn, EFFORT_OTHER } from './open-set.js'
+import { openSet, pickAt, isOpenRow } from './open-set.js'
 
 const s = (done, at) => ({ w: 50, r: 8, done, ...(at ? { at } : {}) })
 const A = () => ({ entries: [{ id: 'a', sets: [s(true, 10), s(false), s(false)] }, { id: 'b', sets: [s(false), s(false)] }] })
@@ -68,32 +68,10 @@ describe('hevier openSet (D127)', () => {
   })
 })
 
-describe('hevier isOpenRow and nextLine', () => {
+describe('hevier isOpenRow', () => {
   const pair = [s(false), { sec: 30, side: 'L', mode: 'time', done: true }, { sec: 30, side: 'R', mode: 'time', done: false }]
   it('an L/R pair opens as one set, from either row', () => {
     expect([0, 1, 2].map(i => isOpenRow(pair, { idx: 0, i: 2 }, i))).toEqual([false, true, true])
     expect(isOpenRow(pair, { idx: 0, i: null }, 0)).toBe(false)
-  })
-  it('logs the first row of a pair left, and a per-side set side by side in the order they are done', () => {
-    expect(nextLine(pair, 1)).toEqual({ i: 2 })
-    const side = { sides: { L: { done: false }, R: { done: false } } }
-    expect(nextLine([side], 0, ['R', 'L'])).toEqual({ i: 0, side: 'R' })
-    side.sides.R.done = true
-    expect(nextLine([side], 0, ['R', 'L'])).toEqual({ i: 0, side: 'L' })
-    side.sides.L.done = true
-    expect(nextLine([side], 0)).toBeNull()
-  })
-})
-
-describe('hevier effortIn', () => {
-  it('stores RPE as picked, and its RIR on a profile that logs RIR', () => {
-    expect(effortIn('rpe', 9.5)).toBe(9.5)
-    expect(effortIn('rir', 9.5)).toBe(0.5)
-    expect(effortIn('rir', 6)).toBe(4)
-  })
-  it('Other runs 1 to 10 in halves', () => {
-    expect(EFFORT_OTHER[0]).toBe(1)
-    expect(EFFORT_OTHER.at(-1)).toBe(10)
-    expect(EFFORT_OTHER).toHaveLength(19)
   })
 })

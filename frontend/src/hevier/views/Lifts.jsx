@@ -19,7 +19,7 @@ import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy } from '../lib/lifts-list.js'
 import { mainMuscleOf } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
-import { previousText, noEffort } from '../lib/set-text.js'
+import { previousCell } from '../lib/set-text.js'
 import { exUnitOf, shown } from '../lib/ex-unit.js'
 import { partOn } from '../lib/module-parts.js'
 import { isOn } from '../../lib/modules.js'
@@ -29,8 +29,8 @@ function LiftRow({ r, S, today }) {
   const ex = exOr(r.id)
   const muscle = mainMuscleOf(ex)
   // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41),
-  // and without the effort, which pushed a per-side set past the row.
-  const text = set => previousText(noEffort(set), { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target,
+  // without the effort, a per-side set as two lines, L over R.
+  const text = set => previousCell(set, { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target,
     show: w => shown(w, S.unit, exUnitOf(S, r.id)), speedUnit: speedUnitOf(S) })
   return <button type="button" className="item hv-lift" onClick={() => exerciseDetailSheet(ex)}>
     <span className="hv-thumb"><Thumb ex={ex} /></span>

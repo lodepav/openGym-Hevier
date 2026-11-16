@@ -2,8 +2,6 @@
 // large with the effort row under it, nothing to select; a tap on another set (or on an exercise)
 // opens that one instead. Which one is open is worked out here from the session and the last tap.
 import { setSpanAt } from '../../lib/history.js'
-import { isSideSet } from '../../lib/workout-model.js'
-import { toScale } from '../../lib/effort.js'
 import { nextSetAfter } from '../../lib/spoken-cues.js'
 import { nextSet, newestTick } from './next-set.js'
 
@@ -49,27 +47,3 @@ export function isOpenRow(rows, open, i) {
   const [from, count] = setSpanAt(rows, open.i)
   return i >= from && i < from + count
 }
-
-/**
- * The line of set `i` an effort or the big tick logs next: `{ i, side }`. A per-side set logs its
- * sides in the order they are done (`order`), an L/R pair its rows; null when all are ticked.
- */
-export function nextLine(rows, i, order = ['L', 'R']) {
-  const s = rows?.[i]
-  if (!s) return null
-  if (isSideSet(s)) {
-    const side = order.find(k => !s.sides[k]?.done)
-    return side ? { i, side } : null
-  }
-  const [from, count] = setSpanAt(rows, i)
-  for (let j = from; j < from + count; j++) if (!rows[j].done) return { i: j }
-  return null
-}
-
-/** The effort row's buttons, in RPE: Other sits before them. */
-export const EFFORT_ROW = [6, 7, 8, 9, 9.5, 10]
-/** Other's choices, 1 to 10 in halves, in RPE. */
-export const EFFORT_OTHER = Array.from({ length: 19 }, (_, k) => 1 + k / 2)
-
-/** An effort picked as RPE `rpe`, on the profile's scale `kind` (a profile on RIR stores 10 − RPE). */
-export const effortIn = (kind, rpe) => toScale(kind, 10 - rpe)

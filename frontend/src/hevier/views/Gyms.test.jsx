@@ -212,8 +212,8 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     render(<div />, { extra: { hvStrength, workouts: [w('a', 1, 45, 'Life Fitness'), w('b', 2, 25, 'Matrix')] } })
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
-    // D131: the page's Strength level row names the level the picked brand's best 1RM reaches.
-    const level = () => [...host.querySelectorAll('.hv-linkrow')].find(r => r.textContent.startsWith('Strength level')).querySelector('.hv-sub').textContent
+    // D131: the page's strength level is the one the picked brand's best 1RM reaches.
+    const level = () => host.querySelector('.hv-sl-head').textContent.split(' · ')[0]
     expect(level()).toBe('Intermediate')   // 45 × 10, 1RM 60
     const sel = host.querySelector('.hv-xd-label')
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })

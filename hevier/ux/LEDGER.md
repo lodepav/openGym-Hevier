@@ -212,3 +212,22 @@ exercises in the live workout keep the "Add brand" line while the open one has t
 that is not next shows no date on its page. Notes: a swap on an exercise with ticked sets asks
 first and keeps the old exercise, so it is 3 taps; the week row cuts "… Day" names; a routine alone
 in its folder has no handle.
+
+## Round 10 (2026-11-16, the rework's build: J3 two-gym lifter, J4 per-side and timer user)
+
+Both finished. Brand and cable changes, the hidden list at a gym, per side, side order, the hold
+clock and a typed time all worked as decided.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R10-U1 | medium | G7, G2 | The opened cardio set cuts a time of 10:00 or more | **fixed**: a time in the opened row is 20 px |
+| R10-U2 | medium | G2, H6 | The rest panel's Next line is cut; the mockup gives weight × reps its own large line | **fixed** in part: the line wraps to two; the large line needs upstream's text split, **discuss** |
+| R10-U3 | medium | A1 | Add Exercise, Settings, Discard Workout and the picker's add buttons are 37 dp tall | **fixed**: 48 dp |
+| R10-U4 | low | H6 | Search rows in the picker drop the "N times · last" line; the hidden list is not yours-first | **open** (minor) |
+| R10-U5 | low | A1 | The workout's gym line is 26 dp tall, 2 dp above the note row | **open**: the compact look (D7) |
+
+Improvements, **open**: a weight typed on one side could fill the other side's untouched field
+(discuss); the "Hold logged" toast covers the rest panel's Next line; the ▶ set timer is 34 dp with
+a 46 dp hit area; the opened set's PREVIOUS wraps "340kg × / 4". Notes: in a freestyle workout a
+brand change moves PREVIOUS but not the grey values a tick logs (D82 refills a routine's sets
+only); the header has two chevrons, Minimize and the title's.

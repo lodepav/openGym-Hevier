@@ -37,7 +37,7 @@ import Icon from '../../components/Icon.jsx'
 import { Check } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
-import { isOpenRow, nextLine, effortIn, EFFORT_ROW, EFFORT_OTHER } from '../lib/open-set.js'
+import { isOpenRow } from '../lib/open-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
 import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
@@ -337,7 +337,9 @@ export default function HevyExerciseBlock(props) {
       }} />
   }
   // D6: the effort column, in the profile's scale. Picking a rating ticks the set (upstream #64).
-  const effortCell = (s, i, side) => {
+  // On a set not ticked yet it stands in the tick's place too (`asTick`): the dialog logs the set,
+  // with a rating or with none.
+  const effortCell = (s, i, side, asTick) => {
     const src = side ? (s.sides?.[side] || {}) : s
     const v = src[effortCol.f] ?? null
     const color = effortColor(effortKind === 'rpe' ? (v == null ? null : 10 - v) : v)
@@ -345,41 +347,13 @@ export default function HevyExerciseBlock(props) {
       if (side) setSide(i, side, effortCol.f, nv); else onField(i, effortCol.f, nv)
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
       const freshSrc = side ? fresh?.sides?.[side] : fresh
-      if (nv != null && freshSrc && !freshSrc.done) tick(i, side)
+      if ((nv != null || asTick) && freshSrc && !freshSrc.done) tick(i, side)
     })
-    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open}
+    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
       aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
-  }
-
-  // D127: under the opened working set, Other · 6 · 7 · 8 · 9 · 9.5 · 10: a tap logs the set with
-  // that effort, as a rating in the effort cell does; Other opens 1 to 10 in halves. A profile on
-  // RIR gets the same efforts written as RIR (open-set.js effortIn). A set already ticked keeps
-  // its tick and takes the new rating.
-  const effortRow = i => {
-    const [from] = setSpanAt(entry.sets, i)
-    const line = nextLine(entry.sets, from, [first, second])
-    const at = line || { i: from, side: isSideSet(entry.sets[from]) ? first : undefined }
-    const src = at.side ? entry.sets[at.i]?.sides?.[at.side] : entry.sets[at.i]
-    const cur = src?.[effortCol.f] ?? null
-    const rate = rpe => {
-      const nv = effortIn(effortKind, rpe)
-      if (at.side) setSide(at.i, at.side, effortCol.f, nv); else onField(at.i, effortCol.f, nv)
-      if (line) tick(at.i, at.side)
-    }
-    const word = v => t(effortCol.hd) + ' ' + fmtNum(effortIn(effortKind, v))
-    const other = () => useUI.getState().openSheet(close => <div className="hv-effother">
-      <h3>{t('How hard was that set?')}</h3>
-      <div className="hv-effgrid">{EFFORT_OTHER.map(v => <button type="button" key={v} aria-label={word(v)}
-        className={'btn' + (cur === effortIn(effortKind, v) ? ' primary' : '')} onClick={() => { close(); rate(v) }}>{fmtNum(effortIn(effortKind, v))}</button>)}</div>
-    </div>)
-    return <div className="hv-effrow" role="group" aria-label={rowName(entry.sets[from], from) + (at.side ? ' (' + sideWord(at.side) + ')' : '') + ', ' + t(effortCol.hd)}>
-      <button type="button" className="hv-effo" onClick={other}>{t('Other')}</button>
-      {EFFORT_ROW.map(v => <button type="button" key={v} aria-label={word(v)} className={cur === effortIn(effortKind, v) ? 'on' : undefined}
-        onClick={() => rate(v)}>{fmtNum(effortIn(effortKind, v))}</button>)}
-    </div>
   }
 
   const swipeOn = !!(controls.swipeSets && onCopySetAt && onRemoveSetAt)
@@ -475,6 +449,8 @@ export default function HevyExerciseBlock(props) {
     // A half of a hold pair reads its own side of a per-side set last time.
     const prevText = previousCell(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
+    // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
+    const effTick = effOn && effAt(s) && !goOn && !src.done
     // A tap anywhere on a set but its tick opens it (D127); the tick moves on to the next.
     return <div ref={el => { rowEls.current[i + (side || '')] = el; if (side !== second) onSetRowRef?.(i, el) }} style={grid}
       onClick={e => { if (onOpen && !e.target.closest?.('.hv-chk, .hv-eff')) onOpen(i) }}
@@ -484,7 +460,7 @@ export default function HevyExerciseBlock(props) {
         aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
-      {effOn && (effAt(s) ? effortCell(s, i, side) : <span />)}
+      {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
       {goOn && !playAt(s) && <span />}
       {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] ? ' on' : '')} disabled={s.done}
         aria-label={t('Timed hold') + ', ' + t('Set {0}', workNumber(i))} onClick={() => holdClock(s, i)}><Icon name="timer" /></button>}
@@ -492,8 +468,8 @@ export default function HevyExerciseBlock(props) {
         ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop') + ', ' + t('Set {0}', workNumber(i))} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
         : <button type="button" className="iconbtn hv-go" aria-label={t('Start set') + ', ' + t('Set {0}', workNumber(i))} disabled={s.done}
           onClick={() => startTimer(i)}><Icon name="play" /></button>)}
-      <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
-        onChange={() => tick(i, side)} />
+      {!effTick && <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
+        onChange={() => tick(i, side)} />}
     </div>
   }
   const subRows = (src, i, side) => <SubRows src={src} show={showWeight}
@@ -534,8 +510,6 @@ export default function HevyExerciseBlock(props) {
   // D127: the brand on the name line: a machine's line (BrandLine), or "+ Brand" for any other
   // exercise on the open one (D28).
   const addBrand = isOpen && !hasLabel(S, A, entryIdx) && partOn(S, 'hvGyms', 'brands')
-  // The open set's effort row sits under its set, a warm-up having none (only the tick).
-  const effortUnder = i => effOn && open?.i != null && setSpanAt(entry.sets, open.i)[0] === i && !isWarmupRow(entry.sets[i])
   return <div className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
@@ -569,7 +543,6 @@ export default function HevyExerciseBlock(props) {
     </div>
     {entry.sets.map((s, i) => <div key={i}>
       {setBlock(s, i)}
-      {effortUnder(i) && effortRow(i)}
       {swipeHint && swipeHint.i === i && swipeOn && <button type="button" className="hv-hint-chip" onClick={() => setUI({ swipeHint: null })}>
         <Icon name="swap" />{t('Psst: swipe a set. Left deletes, right copies.')}</button>}
       {plateLine(i)}
