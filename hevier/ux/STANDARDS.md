@@ -21,6 +21,10 @@ compact set rows (D4, D15), the dark-only theme (D17) or the grey prefilled valu
 **note that names the decision**, not a finding. The only exception is an A rule that fails on a
 main path: it stays a finding, marked `touches Dn`, so it can be discussed.
 
+The UX rework (D125, [REWORK.md](REWORK.md)) changes screens on purpose. A screen whose status
+there is **built** is reviewed against its approved mockup and its own decision: a difference
+from the mockup is a finding, and what the mockup shows is not.
+
 Every suggested fix is one of:
 
 - **minor**: a label, wording, a spoken name, a colour step, a size or spacing that keeps the
@@ -92,7 +96,7 @@ The app is a web page in Android's WebView, so measure it through the page (`hev
 | G3 | The rest timer is visible and adjustable from the workout without hiding the next set or the field being typed into. |
 | G4 | Number fields open the numeric keypad, accept the locale's decimal separator, and keep what was typed when the keyboard is hidden (D2). |
 | G5 | A workout is never lost by accident: back, leaving the app, a restart or the "Still training?" prompt (D60) keeps it, and discarding it asks first. |
-| G6 | Starting the planned workout takes at most two taps from opening the app: the Today card, or Workout tab → Start Routine. |
+| G6 | Starting the planned workout takes at most two taps from opening the app: Start on Today, or the plan's page → Start. |
 | G7 | Numbers that are read mid-set (weights, reps, the timer) are legible at arm's length: at least 16 px and in the card's full contrast once they are touched. |
 | G8 | A finished workout's numbers agree everywhere they show: the live stats row, Save Workout, "Nice work!", the feed card, Workout Detail, and Statistics for that week (sets, volume, duration, records). |
 

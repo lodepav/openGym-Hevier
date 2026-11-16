@@ -4,7 +4,7 @@ import { HEVIER } from './flag.js'
 import './hevier.css'
 import './theme.css'
 import { nav } from '../lib/nav.js'
-import { hooks, installFinishHook } from './hooks.js'
+import { hooks } from './hooks.js'
 import { importHooks, choicesFor } from './lib/hevy-import.js'
 import { importHevyFolders, applyHevyFolders } from './lib/hevy-folders.js'
 import * as hevyMore from './lib/hevy-more.js'
@@ -22,6 +22,7 @@ import { todayISO } from '../lib/format.js'
 import { storeAdapter } from './lib/store-watch.js'
 import { initGymBackups } from './lib/gym-backups-run.js'
 import { initLabelRefill } from './lib/label-refill-run.js'
+import { initNextPlan } from './lib/next-plan-run.js'
 import { moveAliases, moveShownNames, moveImportPicks } from './lib/ex-aliases.js'
 import { readChosenMuscles } from './lib/main-muscle.js'
 import { initNoteFix } from './lib/note-text.js'
@@ -35,7 +36,6 @@ import { initExUnits } from './lib/ex-unit.js'
 import { HIDDEN_MODULES, moduleOn, FORK_MODULES, forkModuleCopy, setAnyModule } from './lib/fork-modules.js'
 import { partOn } from './lib/module-parts.js'
 import { moduleRow } from './views/ModuleParts.jsx'
-import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { rowMode, setNumberOf } from './lib/hold-set.js'
 import { pinOn } from './lib/plan-pins.js'
@@ -73,8 +73,6 @@ function install() {
   initAccentIcon(store)                                   // the launcher icon follows a newly picked accent (D123)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
-  // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
-  installFinishHook(nav)
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
   hooks.statsOff = ['j', 't', 'month', 'form', 'level']    // All statistics without the Journal, Tools, Your month, daily form and levels (S61, D109)
@@ -102,6 +100,7 @@ function install() {
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
   initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)
+  initNextPlan(store)                                     // a routine opens with the numbers planned for it, used up when saved (D128)
 
   // Gyms and equipment: body weight is equipment like the rest, the checklist in groups (S36, D62,
   // D63), and the By muscle explorer filters by the picker's gym, its equipment by group (S37, S38).
@@ -120,10 +119,10 @@ function install() {
   initNoteFix(store)
   // One-limb exercises already in a routine turn per side, once (D75).
   initSideRoutines(store)
-  // Home's layout and the empty and folded folders, kept on the device until 2026-10-20, move into
-  // S once, so they sync and are backed up (D12, D13).
+  // The empty and folded folders, kept on the device until 2026-10-20, move into
+  // S once, so they sync and are backed up (D13).
   const kept = k => { try { return localStorage.getItem(k) != null } catch { return false } }
-  if ([HOME_KEY, FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveHomeIntoS(s); moveFoldersIntoS(s) })
+  if ([FOLDERS_KEY, CLOSED_KEY].some(kept)) store.update(s => { moveFoldersIntoS(s) })
   // The fork's Previous values switch is upstream's Last time means since 1.4.3 (D21); a sync from
   // an older build can bring the old field back, so it is moved whenever it shows up.
   const movePrevious = () => { if ('hvPrevious' in state()) store.update(movePreviousIntoLastFrom) }

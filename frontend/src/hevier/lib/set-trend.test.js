@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import { EXDB } from '../../lib/exercises.js'
-import { setTrend, workoutTrends } from './set-trend.js'
+import { setTrend, workoutTrends, workoutSideTrends } from './set-trend.js'
 
 describe('hevier: beat last time (D66)', () => {
   it('compares weight and reps, by the estimated 1RM when they disagree', () => {
@@ -48,6 +48,15 @@ describe('hevier: beat last time (D66)', () => {
 
   it('on an assistance machine less help and more reps is better', () => {
     expect(setTrend({ w: 20, r: 10 }, { w: 30, r: 8 }, { assisted: true })).toBe(1)
+  })
+
+  it('holds each side of a per-side set against the same side last time (D133)', () => {
+    const id = EXDB.find(e => e.n === 'barbell bench press').id
+    const day = (d, L, R) => ({ id: d, d, start: new Date(d + 'T18:00:00').getTime(), entries: [{ id, sets: [
+      { w: 20, r: L + R, done: true, sides: { L: { w: 20, r: L, done: true }, R: { w: 20, r: R, done: true } } }, { w: 30, r: 5, done: true }] }] })
+    const S = { ...structuredClone(DEF), workouts: [day('2026-10-01', 10, 10), day('2026-10-08', 11, 9)] }
+    expect(workoutSideTrends(S, S.workouts[1], 0)).toEqual([{ L: 1, R: -1 }, null])
+    expect(workoutSideTrends(S, S.workouts[0], 0)).toEqual([null, null])   // nothing before it
   })
 
   it('holds a second workout on the same day against the first', () => {

@@ -48,7 +48,7 @@ PROFILES.push(
   variant('narrow', 'narrow-ar', { lang: 'ar', note: 'narrow, in Arabic (right to left)' }),
   variant('bigfont', 'bigfont-ar', { lang: 'ar', note: 'bigfont, in Arabic (right to left)' }),
 )
-const SCREENS = ['/home', '/workout', '/routines', '/profile', '/stats', '/calendar', '/report', '/measures', '/library', '/settings',
+const SCREENS = ['/home', '/workout', '/routines', '/lifts', '/history-tab', '/stats', '/calendar', '/report', '/measures', '/library', '/settings',
   '/strength', '/exercise-time', '/lift-trends', '/stats/all', '/settings/modules/hvStats']
 
 const args = process.argv.slice(2)
@@ -259,17 +259,12 @@ async function step(cdp, results, screen, open, show, close = ESCAPE, note = fal
   if (close) { await evaluate(cdp, close); await sleep(600) }
 }
 
-// Home's Recap and Year cards, a saved workout's Workout Detail and, from it, Exercise Details.
+// From Today: the last workout's Workout Detail and, from it, Exercise Details.
 async function homeExtras(cdp, dir, results, run) {
   await evaluate(cdp, "location.hash = '#/home'")
   await sleep(1000)
-  for (const [sel, label] of [['[data-recap]', 'home recap card'], ['[data-wrapped-home]', 'home year card']]) {
-    const there = await evaluate(cdp, `(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return false; el.scrollIntoView({ block: 'center' }); return true })()`)
-    if (there) await visit(cdp, label, dir, results, run)
-    else results.push({ screen: label, out: [{ note: true, check: 'flow', detail: 'not on Home with this profile today' }] })
-  }
   await evaluate(cdp, 'scrollTo(0, 0)')
-  await step(cdp, results, 'workout detail', clickSel('.hv-wcard-t'), async () => {
+  await step(cdp, results, 'workout detail', clickSel('.hv-tlast'), async () => {
     await until(cdp, "location.hash.startsWith('#/workout-detail')")
     await visit(cdp, 'workout detail', dir, results, run)
     await step(cdp, results, 'sheet: exercise details', clickSel('.hv-wd-ex .hv-name'), () => visit(cdp, 'sheet: exercise details', dir, results, run))
@@ -300,12 +295,12 @@ async function liveWorkout(cdp, dir, results, run) {
     await visit(cdp, 'live workout, end', dir, results, run)
     await evaluate(cdp, 'scrollTo(0, 0)')
     await step(cdp, results, 'sheet: set type', clickSel('.hv-ex .hv-set'), () => visit(cdp, 'sheet: set type', dir, results, run))
-    await step(cdp, results, 'sheet: rest timer', clickSel('.hv-ex .hv-rest'), () => visit(cdp, 'sheet: rest timer', dir, results, run))
+    await step(cdp, results, 'sheet: rest timer', clickSel('.hv-ex .hv-acts button[aria-label^="Rest"]'), () => visit(cdp, 'sheet: rest timer', dir, results, run))
     await step(cdp, results, 'sheet: exercise details (live)', clickSel('.hv-ex .hv-name'), () => visit(cdp, 'sheet: exercise details (live)', dir, results, run))
     await step(cdp, results, 'sheet: exercise picker', clickSel('.hv-addex'), () => visit(cdp, 'sheet: exercise picker', dir, results, run))
     // The last set's Delete: its toast, with Undo. The fixture goes anyway.
     await step(cdp, results, 'toast', pressLast('.hv-ex .swpane.del button'), () => visit(cdp, 'toast', dir, results, run), null, true)
-    await step(cdp, results, 'save workout', "(location.hash = '#/workout/save', true)", () => visit(cdp, 'save workout', dir, results, run), "location.hash = '#/workout'")
+    await step(cdp, results, 'sheet: finish', clickSel('.hv-finish'), () => visit(cdp, 'sheet: finish', dir, results, run))
     await sleep(800)
     await step(cdp, results, 'dialog: discard', clickSel('.hv-foot .hv-danger'), async () => {
       await visit(cdp, 'dialog: discard', dir, results, run)

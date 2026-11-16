@@ -1,4 +1,4 @@
-// Hevy's Calendar (reference/SCREENS.md §11), Profile → Calendar: "N week streak · N rest days" (the streak D59's),
+// Hevy's Calendar (reference/SCREENS.md §11), History → Calendar: "N week streak · N rest days" (the streak D59's),
 // Month (the months back from this one, oldest at the top and this one at the bottom, where the
 // page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
@@ -13,6 +13,7 @@ import { workoutDetailSheet, dayOverrideSheet, WorkoutRow } from '../../sheets.j
 import { Segmented } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
+import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
 import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
@@ -30,7 +31,7 @@ export function openDay(iso, ws) {
 export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const ws = weekStartOf(st)
   const cells = monthCells(y, mo, ws)
-  const n = cells.filter(iso => iso && byDay[iso]).length
+  const n = cells.reduce((sum, iso) => sum + (iso && byDay[iso] ? byDay[iso].length : 0), 0)
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
     <h2 className="hv-cal-mh"><button type="button" className="hv-cal-mt" onClick={onTitle} disabled={!onTitle}>
       <b>{small ? t(MONTHS_LONG[mo]) : `${t(MONTHS_LONG[mo])} ${y}`}</b>
@@ -58,10 +59,10 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   </div>
 }
 
-// D117: with the part off, the page (and the month widget's tap, which opens it) lands on Profile.
+// D117: with the part off, the page (and the month widget's tap, which opens it) lands on History.
 export default function Calendar() {
   const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
-  return on ? <CalendarPage /> : <Navigate to="/profile" replace />
+  return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
 }
 
 function CalendarPage() {
@@ -76,7 +77,7 @@ function CalendarPage() {
   const [year, setYear] = useState(now.getFullYear())
   const byDay = workoutsByDay(st.workouts)
   const rest = restDays(st.workouts, today)
-  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
   // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's

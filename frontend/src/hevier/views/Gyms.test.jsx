@@ -12,7 +12,8 @@ import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { hevierRoutes } from '../routes.jsx'
-import { hooks, installFinishHook } from '../hooks.js'
+import { hooks } from '../hooks.js'
+import { installFinishHook } from '../components/FinishSheet.jsx'
 import { exerciseDetailsSheet } from './ExerciseDetails.jsx'
 import { NearbySheet } from '../components/GymLabels.jsx'
 
@@ -78,6 +79,7 @@ afterEach(() => {
 describe('hevier gyms and machine labels on screen (D28)', () => {
   it('the workout shows the active profile as its gym, and the gym can be changed', () => {
     render(<Workout />, { entries: [{ id: DB, target: { sets: 1, reps: 8 }, sets: [{ w: 20, r: 8, done: false }] }] })
+    act(() => container.querySelector('.hv-wname').click())   // the gym sits behind the name's chevron (D127)
     const row = container.querySelector('.hv-gym')
     expect(row.textContent).toContain('City Gym')
     act(() => row.click())
@@ -90,6 +92,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
 
   it('with no gym yet the line reads No gym, and a custom gym is added and picked from its sheet (D47)', () => {
     render(<Workout />, { entries: [{ id: DB, sets: [] }], extra: { equipProfiles: [], activeEquipId: null } })
+    act(() => container.querySelector('.hv-wname').click())
     expect(container.querySelector('.hv-gym').textContent).toContain('No gym')
     act(() => container.querySelector('.hv-gym').click())
     const menu = sheet()
@@ -163,13 +166,14 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(container.querySelector('.hv-brand').textContent).toContain('Life Fitness')
   })
 
-  it('Save Workout writes the gym and the brand onto the saved exercises', () => {
-    render(null, {
-      at: '/workout/save',
+  it('Save on the Finish sheet writes the gym and the brand onto the saved exercises', () => {
+    render(<Workout />, {
       entries: [{ id: CABLE, sets: [done(15, 12)] }, { id: DB, sets: [done(20, 8)] }],
       extra: { hvMachines: { [CABLE]: { g1: 'Life Fitness' } } },
     })
-    act(() => byText(container, '.hv-pagebar button', 'Save').click())
+    act(() => container.querySelector('.hv-finish').click())
+    const host = sheet()   // rendered outside act, so it is drawn before it is read
+    act(() => host.querySelector('.hv-fin-save').click())
     const w = S().workouts[0]
     expect(S().active).toBeNull()
     expect(w.entries.map(e => [e.id, e.hvGym, e.hvBrand])).toEqual([[CABLE, 'g1', 'Life Fitness'], [DB, 'g1', undefined]])
@@ -196,9 +200,9 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     const host = sheet()
     const sel = host.querySelector('.hv-xd-label')
     expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
-    expect(host.querySelector('.hv-xd-big').textContent).toContain('45')
+    expect(host.querySelector('.hv-xd-tile b').textContent).toBe('45 kg')
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
-    expect(host.querySelector('.hv-xd-big').textContent).toContain('25')
+    expect(host.querySelector('.hv-xd-tile b').textContent).toBe('25 kg')
   })
 
   it('the strength level follows the picked brand (D19, D28)', () => {
@@ -208,10 +212,11 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     render(<div />, { extra: { hvStrength, workouts: [w('a', 1, 45, 'Life Fitness'), w('b', 2, 25, 'Matrix')] } })
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
-    const best = () => Number(host.querySelector('.hv-sl').textContent.match(/Best 1RM ([\d.]+)/)[1])
-    const all = best()
+    // D131: the page's strength level is the one the picked brand's best 1RM reaches.
+    const level = () => host.querySelector('.hv-sl-head').textContent.split(' · ')[0]
+    expect(level()).toBe('Intermediate')   // 45 × 10, 1RM 60
     const sel = host.querySelector('.hv-xd-label')
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
-    expect(best()).toBeLessThan(all)
+    expect(level()).toBe('Beginner')       // 25 × 10, 1RM 33
   })
 })

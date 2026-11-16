@@ -7,7 +7,7 @@
 //   node hevier/tools/routine-snapshot.mjs <out.json> --diff <before.json>  # and compare; exit 1 on a difference
 //   node hevier/tools/routine-snapshot.mjs --compare <before.json> <after.json>   # two files, no emulator
 //
-// It starts each routine from the Workout tab, reads the stored session (the same reading as
+// It starts each routine from its own page (#/plan/r/<id>/view), reads the stored session (the same reading as
 // frontend/src/hevier/lib/routine-open.js, which routine-open.test.js runs without the emulator),
 // probes the warm-ups, and discards the workout. The probe: in the first exercise that opens with
 // an untouched warm-up before a plain work set, 10 more is typed into the first work set, and the
@@ -71,16 +71,16 @@ async function snapshot() {
     if (S.active) throw new Error('a workout is in progress: finish or discard it first')
     const out = { settings: settingsSnapshot(S), routines: [] }
     // A routine without exercises has a disabled button: it cannot open, so it is not counted.
-    for (let i = 0; i < (S.routines || []).filter(r => r.ex?.length).length; i++) {
-      await evaluate(cdp, 'location.hash = "#/workout"')
+    for (const [i, routine] of (S.routines || []).filter(r => r.ex?.length).entries()) {
+      // Each routine starts from its own page (D126: #/workout without a session goes to Today).
+      await evaluate(cdp, `location.hash = ${JSON.stringify('#/plan/r/' + encodeURIComponent(routine.id) + '/view')}`)
       // The app may still be starting: wait for the button, then for the session, up to 20 s each.
-      if (!await until(() => evaluate(cdp, clickExact('Start Routine', i)))) throw new Error(`no Start Routine button ${i + 1} on the Workout tab`)
+      if (!await until(() => evaluate(cdp, clickExact('Start')))) throw new Error(`no Start button on routine ${i + 1}'s page`)
       await until(async () => (await read()).active)
       await sleep(1000)
       S = await read()
       const opened = openedSnapshot(S)
       if (!opened) throw new Error(`routine ${i + 1} did not start`)
-      const routine = S.routines.find(r => (S.active.entries || []).some(e => e.rid === r.id))
       const target = probeTarget(opened)
       let probe = null
       if (target) {

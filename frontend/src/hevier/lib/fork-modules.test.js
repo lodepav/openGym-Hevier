@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { moduleOn, widgetOn, FORK_PARTS, FORK_MODULES, setAnyModule } from './fork-modules.js'
+import { moduleOn, FORK_PARTS, FORK_MODULES, setAnyModule } from './fork-modules.js'
 import { MODULE_IDS } from '../../lib/modules.js'
 import { plateLineOn, warmupEffortOn } from './settings.js'
 
@@ -18,14 +18,6 @@ describe('hevier: upstream’s Modules in the fork’s screens (D97)', () => {
     setAnyModule(s, 'body', false)
     setAnyModule(s, 'hvNope', false)
     expect(s.modules).toEqual({ hvGyms: false, body: false })
-    expect(widgetOn({ modules: { strength: false } }, 'wsets')).toBe(false)
-  })
-  it('hides the streak and body-weight widgets with their modules, never a core one', () => {
-    const off = { modules: { motivation: false, body: false } }
-    expect(widgetOn(off, 'streak')).toBe(false)
-    expect(widgetOn(off, 'weight')).toBe(false)
-    for (const id of ['today', 'recovery', 'weekly', 'feed']) expect(widgetOn(off, id)).toBe(true)
-    expect(widgetOn({}, 'streak')).toBe(true)
   })
   it('keeps the plate line off by default, and off with Plates and warm-ups off', () => {
     expect(plateLineOn({})).toBe(false)

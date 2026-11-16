@@ -5,16 +5,22 @@
 const at = s => Math.max(Number(s?.at) || 0, Number(s?.sides?.L?.at) || 0, Number(s?.sides?.R?.at) || 0)
 const sideStarted = s => !!(s?.sides?.L?.done || s?.sides?.R?.done)
 
+/** The newest tick of session `A`: `{ idx, i, at }` of its exercise, its row and its time; `at` 0 with none yet (`idx` 0). */
+export function newestTick(A) {
+  let idx = 0, i = null, newest = 0
+  ;(A?.entries || []).forEach((e, k) => (e.sets || []).forEach((s, j) => {
+    const t = s.done || sideStarted(s) ? at(s) : 0
+    if (t > newest) { newest = t; idx = k; i = j }
+  }))
+  return { idx, i, at: newest }
+}
+
 /** `{ idx, i }` of the next set of the running session `A`, or null when every set is done. */
 export function nextSet(A) {
   const E = A?.entries || []
   if (!E.length) return null
   // The exercise of the newest tick; with none yet, the first.
-  let from = 0, newest = 0
-  E.forEach((e, idx) => (e.sets || []).forEach(s => {
-    const t = s.done || sideStarted(s) ? at(s) : 0
-    if (t > newest) { newest = t; from = idx }
-  }))
+  const from = newestTick(A).idx
   for (let k = 0; k < E.length; k++) {
     const idx = (from + k) % E.length
     const i = (E[idx].sets || []).findIndex(s => !s.done)

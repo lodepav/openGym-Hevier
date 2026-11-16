@@ -41,7 +41,7 @@ afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: Statistics and Measures (M6)', () => {
   it('Statistics: the last 7 days, sets per muscle by period, and upstream’s statistics behind a row', () => {
-    render(['/profile', '/stats'], { workouts: [workout(todayISO())] })
+    render(['/history-tab', '/stats'], { workouts: [workout(todayISO())] })
     expect(container.querySelectorAll('.hv-day')).toHaveLength(7)
     expect(container.querySelector('.hv-day.today.on')).toBeTruthy()
     expect(container.querySelector('.bodymap, svg')).toBeTruthy()
@@ -77,9 +77,9 @@ describe('hevier: Statistics and Measures (M6)', () => {
   })
 
   it('Measures: body weight with upstream’s log, then measurements and photos', () => {
-    render(['/profile', '/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }] })
+    render(['/history-tab', '/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }] })
     expect(container.querySelector('.big').textContent).toContain('80')
-    expect(container.querySelector('[aria-current="page"], .on, .active')?.textContent).toContain('Profile')
+    expect(container.querySelector('[aria-current="page"], .on, .active')?.textContent).toContain('History')
     act(() => byText('button', 'Log').click())
     expect(useUI.getState().sheets).toHaveLength(1)
     act(() => byText('.hv-linkrow', 'Body measurements').click())
@@ -87,7 +87,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
   })
 
   it('upstream’s own ‹ on a page under Measures goes back there, not to Home', () => {
-    render(['/profile', '/measures', '/measurements'])
+    render(['/history-tab', '/measures', '/measurements'])
     act(() => container.querySelector('.hdr > .iconbtn').click())
     expect(path).toBe('/measures')
   })

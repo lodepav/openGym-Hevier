@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens copied from frontend/src/hevier/theme.css (D123). The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#2fbf5b; --on-acc:#000; --yellow:#efab03; --red:#e34b37;
+  --r-sm:14px; --r:20px; --r-card:26px; --page:#0b0a08;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 'Nunito',Roboto,system-ui,sans-serif; padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; }
+h2 { font-size:20px; font-weight:800; margin:40px 0 4px; }
+h2 .rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:3px; }
+p.lead { color:var(--label-2); max-width:70ch; margin:6px 0 0; }
+ul.moves { color:var(--label-2); max-width:80ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+.phone { width:411px; height:891px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.bar { padding:44px 18px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--sep); }
+.bar b { font-size:19px; font-weight:800; }
+.bar span { color:var(--label-2); font-size:14px; }
+.body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--label); padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:rgba(47,191,91,.22); border-color:var(--acc); opacity:1; }
+.card { border-radius:var(--r-card); box-shadow:inset 0 0 0 1px var(--sep); padding:14px 16px; }
+.card.fill { background:var(--surface); box-shadow:none; }
+.cap { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.big { font-size:24px; font-weight:800; line-height:1.15; }
+.mid { font-size:17px; font-weight:700; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.btn { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:16px; text-align:center; border-radius:99px; padding:13px; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--surface); border-radius:99px; padding:9px 14px; font-weight:700; font-size:14px; }
+.chip.on { background:var(--acc); color:var(--on-acc); }
+.chip.line { background:none; box-shadow:inset 0 0 0 1px var(--sep); }
+.li { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.li:last-child { border-bottom:0; }
+.li .r { color:var(--label-2); white-space:nowrap; }
+.up { color:var(--acc); font-weight:800; } .down { color:var(--red); font-weight:800; } .rec2 { color:var(--yellow); font-weight:800; }
+.week { display:flex; justify-content:space-between; }
+.week span { width:44px; text-align:center; font-size:12px; color:var(--label-2); font-weight:700; }
+.week i { display:block; width:10px; height:10px; border-radius:50%; margin:6px auto 0; background:var(--sep); }
+.week .d i { background:var(--acc); } .week .p i { background:none; border:2px solid var(--acc); } .week .t { color:var(--label); }
+.search { background:var(--surface); border-radius:var(--r); padding:12px 14px; color:var(--label-2); }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; }
+.seg span { flex:1; text-align:center; padding:8px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); }
+.seg .on { background:var(--bg); color:var(--label); }
+.block { border:1.5px dashed var(--sep); border-radius:var(--r); padding:12px 14px; color:var(--label-2); font-size:13px; }
+.block b { color:var(--label); display:block; font-size:15px; }
+.old { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+.old img { width:260px; border:1px solid var(--sep); border-radius:22px; flex:none; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; }
+table { display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+</style>
+</head>
+<body>
+<h1>Navigation: the tabs and where things live</h1>
+<p class="lead">The approved version of three (the scores of all three are in REWORK.md). It shows the root pages; what is on a page is drawn as plain blocks, since every page gets its own mockup later. Names and numbers are examples.</p>
+
+<h2>A · Today, Lifts, History <span class="rec">Approved 2026-11-16 · D126</span></h2>
+<p class="lead">Tabs by what you open most. The app opens on the next session with its sets in view. Your most used stat, an exercise's history, gets a tab of its own. Planning is rare, so it lives one tap in, on Today.</p>
+<div class="row">
+<figure><div class="phone">
+  <div class="bar"><b>Today</b><span>Settings</span></div>
+  <div class="body">
+    <div class="card">
+      <div class="cap">Next · Tue 17 Nov</div>
+      <div class="big" style="margin:4px 0 2px">TBJP Upper A</div>
+      <div class="chips" style="margin:8px 0"><span class="chip">Main gym ▾</span><span class="chip line">3 of 6 this round</span></div>
+      <div class="li"><span>Chest Press</span><span class="r">3 × 5 · 82.5 kg</span></div>
+      <div class="li"><span>Seated Row</span><span class="r">3 × 8 · 70 kg</span></div>
+      <div class="li"><span>Shoulder Press</span><span class="r">2 × 8 · 45 kg</span></div>
+      <div class="li"><span>Lat Pulldown</span><span class="r">2 × 10 · 65 kg</span></div>
+      <div class="li"><span class="dim">5 more</span><span class="r">about 1 h 25</span></div>
+      <div class="btn" style="margin-top:10px">Start</div>
+    </div>
+    <div class="week"><span class="d">M<i></i></span><span class="t p">T<i></i></span><span class="p">W<i></i></span><span>T<i></i></span><span class="p">F<i></i></span><span class="p">S<i></i></span><span>S<i></i></span></div>
+    <div class="chips"><span class="chip">Routines</span><span class="chip">Calendar</span><span class="chip">Empty workout</span></div>
+    <div class="card">
+      <div class="cap">Last workout · Sun</div>
+      <div class="mid">TBJP Lower A (Deload)</div>
+      <div class="sm dim">52 min · 8 sets · <span class="rec2">2 records</span> · <span class="up">↑ 3</span> = 4 <span class="down">↓ 1</span> than last time</div>
+    </div>
+    <div class="sm dim">1.6 year streak · 2 of 6 this week</div>
+  </div>
+  <div class="tabs"><div class="on">Today</div><div>Lifts</div><div>History</div></div>
+</div><figcaption>Today. Start is 1 tap, the plan is read without a tap. Routines and Calendar are the way into planning.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="bar"><b>Lifts</b><span></span></div>
+  <div class="body">
+    <div class="search">Search exercises</div>
+    <div class="chips"><span class="chip on">Recent</span><span class="chip">Strength levels</span><span class="chip">Trends</span><span class="chip">Time</span></div>
+    <div class="card" style="padding:6px 16px">
+      <div class="li"><span><b>Leg Press</b> <span class="dim sm">Evolve</span><br><span class="sm dim">Sun · 200 × 5 · best 210 × 5</span></span><span class="r up">↑</span></div>
+      <div class="li"><span><b>Lying Leg Curl</b> <span class="dim sm">LifeFitness</span><br><span class="sm dim">Sun · 82.5 × 8 · best 97.5 × 5</span></span><span class="r">=</span></div>
+      <div class="li"><span><b>Calf Raise</b><br><span class="sm dim">Sun · 120 × 10 · best 120 × 10</span></span><span class="r rec2">record</span></div>
+      <div class="li"><span><b>Chest Press</b> <span class="dim sm">Hammer</span><br><span class="sm dim">Sat · 82.5 × 5 · best 85 × 5</span></span><span class="r down">↓</span></div>
+      <div class="li"><span><b>Seated Row</b> <span class="dim sm">LifeFitness</span><br><span class="sm dim">Sat · 70 × 8 · best 72.5 × 8</span></span><span class="r">=</span></div>
+      <div class="li"><span><b>Shoulder Press</b><br><span class="sm dim">Sat · 45 × 8 · best 47.5 × 6</span></span><span class="r up">↑</span></div>
+      <div class="li"><span><b>Lat Pulldown</b><br><span class="sm dim">Sat · 65 × 10 · best 67.5 × 8</span></span><span class="r">=</span></div>
+    </div>
+    <div class="sm dim">A row opens the exercise on its last sessions.</div>
+  </div>
+  <div class="tabs"><div>Today</div><div class="on">Lifts</div><div>History</div></div>
+</div><figcaption>Lifts. Every exercise, the ones you trained last on top, each with its last and best set. Its history is 2 taps from opening the app (4 and a search today).</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="bar"><b>History</b><span></span></div>
+  <div class="body">
+    <div class="chips"><span class="chip">Calendar</span><span class="chip">Month report</span><span class="chip">Sets per muscle</span><span class="chip">Body weight</span><span class="chip line">More</span></div>
+    <div class="chips"><span class="chip on">All</span><span class="chip">Maintaining</span><span class="chip">Cut</span></div>
+    <div class="card">
+      <div class="sm dim">Sun 15 Nov · 16:30 · Main gym</div>
+      <div class="mid">TBJP Lower A (Deload)</div>
+      <div class="sm dim">52 min · 8 sets · <span class="rec2">2 records</span> · ♥ 106</div>
+      <div class="sm" style="margin-top:6px"><span class="up">↑ 3</span> = 4 <span class="down">↓ 1</span> <span class="dim">than last time</span></div>
+    </div>
+    <div class="card">
+      <div class="sm dim">Sat 14 Nov · 15:10 · Main gym</div>
+      <div class="mid">TBJP Upper A (Deload)</div>
+      <div class="sm dim">1 h 04 · 14 sets · ♥ 101</div>
+      <div class="sm" style="margin-top:6px"><span class="up">↑ 2</span> = 9 <span class="down">↓ 3</span> <span class="dim">than last time</span></div>
+    </div>
+    <div class="card">
+      <div class="sm dim">Wed 11 Nov · 16:45 · Second gym</div>
+      <div class="mid">TBJP Lower C</div>
+      <div class="sm dim">1 h 18 · 19 sets · <span class="rec2">1 record</span> · ♥ 112</div>
+      <div class="sm" style="margin-top:6px"><span class="up">↑ 6</span> = 10 <span class="down">↓ 3</span> <span class="dim">than last time</span></div>
+    </div>
+  </div>
+  <div class="tabs"><div>Today</div><div>Lifts</div><div class="on">History</div></div>
+</div><figcaption>History. Past workouts with the phase filter, and the pages you named above them. "More" holds exercise time, all statistics, structural balance, measures.</figcaption></figure>
+</div>
+<ul class="moves">
+  <li><b>Gone as tabs:</b> Workout and Profile. <b>Routines and folders, the calendar's planning, Empty workout:</b> one tap in, from Today.</li>
+  <li><b>Profile's weekly chart:</b> under History → More. <b>The feed:</b> once, in History, not on two tabs.</li>
+  <li><b>Settings:</b> top right of Today. <b>A workout in progress:</b> the bar above the tabs stays as it is.</li>
+</ul>
+
+</body>
+</html>

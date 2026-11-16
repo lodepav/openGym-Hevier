@@ -51,7 +51,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows.indexOf('Data & backup')).toBeGreaterThan(rows.indexOf('Look & Home'))
     expect(container.querySelector('.sp-acct')).toBeTruthy()
     expect(container.textContent).not.toContain('Cards')
-    expect(container.querySelector('.sp-back').textContent).toBe('Profile')
+    expect(container.querySelector('.sp-back').textContent).toBe('Today')
   })
 
   it('leaves the layout rows out of Workout and Fine-tuning, keeping the rest', () => {
@@ -119,7 +119,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.hv-accent-row input[type="color"]')).toBeTruthy()
     expect(rows).toContain('Body diagram')
     expect(rows).not.toContain('Gym check-in')
-    expect(rows).toContain('Body weight')
+    expect(rows).not.toContain('Body weight')   // D134: Today has no card to switch
     expect(hiddenSetting({ page: 'look', title: 'Accent color' })).toBe(true)
     act(() => root.unmount()); container.remove()
     render(null)

@@ -3278,7 +3278,8 @@ export const glyphPicker = (current, onPick) => {
 // for the value between two presets. Presets are stored in RIR internally; a profile that logs
 // RPE sees the same buttons labelled on its own scale (toScale), coloured identically — the
 // colour is the effort, not the number, so 0 RIR and 10 RPE are both the "went to failure" end.
-function EffortPicker({ kind, value, onPick, close, cardio = false }) {
+// [hevier] S68: exported, the fork's dialog adds a tick under it (D127)
+export function EffortPicker({ kind, value, onPick, close, cardio = false }) {
   // Local mirror so the ticked preset and the exact field track typing live.
   const [v, setV] = useState(value ?? null)
   // The exact field used to write through on every change, and onPick concludes the set (issue
@@ -4786,7 +4787,7 @@ function FinishSummary({ w, prs, e1prs = [], additions = [], close }) {
 }
 export function finishWorkout() {
   if (S().active?.editingWorkoutId) { saveWorkoutEdits(); return }
-  // [hevier] S9: Finish opens the fork's Save Workout page, which saves through doFinishWorkout
+  // [hevier] S9: Finish opens the fork's Finish sheet, which saves through doFinishWorkout
   if (hooks.finish && S().active) { hooks.finish(); return }
   // [/hevier]
   const A = S().active
@@ -4891,13 +4892,13 @@ function doFinishWorkout({ end: endAt, auto } = {}) {
   // into s.active, which is gone. What it held is not logged, like any set left unchecked.
   useUI.getState().stopWork()
   beep(snd(), 880, 0.15); beep(snd(), 1100, 0.15, 0.18); beep(snd(), 1320, 0.3, 0.36)
-  // [hevier] S9: the fork shows its own summary of the saved workout
+  // [hevier] S9: the fork lands on Today with a message in place of the summary
   if (hooks.done) { hooks.done({ w: shown, prs, e1prs }); return }
   // [/hevier]
   ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} additions={additions} close={close} />, { kind: 'center', locked: true, wide: true })
 }
-// [hevier] S9: the fork's Save Workout page saves, and its summary reuses these sections
-export { doFinishWorkout, LastAndNext, CardioDone }
+// [hevier] S9: the fork's Finish sheet saves
+export { doFinishWorkout }
 // [/hevier]
 
 /**

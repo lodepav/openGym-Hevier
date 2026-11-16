@@ -1,21 +1,18 @@
-// The workout screen's menus for one exercise (hevier/DECISIONS.md D5, D8, D41): the set-type
-// picker behind a set's number, the ⋮ menu and its weight unit. They only list; every change goes
+// The workout screen's menus for one exercise (hevier/DECISIONS.md D5, D8, D41, D127): the set-type
+// picker behind a set's number, the exercise's More and its weight unit. They only list; every change goes
 // through the handlers HevyExerciseBlock passes in.
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtDate } from '../../lib/format.js'
-import { canBeWarmup, setSpanAt, EFFORT } from '../../lib/history.js'
+import { fmtNum } from '../../lib/format.js'
+import { canBeWarmup, setSpanAt, EFFORT, isPerSide } from '../../lib/history.js'
 import { REST_MAX, fmtRest } from '../../lib/duration.js'
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { isWarmupRow, isFailureSet, isDropSet, isRestPauseSet } from '../../lib/workout-model.js'
-import { menuSheet, effortPickerSheet, exerciseHistorySheet, barWeightSheet } from '../../sheets.jsx'
+import { menuSheet, effortPickerSheet, barWeightSheet } from '../../sheets.jsx'
 import { isHoldRow, canBeHold, setTicked } from '../lib/hold-set.js'
 import { exUnitChoice, setExUnit, defaultStep, unitChoices } from '../lib/ex-unit.js'
 import { setSideOrder } from '../lib/side-order.js'
-import { brandSheet } from './GymLabels.jsx'
 import { partOn } from '../lib/module-parts.js'
 import { moduleOn } from '../lib/fork-modules.js'
-import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
-import { useStore } from '../../store/useStore.js'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
 // `rest` is the set's own rest and the one it takes without, with `save(sec)`; none while editing.
@@ -91,41 +88,44 @@ export function unitMenu(S, update, exId) {
   })
 }
 
-// D8: everything about the exercise that is not a set lives behind ⋮ — Hevy's five items first,
-// then what openGym adds (progression included), Remove last. `p` is the block's props, `x` what
-// the block worked out for the exercise.
+// D127: More on the open exercise (Swap, Note, History, Rest and Reorder are buttons beside it):
+// Per side, Superset, Weight unit, Exercise settings and Remove exercise, each with an icon, and
+// between them what else the menu held before (D8), so nothing is lost. `p` is the block's props,
+// `x` what the block worked out for the exercise.
 export function exerciseMenu(p, x) {
-  const { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit, unitChoice, guidance, last, plateLoading } = x
+  const { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit, unitChoice, guidance, plateLoading } = x
+  const pairs = [
+    !p.superset && p.onPairPrev && { icon: 'link', label: t('Make superset with previous'), onClick: p.onPairPrev },
+    !p.superset && p.onPairNext && { icon: 'link', label: t('Make superset with next'), onClick: p.onPairNext },
+    p.superset && p.onUnpair && { icon: 'link', label: t('Unpair'), onClick: p.onUnpair },
+  ].filter(Boolean)
   menuSheet({
     title: exerciseNameFor(ex),
     titleClass: exerciseNameClass(ex),
     sections: [
       { items: [
-        p.onReorder && { icon: 'chevronsUpDown', label: t('Reorder exercises'), onClick: () => reorderExercisesSheet(p.onReorder), disabled: p.busy },
-        p.onSwap && { icon: 'swap', label: t('Replace exercise'), onClick: p.onSwap, disabled: p.busy },
-        !p.superset && p.onPairPrev && { icon: 'link', label: t('Make superset with previous'), onClick: p.onPairPrev },
-        !p.superset && p.onPairNext && { icon: 'link', label: t('Make superset with next'), onClick: p.onPairNext },
-        p.superset && p.onUnpair && { icon: 'link', label: t('Unpair'), onClick: p.onUnpair },
-        { icon: 'sunrise', label: t('Add warm-up set'), onClick: p.onAddWarmup },
-      ] },
-      { items: [
+        // shortcut: Per side is switched in Exercise settings, which rebuilds the rows (views/Workout.jsx
+        // openProgressionSettings); a one-tap switch needs that rebuild reachable from the fork.
+        mode !== 'cardio' && p.onProgressionSettings && { icon: 'sides', label: t('Per side'), sub: t('In Exercise settings'),
+          on: isPerSide(cfg), onClick: p.onProgressionSettings },
+        pairs.length > 0 && { icon: 'link', label: t('Superset'), sub: p.superset ? t('Unpair') : undefined, chevron: true,
+          onClick: () => menuSheet({ title: t('Superset'), items: pairs }) },
+        mode === 'reps' && !bw && partOn(S, 'hvExercise', 'units') && { icon: 'ruler', label: t('Weight unit'),
+          sub: convertsUnit ? (unitChoice?.step != null ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice.step)) : exUnit) : t('{0}, as the profile', unit),
+          onClick: () => unitMenu(S, update, entry.id) },
         p.onProgressionSettings && { icon: 'slider', label: t('Exercise settings'),
           sub: guidance ? t(guidance.policyLabel) + ' · ' + t(...guidance.why) : t('Sets, reps, rest, progression'),
           onClick: p.onProgressionSettings },
+      ] },
+      { items: [
         p.onNoProg && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('This exercise, this session only'), on: entry.noProg === true, onClick: () => p.onNoProg(entry.noProg !== true) },
         plateLoading && mode === 'reps' && partOn(S, 'hvExercise', 'plates') && moduleOn(S, 'plates') && { icon: 'plate', label: t('Plate loading'), onClick: () => barWeightSheet(entry.id, cfg) },
-        // Any exercise can carry a label (D28), not only a machine, whose line is always there.
-        !x.hasLabel && partOn(useStore.getState().S, 'hvGyms', 'brands') && { icon: 'machine', label: t('Add brand'), sub: t('A brand or a note of your own, e.g. Achilles Rehab'), onClick: () => brandSheet(p.entryIdx) },
         p.routineUpdate && { icon: 'clipboard', label: t('Update routine'), sub: p.routineUpdate.sub, onClick: p.routineUpdate.run },
         perSide && { icon: 'swap', label: t('Side order'), sub: first === 'R' ? t('Right first') : t('Left first'),
           onClick: () => menuSheet({ title: t('Side order'), sections: [{ items: [
             { label: t('Left first'), on: first === 'L', onClick: () => update(s => { setSideOrder(s, entry.id, false) }) },
             { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
           ] }] }) },
-        mode === 'reps' && !bw && partOn(S, 'hvExercise', 'units') && { icon: 'ruler', label: t('Weight unit'),
-          sub: convertsUnit ? (unitChoice?.step != null ? t('{0} · {1} {0} steps', exUnit, fmtNum(unitChoice.step)) : exUnit) : t('{0}, as the profile', unit),
-          onClick: () => unitMenu(S, update, entry.id) },
-        { icon: 'history', label: t('History'), sub: last ? t('Last time') + ' ' + fmtDate(last.d) : undefined, onClick: () => exerciseHistorySheet(entry.id) },
       ] },
       { items: [
         p.onRemoveExercise && { icon: 'xmark', label: t('Remove exercise'), danger: true, disabled: p.busy, onClick: p.onRemoveExercise },

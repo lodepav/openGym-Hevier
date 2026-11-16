@@ -8,6 +8,7 @@ Each fork feature is listed once, with the decision that describes it in [DECISI
 | **Offer** | A general improvement that upstream's own UI would benefit from. It could be offered as an issue or a pull request, with the user's go-ahead (RULES.md: `upstream-pr/<topic>`). |
 | **Offered** | Already offered upstream. The issue or PR number is given. |
 | **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
+| **Removed** | Was in the fork until a later decision took it out; listed so it can still be found. |
 
 A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.5` on 2026-11-12.
 
@@ -20,27 +21,29 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's set table as the only workout layout | D1 | Fork |
 | Prefilled values in grey until touched, as placeholders | D2 | Fork |
 | The plate line under a set off by default, a switch in During a workout | D84 | Fork |
-| "Next time" on the finish summary only for a routine with progression on | D85 | Fork |
 | PREVIOUS column: last time's set, tap to copy; a missing set is read from an older session | D3 | Fork |
 | No ± steppers; values typed on the number pad | D4 | Fork |
 | Set-type sheet (W / F / D labels), with drops nested under their set | D5 | Fork |
 | Effort column, only when RIR/RPE is on | D6 | Fork |
-| Hevy exercise block: notes, rest line, + Add Set | D7 | Fork |
+| Exercise block: picture, name and brand on one line; on the open exercise Swap, Note, History, Rest, Reorder and More, and + Set beside + Warm-up | D7, D127 | Fork |
 | Progression guidance behind ⋮ (Exercise settings), nothing about it on the card | D8 | Fork |
 | Swipe left deletes a set, with undo | D9 | Fork |
-| Header: duration, ⏱ Timer/Stopwatch, Finish → Save Workout → "Nice work!" | D10 | Fork |
+| Header: name, duration, heart rate, ⏱ Timer/Stopwatch and Finish; the gym and the workout note behind the name's chevron | D10, D127 | Fork |
+| Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
+| Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue: a Timer and a Stopwatch in the workout) |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
-| "Update routine?" prompt after a workout that changed the routine | D35 | Offer (upstream 1.4.3's #592 keeps added exercises) |
+| "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offer (upstream 1.4.3's #592 keeps added exercises) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer (upstream 1.4.5 runs timed holds by themselves, but has no count-up timer on a cardio set) |
-| Workout note at the top of the workout and on the feed cards | D54 | Fork |
+| Workout note behind the workout's name and on the feed cards | D54, D127 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |
 | "Still training?" after five hours | D60 | Ported (#906, upstream's Forgotten workouts since 1.4.5, after 45 quiet minutes; the fork's own is gone, D103) |
 | A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer (upstream 1.4.5 adds a rest before the next exercise, #487, #1020; not after one side) |
-| The next set to do is highlighted | D71 | Fork |
+| The next set to do opens large, with the effort button in the tick's place when effort is on, its dialog ending with Log without rating; a tap opens another set | D71, D127 | Fork |
+| The rest docks at the bottom of the workout: countdown, next set, +1 min, +2 min, Skip | D127 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Offered (#1093, issue: the hold set) |
@@ -51,7 +54,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The gym on the feed card | D94 | Offered (#1097, History rows and details) |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
-| Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down | D118 | Fork |
+| Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down, a button on the open exercise | D118, D127 | Fork |
 | A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293) |
 
 ## Routines
@@ -59,9 +62,12 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Feature | D | Mark |
 |---|---|---|
 | Hevy's routine editor table drawn from openGym's prescription | D15 | Fork |
+| Routine editor: a drag handle on each exercise, + Set beside + Warm-up, the rest as a chip, a remove mark on each set, the brand on the name line; the exercise's note behind ⋮ → Note | D130 | Fork |
 | Routine page (read-only) before the editor | D37 | Fork |
-| Routine folders, long-press reorder | D13 | Fork |
-| Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field | D45 | Fork |
+| The routine's page is the next session's plan: last time beside what each set opens with, warm-ups included; a tap on a weight or reps plans it for the next session only, without changing the routine; Today's card shows the same numbers | D128 | Fork |
+| Routine folders, reordered by their handles | D13 | Fork |
+| Routines list: folders fold, each routine a row with its next planned day or when it was last done, the next one marked with an accent Start; a tap opens the next session's page, a long press or ⋯ moves, copies or deletes; + Routine, + Folder, Rotation, Empty workout and Explore at the end | D130 | Fork |
+| Planned backups for a routine exercise: the fork's ⋮ → Backups sheet and "Your backups" over upstream 1.4.2's field (in the routine editor's Replace; the workout's Swap lists your own swaps instead, D129) | D45 | Fork |
 | A gym's backups: the swap made at a gym is reused there | D46 | Offered (a comment on #1022, which asks for routines per gym; upstream 1.4.3 offers a slot's backups in the workout's ⋯, #649, not learned per gym) |
 | Missing at a gym: a routine starts with the first backup the gym has; backups in priority order | D86 | Fork |
 | Progression off by default; a per-routine switch for progression and auto warm-ups | D61, D69 | Fork (the default rule offered as a profile setting, #814, released in v1.4.4; a routine that repeats its last workout offered as #1161) |
@@ -93,7 +99,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength level from thresholds you type in | D19 | Offer (upstream's levels come from published tables by body weight, sex and age; typed thresholds are the fork's) |
 | Strength levels list, by the level reached | D81 | Fork (upstream's Strength levels card on Stats lists every graded lift by level since 1.4.4) |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
-| YouTube demo on an exercise's How to tab (upstream 1.4.4's card) | D101 | Fork |
+| An exercise's page is one page, no tabs: the animation, the phase and brand filter, the last sessions one line each (an arrow against the session before, a star on each best set, All history), the best sets as three tiles, the best at each rep count (the last month's marked new), the chart, then Strength level, Compare brands, Time on this exercise and How to | D131 | Fork |
+| YouTube demo on an exercise's How to (upstream 1.4.4's card) | D101 | Fork |
 | Create “<text>” in the picker when a search finds nothing | D118 | Fork |
 
 ## Statistics and history
@@ -105,6 +112,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer (upstream 1.4.5 adds rep records 1 to 12 and numbers per gym; Hevy's kinds per label are the fork's) |
 | Monthly report | D23 | Fork (upstream 1.4.5 has its own Your month, left out of the fork's UI, D109) |
 | Beat last time: ↑ = ↓ against the PREVIOUS column's set, on Workout Detail and the workout's rows (upstream's comparison and switch since 1.4.4, #907) | D66 | Fork |
+| Workout Detail without the Muscle split bars; effort in its own RPE (or RIR) column; a per-side set of any type as an L row and an R row under one number, its arrows and records on their side | D133 | Fork |
 | Exercises kept out of progression are kept out of the statistics too (a deload routine's still count) | D57 | Offered (#813, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Fork (upstream's week streak has freezes and excused weeks of its own) |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
@@ -120,11 +128,14 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 
 | Feature | D | Mark |
 |---|---|---|
-| Three tabs (Home · Workout · Profile); no Coach tab | D11 | Fork |
-| Configurable Home of widgets | D12 | Fork |
-| Workout tab: Quick Start, Today card, routine cards | D13 | Fork |
-| Profile: weekly chart, dashboard, workout list | D14 | Fork |
-| Settings root regrouped under five titles; layout-only rows hidden | D16 | Fork |
+| Three tabs (Today · Lifts · History, in place of Home · Workout · Profile); no Coach tab | D11, D126 | Fork |
+| Today: the next session (when, where, the first five exercises and their sets), Start, the week in seven days, the round and the streak, Routines · Calendar · Empty workout, the last workout | D134 | Fork |
+| Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels, Trends and Exercise time | D135 | Fork |
+| History: this week in three numbers, chips to Calendar, Statistics, Month report, Sets per muscle, Body weight and More, the phase filter and the workout feed | D135 | Fork |
+| Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
+| The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
+| Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
+| Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |
 | Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |
 | One Hevy page bar everywhere | D49 | Fork |
 | App name "Go Hevier" | D39 | Fork |
@@ -133,7 +144,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered (#1087, issue) |
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
-| Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 | Switches that can do nothing are disabled and say which module they need | D118 | Fork |
 
 ## Hevy import and export

@@ -4,34 +4,32 @@ import { decideBack } from '../../lib/back.js'
 import { isTabRoot, atTabRoot, backPath } from './back-root.js'
 
 describe('hevier: back on a tab screen', () => {
-  it('knows the three tab screens', () => {
-    expect(['/home', '/profile', '/', ''].every(p => isTabRoot(p, false))).toBe(true)
-    expect(isTabRoot('/workout', false)).toBe(true)
-    expect(isTabRoot('/workout', true)).toBe(false)
-    expect(isTabRoot('/library', false)).toBe(false)
-    expect(isTabRoot('/workout-detail', false)).toBe(false)
+  it('knows the three tab screens (D126)', () => {
+    expect(['/home', '/lifts', '/history-tab', '/', ''].every(p => isTabRoot(p))).toBe(true)
+    expect(['/workout', '/routines', '/profile', '/library', '/history', '/workout-detail'].some(p => isTabRoot(p))).toBe(false)
   })
 
   it('arms upstream’s exit on a tab screen, walks history elsewhere', () => {
     const ev = { canGoBack: true }
-    const on = path => decideBack({ top: undefined, canGoBack: atTabRoot(ev, path, false).canGoBack, exitArmed: false })
-    expect(on('/profile')).toBe('arm-exit')
+    const on = path => decideBack({ top: undefined, canGoBack: atTabRoot(ev, path).canGoBack, exitArmed: false })
+    expect(on('/history-tab')).toBe('arm-exit')
+    expect(on('/lifts')).toBe('arm-exit')
     expect(on('/library')).toBe('history')
   })
 
   it('a sub-page the router pushed walks back even when the WebView says it cannot', () => {
-    const on = idx => decideBack({ top: undefined, canGoBack: atTabRoot({ canGoBack: false }, '/calendar', false, idx).canGoBack, exitArmed: false })
+    const on = idx => decideBack({ top: undefined, canGoBack: atTabRoot({ canGoBack: false }, '/calendar', idx).canGoBack, exitArmed: false })
     expect(on(2)).toBe('history')
     expect(on(0)).toBe('arm-exit')
-    expect(atTabRoot({ canGoBack: false }, '/profile', false, 2).canGoBack).toBe(false)
+    expect(atTabRoot({ canGoBack: false }, '/lifts', 2).canGoBack).toBe(false)
   })
 
   it('an open sheet still closes first', () => {
-    expect(decideBack({ top: { id: 's' }, canGoBack: atTabRoot({ canGoBack: true }, '/home', false).canGoBack, exitArmed: false })).toBe('sheet')
+    expect(decideBack({ top: { id: 's' }, canGoBack: atTabRoot({ canGoBack: true }, '/home').canGoBack, exitArmed: false })).toBe('sheet')
   })
 
   it('Statistics, Plan and Exercises are pages in the fork, so back goes up from them (upstream reads them as tabs)', () => {
-    const on = path => decideBack({ top: undefined, pathname: backPath(path), canGoBack: atTabRoot({ canGoBack: false }, path, false, 1).canGoBack, exitArmed: false })
+    const on = path => decideBack({ top: undefined, pathname: backPath(path), canGoBack: atTabRoot({ canGoBack: false }, path, 1).canGoBack, exitArmed: false })
     expect(['/stats', '/plan', '/library', '/library/'].map(on)).toEqual(['history', 'history', 'history', 'history'])
     expect(on('/home')).toBe('arm-exit')
     expect(backPath('/calendar')).toBe('/calendar')

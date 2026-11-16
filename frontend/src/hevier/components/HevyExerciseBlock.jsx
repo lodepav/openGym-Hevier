@@ -1,6 +1,7 @@
-// One exercise in the Hevy workout screen (hevier/DECISIONS.md D2–D9, reference/SCREENS.md §2):
-// thumbnail · blue name · ⋮, the notes, "Rest Timer: …", then the SET · PREVIOUS · KG · REPS · ✓
-// table and a full-width "+ Add Set". The columns follow the exercise's mode as upstream's block
+// One exercise in the live workout (hevier/DECISIONS.md D127, after D2–D9): picture · name · brand,
+// on the open exercise its six buttons (Swap, Note, History, Rest, Reorder, More), then the SET ·
+// PREVIOUS · KG · REPS · ✓ table with the opened set large and the effort button in the tick’s place, and on the
+// open exercise "+ Set" and "+ Warm-up" side by side. The columns follow the exercise's mode as upstream's block
 // does: KG · REPS, KG · TIME for a timed hold, TIME · speed (· incline) for cardio, the last two
 // with Hevy's count-up timer (D53), and an L and an R line under one set number for a per-side exercise.
 //
@@ -9,7 +10,8 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { fitNumbers } from '../lib/fit-numbers.js'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
@@ -17,6 +19,7 @@ import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtPlate } from '../../lib/format.js'
 import { restTimerText, elapsedClock } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
+import { partOn } from '../lib/module-parts.js'
 import {
   EFFORT, effortOf, modeOf, isBw, isPerSide, exNoteFor, pinnedNoteFor, makeWarmupAt, makeWorkAt,
   setSpanAt, lastEntryFor,
@@ -28,16 +31,17 @@ import { effortColor } from '../../lib/effort.js'
 import { sessionHistory } from '../../lib/backfill.js'
 import { progressionGuidance } from '../../lib/progression-copy.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
-import { confirmSheet, effortPickerSheet, exerciseDetailSheet, exerciseNoteSheet, setNoteSheet } from '../../sheets.jsx'
+import { confirmSheet, effortPickerSheet, EffortPicker, exerciseDetailSheet, exerciseNoteSheet, exerciseHistorySheet, setNoteSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
-import { Check } from '../../components/ui.jsx'
+import { Button, Check } from '../../components/ui.jsx'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
-import { nextSet } from '../lib/next-set.js'
+import { isOpenRow } from '../lib/open-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
-import { BrandLine } from './GymLabels.jsx'
+import { BrandLine, brandSheet } from './GymLabels.jsx'
+import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
 import { isHoldRow, toHold, toReps, toSideHold, fromSideHold, setNumberOf, isPairTail, setTicked, HOLD_SEC } from '../lib/hold-set.js'
@@ -46,7 +50,7 @@ import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stoppedRows } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
-import { previousText } from '../lib/set-text.js'
+import { previousCell } from '../lib/set-text.js'
 import { fieldSig } from '../lib/store-watch.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
 import { shownWeight } from '../../lib/ex-unit.js'
@@ -72,7 +76,7 @@ const setUI = patch => useUI.setState?.(patch)
 export default function HevyExerciseBlock(props) {
   const {
     entryIdx, editing, superset, onToggle, onToggleSide, onField, onAddSet, onRemoveSetAt, onCopySetAt,
-    onRest, onNoProg, onSetRowRef,
+    onRest, onNoProg, onSetRowRef, open, onOpen,
   } = props
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
@@ -84,6 +88,8 @@ export default function HevyExerciseBlock(props) {
   const entry = S.active.entries[entryIdx]
   const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
   const rowEls = useRef({})
+  const card = useRef(null)
+  useLayoutEffect(() => fitNumbers(card.current))
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
@@ -95,9 +101,9 @@ export default function HevyExerciseBlock(props) {
     [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   // D82: last time on this machine (its brand and cable setup), else with none.
   const prev = previousSetsFor(history, entry, previousMode(S), { label: sessionLabelKey(S, A, entryIdx) })
-  // The set to do next: a lighter row with a blue edge, its values white and bold (lib/next-set.js).
-  const next = S.active && !S.active.editingWorkoutId ? nextSet(S.active) : null
-  const isNext = i => next?.idx === entryIdx && next.i === i
+  // D127: the opened set, large (lib/open-set.js); this exercise is the open
+  // one when `open` is passed, and only then shows its buttons and "+ Set".
+  const isOpenAt = i => isOpenRow(entry.sets, open, i)
   // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.
   const prSets = new Set(recordsAt(liveRecords(S), entryIdx).map(r => r.set))
   const last = lastEntryFor(history, entry.id, entry.rid)
@@ -133,9 +139,10 @@ export default function HevyExerciseBlock(props) {
   const playOn = (timed || cardio) && canPlay
   const playAt = s => playOn || (canPlay && isHoldRow(s))
   const goOn = playOn || (canPlay && entry.sets.some(isHoldRow))
-  const grid = { '--nc': cols.length + (effOn ? 1 : 0) }
+  // D127: the effort gets a narrow track of its own (hevier.css .hv-eff-grid), so PREVIOUS keeps its room.
+  const grid = { '--nc': cols.length }
   // The timer's ▶ / ■ gets a narrow track of its own (hevier.css), so PREVIOUS keeps its room.
-  const goGrid = goOn ? ' hv-go-grid' : ''
+  const goGrid = (goOn ? ' hv-go-grid' : '') + (effOn ? ' hv-eff-grid' : '')
 
   // The same row edits upstream's block makes (views/Workout.jsx ExerciseBlock), from lib/set-rows.js.
   const editSets = fn => update(s => { const e = s.active.entries[entryIdx]; e.sets = fn(e.sets, e) }, true)
@@ -244,7 +251,7 @@ export default function HevyExerciseBlock(props) {
   const plateLoading = !editing
   // D8: the ⋮ menu (exercise-menus.js).
   const openMore = () => exerciseMenu(props, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
-    unitChoice, guidance, last, plateLoading, hasLabel: hasLabel(S, S.active, entryIdx) })
+    unitChoice, guidance, plateLoading })
 
   // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes;
   // only with During a workout → Plates to load on (D84).
@@ -333,18 +340,30 @@ export default function HevyExerciseBlock(props) {
       }} />
   }
   // D6: the effort column, in the profile's scale. Picking a rating ticks the set (upstream #64).
-  const effortCell = (s, i, side) => {
+  // On a set not ticked yet it stands in the tick's place too (`asTick`): the dialog logs the set,
+  // with a rating or with none.
+  const effortCell = (s, i, side, asTick) => {
     const src = side ? (s.sides?.[side] || {}) : s
     const v = src[effortCol.f] ?? null
     const color = effortColor(effortKind === 'rpe' ? (v == null ? null : 10 - v) : v)
-    const open = () => effortPickerSheet(effortKind, v, nv => {
-      if (side) setSide(i, side, effortCol.f, nv); else onField(i, effortCol.f, nv)
+    const log = () => {
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
       const freshSrc = side ? fresh?.sides?.[side] : fresh
-      if (nv != null && freshSrc && !freshSrc.done) tick(i, side)
-    })
-    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '')} onClick={open}
-      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
+      if (freshSrc && !freshSrc.done) tick(i, side)
+    }
+    const onPick = nv => {
+      if (side) setSide(i, side, effortCol.f, nv); else onField(i, effortCol.f, nv)
+      if (nv != null || asTick) log()
+    }
+    // In the tick's place the dialog ends with a tick of its own: the set without a rating.
+    const open = () => (asTick
+      ? useUI.getState().openSheet(close => <>
+        <EffortPicker kind={effortKind} value={v} onPick={onPick} close={close} />
+        <Button icon="check" style={{ width: '100%', minHeight: 48, marginTop: 8, background: 'var(--surface-2)' }} onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
+      </>)
+      : effortPickerSheet(effortKind, v, onPick))
+    return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? t('log it with {0}', t(effortCol.hd)) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
@@ -441,16 +460,20 @@ export default function HevyExerciseBlock(props) {
     const p = prev[i]
     const sideTag = side || s.side
     // A half of a hold pair reads its own side of a per-side set last time.
-    const prevText = previousText(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
+    const prevText = previousCell(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
+    // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
+    const effTick = effOn && effAt(s) && !goOn && !src.done
+    // A tap anywhere on a set but its tick opens it (D127); the tick moves on to the next.
     return <div ref={el => { rowEls.current[i + (side || '')] = el; if (side !== second) onSetRowRef?.(i, el) }} style={grid}
-      className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (!src.done && isNext(i) ? ' hv-next' : '')}>
+      onClick={e => { if (onOpen && !e.target.closest?.('.hv-chk, .hv-eff')) onOpen(i) }}
+      className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (isOpenAt(i) ? ' hv-open' : '')}>
       {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevText : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
-      {effOn && (effAt(s) ? effortCell(s, i, side) : <span />)}
+      {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
       {goOn && !playAt(s) && <span />}
       {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] ? ' on' : '')} disabled={s.done}
         aria-label={t('Timed hold') + ', ' + t('Set {0}', workNumber(i))} onClick={() => holdClock(s, i)}><Icon name="timer" /></button>}
@@ -458,8 +481,8 @@ export default function HevyExerciseBlock(props) {
         ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop') + ', ' + t('Set {0}', workNumber(i))} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
         : <button type="button" className="iconbtn hv-go" aria-label={t('Start set') + ', ' + t('Set {0}', workNumber(i))} disabled={s.done}
           onClick={() => startTimer(i)}><Icon name="play" /></button>)}
-      <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
-        onChange={() => tick(i, side)} />
+      {!effTick && <Check checked={!!src.done} className="hv-chk" label={tickLabel(s, i, side)}
+        onChange={() => tick(i, side)} />}
     </div>
   }
   const subRows = (src, i, side) => <SubRows src={src} show={showWeight}
@@ -496,13 +519,28 @@ export default function HevyExerciseBlock(props) {
   const standing = exNoteFor(S, entry.id)
   const pinned = entry.sets.some(s => !s.done) ? pinnedNoteFor(S, entry.id) : null
 
-  return <div className="hv-ex">
+  const isOpen = !!open
+  // D127: the brand on the name line: a machine's line (BrandLine), or "+ Brand" for any other
+  // exercise on the open one (D28).
+  const addBrand = isOpen && !hasLabel(S, A, entryIdx) && partOn(S, 'hvGyms', 'brands')
+  return <div ref={card} className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
-      <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
-      <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /></button>
+      <div className="hv-nameline">
+        <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+        <BrandLine idx={entryIdx} />
+        {addBrand && <button type="button" className="hv-addbrand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
+      </div>
+      {!isOpen && onOpen && <button type="button" className="iconbtn hv-openex" aria-label={t('Open') + ', ' + exerciseNameFor(ex)} onClick={() => onOpen(null)}><Icon name="chevronDown" /></button>}
     </div>
-    <BrandLine idx={entryIdx} />
+    {isOpen && <div className="hv-acts">
+      {props.onSwap && <button type="button" disabled={props.busy} onClick={props.onSwap}><Icon name="swap" /><span>{t('Swap')}</span></button>}
+      <button type="button" className={entry.note ? 'on' : undefined} onClick={() => exerciseNoteSheet(entryIdx)}><Icon name="note" /><span>{t('Note')}</span></button>
+      <button type="button" onClick={() => exerciseHistorySheet(entry.id)}><Icon name="history" /><span>{t('History')}</span></button>
+      {onRest && <button type="button" aria-label={t('Rest') + ': ' + restText} onClick={onRest}><Icon name="timer" /><span>{restText}</span></button>}
+      {props.onReorder && <button type="button" disabled={props.busy} onClick={() => reorderExercisesSheet(props.onReorder)}><Icon name="chevronsUpDown" /><span>{t('Reorder')}</span></button>}
+      <button type="button" className="hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /><span>{t('More')}</span></button>
+    </div>}
     {supersetInfo && <div className="hv-ss"><span className="hv-sspill">{supersetInfo.name || t('Superset')}</span>
       {supersetInfo.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(supersetInfo.rest, 0, ''))}</span>}</div>}
     {entry.noProg === true && <div className="hv-sub hv-noprog"><Icon name="chartLineSlash" />{t('Not counted for progression')}
@@ -510,10 +548,7 @@ export default function HevyExerciseBlock(props) {
     {cfg.note && <div className="hv-note">{cfg.note}</div>}
     {standing && <div className="hv-note">{standing}</div>}
     {pinned && <div className="hv-note"><Icon name="pin" /> {pinned.note}</div>}
-    <button type="button" className={'hv-notes' + (entry.note ? ' has' : '')} onClick={() => exerciseNoteSheet(entryIdx)}>
-      {entry.note || t('Add notes here…')}
-    </button>
-    {onRest && <button type="button" className="hv-rest" onClick={onRest}><Icon name="timer" />{t('Rest Timer: {0}', restText)}</button>}
+    {entry.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + entry.note} onClick={() => exerciseNoteSheet(entryIdx)}>{entry.note}</button>}
     <div className={'hv-head' + goGrid} style={grid} aria-hidden="true">
       <span>{t('SET')}</span><span>{t('PREVIOUS')}</span>
       {cols.map(c => <span key={c.f}>{c.hd}</span>)}
@@ -525,6 +560,9 @@ export default function HevyExerciseBlock(props) {
         <Icon name="swap" />{t('Psst: swipe a set. Left deletes, right copies.')}</button>}
       {plateLine(i)}
     </div>)}
-    <button type="button" className="hv-addset" onClick={onAddSet}><Icon name="plus" />{t('Add Set')}</button>
+    {(isOpen || !entry.sets.length) && <div className="hv-addrow">
+      <button type="button" className="hv-addset" onClick={onAddSet}><Icon name="plus" />{t('Set')}</button>
+      {props.onAddWarmup && <button type="button" className="hv-addwarm" onClick={props.onAddWarmup}><Icon name="plus" />{t('Warm-up')}</button>}
+    </div>}
   </div>
 }

@@ -6,12 +6,10 @@ import { fmtNum } from '../../lib/format.js'
 import { useStore } from '../../store/useStore.js'
 import { muscleSets, muscleMode } from '../lib/volume.js'
 
-// `reserve` keeps the line's height while it is empty, so the live workout does not jump on the
-// first tick.
-export default function MuscleLine({ entries, mode, reserve = false }) {
+export default function MuscleLine({ entries, mode }) {
   const own = useStore(s => muscleMode(s.S))
   const list = muscleSets(entries, mode || own)
-  if (!list.length) return reserve ? <div className="hv-mline" aria-hidden="true">{'\u00a0'}</div> : null
+  if (!list.length) return null
   return <div className="hv-mline">{list.map((m, i) => <span key={m.muscle}>
     {i > 0 && ' · '}{t(m.muscle)} <b>{fmtNum(m.sets)}</b>
   </span>)}</div>

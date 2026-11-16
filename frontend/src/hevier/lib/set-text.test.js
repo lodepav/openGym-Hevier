@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hevySetText, hevySetLabel, previousText } from './set-text.js'
+import { hevySetText, hevySetLabel, previousText, previousCell } from './set-text.js'
 
 describe('hevySetText', () => {
   it('writes the plain weight × reps out in full', () => {
@@ -44,3 +44,16 @@ describe('previousText', () => {
     expect(previousText({ w: 20, r: 10 }, { ...opts, side: 'L' })).toBe('–')
   })
 })
+
+describe('previousCell (D127)', () => {
+  const opts = { mode: 'reps', unit: 'kg', id: 'x', target: { reps: 8 } }
+  it('leaves the effort out', () => {
+    expect(previousCell({ w: 60, r: 8, rpe: 9 }, opts)).toBe('60kg × 8')
+  })
+  it('reads a per-side set whole as two lines, and one side as its own', () => {
+    const p = { w: 15, r: 30, sides: { L: { w: 15, r: 15, done: true, rpe: 6 }, R: { w: 15, r: 15, done: true, rpe: 6 } } }
+    expect(previousCell(p, opts)).toBe('L 15×15\nR 15×15')
+    expect(previousCell(p, { ...opts, side: 'R' })).toBe('15kg × 15')
+  })
+})
+

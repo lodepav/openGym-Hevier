@@ -71,12 +71,51 @@ describe('hevier: routine editor (M3)', () => {
     expect(marks).toEqual(['W', '1', '2', '3'])
   })
 
-  it('a typed weight is the plan’s weight; + Add Set adds a set', () => {
+  it('a typed weight is the plan’s weight; + Set adds a set', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
     typeInto(container.querySelectorAll('.hv-num')[2], '70')
     expect(slot().weight).toBe(70)
-    act(() => byText('.hv-addset', 'Add Set').click())
+    act(() => container.querySelector('.hv-addset').click())
     expect(slot().sets).toBe(3)
+  })
+
+  it('+ Warm-up adds a warm-up beside + Set; each set row has a remove mark (D130)', () => {
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
+    act(() => container.querySelector('.hv-addrow .hv-addwarm').click())
+    expect(slot()).toMatchObject({ sets: 2, warmupSets: 1 })
+    const marks = () => [...container.querySelectorAll('.hv-rt-del')].map(b => b.getAttribute('aria-label'))
+    expect(marks()).toEqual(['Remove warm-up 1', 'Remove set 1', 'Remove set 2'])
+    act(() => container.querySelector('[aria-label="Remove set 2"]').click())
+    expect(slot()).toMatchObject({ sets: 1, warmupSets: 1 })
+    act(() => container.querySelector('[aria-label="Remove set 1"]').click())
+    expect(slot().sets).toBe(1)
+    expect(useUI.getState().toastMsg).toBe('Keep at least one set, champ')
+  })
+
+  it('the rest is a chip that opens the rest sheet (D130)', () => {
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60, restSec: 90 }])
+    const chip = container.querySelector('.hv-addrow .hv-rtrest')
+    expect(chip.getAttribute('aria-label')).toBe('Rest: 1min 30s')
+    act(() => chip.click())
+    expect(useUI.getState().sheets).toHaveLength(1)
+    expect(container.querySelector('.hv-rest')).toBeNull()
+  })
+
+  it('the brand sits on the name line: + Brand adds one at the active gym, a tap on it changes it (D130)', () => {
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
+    act(() => useStore.getState().update(s => { s.equipProfiles = [{ id: 'g1', name: 'City Gym', items: [] }]; s.activeEquipId = 'g1' }))
+    act(() => container.querySelector('.hv-nameline .hv-addbrand').click())
+    const host = sheet()
+    expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')
+    typeInto(host.querySelector('input'), 'Rogue')
+    act(() => host.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+    expect(useStore.getState().S.hvMachines[EX]).toEqual({ g1: 'Rogue' })
+    const brand = container.querySelector('.hv-nameline .hv-brand')
+    expect(brand.getAttribute('aria-label')).toBe('Brand: Rogue')
+    act(() => brand.click())
+    const again = sheet()
+    act(() => byTextIn(again, 'button', 'Remove brand').click())
+    expect(useStore.getState().S.hvMachines[EX]).toBeUndefined()
   })
 
   it('a double-progression exercise shows its rep range', () => {
@@ -181,13 +220,25 @@ describe('hevier: routine editor (M3)', () => {
     expect(useUI.getState().toastMsg).toBe(warn.getAttribute('aria-label'))
   })
 
-  it('an exercise’s note is saved as it is typed, a space typed last left in the field', () => {
+  it('an exercise’s note is written from ⋮ → Note and shows as text; Remove note takes it out (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 0 }])
-    const field = container.querySelector('.hv-notes-in')
-    typeInto(field, 'Belt on ')
+    expect(container.querySelector('.hv-notes-in')).toBeNull()
+    act(() => container.querySelector('.hv-ex .hv-more').click())
+    const menu = sheet()
+    act(() => byTextIn(menu, '.menu-item', 'Note').click())
+    const host = sheet()
+    const area = host.querySelector('textarea')
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(area, ' Belt on ')
+      area.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    act(() => host.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
     expect(slot().note).toBe('Belt on')
-    expect(field.value).toBe('Belt on ')
-    typeInto(field, '')
+    const shown = container.querySelector('.hv-ex .hv-exnote')
+    expect(shown.textContent).toBe('Belt on')
+    act(() => shown.click())
+    const again = sheet()
+    act(() => byTextIn(again, 'button', 'Remove note').click())
     expect(slot().note).toBeUndefined()
   })
 

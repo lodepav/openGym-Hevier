@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next session mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens copied from frontend/src/hevier/theme.css (D123). The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#2fbf5b; --on-acc:#000; --yellow:#efab03; --red:#e34b37;
+  --r-sm:14px; --r:20px; --r-card:26px; --page:#0b0a08;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 'Nunito',Roboto,system-ui,sans-serif; padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; }
+h2 { font-size:20px; font-weight:800; margin:40px 0 4px; }
+h2 .rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:3px; }
+p.lead { color:var(--label-2); max-width:70ch; margin:6px 0 0; }
+ul.moves { color:var(--label-2); max-width:80ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+.phone { width:411px; height:891px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.bar { padding:44px 18px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--sep); }
+.bar b { font-size:19px; font-weight:800; }
+.bar span { color:var(--label-2); font-size:14px; }
+.body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--label); padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:rgba(47,191,91,.22); border-color:var(--acc); opacity:1; }
+.card { border-radius:var(--r-card); box-shadow:inset 0 0 0 1px var(--sep); padding:14px 16px; }
+.card.fill { background:var(--surface); box-shadow:none; }
+.cap { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.big { font-size:24px; font-weight:800; line-height:1.15; }
+.mid { font-size:17px; font-weight:700; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.btn { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:16px; text-align:center; border-radius:99px; padding:13px; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--surface); border-radius:99px; padding:9px 14px; font-weight:700; font-size:14px; }
+.chip.on { background:var(--acc); color:var(--on-acc); }
+.chip.line { background:none; box-shadow:inset 0 0 0 1px var(--sep); }
+.li { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.li:last-child { border-bottom:0; }
+.li .r { color:var(--label-2); white-space:nowrap; }
+.up { color:var(--acc); font-weight:800; } .down { color:var(--red); font-weight:800; } .rec2 { color:var(--yellow); font-weight:800; }
+.week { display:flex; justify-content:space-between; }
+.week span { width:44px; text-align:center; font-size:12px; color:var(--label-2); font-weight:700; }
+.week i { display:block; width:10px; height:10px; border-radius:50%; margin:6px auto 0; background:var(--sep); }
+.week .d i { background:var(--acc); } .week .p i { background:none; border:2px solid var(--acc); } .week .t { color:var(--label); }
+.search { background:var(--surface); border-radius:var(--r); padding:12px 14px; color:var(--label-2); }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; }
+.seg span { flex:1; text-align:center; padding:8px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); }
+.seg .on { background:var(--bg); color:var(--label); }
+.block { border:1.5px dashed var(--sep); border-radius:var(--r); padding:12px 14px; color:var(--label-2); font-size:13px; }
+.block b { color:var(--label); display:block; font-size:15px; }
+.old { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+.old img { width:260px; border:1px solid var(--sep); border-radius:22px; flex:none; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; }
+table { display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+
+.top { padding:44px 16px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--sep); }
+.top b { font-size:17px; font-weight:800; flex:1; }
+.top .st { color:var(--label-2); font-size:14px; font-weight:700; }
+.top .fin { background:var(--acc); color:var(--on-acc); font-weight:800; border-radius:99px; padding:9px 16px; font-size:14px; }
+.now { background:var(--surface-3); border-radius:var(--r-card); padding:14px 16px 16px; }
+.huge { font-size:54px; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+.huge small { font-size:24px; font-weight:700; color:var(--label-2); }
+.huge u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.rpe { display:flex; gap:6px; margin-top:12px; }
+.rpe span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:17px; }
+.rpe .ok { background:var(--acc); color:var(--on-acc); }
+.acts { display:flex; gap:6px; }
+.acts span { flex:1; text-align:center; background:var(--surface); border-radius:var(--r-sm); padding:10px 0 8px; font-size:12px; font-weight:700; }
+.acts span i { display:block; font-style:normal; font-size:18px; line-height:1.1; color:var(--acc); }
+.set { display:flex; align-items:center; gap:10px; padding:9px 4px; font-size:15px; border-bottom:1px solid var(--sep); }
+.set .n { width:26px; text-align:center; font-weight:800; }
+.set .n.w { color:var(--yellow); }
+.set .v { flex:1; font-weight:700; }
+.set .p { color:var(--label-2); font-size:13px; }
+.set .k { width:26px; height:26px; border-radius:50%; background:var(--surface-3); }
+.set.done .k { background:var(--acc); }
+.set.done .v { color:var(--label-2); }
+.set.cur { background:var(--surface); border-radius:var(--r-sm); border-bottom:0; box-shadow:inset 3px 0 0 var(--acc); }
+.exh { font-weight:800; font-size:16px; color:var(--acc); margin-top:4px; }
+.exh span { color:var(--label-2); font-weight:700; font-size:13px; }
+.ring { width:210px; height:210px; border-radius:50%; margin:6px auto; background:conic-gradient(var(--acc) 0 62%, var(--sep) 62% 100%); display:flex; align-items:center; justify-content:center; }
+.ring div { width:180px; height:180px; border-radius:50%; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.barp { height:8px; border-radius:99px; background:var(--sep); margin:8px 0 12px; }
+.barp i { display:block; height:100%; width:62%; border-radius:99px; background:var(--acc); }
+.rest { display:flex; gap:8px; }
+.rest span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:16px; }
+.restbar { margin:0 12px 14px; background:var(--surface-3); border-radius:var(--r-card); padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:inset 0 0 0 1px var(--sep); }
+.restbar b { font-size:30px; font-weight:800; flex:1; }
+.restbar span { background:var(--bg); border-radius:var(--r-sm); padding:13px 14px; font-weight:800; }
+.foot { border-top:1px solid var(--sep); padding:12px 16px 22px; display:flex; justify-content:space-between; align-items:center; font-weight:700; }
+
+.set .l { width:78px; color:var(--label-2); font-size:13px; }
+.set .e { color:var(--label-2); font-size:13px; }
+.dock { border-top:1px solid var(--sep); padding:10px 12px 16px; display:flex; flex-direction:column; gap:8px; }
+.dock .now { padding:12px 14px 14px; }
+.rpe7 { display:flex; gap:5px; margin-top:10px; }
+.rpe7 span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:15px; }
+.rpe7 .o { color:var(--label-2); font-size:13px; padding-top:16px; }
+.go { background:var(--acc); color:var(--on-acc); font-weight:800; text-align:center; border-radius:var(--r-sm); padding:14px 18px; font-size:16px; }
+.hrow { display:flex; align-items:center; gap:10px; }
+.hrow .huge { flex:1; font-size:50px; }
+.lastl { color:var(--label-2); font-size:14px; margin-top:10px; }
+
+.exhd { display:flex; align-items:center; gap:10px; margin-top:4px; }
+.exhd .pic { width:40px; height:40px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.exhd b { font-weight:800; font-size:16px; color:var(--acc); flex:1; }
+.brand { border-radius:99px; padding:7px 12px; font-size:13px; font-weight:700; background:var(--surface); white-space:nowrap; }
+.brand.add { background:none; box-shadow:inset 0 0 0 1px var(--sep); color:var(--label-2); }
+.sheet { position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:var(--r-card) var(--r-card) 0 0; padding:10px 18px 26px; }
+.sheet .grab { width:40px; height:4px; border-radius:9px; background:var(--sep); margin:0 auto 10px; }
+.sheet .mi { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--sep); font-weight:700; font-size:16px; }
+.sheet .mi:last-child { border-bottom:0; }
+.sheet .mi i { font-style:normal; width:40px; height:40px; border-radius:50%; background:var(--surface-3); color:var(--acc); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; }
+.sheet .mi span { margin-left:auto; color:var(--label-2); font-weight:500; font-size:14px; }
+.dimmed { opacity:.35; }
+
+.set .v.chg { color:var(--acc); }
+.set .v u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.colh { display:flex; gap:10px; padding:0 4px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.colh span:first-child { width:26px; } .colh span:nth-child(2) { width:78px; }
+.bump { display:flex; gap:6px; }
+.bump span { flex:1; text-align:center; background:var(--surface); border-radius:99px; padding:9px 0; font-size:13px; font-weight:700; }
+.bump .on { background:var(--acc); color:var(--on-acc); }
+.info { background:var(--surface); border-radius:var(--r-sm); padding:10px 12px; font-size:13px; color:var(--label-2); }
+.info b { color:var(--label); }
+.keys { border-top:1px solid var(--sep); padding:10px 12px 18px; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.keys span { background:var(--surface); border-radius:var(--r-sm); text-align:center; padding:12px 0; font-weight:800; }
+.keys .a { background:var(--acc); color:var(--on-acc); }
+</style>
+</head>
+<body>
+<h1>The next session: reading the plan and planning weights</h1>
+<p class="lead">The page a routine opens on, from Today's card or from Routines. Three ways to plan the next weights without editing the routine. In all three the page shows what the workout will really open with, last time on the left. Numbers are made up.</p>
+
+<h2>A · Plan in place, set by set <span class="rec">Approved 2026-11-16 · D128</span></h2>
+<p class="lead">The page is the plan. A tap on any number changes it for the next session only. It fits how your sets differ, a heavy set and a lighter one, and it works at home or at the gym.</p>
+<div class="row"><figure><div class="phone"><div class="top"><span class="st">‹</span><b>TBJP Upper A</b><span class="st">Edit routine</span></div><div class="body"><div><div class="cap">Next · Tue 17 Nov · about 1 h 36</div><div class="chips" style="margin:8px 0"><span class="chip">Main gym ▾</span><span class="chip line">9 exercises · 17 sets</span></div><div class="btn">Start</div></div><div class="exhd"><span class="pic"></span><b>Lever Incline Chest Press</b></div><div class="colh"><span>Set</span><span>Last time</span><span>Next</span></div><div class="set"><span class="n w">W</span><span class="l">47.5 × 8</span><span class="v ">47.5 kg × 8</span></div><div class="set"><span class="n w">W</span><span class="l">62.5 × 6</span><span class="v ">62.5 kg × 6</span></div><div class="set"><span class="n w">W</span><span class="l">70 × 4</span><span class="v ">70 kg × 4</span></div><div class="set"><span class="n ">1</span><span class="l">80 × 8</span><span class="v ">80 kg × 8</span></div><div class="set"><span class="n ">2</span><span class="l">55 × 13</span><span class="v ">55 kg × 13</span></div><div class="exhd"><span class="pic"></span><b>Lever Military Press</b><span class="brand">Evolve</span></div><div class="colh"><span>Set</span><span>Last time</span><span>Next</span></div><div class="set"><span class="n w">W</span><span class="l">47.5 × 6</span><span class="v ">47.5 kg × 6</span></div><div class="set"><span class="n ">1</span><span class="l">62.5 × 9</span><span class="v ">62.5 kg × 9</span></div><div class="set"><span class="n ">2</span><span class="l">47.5 × 12</span><span class="v ">47.5 kg × 12</span></div><div class="exhd"><span class="pic"></span><b>Lever Seated Fly</b><span class="brand">LifeFitness</span></div><div class="colh"><span>Set</span><span>Last time</span><span>Next</span></div><div class="set"><span class="n ">1</span><span class="l">72.5 × 11</span><span class="v ">72.5 kg × 11</span></div></div></div><figcaption>The next session, as it will open: every set with last time on the left and the plan beside it. Until you change something, the plan is last time.</figcaption></figure><figure><div class="phone"><div class="top"><span class="st">‹</span><b>TBJP Upper A</b><span class="st">Edit routine</span></div><div class="body"><div class="exhd"><span class="pic"></span><b>Lever Incline Chest Press</b></div><div class="colh"><span>Set</span><span>Last time</span><span>Next</span></div><div class="set"><span class="n w">W</span><span class="l">47.5 × 8</span><span class="v ">47.5 kg × 8</span></div><div class="set"><span class="n w">W</span><span class="l">62.5 × 6</span><span class="v ">62.5 kg × 6</span></div><div class="set"><span class="n w">W</span><span class="l">70 × 4</span><span class="v ">70 kg × 4</span></div><div class="set"><span class="n ">1</span><span class="l">80 × 8</span><span class="v chg"><u>80</u> kg × 8</span></div><div class="set"><span class="n ">2</span><span class="l">55 × 13</span><span class="v ">55 kg × 13</span></div><div class="info"><b>Planned for next time.</b> The routine is not changed. Warm-ups stay as last time until you change them.</div><div class="exhd"><span class="pic"></span><b>Lever Military Press</b><span class="brand">Evolve</span></div><div class="colh"><span>Set</span><span>Last time</span><span>Next</span></div><div class="set"><span class="n w">W</span><span class="l">47.5 × 6</span><span class="v ">47.5 kg × 6</span></div><div class="set"><span class="n ">1</span><span class="l">62.5 × 9</span><span class="v ">62.5 kg × 9</span></div><div class="set"><span class="n ">2</span><span class="l">47.5 × 12</span><span class="v ">47.5 kg × 12</span></div></div><div class="keys"><span>1</span><span>2</span><span>3</span><span>−2.5</span><span>4</span><span>5</span><span>6</span><span>+2.5</span><span>7</span><span>8</span><span>9</span><span>⌫</span><span>.</span><span>0</span><span>Last time</span><span class="a">Next ›</span></div></div><figcaption>A tap on a number changes it for the next session only. Changed numbers turn green. The workout opens with them.</figcaption></figure></div>
+<ul class="moves">
+  <li><b>The keypad:</b> −2.5 and +2.5 step the weight, "Last time" puts the number back, "Next ›" moves to the next number.</li>
+  <li><b>The routine itself</b> (its exercises, the number of sets, rest times): "Edit routine" at the top right, as today.</li>
+  <li><b>Today's card</b> shows the same numbers, so the plan is read without opening this page.</li>
+</ul>
+
+<h2>Scores against today's routine page</h2>
+<p class="lead">Each line 0 to 3. The first four count double. Total out of 33.</p>
+<table>
+<tr><th>Line</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Main tasks' steps (×2)</td><td class="n">1</td><td class="n">3</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>Read at a glance (×2)</td><td class="n">1</td><td class="n">3</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>Its friction row: planning weights (×2)</td><td class="n">0</td><td class="n">3</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>What is looked at is in view</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>Found where it is expected</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><th>Total of 33</th><th>16</th><th>32</th><th>29</th><th>27</th></tr>
+</table>
+<table>
+<tr><th>Measured or counted</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>The numbers the page shows</td><td>the routine's own (80 × 8, 80 × 8), not what opens (80 × 8, 55 × 13)</td><td>what opens</td><td>what opens</td><td>what opens</td></tr>
+<tr><td>Warm-up sets</td><td>shown as "–"</td><td>shown</td><td>shown</td><td>shown</td></tr>
+<tr><td>Last time beside the plan</td><td>no</td><td>yes</td><td>yes</td><td>yes</td></tr>
+<tr><td>Plan one exercise 2.5 kg heavier</td><td>edit the routine: about 6 taps, and the routine changes</td><td>2 taps per set</td><td>1 tap</td><td>1 tap, only at the gym</td></tr>
+<tr><td>Plan two sets differently</td><td>edit the routine</td><td>yes</td><td>through Other</td><td>through Other</td></tr>
+</table>
+</body>
+</html>

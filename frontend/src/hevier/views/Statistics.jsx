@@ -1,8 +1,8 @@
-// Hevy's Statistics page (hevier/DECISIONS.md D14; reference/SCREENS.md §6), opened from Profile:
-// the last 7 days as a week strip and a body map, the set count per muscle group (week, month,
+// Hevy's Statistics page (hevier/DECISIONS.md D14; reference/SCREENS.md §6), opened from History:
+// Profile's weekly chart (D135), the last 7 days as a week strip and a body map, the set count per muscle group (week, month,
 // year, against the one before), then the monthly report (D23) and upstream's own statistics and
 // structural balance, whole.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
@@ -20,13 +20,15 @@ import { entryTimes } from '../lib/exercise-time.js'
 import { partOn } from '../lib/module-parts.js'
 import { isOn } from '../../lib/modules.js'
 import WeeklySetsCard from '../components/WeeklySetsCard.jsx'
+import WeeklyChart from '../components/WeeklyChart.jsx'
+import { HISTORY_PATH } from './History.jsx'
 
 const hasTimes = w => entryTimes(w).length > 0
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
 
-/** The page bar of a fork page under Profile: ‹ back to `to` (named `label`) and the page's title. */
+/** The page bar of a fork page under a tab: ‹ back to `to` (named `label`) and the page's title. */
 export function BackTo({ label, to, title, children }) {
   return <PageBar title={title} onBack={useBack(to)} backLabel={label}>{children}</PageBar>
 }
@@ -54,9 +56,13 @@ function LastSevenDays({ S, today }) {
 
 function SetCounts({ S, today }) {
   const [kind, setKind] = useState('week')
+  // History's Sets per muscle opens the page on this card.
+  const ref = useRef(null)
+  const at = useLocation().state?.at
+  useEffect(() => { if (at === 'sets') ref.current?.scrollIntoView?.({ block: 'start' }) }, [at])
   const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S), mode: muscleMode(S) })
   const max = Math.max(1, ...rows.map(r => r.sets))
-  return <div className="card">
+  return <div className="card hv-setcounts" ref={ref}>
     <h2>{t('Set count per muscle group')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
@@ -84,7 +90,9 @@ export default function Statistics() {
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   return <div className="narrow hv-statpage">
-    <BackTo label={t('Profile')} to="/profile" title={t('Statistics')} />
+    <BackTo label={t('History')} to={HISTORY_PATH} title={t('Statistics')} />
+    {/* D135: the weekly chart of hours left the History tab for here; it reads the whole log. */}
+    <div className="card hv-weekchart"><WeeklyChart /></div>
     <PhaseFilter />
     <LastSevenDays S={S} today={today} />
     <SetCounts S={S} today={today} />

@@ -5,7 +5,7 @@
 // log as it stood before the workout, so the arrow and PREVIOUS always speak of the same set.
 // Nothing is stored.
 import { historyAsOf } from '../../lib/backfill.js'
-import { isWarmupRow } from '../../lib/workout-model.js'
+import { isWarmupRow, isSideSet } from '../../lib/workout-model.js'
 import { isAssisted } from '../../lib/exercises.js'
 import { formulaOf } from '../../lib/onerm.js'
 import { setTrend as upstreamTrend, setTrendOn } from '../../lib/set-trend.js'
@@ -30,12 +30,31 @@ export function setTrend(s, p, { assisted = false, formula } = {}) {
 /** Whether the arrows are on: upstream's switch (Settings → Compare sets with last time). */
 export const trendsOn = setTrendOn
 
+// Entry `e` of finished workout `w` against last time: its sets' counterparts and the compare options.
+function lastTime(S, w, e) {
+  const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
+  const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLastKey(e) })
+  return { prev, opts: { assisted: isAssisted(e.id), formula: formulaOf(S) } }
+}
+
 /** One slot per set of entry `i` of finished workout `w`: its trend, null for a warm-up or none. */
 export function workoutTrends(S, w, i) {
   const e = w?.entries?.[i]
   if (!e || !setTrendOn(S)) return []
-  const H = historyAsOf(S, { d: w.d, start: w.start || 0, replaceId: w.id ?? null, strict: true })
-  const prev = previousSetsFor(H, e, previousMode(S), { walk: false, label: entryLastKey(e) })
-  const opts = { assisted: isAssisted(e.id), formula: formulaOf(S) }
+  const { prev, opts } = lastTime(S, w, e)
   return (e.sets || []).map((s, k) => (s?.done && !isWarmupRow(s) ? setTrend(s, prev[k], opts) : null))
+}
+
+/** One slot per set of entry `i`: a per-side work set's { L, R }, each side against the same side
+ *  last time (D133), null for any other set or when last time's was not per-side. */
+export function workoutSideTrends(S, w, i) {
+  const e = w?.entries?.[i]
+  if (!e || !setTrendOn(S) || !(e.sets || []).some(isSideSet)) return []
+  const { prev, opts } = lastTime(S, w, e)
+  return (e.sets || []).map((s, k) => {
+    const p = prev[k]
+    if (!isSideSet(s) || isWarmupRow(s) || !isSideSet(p)) return null
+    const one = side => (s.sides[side].done === true && p.sides[side].done === true ? setTrend(s.sides[side], p.sides[side], opts) : null)
+    return { L: one('L'), R: one('R') }
+  })
 }

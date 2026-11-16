@@ -1,5 +1,5 @@
-// Hevy's bottom tabs (hevier/DECISIONS.md D11; reference/SCREENS.md §0): Home · Workout · Profile,
-// no Coach. A session you stepped away from rides above the tabs as a "Workout in progress" bar
+// The bottom tabs (hevier/DECISIONS.md D126, in place of D11's Home · Workout · Profile): Today ·
+// Lifts · History, no Coach. A session you stepped away from rides above the tabs as a "Workout in progress" bar
 // that takes you back to it — the same rule upstream's Start/Resume button uses (TabBar.jsx) — or
 // discards it.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -10,17 +10,16 @@ import { t } from '../../lib/i18n.js'
 import { confirmSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import Elapsed from './Elapsed.jsx'
-import { SAVE_PATH } from '../hooks.js'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import { retapTab } from '../../lib/scroll-top.js'
+import { HISTORY_PATH } from '../views/History.jsx'
 
 // Which tab an upstream route belongs to now that it is reached from a fork screen.
 const TAB_OF = {
-  home: 'home', checkin: 'home',
-  workout: 'workout', routines: 'workout', plan: 'workout',
-  profile: 'profile', stats: 'profile', history: 'profile', library: 'profile', muscles: 'profile',
-  'structural-balance': 'profile', 'progress-photos': 'profile', measurements: 'profile', measures: 'profile', settings: 'profile',
-  calendar: 'profile', report: 'profile',
+  home: 'today', checkin: 'today', workout: 'today', routines: 'today', plan: 'today',
+  lifts: 'lifts', library: 'lifts', muscles: 'lifts', strength: 'lifts', 'lift-trends': 'lifts', 'exercise-time': 'lifts',
+  [HISTORY_PATH.slice(1)]: 'history', profile: 'history', stats: 'history', history: 'history', report: 'history',
+  measures: 'history', measurements: 'history', 'progress-photos': 'history', 'structural-balance': 'history',
 }
 export const tabOf = path => TAB_OF[path.split('/')[1] || 'home'] || null
 
@@ -47,7 +46,7 @@ export default function HevyTabBar() {
   const trouble = useConnectionTrouble()
   // A page reached from more than one tab (a workout's details) keeps the tab you came from.
   // Kept as state, set while rendering as React's derived-state pattern allows.
-  const [last, setLast] = useState('home')
+  const [last, setLast] = useState('today')
   const own = tabOf(loc.pathname)
   if (own && own !== last) setLast(own)
   const tab = own || last
@@ -55,10 +54,9 @@ export default function HevyTabBar() {
   // do (lib/scroll-top.js); upstream's floating back-to-top arrow is left out (D11's 1.4.4 note).
   const go = path => (loc.pathname === path && !loc.search ? retapTab(path) : nav(path))
   // Upstream's condition for a live session away from its screen; a saved workout being edited
-  // or one logged after the fact has no clock, and resumes through the Workout tab instead.
+  // or one logged after the fact has no clock.
   const running = !!A && !A.editingWorkoutId && !A.backfill && A.start > 0
-  // The Save Workout page belongs to the session, like its own screen.
-  const pending = !!A && loc.pathname !== '/workout' && loc.pathname !== SAVE_PATH
+  const pending = !!A && loc.pathname !== '/workout'
   useEffect(() => {
     document.body.classList.toggle('hv-resume', pending)
     return () => document.body.classList.remove('hv-resume')
@@ -93,9 +91,8 @@ export default function HevyTabBar() {
       <button type="button" className="hv-resume-go" aria-label={A.editingWorkoutId ? t('Edit') : t('Resume')} onClick={() => nav('/workout')}><Icon name="play" /><span className="hv-resume-l">{A.editingWorkoutId ? t('Edit') : t('Resume')}</span></button>
       {!A.editingWorkoutId && <button type="button" className="hv-resume-x" aria-label={t('Discard')} onClick={discard}><Icon name="xmark" /><span className="hv-resume-l">{t('Discard')}</span></button>}
     </div>}
-    <Tab active={tab === 'home'} icon="house" label={t('Home')} dot={trouble} onClick={() => go('/home')} />
-    {/* with a session open the tab is still the start screen, its bar above the tabs (D13) */}
-    <Tab active={tab === 'workout'} icon="dumbbell" label={t('Workout')} onClick={() => go(A ? '/routines' : '/workout')} />
-    <Tab active={tab === 'profile'} icon="person" label={t('Profile')} onClick={() => go('/profile')} />
+    <Tab active={tab === 'today'} icon="house" label={t('Today')} dot={trouble} onClick={() => go('/home')} />
+    <Tab active={tab === 'lifts'} icon="dumbbell" label={t('Lifts')} onClick={() => go('/lifts')} />
+    <Tab active={tab === 'history'} icon="history" label={t('History')} onClick={() => go(HISTORY_PATH)} />
   </nav>
 }

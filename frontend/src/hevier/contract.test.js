@@ -22,7 +22,7 @@ describe('hevier: upstream contract', () => {
     for (const name of ['startFlow', 'beginWorkout', 'finishWorkout', 'finishWorkoutSheet', 'menuSheet',
       'exerciseDetailSheet', 'exerciseHistorySheet', 'exerciseNoteSheet', 'effortPickerSheet',
       'workoutDetailSheet', 'calendarSheet', 'starterPlanSheet', 'dayOverrideSheet', 'bwSheet',
-      'doFinishWorkout', 'LastAndNext', 'CardioDone', 'confirmSheet',
+      'doFinishWorkout', 'confirmSheet',
       'upstreamExerciseDetailSheet', 'addToRoutineSheet', 'customExSheet', 'deleteCustomEx',
       'goalSheet', 'weighInsSheet']) {
       expect(typeof sheets[name], name).toBe('function')

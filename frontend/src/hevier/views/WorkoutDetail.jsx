@@ -1,20 +1,20 @@
 // Hevy's Workout Detail page (reference/SCREENS.md §4): ‹ · Workout Detail · ⋯, the title, Time ·
-// Volume · Sets · Records, the description, the muscle split, then each exercise with its sets.
+// Volume · Sets · Records, the muscle line, the description, then each exercise with its sets, effort
+// in its own column and a per-side set as an L row and an R row (D133).
 // Seam S14 sends upstream's workoutDetailSheet here, so the feed, History, Stats, the calendar and
 // exercise details all open it. ⋯ has Hevy's actions (upstream's, as on the feed card) and
 // All details, upstream's own sheet: the session note editor, photos, date, duration, copy, share, .fit.
-// The muscle split counts sets: as the fork's Statistics does (hevier/lib/muscle-sets.js), or in
-// sets mode each set once for its main muscle, as the line under the stats does (DECISIONS.md D18).
+// The muscle line counts each set once for its main muscle (DECISIONS.md D18); D133 took the bars.
 // Heart rate (D27), when a watch saved one: the session's under the stats, each set's on its row.
 import HvIcon from '../components/HvIcon.jsx'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, fmtDate } from '../../lib/format.js'
-import { sessionSections, sessionVolume } from '../../lib/history.js'
-import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
+import { fmtVol, fmtDate, fmtNum } from '../../lib/format.js'
+import { sessionSections, sessionVolume, EFFORT } from '../../lib/history.js'
+import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { sameWorkout } from '../../lib/workout-date.js'
 import { nav as navTo, onSheetEntry } from '../../lib/nav.js'
@@ -24,17 +24,18 @@ import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
-import { hevySetText, hevySetLabel } from '../lib/set-text.js'
+import { hevySetText, hevySetLabel, noEffort } from '../lib/set-text.js'
 import { entryTimes } from '../lib/exercise-time.js'
 import { elapsedWords } from '../lib/elapsed.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
-import { volumeMode, muscleMode, workSets, muscleSets } from '../lib/volume.js'
+import { volumeMode, muscleMode, workSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
-import { workoutTrends } from '../lib/set-trend.js'
+import { workoutTrends, workoutSideTrends } from '../lib/set-trend.js'
+import { detailRows, recordsOnRow, effortScale, effortShown } from '../lib/side-rows.js'
 import TrendMark from '../components/TrendMark.jsx'
 
 // A cable's setup shows when it is not the plain 1:1 (D43).
@@ -44,7 +45,7 @@ import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setMark } from '../lib/history-rows.js'
 import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { workoutCompare } from '../lib/workout-compare.js'
 import { signed } from '../lib/delta.js'
 
@@ -56,13 +57,15 @@ const Trend = TrendMark
 
 const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
 
-function ExerciseSets({ w, e, st, recs, trends = [], time }) {
+function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }) {
   const ex = EXIDX[e.id]
   // A record sits on the set that made it, as in Hevy; a session's (its volume) on the last work set,
   // the one that took the session past it (changed 2026-10-20: it was on the exercise's header).
-  const sets = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s))
-  const last = sets.filter(({ s }) => !isWarmupRow(s)).at(-1)?.i
-  const at = i => recs.filter(r => r.set === i || (r.set < 0 && i === last))
+  // A per-side set is an L row and an R row (D133), its record on its side.
+  const rows = detailRows(e.sets)
+  const last = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s) && !isWarmupRow(s)).at(-1)?.i
+  const anyHr = rows.some(r => sanitizeHr(r.hr))
+  const reps = n => n + ' ' + (n === 1 ? t('rep') : t('reps'))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
       <span className="hv-thumb">{ex && <Thumb ex={ex} />}</span>
@@ -77,20 +80,37 @@ function ExerciseSets({ w, e, st, recs, trends = [], time }) {
       <Icon name="timer" /><span className="hv-sr">{t('Exercise time')}: </span>{elapsedWords(Math.round(time / 1000))}</div>}
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
-      <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span></div>
-      {sets.map(({ s, i }) => <Fragment key={i}><div className="hv-wd-row">
-        {/* W for a warm-up, H for a hold (D89), else the set's number among the rep sets. */}
-        {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(setMark(e.sets, i))}
-        {/* A record says more than an arrow: the set shows only its badge (D66). */}
-        <span>{s.side && <span className="hv-lr">{s.side === 'L' ? t('L') : t('R')}</span>}{hevySetText(hevySetLabel(e.id, s, e.target, speedUnitOf(st)), st.unit, n => n + ' ' + (n === 1 ? t('rep') : t('reps')))}{!at(i).length && <Trend v={trends[i]} />}</span>
-        <PrBadge recs={at(i)} />
-        {sanitizeHr(s.hr) && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{sanitizeHr(s.hr).avg}</span>}
-      </div>
-      {/* A set's note (upstream 1.4.4, D5): under its row. */}
-      {setNoteOf(s) && <div className="hv-wd-setnote"><Icon name="note" /><span>{setNoteOf(s)}</span></div>}</Fragment>)}
-      {sets.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
+      <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span>
+        {scale && <span className="hv-wd-rpe">{t(EFFORT[scale].hd)}</span>}{anyHr && <span className="hv-wd-hrc" />}</div>
+      {rows.map(row => {
+        const { i, s } = row
+        const at = recordsOnRow(row, recs, e.sets, last)
+        const trend = row.side && isSideSet(e.sets[i]) ? sideTrends[i]?.[row.side] : trends[i]
+        const hr = row.head && sanitizeHr(row.hr)
+        const effort = effortShown(row.effort, scale)
+        return <Fragment key={i + (row.side || '')}><div className="hv-wd-row">
+          {/* W for a warm-up, H for a hold (D89), else the set's number among the rep sets; once a set. */}
+          {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
+          {/* A record says more than an arrow: the set shows only its badge (D66). */}
+          <span className="hv-wd-v">{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}
+            {row.undone ? '–' : hevySetText(hevySetLabel(e.id, noEffort(s), e.target, speedUnitOf(st)), st.unit, reps)}{!at.length && <Trend v={trend} />}</span>
+          {scale && <span className="hv-wd-rpe">{effort != null && <><span className="hv-sr">{t(EFFORT[scale].hd)} </span>{fmtNum(effort)}</>}</span>}
+          {anyHr && <span className="hv-wd-hrc">{hr && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{hr.avg}</span>}</span>}
+          <PrBadge recs={at} />
+        </div>
+        {/* A set's note (upstream 1.4.4, D5): under its last row. */}
+        {row.last && setNoteOf(e.sets[i]) && <div className="hv-wd-setnote"><Icon name="note" /><span>{setNoteOf(e.sets[i])}</span></div>}</Fragment>
+      })}
+      {rows.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
   </div>
+}
+
+// The workout is gone (deleted here or in All details): back to the page it was opened from.
+function Gone() {
+  const nav = useNavigate()
+  useEffect(() => { if (window.history.state?.idx > 0) nav(-1); else nav('/home', { replace: true }) }, [nav])
+  return null
 }
 
 // "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
@@ -114,14 +134,14 @@ export function WorkoutDetail() {
   const st = useStore(s => s.S)
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
   // Deleted (here or in All details) or opened without a workout: back to where it came from.
-  if (!w) return <Navigate to="/home" replace />
+  if (!w) return <Gone />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
   const prs = workoutRecords(st, w)
   const times = partOn(st, 'hvStats', 'time') ? entryTimes(w) : [] // D114
   const mode = volumeMode(st)
-  const split = muscleSets(w.entries, muscleMode(st))
-  const top = split[0]?.sets || 1
+  // D133: the effort column shows when the workout has any effort logged, in the profile's scale.
+  const scale = (w.entries || []).some(e => detailRows(e.sets).some(r => r.effort)) ? effortScale(st) : null
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)   // D93: OpenBite's phase when it was saved
@@ -149,19 +169,10 @@ export function WorkoutDetail() {
     {w.note && <p className="hv-wd-note">{w.note}</p>}
     {/* Shown when there is something to show; adding one is in All details. */}
     {workoutMediaCount(w) > 0 && <WorkoutMediaSection w={w} />}
-    {split.length > 0 && <>
-      <h4 className="sec">{t('Muscle Split')}</h4>
-      <div className="hv-msets">
-        {split.map(r => <div key={r.muscle} className="hv-wd-split">
-          <span>{t(r.muscle)}</span>
-          <span className="hv-mset-bar"><i style={{ width: (r.sets / top) * 100 + '%' }} /></span>
-          <b>{tn('{0} set', '{0} sets', r.sets)}</b>
-        </div>)}
-      </div>
-    </>}
     <h4 className="sec">{t('Workout')}</h4>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} w={w} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)} time={times[i]} />)}
+      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)}
+        sideTrends={workoutSideTrends(st, w, i)} time={times[i]} scale={scale} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

@@ -187,3 +187,90 @@ longer follow the phone's font size.
 | R8-U5 | low | H3 | Leaving a new routine empty keeps a "New routine" card | **discuss** |
 | R8-U6 | low | A2 | The Superset pill's text is 3.5:1 | **open**: Hevy's purple (SCREENS.md) |
 | R8-U7 | low | A6 | At 200% a cardio time of 10:10 is cut to "10:1" in the TIME cell | **open**: seen while checking D122 |
+
+## Round 9 (2026-11-16, the rework's build on `hevier/rework`: J1 routine lifter, J2 Hevy switcher)
+
+Both finished on the rebuilt screens (D125 to D136), J2 without the CSV summary (no Hevy CSV on the
+device). The numbers of the saved workout agree on the Finish sheet, the History card and Workout
+Detail.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R9-U1 | medium | H2 | Today's card gives an exercise shown in lb in kg, the plan page in lb | **fixed**: the card writes weights in the exercise's unit; test beside it |
+| R9-U2 | medium | H7, H4 | Lifts' search does not find an exercise by its brand (D36) | **fixed**: the picker's brand search |
+| R9-U3 | low | H6 | The exercise page's brand filter is a closed dropdown reading "All sets"; the mockup draws chips | **discuss** |
+| R9-U4 | medium | A1 | The effort buttons and the rest panel's buttons are 44 dp tall | **fixed**: 48 dp; the 4 dp gaps between effort buttons stay (seven in a row) |
+| R9-U5 | low | C2, H6 | The Finish sheet's warning and change line are worded differently from the mockup; "1 changed" has no noun | **discuss** |
+| R9-U6 | low | H4 | Today's routine name is grey, the mockup's is in full colour | **fixed** |
+| R9-U7 | low | P1 | Deleting a workout from Workout Detail lands on Today | **fixed**: back to the page it was opened from |
+| R9-U8 | low | C5 | Settings still says "Home" (Look & Home, On Home) | **open**: upstream's page, D136 left Settings as it is; needs seams |
+| R9-U9 | low | H4 | The editor's remove mark is a grey dash beside the grey dash of an empty weight | **discuss** |
+
+Improvements, all **open**: spoken set text ("90 kilograms, 6 reps"); the "Workout saved" toast's
+Open carries the undo arrow; "2 sets · 80 × 8, 80 × 7" on Today reads as two sets in all; closed
+exercises in the live workout keep the "Add brand" line while the open one has the pill; a routine
+that is not next shows no date on its page. Notes: a swap on an exercise with ticked sets asks
+first and keeps the old exercise, so it is 3 taps; the week row cuts "… Day" names; a routine alone
+in its folder has no handle.
+
+## Round 10 (2026-11-16, the rework's build: J3 two-gym lifter, J4 per-side and timer user)
+
+Both finished. Brand and cable changes, the hidden list at a gym, per side, side order, the hold
+clock and a typed time all worked as decided.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R10-U1 | medium | G7, G2 | The opened cardio set cuts a time of 10:00 or more | **fixed**: a time in the opened row is 20 px |
+| R10-U2 | medium | G2, H6 | The rest panel's Next line is cut; the mockup gives weight × reps its own large line | **fixed**: the caption, then the numbers on their own 22 px line (`lib/dock-next.js`), the clock 50 px |
+| R10-U3 | medium | A1 | Add Exercise, Settings, Discard Workout and the picker's add buttons are 37 dp tall | **fixed**: 48 dp |
+| R10-U4 | low | H6 | Search rows in the picker drop the "N times · last" line; the hidden list is not yours-first | **open** (minor) |
+| R10-U5 | low | A1 | The workout's gym line is 26 dp tall, 2 dp above the note row | **open**: the compact look (D7) |
+
+Improvements, **open**: a weight typed on one side could fill the other side's untouched field
+(discuss); the "Hold logged" toast covers the rest panel's Next line; the ▶ set timer is 34 dp with
+a 46 dp hit area; the opened set's PREVIOUS wraps "340kg × / 4". Notes: in a freestyle workout a
+brand change moves PREVIOUS but not the grey values a tick logs (D82 refills a routine's sets
+only); the header has two chevrons, Minimize and the title's.
+
+## Round 11 (2026-11-16, the rework's build: J5 numbers person, J6 planner)
+
+Both finished. Round 9's and 10's fixes hold on screen. Deleting the routine and the folder each
+gave a toast with Undo; Move up and down in the ⋮ covers a long drag.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R11-U1 | medium | H2, H4 | An exercise pinned to lb reads in kg on its own page and in All history, while Lifts reads lb | **fixed**: the sessions, the bests, the rep counts, the chart and All history are in the exercise's unit (D41) |
+| R11-U2 | low | G8, H4 | The Calendar's month title counts training days and calls them workouts | **fixed**: it counts workouts |
+| R11-U3 | low | A1 | The routines list's chips are 29 dp tall, the folder headers 31 dp | **open**, with R7-U5 (the same chip) |
+| R11-U4 | low | A1 | The Backups sheet's Add a backup and Done are 37 dp, its gym chips 25 dp | **fixed** for the two buttons (48 dp); the chips **open** with R7-U5 |
+| R11-U5 | low | H4 | In the editor and on the plan page the Superset pill wraps its icon above the word | **fixed**: one line |
+| R11-U6 | low | H4 | Last sessions write "20 Oct" and "80×8", the tiles "Tue, 20 Oct" and "60 × 12" | **open**: the short form keeps four sets on one line |
+| R11-U7 | low | H7 | The routines list has no "Search routines" field, which the mockup draws | **fixed**: Search routines at the top, matches listed without folders |
+
+Improvements, **open**: Statistics says "0s this week" where History's tile says "0"; the chart on
+Year says "No data yet" for an exercise last done over a year ago; "Rest day" in the Plan's day
+sheet has no `aria-pressed` (upstream's sheet); a drag past a tall superset needs a hold at the
+top edge (discuss). Notes: "1/5" beside a muscle has no visible legend (D119); "1s a session" on
+exercises whose sets were ticked seconds apart reads as a fault (D88); the Rotation chip opens a
+page titled Plan (D130); a done and a planned day on the Calendar are spoken alike (D68).
+
+## Round 12 (2026-11-16, the rework's build: J7 low vision, at 200%)
+
+Finished. Round 10's fixes hold: the rest panel's caption and numbers are whole at 200%, and
+Settings and Discard Workout are 48 dp.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R12-U1 | high | A6, G7 | At 200% a weight of four or more characters is cut in its field: 102.5 reads "102" | **fixed**: a number wider than its field is drawn smaller until it fits (`lib/fit-numbers.js`), the grey prefilled ones too; this also covers R8-U7's cardio time |
+| R12-U2 | high | A3, A5 | With effort on, the button that logs an unticked set is spoken "Set 4, RIR" | **fixed**: "Set 4, log it with RIR" |
+| R12-U3 | medium | A6, H6 | At 200% the exercise's chips read "Sw…", "His…", "1m…", "Re…" | **fixed**: the buttons wrap to a second line when the words do not fit |
+| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **open** |
+| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **open**: Skip clears it |
+| R12-U6 | low | A6 | Today's week strip cuts routine names, "P…" twice at 200% | **fixed**: the week row wraps when a name does not fit |
+| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **open** (upstream's sheet) |
+
+Improvements, **open**: at 200% the Routines and Calendar pills are 1 to 3 dp too narrow for
+their text; the delete toast says "Set 3 gone." without the exercise; at 200% Today's Start is
+below the fold (discuss, D134). Notes: with effort on a set takes two taps to log (the user's
+change to D127); after a swap the Finish sheet says "1 added".
+

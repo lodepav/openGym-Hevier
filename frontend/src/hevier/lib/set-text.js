@@ -52,3 +52,20 @@ export function previousText(p, { side, mode, bw, unit, show = w => w, id, targe
   if (mode !== 'reps' || isSideSet(p) || isHoldRow(p)) return hevySetLabel(id, p, target, speedUnit)
   return weightReps(p)
 }
+
+/** Set `x` without its effort, a per-side set's sides too: for a page that shows effort apart. */
+export const noEffort = x => {
+  if (!x || typeof x !== 'object') return x
+  const { rir, rpe, ...rest } = x
+  return rest.sides ? { ...rest, sides: { L: noEffort(rest.sides.L), R: noEffort(rest.sides.R) } } : rest
+}
+
+/**
+ * The live workout's PREVIOUS column (D127): previousText without the effort, so last time reads on
+ * one line where it can, and a per-side set read whole as two lines, "L 15×15" over "R 15×15".
+ */
+export function previousCell(p, opts) {
+  const text = previousText(noEffort(p), opts)
+  return !opts.side && p && isSideSet(p) && !isHoldRow(p) ? text.replace(' · ', '\n') : text
+}
+

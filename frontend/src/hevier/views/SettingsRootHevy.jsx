@@ -67,7 +67,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   return SETTINGS_GROUPS.map(g => {
     const ids = g.ids.filter(id => id.startsWith('hv:') || pageVisible(id, ctx))
     if (!ids.length && !g.account) return null
-    return <Section key={g.title} title={t(g.title)}>
+    return <Section key={g.title} title={t(g.title)} className="hv-sgroup">
       {/* Upstream's account card (views/Settings.jsx SettingsRoot), as a row of its group. */}
       {g.account && <button className="lrow tap sp-acct" onClick={() => open('account')}>
         <AvatarFace name={faceName} />
@@ -113,10 +113,10 @@ const TYPE_PROPS = new Map([[ForgottenRows, { mobile: false }]])
 export function installSettings() {
   hooks.settings = {
     root: props => <SettingsRootHevy {...props} />,
-    // Settings opens from Profile's ⚙ (D14): back the way you came, else up to Profile.
-    back: () => <button className="sp-back" aria-label={t('Profile')}
-      onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/profile', { replace: true }))}>
-      <Icon name="chevronLeft" /><span>{t('Profile')}</span></button>,
+    // Settings opens from a tab's ⚙ (D136): back the way you came, else up to Today.
+    back: () => <button className="sp-back" aria-label={t('Today')}
+      onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/home', { replace: true }))}>
+      <Icon name="chevronLeft" /><span>{t('Today')}</span></button>,
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)

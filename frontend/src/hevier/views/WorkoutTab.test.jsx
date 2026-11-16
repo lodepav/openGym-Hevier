@@ -1,12 +1,13 @@
 // @vitest-environment happy-dom
-// The Workout tab's routines (hevier/DECISIONS.md D13): folders, Move to folder, drag handles.
+// The Routines page (the Workout tab until D126) (hevier/DECISIONS.md D13, D130): folders, Move to folder, drag handles, rows.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { MemoryRouter, Routes, Route, useParams } from 'react-router-dom'
+import { MemoryRouter, Routes, Route, useParams, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
+import { todayISO, fmtDate, isoOf } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -19,7 +20,7 @@ const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
 const R = (id, folder) => ({ id, name: 'R ' + id, emoji: 'dumbbell', ex: [{ id: EX, sets: 3, reps: 8, weight: 0 }], ...(folder ? { folder } : {}) })
 let root, container
 
-function render(routines, extra = {}, at = '/workout') {
+function render(routines, extra = {}, at = '/routines') {
   const S = Object.assign(clone(DEF), { weighIn: false, routines }, extra)
   useStore.setState({ S, user: null, isGuest: () => true })
   container = document.createElement('div')
@@ -56,7 +57,7 @@ describe('hevier: routine folders and reordering', () => {
 
   it('⋯ → Move to folder puts a routine in a folder, on the routine itself', () => {
     render([R('a'), R('b'), R('p1', 'Push')])
-    act(() => container.querySelector('.hv-rcard .iconbtn').click())
+    act(() => container.querySelector('.hv-rrow [aria-label^="More"]').click())
     const menu = sheet()
     act(() => item(menu, 'Move to folder').click())
     const folders = sheet()
@@ -67,7 +68,7 @@ describe('hevier: routine folders and reordering', () => {
 
   it('a new folder is kept in S until a routine goes into it', () => {
     render([R('a')])
-    act(() => container.querySelector('[aria-label="New Folder"]').click())
+    act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.textContent === '+ Folder').click())
     const host = sheet()
     const input = host.querySelector('input')
     act(() => {
@@ -82,7 +83,7 @@ describe('hevier: routine folders and reordering', () => {
 
   it('a routine’s handle reorders it inside its folder', () => {
     render([R('p1', 'Push'), R('a'), R('p2', 'Push')])
-    const pushGrips = container.querySelectorAll('.hv-folders .hv-rcard .hv-grip')
+    const pushGrips = container.querySelectorAll('.hv-folders .hv-rrow .hv-grip')
     key(pushGrips[0], 'ArrowDown')
     expect(ids()).toEqual(['p2', 'a', 'p1'])
   })
@@ -94,10 +95,29 @@ describe('hevier: routine folders and reordering', () => {
     expect(ids()).toEqual(['l1', 'p1', 'p2'])
   })
 
+  it('Search routines lists the matches by name without folders, also from a folder folded shut', () => {
+    render([R('a'), { ...R('b', 'Legs'), name: 'Squat day' }], { hvFoldersClosed: ['Legs'] })
+    const type = v => act(() => {
+      const el = container.querySelector('input[aria-label="Search routines"]')
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v)
+      el.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    const names = () => [...container.querySelectorAll('.hv-rname-n')].map(x => x.textContent)
+    type('squ')
+    expect(names()).toEqual(['Squat day'])
+    expect(heads()).toEqual([])
+    expect(container.querySelector('.hv-grip')).toBeFalsy()
+    type('zzz')
+    expect(names()).toEqual([])
+    expect(container.textContent).toContain('No routine matches')
+    type('')
+    expect(heads().length).toBe(2)
+  })
+
   it('folds a folder shut and remembers it in S', () => {
     render([R('p1', 'Push')])
     act(() => [...container.querySelectorAll('.hv-ftoggle')][1].click())
-    expect(container.querySelectorAll('.hv-rcard').length).toBe(0)
+    expect(container.querySelectorAll('.hv-rrow').length).toBe(0)
     expect(useStore.getState().S.hvFoldersClosed).toEqual(['Push'])
   })
 
@@ -125,10 +145,10 @@ describe('hevier: routine folders and reordering', () => {
 
 function Page() { return <div id="page">{useParams().page}</div> }
 
-describe('hevier: the empty Workout tab', () => {
+describe('hevier: the empty Routines page', () => {
   it('points to the Hevy import on Settings → Integrations', () => {
     render([])
-    act(() => root.render(<MemoryRouter initialEntries={['/workout']}><Routes>{hevierRoutes}
+    act(() => root.render(<MemoryRouter initialEntries={['/routines']}><Routes>{hevierRoutes}
       <Route path="/settings/:page" element={<Page />} /></Routes></MemoryRouter>))
     const link = [...container.querySelectorAll('button')].find(b => b.textContent === 'Import from Hevy')
     act(() => link.click())
@@ -138,7 +158,7 @@ describe('hevier: the empty Workout tab', () => {
 
 describe('hevier: starting with a workout open (D13)', () => {
   const open = { id: 'open', d: '2026-10-18', start: Date.now() - 60000, name: 'Open one', routineIds: [], entries: [], cur: 0 }
-  const startRoutine = () => [...container.querySelectorAll('button')].find(b => b.textContent === 'Start Routine')
+  const startRoutine = () => container.querySelector('[aria-label="Start, R a"]')
 
   it('starts at once when no workout is open', () => {
     render([R('a')])
@@ -164,5 +184,67 @@ describe('hevier: starting with a workout open (D13)', () => {
     const A = useStore.getState().S.active
     expect(A.id).not.toBe('open')
     expect(A.routineIds).toEqual(['a'])
+  })
+})
+
+function Where() { return <div id="where">{useLocation().pathname}</div> }
+const iso = n => { const d = new Date(todayISO() + 'T12:00:00'); d.setDate(d.getDate() + n); return isoOf(d) }
+
+describe('hevier: the routines list’s rows (D130)', () => {
+  const at = path => {
+    act(() => root.render(<MemoryRouter initialEntries={['/routines']}><Routes>{hevierRoutes}
+      <Route path="*" element={null} /></Routes><Where /></MemoryRouter>))
+    return path
+  }
+  const rowOf = id => [...container.querySelectorAll('.hv-rrow')].find(r => r.querySelector(`[aria-label="Start, R ${id}"]`))
+
+  it('the next routine is marked with its day and an accent Start; another reads its day or when it was last done', () => {
+    render([R('a'), R('b'), R('c')], { dayPlan: { [iso(1)]: 'a', [iso(3)]: 'b' },
+      workouts: [{ id: 'w1', d: iso(-9), start: 1, routineIds: ['c'], routineId: 'c', entries: [] }] })
+    expect(rowOf('a').textContent).toContain('Next · ' + fmtDate(iso(1), true) + ' · 1 exercise')
+    expect(rowOf('a').querySelector('.hv-rstart').classList.contains('primary')).toBe(true)
+    expect(rowOf('b').textContent).toContain(fmtDate(iso(3), true))
+    expect(rowOf('b').textContent).not.toContain('Next')
+    expect(rowOf('b').querySelector('.hv-rstart').classList.contains('primary')).toBe(false)
+    expect(rowOf('c').textContent).toContain('last done ' + fmtDate(iso(-9), false, iso(-9).slice(0, 4) !== todayISO().slice(0, 4)))
+  })
+
+  it('a tap on a row opens the next session’s page', () => {
+    render([R('a')])
+    at()
+    act(() => container.querySelector('.hv-rrow .hv-rname').click())
+    expect(container.querySelector('#where').textContent).toBe('/plan/r/a/view')
+  })
+
+  it('a long press opens the row’s menu, and the click it ends with does not open the row', () => {
+    vi.useFakeTimers()
+    try {
+      render([R('a')])
+      at()
+      const name = container.querySelector('.hv-rrow .hv-rname')
+      act(() => name.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 5, clientY: 5 })))
+      act(() => vi.advanceTimersByTime(500))
+      expect(useUI.getState().sheets).toHaveLength(1)
+      act(() => name.dispatchEvent(new PointerEvent('pointerup', { bubbles: true })))
+      act(() => name.click())
+      expect(container.querySelector('#where').textContent).toBe('/routines')
+    } finally { vi.useRealTimers() }
+    const menu = sheet()
+    expect(['Move to folder', 'Duplicate', 'Delete routine'].every(x => item(menu, x))).toBe(true)
+  })
+
+  it('+ Routine, + Folder, Rotation, Empty workout and Explore sit at the end; Rotation opens the plan', () => {
+    render([R('a')])
+    at()
+    expect([...container.querySelectorAll('.hv-rend button')].map(b => b.textContent))
+      .toEqual(['+ Routine', '+ Folder', 'Rotation', 'Empty workout', 'Explore'])
+    act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.textContent === 'Rotation').click())
+    expect(container.querySelector('#where').textContent).toBe('/plan')
+  })
+
+  it('Empty workout starts a session with nothing in it', () => {
+    render([R('a')])
+    act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.textContent === 'Empty workout').click())
+    expect(useStore.getState().S.active.entries).toEqual([])
   })
 })

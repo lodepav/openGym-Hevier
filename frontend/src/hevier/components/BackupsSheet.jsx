@@ -91,9 +91,9 @@ export function BackupsSheet({ rid, i, exId, close }) {
     </div>}
     {gyms.length > 0 && <div className="small dim" style={{ marginBottom: 12 }}>{t('Tap a gym that lacks an exercise: a workout there starts with the first backup it has. Hold a backup to change the order.')}</div>}
     {subs.length < MAX_BACKUPS
-      ? <button type="button" className="btn" style={{ width: '100%' }} onClick={add}><Icon name="plus" /> {t('Add a backup')}</button>
+      ? <button type="button" className="btn" style={{ width: '100%', minHeight: 48 }} onClick={add}><Icon name="plus" /> {t('Add a backup')}</button>
       : <div className="small dim">{t('That’s plenty of backups.')}</div>}
     <div style={{ height: 8 }} />
-    <button type="button" className="btn primary" style={{ width: '100%' }} onClick={close}>{t('Done')}</button>
+    <button type="button" className="btn primary" style={{ width: '100%', minHeight: 48 }} onClick={close}>{t('Done')}</button>
   </>
 }

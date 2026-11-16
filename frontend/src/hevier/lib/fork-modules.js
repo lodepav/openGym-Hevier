@@ -5,7 +5,6 @@
 // each module, for D102's switch per part and for the docs; a fork feature in no module is core.
 import { isOn, MODULE, setModule } from '../../lib/modules.js'
 import { t } from '../../lib/i18n.js'
-import { partOn } from './module-parts.js'
 
 export const moduleOn = (S, id) => isOn(S, id)
 
@@ -59,12 +58,3 @@ export function setAnyModule(s, id, on) {
 // Settings → Modules does not list them (seam S54, the user's choice 2026-11-03); what they store
 // is left as it is, so a preset still writes them.
 export const HIDDEN_MODULES = ['videos', 'checkin', 'coach', 'seasonal', 'community', 'watch']
-
-// The Home widgets (D12) a module part switches (D102); the others are core.
-const WIDGET_PART = {
-  streak: ['motivation', 'streak'], weight: ['body', 'weight'],
-  challenges: ['motivation', 'challenges'], recap: ['motivation', 'recaps'], year: ['motivation', 'year'], recoveryhint: ['health', 'tips'],
-  wsets: ['strength', 'weekly'],
-}
-/** Whether Home widget `id` belongs to a module part that is on. */
-export const widgetOn = (S, id) => !WIDGET_PART[id] || partOn(S, ...WIDGET_PART[id])

@@ -124,41 +124,102 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(container.querySelector('.hv-pk-check')).toBeNull()
   })
 
-  it('a swap of the running workout’s exercise offers its slot’s backups first, until something is typed (D45)', () => {
-    const S = clone(DEF)
-    S.active = { start: Date.now(), entries: [{ id: BENCH.id, target: { subs: [SQUAT.id] }, sets: [] }] }
-    useStore.setState({ S, user: null })
-    swapActiveWorkoutExercise(0)
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    root = createRoot(container)
-    const sheet = useUI.getState().sheets.at(-1)
-    act(() => root.render(sheet.render(() => {})))
-    const heads = [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
-    expect(heads[0]).toBe('Your backups')
-    expect(container.querySelector('.list .hv-pk-row .tt').textContent).toBe(SQUAT.n)
-    search('curl')
-    expect(container.textContent).not.toContain('Your backups')
-  })
-
-  it('a swap suggests up to three substitutes under the backups, never a backup again, until something is typed (D45, #674)', () => {
-    const S = clone(DEF)
-    S.active = { start: Date.now(), entries: [{ id: BENCH.id, target: { subs: [SQUAT.id] }, sets: [] }] }
-    useStore.setState({ S, user: null })
-    swapActiveWorkoutExercise(0)
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    root = createRoot(container)
-    act(() => root.render(useUI.getState().sheets.at(-1).render(() => {})))
+  it('the routine editor’s Replace keeps the slot’s backups first, then the substitutes (D45, #674)', () => {
+    open(vi.fn(), { title: 'Replace exercise', like: BENCH.id, backups: [SQUAT.id] })
     const heads = [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
     expect(heads.slice(0, 2)).toEqual(['Your backups', 'Suggested substitutes'])
+    expect(container.querySelector('.list .hv-pk-row .tt').textContent).toBe(SQUAT.n)
     const sug = [...container.querySelectorAll('section[aria-label="Suggested substitutes"] .hv-pk-row .tt')].map(e => e.textContent)
     expect(sug.length).toBeGreaterThan(0)
     expect(sug.length).toBeLessThanOrEqual(3)
     expect(sug).not.toContain(SQUAT.n)
     expect(sug).not.toContain(BENCH.n)
+    expect(container.querySelector('.hv-pk-use')).toBeNull()
     search('curl')
+    expect(container.textContent).not.toContain('Your backups')
     expect(container.textContent).not.toContain('Suggested substitutes')
+  })
+
+  describe('the live workout’s Swap and Add (D129)', () => {
+    const ROW = EXDB.find(e => /^barbell bent over row$/i.test(e.n))
+    const DB_BENCH = EXDB.find(e => /^dumbbell bench press$/i.test(e.n))
+    const FLY = EXDB.find(e => /^dumbbell fly$/i.test(e.n))
+    const done = (id, w, extra = {}) => ({ id, rid: 'r1', sets: [{ w, r: 8, done: true }], ...extra })
+    const routine = () => ({ id: 'r1', name: 'Full A', ex: [SQUAT, BENCH, ROW].map(e => ({ id: e.id, sets: 3, reps: 8 })) })
+    const history = () => [
+      { id: 'w1', d: '2026-09-01', start: Date.parse('2026-09-01T10:00:00'), routineIds: ['r1'], entries: [done(SQUAT.id, 100), done(BENCH.id, 60), done(ROW.id, 50)] },
+      { id: 'w2', d: '2026-09-08', start: Date.parse('2026-09-08T10:00:00'), routineIds: ['r1'], entries: [done(SQUAT.id, 100), done(DB_BENCH.id, 27.5), done(ROW.id, 50)] },
+      { id: 'w3', d: '2026-09-10', start: Date.parse('2026-09-10T10:00:00'), routineIds: [], entries: [done(FLY.id, 14, { rid: undefined })] },
+    ]
+    const live = () => {
+      const S = clone(DEF)
+      S.routines = [routine()]
+      S.workouts = history()
+      S.active = { start: Date.now(), routineIds: ['r1'], cur: 0, entries: [SQUAT, BENCH, ROW].map(e => ({ id: e.id, rid: 'r1', target: { sets: 3, reps: 8, ...(e === BENCH ? { subs: [SQUAT.id] } : {}) }, sets: [{ w: 0, r: 8, done: false }] })) }
+      useStore.setState({ S, user: null })
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+    }
+    const render = () => act(() => root.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const heads = () => [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
+    const names = sec => [...container.querySelectorAll(`section[aria-label="${sec}"] .hv-pk-row .tt`)].map(e => e.textContent)
+
+    it('Swap is titled with the exercise and lists your swaps, what you have done, then what you have not tried', () => {
+      live()
+      swapActiveWorkoutExercise(1)
+      render()
+      expect(container.querySelector('h3').textContent).toBe('Swap ' + BENCH.n)
+      expect(heads().slice(0, 3)).toEqual(['You swapped to these before', 'You have done these', 'Same movement, not tried yet'])
+      expect(container.textContent).not.toContain('Your backups')
+      expect(names('You swapped to these before')).toEqual([DB_BENCH.n])
+      expect(names('You have done these')).toEqual([FLY.n])
+      const tried = names('Same movement, not tried yet')
+      expect(tried.length).toBeGreaterThan(0)
+      expect(tried).not.toContain(DB_BENCH.n)
+      expect(tried).not.toContain(FLY.n)
+      const swapped = container.querySelector('section[aria-label="You swapped to these before"] .hv-pk-row')
+      expect(swapped.querySelector('.ss').textContent).toMatch(/^once · .+ · 27\.5kg × 8$/)
+      expect(swapped.querySelector('.tap-main').getAttribute('aria-label')).toMatch(new RegExp('^Use ' + DB_BENCH.n, 'i'))
+      expect(swapped.querySelector('.hv-pk-use').textContent).toBe('Use')
+      search('curl')
+      expect(heads()).not.toContain('You swapped to these before')
+      expect(container.textContent).not.toContain('Same movement, not tried yet')
+    })
+
+    it('Use swaps in one tap, for this workout only: the routine stays as it was', () => {
+      live()
+      const before = clone(useStore.getState().S.routines)
+      swapActiveWorkoutExercise(1)
+      render()
+      click(container.querySelector('section[aria-label="You swapped to these before"] .tap-main'))
+      const S = useStore.getState().S
+      expect(S.active.entries.map(e => e.id)).toEqual([SQUAT.id, DB_BENCH.id, ROW.id])
+      expect(S.active.entries[1].rid).toBe('r1')
+      expect(S.routines).toEqual(before)
+      expect(useUI.getState().sheets).toHaveLength(0)
+    })
+
+    it('Add is the same sheet without your swaps, still picking several', () => {
+      const hash = window.location.hash
+      window.location.hash = '#/workout'
+      try {
+        live()
+        const onPick = vi.fn()
+        exercisePicker(onPick)
+        render()
+        expect(heads()[0]).toBe('You have done these')
+        expect(heads()).not.toContain('You swapped to these before')
+        expect(heads()).not.toContain('Recent Exercises')
+        expect(names('You have done these').slice(0, 2)).toEqual([FLY.n, SQUAT.n])
+        const row = container.querySelector('section[aria-label="You have done these"] .hv-pk-row')
+        expect(row.querySelector('.hv-pk-check')).toBeTruthy()
+        expect(row.querySelector('.hv-pk-use')).toBeNull()
+        click(row.querySelector('.tap-main'))
+        expect(onPick).not.toHaveBeenCalled()
+        expect(container.querySelector('.hv-pk-add button').textContent).toBe('Add 1 exercise')
+      } finally { window.location.hash = hash }
+    })
   })
 
   it('lists recent exercises first', () => {
