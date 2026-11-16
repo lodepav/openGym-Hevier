@@ -134,6 +134,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | History: this week in three numbers, chips to Calendar, Statistics, Month report, Sets per muscle, Body weight and More, the phase filter and the workout feed | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
+| Sets per muscle as a page of its own: the counts by week, month or year and the weekly sets against a range; History's chip and a row on Statistics open it | D14, D135 | Fork |
 | Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
 | Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |
 | Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |

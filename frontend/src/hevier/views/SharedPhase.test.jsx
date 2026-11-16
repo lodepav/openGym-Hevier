@@ -126,7 +126,7 @@ describe('the statistics filter', () => {
     expect(chips()[0].getAttribute('aria-pressed')).toBe('true')
   })
   it('narrows the set counts on the page to the phase, and All brings them back', () => {
-    render('/stats', { workouts: log })
+    render('/muscle-sets', { workouts: log })
     const sets = () => container.querySelector('.hv-mset b').textContent
     expect(sets()).toBe('14')
     act(() => chips()[1].click())

@@ -47,7 +47,7 @@ export default function History() {
     partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
     ['Statistics', () => nav('/stats')],
     partOn(S, 'hvStats', 'report') && ['Month report', () => nav('/report')],
-    ['Sets per muscle', () => nav('/stats', { state: { at: 'sets' } })],
+    ['Sets per muscle', () => nav('/muscle-sets')],
     anyPartOn(S, 'body') && ['Body weight', () => nav('/measures')],
     ['More', () => nav('/stats/all')],
   ].filter(Boolean)
