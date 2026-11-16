@@ -16,7 +16,7 @@ describe('hevier: prunePage', () => {
     expect(Children.toArray(out.props.children).map(k => k.props.title)).toEqual(['App'])
   })
   it('keeps a fragment with a row left, and drops listed component types', () => {
-    const tree = <Section title="Look"><>{<Row title="Body weight" />}<Row title="Theme" /></><Picker /></Section>
-    expect(titles(prunePage('look', tree, s => s, [Picker]))).toEqual(['Body weight'])
+    const tree = <Section title="Look"><>{<Row title="Body diagram" />}<Row title="Theme" /></><Picker /></Section>
+    expect(titles(prunePage('look', tree, s => s, [Picker]))).toEqual(['Body diagram'])
   })
 })

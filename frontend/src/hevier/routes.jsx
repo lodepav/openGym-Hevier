@@ -1,6 +1,7 @@
 // The fork's screens, reached through seam S2 (frontend/src/App.jsx). The routes are placed
 // before upstream's own, and React Router gives an exact tie to the first one, so a fork route
 // replaces upstream's same path without its line being touched.
+import { useEffect, useState } from 'react'
 import { Navigate, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
@@ -13,9 +14,10 @@ import PhaseFilter from './components/PhaseFilter.jsx'
 import Plan from '../views/Plan.jsx'
 import Icon from '../components/Icon.jsx'
 import PageBar, { useBack } from './components/PageBar.jsx'
-import HevyHome from './views/HevyHome.jsx'
+import Today from './views/Today.jsx'
+import Lifts from './views/Lifts.jsx'
+import History, { HISTORY_PATH } from './views/History.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
-import Profile from './views/Profile.jsx'
 import Statistics from './views/Statistics.jsx'
 import Measures from './views/Measures.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
@@ -44,18 +46,27 @@ if (HEVIER) { installExerciseDetails(); installExercisePicker(); installWorkoutD
 // Android back on a tab screen offers to exit (seam S16). The path is the HashRouter's.
 if (HEVIER) hooks.backPath = backPath
 if (HEVIER) hooks.backEvent = ev =>
-  atTabRoot(ev, (location.hash.slice(1) || '/').split('?')[0], !!useStore.getState().S.active, window.history.state?.idx || 0)
+  atTabRoot(ev, (location.hash.slice(1) || '/').split('?')[0], window.history.state?.idx || 0)
 
-// /workout is the Workout tab until a session opens, then upstream's screen (seam S3).
+// /workout is upstream's screen while a session is open (seam S3); without one it goes to Today (D126).
 function WorkoutRoute() {
   const active = useStore(s => !!s.S.active)
-  return active ? <Workout /> : <WorkoutTab />
+  const nav = useNavigate()
+  const [opened] = useState(active)
+  // A session ending here mostly navigates itself (Save, an edit's ✕): Today waits a tick for that,
+  // so it only catches one that ended without (on another device).
+  useEffect(() => {
+    if (active || !opened) return
+    const id = setTimeout(() => nav('/home', { replace: true }))
+    return () => clearTimeout(id)
+  }, [active, opened, nav])
+  return active ? <Workout /> : opened ? null : <Navigate to="/home" replace />
 }
 
 // Upstream's Stats was a tab and has no way back; in the fork it opens from Statistics as All
 // statistics, so it gets the fork's page bar (D49) with upstream's History button, and its own
 // "Stats / Progress & history" header is hidden (hevier.css).
-function WithBack({ label = 'Profile', to = '/profile', title, children }) {
+function WithBack({ label = 'History', to = HISTORY_PATH, title, children }) {
   const nav = useNavigate()
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(to))
   return <>
@@ -78,7 +89,7 @@ function StatsEntry() {
 
 function PlanPage() {
   return <>
-    <PageBar title={t('Plan')} onBack={useBack('/routines')} backLabel={t('Workout')} className="hv-planbar" />
+    <PageBar title={t('Plan')} onBack={useBack('/routines')} backLabel={t('Routines')} className="hv-planbar" />
     <Plan />
   </>
 }
@@ -101,10 +112,13 @@ function BackWhereFrom({ to, className, children }) {
 }
 
 export const hevierRoutes = [
-  <Route key="hv-home" path="/home" element={<HevyHome />} />,
+  <Route key="hv-home" path="/home" element={<Today />} />,
+  <Route key="hv-lifts" path="/lifts" element={<Lifts />} />,
+  <Route key="hv-history" path={HISTORY_PATH} element={<History />} />,
   <Route key="hv-workout" path="/workout" element={<WorkoutRoute />} />,
   <Route key="hv-routines" path="/routines" element={<WorkoutTab />} />,
-  <Route key="hv-profile" path="/profile" element={<Profile />} />,
+  // D126: Profile's place is the History tab.
+  <Route key="hv-profile" path="/profile" element={<Navigate to={HISTORY_PATH} replace />} />,
   <Route key="hv-stats" path="/stats" element={<StatsEntry />} />,
   // D102: a module's parts unfold on Modules now; an old link to a module's own page lands there.
   <Route key="hv-module-parts" path="/settings/modules/:mod" element={<Navigate to="/settings/modules" replace />} />,

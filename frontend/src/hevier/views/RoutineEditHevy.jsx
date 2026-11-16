@@ -260,7 +260,7 @@ export default function RoutineEditHevy() {
   const toast = useUI(s => s.toast)
   const r = S.routines.find(x => x.id === id)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
-  useEffect(() => { if (!r) nav('/workout', { replace: true }) }, [!!r])
+  useEffect(() => { if (!r) nav('/routines', { replace: true }) }, [!!r])
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
   // A new routine's default name shows as the placeholder, so the first key typed starts the name (D2: no select on focus).

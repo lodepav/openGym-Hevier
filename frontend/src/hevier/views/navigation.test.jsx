@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The fork's tabs and screens through seam S2 (hevier/DECISIONS.md D11–D14).
+// The fork's tabs and screens through seam S2 (hevier/DECISIONS.md D11–D14, D126).
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
@@ -8,7 +8,6 @@ import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes, HevyTabBar } from '../routes.jsx'
-import { HOME_KEY } from '../lib/home-layout.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -50,31 +49,61 @@ afterEach(() => {
 })
 
 describe('hevier: navigation (seam S2)', () => {
-  it('has three tabs, no Coach, and the fork’s Home wins over upstream’s route', () => {
+  it('has three tabs, no Coach, and the fork’s Today wins over upstream’s Home route (D126)', () => {
     render('/home')
     expect(container.querySelector('#upstream-home')).toBeNull()
-    expect(container.querySelector('.hv-home')).toBeTruthy()
+    expect(container.querySelector('.hv-today-page')).toBeTruthy()
     const tabs = [...container.querySelectorAll('#tabbar > button:not(.hv-resumebar)')].map(b => b.textContent)
-    expect(tabs).toEqual(['Home', 'Workout', 'Profile'])
+    expect(tabs).toEqual(['Today', 'Lifts', 'History'])
+    act(() => byText('#tabbar > button', 'Lifts').click())
+    expect(path).toBe('/lifts')
+    act(() => byText('#tabbar > button', 'History').click())
+    expect(path).toBe('/history-tab')
+    expect(byText('#tabbar > button', 'History').getAttribute('aria-current')).toBe('page')
+    act(() => root.unmount()); container.remove()
+    render('/library')
+    expect(byText('#tabbar > button', 'Lifts').getAttribute('aria-current')).toBe('page')
   })
 
-  it('Workout tab: Start Empty Workout opens a session through upstream’s startFlow', () => {
+  it('Profile goes to History; /workout without a session goes to Today; Routines goes back to Today (D126)', () => {
+    render('/profile')
+    expect(path).toBe('/history-tab')
+    act(() => root.unmount()); container.remove()
     render('/workout')
+    expect(path).toBe('/home')
+    act(() => root.unmount()); container.remove()
+    render('/routines')
+    act(() => container.querySelector('.hv-pagebar [aria-label="Today"]').click())
+    expect(path).toBe('/home')
+  })
+
+  it('a session ended on /workout without going anywhere (another device) lands on Today a tick later', () => {
+    vi.useFakeTimers()
+    onTestFinished(() => vi.useRealTimers())
+    render('/workout', { active: { id: 'a', d: '2026-10-16', start: Date.now(), name: 'Push', cur: 0, entries: [] } })
+    act(() => useStore.getState().update(s => { s.active = null }))
+    expect(path).toBe('/workout')
+    act(() => vi.runAllTimers())
+    expect(path).toBe('/home')
+  })
+
+  it('Routines: Start Empty Workout opens a session through upstream’s startFlow', () => {
+    render('/routines')
     act(() => byText('button', 'Start Empty Workout').click())
     const A = useStore.getState().S.active
     expect(A).toBeTruthy()
     expect(A.entries).toEqual([])
   })
 
-  it('Workout tab: a routine card starts that routine', () => {
-    render('/workout', { routines: [{ id: 'r1', name: 'Push', emoji: '', ex: [{ id: EX, sets: 3, reps: 8 }] }] })
+  it('Routines: a routine card starts that routine', () => {
+    render('/routines', { routines: [{ id: 'r1', name: 'Push', emoji: '', ex: [{ id: EX, sets: 3, reps: 8 }] }] })
     expect(container.querySelector('.hv-rpreview').textContent).not.toBe('')
     act(() => byText('button', 'Start Routine').click())
     expect(useStore.getState().S.active.entries.map(e => e.id)).toEqual([EX])
   })
 
   it('a session away from its screen rides above the tabs and resumes', () => {
-    render('/profile', { active: { id: 'a', d: '2026-10-16', start: Date.now(), name: 'Push', cur: 0, entries: [] } })
+    render('/history-tab', { active: { id: 'a', d: '2026-10-16', start: Date.now(), name: 'Push', cur: 0, entries: [] } })
     const bar = container.querySelector('.hv-resumebar')
     expect(bar.textContent).toContain('Workout in progress')
     expect(document.body.classList.contains('hv-resume')).toBe(true)
@@ -97,12 +126,12 @@ describe('hevier: navigation (seam S2)', () => {
     expect(useStore.getState().S.active).toBeNull()
   })
 
-  it('Exercises is the fork’s list, with a way back to Profile', () => {
+  it('Exercises is the fork’s list, with a way back to Lifts', () => {
     render('/library')
     expect(container.querySelector('.hv-pk')).toBeTruthy()
     expect(container.querySelector('.hv-pk-check')).toBeNull()
     act(() => container.querySelector('.hv-pagebar [aria-label="Back"]').click())
-    expect(path).toBe('/profile')
+    expect(path).toBe('/lifts')
   })
 
   it('the By muscle explorer goes back where it came from, else to Exercises without a new page', () => {
@@ -113,7 +142,7 @@ describe('hevier: navigation (seam S2)', () => {
   })
 
   it('a feed card’s ⋯ deletes the workout after upstream’s confirm', () => {
-    render('/profile', { workouts: [workout('2026-10-14')] })
+    render('/history-tab', { workouts: [workout('2026-10-14')] })
     act(() => container.querySelector('.hv-wcard .iconbtn[aria-label^="More, "]').click())
     const menu = useUI.getState().sheets.at(-1)
     const host = document.createElement('div')
@@ -131,21 +160,26 @@ describe('hevier: navigation (seam S2)', () => {
     expect(useStore.getState().S.workouts).toEqual([])
   })
 
-  it('Profile: dashboard, weekly chart and the workouts as feed cards', () => {
+  it('History: the workouts as feed cards; the weekly chart is on Statistics (D135)', () => {
     // The chart's weeks count back from today: pinned to the week after the workouts.
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date(2026, 9, 21, 12))
     onTestFinished(() => vi.useRealTimers())
     // Records are worked out from the log (D51): the week before sets the bar, this one beats it.
     const before = workout('2026-10-07', { start: 0.5, entries: [{ id: EX, sets: [{ w: 50, r: 8, done: true }] }] })
-    render('/profile', { workouts: [before, workout('2026-10-14')] })
-    expect(container.querySelectorAll('.hv-dash .btn')).toHaveLength(4)
-    expect(container.querySelectorAll('.hv-barcol')).toHaveLength(12)
+    const workouts = [before, workout('2026-10-14')]
+    render('/history-tab', { workouts })
+    expect(container.querySelectorAll('.hv-barcol')).toHaveLength(0)
     const card = container.querySelector('.hv-wcard')
     expect(card.textContent).toContain('Leg Day')
     expect(card.textContent).toContain('2 sets')
     expect(card.querySelector('.hv-wcard-stats .hv-pr').textContent).toBe('4')
     expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4')
+    act(() => byText('.hv-hlinks .hv-chip', 'Statistics').click())
+    expect(path).toBe('/stats')
+    act(() => root.unmount()); container.remove()
+    render('/stats', { workouts })
+    expect(container.querySelectorAll('.hv-barcol')).toHaveLength(12)
     act(() => byText('.hv-chip', 'Reps').click())
     expect(byText('.hv-chip', 'Reps').getAttribute('aria-pressed')).toBe('true')
     // a tap on a week puts its value in the headline, a second one puts this week back
@@ -154,17 +188,15 @@ describe('hevier: navigation (seam S2)', () => {
     expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 16 reps$/)
     act(() => week.click())
     expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/this week$/)
-    act(() => byText('.hv-dash .btn', 'Statistics').click())
-    expect(path).toBe('/stats')
   })
 
   it('the tab you are on, tapped again, scrolls its page to the top (D11, upstream 1.4.4)', () => {
-    render('/profile')
+    render('/history-tab')
     const to = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
     Object.defineProperty(window, 'scrollY', { value: 900, configurable: true })
     onTestFinished(() => { to.mockRestore(); Object.defineProperty(window, 'scrollY', { value: 0, configurable: true }) })
-    act(() => [...container.querySelectorAll('nav button, .tabbar button, button')].find(b => b.textContent === 'Profile').click())
-    expect(path).toBe('/profile')
+    act(() => [...container.querySelectorAll('nav button, .tabbar button, button')].find(b => b.textContent === 'History').click())
+    expect(path).toBe('/history-tab')
     expect(to).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }))
   })
 
@@ -174,23 +206,5 @@ describe('hevier: navigation (seam S2)', () => {
     act(() => root.unmount()); container.remove()
     render('/stats')
     expect(path).toBe('/stats')
-  })
-
-  it('Edit Home switches widgets on and off, in S or through upstream’s switch', () => {
-    render('/home')
-    expect(container.textContent).not.toContain('week streak')
-    act(() => byText('button', 'Edit Home').click())
-    const row = name => [...container.querySelectorAll('.hv-edithome .item')].find(r => r.querySelector('.tt')?.textContent === name)
-    // both in one tick: the second must not undo the first
-    act(() => {
-      row('Week streak').querySelector('[role="switch"]').click()
-      row('Body weight').querySelector('[role="switch"]').click()
-    })
-    expect(row('Workouts').querySelector('[role="switch"]')).toBeNull()
-    act(() => byText('button', 'Done').click())
-    expect(container.textContent).toContain('week streak')
-    expect(useStore.getState().S.showWeightCard).toBe(false)
-    expect(useStore.getState().S.hvHome.hidden).not.toContain('streak')
-    expect(localStorage.getItem(HOME_KEY)).toBeNull()
   })
 })

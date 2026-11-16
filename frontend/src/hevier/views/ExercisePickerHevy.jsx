@@ -4,7 +4,7 @@
 // exercises"); a Replace, a swap or any other titled pick takes one tap. Each pick goes through the
 // caller's own `onPick(ex, true)`, upstream's quick add with the default config, so what an added
 // exercise starts with is upstream's. The search and ranking are upstream's too. The same list,
-// browsing (no ✓, a tap opens exercise details), is the fork's Exercises page (Profile → Exercises).
+// browsing (no ✓, a tap opens exercise details), is the fork's Exercises page (Lifts → All exercises).
 // "Add superset" adds the ticked exercises the same way, then links them with upstream's superset
 // pairing, through the target the open workout or routine editor registers (useSupersetTarget).
 import { useEffect, useRef, useState } from 'react'
@@ -211,11 +211,11 @@ export const exercisePickerSheet = (onPick, { title, like, backups } = {}) => {
   return useUI.getState().openSheet(close => <ExerciseList onPick={pick} title={title} like={like} backups={backups} close={close} />)
 }
 
-// Profile → Exercises (reference/SCREENS.md §8): the list to browse, Create, and openGym's own
+// Lifts → All exercises (reference/SCREENS.md §8): the list to browse, Create, and openGym's own
 // By muscle explorer (upstream's /muscles) one tap away.
 export function Exercises() {
   const nav = useNavigate()
-  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/profile'))
+  const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/lifts'))
   return <ExerciseList browse={({ create }) => <PageBar title={t('Exercises')} onBack={back}>
     <button type="button" className="iconbtn" aria-label={t('By muscle')} onClick={() => nav('/muscles')}><Icon name="figureStrength" /></button>
     <button type="button" className="hv-link" onClick={create}>{t('Create')}</button>

@@ -50,8 +50,8 @@ afterEach(() => {
 })
 
 describe('Routine page (D37)', () => {
-  it('opens from the routine name on the Workout tab', () => {
-    render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/workout')
+  it('opens from the routine name on Routines', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/routines')
     act(() => byText('button.hv-rname', 'Leg Day').click())
     expect(path).toBe('/plan/r/r1/view')
     expect(container.querySelector('.hv-rv-name').textContent).toBe('Leg Day')
@@ -109,8 +109,8 @@ describe('Routine page (D37)', () => {
     expect(container.querySelector('.hv-sub').textContent).toContain('3 sets · Usually 55min')
   })
 
-  it('a routine that is gone goes back to the Workout tab', () => {
+  it('a routine that is gone goes back to Routines', () => {
     render([], '/plan/r/nope/view')
-    expect(path).toBe('/workout')
+    expect(path).toBe('/routines')
   })
 })

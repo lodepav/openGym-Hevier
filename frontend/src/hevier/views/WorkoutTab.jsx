@@ -1,5 +1,5 @@
-// Hevy's Workout tab (hevier/DECISIONS.md D13; reference/SCREENS.md §1), shown on /workout when no
-// session is open, and on /routines (the Workout tab's button) while one is: Quick Start, a Today card from openGym's schedule or rotation, then the
+// Hevy's Workout tab (hevier/DECISIONS.md D13; reference/SCREENS.md §1), since D126 the Routines page
+// on /routines, opened from Today: Quick Start, a Today card from openGym's schedule or rotation, then the
 // routines with Start Routine, in folders (lib/routine-folders.js), each lifted by a long press.
 // Starting goes through upstream's startFlow, and the schedule stays on upstream's Plan screen.
 import { useNavigate } from 'react-router-dom'
@@ -17,7 +17,7 @@ import { DEFAULT_GLYPH } from '../../lib/glyphs.js'
 import { startFlow as upstreamStart, starterPlanSheet, menuSheet, confirmSheet } from '../../sheets.jsx'
 import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
 import Icon from '../../components/Icon.jsx'
-import PageBar from '../components/PageBar.jsx'
+import PageBar, { useBack } from '../components/PageBar.jsx'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
@@ -29,8 +29,8 @@ import {
 
 // Which folders are folded shut: a view choice of this device, like Home's layout (D12).
 // Starting with a session open would replace it: Hevy asks first, and the open one is discarded
-// the way the resume bar's Discard does it.
-function startFlow(ids) {
+// the way the resume bar's Discard does it. Today's Start and Empty workout start the same way.
+export function startFlow(ids) {
   const A = useStore.getState().S.active
   if (!A) return upstreamStart(ids)
   confirmSheet({
@@ -173,8 +173,9 @@ export default function WorkoutTab() {
   const preview = r => r.ex.map((e, i) => <span key={i} className={exerciseNameClass(EXIDX[e.id])}>
     {i ? ', ' : ''}{EXIDX[e.id] ? exerciseNameFor(EXIDX[e.id]) : e.n || e.id}</span>)
 
+  const back = useBack('/home')
   return <div className="narrow hv-wtab">
-    <PageBar title={t('Workout')} />
+    <PageBar title={t('Routines')} onBack={back} backLabel={t('Today')} />
 
     <h4 className="sec">{t('Quick Start')}</h4>
     <button type="button" className="btn hv-quick" onClick={() => startFlow([])}><Icon name="plus" />{t('Start Empty Workout')}</button>

@@ -8,6 +8,7 @@ Each fork feature is listed once, with the decision that describes it in [DECISI
 | **Offer** | A general improvement that upstream's own UI would benefit from. It could be offered as an issue or a pull request, with the user's go-ahead (RULES.md: `upstream-pr/<topic>`). |
 | **Offered** | Already offered upstream. The issue or PR number is given. |
 | **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
+| **Removed** | Was in the fork until a later decision took it out; listed so it can still be found. |
 
 A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.5` on 2026-11-12.
 
@@ -120,11 +121,14 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 
 | Feature | D | Mark |
 |---|---|---|
-| Three tabs (Home · Workout · Profile); no Coach tab | D11 | Fork |
-| Configurable Home of widgets | D12 | Fork |
-| Workout tab: Quick Start, Today card, routine cards | D13 | Fork |
-| Profile: weekly chart, dashboard, workout list | D14 | Fork |
-| Settings root regrouped under five titles; layout-only rows hidden | D16 | Fork |
+| Three tabs (Today · Lifts · History, in place of Home · Workout · Profile); no Coach tab | D11, D126 | Fork |
+| Today: the next session (when, where, the first five exercises and their sets), Start, the week in seven days, the round and the streak, Routines · Calendar · Empty workout, the last workout | D134 | Fork |
+| Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels, Trends and Exercise time | D135 | Fork |
+| History: this week in three numbers, chips to Calendar, Statistics, Month report, Sets per muscle, Body weight and More, the phase filter and the workout feed | D135 | Fork |
+| Routines page (the Workout tab until D126): Quick Start, Today card, routine cards | D13 | Fork |
+| The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
+| Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
+| Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |
 | Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |
 | One Hevy page bar everywhere | D49 | Fork |
 | App name "Go Hevier" | D39 | Fork |
@@ -133,7 +137,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered (#1087, issue) |
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
-| Upstream 1.4.4's challenges, recaps, Your year, recovery hint and Workouts left this week as optional Home widgets | D98 | Fork |
 | Switches that can do nothing are disabled and say which module they need | D118 | Fork |
 
 ## Hevy import and export

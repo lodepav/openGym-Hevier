@@ -30,11 +30,13 @@ export const HIDDEN_ROWS = {
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Seasonal themes',
     // 1.4.4 (D100): no NFC stickers, no app icon picker (its search hit; the row goes by type), no
-    // Assistant or Siri shortcuts (the manifest overlay removes them). Upstream's new Home cards come
-    // back as Home widgets (D98).
+    // Assistant or Siri shortcuts (the manifest overlay removes them). Upstream's new Home cards stay
+    // hidden: Today's layout is fixed (D134).
     'Set up an NFC sticker', 'App icon', 'Assistant & shortcuts', 'Siri & Shortcuts', 'Recovery tips', 'Week and month recap', 'Weekly sets on Home', 'Monthly challenges',
     // 1.4.5 (D109): no recovery sessions, no activities from other apps.
-    'Recovery counts for the streak', 'Sport counts for the streak'],
+    'Recovery counts for the streak', 'Sport counts for the streak',
+    // D134: Today's layout is fixed, so Home has no body weight card to switch (S.showWeightCard stays).
+    'Body weight'],
   // The gym filter is the picker's (D62): no switch, no active gym here.
   equipment: ['Filter by equipment', 'Active gym'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).

@@ -72,7 +72,7 @@ export default function RoutinePreview() {
   const { id } = useParams()
   const S = useStore(s => s.S)
   const r = S.routines.find(x => x.id === id)
-  useEffect(() => { if (!r) nav('/workout', { replace: true }) }, [!!r])
+  useEffect(() => { if (!r) nav('/routines', { replace: true }) }, [!!r])
   if (!r) return null
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   const units = supersetUnits(r.ex)

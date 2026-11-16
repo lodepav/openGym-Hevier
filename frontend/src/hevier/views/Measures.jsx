@@ -1,4 +1,4 @@
-// Hevy's Measures (hevier/DECISIONS.md D14; reference/SCREENS.md §11), opened from Profile: body
+// Hevy's Measures (hevier/DECISIONS.md D14; reference/SCREENS.md §11), opened from History: body
 // weight with upstream's own log, goal and weigh-in list, then upstream's body measurements and
 // progress photos pages.
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { bwSheet, goalSheet, weighInsSheet } from '../../sheets.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import { Button } from '../../components/ui.jsx'
 import { BackTo, LinkRow } from './Statistics.jsx'
+import { HISTORY_PATH } from './History.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
 import { partOn } from '../lib/module-parts.js'
 
@@ -26,7 +27,7 @@ export default function Measures() {
   const lastM = (S.measurements || []).at(-1)
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
-    <BackTo label={t('Profile')} to="/profile" title={t('Measures')} />
+    <BackTo label={t('History')} to={HISTORY_PATH} title={t('Measures')} />
     {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
     {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The Workout tab's routines (hevier/DECISIONS.md D13): folders, Move to folder, drag handles.
+// The Routines page (the Workout tab until D126) (hevier/DECISIONS.md D13): folders, Move to folder, drag handles.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useParams } from 'react-router-dom'
@@ -19,7 +19,7 @@ const EX = EXDB.find(e => /barbell/i.test(e.eq || '')).id
 const R = (id, folder) => ({ id, name: 'R ' + id, emoji: 'dumbbell', ex: [{ id: EX, sets: 3, reps: 8, weight: 0 }], ...(folder ? { folder } : {}) })
 let root, container
 
-function render(routines, extra = {}, at = '/workout') {
+function render(routines, extra = {}, at = '/routines') {
   const S = Object.assign(clone(DEF), { weighIn: false, routines }, extra)
   useStore.setState({ S, user: null, isGuest: () => true })
   container = document.createElement('div')
@@ -125,10 +125,10 @@ describe('hevier: routine folders and reordering', () => {
 
 function Page() { return <div id="page">{useParams().page}</div> }
 
-describe('hevier: the empty Workout tab', () => {
+describe('hevier: the empty Routines page', () => {
   it('points to the Hevy import on Settings → Integrations', () => {
     render([])
-    act(() => root.render(<MemoryRouter initialEntries={['/workout']}><Routes>{hevierRoutes}
+    act(() => root.render(<MemoryRouter initialEntries={['/routines']}><Routes>{hevierRoutes}
       <Route path="/settings/:page" element={<Page />} /></Routes></MemoryRouter>))
     const link = [...container.querySelectorAll('button')].find(b => b.textContent === 'Import from Hevy')
     act(() => link.click())

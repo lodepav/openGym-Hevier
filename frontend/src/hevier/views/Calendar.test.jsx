@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// Profile → Calendar and Profile → Exercises (reference/SCREENS.md §8, §11).
+// History → Calendar and Lifts → All exercises (reference/SCREENS.md §8, §11).
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
@@ -105,9 +105,9 @@ describe('hevier: Calendar', () => {
     expect(container.querySelectorAll('.hv-cal-m').item(6).querySelectorAll('.hv-cal-d.planned').length).toBe(new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())
   })
 
-  it('Profile’s Calendar tile opens it', () => {
-    render('/profile')
-    click([...container.querySelectorAll('button')].find(b => b.textContent.includes('Calendar')))
+  it('History’s Calendar chip opens it', () => {
+    render('/history-tab')
+    click([...container.querySelectorAll('.hv-hlinks button')].find(b => b.textContent.includes('Calendar')))
     expect(path).toBe('/calendar')
   })
 })
@@ -123,28 +123,32 @@ describe('hevier: Exercises', () => {
 
 describe('hevier: the Calendar behind Statistics extras (D117)', () => {
   const offs = [{ hvModuleParts: { 'hvStats.calendar': false } }, { modules: { hvStats: false } }]
-  const tileShown = () => [...container.querySelectorAll('.hv-tile')].some(b => b.textContent.includes('Calendar'))
+  const tileShown = () => [...container.querySelectorAll('.hv-hlinks button, .hv-tlinks button')].some(b => b.textContent.includes('Calendar'))
   const again = (at, patch) => {
     act(() => root.unmount()); container.remove()
     render(at)
     act(() => useStore.getState().update(s => { Object.assign(s, patch) }))
   }
 
-  it('Profile’s tile goes with the part', () => {
-    render('/profile')
-    expect(tileShown()).toBe(true)
-    for (const off of offs) { again('/profile', off); expect(tileShown()).toBe(false) }
+  it('History’s chip and Today’s link go with the part', () => {
+    for (const at of ['/history-tab', '/home']) {
+      render(at)
+      expect(tileShown()).toBe(true)
+      for (const off of offs) { again(at, off); expect(tileShown()).toBe(false) }
+      act(() => root.unmount()); container.remove()
+    }
+    render('/home')
   })
 
-  it('/calendar, as the month widget’s tap opens it, lands on Profile with the part off', () => {
+  it('/calendar, as the month widget’s tap opens it, lands on History with the part off', () => {
     render('/calendar')
     expect(path).toBe('/calendar')
     expect(container.querySelector('.hv-cal')).toBeTruthy()
     for (const off of offs) {
       again('/calendar', off)
-      expect(path).toBe('/profile')
+      expect(path).toBe('/history-tab')
       expect(container.querySelector('.hv-cal')).toBeNull()
-      expect(container.querySelector('.hv-profile')).toBeTruthy()
+      expect(container.querySelector('.hv-history')).toBeTruthy()
     }
   })
 })

@@ -57,13 +57,13 @@ afterEach(() => {
 
 describe('a saved workout', () => {
   it('shows its gym and phase on the feed card', () => {
-    render('/profile', { workouts: [workout('w1', 2, { hvPhase: { p: 'cutting' } }, { hvGym: 'g1' })] })
+    render('/history-tab', { workouts: [workout('w1', 2, { hvPhase: { p: 'cutting' } }, { hvGym: 'g1' })] })
     const tags = container.querySelector('.hv-wcard-tags').textContent
     expect(tags).toContain('City Gym')
     expect(tags).toContain('Cutting')
   })
   it('has no tag line with neither', () => {
-    render('/profile', { workouts: [workout('w1', 2)] })
+    render('/history-tab', { workouts: [workout('w1', 2)] })
     expect(container.querySelector('.hv-wcard')).toBeTruthy()
     expect(container.querySelector('.hv-wcard-tags')).toBeNull()
   })
@@ -126,7 +126,7 @@ describe('the statistics filter', () => {
     expect(sets()).toBe('14')
   })
   it('narrows the workout feed', () => {
-    render('/profile', { workouts: log })
+    render('/history-tab', { workouts: log })
     const cards = () => container.querySelectorAll('.hv-wcard').length
     expect(cards()).toBe(3)
     act(() => chips().find(c => c.textContent === 'Bulking').click())
