@@ -8,10 +8,11 @@ with each request's original wording) is done. It is in git history: `git show c
 
 ## Scope
 
-**openGym's functionality, Hevy's UX, OpenBite's look** (D123). A Hevy element is built as a new way to show or
-reach something openGym already has. Where openGym and Hevy differ in *behaviour* (openGym's
-progression prefill against Hevy's empty fields, for example), openGym's behaviour wins,
-presented Hevy's way. New behaviour gets a decision in DECISIONS.md first.
+**Built on openGym, with a UX of its own, in OpenBite's look** (D125, D123). openGym and Hevy
+are the base the fork started from, not what it is measured against: the aim is the user's
+logbook (D125). Where openGym's behaviour gets in the way, the fork may behave differently, in a
+new helper under `frontend/src/hevier/lib/` with its test, never by editing upstream's logic.
+New behaviour gets a decision in DECISIONS.md first.
 
 ## Facts about upstream
 

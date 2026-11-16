@@ -21,6 +21,10 @@ compact set rows (D4, D15), the dark-only theme (D17) or the grey prefilled valu
 **note that names the decision**, not a finding. The only exception is an A rule that fails on a
 main path: it stays a finding, marked `touches Dn`, so it can be discussed.
 
+The UX rework (D125, [REWORK.md](REWORK.md)) changes screens on purpose. A screen whose status
+there is **built** is reviewed against its approved mockup and its own decision: a difference
+from the mockup is a finding, and what the mockup shows is not.
+
 Every suggested fix is one of:
 
 - **minor**: a label, wording, a spoken name, a colour step, a size or spacing that keeps the
