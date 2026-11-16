@@ -48,7 +48,7 @@ PROFILES.push(
   variant('narrow', 'narrow-ar', { lang: 'ar', note: 'narrow, in Arabic (right to left)' }),
   variant('bigfont', 'bigfont-ar', { lang: 'ar', note: 'bigfont, in Arabic (right to left)' }),
 )
-const SCREENS = ['/home', '/workout', '/routines', '/profile', '/stats', '/calendar', '/report', '/measures', '/library', '/settings',
+const SCREENS = ['/home', '/workout', '/routines', '/lifts', '/history-tab', '/stats', '/calendar', '/report', '/measures', '/library', '/settings',
   '/strength', '/exercise-time', '/lift-trends', '/stats/all', '/settings/modules/hvStats']
 
 const args = process.argv.slice(2)
@@ -269,7 +269,7 @@ async function homeExtras(cdp, dir, results, run) {
     else results.push({ screen: label, out: [{ note: true, check: 'flow', detail: 'not on Home with this profile today' }] })
   }
   await evaluate(cdp, 'scrollTo(0, 0)')
-  await step(cdp, results, 'workout detail', clickSel('.hv-wcard-t'), async () => {
+  await step(cdp, results, 'workout detail', clickSel('.hv-tlast'), async () => {
     await until(cdp, "location.hash.startsWith('#/workout-detail')")
     await visit(cdp, 'workout detail', dir, results, run)
     await step(cdp, results, 'sheet: exercise details', clickSel('.hv-wd-ex .hv-name'), () => visit(cdp, 'sheet: exercise details', dir, results, run))

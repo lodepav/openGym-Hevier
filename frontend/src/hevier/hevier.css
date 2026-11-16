@@ -202,6 +202,8 @@
 :root[data-ui="hevier"] .hv-effrow button{min-height:44px;min-width:44px;border-radius:var(--r-sm);background:var(--surface-2);color:var(--label);font-size:15px;font-weight:600;padding:0 6px}
 :root[data-ui="hevier"] .hv-effrow button.on{background:var(--acc);color:var(--on-acc,#000)}
 :root[data-ui="hevier"] .hv-effrow .hv-effo{color:var(--label-2);font-weight:500}
+/* Seven effort buttons at 44 dp do not fit 320: they share the row (39 dp each there). */
+@media (max-width:400px){ :root[data-ui="hevier"] .hv-effrow button{min-width:0} }
 :root[data-ui="hevier"] .hv-effgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0 12px}
 :root[data-ui="hevier"] .hv-effgrid .btn{min-height:44px;width:auto;padding:0}
 :root[data-ui="hevier"] .hv-eff{font-size:12px;font-weight:600;border-radius:999px;padding:4px 0;background:var(--surface-2);color:var(--label)}
