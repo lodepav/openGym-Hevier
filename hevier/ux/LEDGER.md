@@ -253,3 +253,24 @@ sheet has no `aria-pressed` (upstream's sheet); a drag past a tall superset need
 top edge (discuss). Notes: "1/5" beside a muscle has no visible legend (D119); "1s a session" on
 exercises whose sets were ticked seconds apart reads as a fault (D88); the Rotation chip opens a
 page titled Plan (D130); a done and a planned day on the Calendar are spoken alike (D68).
+
+## Round 12 (2026-11-16, the rework's build: J7 low vision, at 200%)
+
+Finished. Round 10's fixes hold: the rest panel's caption and numbers are whole at 200%, and
+Settings and Discard Workout are 48 dp.
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R12-U1 | high | A6, G7 | At 200% a weight of four or more characters is cut in its field: 102.5 reads "102" | **fixed**: a number wider than its field is drawn smaller until it fits (`lib/fit-numbers.js`), the grey prefilled ones too; this also covers R8-U7's cardio time |
+| R12-U2 | high | A3, A5 | With effort on, the button that logs an unticked set is spoken "Set 4, RIR" | **fixed**: "Set 4, log it with RIR" |
+| R12-U3 | medium | A6, H6 | At 200% the exercise's chips read "Sw…", "His…", "1m…", "Re…" | **open**: wrapping the row changes the card, discuss |
+| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **open** |
+| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **open**: Skip clears it |
+| R12-U6 | low | A6 | Today's week strip cuts routine names, "P…" twice at 200% | **discuss** (D134) |
+| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **open** (upstream's sheet) |
+
+Improvements, **open**: at 200% the Routines and Calendar pills are 1 to 3 dp too narrow for
+their text; the delete toast says "Set 3 gone." without the exercise; at 200% Today's Start is
+below the fold (discuss, D134). Notes: with effort on a set takes two taps to log (the user's
+change to D127); after a swap the Finish sheet says "1 added".
+

@@ -10,7 +10,8 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { fitNumbers } from '../lib/fit-numbers.js'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
@@ -87,6 +88,8 @@ export default function HevyExerciseBlock(props) {
   const entry = S.active.entries[entryIdx]
   const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
   const rowEls = useRef({})
+  const card = useRef(null)
+  useLayoutEffect(() => fitNumbers(card.current))
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
@@ -350,7 +353,7 @@ export default function HevyExerciseBlock(props) {
       if ((nv != null || asTick) && freshSrc && !freshSrc.done) tick(i, side)
     })
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
-      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v))}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? t('log it with {0}', t(effortCol.hd)) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
@@ -510,7 +513,7 @@ export default function HevyExerciseBlock(props) {
   // D127: the brand on the name line: a machine's line (BrandLine), or "+ Brand" for any other
   // exercise on the open one (D28).
   const addBrand = isOpen && !hasLabel(S, A, entryIdx) && partOn(S, 'hvGyms', 'brands')
-  return <div className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
+  return <div ref={card} className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
