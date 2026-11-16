@@ -162,7 +162,7 @@ describe('Routine page (D37, D128)', () => {
 
   it('Edit routine opens the editor', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }])
-    act(() => byText('button', 'Edit routine').click())
+    act(() => byText('button', 'Edit').click())
     expect(path).toBe('/plan/r/r1')
   })
 

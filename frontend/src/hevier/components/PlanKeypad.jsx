@@ -3,7 +3,7 @@
 // the next one. It writes S.hvPlan only (hevier/lib/next-plan.js); the routine is not changed.
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
-import { t, exerciseNameFor } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { exOr } from '../../lib/exercises.js'
 import { fmtNum } from '../../lib/format.js'
 import { shownWeight, storedWeight, exUnitOf } from '../../lib/ex-unit.js'
@@ -57,7 +57,7 @@ export default function PlanKeypad({ rid, start, close }) {
   const digit = d => <button key={d} type="button" onClick={() => key(d)}>{d}</button>
   return <div className="hv-kp">
     <div className="hv-kp-hd">
-      <b>{fieldWords(f)}</b>
+      <b className={exerciseNameClass(exOr(f.x.id))}>{fieldWords(f)}</b>
       <span className="hv-sub">{t('Last time: {0}', last)}</span>
     </div>
     <div className={'hv-kp-val' + (f.planned ? ' chg' : '')} role="status" aria-live="polite">

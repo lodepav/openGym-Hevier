@@ -115,7 +115,7 @@ export default function RoutinePreview() {
     <PageBar title={r.name} onBack={back}>
       {/* D37's 1.4.4 note: upstream's Share a routine, a link a friend taps to add it. */}
       <button type="button" className="iconbtn" aria-label={t('Share with a friend')} disabled={!r.ex.length} onClick={() => shareRoutineSheet(r)}><Icon name="share" /></button>
-      <button type="button" className="hv-link hv-rv-edit" onClick={() => nav('/plan/r/' + r.id)}>{t('Edit routine')}</button>
+      <button type="button" className="hv-link hv-rv-edit" onClick={() => nav('/plan/r/' + r.id)} aria-label={t('Edit routine')}>{t('Edit')}</button>
     </PageBar>
     <p className="hv-cap hv-rv-when">{[when ? t('Next') : t('Next session'), when, usual && t('about {0}', durationWords(usual))].filter(Boolean).join(' · ')}</p>
     <div className="hv-chips hv-rv-chips">
