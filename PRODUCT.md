@@ -20,16 +20,18 @@ reviewed, but they do not outvote the owner's choices.
 
 ## Product Purpose
 
-Go Hevier gives openGym's Android app the user experience and look of Hevy, and keeps openGym's
-training logic (progression, 1RM, recovery, sync, storage) as it is. Success is that logging a
-workout feels like Hevy did, the data stays on the owner's phone and server, and a new upstream
-release still merges without a fight.
+Go Hevier is the owner's logbook for lifting, built on openGym's training logic (1RM, recovery,
+sync, storage), with a UX of its own (D125). Success is that reading the next set at a glance,
+logging it, and looking back at a lift each take the fewest steps, the data stays on the owner's
+phone and server, and a new upstream release still merges without a fight.
 
 ## Positioning
 
-openGym's functionality, Hevy's UX and UI. A Hevy element is a new way to show or reach
-something openGym already has. Where the two differ in behaviour, openGym's behaviour wins,
-presented Hevy's way. No account, no telemetry, no third-party service is needed.
+Built on openGym, with a UX of its own, in OpenBite's look (D123: AMOLED black, Nunito, warm
+greys, an accent the user chooses). openGym and Hevy are where it started, not what it is
+measured against; the UX rework ([hevier/ux/REWORK.md](hevier/ux/REWORK.md), D125) moves each
+screen past both. Where openGym's behaviour gets in the owner's way, the fork may differ, each
+time with a decision. No account, no telemetry, no third-party service is needed.
 
 ## Operating Context
 
@@ -63,13 +65,16 @@ presented Hevy's way. No account, no telemetry, no third-party service is needed
 - Dependency-light: a new dependency is a hard sell.
 - Exercise media are licensed separately: 180 px only in the repo, never fed to an AI tool.
 - The owner is happy with the app. Minor fixes (a label, a spoken name, a colour step, spacing
-  that keeps the layout) can be made unasked. Anything the owner would notice is discussed first.
+  that keeps the layout) can be made unasked. Anything the owner would notice is discussed first;
+  a mockup the owner approved in the UX rework counts as discussed.
 
 ## Brand Commitments
 
 - Name: Go Hevier (D39). App id `ch.duartesantos.opengym.hevier`.
-- Hevy's dark theme with Hevy blue, and no other theme (D17). The boot screen is upstream's
-  barbell in Hevy blue on AMOLED black (D83).
+- AMOLED black, no other theme (D17), in OpenBite's look: Nunito, warm greys, cards with a
+  hairline (D123). The accent is the user's: green #34d08a by default, Hevy's blue next, and a few
+  more that clash with no meaning colour. The boot screen's barbell and the launcher icon follow it
+  (D83, D123).
 - Voice: plain and human, short sentences, no em dashes.
 
 ## Evidence on Hand
@@ -81,7 +86,7 @@ presented Hevy's way. No account, no telemetry, no third-party service is needed
 
 ## Product Principles
 
-1. Hevy's way to show it, openGym's way to work it out.
+1. The logbook comes first: read the next set, log it, look back at a lift.
 2. The decisions come first. The app works the way its owner wants it to.
 3. Add, don't edit: a change that makes the next upstream merge harder needs a strong reason.
 4. The gym is the test: one hand, a glance, mid-set.

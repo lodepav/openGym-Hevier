@@ -4,6 +4,9 @@ import { fmtDate } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { sequenceOf, isSimpleSequence } from '../lib/rotation.js'
 import Icon from './Icon.jsx'
+// [hevier] S66: the status line names the Calendar's next planned day (D124)
+import { hooks } from '../hevier/hooks.js'
+// [/hevier]
 
 // Home's progress row for a coach week (S.queue) — it stands in for the seven weekday dots
 // while a planner-written queue runs the week, because its sessions have no weekday: they are done in
@@ -32,6 +35,9 @@ export default function QueueRow({ S, today, onStart, managed }) {
     : shownToday ? t('Next: {0}, today', next.name)
     : next ? t('Next: {0}', next.name)
     : t('Next: {0}', pinned.name + ' · ' + fmtDate(pinned.on, true))
+  // [hevier] S66: the status line names the Calendar's next planned day (D124)
+  const shown = hooks.queueStatus?.(S, today, v) ?? status
+  // [/hevier]
   return <div className="queue">
     <div className="row between" style={{ marginBottom: 8 }}>
       {/* Your own loop is called 'Rotation' in the language on screen: its saved name is only ever
@@ -51,6 +57,8 @@ export default function QueueRow({ S, today, onStart, managed }) {
         {i.state === 'done' && <Icon name="check" />}{i.name}<span className={'dim' + (i.state === 'pinned' ? '' : ' qstate')}>{i.state === 'pinned' ? fmtDate(i.on, true) : word[i.state]}</span>
       </button>)}
     </div>
-    <div className="small muted queue-status" style={{ marginTop: 8 }}>{status}</div>
+    {/* [hevier] S66: the status line names the Calendar's next planned day (D124) */}
+    <div className="small muted queue-status" style={{ marginTop: 8 }}>{shown}</div>
+    {/* [/hevier] */}
   </div>
 }

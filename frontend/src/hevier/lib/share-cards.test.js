@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { shareCards, monthCards, layoutShareCard, SHARE_H, SHARE_W } from './share-cards.js'
+import { shareCards, monthCards, layoutShareCard, cardColours, SHARE_H, SHARE_W } from './share-cards.js'
 import { monthReport } from './month-report.js'
 import { workoutsByDay } from './calendar.js'
 import { workoutRecords } from './records.js'
@@ -121,6 +121,7 @@ describe('share cards: a month report (D23, D87)', () => {
     expect(cal.cells.filter(c => c?.kind).map(c => [c.day, c.kind])).toEqual([[5, 'strength'], [12, 'strength']])
     const layout = layoutShareCard(cal, { measure })
     expect(layout.items.filter(i => i.kind === 'dot')).toHaveLength(2)
+    expect(layout.items.filter(i => i.kind === 'text' && ['5', '12'].includes(i.text)).map(i => i.color)).toEqual(['onStrength', 'onStrength'])
     expect(texts(layout)).toContain('31')
     for (const it of layout.items) expect(it.y).toBeLessThanOrEqual(SHARE_H)
   })
@@ -133,5 +134,23 @@ describe('share cards: a month report (D23, D87)', () => {
   it('the summary tiles carry the change, in green up and red down', () => {
     const layout = layoutShareCard(monthCards(S, month)[0], { measure })
     expect(layout.items.filter(i => i.color === 'up').map(i => i.text)).toEqual(['+1', '+1h', '+2'])
+  })
+})
+
+describe('the cards\' colours follow the accent (D123)', () => {
+  it('under the default green: strength and up the accent with black ink, cardio steps aside to teal, deload to pink', () => {
+    expect(cardColours('#34d08a')).toEqual({ acc: '#34d08a', strength: '#34d08a', cardio: '#40c8e0', deload: '#ff7eb6', up: '#34d08a', down: '#e34b37', onStrength: '#000000', onLight: '#000' })
+  })
+  it('under a kept orange deload turns pink; under a red, worse is teal', () => {
+    expect(cardColours('#ff9f0a')).toMatchObject({ acc: '#ff9f0a', cardio: '#2fbf5b', deload: '#ff7eb6' })
+    expect(cardColours('#e34b37').down).toBe('#40c8e0')
+  })
+  it('a dark custom colour is lifted as the page draws it, and gets the ink that reads on it', () => {
+    const c = cardColours('#101060')
+    expect(c.acc).not.toBe('#101060')
+    expect(c.onStrength).toBe('#ffffff')
+  })
+  it('no usable accent draws the default green', () => {
+    expect(cardColours(undefined).acc).toBe('#34d08a')
   })
 })

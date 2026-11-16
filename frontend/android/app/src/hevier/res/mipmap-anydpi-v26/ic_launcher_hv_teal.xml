@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [hevier] Written by hevier/tools/recolour-icons.py: the launcher icon in the teal accent (D123),
+     upstream's background and the fork's monochrome layer, so Android's themed icon works whichever
+     alias is on. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background>
+        <inset android:drawable="@mipmap/ic_launcher_background" android:inset="16.7%" />
+    </background>
+    <foreground>
+        <inset android:drawable="@mipmap/ic_launcher_hv_teal_foreground" android:inset="16.7%" />
+    </foreground>
+    <monochrome>
+        <inset android:drawable="@mipmap/ic_launcher_monochrome" android:inset="16.7%" />
+    </monochrome>
+</adaptive-icon>

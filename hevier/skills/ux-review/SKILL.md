@@ -15,7 +15,9 @@ reasons behind them. Pass only what "Reviewer prompt" lists.
 
 **The user is happy with how the app works.** Fix only findings whose fix is **minor** (see
 `hevier/ux/STANDARDS.md`). Anything the user would notice is brought to them, never built on
-your own judgement.
+your own judgement. For a screen the rework has built (`hevier/ux/REWORK.md`, status **built**),
+add a line `Mockup: hevier/ux/mockups/<screen>.html` to the reviewer prompt: that is what the
+screen is reviewed against.
 
 ## 0. Set up
 

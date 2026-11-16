@@ -126,3 +126,17 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D120** Effort on warm-ups can be switched off.
 - **D121** What the merge of openGym 1.4.5 settled, 2026-11-14.
 - **D122** The phone's font size zooms the text, as before 1.4.5.
+- **D123** OpenBite's look on AMOLED black, with an accent you choose.
+- **D124** The rotation adapts to my plans.
+- **D125** The rework's north star: a logbook with a UX of its own.
+- **D126** Three tabs by what is opened most: Today, Lifts, History.
+- **D127** The live workout: today's list, with the next set opened up, and a rest panel docked at the bottom.
+- **D128** The next session's page is the plan: what the workout opens with, and a tap on a number plans it for next time only.
+- **D129** Swap shows your own swaps first, learned from history; a swap never changes the routine.
+- **D130** The routine editor keeps its set tables and gets the live workout's buttons; the routines list marks what is next.
+- **D131** An exercise's page is one page: media, last sessions, best sets, the chart.
+- **D132** Finish opens a short sheet over the workout; there is no finished page.
+- **D133** A saved workout's page stays as it is, without the muscle bars.
+- **D134** Today's layout: the next session leads.
+- **D135** The History and Lifts tabs.
+- **D136** Settings, gyms, the strap, the exercise library and Measurements stay as they are.

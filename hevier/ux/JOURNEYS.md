@@ -33,7 +33,10 @@ $ADB shell monkey -p $APP -c android.intent.category.LAUNCHER 1
 ```
 
 **The test profile.** Set up once before the first round, through the app (the real history comes
-from `~/Downloads/workout_data.csv`, loaded as the hevy-csv-test-data note describes):
+from `~/Downloads/workout_data.csv`, loaded as the hevy-csv-test-data note describes; the user's
+own plan, with routines, a rotation and calendar plans, is in their backup
+`~/Downloads/opengym-backup-2026-11-15.json`, loaded through Settings → Data → Import backup and
+Replace anyway, which replaces the device's data, so save the snapshot first):
 
 - kg profile, with one exercise shown in lb (D41: the workout's ⋮ → Weight unit on the bench press)
 - two gyms, each with a different brand on the leg press (D28), and one cable exercise set to ×2 (D43)

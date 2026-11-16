@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#FFECE8E1"
             android:textSize="15sp"
             android:textStyle="bold" />
 
@@ -36,7 +36,7 @@
             android:gravity="end"
             android:maxLines="1"
             android:paddingLeft="8dp"
-            android:textColor="#FF9A9EA7"
+            android:textColor="#FFA39E94"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -54,7 +54,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/hevier_widget_empty"
-        android:textColor="#FF9A9EA7"
+        android:textColor="#FFA39E94"
         android:textSize="13sp"
         android:visibility="gone" />
 </LinearLayout>

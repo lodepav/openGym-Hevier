@@ -25,6 +25,7 @@ import { aboutPage, versionLine } from '../lib/version.js'
 import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { MediaSection } from '../components/MediaSection.jsx'
+import AccentRow from '../components/AccentRow.jsx'
 import { partOn, needOf } from '../lib/module-parts.js'
 import { DeloadRows } from '../../components/DeloadCard.jsx'
 import ForgottenRows from '../../components/ForgottenRows.jsx'
@@ -49,8 +50,8 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   })
   const volumeValue = mode === 'weight' ? VOLUME.weight : t('Sets') + ' · ' + (mMode === 'share' ? t('secondary too') : t('main muscle'))
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
-  // rest timer alone, in upstream's words. Look's preview names the theme and accent, which the
-  // fork pins (D17), so that row names the body diagram instead.
+  // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
+  // accent (the fork's own row, D123), so that row names the body diagram instead.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
     : id === 'look' ? t(body === 'female' ? 'Female' : 'Male')
     // D62: the gyms, not upstream's filter switch.
@@ -120,6 +121,8 @@ export function installSettings() {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)
       if (id === 'about') return <>{aboutPage(out, t)}<MediaSection key="hv-media" /></>
+      // D123: the fork's accents first, where upstream's hidden Accent color row was.
+      if (id === 'look') return <><AccentRow key="hv-accent" />{out}</>
       if (id === 'workout') return appendToSection(appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />),
         t('Logging'), <WarmupEffortRow key="hv-warmup-effort" />)
       return out

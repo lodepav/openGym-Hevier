@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Save workout mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens copied from frontend/src/hevier/theme.css (D123). The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#2fbf5b; --on-acc:#000; --yellow:#efab03; --red:#e34b37;
+  --r-sm:14px; --r:20px; --r-card:26px; --page:#0b0a08;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 'Nunito',Roboto,system-ui,sans-serif; padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; }
+h2 { font-size:20px; font-weight:800; margin:40px 0 4px; }
+h2 .rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:3px; }
+p.lead { color:var(--label-2); max-width:70ch; margin:6px 0 0; }
+ul.moves { color:var(--label-2); max-width:80ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+.phone { width:411px; height:891px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.bar { padding:44px 18px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--sep); }
+.bar b { font-size:19px; font-weight:800; }
+.bar span { color:var(--label-2); font-size:14px; }
+.body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--label); padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:rgba(47,191,91,.22); border-color:var(--acc); opacity:1; }
+.card { border-radius:var(--r-card); box-shadow:inset 0 0 0 1px var(--sep); padding:14px 16px; }
+.card.fill { background:var(--surface); box-shadow:none; }
+.cap { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.big { font-size:24px; font-weight:800; line-height:1.15; }
+.mid { font-size:17px; font-weight:700; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.btn { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:16px; text-align:center; border-radius:99px; padding:13px; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--surface); border-radius:99px; padding:9px 14px; font-weight:700; font-size:14px; }
+.chip.on { background:var(--acc); color:var(--on-acc); }
+.chip.line { background:none; box-shadow:inset 0 0 0 1px var(--sep); }
+.li { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.li:last-child { border-bottom:0; }
+.li .r { color:var(--label-2); white-space:nowrap; }
+.up { color:var(--acc); font-weight:800; } .down { color:var(--red); font-weight:800; } .rec2 { color:var(--yellow); font-weight:800; }
+.week { display:flex; justify-content:space-between; }
+.week span { width:44px; text-align:center; font-size:12px; color:var(--label-2); font-weight:700; }
+.week i { display:block; width:10px; height:10px; border-radius:50%; margin:6px auto 0; background:var(--sep); }
+.week .d i { background:var(--acc); } .week .p i { background:none; border:2px solid var(--acc); } .week .t { color:var(--label); }
+.search { background:var(--surface); border-radius:var(--r); padding:12px 14px; color:var(--label-2); }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; }
+.seg span { flex:1; text-align:center; padding:8px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); }
+.seg .on { background:var(--bg); color:var(--label); }
+.block { border:1.5px dashed var(--sep); border-radius:var(--r); padding:12px 14px; color:var(--label-2); font-size:13px; }
+.block b { color:var(--label); display:block; font-size:15px; }
+.old { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+.old img { width:260px; border:1px solid var(--sep); border-radius:22px; flex:none; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; }
+table { display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+
+.top { padding:44px 16px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--sep); }
+.top b { font-size:17px; font-weight:800; flex:1; }
+.top .st { color:var(--label-2); font-size:14px; font-weight:700; }
+.top .fin { background:var(--acc); color:var(--on-acc); font-weight:800; border-radius:99px; padding:9px 16px; font-size:14px; }
+.now { background:var(--surface-3); border-radius:var(--r-card); padding:14px 16px 16px; }
+.huge { font-size:54px; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+.huge small { font-size:24px; font-weight:700; color:var(--label-2); }
+.huge u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.rpe { display:flex; gap:6px; margin-top:12px; }
+.rpe span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:17px; }
+.rpe .ok { background:var(--acc); color:var(--on-acc); }
+.acts { display:flex; gap:6px; }
+.acts span { flex:1; text-align:center; background:var(--surface); border-radius:var(--r-sm); padding:10px 0 8px; font-size:12px; font-weight:700; }
+.acts span i { display:block; font-style:normal; font-size:18px; line-height:1.1; color:var(--acc); }
+.set { display:flex; align-items:center; gap:10px; padding:9px 4px; font-size:15px; border-bottom:1px solid var(--sep); }
+.set .n { width:26px; text-align:center; font-weight:800; }
+.set .n.w { color:var(--yellow); }
+.set .v { flex:1; font-weight:700; }
+.set .p { color:var(--label-2); font-size:13px; }
+.set .k { width:26px; height:26px; border-radius:50%; background:var(--surface-3); }
+.set.done .k { background:var(--acc); }
+.set.done .v { color:var(--label-2); }
+.set.cur { background:var(--surface); border-radius:var(--r-sm); border-bottom:0; box-shadow:inset 3px 0 0 var(--acc); }
+.exh { font-weight:800; font-size:16px; color:var(--acc); margin-top:4px; }
+.exh span { color:var(--label-2); font-weight:700; font-size:13px; }
+.ring { width:210px; height:210px; border-radius:50%; margin:6px auto; background:conic-gradient(var(--acc) 0 62%, var(--sep) 62% 100%); display:flex; align-items:center; justify-content:center; }
+.ring div { width:180px; height:180px; border-radius:50%; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.barp { height:8px; border-radius:99px; background:var(--sep); margin:8px 0 12px; }
+.barp i { display:block; height:100%; width:62%; border-radius:99px; background:var(--acc); }
+.rest { display:flex; gap:8px; }
+.rest span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:16px; }
+.restbar { margin:0 12px 14px; background:var(--surface-3); border-radius:var(--r-card); padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:inset 0 0 0 1px var(--sep); }
+.restbar b { font-size:30px; font-weight:800; flex:1; }
+.restbar span { background:var(--bg); border-radius:var(--r-sm); padding:13px 14px; font-weight:800; }
+.foot { border-top:1px solid var(--sep); padding:12px 16px 22px; display:flex; justify-content:space-between; align-items:center; font-weight:700; }
+
+.set .l { width:78px; color:var(--label-2); font-size:13px; }
+.set .e { color:var(--label-2); font-size:13px; }
+.dock { border-top:1px solid var(--sep); padding:10px 12px 16px; display:flex; flex-direction:column; gap:8px; }
+.dock .now { padding:12px 14px 14px; }
+.rpe7 { display:flex; gap:5px; margin-top:10px; }
+.rpe7 span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:15px; }
+.rpe7 .o { color:var(--label-2); font-size:13px; padding-top:16px; }
+.go { background:var(--acc); color:var(--on-acc); font-weight:800; text-align:center; border-radius:var(--r-sm); padding:14px 18px; font-size:16px; }
+.hrow { display:flex; align-items:center; gap:10px; }
+.hrow .huge { flex:1; font-size:50px; }
+.lastl { color:var(--label-2); font-size:14px; margin-top:10px; }
+
+.exhd { display:flex; align-items:center; gap:10px; margin-top:4px; }
+.exhd .pic { width:40px; height:40px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.exhd b { font-weight:800; font-size:16px; color:var(--acc); flex:1; }
+.brand { border-radius:99px; padding:7px 12px; font-size:13px; font-weight:700; background:var(--surface); white-space:nowrap; }
+.brand.add { background:none; box-shadow:inset 0 0 0 1px var(--sep); color:var(--label-2); }
+.sheet { position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:var(--r-card) var(--r-card) 0 0; padding:10px 18px 26px; }
+.sheet .grab { width:40px; height:4px; border-radius:9px; background:var(--sep); margin:0 auto 10px; }
+.sheet .mi { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--sep); font-weight:700; font-size:16px; }
+.sheet .mi:last-child { border-bottom:0; }
+.sheet .mi i { font-style:normal; width:40px; height:40px; border-radius:50%; background:var(--surface-3); color:var(--acc); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; }
+.sheet .mi span { margin-left:auto; color:var(--label-2); font-weight:500; font-size:14px; }
+.dimmed { opacity:.35; }
+
+.set .v.chg { color:var(--acc); }
+.set .v u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.colh { display:flex; gap:10px; padding:0 4px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.colh span:first-child { width:26px; } .colh span:nth-child(2) { width:78px; }
+.bump { display:flex; gap:6px; }
+.bump span { flex:1; text-align:center; background:var(--surface); border-radius:99px; padding:9px 0; font-size:13px; font-weight:700; }
+.bump .on { background:var(--acc); color:var(--on-acc); }
+.info { background:var(--surface); border-radius:var(--r-sm); padding:10px 12px; font-size:13px; color:var(--label-2); }
+.info b { color:var(--label); }
+.keys { border-top:1px solid var(--sep); padding:10px 12px 18px; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.keys span { background:var(--surface); border-radius:var(--r-sm); text-align:center; padding:12px 0; font-weight:800; }
+.keys .a { background:var(--acc); color:var(--on-acc); }
+
+.sheet.tall { top:70px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+.sheet .search { background:var(--surface-3); }
+.sh { display:flex; align-items:center; justify-content:space-between; }
+.sh b { font-size:18px; font-weight:800; }
+.sec { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; margin-top:4px; }
+.pr { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.pr .pic { width:40px; height:40px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.pr div { flex:1; min-width:0; }
+.pr b { font-weight:700; font-size:15px; display:block; }
+.pr small { color:var(--label-2); font-size:13px; }
+.pr .use { background:var(--acc); color:var(--on-acc); border-radius:99px; padding:9px 14px; font-weight:800; font-size:13px; }
+.pr .star { color:var(--yellow); font-size:20px; padding:0 6px; }
+.pr .star.off { color:var(--sep); }
+.alt { display:flex; flex-direction:column; gap:6px; background:var(--surface); border-radius:var(--r); padding:10px; }
+.alt .a { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:var(--r-sm); padding:12px 14px; font-weight:700; }
+.alt .a small { color:var(--label-2); font-weight:500; }
+
+.ss { padding:10px 0; border-bottom:1px solid var(--sep); display:flex; align-items:center; gap:10px; }
+.ss .d { width:74px; color:var(--label-2); font-size:13px; }
+.ss .s { flex:1; font-weight:700; font-size:15px; }
+.ss .s em { font-style:normal; color:var(--yellow); font-weight:800; }
+.ss .s small { color:var(--label-2); font-weight:500; font-size:12px; }
+.tiles { display:flex; gap:8px; }
+.tile { flex:1; background:var(--surface); border-radius:var(--r); padding:10px 12px; }
+.tile b { display:block; font-size:20px; font-weight:800; color:var(--yellow); }
+.tile small { color:var(--label-2); font-size:12px; }
+.reps { display:flex; gap:6px; overflow:hidden; }
+.reps span { background:var(--surface); border-radius:var(--r-sm); padding:8px 0; width:52px; text-align:center; font-weight:800; font-size:14px; flex:none; }
+.reps span small { display:block; color:var(--label-2); font-weight:500; font-size:11px; }
+.reps .new { box-shadow:inset 0 0 0 1.5px var(--yellow); }
+.grid { display:grid; grid-template-columns:54px repeat(5,1fr); gap:0; font-size:14px; }
+.grid span { padding:11px 0; text-align:center; border-bottom:1px solid var(--sep); font-weight:700; }
+.grid .h { color:var(--label-2); font-size:11px; font-weight:700; }
+.grid .l { text-align:left; color:var(--label-2); }
+.grid .b { color:var(--yellow); font-weight:800; }
+.grid .now { background:var(--surface); }
+svg text { font:500 11px Nunito,sans-serif; fill:var(--label-2); }
+
+.media { height:170px; border-radius:var(--r-card); background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); display:flex; align-items:center; justify-content:center; color:var(--label-2); font-size:13px; flex:none; }
+.rr { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.rr .r { width:64px; color:var(--label-2); font-size:14px; }
+.rr .w { flex:1; font-weight:800; font-size:15px; }
+.rr .d { color:var(--label-2); font-size:13px; }
+.rr.new .w { color:var(--yellow); }
+.rr .tag { color:var(--yellow); font-size:12px; font-weight:800; }
+
+.ttl { font-size:22px; font-weight:800; border-bottom:1px dashed var(--sep); padding-bottom:4px; }
+.kv { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--sep); font-size:15px; }
+.kv span:first-child { color:var(--label-2); }
+.kv b u { text-decoration:none; border-bottom:1px dashed var(--label-2); }
+.cta { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:17px; text-align:center; padding:15px; border-radius:var(--r-card); }
+.chk { display:flex; gap:12px; align-items:flex-start; background:var(--surface); border-radius:var(--r); padding:12px; font-size:14px; }
+.chk i { width:22px; height:22px; border-radius:6px; box-shadow:inset 0 0 0 2px var(--label-2); flex:none; }
+.chk small { display:block; color:var(--label-2); font-size:12px; }
+.note { background:var(--surface); border-radius:var(--r); padding:12px; color:var(--label-2); font-size:14px; }
+.warn { color:var(--yellow); font-size:13px; }
+.bs { position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:26px 26px 0 0; padding:18px 16px 20px; display:flex; flex-direction:column; gap:10px; box-shadow:0 -1px 0 var(--sep); }
+.spacer { flex:1; }
+.toast { position:absolute; left:16px; right:16px; bottom:100px; background:var(--surface-3); border-radius:var(--r); padding:12px 14px; display:flex; justify-content:space-between; font-size:14px; box-shadow:0 0 0 1px var(--sep); }
+.toast b { color:var(--acc); }
+</style>
+</head>
+<body>
+<h1>Finishing a workout</h1>
+<p class="lead">Today: Finish, the Save Workout page, Save, a pop-up when the routine changed, then a "Nice work!" page with Done. Three or four taps, and the last page is one you said you do not need. The approved version of three. Numbers are made up.</p>
+
+<h2>B · A sheet over the workout <span class="rec">Approved 2026-11-16 · D132</span></h2>
+<p class="lead">Finish slides up a short sheet; the workout stays behind it. Duration, the tick box and Save. Title, gym and note are one tap away, or edited later from History. Save lands on Today.</p>
+<div class="row"><figure><div class="phone" style="position:relative"><div class="top"><b>Upper A</b><span class="st">1:12:04</span></div><div class="body dimmed" style="gap:10px;opacity:.35"><div class="card"><b>Cable Kneeling Crunch</b><div class="ss"><span class="d">1</span><span class="s">40 × 14</span><span>✓</span></div><div class="ss"><span class="d">2</span><span class="s">40 × 12</span><span>○</span></div></div><div class="card"><b>Lever Seated Fly</b><div class="ss"><span class="d">1</span><span class="s">55 × 12</span><span>✓</span></div></div></div><div class="bs"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-size:18px">Finish Upper A?</b><span class="sm">14 sets · ★ 2 best</span></div><div class="kv"><span>Duration</span><b><u>1 h 12 min</u></b></div><span class="warn">1 set not ticked. It will not be saved.</span><div class="chk"><i></i><span><b>Update the routine too</b><small>1 swapped · 1 set added. Off unless you tick it.</small></span></div><div class="cta">Save</div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span style="color:var(--label-2)">Title, gym, note ›</span><span style="color:var(--red)">Discard</span></div></div></div><figcaption>The shortest way out. Less to read, and the best sets are only a count.</figcaption></figure><figure><div class="phone" style="position:relative"><div class="top"><b>Today</b><span class="st">⚙</span></div><div class="body" style="gap:12px"><div class="card"><span class="cap">Next · Sat 14 Nov</span><div class="big">Lower A</div><span class="sm">6 exercises · Main gym</span></div><div class="card"><span class="cap">Last workout · just now</span><div><b>Upper A</b></div><span class="sm">1 h 12 · 14 sets · ★ 2 best sets</span></div></div><div class="toast"><span>Workout saved</span><b>Open</b></div><div class="tabs"><div class="on">Today</div><div>Lifts</div><div>History</div></div></div><figcaption>After Save: Today, with the workout as the last one and a short message. No finished page.</figcaption></figure></div>
+
+<h2>Scores against today's flow</h2>
+<p class="lead">Each line 0 to 3. The first four count double. Total out of 33.</p>
+<table>
+<tr><th>Line</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Main tasks' steps (×2)</td><td class="n">1</td><td class="n">3</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>Read at a glance (×2)</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">3</td></tr>
+<tr><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>Its friction rows: finished page, routine pop-up (×2)</td><td class="n">0</td><td class="n">3</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>What is looked at is in view</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">3</td></tr>
+<tr><td>Found where it is expected</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><th>Total of 33</th><th>18</th><th>32</th><th>28</th><th>27</th></tr>
+</table>
+<table>
+<tr><th>Counted</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Taps from Finish to done</td><td>3 (4 when the routine changed)</td><td>2</td><td>2</td><td>2</td></tr>
+<tr><td>Routine question</td><td>a pop-up, every time something changed</td><td>an unticked box</td><td>an unticked box</td><td>an unticked box</td></tr>
+<tr><td>Chance to stop before it is saved</td><td>yes</td><td>yes</td><td>yes</td><td>no, undo by deleting</td></tr>
+<tr><td>Best sets of the session</td><td>on the finished page</td><td>listed before Save</td><td>a count</td><td>listed after saving</td></tr>
+</table>
+</body>
+</html>

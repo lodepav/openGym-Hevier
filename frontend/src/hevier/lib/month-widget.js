@@ -1,7 +1,7 @@
 // The home-screen month widget's data (hevier/DECISIONS.md D44). A widget
 // draws without the app, so the page hands the fork's native widget (HevierWidgetPlugin.java) a
 // small snapshot whenever the log changes: the trained days of this month and the last one, each
-// with its calendar kind (the Calendar page's colours), each month's "N workouts · N sets" in the app's
+// with its calendar kind and the colours the Calendar page draws them in (D123), each month's "N workouts · N sets" in the app's
 // language, the month names and weekday letters, and the week's first day. The widget draws the
 // month the phone is in, so it turns the page at midnight on its own; a month the snapshot does not
 // have yet has no workouts. The planned days of this month and the next ride along (D68), dotted in
@@ -13,8 +13,21 @@ import { MOBILE, isAndroid } from '../../lib/mobile.js'
 import { workSets } from './volume.js'
 import { dayKind, planKind, monthCells } from './calendar.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
+import { readableIn } from '../../lib/accent.js'
+import { wornHex } from './accents.js'
+import { meaningColours } from './meaning-colours.js'
 
 export const WIDGET_SNAPSHOT_VERSION = 1
+
+const LABEL_HEX = '#ece8e1'   // theme.css --label: a meaning with no hue left is drawn in the text colour
+
+/** The calendar's fills for the accent S wears (D123): strength the accent as the page draws it, cardio and deload stepped aside from it. */
+export function widgetColours(S) {
+  const acc = readableIn(wornHex(S), 'dark')
+  const m = meaningColours(acc)
+  const hex = c => (c.startsWith('#') ? c : LABEL_HEX)
+  return { strength: acc, cardio: hex(m.cardio), deload: hex(m.deload) }
+}
 
 const pad = n => String(n).padStart(2, '0')
 const monthKey = (y, mo) => `${y}-${pad(mo + 1)}`
@@ -32,7 +45,8 @@ export const summaryOf = (workouts, sets) => (workouts
 /**
  * The snapshot for `today` (ISO): { v, ws, months [12 names], days [7 letters, from ws],
  * kinds { iso: 'strength' | 'cardio' | 'deload' }, plans { iso: kind } (D68: the untrained days from
- * `today` to the end of next month with a routine planned), totals { 'YYYY-MM': line }, empty }.
+ * `today` to the end of next month with a routine planned), totals { 'YYYY-MM': line }, empty,
+ * colours { strength, cardio, deload } ('#rrggbb', widgetColours) }.
  * Sets are ticked work sets (D18's count), as the monthly report counts them.
  */
 export function widgetSnapshot(S, today) {
@@ -69,6 +83,7 @@ export function widgetSnapshot(S, today) {
     plans,
     totals: Object.fromEntries([...totals].map(([k, m]) => [k, summaryOf(m.n, m.sets)])),
     empty: summaryOf(0, 0),
+    colours: widgetColours(S),
   }
 }
 
@@ -110,7 +125,7 @@ let started = false
 export function initMonthWidget(store, go, todayOf) {
   if (!MOBILE || started) return
   const getState = store.get
-  const subscribe = store.watch(['workouts', 'weekStart', 'lang', 'routines', 'week', 'dayPlan', 'queue'])
+  const subscribe = store.watch(['workouts', 'weekStart', 'lang', 'routines', 'week', 'dayPlan', 'queue', 'accent', 'accentCustom'])
   started = true
   const push = () => pushWidget(getState(), todayOf()).catch(() => {})
   const route = () => takeWidgetRoute().then(r => { if (r) go(r) }).catch(() => {})

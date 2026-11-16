@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routine editor mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens copied from frontend/src/hevier/theme.css (D123). The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#2fbf5b; --on-acc:#000; --yellow:#efab03; --red:#e34b37;
+  --r-sm:14px; --r:20px; --r-card:26px; --page:#0b0a08;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 'Nunito',Roboto,system-ui,sans-serif; padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; }
+h2 { font-size:20px; font-weight:800; margin:40px 0 4px; }
+h2 .rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:3px; }
+p.lead { color:var(--label-2); max-width:70ch; margin:6px 0 0; }
+ul.moves { color:var(--label-2); max-width:80ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+.phone { width:411px; height:891px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.bar { padding:44px 18px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--sep); }
+.bar b { font-size:19px; font-weight:800; }
+.bar span { color:var(--label-2); font-size:14px; }
+.body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--label); padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:rgba(47,191,91,.22); border-color:var(--acc); opacity:1; }
+.card { border-radius:var(--r-card); box-shadow:inset 0 0 0 1px var(--sep); padding:14px 16px; }
+.card.fill { background:var(--surface); box-shadow:none; }
+.cap { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.big { font-size:24px; font-weight:800; line-height:1.15; }
+.mid { font-size:17px; font-weight:700; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.btn { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:16px; text-align:center; border-radius:99px; padding:13px; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--surface); border-radius:99px; padding:9px 14px; font-weight:700; font-size:14px; }
+.chip.on { background:var(--acc); color:var(--on-acc); }
+.chip.line { background:none; box-shadow:inset 0 0 0 1px var(--sep); }
+.li { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.li:last-child { border-bottom:0; }
+.li .r { color:var(--label-2); white-space:nowrap; }
+.up { color:var(--acc); font-weight:800; } .down { color:var(--red); font-weight:800; } .rec2 { color:var(--yellow); font-weight:800; }
+.week { display:flex; justify-content:space-between; }
+.week span { width:44px; text-align:center; font-size:12px; color:var(--label-2); font-weight:700; }
+.week i { display:block; width:10px; height:10px; border-radius:50%; margin:6px auto 0; background:var(--sep); }
+.week .d i { background:var(--acc); } .week .p i { background:none; border:2px solid var(--acc); } .week .t { color:var(--label); }
+.search { background:var(--surface); border-radius:var(--r); padding:12px 14px; color:var(--label-2); }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; }
+.seg span { flex:1; text-align:center; padding:8px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); }
+.seg .on { background:var(--bg); color:var(--label); }
+.block { border:1.5px dashed var(--sep); border-radius:var(--r); padding:12px 14px; color:var(--label-2); font-size:13px; }
+.block b { color:var(--label); display:block; font-size:15px; }
+.old { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+.old img { width:260px; border:1px solid var(--sep); border-radius:22px; flex:none; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; }
+table { display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+
+.top { padding:44px 16px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--sep); }
+.top b { font-size:17px; font-weight:800; flex:1; }
+.top .st { color:var(--label-2); font-size:14px; font-weight:700; }
+.top .fin { background:var(--acc); color:var(--on-acc); font-weight:800; border-radius:99px; padding:9px 16px; font-size:14px; }
+.now { background:var(--surface-3); border-radius:var(--r-card); padding:14px 16px 16px; }
+.huge { font-size:54px; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+.huge small { font-size:24px; font-weight:700; color:var(--label-2); }
+.huge u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.rpe { display:flex; gap:6px; margin-top:12px; }
+.rpe span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:17px; }
+.rpe .ok { background:var(--acc); color:var(--on-acc); }
+.acts { display:flex; gap:6px; }
+.acts span { flex:1; text-align:center; background:var(--surface); border-radius:var(--r-sm); padding:10px 0 8px; font-size:12px; font-weight:700; }
+.acts span i { display:block; font-style:normal; font-size:18px; line-height:1.1; color:var(--acc); }
+.set { display:flex; align-items:center; gap:10px; padding:9px 4px; font-size:15px; border-bottom:1px solid var(--sep); }
+.set .n { width:26px; text-align:center; font-weight:800; }
+.set .n.w { color:var(--yellow); }
+.set .v { flex:1; font-weight:700; }
+.set .p { color:var(--label-2); font-size:13px; }
+.set .k { width:26px; height:26px; border-radius:50%; background:var(--surface-3); }
+.set.done .k { background:var(--acc); }
+.set.done .v { color:var(--label-2); }
+.set.cur { background:var(--surface); border-radius:var(--r-sm); border-bottom:0; box-shadow:inset 3px 0 0 var(--acc); }
+.exh { font-weight:800; font-size:16px; color:var(--acc); margin-top:4px; }
+.exh span { color:var(--label-2); font-weight:700; font-size:13px; }
+.ring { width:210px; height:210px; border-radius:50%; margin:6px auto; background:conic-gradient(var(--acc) 0 62%, var(--sep) 62% 100%); display:flex; align-items:center; justify-content:center; }
+.ring div { width:180px; height:180px; border-radius:50%; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.barp { height:8px; border-radius:99px; background:var(--sep); margin:8px 0 12px; }
+.barp i { display:block; height:100%; width:62%; border-radius:99px; background:var(--acc); }
+.rest { display:flex; gap:8px; }
+.rest span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:16px; }
+.restbar { margin:0 12px 14px; background:var(--surface-3); border-radius:var(--r-card); padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:inset 0 0 0 1px var(--sep); }
+.restbar b { font-size:30px; font-weight:800; flex:1; }
+.restbar span { background:var(--bg); border-radius:var(--r-sm); padding:13px 14px; font-weight:800; }
+.foot { border-top:1px solid var(--sep); padding:12px 16px 22px; display:flex; justify-content:space-between; align-items:center; font-weight:700; }
+
+.set .l { width:78px; color:var(--label-2); font-size:13px; }
+.set .e { color:var(--label-2); font-size:13px; }
+.dock { border-top:1px solid var(--sep); padding:10px 12px 16px; display:flex; flex-direction:column; gap:8px; }
+.dock .now { padding:12px 14px 14px; }
+.rpe7 { display:flex; gap:5px; margin-top:10px; }
+.rpe7 span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:14px 0; font-weight:800; font-size:15px; }
+.rpe7 .o { color:var(--label-2); font-size:13px; padding-top:16px; }
+.go { background:var(--acc); color:var(--on-acc); font-weight:800; text-align:center; border-radius:var(--r-sm); padding:14px 18px; font-size:16px; }
+.hrow { display:flex; align-items:center; gap:10px; }
+.hrow .huge { flex:1; font-size:50px; }
+.lastl { color:var(--label-2); font-size:14px; margin-top:10px; }
+
+.exhd { display:flex; align-items:center; gap:10px; margin-top:4px; }
+.exhd .pic { width:40px; height:40px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.exhd b { font-weight:800; font-size:16px; color:var(--acc); flex:1; }
+.brand { border-radius:99px; padding:7px 12px; font-size:13px; font-weight:700; background:var(--surface); white-space:nowrap; }
+.brand.add { background:none; box-shadow:inset 0 0 0 1px var(--sep); color:var(--label-2); }
+.sheet { position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:var(--r-card) var(--r-card) 0 0; padding:10px 18px 26px; }
+.sheet .grab { width:40px; height:4px; border-radius:9px; background:var(--sep); margin:0 auto 10px; }
+.sheet .mi { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--sep); font-weight:700; font-size:16px; }
+.sheet .mi:last-child { border-bottom:0; }
+.sheet .mi i { font-style:normal; width:40px; height:40px; border-radius:50%; background:var(--surface-3); color:var(--acc); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; }
+.sheet .mi span { margin-left:auto; color:var(--label-2); font-weight:500; font-size:14px; }
+.dimmed { opacity:.35; }
+
+.set .v.chg { color:var(--acc); }
+.set .v u { text-decoration:none; border-bottom:2px dotted var(--label-2); }
+.colh { display:flex; gap:10px; padding:0 4px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.colh span:first-child { width:26px; } .colh span:nth-child(2) { width:78px; }
+.bump { display:flex; gap:6px; }
+.bump span { flex:1; text-align:center; background:var(--surface); border-radius:99px; padding:9px 0; font-size:13px; font-weight:700; }
+.bump .on { background:var(--acc); color:var(--on-acc); }
+.info { background:var(--surface); border-radius:var(--r-sm); padding:10px 12px; font-size:13px; color:var(--label-2); }
+.info b { color:var(--label); }
+.keys { border-top:1px solid var(--sep); padding:10px 12px 18px; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.keys span { background:var(--surface); border-radius:var(--r-sm); text-align:center; padding:12px 0; font-weight:800; }
+.keys .a { background:var(--acc); color:var(--on-acc); }
+
+.sheet.tall { top:70px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+.sheet .search { background:var(--surface-3); }
+.sh { display:flex; align-items:center; justify-content:space-between; }
+.sh b { font-size:18px; font-weight:800; }
+.sec { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; margin-top:4px; }
+.pr { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.pr .pic { width:40px; height:40px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.pr div { flex:1; min-width:0; }
+.pr b { font-weight:700; font-size:15px; display:block; }
+.pr small { color:var(--label-2); font-size:13px; }
+.pr .use { background:var(--acc); color:var(--on-acc); border-radius:99px; padding:9px 14px; font-weight:800; font-size:13px; }
+.pr .star { color:var(--yellow); font-size:20px; padding:0 6px; }
+.pr .star.off { color:var(--sep); }
+.alt { display:flex; flex-direction:column; gap:6px; background:var(--surface); border-radius:var(--r); padding:10px; }
+.alt .a { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:var(--r-sm); padding:12px 14px; font-weight:700; }
+.alt .a small { color:var(--label-2); font-weight:500; }
+
+.er { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--sep); }
+.er .h { color:var(--label-2); font-size:18px; width:18px; text-align:center; }
+.er .nm { flex:1; min-width:0; font-weight:700; font-size:15px; }
+.er .nm small { display:block; color:var(--label-2); font-weight:500; font-size:13px; }
+.er .ct { font-weight:800; font-size:14px; white-space:nowrap; }
+.er .ct i { font-style:normal; color:var(--yellow); }
+.exp { background:var(--surface); border-radius:var(--r); padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.stp { display:flex; align-items:center; justify-content:space-between; font-weight:700; }
+.stp span.c { display:flex; align-items:center; gap:10px; }
+.stp span.c b { width:38px; height:38px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:20px; }
+.stp span.c em { font-style:normal; font-weight:800; font-size:18px; width:22px; text-align:center; }
+.fold { display:flex; justify-content:space-between; font-weight:800; font-size:15px; margin-top:6px; }
+.rt { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--sep); }
+.rt div { flex:1; } .rt b { display:block; font-weight:700; } .rt small { color:var(--label-2); font-size:13px; }
+.rt .go2 { background:var(--surface); border-radius:99px; padding:9px 14px; font-weight:800; font-size:13px; }
+.rt .go2.n { background:var(--acc); color:var(--on-acc); }
+</style>
+</head>
+<body>
+<h1>Editing a routine, and the routines list</h1>
+<p class="lead">You change a routine now and then: add or remove sets, add an exercise. Since the next session's page now carries the weights (last time, or your plan), the editor is about the routine's shape. Three versions of the editor, then the routines list they share. Numbers are made up.</p>
+
+<h2>C · Today's editor, with the new buttons <span class="rec">Approved 2026-11-16 · D130</span></h2>
+<p class="lead">The set tables stay as they are, and get what the live workout got: + Warm-up, drag handles, rest as a chip. Familiar, and as long as today.</p>
+<div class="row"><figure><div class="phone"><div class="top"><span class="st">‹</span><b>Edit routine</b><span class="fin">Done</span></div><div class="body " style="gap:0"><div class="big" style="margin-bottom:6px"><u style="text-decoration:none;border-bottom:2px dotted var(--label-2)">TBJP Upper A</u></div><div class="sm dim" style="margin-bottom:6px">TBJP Upper Lower ▾ · 9 exercises · 17 sets</div><div class="exhd" style="margin-top:10px"><span class="h dim">≡</span><span class="pic"></span><b>Lever Incline Chest Press</b></div><div class="set"><span class="n w">W</span><span class="v" style="text-align:center">–</span><span class="v" style="text-align:center">–</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n w">W</span><span class="v" style="text-align:center">–</span><span class="v" style="text-align:center">–</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n w">W</span><span class="v" style="text-align:center">–</span><span class="v" style="text-align:center">–</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n ">7.5</span><span class="v" style="text-align:center">92</span><span class="v" style="text-align:center">6</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n ">7.5</span><span class="v" style="text-align:center">92</span><span class="v" style="text-align:center">6</span><span class="dim" style="font-size:18px">⊖</span></div><div class="chips" style="margin:8px 0"><span class="chip">+ Set</span><span class="chip">+ Warm-up</span><span class="chip">Rest 1:30</span></div><div class="exhd" style="margin-top:10px"><span class="h dim">≡</span><span class="pic"></span><b>Lever Military Press</b><span class="brand">Evolve</span></div><div class="set"><span class="n w">W</span><span class="v" style="text-align:center">–</span><span class="v" style="text-align:center">–</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n ">7.5</span><span class="v" style="text-align:center">72</span><span class="v" style="text-align:center">5</span><span class="dim" style="font-size:18px">⊖</span></div><div class="set"><span class="n ">7.5</span><span class="v" style="text-align:center">72</span><span class="v" style="text-align:center">5</span><span class="dim" style="font-size:18px">⊖</span></div><div class="chips" style="margin:8px 0"><span class="chip">+ Set</span><span class="chip">+ Warm-up</span><span class="chip">Rest 1:30</span></div></div></div><figcaption>Today's layout, tidied. KG and REPS are the routine's own numbers, which the workout no longer opens with once there is a last time.</figcaption></figure></div>
+
+<h2>The routines list (shared by all three)</h2>
+<p class="lead">Opens from Routines on Today. Folders fold.</p>
+<div class="row"><figure><div class="phone"><div class="top"><span class="st">‹</span><b>Routines</b><span class="st"></span></div><div class="body " style="gap:0"><div class="search" style="margin-bottom:8px">Search routines</div><div class="fold"><span>⌄ TBJP Upper Lower</span><span class="dim">6</span></div><div class="rt"><div><b>TBJP Upper A</b><small>next · Tue 17 Nov · 9 exercises</small></div><span class="go2 n">Start</span></div><div class="rt"><div><b>TBJP Lower A</b><small>Wed 18 Nov · 7 exercises</small></div><span class="go2 ">Start</span></div><div class="rt"><div><b>TBJP Upper B</b><small>Fri 20 Nov · 9 exercises</small></div><span class="go2 ">Start</span></div><div class="rt"><div><b>TBJP Lower B</b><small>Sat 21 Nov · 7 exercises</small></div><span class="go2 ">Start</span></div><div class="rt"><div><b>TBJP Upper C</b><small>last done 7 Nov · 8 exercises</small></div><span class="go2 ">Start</span></div><div class="rt"><div><b>TBJP Lower C</b><small>last done 11 Nov · 7 exercises</small></div><span class="go2 ">Start</span></div><div class="fold"><span>⌄ My Routines</span><span class="dim">1</span></div><div class="rt"><div><b>Cardio</b><small>last done 25 Oct · 1 exercise</small></div><span class="go2 ">Start</span></div><div class="chips" style="margin-top:10px"><span class="chip">+ Routine</span><span class="chip">+ Folder</span><span class="chip">Rotation</span></div></div></div><figcaption>The next routine is marked and its Start is green. A tap on a row opens the next session's page. + Routine, + Folder and Rotation sit at the end; a long press on a row moves, copies or deletes it.</figcaption></figure></div>
+
+<h2>Scores against today's editor</h2>
+<p class="lead">Each line 0 to 3. The first three count double. The editor has no friction row left (backups are settled by the swap decision), so the total is out of 27.</p>
+<table>
+<tr><th>Line</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Main tasks' steps (×2)</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>Read at a glance (×2)</td><td class="n">1</td><td class="n">3</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>What is looked at is in view</td><td class="n">1</td><td class="n">3</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>Found where it is expected</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">3</td></tr>
+<tr><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><th>Total of 27</th><th>17</th><th>25</th><th>22</th><th>21</th></tr>
+</table>
+<table>
+<tr><th>Counted</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Exercises in view at once</td><td>2 of 9</td><td>9 of 9</td><td>2 to 3</td><td>2</td></tr>
+<tr><td>Add a working set to an exercise</td><td>scroll, Add Set</td><td>tap the exercise, +</td><td>scroll, + Set</td><td>scroll, + Set</td></tr>
+<tr><td>Add a warm-up set</td><td>the ⋮ menu, or Add Set and a type change</td><td>tap the exercise, +</td><td>+ Warm-up</td><td>+ Warm-up</td></tr>
+<tr><td>Move an exercise</td><td>the ⋮ menu, Reorder</td><td>drag</td><td>drag</td><td>drag</td></tr>
+</table>
+</body>
+</html>

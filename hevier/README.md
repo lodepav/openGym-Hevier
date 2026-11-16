@@ -1,9 +1,9 @@
 # openGym-Hevier — fork notes
 
 This repository is a fork of [openGym](https://github.com/DuarteSantos8/openGym) that gives the
-Android app a [Hevy](https://www.hevy.com/)-like user experience and look, while keeping
-openGym's training logic (progression, 1RM, recovery, sync, storage) and staying easy to update
-from upstream.
+Android app a UX of its own in OpenBite's look (D123, D125): the owner's logbook. It started as
+a [Hevy](https://www.hevy.com/)-like experience and is built on openGym's training logic (1RM,
+recovery, sync, storage), and it stays easy to update from upstream.
 
 Everything that belongs only to the fork lives in this `hevier/` folder or in
 `frontend/src/hevier/`, plus a few fork-owned `hevier` folders inside upstream's tree that only
@@ -34,7 +34,7 @@ touches any of them, so they never conflict.
 | [../DESIGN.md](../DESIGN.md) | The fork's look as it ships, for the same skill: the tokens of `theme.css`, type, shapes, the main components and the do's and don'ts. `.impeccable/design.json` beside it holds what the format cannot (shadows, motion, component snippets). Re-run `/impeccable document` after the look changes; a decision still wins over it. |
 | [ux/](ux/) | The UX review: [STANDARDS.md](ux/STANDARDS.md) (the rules a finding cites, A · P · H · G · C, after WCAG 2.2, Android and NN/g; the decisions come first), [JOURNEYS.md](ux/JOURNEYS.md) (seven people walked through the app, the test profile, the device snapshot) and [LEDGER.md](ux/LEDGER.md) (each round's findings and what became of them), and [REWORK.md](ux/REWORK.md) (the rework of flows and pages past Hevy's UX: north star, friction list, each screen's status). |
 | [agents/](agents/) | Claude Code agents: `ux-reviewer`, a fresh-context reviewer that walks the journeys on the emulator and cites the standards. Link them in once per clone: `ln -s ../hevier/agents .claude/agents`. |
-| [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `hevy-side-by-side`, `release-check`, `ux-review` (runs the reviewer, fixes only minor findings, brings the rest to the user), `ux-rework` (one screen at a time: a grill with the user, then the decision, build and try; only on /ux-rework). Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
+| [skills/](skills/) | Claude Code skills for this fork: `verify`, `seam-check`, `upstream-merge`, `emulator-check`, `before-after` (scores a screen against the one it replaces), `release-check`, `ux-review` (runs the reviewer, fixes only minor findings, brings the rest to the user), `ux-rework` (D125: a mockup of every screen in three versions, scored against the old screen, then one build; only on /ux-rework). Upstream ignores `.claude/`, so link them in once per clone: `ln -s ../hevier/skills .claude/skills`. |
 
 ## Where code goes
 
@@ -48,8 +48,9 @@ touches any of them, so they never conflict.
 
 1. **Add, don't edit.** New behaviour goes in new files under `frontend/src/hevier/`. An upstream
    file is edited only at a *seam*: a short, marked hook listed in [SEAMS.md](SEAMS.md).
-2. **Logic stays upstream's.** `frontend/src/lib/`, `frontend/src/store/` and `api/` are reused
-   as they are. A Hevy behaviour that needs different logic gets a *new* pure helper in
+2. **Upstream's logic files stay as they are.** `frontend/src/lib/`, `frontend/src/store/` and
+   `api/` are reused unedited. A behaviour that needs different logic (D125 allows it, with a
+   decision) gets a *new* pure helper in
    `frontend/src/hevier/lib/` with a test beside it, wrapping upstream's helper rather than
    changing it.
 3. **Upstream's tests stay green, unmodified.** They are the proof that the logic was not

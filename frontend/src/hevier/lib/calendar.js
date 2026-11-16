@@ -4,7 +4,7 @@
 // has a dot in its routine's colour (D68).
 import { workoutDay, effectiveRoutineIds } from '../../lib/history.js'
 import { weekDayOffset } from '../../lib/format.js'
-import { pinState } from '../../lib/queue.js'
+import { pinOn } from './plan-pins.js'
 import { dayNoteOf } from '../../lib/day-notes.js'
 import { isCardio } from '../../lib/exercises.js'
 
@@ -44,7 +44,7 @@ export function dayMark(S, iso, byDay) {
   if (byDay[iso]) return 'done'
   if (dayNoteOf(S, iso)) return 'noted'
   const planned = effectiveRoutineIds(S, iso).length > 0
-  const ovr = S.dayPlan?.[iso] !== undefined && pinState(S, S.dayPlan[iso]) !== 'done'
+  const ovr = S.dayPlan?.[iso] !== undefined && pinOn(S, iso, S.dayPlan[iso]) !== 'done'
   return ovr && planned ? 'ovr' : planned ? 'plan' : ''
 }
 

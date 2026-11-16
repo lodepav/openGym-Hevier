@@ -28,6 +28,9 @@ import { initNoteFix } from './lib/note-text.js'
 import { movePreviousIntoLastFrom } from './lib/previous-sets.js'
 import { initSeasonsOff } from './lib/seasons-off.js'
 import { initProgDefault } from './lib/prog-default.js'
+import { initLookDefault } from './lib/look-default.js'
+import { initMeaningColours } from './lib/meaning-colours-run.js'
+import { initAccentIcon } from './lib/accent-icon-run.js'
 import { initExUnits } from './lib/ex-unit.js'
 import { HIDDEN_MODULES, moduleOn, FORK_MODULES, forkModuleCopy, setAnyModule } from './lib/fork-modules.js'
 import { partOn } from './lib/module-parts.js'
@@ -35,6 +38,9 @@ import { moduleRow } from './views/ModuleParts.jsx'
 import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { rowMode, setNumberOf } from './lib/hold-set.js'
+import { pinOn } from './lib/plan-pins.js'
+import { queueStatus } from './lib/next-planned.js'
+import { restartOnRedo } from './lib/rotation-restart.js'
 import { initSideRoutines } from './lib/one-limb.js'
 import { useStatsS } from './lib/shared-phase-run.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
@@ -62,6 +68,9 @@ function install() {
   applyForkIcons()
   applyForkName()
   initSeasonsOff(store)
+  initLookDefault(store)                                  // a profile that never chose an accent wears OpenBite's green (D123)
+  initMeaningColours(store)                               // meaning colours step aside from the accent (D123)
+  initAccentIcon(store)                                   // the launcher icon follows a newly picked accent (D123)
   readChosenMuscles(id => state().hvMainMuscle?.[id] || null)  // an exercise's main muscle as the user chose it (D76)
 
   // The workout: Finish opens the fork's Save Workout page, and a saved workout its summary (S9).
@@ -79,6 +88,8 @@ function install() {
   hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   hooks.setNumber = setNumberOf                            // a set's number in toasts as the table shows it (S62, D89)
+  Object.assign(hooks, { pinOn, keepPinsOnRefill: true, redoPass: restartOnRedo })  // a planned day trains what was picked, a refill keeps it, a redo restarts the pass (S63, S64, S65, S67, D124)
+  hooks.queueStatus = queueStatus                          // the rotation line names the Calendar's next planned day (S66, D124)
   initProgDefault(store)                                  // the profile's default rule is Off until chosen (D61, upstream's #814)
   initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)

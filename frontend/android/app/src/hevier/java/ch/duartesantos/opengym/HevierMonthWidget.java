@@ -23,9 +23,9 @@ import org.json.JSONObject;
 
 /**
  * [hevier] The home-screen month widget (hevier/DECISIONS.md D44): this
- * month's calendar, trained days filled in the calendar's colours (strength blue, cardio green,
- * deload orange), the planned days from today on a dot in their routine's colour (D68), today
- * ringed, and the month's "N workouts · N sets". It draws from the snapshot
+ * month's calendar, trained days filled in the calendar's colours (strength in the accent, cardio and
+ * deload in the colours that step aside from it, D123, all from the snapshot), the planned days
+ * from today on a dot in their routine's colour (D68), today ringed, and the month's "N workouts · N sets". It draws from the snapshot
  * the app last handed over (HevierWidgetPlugin), never reads the log itself, and runs no code in
  * the background: it redraws when the app sends a new snapshot, when it is resized, and once after
  * midnight through an inexact alarm that does not wake the phone. A tap opens the Calendar.
@@ -39,14 +39,16 @@ public class HevierMonthWidget extends AppWidgetProvider {
     private static final String KEY = "snapshot";
     private static final String TICK = "ch.duartesantos.opengym.hevier.WIDGET_TICK";
 
-    // The fork's dark theme (hevier/theme.css) and the calendar's colours (hevier.css).
-    private static final int LABEL = 0xFFFFFFFF;
-    private static final int LABEL_2 = 0xFF9A9EA7;
-    private static final int LABEL_3 = 0xCC9A9EA7;
-    private static final int ON_LIGHT = 0xFF000000;   // a number on green or orange, as the Calendar page
-    private static final int BLUE = 0xFF008CFF;
-    private static final int GREEN = 0xFF2FBF5B;
-    private static final int ORANGE = 0xFFFF9F0A;
+    // The fork's warm greys (hevier/theme.css, D123).
+    static final int LABEL = 0xFFECE8E1;
+    private static final int LABEL_2 = 0xFFA39E94;
+    private static final int LABEL_3 = 0xCCA09B91;
+    static final int ON_LIGHT = 0xFF000000;
+    // The calendar's colours under the default green accent, for a snapshot from before D123; the
+    // app sends its own (month-widget.js `colours`).
+    static final int STRENGTH = 0xFF34D08A;
+    static final int CARDIO = 0xFF40C8E0;
+    static final int DELOAD = 0xFFFF7EB6;
 
     static void save(Context ctx, String snapshot) {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, snapshot).apply();
@@ -167,6 +169,7 @@ public class HevierMonthWidget extends AppWidgetProvider {
         float cw = w / 7f, ch = h / (rows + 0.8f);
         float head = ch * 0.8f;
         float r = Math.min(cw, ch) * 0.44f;
+        int[] pal = palette(snap.optJSONObject("colours"));
 
         Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
         text.setTextAlign(Paint.Align.CENTER);
@@ -193,29 +196,59 @@ public class HevierMonthWidget extends AppWidgetProvider {
             float cy = head + ch * (cell / 7) + ch / 2;
             String iso = String.format(Locale.ROOT, "%04d-%02d-%02d", y, mo + 1, d);
             String kind = kinds != null ? kinds.optString(iso, "") : "";
-            int color = kindColor(kind);
+            int color = kindColor(kind, pal);
             // A day that has passed since the snapshot was sent loses its dot (D68).
-            int plan = color == 0 && d >= today && plans != null ? kindColor(plans.optString(iso, "")) : 0;
+            int plan = color == 0 && d >= today && plans != null ? kindColor(plans.optString(iso, ""), pal) : 0;
             if (color != 0) {
                 fill.setColor(color);
                 c.drawCircle(cx, cy, r, fill);
             }
             if (d == today) {
-                ring.setColor(color != 0 ? LABEL : BLUE);
+                ring.setColor(color != 0 ? ink(color) : pal[0]);
                 c.drawCircle(cx, cy, color != 0 ? r - ring.getStrokeWidth() : r, ring);
             }
             if (plan != 0) {
                 fill.setColor(plan);
                 c.drawCircle(cx, cy + r * 0.62f, Math.max(1.5f * density, r * 0.12f), fill);
             }
-            text.setColor(color == GREEN || color == ORANGE ? ON_LIGHT : color != 0 || plan != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
+            text.setColor(color != 0 ? ink(color) : plan != 0 ? LABEL : d > today ? LABEL_3 : LABEL_2);
             Paint.FontMetrics fm = text.getFontMetrics();
             c.drawText(String.valueOf(d), cx, cy - (fm.ascent + fm.descent) / 2, text);
         }
         return b;
     }
 
-    private static int kindColor(String kind) {
-        return "cardio".equals(kind) ? GREEN : "deload".equals(kind) ? ORANGE : "strength".equals(kind) ? BLUE : 0;
+    private static int kindColor(String kind, int[] pal) {
+        return "strength".equals(kind) ? pal[0] : "cardio".equals(kind) ? pal[1] : "deload".equals(kind) ? pal[2] : 0;
+    }
+
+    /** { strength, cardio, deload } from the snapshot's colours, each falling back to the default's. */
+    static int[] palette(JSONObject colours) {
+        return new int[] {
+            parse(colours != null ? colours.optString("strength", null) : null, STRENGTH),
+            parse(colours != null ? colours.optString("cardio", null) : null, CARDIO),
+            parse(colours != null ? colours.optString("deload", null) : null, DELOAD),
+        };
+    }
+
+    /** An opaque colour from '#rrggbb', or `fallback` for anything else. */
+    static int parse(String hex, int fallback) {
+        if (hex == null || !hex.matches("#[0-9a-fA-F]{6}")) return fallback;
+        return 0xFF000000 | Integer.parseInt(hex.substring(1), 16);
+    }
+
+    /** The day number's ink on a fill: black or the label colour, whichever has more contrast (WCAG). */
+    static int ink(int fill) {
+        double l = luminance(fill);
+        return (l + 0.05) / 0.05 >= (luminance(LABEL) + 0.05) / (l + 0.05) ? ON_LIGHT : LABEL;
+    }
+
+    private static double luminance(int argb) {
+        return 0.2126 * lin((argb >> 16) & 0xFF) + 0.7152 * lin((argb >> 8) & 0xFF) + 0.0722 * lin(argb & 0xFF);
+    }
+
+    private static double lin(int c) {
+        double v = c / 255.0;
+        return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
     }
 }
