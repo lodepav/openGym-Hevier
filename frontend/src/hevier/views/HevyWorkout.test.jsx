@@ -606,6 +606,27 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(container.querySelector('.hv-effrow')).toBeNull()
   })
 
+  it('the effort button in the tick’s place logs the set with the rating picked; closing the dialog logs nothing', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rpe' }))
+    const sets = () => useStore.getState().S.active.entries[0].sets
+    const openSheet = () => {
+      act(() => container.querySelector('.hv-row:not(.done) .hv-eff-tick').click())
+      const host = document.createElement('div')
+      const r = createRoot(host)
+      const sheet = useUI.getState().sheets.at(-1)
+      act(() => r.render(sheet.render(() => {})))
+      return { host, r }
+    }
+    const a = openSheet()
+    act(() => a.r.unmount())
+    expect(sets().map(x => !!x.done)).toEqual([false, false])
+    const b = openSheet()
+    act(() => [...b.host.querySelectorAll('.item')].find(x => x.textContent.trim().startsWith('8')).click())
+    act(() => b.r.unmount())
+    expect(sets().map(x => [!!x.done, x.rpe ?? null])).toEqual([[true, 8], [false, null]])
+  })
+
   it('the rest docks at the bottom: +1 min, +2 min and Skip, gone when it ends', () => {
     render([two()])
     act(() => container.querySelector('.hv-chk').click())

@@ -1,6 +1,6 @@
 // One exercise in the live workout (hevier/DECISIONS.md D127, after D2–D9): picture · name · brand,
 // on the open exercise its six buttons (Swap, Note, History, Rest, Reorder, More), then the SET ·
-// PREVIOUS · KG · REPS · ✓ table with the opened set large and its effort row under it, and on the
+// PREVIOUS · KG · REPS · ✓ table with the opened set large and the effort button in the tick’s place, and on the
 // open exercise "+ Set" and "+ Warm-up" side by side. The columns follow the exercise's mode as upstream's block
 // does: KG · REPS, KG · TIME for a timed hold, TIME · speed (· incline) for cardio, the last two
 // with Hevy's count-up timer (D53), and an L and an R line under one set number for a per-side exercise.
@@ -101,7 +101,7 @@ export default function HevyExerciseBlock(props) {
     [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   // D82: last time on this machine (its brand and cable setup), else with none.
   const prev = previousSetsFor(history, entry, previousMode(S), { label: sessionLabelKey(S, A, entryIdx) })
-  // D127: the opened set, large, with its effort row (lib/open-set.js); this exercise is the open
+  // D127: the opened set, large (lib/open-set.js); this exercise is the open
   // one when `open` is passed, and only then shows its buttons and "+ Set".
   const isOpenAt = i => isOpenRow(entry.sets, open, i)
   // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.

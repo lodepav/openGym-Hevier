@@ -1,5 +1,5 @@
 // The live workout's opened set (hevier/DECISIONS.md D127): the first set not yet ticked is shown
-// large with the effort row under it, nothing to select; a tap on another set (or on an exercise)
+// large with the effort button in the tick’s place, nothing to select; a tap on another set (or on an exercise)
 // opens that one instead. Which one is open is worked out here from the session and the last tap.
 import { setSpanAt } from '../../lib/history.js'
 import { nextSetAfter } from '../../lib/spoken-cues.js'

@@ -4,6 +4,8 @@ import { restNextLine } from '../../lib/rest-next.js'
 import { nextSetAfter } from '../../lib/spoken-cues.js'
 import { exerciseNameText } from '../../lib/format.js'
 import { EXIDX } from '../../lib/exercises.js'
+import { isWarmupRow } from '../../lib/workout-model.js'
+import { setNumberOf } from './hold-set.js'
 import { t } from '../../lib/i18n.js'
 
 /** The set after the rest started by entry `forIdx`: `cap` says which ("Set 2 of 3" on the same
@@ -15,6 +17,9 @@ export function dockNext(S, forIdx) {
   const entry = S.active.entries[next.idx]
   const name = (EXIDX[entry.id] ? exerciseNameText(EXIDX[entry.id]) : entry.n) || ''
   const what = name && line.startsWith(name) ? line.slice(name.length).replace(/^, /, '') : ''
-  const cap = next.idx === forIdx && what ? t('Set {0} of {1}', next.i + 1, entry.sets.length) : name
+  // Numbered as the table numbers it: work sets only, an L/R pair one set. A warm-up says so in `what`.
+  const work = entry.sets.findLastIndex(x => !isWarmupRow(x))
+  const cap = next.idx === forIdx && what && !isWarmupRow(entry.sets[next.i])
+    ? t('Set {0} of {1}', setNumberOf(entry.sets, next.i), setNumberOf(entry.sets, work)) : name
   return { cap, what: what || (cap === name ? '' : line) }
 }
