@@ -2,6 +2,27 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.0.0 · 2026-11-16
+
+Based on openGym 1.4.5.
+
+### Before you update
+
+- The app now has OpenBite's look: Nunito, warm greys, cards, and a green accent you can change in Settings. If you picked an accent before, you keep it. The launcher icon follows the accent.
+
+### New
+
+- the UX rework (D125 to D136), its reviews and journeys
+- a planned day trains what you picked, and the rotation follows it
+- OpenBite's look on AMOLED black, with an accent you choose
+
+### Fixes and changes
+
+- Sets per muscle is a page of its own
+- Home's rotation line and the day sheet follow planned days
+- meaning colours stay apart from each other too
+- the Calendar's header stays pinned while the months scroll
+
 ## 2.8.0 · 2026-11-15
 
 Based on openGym 1.4.5.
