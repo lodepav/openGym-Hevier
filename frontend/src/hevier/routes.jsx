@@ -39,7 +39,7 @@ import LiftTrends from './views/LiftTrends.jsx'
 import { atTabRoot, backPath } from './lib/back-root.js'
 import { HEVIER } from './flag.js'
 
-// Every exercise's details open the fork's tabbed sheet (seam S10), a finished workout the fork's
+// Every exercise's details open the fork's exercise page (seam S10), a finished workout the fork's
 // Workout Detail page (S14), every exercise picker the fork's Hevy picker (S13), Settings is
 // regrouped (S11, S12), and Finish opens the fork's Finish sheet (S9). Installed here rather than in
 // ./index.js because App imports this module after sheets.jsx, which they are built from.

@@ -53,7 +53,8 @@ export function previousText(p, { side, mode, bw, unit, show = w => w, id, targe
   return weightReps(p)
 }
 
-const noEffort = x => {
+/** Set `x` without its effort, a per-side set's sides too: for a page that shows effort apart. */
+export const noEffort = x => {
   if (!x || typeof x !== 'object') return x
   const { rir, rpe, ...rest } = x
   return rest.sides ? { ...rest, sides: { L: noEffort(rest.sides.L), R: noEffort(rest.sides.R) } } : rest

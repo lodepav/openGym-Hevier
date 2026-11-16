@@ -99,7 +99,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength level from thresholds you type in | D19 | Offer (upstream's levels come from published tables by body weight, sex and age; typed thresholds are the fork's) |
 | Strength levels list, by the level reached | D81 | Fork (upstream's Strength levels card on Stats lists every graded lift by level since 1.4.4) |
 | Exercise details' animation at Hevy's 16:9 size | D7 | Fork |
-| YouTube demo on an exercise's How to tab (upstream 1.4.4's card) | D101 | Fork |
+| An exercise's page is one page, no tabs: the animation, the phase and brand filter, the last sessions one line each (an arrow against the session before, a star on each best set, All history), the best sets as three tiles, the best at each rep count (the last month's marked new), the chart, then Strength level, Compare brands, Time on this exercise and How to | D131 | Fork |
+| YouTube demo on an exercise's How to (upstream 1.4.4's card) | D101 | Fork |
 | Create “<text>” in the picker when a search finds nothing | D118 | Fork |
 
 ## Statistics and history
@@ -111,6 +112,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Hevy's record kinds, worked out from the log by exercise and label (imports included) | D51 | Offer (upstream 1.4.5 adds rep records 1 to 12 and numbers per gym; Hevy's kinds per label are the fork's) |
 | Monthly report | D23 | Fork (upstream 1.4.5 has its own Your month, left out of the fork's UI, D109) |
 | Beat last time: ↑ = ↓ against the PREVIOUS column's set, on Workout Detail and the workout's rows (upstream's comparison and switch since 1.4.4, #907) | D66 | Fork |
+| Workout Detail without the Muscle split bars; effort in its own RPE (or RIR) column; a per-side set of any type as an L row and an R row under one number, its arrows and records on their side | D133 | Fork |
 | Exercises kept out of progression are kept out of the statistics too (a deload routine's still count) | D57 | Offered (#813, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Training streak in weeks (one week off allowed), then in years | D59 | Fork (upstream's week streak has freezes and excused weeks of its own) |
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |

@@ -200,9 +200,9 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     const host = sheet()
     const sel = host.querySelector('.hv-xd-label')
     expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
-    expect(host.querySelector('.hv-xd-big').textContent).toContain('45')
+    expect(host.querySelector('.hv-xd-tile b').textContent).toBe('45 kg')
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
-    expect(host.querySelector('.hv-xd-big').textContent).toContain('25')
+    expect(host.querySelector('.hv-xd-tile b').textContent).toBe('25 kg')
   })
 
   it('the strength level follows the picked brand (D19, D28)', () => {
@@ -212,10 +212,11 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     render(<div />, { extra: { hvStrength, workouts: [w('a', 1, 45, 'Life Fitness'), w('b', 2, 25, 'Matrix')] } })
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
-    const best = () => Number(host.querySelector('.hv-sl').textContent.match(/Best 1RM ([\d.]+)/)[1])
-    const all = best()
+    // D131: the page's Strength level row names the level the picked brand's best 1RM reaches.
+    const level = () => [...host.querySelectorAll('.hv-linkrow')].find(r => r.textContent.startsWith('Strength level')).querySelector('.hv-sub').textContent
+    expect(level()).toBe('Intermediate')   // 45 × 10, 1RM 60
     const sel = host.querySelector('.hv-xd-label')
     act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
-    expect(best()).toBeLessThan(all)
+    expect(level()).toBe('Beginner')       // 25 × 10, 1RM 33
   })
 })

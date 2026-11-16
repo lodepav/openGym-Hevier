@@ -21,6 +21,7 @@ vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() =>
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n))
+const SQUAT = EXDB.find(e => /^barbell full squat$/i.test(e.n)) || EXDB.find(e => /^barbell squat$/i.test(e.n))
 const start = new Date('2026-10-10T18:00:00').getTime()
 const W = {
   id: 'w1', d: '2026-10-10', start, end: start + 3600000, name: 'Push Day', note: 'Felt strong', vol: 1440,
@@ -77,7 +78,9 @@ describe('hevier: Workout Detail (seam S14)', () => {
     const page = container.querySelector('.hv-wd')
     expect(page.querySelector('.hv-wd-t').textContent).toBe('Push Day')
     expect(page.textContent).toContain('Felt strong')
-    expect(page.textContent).toContain('Muscle Split')
+    // D133: the bars went; the line under the stats has the counts (sets mode, D18).
+    expect(page.textContent).not.toContain('Muscle Split')
+    expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
@@ -110,6 +113,53 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['W', '1', 'H', '2'])
     expect(rows[2].firstChild.className).toBe('hv-wd-h')
     expect(rows[2].textContent).toContain('0:30')
+  })
+
+  // D133: a per-side set of any type is an L row and an R row under one number, each written like
+  // any other set, effort and heart rate once on the first row. Upstream's per-side drop set keeps
+  // its drops on each side (workout-model.js addSideDrop): each side shows its own.
+  it('writes a per-side set of any type as an L row and an R row (D133)', () => {
+    render()
+    const sd = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
+    const P = { ...clone(W), id: 'wp', entries: [{ id: SQUAT.id, sets: [
+      { phase: 'warmup', w: 10, r: 24, done: true, sides: { L: sd(10, 12), R: sd(10, 12) } },
+      { w: 20, r: 19, done: true, rpe: 8, hr: { avg: 112, max: 120 }, sides: { L: sd(20, 10, { rpe: 8 }), R: sd(20, 9, { rpe: 7 }) } },
+      { failure: true, w: 20, r: 15, done: true, sides: { L: sd(20, 8), R: sd(20, 7) } },
+      { type: 'dropset', w: 20, r: 16, done: true, sides: {
+        L: sd(20, 8, { type: 'dropset', drops: [{ w: 15, r: 6 }] }), R: sd(20, 8, { type: 'dropset', drops: [{ w: 15, r: 5 }] }) } },
+      { side: 'L', mode: 'time', sec: 45, w: 0, done: true, rpe: 7 }, { side: 'R', mode: 'time', sec: 40, w: 0, done: true },
+      { w: 30, r: 5, done: true },
+    ] }] }
+    act(() => useStore.setState(st => ({ S: { ...st.S, workouts: [...st.S.workouts, P] } })))
+    hooks.setMode = rowMode
+    act(() => workoutDetailSheet(P))
+    const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')]
+    const read = r => [r.children[0].textContent, r.querySelector('.hv-wd-v').textContent]
+    expect(rows.map(read)).toEqual([
+      ['W', 'L10kg × 12 reps'], ['', 'R10kg × 12 reps'],
+      ['1', 'L20kg × 10 reps'], ['', 'R20kg × 9 reps'],
+      ['2', 'L20kg × 8 reps F'], ['', 'R20kg × 7 reps F'],
+      ['3', 'L20kg × 8 reps ↘ 15×6'], ['', 'R20kg × 8 reps ↘ 15×5'],
+      ['H', 'L0:45'], ['', 'R0:40'],
+      ['4', '30kg × 5 reps'],
+    ])
+    // Effort in its own column, once on the first row (the scale's name read out only); heart rate the same.
+    expect(container.querySelector('.hv-wd-th').textContent).toContain('RPE')
+    expect(rows.map(r => r.querySelector('.hv-wd-rpe')?.textContent ?? null)).toEqual(['', '', 'RPE 8', '', '', '', '', '', 'RPE 7', '', ''])
+    expect(rows.map(r => !!r.querySelector('.hv-wd-hr'))).toEqual([false, false, true, false, false, false, false, false, false, false, false])
+  })
+
+  it('names the effort column RIR on a reps-in-reserve profile, and leaves it out with no effort', () => {
+    render()
+    const P = { ...clone(W), id: 'wr', entries: [{ id: SQUAT.id, sets: [{ w: 30, r: 5, done: true, rpe: 8 }] }] }
+    act(() => useStore.setState(st => ({ S: { ...st.S, effort: 'rir', workouts: [...st.S.workouts, P] } })))
+    act(() => workoutDetailSheet(P))
+    expect(container.querySelector('.hv-wd-th').textContent).toContain('RIR')
+    expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-rpe').textContent).toBe('RIR 2')
+    expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-v').textContent).toBe('30kg × 5 reps')
+    act(() => workoutDetailSheet(W))
+    expect(container.querySelector('.hv-wd-th').textContent).not.toMatch(/RPE|RIR/)
+    expect(container.querySelector('.hv-wd-rpe')).toBeNull()
   })
 
   it('shows a set’s note under its row (D5, upstream 1.4.4)', () => {

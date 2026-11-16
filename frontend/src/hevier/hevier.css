@@ -439,31 +439,47 @@
 :root[data-ui="hevier"] .hv-alias-add{display:flex;gap:8px;margin-top:12px}
 :root[data-ui="hevier"] .hv-alias-add .input{flex:1;min-width:0;width:auto}
 :root[data-ui="hevier"] .hv-alias-add .btn{flex:none;width:auto;padding-inline:20px}
-/* the exercise's picture as tall as Hevy's, about 16:9 of the screen's width (upstream's is 320px) */
-:root[data-ui="hevier"] :is(.hv-xd-summary, .hv-xd-howto) > .exmedia :is(img, video, .exmedia-x){height:min(56vw, 320px)}
+/* D131: the picture a little smaller and lower than the tabbed page's, under the page bar (upstream's is 320px) */
+:root[data-ui="hevier"] :is(.hv-xd-page, .hv-xd-howto) > .exmedia :is(img, video, .exmedia-x){height:min(50vw, 280px)}
+:root[data-ui="hevier"] :is(.hv-xd-page, .hv-xd-howto) > .exmedia{border-radius:var(--r);background:var(--surface-2)}
+:root[data-ui="hevier"] .hv-xd-page > .exmedia{margin-top:6px}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}
-:root[data-ui="hevier"] :is(.hv-xd-summary, .hv-xd-howto) > .exmedia{border-radius:var(--r);background:var(--surface-2)}
-/* Hevy's tabs: plain words over a hairline, the open one in the accent with an accent underline */
+/* Hevy's tabs (the clock sheet's): plain words over a hairline, the open one in the accent with an accent underline */
 :root[data-ui="hevier"] .seg.hv-xd-tabs{background:none;border-radius:0;padding:0;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .seg.hv-xd-tabs .seg-sel{top:auto;bottom:-1px;height:2px;inset-inline-start:0;width:calc(100% / var(--n));border-radius:0;background:var(--acc);box-shadow:none}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button{min-height:40px;font-size:15px}
 :root[data-ui="hevier"] .seg.hv-xd-tabs button.on{color:var(--acc)}
-:root[data-ui="hevier"] .hv-xd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
-:root[data-ui="hevier"] .hv-xd-big{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
-:root[data-ui="hevier"] .hv-xd-range{appearance:none;-webkit-appearance:none;background:none;color:var(--acc);border:0;padding:6px 18px 6px 4px;font-size:14px;font-weight:500;
+:root[data-ui="hevier"] .hv-xd-range{appearance:none;-webkit-appearance:none;background:none;color:var(--acc);border:0;min-height:44px;padding:6px 18px 6px 4px;font-size:14px;font-weight:500;
   background-image:linear-gradient(45deg,transparent 50%,var(--acc) 50%),linear-gradient(-45deg,transparent 50%,var(--acc) 50%);
   background-size:5px 5px;background-position:calc(100% - 9px) 55%,calc(100% - 4px) 55%;background-repeat:no-repeat}
-:root[data-ui="hevier"] .hv-xd-facts{display:flex;flex-direction:column;gap:2px;margin:12px 0 16px;font-size:14px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-xd-facts b{font-size:20px;font-weight:800;color:var(--label);margin-bottom:4px}
+:root[data-ui="hevier"] .hv-xd-facts{display:flex;flex-wrap:wrap;gap:2px 12px;margin:8px 2px 4px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
 /* Left against right, an exercise logged per side. */
 :root[data-ui="hevier"] .hv-xd-sides{margin:8px 2px 4px;font-size:14px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-xd-rec .grow{display:flex;flex-direction:column}
+/* A section's caption with its link or switch at the end. */
+:root[data-ui="hevier"] .hv-xd-cap{display:flex;align-items:center;justify-content:space-between;gap:10px}
+:root[data-ui="hevier"] .hv-xd-cap .hv-link{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px;font-size:14px;font-weight:700}
+/* The last sessions, one line each (D131). */
+:root[data-ui="hevier"] .hv-xd-ls{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 2px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-xd-ld{flex:none;width:5.5em;font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-xd-lsets{flex:1;min-width:0;font-weight:700;font-size:15px}
+:root[data-ui="hevier"] .hv-xd-lsets small{font-weight:500;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] :is(.hv-xd-star, .hv-xd-best, .hv-xd-new){font-style:normal;color:var(--hv-record,var(--yellow));font-weight:800}
+:root[data-ui="hevier"] .hv-xd-best,:root[data-ui="hevier"] .hv-xd-new{font-size:12px}
+/* The best sets: three tiles, then the best at each rep count (D131). */
+:root[data-ui="hevier"] .hv-xd-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+:root[data-ui="hevier"] .hv-xd-tile{display:flex;flex-direction:column;gap:2px;background:var(--surface);border-radius:var(--r);padding:10px 12px;min-width:0}
+:root[data-ui="hevier"] .hv-xd-tile b{font-size:18px;font-weight:800;color:var(--hv-record,var(--yellow));overflow-wrap:anywhere}
+:root[data-ui="hevier"] .hv-xd-tile small{font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-xd-svol{margin:8px 2px 0}
 :root[data-ui="hevier"] .hv-xd-reps{display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
-:root[data-ui="hevier"] .hv-xd-rh,:root[data-ui="hevier"] .hv-xd-rr{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:8px 2px}
-:root[data-ui="hevier"] .hv-xd-rh{font-size:12px;color:var(--label-2);text-transform:uppercase}
+:root[data-ui="hevier"] .hv-xd-rr{display:flex;align-items:center;gap:10px;padding:9px 2px}
+:root[data-ui="hevier"] .hv-xd-rr > span:first-child{width:5em;color:var(--label-2);font-size:14px}
+:root[data-ui="hevier"] .hv-xd-rr b{flex:1;font-weight:800}
+:root[data-ui="hevier"] .hv-xd-rr.new b{color:var(--hv-record,var(--yellow))}
 :root[data-ui="hevier"] .hv-xd-rr + .hv-xd-rr{border-top:var(--hair) solid var(--sep)}
-:root[data-ui="hevier"] .hv-xd-rr em{font-style:normal;color:var(--label-2);font-size:12px;margin-inline-start:8px}
+:root[data-ui="hevier"] .hv-xd-rr em{font-style:normal;color:var(--label-2);font-size:13px}
+:root[data-ui="hevier"] .hv-xd-more{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 :root[data-ui="hevier"] .hv-xd-history{display:flex;flex-direction:column;gap:10px}
 :root[data-ui="hevier"] .hv-xd-sess{padding:12px 14px}
 :root[data-ui="hevier"] .hv-xd-st{font-weight:700;display:flex;gap:8px;align-items:center}
@@ -471,8 +487,8 @@
 :root[data-ui="hevier"] .hv-xd-set{display:flex;gap:12px;font-size:14px;padding:3px 0;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-n{width:16px;color:var(--label-2);text-align:end}
 :root[data-ui="hevier"] .hv-xd-pin{display:flex;gap:6px;align-items:flex-start}
-/* The sheet keeps one height across its tabs, so switching tabs never moves the tabs themselves. */
 :root[data-ui="hevier"] .hv-xd{min-height:min(78vh,720px)}
+:root[data-ui="hevier"] .hv-xd-sub{min-height:0}
 :root[data-ui="hevier"] .hv-xd h4.sec{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-xd h4.sec .icn{color:var(--hv-record,var(--yellow))}
 
@@ -545,6 +561,9 @@
 :root[data-ui="hevier"] .hv-wd-row .hv-pr-kinds{grid-column:2/-1;grid-row:2;font-size:12px;font-weight:600}
 :root[data-ui="hevier"] .hv-exhd .hv-pr-kinds{font-size:12px;font-weight:600;text-align:right}
 :root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
+/* D133: effort in its own column, then the heart rate; fixed widths keep the columns aligned row to row. */
+:root[data-ui="hevier"] .hv-wd-rpe{min-width:2.6em;text-align:center;font-weight:600}
+:root[data-ui="hevier"] .hv-wd-hrc{min-width:3.4em;text-align:end}
 :root[data-ui="hevier"] .hv-wd-row span:first-child{text-align:center;font-weight:600}
 :root[data-ui="hevier"] .hv-wd-w{color:var(--hv-warmup,var(--yellow))}
 /* A timed hold (D89) reads H where its number would be, as a warm-up reads W. */
@@ -652,7 +671,7 @@
 :root[data-ui="hevier"] .hv-cable .icn{width:13px;height:13px}
 :root[data-ui="hevier"] .hv-xd-labels{display:flex;align-items:center;gap:8px;margin:10px 0}
 :root[data-ui="hevier"] .hv-xd-labels .hv-chip{margin-inline-start:auto;flex:none}
-:root[data-ui="hevier"] .hv-xd-label{display:block;min-width:0;background:var(--surface-2);color:var(--label);border:0;border-radius:999px;padding:8px 10px;font-size:14px;max-width:100%}
+:root[data-ui="hevier"] .hv-xd-label{display:block;min-width:0;min-height:44px;background:var(--surface-2);color:var(--label);border:0;border-radius:999px;padding:8px 10px;font-size:14px;max-width:100%}
 /* Two labels' histories side by side (D96). */
 :root[data-ui="hevier"] .hv-xd-cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;margin-top:10px}
 :root[data-ui="hevier"] .hv-xd-cmpcol .hv-xd-label{width:100%;margin-bottom:8px}
