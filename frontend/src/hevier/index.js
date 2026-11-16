@@ -39,6 +39,7 @@ import { moveHomeIntoS, HOME_KEY } from './lib/home-layout.js'
 import { moveFoldersIntoS, FOLDERS_KEY, CLOSED_KEY } from './lib/routine-folders.js'
 import { rowMode, setNumberOf } from './lib/hold-set.js'
 import { pinOn } from './lib/plan-pins.js'
+import { queueStatus } from './lib/next-planned.js'
 import { restartOnRedo } from './lib/rotation-restart.js'
 import { initSideRoutines } from './lib/one-limb.js'
 import { useStatsS } from './lib/shared-phase-run.js'
@@ -87,7 +88,8 @@ function install() {
   hooks.tourPresetOnly = true                             // a new profile picks how much app, without upstream's tour (S53, D97, D100)
   hooks.setMode = rowMode                                  // a hold in a reps exercise reads as a hold (S48, D89)
   hooks.setNumber = setNumberOf                            // a set's number in toasts as the table shows it (S62, D89)
-  Object.assign(hooks, { pinOn, keepPinsOnRefill: true, redoPass: restartOnRedo })  // a planned day trains what was picked, a refill keeps it, a redo restarts the pass (S63, S64, S65, D124)
+  Object.assign(hooks, { pinOn, keepPinsOnRefill: true, redoPass: restartOnRedo })  // a planned day trains what was picked, a refill keeps it, a redo restarts the pass (S63, S64, S65, S67, D124)
+  hooks.queueStatus = queueStatus                          // the rotation line names the Calendar's next planned day (S66, D124)
   initProgDefault(store)                                  // the profile's default rule is Off until chosen (D61, upstream's #814)
   initExUnits(store)                                      // the fork's units per exercise move into upstream's pin (D41, #657)
   hooks.plainRoutine = { is: isPlain, rows: plainRows }   // a routine opens at last time's sets, no ramp (S40, D69)

@@ -3435,7 +3435,9 @@ function DayOverride({ iso, close }) {
   const hasOvr = st.dayPlan[iso] !== undefined
   // A fulfilled pin (a coach session pinned here and since done) reads as no override, as it does
   // everywhere else — the row to clear the leftover entry stays.
-  const changed = hasOvr && pinState(st, st.dayPlan[iso]) !== 'done'
+  // [hevier] S67: a planned day trains what was picked (D124)
+  const changed = hasOvr && (hooks.pinOn ? hooks.pinOn(st, iso, st.dayPlan[iso]) : pinState(st, st.dayPlan[iso])) !== 'done'
+  // [/hevier]
   // The plan the day would have without its override — the weekday's routines, and in a coach
   // week the queue's session for the day in front of them, same as the Home row shows.
   const { [iso]: _ovr, ...noOvr } = st.dayPlan
