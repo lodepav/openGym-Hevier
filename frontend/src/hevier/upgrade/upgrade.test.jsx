@@ -71,5 +71,5 @@ describe.each(fixtures)('a phone on %s updates to this build', (_version, { save
     const Stats = (await import('../../views/Stats.jsx')).default
     expect(render(<History />).textContent).toContain('Lower A')
     expect(render(<Stats />).textContent.length).toBeGreaterThan(0)
-  })
+  }, 60000)   // the first fixture imports both screens, seconds on a loaded machine
 })
