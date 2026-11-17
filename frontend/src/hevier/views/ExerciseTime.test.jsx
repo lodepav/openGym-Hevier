@@ -83,9 +83,9 @@ describe('hevier: exercise time page', () => {
     ] }
     render('/exercise-time', [w])
     const row = name => [...container.querySelectorAll('.hv-report-row')].find(b => new RegExp(name, 'i').test(b.textContent))
-    expect(row('bench').textContent).toContain('Between sets 2min 30s · rest set to 1min 30s')
+    expect(row('bench').textContent).toContain('Between sets 2:30 · rest set to 1:30')
     expect(row('squat').textContent).not.toContain('Between sets')
     act(() => chip('Gym').click())
-    expect(row('bench').textContent).toContain('Between sets 2min 30s')
+    expect(row('bench').textContent).toContain('Between sets 2:30')
   })
 })

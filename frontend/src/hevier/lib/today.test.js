@@ -28,6 +28,7 @@ describe('Today: the sets the next session opens with (D134)', () => {
   it('collapses equal sets, lists different ones, leaves warm-ups out', () => {
     expect(setsText([{ kind: 'warm', n: 0 }, ...[0, 1, 2].map(k => ({ kind: 'work', k, w: 60, reps: 8 }))])).toBe('3 sets · 60 × 8')
     expect(setsText([{ kind: 'work', w: 80, reps: 8 }, { kind: 'work', w: 55, reps: 13 }])).toBe('80 × 8, 55 × 13')
+    expect(setsText([8, 8, 7, 6].map(reps => ({ kind: 'work', w: 80, reps })))).toBe('80 × 8 ×2, 80 × 7, 80 × 6')
     expect(setsText([{ kind: 'work', w: 0, reps: 12 }])).toBe('× 12')
     expect(setsText([{ kind: 'work', w: 0, sec: 45 }])).toBe('45 s')
     expect(setsText([{ kind: 'work', min: 20, speed: 8 }])).toBe('20 min')
@@ -57,7 +58,7 @@ describe('Today: the card shows what the routine’s page shows (D128)', () => {
     expect(card()).toMatchObject({ [BENCH]: '65 × 8, 65 × 7, 65 × 6', [CALF]: '20 × 12/9, 20 × 11/9', [PLANK]: '60 s, 50 s' })
     setPlanned(s, PLAIN.id, BENCH, '1', null, 'r', 8)
     setPlanned(s, PLAIN.id, BENCH, '2', null, 'w', 62.5)
-    expect(card()[BENCH]).toBe('2 sets · 65 × 8, 62.5 × 6')
+    expect(card()[BENCH]).toBe('65 × 8 ×2, 62.5 × 6')
   })
 })
 

@@ -50,6 +50,17 @@ describe('hevier muscle set counts', () => {
     expect(r.load.chest).toBeGreaterThan(0)
   })
 
+  it('lights the body map as Settings → Muscle sets says (D42)', () => {
+    const ws = [W('2026-10-16', [set(), set()])]
+    const main = lastDays(ws, '2026-10-16', 7, 'main').load
+    expect(main.chest).toBe(2)
+    expect(main.triceps || 0).toBe(0)
+    expect(Object.keys(main).filter(k => main[k] > 0)).toEqual(['chest'])
+    const share = lastDays(ws, '2026-10-16', 7, 'share').load
+    expect(share).toEqual(loadOfWorkouts(ws))
+    expect(share.triceps).toBeGreaterThan(0)
+  })
+
   it('shades the week in fixed steps, not against the busiest muscle (review T2)', () => {
     const lv = levelsOf({ chest: 14, 'upper-back': 12, triceps: 9, biceps: 5, calves: 2, abs: 0 }, WEEK_HEAT)
     expect([lv.chest, lv['upper-back'], lv.triceps, lv.biceps, lv.calves, lv.abs]).toEqual([4, 4, 3, 2, 1, 0])

@@ -2,9 +2,9 @@
 // map, and the set count per muscle group for this week, month or year against the one before.
 // Counted as Settings → Muscle sets says (D42, hevier/lib/volume.js muscleSets): each set for its
 // main muscle, or with upstream's own load, a secondary muscle getting its share. The body map
-// keeps upstream's load. Nothing is stored.
+// follows the same setting. Nothing is stored.
 import { loadOfWorkouts } from '../../lib/muscles.js'
-import { muscleSets } from './volume.js'
+import { muscleSets, mainMuscleLoad } from './volume.js'
 import { workoutDay } from '../../lib/history.js'
 import { isoOf, weekKey } from '../../lib/format.js'
 
@@ -59,11 +59,11 @@ export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main
 export const WEEK_HEAT = [{ at: 0, level: 1, exclusive: true }, { at: 4, level: 2 }, { at: 8, level: 3 }, { at: 12, level: 4 }]
 
 /** The last `days` days up to `today`, oldest first, each marked trained or not, with the
- *  muscle load of the workouts in them (for the body map). */
-export function lastDays(workouts, today, days = 7) {
+ *  muscle load of the workouts in them (for the body map), by `mode` ('main' or 'share', D42). */
+export function lastDays(workouts, today, days = 7, mode = 'main') {
   const span = { from: plusDays(today, 1 - days), to: today }
   const ws = within(workouts, span)
   const trained = new Set(ws.map(workoutDay))
   const list = Array.from({ length: days }, (_, i) => plusDays(span.from, i)).map(d => ({ d, trained: trained.has(d) }))
-  return { days: list, workouts: ws, load: loadOfWorkouts(ws) }
+  return { days: list, workouts: ws, load: mode === 'share' ? loadOfWorkouts(ws) : mainMuscleLoad(muscleSets(entriesOf(ws), 'main')) }
 }

@@ -18,7 +18,8 @@ function rowText(row) {
   return (w || '× ') + row.reps
 }
 
-/** A routine exercise's work sets as one line: "3 sets · 60 × 8", or each in turn ("80 × 8, 55 × 13"). */
+/** A routine exercise's work sets as one line: "3 sets · 60 × 8" when all are alike, else each run
+ *  in turn with its own count ("80 × 8 ×2, 80 × 7"), so a count never reads as the whole exercise's. */
 export function setsText(rows) {
   const runs = []
   for (const row of rows) {
@@ -27,7 +28,8 @@ export function setsText(rows) {
     if (runs.at(-1)?.v === v) runs.at(-1).n++
     else runs.push({ v, n: 1 })
   }
-  return runs.map(x => (x.n > 1 ? t('{0} sets', x.n) + ' · ' : '') + x.v).join(', ')
+  if (runs.length === 1 && runs[0].n > 1) return t('{0} sets', runs[0].n) + ' · ' + runs[0].v
+  return runs.map(x => x.v + (x.n > 1 ? ' ×' + x.n : '')).join(', ')
 }
 
 // One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".

@@ -1,5 +1,5 @@
 // The Today tab, the page the app opens on (hevier/DECISIONS.md D126, D134): when and where the
-// next session is, its first five exercises with their sets, Start, the week in one row, the round
+// next session is, its first five exercises with their sets (three on a short screen), Start, the week in one row, the round
 // and the streak in one line, the ways into planning, and the last workout. Settings is the gear.
 // The next day is next-planned.js's (D124), the rest is hevier/lib/today.js.
 import { useNavigate } from 'react-router-dom'
@@ -24,6 +24,8 @@ import { workSets } from '../lib/volume.js'
 import { workoutRecords } from '../lib/records.js'
 
 const SHOWN = 5
+// Three on a screen as short as 320×568 dp, so Start stays above the fold. Read once per render, not on a resize.
+const shown = () => { try { return globalThis.matchMedia?.('(max-height: 600px)').matches ? 3 : SHOWN } catch { return SHOWN } }
 
 /** The gear in a tab's page bar, with the connection-trouble dot Home's had. */
 export function SettingsGear() {
@@ -47,12 +49,13 @@ function NextCard({ S, next, today }) {
   const name = routines.map(r => r.name).join(' + ')
   const exs = sessionSets(S, next.ids)
   const gym = gymName(S, S.activeEquipId)
-  const more = exs.length - SHOWN
+  const n = shown()
+  const more = exs.length - n
   return <>
     <div className="card hv-next">
       <div className="hv-cap">{[t('Next'), whenText(next.iso, today), gym].filter(Boolean).join(' · ')}</div>
       <h2 className="hv-next-n">{name}</h2>
-      {exs.slice(0, SHOWN).map(x => {
+      {exs.slice(0, n).map(x => {
         const ex = exOr(x.id)
         return <div key={x.key} className="hv-next-ex">
           <span className={'grow ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>

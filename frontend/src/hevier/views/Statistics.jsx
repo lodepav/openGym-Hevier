@@ -10,6 +10,7 @@ import BodyMap from '../../components/BodyMap.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
 import { lastDays, WEEK_HEAT } from '../lib/muscle-sets.js'
+import { muscleMode } from '../lib/volume.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
@@ -35,7 +36,7 @@ export function LinkRow({ icon, title, sub, onClick }) {
 }
 
 function LastSevenDays({ S, today }) {
-  const { days, workouts, load } = lastDays(S.workouts, today, 7)
+  const { days, workouts, load } = lastDays(S.workouts, today, 7, muscleMode(S))
   return <div className="card">
     <h2>{t('Last 7 days body graph')}</h2>
     <div className="hv-week">{days.map(d => <div key={d.d} className={'hv-day' + (d.trained ? ' on' : '') + (d.d === today ? ' today' : '')}>

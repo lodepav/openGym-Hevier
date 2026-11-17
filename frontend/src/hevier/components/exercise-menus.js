@@ -4,7 +4,9 @@
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum } from '../../lib/format.js'
 import { canBeWarmup, setSpanAt, EFFORT, isPerSide } from '../../lib/history.js'
-import { REST_MAX, fmtRest } from '../../lib/duration.js'
+import { REST_MAX, restWheelValue } from '../../lib/duration.js'
+import { ownExerciseRest } from '../../lib/supersetFlow.js'
+import { restTimerText } from '../lib/elapsed.js'
 import { durationSheet } from '../../components/DurationWheel.jsx'
 import { isWarmupRow, isFailureSet, isDropSet, isRestPauseSet } from '../../lib/workout-model.js'
 import { menuSheet, effortPickerSheet, barWeightSheet } from '../../sheets.jsx'
@@ -56,17 +58,47 @@ export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailu
   })
 }
 
-const restText = (own, dflt) => (own == null ? t('Default ({0})', fmtRest(dflt)) : own === 0 ? t('No timer') : fmtRest(own))
+// The fallback is named by where it comes from: the exercise's rest (or what it takes from Settings).
+const restText = (own, dflt) => (own == null ? t('This exercise ({0})', restTimerText(dflt, 0, t('Off')))
+  : own === 0 ? t('No timer') : restTimerText(own, 0, ''))
 
-// Upstream's three choices for a set's own rest: the default, none, or a time from the wheel.
+// Upstream's three choices for a set's own rest: the exercise's, none, or a time from the wheel.
 function setRestMenu({ own, dflt, save }) {
   menuSheet({
     title: t('Rest after this set'),
     items: [
       { icon: 'timer', label: restText(null, dflt), on: own == null, onClick: () => save(null) },
       { icon: 'pause', label: t('No timer'), on: own === 0, onClick: () => save(0) },
-      { icon: 'clock', label: t('Pick a time'), on: own > 0, onClick: () => durationSheet({
+      { icon: 'clock', label: own > 0 ? t('Pick a time') + ' · ' + restTimerText(own, 0, '') : t('Pick a time'), on: own > 0, onClick: () => durationSheet({
         title: t('Rest after this set'), value: own > 0 ? own : dflt, max: REST_MAX, off: t('No timer'), onDone: sec => save(sec > 0 ? sec : 0) }) },
+    ],
+  })
+}
+
+// The card's rest button: upstream's "Rest for this exercise" (views/Workout.jsx openExerciseRest),
+// with the Settings rest named and a picked time shown. It writes restSec / restOff as upstream does.
+// `S` is read fresh when the button is tapped.
+export function exerciseRestMenu(S, update, idx) {
+  const entry = S.active?.entries?.[idx]
+  if (!entry) return
+  const activeId = S.active.id
+  const entryId = entry.id
+  const own = ownExerciseRest(entry.target)
+  const setRest = sec => update(s => {
+    const e = s.active?.id === activeId ? s.active.entries?.[idx] : null
+    if (!e || e.id !== entryId) return
+    const { restSec: _sec, restOff: _off, ...target } = e.target || {}
+    e.target = sec == null ? target : sec > 0 ? { ...target, restSec: sec } : { ...target, restOff: true }
+  })
+  menuSheet({
+    title: t('Rest for this exercise'),
+    items: [
+      { icon: 'timer', label: t('Settings ({0})', restTimerText(S.restSec, 0, t('Off'))), on: own == null, onClick: () => setRest(null) },
+      { icon: 'pause', label: t('No timer'), on: own === 0, onClick: () => setRest(0) },
+      { icon: 'clock', label: own > 0 ? t('Pick a time') + ' · ' + restTimerText(own, 0, '') : t('Pick a time'), on: own > 0, onClick: () => durationSheet({
+        title: t('Rest for this exercise'), value: restWheelValue(own, S.restSec), max: REST_MAX, off: t('No timer'),
+        onDone: v => setRest(v > 0 ? v : 0),
+      }) },
     ],
   })
 }

@@ -57,6 +57,15 @@ describe('hevier: Today (D134)', () => {
     expect(path).toBe('/plan/r/r1/view')
   })
 
+  it('on a short screen shows three, so Start stays on it', () => {
+    vi.stubGlobal('matchMedia', q => ({ matches: q === '(max-height: 600px)' }))
+    try {
+      render({ dayPlan: { '2026-11-17': 'r1' } })
+      expect(container.querySelectorAll('.hv-next .hv-next-ex')).toHaveLength(3)
+      expect(btn('4 more · open the plan')).toBeTruthy()
+    } finally { vi.unstubAllGlobals() }
+  })
+
   it('Start opens the next routine', () => {
     render({ dayPlan: { '2026-11-17': 'r1' } })
     act(() => btn('Start Upper A').click())

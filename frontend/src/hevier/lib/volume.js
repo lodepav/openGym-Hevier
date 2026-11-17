@@ -4,7 +4,7 @@
 // a per-side hold's L/R pair (hold-set.js). Settings →
 // Muscle sets (D42) can count a secondary muscle too, in part, with upstream's load.
 import { EXIDX } from '../../lib/exercises.js'
-import { loadOf, MUSCLE_NAME } from '../../lib/muscles.js'
+import { loadOf, MUSCLE_NAME, canonicalMuscle, GENERIC } from '../../lib/muscles.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { muscleOf } from './exercise-picker.js'
 import { setUnits } from './hold-set.js'
@@ -45,4 +45,17 @@ export function muscleSets(entries, mode = 'main') {
   }
   return [...by].map(([muscle, sets]) => ({ muscle, sets: tenth(sets) })).filter(r => r.sets > 0)
     .sort((a, b) => b.sets - a.sets || a.muscle.localeCompare(b.muscle))
+}
+
+/** The body map's load (upstream's slugs) for muscleSets' 'main' rows, so the map lights only the
+ *  muscles the bars count. Shoulders spreads over its heads as upstream's does; Cardio has no slug. */
+export function mainMuscleLoad(rows) {
+  const load = {}
+  for (const { muscle, sets } of rows || []) {
+    // Upstream files the neck's levator scapulae under the traps; it has no slug of its own.
+    const slug = muscle === 'Neck' ? 'trapezius' : canonicalMuscle(muscle)
+    if (!slug) continue
+    for (const [s, f] of Object.entries(GENERIC[slug] || { [slug]: 1 })) load[s] = (load[s] || 0) + f * sets
+  }
+  return load
 }
