@@ -16,12 +16,14 @@ import Icon from '../../components/Icon.jsx'
 import { BackTo } from './Statistics.jsx'
 import { timedSessions, timeSections, periodSince } from '../lib/exercise-time.js'
 import { setGaps } from '../lib/set-gaps.js'
-import { elapsedWords, restTimerText } from '../lib/elapsed.js'
+import { elapsedWords, elapsedClock, restTimerText } from '../lib/elapsed.js'
 import { mainMuscleOf } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
 
 const PERIODS = [['30d', '30 days'], ['90d', '90 days'], ['year', 'Year'], ['all', 'All']]
 const secs = ms => elapsedWords(Math.round(ms / 1000))
+// A gap between sets reads as a clock, as the rest beside it does.
+const clock = ms => elapsedClock(Math.round(ms / 1000))
 
 export default function ExerciseTime() {
   const st = useStore(s => s.S)
@@ -58,7 +60,7 @@ export default function ExerciseTime() {
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
           <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
             <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')} · {secs(r.total)} {t('total')}</span>
-            {g && <span className="small dim">{g.rest > 0 ? t('Between sets {0} · rest set to {1}', secs(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', secs(g.gap))}</span>}
+            {g && <span className="small dim">{g.rest > 0 ? t('Between sets {0} · rest set to {1}', clock(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', clock(g.gap))}</span>}
           </span>
           <b><span className="hv-sr">{t('Average')}: </span>{secs(r.avg)}</b>
         </button>
