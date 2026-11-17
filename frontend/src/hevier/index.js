@@ -45,6 +45,7 @@ import { initSideRoutines } from './lib/one-limb.js'
 import { useStatsS } from './lib/shared-phase-run.js'
 import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
+import { initSheetToast } from './lib/sheet-toast-run.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
 import { initClockOff } from './lib/clock-off-run.js'
@@ -98,6 +99,7 @@ function install() {
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
   initClockOff(store)                                     // a Timer countdown ends when Timer and Stopwatch are switched off (D117)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
+  initSheetToast()                                        // a sheet opening takes the page's toast with it
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
   initLabelRefill(store)                                  // a new brand or gym refills the untouched sets (D82)
   initNextPlan(store)                                     // a routine opens with the numbers planned for it, used up when saved (D128)

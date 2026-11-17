@@ -764,6 +764,8 @@
 :root[data-ui="hevier"] .hv-report-more{width:100%;margin-top:8px}
 :root[data-ui="hevier"] .hv-msets-cap{margin:6px 0 2px}
 :root[data-ui="hevier"] .hv-allstats + .hdr{display:none}
+/* D135 (2026-11-17): upstream's week streak card goes from All statistics; the fork's streak (D59) is on Today and Calendar. */
+:root[data-ui="hevier"] .hv-allstats ~ .stats-sect [data-streak-card]{display:none}
 :root[data-ui="hevier"] .hv-planbar + .plan > .hdr h1{display:none}
 
 /* Equipment by group (D63): a gym's checklist, each group a chip with its chevron at the right edge. */
@@ -936,7 +938,13 @@
 :root[data-ui="hevier"] .hv-htile{flex:1;min-width:0;display:flex;flex-direction:column;padding:10px 12px;border-radius:var(--r);background:var(--surface);font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-htile b{font-size:20px;font-weight:800;color:var(--label);white-space:nowrap}
 :root[data-ui="hevier"] .hv-htile .hv-pr{display:inline-flex;align-items:center;gap:3px}
-:root[data-ui="hevier"] .hv-chips.hv-hlinks{flex-wrap:wrap;margin-bottom:12px}
+/* The chips in two labelled rows, 48 dp tall (A1) with no reach past them; the second scrolls sideways (D135, 2026-11-17). */
+:root[data-ui="hevier"] .hv-hgroup{margin-top:12px}
+:root[data-ui="hevier"] .hv-hgroup:not(:has(+ .hv-hgroup)){margin-bottom:12px}
+:root[data-ui="hevier"] .hv-chips.hv-hlinks{flex-wrap:wrap;margin-top:6px}
+:root[data-ui="hevier"] .hv-chips.hv-hlinks.hv-hscroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+:root[data-ui="hevier"] .hv-hlinks .hv-chip{flex:none;display:inline-flex;align-items:center;min-height:48px;padding:0 16px;font-size:14px;white-space:nowrap}
+:root[data-ui="hevier"] .hv-hlinks .hv-chip::after{content:none}
 
 /* ---------- Lifts (hevier/views/Lifts.jsx, D135) ---------- */
 :root[data-ui="hevier"] .hv-lifts-by{margin-top:10px}

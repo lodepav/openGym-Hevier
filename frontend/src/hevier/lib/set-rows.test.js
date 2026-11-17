@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dropsOf, clustersOf, isFailureSet, makeSideSet, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
-import { withDrop, withoutDrop, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField } from './set-rows.js'
+import { withDrop, withoutDrop, withDropAt, withDropField, withBurst, withoutBurst, withBurstReps, withFailure, withSideField } from './set-rows.js'
 
 describe('hevier: the Hevy block’s row edits', () => {
   it('adds a drop lighter than the set, then lighter than the last drop, and edits and removes it', () => {
@@ -12,6 +12,20 @@ describe('hevier: the Hevy block’s row edits', () => {
     expect(dropsOf(two)[1].w).toBeLessThan(dropsOf(two)[0].w)
     expect(dropsOf(withDropField(two, 1, 'r', 5))[1].r).toBe(5)
     expect(dropsOf(withoutDrop(two, 0))).toEqual([dropsOf(two)[1]])
+  })
+
+  it('puts a removed drop back at its place with its values', () => {
+    const three = { w: 100, r: 8, type: 'dropset', drops: [{ w: 80, r: 6 }, { w: 60, r: 5 }, { w: 40, r: 4 }] }
+    expect(withDropAt(withoutDrop(three, 1), 1, three)).toEqual(three)
+    const one = { w: 100, r: 8, type: 'dropset', drops: [{ w: 80, r: 6 }] }
+    expect(withoutDrop(one, 0).type).toBe('straight')
+    expect(withDropAt(withoutDrop(one, 0), 0, one)).toEqual(one)
+    const side = withDrop(withDrop(makeSideSet({ w: 20, r: 10 })))
+    const back = withDropAt(withoutDrop(side, 0), 0, side)
+    expect(dropsOf(back.sides.L)).toEqual(dropsOf(side.sides.L))
+    expect(dropsOf(back.sides.R)).toEqual(dropsOf(side.sides.R))
+    expect(back.type).toBe('dropset')
+    expect(withDropAt(undefined, 0, one)).toBeUndefined()
   })
 
   it('keeps a rest-pause row’s reps the total of its bursts', () => {

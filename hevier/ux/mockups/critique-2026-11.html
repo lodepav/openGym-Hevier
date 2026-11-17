@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Critique proposals mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens copied from frontend/src/hevier/theme.css and DESIGN.md (D123), accent green #34d08a. The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#34d08a; --acc-t:rgba(52,208,138,.22); --done:rgba(52,208,138,.10); --on-acc:#000; --yellow:#efab03; --red:#e34b37; --blue:#40a8ff;
+  --r-sm:14px; --r:20px; --r-card:26px; --page:#0b0a08;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 'Nunito',Roboto,system-ui,sans-serif; padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; }
+h2 { font-size:20px; font-weight:800; margin:48px 0 4px; padding-top:20px; border-top:1px solid var(--sep); }
+h3 { font-size:16px; font-weight:800; margin:22px 0 2px; }
+.rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:2px; }
+p.lead { color:var(--label-2); max-width:76ch; margin:6px 0 0; }
+p.lead b { color:var(--label); }
+ul.moves { color:var(--label-2); max-width:84ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+code { font-size:13px; color:var(--label); }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+figcaption b { color:var(--label); }
+.n320 + figcaption, figure.narrow figcaption { width:320px; }
+.phone { width:411px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.phone.n320 { width:320px; }
+.bar { padding:40px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--sep); min-height:92px; }
+.bar .t { flex:1; text-align:center; font-size:17px; font-weight:700; }
+.bar .i { width:24px; color:var(--label-2); text-align:center; }
+.body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--label-2); padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:var(--acc-t); border-color:var(--acc); opacity:1; }
+.card { border-radius:var(--r-card); box-shadow:inset 0 0 0 1px var(--sep); padding:14px 16px; }
+.card.fill { background:var(--surface); box-shadow:none; }
+.cap { font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--label-2); text-transform:uppercase; }
+.big { font-size:22px; font-weight:800; line-height:1.15; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.btn { background:var(--acc); color:var(--on-acc); font-weight:800; font-size:16px; text-align:center; border-radius:99px; padding:13px; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--surface); border-radius:99px; padding:6px 12px; font-weight:700; font-size:13px; }
+.chip.tall { padding:0 16px; min-height:48px; display:inline-flex; align-items:center; font-size:14px; }
+.li { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--sep); }
+.li:last-child { border-bottom:0; }
+.li .r { color:var(--label-2); white-space:nowrap; }
+.nav { display:flex; align-items:center; min-height:48px; border-bottom:1px solid var(--sep); gap:10px; font-weight:700; }
+.nav:last-child { border-bottom:0; }
+.nav .r { margin-left:auto; color:var(--label-2); font-weight:500; font-size:13px; }
+.nav .c { color:var(--label-2); }
+.days { display:flex; gap:5px; }
+.days span { flex:1; background:var(--surface); border-radius:var(--r-sm); text-align:center; padding:8px 0; font-size:12px; color:var(--label-2); }
+.days .d { color:var(--acc); }
+.days .p { box-shadow:inset 0 0 0 2px var(--acc); color:var(--label); }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; }
+.seg span { flex:1; text-align:center; padding:8px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); }
+.seg .on { background:#48433b; color:var(--label); }
+.tiles { display:flex; gap:8px; }
+.tile { flex:1; min-width:0; background:var(--surface); border-radius:var(--r); padding:10px 12px; font-size:12px; color:var(--label-2); display:flex; flex-direction:column; }
+.tile b { font-size:20px; font-weight:800; color:var(--label); white-space:nowrap; }
+.medals { display:flex; gap:6px; }
+.medals span { flex:1; background:var(--surface); border-radius:var(--r-sm); text-align:center; padding:10px 0 8px; font-size:13px; font-weight:700; }
+.medals span i { display:block; width:18px; height:18px; border-radius:50%; margin:0 auto 4px; background:#8a6a3c; }
+.pic { width:36px; height:36px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.ex { display:flex; align-items:center; gap:10px; }
+.ex b { color:var(--acc); font-weight:800; font-size:17px; flex:1; }
+.brand { border-radius:99px; padding:7px 12px; font-size:13px; font-weight:700; background:var(--surface); color:var(--label-2); white-space:nowrap; }
+.acts { display:flex; gap:6px; }
+.acts span { flex:1; text-align:center; background:var(--surface); border-radius:var(--r-sm); padding:7px 0 6px; font-size:11px; font-weight:700; }
+.acts span i { display:block; font-style:normal; font-size:14px; line-height:1.2; }
+/* the set table */
+.thd, .st { display:grid; grid-template-columns:28px 62px 1fr 1fr 88px; align-items:center; gap:6px; }
+.thd { font-size:11px; font-weight:700; color:var(--label-2); letter-spacing:.04em; padding:0 4px; }
+.thd span:last-child { text-align:center; }
+.st { padding:6px 4px; font-weight:700; font-variant-numeric:tabular-nums; }
+.st .s { text-align:center; font-weight:800; }
+.st .s.w { color:var(--yellow); } .st .s.f { color:var(--red); }
+.st .pv { color:var(--label-2); font-size:13px; font-weight:500; white-space:nowrap; }
+.st .v { text-align:center; }
+.st.done { background:var(--done); border-radius:var(--r-sm); }
+.st.cur { background:var(--surface-3); border-radius:var(--r-sm); box-shadow:inset 3px 0 0 var(--acc); padding:10px 4px; }
+.st.cur .v { background:var(--bg); border-radius:var(--r-sm); padding:8px 0; font-size:26px; font-weight:800; }
+.st .v.g { color:var(--label-2); }
+.st .end { display:flex; gap:6px; align-items:center; justify-content:flex-end; }
+.tick { width:44px; height:44px; border-radius:50%; background:var(--acc); color:var(--on-acc); display:flex; align-items:center; justify-content:center; font-weight:800; }
+.tick.off { background:#48433b; color:var(--label-2); }
+.lab { font-size:12px; color:var(--label-2); background:var(--surface); border-radius:99px; padding:6px 8px; }
+.pill { flex:1; min-height:44px; border-radius:99px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; box-shadow:inset 0 0 0 1px var(--sep); }
+.pill.ring { background:#48433b; box-shadow:inset 0 0 0 3px var(--acc); }
+.split { flex:1; display:flex; min-height:48px; border-radius:99px; overflow:hidden; box-shadow:inset 0 0 0 3px var(--acc); }
+.split span { flex:1; display:flex; align-items:center; justify-content:center; font-weight:800; }
+.split .k { background:var(--acc); color:var(--on-acc); }
+.split .r { background:#48433b; font-size:14px; }
+.st.wide { grid-template-columns:28px 58px 1fr 1fr 104px; }
+.addrow { display:flex; gap:8px; }
+.addrow span { flex:1; background:var(--surface); border-radius:99px; text-align:center; padding:12px; font-weight:700; }
+/* live header */
+.top { padding:40px 12px 10px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--sep); min-height:92px; }
+.top .ch { width:44px; flex:none; text-align:center; color:var(--label-2); font-size:18px; }
+.top .nm { flex:1; min-width:0; display:flex; align-items:center; gap:4px; font-size:17px; font-weight:800; }
+.top .nm span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.top .nm i { font-style:normal; color:var(--label-2); font-size:13px; flex:none; }
+.top .tm { flex:none; color:var(--acc); font-weight:700; font-size:14px; font-variant-numeric:tabular-nums; }
+.top .hr { flex:none; min-width:44px; text-align:center; font-weight:700; font-size:14px; }
+.top .hr u { text-decoration:none; color:var(--red); }
+.top .al { flex:none; min-width:36px; text-align:center; color:var(--label-2); }
+.top .fin { flex:none; background:var(--acc); color:var(--on-acc); font-weight:800; border-radius:99px; padding:9px 16px; font-size:14px; }
+.top .duo { flex:none; min-width:52px; min-height:48px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:13px; font-weight:700; line-height:1.25; font-variant-numeric:tabular-nums; }
+.top .duo span:first-child { color:var(--acc); }
+.top .duo u { text-decoration:none; color:var(--red); }
+.det { padding:8px 16px 10px; border-bottom:1px solid var(--sep); display:flex; flex-direction:column; gap:6px; color:var(--label-2); font-size:14px; }
+.det .dl { display:flex; gap:10px; align-items:center; min-height:40px; }
+.dock { border-top:1px solid var(--sep); padding:10px 12px 16px; display:flex; flex-direction:column; gap:8px; }
+.rest { background:var(--surface-3); border-radius:var(--r-card); padding:12px 14px; }
+.rest .h { display:flex; align-items:flex-end; gap:10px; }
+.rest .h b { font-size:50px; font-weight:800; line-height:1; flex:1; }
+.rest .h span { text-align:right; color:var(--label-2); font-size:13px; }
+.rest .h span b { display:block; font-size:22px; color:var(--label); line-height:1.2; }
+.barp { height:8px; border-radius:99px; background:var(--sep); margin:10px 0; }
+.barp i { display:block; height:100%; width:55%; border-radius:99px; background:var(--acc); }
+.rb { display:flex; gap:6px; }
+.rb span { flex:1; text-align:center; background:var(--bg); border-radius:var(--r-sm); padding:13px 0; font-weight:800; font-size:15px; min-height:48px; }
+.sheet { position:absolute; left:0; right:0; bottom:0; background:var(--surface); border-radius:var(--r-card) var(--r-card) 0 0; padding:10px 18px 26px; }
+.sheet .grab { width:40px; height:4px; border-radius:9px; background:var(--sep); margin:0 auto 10px; }
+.dimmed { opacity:.35; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); vertical-align:top; }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+td.ev { color:var(--label-2); min-width:320px; max-width:56ch; }
+.verdict { margin-top:14px; max-width:84ch; }
+.verdict b { color:var(--acc); }
+</style>
+</head>
+<body>
+<h1>Four proposals from the design critique</h1>
+<p class="lead">2026-11-17, branch <code>hevier/design-fixes</code>. Each proposal shows the screen as it is now, redrawn from the emulator pictures (411 dp; 320 dp for the header), then two or three versions, each scored against the current screen with the <code>before-after</code> lines. Scored from the pictures and the code, not on the emulator: no TalkBack, contrast not measured. Exercise pictures are grey circles. <b>Numbers, names and dates are made up.</b> Where a version changes a decision it says so; you decide.</p>
+
+<!-- ============================ 1. STREAK ============================ -->
+<h2>1 · Two streaks that disagree</h2>
+<p class="lead">Today and Calendar read the fork's streak (D59, <code>frontend/src/hevier/lib/streak.js</code>): weeks from the first to the last trained week, where <b>one week off does not break it</b> and two do; once a run that only <b>two months off</b> break spans a year, it shows in years ("1.4 year streak"). All statistics (History, More) is upstream's card (<code>frontend/src/lib/streak.js</code>, <code>components/Streak.jsx</code>): <b>weeks in a row with at least one workout</b>, where a missed week breaks the run unless a freeze covers it (one freeze per 4 trained weeks, at most 2), with the best run and medals. So after a holiday of two weeks without freezes, one reads 1.4 years and the other 2 weeks, best 61. Both are right; they count different things under one name.</p>
+<div class="row">
+<figure><div class="phone" style="height:560px"><div class="bar"><span class="i"></span><span class="t">Today</span><span class="i">⚙</span></div><div class="body">
+<div class="card"><div class="cap">Next · Tomorrow, Wed · North Club</div><div class="big" style="margin:4px 0 8px">Upper A</div>
+<div class="li"><span>Incline Chest Press</span><span class="r">3 sets · 70 × 8</span></div><div class="li"><span>Seated Row</span><span class="r">3 sets · 60 × 10</span></div><div class="li"><span>Lateral Raise</span><span class="r">3 sets · × 12</span></div></div>
+<div class="btn">Start Upper A</div>
+<div class="days"><span>Mo</span><span class="d">✓<br>Tu</span><span class="p">We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+<div class="dim">1 of 3 done this week · <span style="color:var(--label)">1.4 year streak</span></div>
+</div></div><figcaption><b>Now: Today.</b> The fork's streak (D59). Calendar shows the same line: "1.4 year streak · 0 rest days".</figcaption></figure>
+
+<figure><div class="phone" style="height:560px"><div class="bar"><span class="i">‹</span><span class="t">All statistics</span><span class="i">↺</span></div><div class="body">
+<div class="seg"><span class="on">Overview</span><span>Body</span><span>Lifts</span><span>Effort</span></div>
+<div class="card fill"><div class="tiles" style="gap:0"><div style="flex:1"><div class="dim sm">Workouts</div><div class="big">212</div></div><div style="flex:1"><div class="dim sm">This month</div><div class="big">5</div></div><div style="flex:1"><div class="dim sm">Weight 30d</div><div class="big">–</div></div></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between"><span class="dim">Week streak</span><span class="dim">Best: 61</span></div>
+<div class="big" style="font-size:40px;margin:6px 0">2</div><div class="dim sm">Weeks in a row with at least one workout.</div>
+<div class="medals" style="margin-top:10px"><span><i></i>4</span><span><i style="background:#9aa0a6"></i>12</span><span><i style="background:#c9a227"></i>26</span><span><i style="background:#5fb8d6"></i>52</span><span class="dim"><i style="background:var(--sep)"></i>104</span></div>
+<div class="dim sm" style="margin-top:10px">2 more weeks with a workout earn a freeze.</div></div>
+</div></div><figcaption><b>Now: All statistics.</b> Upstream's week streak: 2, best 61, with medals and freezes. A page the owner never opens (REWORK.md, "Never opened").</figcaption></figure>
+</div>
+
+<h3>Versions</h3>
+<div class="row">
+<figure><div class="phone" style="height:470px"><div class="bar"><span class="i">‹</span><span class="t">All statistics</span><span class="i">↺</span></div><div class="body">
+<div class="seg"><span class="on">Overview</span><span>Body</span><span>Lifts</span><span>Effort</span></div>
+<div class="card fill"><div class="tiles" style="gap:0"><div style="flex:1"><div class="dim sm">Workouts</div><div class="big">212</div></div><div style="flex:1"><div class="dim sm">This month</div><div class="big">5</div></div><div style="flex:1"><div class="dim sm">Weight 30d</div><div class="big">–</div></div></div></div>
+<div class="card"><div class="dim">Streak</div><div class="big" style="margin:6px 0">1.4 years</div><div class="dim sm">Training since 3 May 2025. One week off does not break it; two months off do.</div></div>
+<div class="card"><div class="dim">Challenges</div><div style="font-weight:700">November · 1 of 3 done</div></div>
+</div></div><figcaption><b>A · One streak everywhere.</b> All statistics shows D59's streak with one line on how it counts. The medals, freezes and best run go. The home-screen widget and the share card also read upstream's streak (<code>lib/widgets.js</code>, <code>lib/share-card.js</code>); not checked whether the fork shows them.</figcaption></figure>
+
+<figure><div class="phone" style="height:470px"><div class="bar"><span class="i"></span><span class="t">Today</span><span class="i">⚙</span></div><div class="body">
+<div class="btn">Start Upper A</div>
+<div class="days"><span>Mo</span><span class="d">✓<br>Tu</span><span class="p">We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+<div class="dim">1 of 3 done this week · <span style="color:var(--label)">training for 1.4 years</span></div>
+<div class="card" style="margin-top:8px"><div class="dim sm">All statistics, unchanged:</div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Week streak <b>2</b></span><span class="dim">Best: 61</span></div><div class="dim sm">Weeks in a row with at least one workout.</div></div>
+</div></div><figcaption><b>B · Name them apart.</b> D59's line stops calling itself a streak: "training for 1.4 years" on Today, "Training for 1.4 years · 0 rest days" on Calendar. Upstream's card keeps "Week streak". Two numbers stay, under two names.</figcaption></figure>
+
+<figure><div class="phone" style="height:470px"><div class="bar"><span class="i">‹</span><span class="t">All statistics</span><span class="i">↺</span></div><div class="body">
+<div class="seg"><span class="on">Overview</span><span>Body</span><span>Lifts</span><span>Effort</span></div>
+<div class="card fill"><div class="tiles" style="gap:0"><div style="flex:1"><div class="dim sm">Workouts</div><div class="big">212</div></div><div style="flex:1"><div class="dim sm">This month</div><div class="big">5</div></div><div style="flex:1"><div class="dim sm">Weight 30d</div><div class="big">–</div></div></div>
+<div style="border-top:1px solid var(--sep);margin:12px -16px 0;padding:12px 16px 0"><div class="dim sm">Lifted in total</div><div class="big">1,402,000 kg</div><div class="dim sm">212 workouts · 3,610 sets · 290 h</div></div></div>
+<div class="card"><div class="dim">Challenges</div><div style="font-weight:700">November · 1 of 3 done</div></div>
+<div class="card"><div class="dim">Cardio this week</div><div style="font-weight:700">0 of 60 min</div></div>
+</div></div><figcaption><b>C · Drop upstream's card.</b> All statistics hides its streak card, the way the fork already restyles upstream's pages by CSS. One streak is left, D59's, where it is read. The best run and the medals are gone with it.</figcaption></figure>
+</div>
+
+<table>
+<tr><th>#</th><th>Line</th><th>Now</th><th>A</th><th>B</th><th>C</th><th>Evidence for now</th></tr>
+<tr><td>1</td><td>Main tasks' steps (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">No main task (T1 to T9) passes through the streak; nothing changes.</td></tr>
+<tr><td>2</td><td>Read at a glance (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">Today leads with the next session; the streak line sits under the week.</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">The reference.</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">3</td><td class="ev">The streak card with five medals fills the first screen of a page never opened.</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">The streak that is read sits on Today and Calendar, where it is expected.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">1</td><td class="n">3</td><td class="n">2</td><td class="n">3</td><td class="ev">H4: one name, "streak", for two counts that disagree (1.4 years against 2 weeks). DESIGN.md: no badges; the card has five medals.</td></tr>
+<tr><th></th><th>Total of 27</th><th>23</th><th>26</th><th>24</th><th>26</th><th></th></tr>
+</table>
+<p class="lead">Short form: now 23/27 (3·3·3 | 2·2·1); A 26 (3·3·3 | 3·2·3); B 24 (3·3·3 | 2·2·2); C 26 (3·3·3 | 3·2·3). No line falls in any version.</p>
+<ul class="moves">
+<li><b>A</b> keeps D59's rule and widens where it shows (D59 names Calendar and Home only). It changes D135's "the statistics pages stay as they are" for All statistics, and needs a seam or a replaced card on upstream's page.</li>
+<li><b>B</b> changes D59's wording: its line is "1.6 year streak" by name. Keeps D135.</li>
+<li><b>C</b> keeps D59. Changes D135's "stay as they are" for one card on All statistics.</li>
+</ul>
+<p class="verdict"><span class="rec">Recommended: C</span> Ties A on 26 with the smaller change: one card hidden on a page never opened, nothing new to count. Take A instead if you want the streak on All statistics too.</p>
+
+<!-- ============================ 2. RIR PILL ============================ -->
+<h2>2 · The next set's action reads "RIR", not "log"</h2>
+<p class="lead">D127 first had a row of effort numbers under the open set, each logging the set in one tap, from your "RPE could replace the tick: why have two". On 2026-11-16, from the debug build, you removed that row: with effort on, a set not ticked yet has the effort button <b>in the tick's place</b>. It opens upstream's effort dialog, a pick logs the set, and the dialog ends with <b>Log without rating</b>. So the next set's only action is a pill reading "RIR" under a ✓ column head, and a plain set takes two taps. The pill measures about 88 dp wide at 411 dp and 78 at 320 (from the pictures).</p>
+<div class="row">
+<figure><div class="phone" style="height:470px"><div class="body" style="padding-top:18px">
+<div class="ex"><span class="pic"></span><b>Bench Press</b><span class="brand">+ Brand</span></div>
+<div class="acts"><span><i>⇄</i>Swap</span><span><i>✎</i>Note</span><span><i>↺</i>History</span><span><i>◷</i>2min 0s</span><span><i>⇅</i>Reorder</span><span><i>⋯</i>More</span></div>
+<div class="thd"><span>SET</span><span>PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span>RIR &nbsp; ✓</span></div>
+<div class="st done"><span class="s w">W</span><span class="pv">40 × 8</span><span class="v">40</span><span class="v">8</span><span class="end"><span class="lab">RIR</span><span class="tick">✓</span></span></div>
+<div class="st done"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="lab">2</span><span class="tick">✓</span></span></div>
+<div class="st cur"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="pill ring">RIR</span></span></div>
+<div class="st"><span class="s">3</span><span class="pv">80 × 6</span><span class="v g">82.5</span><span class="v g">6</span><span class="end"><span class="pill">RIR</span></span></div>
+<div class="addrow"><span>+ Set</span><span>+ Warm-up</span></div>
+</div></div><figcaption><b>Now.</b> The pill with the accent ring is the next set's action. Log without a rating: pill, then Log without rating (2 taps). With a rating: pill, then the number (2).</figcaption></figure>
+</div>
+
+<h3>Versions</h3>
+<div class="row">
+<figure><div class="phone" style="height:330px"><div class="body" style="padding-top:18px">
+<div class="thd"><span>SET</span><span>PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">LOG</span></div>
+<div class="st done"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="lab">2</span><span class="tick">✓</span></span></div>
+<div class="st cur"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="pill ring" style="font-size:14px">Log · RIR</span></span></div>
+<div class="st"><span class="s">3</span><span class="pv">80 × 6</span><span class="v g">82.5</span><span class="v g">6</span><span class="end"><span class="pill" style="font-size:14px">Log · RIR</span></span></div>
+</div></div><figcaption><b>A · Say "log" on the pill.</b> The pill reads "Log · RIR" and the column head "LOG". Same dialog, same taps: 2 without a rating, 2 with.</figcaption></figure>
+
+<figure><div class="phone" style="height:560px"><div class="body" style="padding-top:18px">
+<div class="thd"><span>SET</span><span>PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span>RIR &nbsp; ✓</span></div>
+<div class="st done"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="lab">2</span><span class="tick">✓</span></span></div>
+<div class="st done"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="lab" style="box-shadow:inset 0 0 0 2px var(--acc)">RIR</span><span class="tick">✓</span></span></div>
+<div class="st"><span class="s">3</span><span class="pv">80 × 6</span><span class="v g">82.5</span><span class="v g">6</span><span class="end"><span class="tick off">✓</span></span></div>
+</div>
+<div class="dock"><div class="rest"><div class="cap">Rest · after set 2</div><div class="h"><b>1:12</b><span>Next · set 3<b>82.5 kg × 6</b></span></div><div class="barp"><i></i></div>
+<div class="cap" style="margin-bottom:6px">Set 2 · reps left</div><div class="rb"><span>4+</span><span>3</span><span>2</span><span>1</span><span>0</span></div>
+<div class="rb" style="margin-top:6px"><span>+1 min</span><span>+2 min</span><span>Skip</span></div></div></div>
+</div><figcaption><b>B · Tick first, rate while resting.</b> The tick is back in its place and logs the set (1 tap). The rest panel asks for the set just logged; a number rates it (2 taps in all). This brings back one-tap effort numbers, which you removed on 2026-11-16, and the panel grows by a row.</figcaption></figure>
+
+<figure><div class="phone" style="height:330px"><div class="body" style="padding-top:18px">
+<div class="thd st wide" style="padding:0 4px"><span>SET</span><span>PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">✓ · RIR</span></div>
+<div class="st wide done"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="lab">2</span><span class="tick">✓</span></span></div>
+<div class="st wide cur"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="split"><span class="k">✓</span><span class="r">RIR</span></span></span></div>
+<div class="st wide"><span class="s">3</span><span class="pv">80 × 6</span><span class="v g">82.5</span><span class="v g">6</span><span class="end"><span class="split" style="box-shadow:inset 0 0 0 1px var(--sep)"><span class="k" style="background:#48433b;color:var(--label-2)">✓</span><span class="r" style="background:none">RIR</span></span></span></div>
+</div></div><figcaption><b>C · The tick inside the pill.</b> One pill, two halves of 52 dp each: ✓ logs the set as it is (1 tap), RIR opens the same dialog (2 taps). The column grows from 88 to 104 dp; KG and REPS give 8 dp each. At 320 dp PREVIOUS has less room still.</figcaption></figure>
+</div>
+
+<table>
+<tr><th>#</th><th>Line</th><th>Now</th><th>A</th><th>B</th><th>C</th><th>Evidence for now</th></tr>
+<tr><td>1</td><td>Main tasks' steps (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="ev">T3 without a rating takes 2 taps (pill, Log without rating) where 1 would do; with a rating 2.</td></tr>
+<tr><td>2</td><td>Read at a glance (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">The next set at 26 px, the largest on screen (built size, REWORK.md).</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">The reference: tick a set, 2 taps with effort on.</td></tr>
+<tr><td>4</td><td>Its friction rows (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">Unchanged from the built D127 (per side still in Exercise settings).</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">As built. B's rest panel is a row taller and covers more of the list (G3).</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="ev">The column head says ✓; the control under it says RIR. Logging reads as rating.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">1</td><td class="n">1</td><td class="n">2</td><td class="n">2</td><td class="ev">G1: a set that matches its prefilled values takes one tap; here it takes two.</td></tr>
+<tr><th></th><th>Total of 33</th><th>22</th><th>23</th><th>27</th><th>27</th><th></th></tr>
+</table>
+<table>
+<tr><th>Counted</th><th>Now</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>Log a set without a rating</td><td>2 taps</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td>Log a set with a rating</td><td>2 taps</td><td>2</td><td>2</td><td>2</td></tr>
+<tr><td>The next set's action target</td><td>88 × 44 dp</td><td>88 × 44</td><td>44 × 44 tick</td><td>52 × 48 each half</td></tr>
+</table>
+<p class="lead">Short form: now 22/33 (2·2·3·2 | 2·1·1); A 23 (2·2·3·2 | 2·2·1); B 27 (3·2·3·2 | 2·3·2); C 27 (3·2·3·2 | 2·3·2).</p>
+<ul class="moves">
+<li><b>A</b> keeps D127; only the label changes.</li>
+<li><b>B</b> changes D127 and reverses your 2026-11-16 change: one-tap effort numbers come back, in the rest panel, and the rating comes after the tick.</li>
+<li><b>C</b> changes D127's "the effort button in the tick's place" to a tick and the effort button in one pill. Your dialog stays; its Log without rating is still there but no longer needed.</li>
+</ul>
+<p class="verdict"><span class="rec">Recommended: C</span> Ties B on 27 and keeps the dialog you chose; nothing you removed comes back.</p>
+
+<!-- ============================ 3. HEADER ============================ -->
+<h2>3 · The live workout header is crowded</h2>
+<p class="lead">The bar holds ⌄ (back to Today), the name with its ⌃ (one button: it opens the gym and the workout note, D127), the duration, the strap's heart rate (D79; a tap opens D80's full screen), ⏱ (Timer and Stopwatch, D10) and Finish (D10, D49, D127). Every item but the name is fixed width, so the name gives way: at 320 dp it reads "Screen c…" in the picture, which had no strap. With a strap the bpm takes about 44 dp more out of the name (from <code>hevier.css</code>, not seen on the emulator). Finish sits top right, the far corner from a thumb.</p>
+<div class="row">
+<figure><div class="phone" style="height:330px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="tm">41:07</span><span class="hr"><u>♥</u> 104</span><span class="al">⏰</span><span class="fin">Finish</span></div>
+<div class="body"><div class="ex"><span class="pic"></span><b>Bench Press</b><span class="brand">+ Brand</span></div>
+<div class="st done"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="tick">✓</span></span></div>
+<div class="st cur"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="pill ring">RIR</span></span></div></div></div>
+<figcaption><b>Now, 411 dp.</b> Seven things in the bar.</figcaption></figure>
+<figure class="narrow"><div class="phone n320" style="height:330px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="tm">41:07</span><span class="hr"><u>♥</u> 104</span><span class="al">⏰</span><span class="fin">Finish</span></div>
+<div class="body"><div class="ex"><span class="pic"></span><b>Bench Press</b></div>
+<div class="st done" style="grid-template-columns:22px 52px 1fr 1fr 64px"><span class="s">1</span><span class="pv">80 × 8</span><span class="v">82.5</span><span class="v">8</span><span class="end"><span class="tick">✓</span></span></div></div></div>
+<figcaption><b>Now, 320 dp, with a strap.</b> The name is down to a letter or two.</figcaption></figure>
+</div>
+
+<h3>Versions at 411 dp</h3>
+<div class="row">
+<figure><div class="phone" style="height:330px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="tm">41:07</span><span class="hr"><u>♥</u> 104</span><span class="fin">Finish</span></div>
+<div class="det"><div class="dl">⌖ North Club ⌄</div><div class="dl">⏰ Timer and stopwatch</div></div>
+<div class="body"><div class="ex"><span class="pic"></span><b>Bench Press</b></div></div></div>
+<figcaption><b>A · ⏱ moves under the name.</b> The Timer and Stopwatch open from the details row that the name already opens (shown open). Six things in the bar.</figcaption></figure>
+
+<figure><div class="phone" style="height:330px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="duo"><span>41:07</span><span><u>♥</u> 104</span></span><span class="fin">Finish</span></div>
+<div class="body"><div class="ex"><span class="pic"></span><b>Bench Press</b></div>
+<div class="st cur"><span class="s">2</span><span class="pv">80 × 7</span><span class="v">82.5</span><span class="v">7</span><span class="end"><span class="pill ring">RIR</span></span></div></div></div>
+<figcaption><b>B · Time over heart rate.</b> A plus: the duration and the bpm stack in one 52 × 48 dp button that opens D80's full screen, which shows both. Five things in the bar.</figcaption></figure>
+
+<figure><div class="phone" style="height:560px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="duo"><span>41:07</span><span><u>♥</u> 104</span></span></div>
+<div class="body"><div class="ex"><span class="pic"></span><b>Lateral Raise</b></div>
+<div class="st done"><span class="s">2</span><span class="pv">10 × 12</span><span class="v">10</span><span class="v">12</span><span class="end"><span class="tick">✓</span></span></div>
+<div class="st done"><span class="s">3</span><span class="pv">10 × 11</span><span class="v">10</span><span class="v">12</span><span class="end"><span class="tick">✓</span></span></div></div>
+<div class="dock"><div class="rest"><div class="cap">Rest · after the last set</div><div class="h"><b>1:12</b><span>All sets done</span></div><div class="barp"><i></i></div><div class="rb"><span>+1 min</span><span>+2 min</span><span>Skip</span></div></div>
+<div class="btn" style="min-height:48px">Finish</div></div></div>
+<figcaption><b>C · Finish at the bottom.</b> B's bar without Finish. Finish is a 48 dp bar at the bottom, always there, under the rest panel while resting; drawn just after the last set. Still one tap at any time; the list is 64 dp shorter.</figcaption></figure>
+</div>
+<h3>The same at 320 dp, with a strap</h3>
+<div class="row">
+<figure class="narrow"><div class="phone n320" style="height:200px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="tm">41:07</span><span class="hr"><u>♥</u> 104</span><span class="fin">Finish</span></div></div><figcaption><b>A.</b> The name gets about 40 dp back.</figcaption></figure>
+<figure class="narrow"><div class="phone n320" style="height:200px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="duo"><span>41:07</span><span><u>♥</u> 104</span></span><span class="fin">Finish</span></div></div><figcaption><b>B.</b> About 80 dp back.</figcaption></figure>
+<figure class="narrow"><div class="phone n320" style="height:200px"><div class="top"><span class="ch">⌄</span><span class="nm"><span>Upper A · Heavy</span><i>⌃</i></span><span class="duo"><span>41:07</span><span><u>♥</u> 104</span></span></div></div><figcaption><b>C.</b> The whole name fits.</figcaption></figure>
+</div>
+
+<table>
+<tr><th>#</th><th>Line</th><th>Now</th><th>A</th><th>B</th><th>C</th><th>Evidence for now</th></tr>
+<tr><td>1</td><td>Main tasks' steps (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">T5 Finish is 1 tap, then D132's sheet.</td></tr>
+<tr><td>2</td><td>Read at a glance (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">The next set at 26 px below the bar. C's Finish bar takes 64 dp of list but the next set stays in view.</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">The reference: Finish 1 tap at any time, bpm in view. All versions keep both; C's Finish never needs a scroll.</td></tr>
+<tr><td>4</td><td>Its friction rows (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="ev">Unchanged from the built D127.</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td class="ev">⏱ sits in the bar; REWORK.md's Context lets the Timer and Stopwatch go a step deeper. C adds a bar used once per workout.</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">3</td><td class="ev">Finish is labelled and found, but in the top right corner, the far reach for a thumb.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">1</td><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="ev">At 320 dp the name gets about 60 dp without a strap ("Screen c…" in the picture) and under 20 with one: the bar does not say which workout this is.</td></tr>
+<tr><th></th><th>Total of 33</th><th>25</th><th>26</th><th>27</th><th>28</th><th></th></tr>
+</table>
+<p class="lead">Short form: now 25/33 (3·2·3·2 | 2·2·1); A 26 (3·2·3·2 | 3·2·1); B 27 (3·2·3·2 | 3·2·2); C 28 (3·2·3·2 | 2·3·3). The ⌃ stays in every version: D127 (2026-11-17) names "a tap on the name's chevron".</p>
+<ul class="moves">
+<li><b>A</b> changes D10 (⌄ · duration · ⏱ · Finish): ⏱ leaves the bar. Keeps D49 and D127.</li>
+<li><b>B</b> changes D10 the same way and joins D127's duration and heart rate into one button; its tap still opens D80. Keeps D49.</li>
+<li><b>C</b> changes D49 (a text action on the right of the page bar), D10 (Finish in the bar) and D127 (the header keeps Finish). D132's Finish sheet does not change.</li>
+</ul>
+<p class="verdict"><span class="rec">Recommended: C</span> Highest at 28, and Finish lands where the thumb is after the last set. If D49 and D127 should stay, take B (27).</p>
+
+<!-- ============================ 4. HISTORY ============================ -->
+<h2>4 · History opens on tiles and six grey chips</h2>
+<p class="lead">D126 put the past workouts in History with Calendar, Month report, Sets per muscle, Body weight and More above them; D135 drew it (<code>frontend/src/hevier/views/History.jsx</code> names both): this week in three numbers, your round-2 request in place of the weekly chart, then the chips. The chips are 29 to 32 dp tall, made about 44 dp to tap by an invisible margin (<code>hevier.css</code>), under A1's 48, and the two rows' margins meet. "More" opens All statistics only, though D126 lists exercise time, structural balance and measures under it too. Today already shows "1 of 3 done this week".</p>
+<div class="row">
+<figure><div class="phone" style="height:640px"><div class="bar"><span class="i"></span><span class="t">History</span><span class="i">⚙</span></div><div class="body">
+<div class="tiles"><div class="tile">This week<b>1 of 3</b>workouts</div><div class="tile">Time<b>1h 24min</b>this week</div><div class="tile">Sets<b>22</b>this week</div></div>
+<div class="chips"><span class="chip">Calendar</span><span class="chip">Statistics</span><span class="chip">Month report</span><span class="chip">Sets per muscle</span><span class="chip">Body weight</span><span class="chip">More</span></div>
+<div class="card"><div class="dim sm">Tue, 17 Nov · 16:10</div><div class="big" style="margin:4px 0 8px">Upper A</div><div class="dim sm">Time 1h 24min · Sets 22</div>
+<div class="ex" style="margin-top:10px"><span class="pic"></span><span>4 sets Bench Press</span></div><div class="ex" style="margin-top:8px"><span class="pic"></span><span>3 sets Seated Row</span></div><div class="ex" style="margin-top:8px"><span class="pic"></span><span>3 sets Lateral Raise</span></div></div>
+</div><div class="tabs"><div>Today</div><div>Lifts</div><div class="on">History</div></div></div>
+<figcaption><b>Now.</b> Three equal tiles, six equal chips in two rows; the first workout starts a third of the way down.</figcaption></figure>
+</div>
+
+<h3>Versions</h3>
+<div class="row">
+<figure><div class="phone" style="height:640px"><div class="bar"><span class="i"></span><span class="t">History</span><span class="i">⚙</span></div><div class="body dimmed">
+<div class="tiles"><div class="tile">This week<b>1 of 3</b>workouts</div><div class="tile">Time<b>1h 24min</b>this week</div><div class="tile">Sets<b>22</b>this week</div></div>
+<div class="chips"><span class="chip tall">Calendar</span><span class="chip tall">Month report</span><span class="chip tall">More ⌄</span></div>
+<div class="card"><div class="dim sm">Tue, 17 Nov · 16:10</div><div class="big">Upper A</div></div>
+</div><div class="sheet"><div class="grab"></div><div class="nav">Statistics<span class="c" style="margin-left:auto">›</span></div><div class="nav">Sets per muscle<span class="c" style="margin-left:auto">›</span></div><div class="nav">Body weight<span class="c" style="margin-left:auto">›</span></div><div class="nav">All statistics<span class="c" style="margin-left:auto">›</span></div></div></div>
+<figcaption><b>A · Two doors and More.</b> Calendar and Month report stay one tap (Context: "left where they are"). Statistics, Sets per muscle and Body weight move into More's sheet (shown open): one tap more each.</figcaption></figure>
+
+<figure><div class="phone" style="height:640px"><div class="bar"><span class="i"></span><span class="t">History</span><span class="i">⚙</span></div><div class="body">
+<div class="tiles"><div class="tile">This week<b>1 of 3</b>workouts</div><div class="tile">Time<b>1h 24min</b>this week</div><div class="tile">Sets<b>22</b>this week</div></div>
+<div class="card" style="padding:2px 16px"><div class="nav">Calendar<span class="r">5 workouts in November</span><span class="c">›</span></div><div class="nav">Statistics<span class="c" style="margin-left:auto">›</span></div><div class="nav">Month report<span class="r">October</span><span class="c">›</span></div><div class="nav">Sets per muscle<span class="r">22 this week</span><span class="c">›</span></div><div class="nav">Body weight<span class="r">78.4 kg</span><span class="c">›</span></div><div class="nav">All statistics<span class="c" style="margin-left:auto">›</span></div></div>
+<div class="card"><div class="dim sm">Tue, 17 Nov · 16:10</div><div class="big">Upper A</div></div>
+</div><div class="tabs"><div>Today</div><div>Lifts</div><div class="on">History</div></div></div>
+<figcaption><b>B · Rows with chevrons.</b> Each way in is a 48 dp row with a short value. Clear, but six rows push the first workout to the bottom edge.</figcaption></figure>
+
+<figure><div class="phone" style="height:640px"><div class="bar"><span class="i"></span><span class="t">History</span><span class="i">⚙</span></div><div class="body">
+<div class="tiles"><div class="tile">This week<b>1 of 3</b>workouts</div><div class="tile">Time<b>1h 24min</b>this week</div><div class="tile">Sets<b>22</b>this week</div></div>
+<div><div class="cap" style="margin-bottom:6px">Look back</div><div class="chips"><span class="chip tall">Calendar</span><span class="chip tall">Month report</span></div></div>
+<div><div class="cap" style="margin-bottom:6px">Numbers</div><div class="chips" style="flex-wrap:nowrap;overflow:hidden"><span class="chip tall">Statistics</span><span class="chip tall">Sets per muscle</span><span class="chip tall">Body weight</span><span class="chip tall">All statistics</span></div></div>
+<div class="card"><div class="dim sm">Tue, 17 Nov · 16:10</div><div class="big" style="margin-top:4px">Upper A</div></div>
+</div><div class="tabs"><div>Today</div><div>Lifts</div><div class="on">History</div></div></div>
+<figcaption><b>C · Keep them, grouped.</b> The same six, in two labelled rows; the second scrolls sideways. Chips 48 dp tall. "More" says what it opens: All statistics. Nothing moves deeper.</figcaption></figure>
+</div>
+
+<table>
+<tr><th>#</th><th>Line</th><th>Now</th><th>A</th><th>B</th><th>C</th><th>Evidence for now</th></tr>
+<tr><td>1</td><td>Main tasks' steps (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">T6, T7 and T9 start from Today or Lifts; History adds no step to them.</td></tr>
+<tr><td>2</td><td>Read at a glance (×2)</td><td class="n">2</td><td class="n">2</td><td class="n">1</td><td class="n">2</td><td class="ev">The first workout starts about a third down, under tiles and chips of equal weight. B pushes it to the edge.</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower (×2)</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="ev">The reference; no must-not-slow task passes here.</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td class="ev">All six are things you open, but the "this week" tile repeats Today's line.</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">2</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="ev">Six grey chips of one weight; "More" opens one page, not a menu. A puts three looked-at pages a tap deeper.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="ev">A1: chips 29 to 32 dp, about 44 with their margin, under 48.</td></tr>
+<tr><th></th><th>Total of 27</th><th>21</th><th>23</th><th>22</th><th>23</th><th></th></tr>
+</table>
+<p class="lead">Short form: now 21/27 (3·2·3 | 2·2·1); A 23 (3·2·3 | 3·2·2); B 22 (3·1·3 | 2·3·3); C 23 (3·2·3 | 2·3·2). B is lower on line 2 and is not an improvement on the doubled lines.</p>
+<ul class="moves">
+<li><b>A</b> changes D135's chips and D126's list above the feed. Statistics, Sets per muscle and Body weight one tap deeper is a trade for you to make.</li>
+<li><b>B</b> changes D135's chips to rows. Keeps D126's contents.</li>
+<li><b>C</b> keeps D126 and D135's contents and the tiles; it changes D135's layout (groups, size) and the label "More".</li>
+</ul>
+<p class="verdict"><span class="rec">Recommended: C</span> Ties A on 23 without moving anything deeper, so there is no trade to ask about.</p>
+
+</body>
+</html>
