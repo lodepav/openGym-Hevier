@@ -12,7 +12,8 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, fmtDate, fmtNum } from '../../lib/format.js'
+import { fmtVol, fmtNum } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { sessionSections, sessionVolume, EFFORT } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -24,7 +25,7 @@ import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
-import { hevySetText, hevySetLabel, noEffort } from '../lib/set-text.js'
+import { setText, noEffort } from '../lib/set-text.js'
 import { entryTimes } from '../lib/exercise-time.js'
 import { elapsedWords } from '../lib/elapsed.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
@@ -65,7 +66,6 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
   const rows = detailRows(e.sets)
   const last = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s) && !isWarmupRow(s)).at(-1)?.i
   const anyHr = rows.some(r => sanitizeHr(r.hr))
-  const reps = n => n + ' ' + (n === 1 ? t('rep') : t('reps'))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
       <span className="hv-thumb">{ex && <Thumb ex={ex} />}</span>
@@ -93,7 +93,7 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
           {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
           {/* A record says more than an arrow: the set shows only its badge (D66). */}
           <span className="hv-wd-v">{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}
-            {row.undone ? '–' : hevySetText(hevySetLabel(e.id, noEffort(s), e.target, speedUnitOf(st)), st.unit, reps)}{!at.length && <Trend v={trend} />}</span>
+            {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}{!at.length && <Trend v={trend} />}</span>
           {scale && <span className="hv-wd-rpe">{effort != null && <><span className="hv-sr">{t(EFFORT[scale].hd)} </span>{fmtNum(effort)}</>}</span>}
           {anyHr && <span className="hv-wd-hrc">{hr && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{hr.avg}</span>}</span>}
           <PrBadge recs={at} />

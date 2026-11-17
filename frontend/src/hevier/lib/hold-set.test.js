@@ -103,7 +103,7 @@ describe('hevier: a per-side set as a hold on each side (D89)', () => {
     expect(p[0].sides.L.r).toBe(10)
     expect(p[1].sides.R.r).toBe(10)
     expect(p[2]).toMatchObject({ side: 'L', sec: 40 })
-    expect(previousText(p[2], { side: 'R', mode: 'reps', unit: 'kg', id: 'x' })).toBe(setLabel('x', past[2]))
+    expect(previousText(p[2], { side: 'R', mode: 'reps', unit: 'kg', id: 'x' })).toBe(setLabel('x', past[2]) + ' kg')
   })
 
   it('two half-ticked pairs are two sets last time, never one', () => {

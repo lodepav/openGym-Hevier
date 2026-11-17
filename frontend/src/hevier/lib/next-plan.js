@@ -15,11 +15,11 @@ import { modeOf, isBw } from '../../lib/history.js'
 import { dbLoadFor, historyAs, ownedWeightsFor, stepOwned } from '../../lib/dumbbells.js'
 import { weightIncrement, stepWeight } from '../../lib/progression.js'
 import { exConverted, exUnitOf, viewTarget } from '../../lib/ex-unit.js'
-import { fmtNum, cleanNum } from '../../lib/format.js'
+import { cleanNum } from '../../lib/format.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
 import { isHoldRow, isPairTail } from './hold-set.js'
-import { hevySetLabel } from './set-text.js'
+import { previousText } from './set-text.js'
 
 const isMap = v => !!v && typeof v === 'object' && !Array.isArray(v)
 // The heaviest weight and the most reps a plan takes, as upstream's session targets (#972) hold them.
@@ -230,17 +230,13 @@ export function stepped(S, cfg, field, v, dir) {
 }
 
 /**
- * Last time's set `p` as the page's left column writes it: "60 × 8", "+10 × 12" or "× 12" on body
- * weight, one side's with `side`; a timed, cardio or hold set as Workout Detail writes it; '–' for
- * none. `show` turns a stored weight into the exercise's unit (D41).
+ * Last time's set `p` as the page's left column writes it, the workout's PREVIOUS (set-text.js
+ * previousText): "60 kg × 8", "+10 kg × 12" or "× 12" on body weight, without the unit with `unit`
+ * '', one side's with `side`; a timed, cardio or hold set as Workout Detail writes it; '–' for none.
+ * `show` turns a stored weight into the exercise's unit (D41).
  */
-export function lastText(p, { cfg, side = null, speedUnit, show = w => w }) {
-  if (!p) return '–'
-  const wr = x => (isBw(cfg) ? (x.w > 0 ? `+${fmtNum(show(x.w))} × ` : '× ') : `${fmtNum(show(x.w || 0))} × `) + (x.r || 0)
-  if (isHoldRow(p)) return hevySetLabel(cfg.id, side === 'R' && p.hvPairR ? p.hvPairR : p, cfg, speedUnit)
-  if (side) return isSideSet(p) && p.sides[side] ? wr(p.sides[side]) : '–'
-  if (modeOf(cfg) === 'reps' && !isSideSet(p)) return wr(p)
-  return hevySetLabel(cfg.id, p, cfg, speedUnit)
+export function lastText(p, { cfg, side = null, speedUnit, show = w => w, unit = '' }) {
+  return previousText(p, { side, mode: modeOf(cfg), bw: isBw(cfg), unit, show, id: cfg.id, target: cfg, speedUnit })
 }
 
 /** Opens routines `rids`' plans in the running session on the draft `s`, and marks them as its. */

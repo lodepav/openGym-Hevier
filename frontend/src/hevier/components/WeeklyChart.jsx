@@ -4,8 +4,9 @@
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t, tn, dateLocale } from '../../lib/i18n.js'
-import { fmtNum, fmtDate, todayISO, weekStartOf } from '../../lib/format.js'
+import { t, tn } from '../../lib/i18n.js'
+import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { durationWords } from '../lib/elapsed.js'
 import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
 import { menuSheet } from '../../sheets.jsx'
@@ -48,7 +49,7 @@ export default function WeeklyChart() {
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))
   const cur = pts.at(-1).value
   const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
-  const day = iso => new Date(iso + 'T12:00:00').toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
+  const day = iso => fmtDate(iso)
   const picked = pts.find(p => p.week === sel)
   const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
   const head = picked ? weekText(picked) : kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))

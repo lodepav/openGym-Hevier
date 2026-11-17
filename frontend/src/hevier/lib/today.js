@@ -1,12 +1,12 @@
 // The Today tab (hevier/DECISIONS.md D134): the sets the next session opens with, the week as seven
 // days and the round's progress. views/Today.jsx draws them; the next day itself is next-planned.js's.
 import { nextSession } from './next-plan.js'
+import { setRuns } from './set-text.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { planTitle, workoutsByDay } from './calendar.js'
 import { nextPlanned } from './next-planned.js'
 import { queueView, weekTally } from '../../lib/queue.js'
 import { fmtNum, isoOf, startOfWeek, weekStartOf } from '../../lib/format.js'
-import { t } from '../../lib/i18n.js'
 import { shownWeight } from '../../lib/ex-unit.js'
 
 // One work row as text: "60 × 8", "× 12" on body weight, "45 s", "20 min".
@@ -18,19 +18,9 @@ function rowText(row) {
   return (w || '× ') + row.reps
 }
 
-/** A routine exercise's work sets as one line: "3 sets · 60 × 8" when all are alike, else each run
- *  in turn with its own count ("80 × 8 ×2, 80 × 7"), so a count never reads as the whole exercise's. */
-export function setsText(rows) {
-  const runs = []
-  for (const row of rows) {
-    if (row.kind !== 'work') continue
-    const v = rowText(row)
-    if (runs.at(-1)?.v === v) runs.at(-1).n++
-    else runs.push({ v, n: 1 })
-  }
-  if (runs.length === 1 && runs[0].n > 1) return t('{0} sets', runs[0].n) + ' · ' + runs[0].v
-  return runs.map(x => x.v + (x.n > 1 ? ' ×' + x.n : '')).join(', ')
-}
+/** A routine exercise's work sets as one line, set-text.js's setRuns: "3 sets · 60 × 8" when all
+ *  are alike, else each run in turn with its count leading ("2 × 80 × 8, 80 × 7"). */
+export const setsText = rows => setRuns(rows.filter(row => row.kind === 'work').map(rowText))
 
 // One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".
 function openedRow(set, show) {

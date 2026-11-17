@@ -377,7 +377,7 @@
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
 :root[data-ui="hevier"] .hv-rt-row.hv-rt-x{grid-template-columns:minmax(40px,1fr) repeat(var(--nc,2),minmax(0,1fr)) 44px}
-:root[data-ui="hevier"] .hv-rt-del{width:44px;height:44px;background:none;color:var(--red)}
+:root[data-ui="hevier"] .hv-rt-del{width:44px;height:44px;background:none;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-addwarm:disabled{opacity:.5}
 :root[data-ui="hevier"] .hv-routine .hv-exnote{margin-bottom:6px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-routine .hv-nameline :is(.hv-addbrand, .hv-brand){position:relative}
@@ -763,7 +763,7 @@
 
 /* Measures: the weight card flat, then the latest weigh-ins as rows. */
 :root[data-ui="hevier"] .hv-measures > .card{background:none;box-shadow:none;padding-inline:0;border-radius:0}
-:root[data-ui="hevier"] .hv-ms-empty{margin-top:12px;padding:28px 12px;text-align:center;font-size:14px;color:var(--label-2);border:var(--hair) dashed var(--sep);border-radius:8px}
+:root[data-ui="hevier"] .hv-ms-empty{margin-top:12px;padding:28px 12px;text-align:center;font-size:14px;color:var(--label-2);background:var(--surface);border-radius:var(--r)}
 :root[data-ui="hevier"] .hv-ms-list{display:flex;flex-direction:column}
 :root[data-ui="hevier"] .hv-ms-row{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 4px;background:none;color:var(--label);font:inherit;font-size:15px;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-ms-row + .hv-ms-row{border-top:var(--hair) solid var(--sep)}
@@ -937,12 +937,14 @@
 :root[data-ui="hevier"] .hv-next .hv-next-n{margin:2px 0 6px;color:var(--label);font-size:24px;font-weight:800;line-height:1.15}
 :root[data-ui="hevier"] .hv-next-ex{display:flex;gap:10px;padding:7px 0;font-size:14px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-next-ex .grow{flex:1;min-width:0;font-weight:700}
-:root[data-ui="hevier"] .hv-next-sets{color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
+/* the sets wrap before they squeeze the name past its longest word (320 dp at 130% font) */
+:root[data-ui="hevier"] .hv-next-sets{max-width:55%;color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-next-plan{display:inline-flex;align-items:center;gap:2px;min-height:40px;font-size:14px;font-weight:700}
 :root[data-ui="hevier"] .hv-today-start{width:100%;min-height:48px;margin:10px 0 14px}
-:root[data-ui="hevier"] .hv-tweek{display:flex;flex-wrap:wrap;gap:6px}   /* wraps when a name does not fit */
-:root[data-ui="hevier"] .hv-tday{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border-radius:var(--r-sm);background:var(--surface);color:var(--label-2);font:inherit;font-size:11px}
-:root[data-ui="hevier"] .hv-tday b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--label)}
+:root[data-ui="hevier"] .hv-tweek{display:flex;gap:6px}
+/* Seven in a row down to 320 dp: a routine name wraps inside its day, never clipped (the owner, 2026-11-17). */
+:root[data-ui="hevier"] .hv-tday{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2px;padding:7px 4px;border-radius:var(--r-sm);background:var(--surface);color:var(--label-2);font:inherit;font-size:11px}
+:root[data-ui="hevier"] .hv-tday b{max-width:100%;text-align:center;line-height:1.15;overflow-wrap:anywhere;hyphens:auto;font-size:12px;color:var(--label)}
 :root[data-ui="hevier"] .hv-tday.done b{color:var(--acc)}
 :root[data-ui="hevier"] .hv-tday.today{color:var(--label)}
 :root[data-ui="hevier"] .hv-tday.next{box-shadow:inset 0 0 0 1.5px var(--acc)}

@@ -14,7 +14,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { exerciseNameText, fmtDate } from '../../lib/format.js'
+import { exerciseNameText } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { EXIDX, allExercises, equipmentOf, searchExercises } from '../../lib/exercises.js'
 import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPath } from '../lib/gym-filter.js'
@@ -215,8 +216,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <input ref={searchRef} className="input" placeholder={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
       {q && <button className="clear" onClick={() => reset(setQ)('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
     <div className="hv-pk-filters">
-      <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span></button>
-      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}</button>
+      {/* A chevron says each opens a list to pick from. */}
+      <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span><Icon name="chevronDown" /></button>
+      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}<Icon name="chevronDown" /></button>
     </div>
     {backupList.length > 0 && <><Sec className="sec">{t('Your backups')}</Sec><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {histSection(t('You swapped to these before'), swapRows, 'w')}

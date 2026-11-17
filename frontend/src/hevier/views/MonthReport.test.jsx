@@ -49,7 +49,7 @@ describe('hevier: monthly report (D23)', () => {
     render('/stats', log)
     act(() => [...container.querySelectorAll('.hv-linkrow')].find(b => b.textContent.includes('Monthly report')).click())
     expect(path).toBe('/report')
-    expect(container.querySelector('.hv-report-bar h2').textContent).toContain(MONTHS_LONG[last.mo] + ' Report')
+    expect(container.querySelector('.hv-report-bar h2').textContent).toBe(MONTHS_LONG[last.mo] + (last.y !== new Date().getFullYear() ? ' ' + last.y : ''))
     expect(stat('Workouts').textContent).toBe('Workouts2+1')
     expect(stat('Sets').textContent).toBe('Sets5+4')
     expect([...container.querySelectorAll('h3.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')

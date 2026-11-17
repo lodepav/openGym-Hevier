@@ -11,9 +11,10 @@ import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
 import { exConverted, exUnitOf, shownWeight } from '../../lib/ex-unit.js'
 import { mapSetWeights } from '../../lib/units.js'
-import { fmtNum, fmtDate, fmtVol, capWords, todayISO } from '../../lib/format.js'
+import { fmtNum, fmtVol, capWords, todayISO } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { pinnedNoteFor, EFFORT } from '../../lib/history.js'
-import { hevySetLabel, noEffort } from '../lib/set-text.js'
+import { setText, noEffort } from '../lib/set-text.js'
 import { historyRows, setMark } from '../lib/history-rows.js'
 import { isCustomEx } from '../../lib/exercises.js'
 import { isSideSet } from '../../lib/workout-model.js'
@@ -79,10 +80,10 @@ function ExerciseFacts({ ex }) {
 // A set with its weights in the exercise's own unit (D41), as Lifts and the workout show it.
 const inUnit = (st, id, s) => (exConverted(st, id) ? mapSetWeights(s, w => shownWeight(st, id, w)) : s)
 
-// A set as one line of the last sessions: upstream's short form, without the effort (it has its own
-// place), a per-side set's two sides on one line.
+// A set as one line of the last sessions: the fork's set format with its unit, without the effort
+// (it has its own place), a per-side set's two sides on one line.
 const shortSet = (ex, s, target, st) => {
-  const text = hevySetLabel(ex.id, inUnit(st, ex.id, noEffort(s)), target, speedUnitOf(st))
+  const text = setText(ex.id, inUnit(st, ex.id, noEffort(s)), target, speedUnitOf(st), exUnitOf(st, ex.id))
   return isSideSet(s) ? text.replace(' · ', ' ') : text
 }
 
@@ -187,7 +188,7 @@ function History({ ex, sum, st }) {
       {detailRows(sets).map(row => {
         const mark = row.head ? setMark(sets, row.i) : ''
         return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>
-          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : hevySetLabel(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st))}</span>
+          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : setText(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st), exUnitOf(st, ex.id))}</span>
           {/* A set's note (upstream 1.4.4, D5). */}
           {row.last && setNoteOf(sets[row.i]) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(sets[row.i])}</span>}</div>
       })}

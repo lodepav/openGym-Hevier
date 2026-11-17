@@ -4,7 +4,8 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, fmtVol, fmtDate, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
+import { fmtNum, fmtVol, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -51,7 +52,10 @@ export default function MonthReport() {
   const unit = st.unit
   const sets = volumeMode(st) === 'sets'
   const topMuscle = r.muscles[0]?.sets || 1
-  const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + (at.y !== Number(today.slice(0, 4)) ? ' ' + at.y : '')
+  // The page bar names the report; the month bar only the month. The share card keeps "October Report".
+  const year = at.y !== Number(today.slice(0, 4)) ? ' ' + at.y : ''
+  const month = t(MONTHS_LONG[at.mo]) + year
+  const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + year
 
   return <div className="narrow hv-report">
     <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')}>
@@ -63,7 +67,7 @@ export default function MonthReport() {
     <PhaseFilter />
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
-      <div><h2>{title}</h2>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
+      <div><h2>{month}</h2>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
       <button type="button" className="iconbtn" aria-label={t('Next month')} disabled={isNow} onClick={() => step(1)}><Icon name="chevronRight" /></button>
     </div>
     {!trained ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>

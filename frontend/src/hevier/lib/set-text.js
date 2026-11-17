@@ -1,17 +1,52 @@
-// A logged set as Hevy's Workout Detail writes it: "60kg × 8 reps", where upstream's setLabel
-// writes "60×8". Only that plain form is rewritten; every other one (body weight "+10 × 12",
-// dumbbells "20 each × 8", drops, bursts, timed and cardio sets) keeps upstream's words.
+// A logged set as the fork writes it: upstream's setLabel words ("+10 × 12", "20 each × 8", drops,
+// bursts, timed and cardio sets) with the sign spaced, "80 × 8", and the unit once where no column
+// header names it, "80 kg × 8" (setFormat). The share cards keep Hevy's "60kg × 8 reps" (hevySetText).
 
 import { setLabel } from '../../lib/history.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { fmtNum } from '../../lib/format.js'
 import { elapsedClock } from './elapsed.js'
 import { isHoldRow } from './hold-set.js'
+import { setBandsOf } from '../../lib/bands.js'
+import { mapSetWeights } from '../../lib/units.js'
+import { t } from '../../lib/i18n.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
+const TIGHT = /(\d)×(?=\d)/g
+// A weight is the number before a "×" with reps after it: "80 × 8", "+10 × 12", "20 each × 8";
+// a band set's "15 × Red" is reps, so it has none.
+const WEIGHT = /(\d[\d.,]*)( each| total)? × (?=\d)/g
+// A timed or carried set's load behind its time or distance: "1:15 · 20", "40 m · 32 F".
+const LOAD_AFTER = / · (\d[\d.,]*)(?=( F)?$)/
 
 /**
- * "60×8" → "60kg × 8 reps", "60×8 F" → "60kg × 8 reps F", "300×1" → "300kg × 1 rep"; anything else
+ * The fork's one set format (the owner, 2026-11-17): upstream's "80×8" spaced as "80 × 8", and with
+ * `unit` (where no KG/LB column header names it) the unit once after each weight: "80 kg × 8",
+ * "+10 kg × 12", "1:15 · 20 kg". '' leaves the unit out.
+ */
+export function setFormat(text, unit = '') {
+  const spaced = String(text).replace(TIGHT, '$1 × ')
+  if (!unit) return spaced
+  return spaced.replace(WEIGHT, `$1 ${unit}$2 × `).replace(LOAD_AFTER, ` · $1 ${unit}`)
+}
+
+/** A logged set in the fork's format: hevySetLabel's words, setFormat's spacing and unit. */
+export const setText = (id, s, cfg, speedUnit, unit = '') => setFormat(hevySetLabel(id, s, cfg, speedUnit), unit)
+
+/** Sets in a row, each as text, as one line: "3 sets · 60 × 8" when all are alike, else each run
+ *  in turn, its count leading: "2 × 80 × 8, 80 × 7", so a count never reads as the whole exercise's. */
+export function setRuns(texts) {
+  const runs = []
+  for (const v of texts) {
+    if (runs.at(-1)?.v === v) runs.at(-1).n++
+    else runs.push({ v, n: 1 })
+  }
+  if (runs.length === 1 && runs[0].n > 1) return t('{0} sets', runs[0].n) + ' · ' + runs[0].v
+  return runs.map(x => (x.n > 1 ? x.n + ' × ' : '') + x.v).join(', ')
+}
+
+/**
+ * Share cards' long form (the cards keep Hevy's words): "60×8" → "60kg × 8 reps", "60×8 F" → "60kg × 8 reps F", "300×1" → "300kg × 1 rep"; anything else
  * unchanged. `reps(n)` writes the count with its word, translated by the caller.
  */
 export function hevySetText(label, unit, reps = n => n + (n === 1 ? ' rep' : ' reps')) {
@@ -34,22 +69,25 @@ export function hevySetLabel(id, s, cfg, speedUnit) {
 }
 
 /**
- * The workout's PREVIOUS cell for last time's set `p`, or for one side of it (`side`): "60kg × 8",
- * "+10kg × 8" or "× 12" on body weight, '–' for none. A weight is written in the exercise's own
- * unit (`unit`, `show` converting a stored weight to it, D41). A timed, cardio or per-side set
- * (without `side`) reads as Workout Detail writes it, and so does a hold, for a side too.
+ * The workout's PREVIOUS cell for last time's set `p`, or for one side of it (`side`), in setFormat's
+ * form: "60 kg × 8", "+10 kg × 8" or "× 12" on body weight, "60 × 8" with `unit` '' (a table whose
+ * header names it), '–' for none. A weight is written in the exercise's own unit (`unit`, `show`
+ * converting a stored weight to it, D41). A timed, cardio, band or per-side set (without `side`)
+ * reads as Workout Detail writes it, and so does a hold, for a side too.
  */
 export function previousText(p, { side, mode, bw, unit, show = w => w, id, target, speedUnit }) {
-  const weightReps = x => (bw ? (x.w > 0 ? `+${fmtNum(show(x.w))}${unit} × ` : '× ') + (x.r || 0)
-    : `${fmtNum(show(x.w || 0))}${unit} × ${x.r || 0}`)
+  const weightReps = x => setFormat((bw ? (x.w > 0 ? `+${fmtNum(show(x.w))} × ` : '× ')
+    : `${fmtNum(show(x.w || 0))} × `) + (x.r || 0), unit)
+  const label = x => setText(id, mapSetWeights(x, w => show(w)), target, speedUnit, unit)
   if (side) {
     // A hold last time (D89): a per-side one is an L/R pair, its R carried on `hvPairR`.
-    if (isHoldRow(p)) return hevySetLabel(id, side === 'R' && p.hvPairR ? p.hvPairR : p, target, speedUnit)
+    if (isHoldRow(p)) return label(side === 'R' && p.hvPairR ? p.hvPairR : p)
     const one = p && isSideSet(p) ? p.sides[side] : null
     return one ? weightReps(one) : '–'
   }
   if (!p) return '–'
-  if (mode !== 'reps' || isSideSet(p) || isHoldRow(p)) return hevySetLabel(id, p, target, speedUnit)
+  // A band set keeps its bands: "20 × 15 + Red" (upstream's words).
+  if (mode !== 'reps' || isSideSet(p) || isHoldRow(p) || setBandsOf(p).length) return label(p)
   return weightReps(p)
 }
 
@@ -62,7 +100,7 @@ export const noEffort = x => {
 
 /**
  * The live workout's PREVIOUS column (D127): previousText without the effort, so last time reads on
- * one line where it can, and a per-side set read whole as two lines, "L 15×15" over "R 15×15".
+ * one line where it can, and a per-side set read whole as two lines, "L 15 × 15" over "R 15 × 15".
  */
 export function previousCell(p, opts) {
   const text = previousText(noEffort(p), opts)

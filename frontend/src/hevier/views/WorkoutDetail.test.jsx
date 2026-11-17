@@ -136,12 +136,12 @@ describe('hevier: Workout Detail (seam S14)', () => {
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')]
     const read = r => [r.children[0].textContent, r.querySelector('.hv-wd-v').textContent]
     expect(rows.map(read)).toEqual([
-      ['W', 'L10kg × 12 reps'], ['', 'R10kg × 12 reps'],
-      ['1', 'L20kg × 10 reps'], ['', 'R20kg × 9 reps'],
-      ['2', 'L20kg × 8 reps F'], ['', 'R20kg × 7 reps F'],
-      ['3', 'L20kg × 8 reps ↘ 15×6'], ['', 'R20kg × 8 reps ↘ 15×5'],
+      ['W', 'L10 kg × 12'], ['', 'R10 kg × 12'],
+      ['1', 'L20 kg × 10'], ['', 'R20 kg × 9'],
+      ['2', 'L20 kg × 8 F'], ['', 'R20 kg × 7 F'],
+      ['3', 'L20 kg × 8 ↘ 15 kg × 6'], ['', 'R20 kg × 8 ↘ 15 kg × 5'],
       ['H', 'L0:45'], ['', 'R0:40'],
-      ['4', '30kg × 5 reps'],
+      ['4', '30 kg × 5'],
     ])
     // Effort in its own column, once on the first row (the scale's name read out only); heart rate the same.
     expect(container.querySelector('.hv-wd-th').textContent).toContain('RPE')
@@ -156,7 +156,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => workoutDetailSheet(P))
     expect(container.querySelector('.hv-wd-th').textContent).toContain('RIR')
     expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-rpe').textContent).toBe('RIR 2')
-    expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-v').textContent).toBe('30kg × 5 reps')
+    expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-v').textContent).toBe('30 kg × 5')
     act(() => workoutDetailSheet(W))
     expect(container.querySelector('.hv-wd-th').textContent).not.toMatch(/RPE|RIR/)
     expect(container.querySelector('.hv-wd-rpe')).toBeNull()

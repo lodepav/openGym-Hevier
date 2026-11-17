@@ -8,6 +8,7 @@ import { useUI } from '../../store/useUI.js'
 import { Section, Row, Switch } from '../../components/ui.jsx'
 import { HEVY_DEV_SETTINGS } from '../../lib/import-hevy.js'
 import { canKeepSecrets } from '../lib/secret.js'
+import { sep } from '../lib/dates.js'
 import { loadExport, enableExport, disableExport, sendToHevy, onExportChange } from '../lib/hevy-export-sync.js'
 
 const toast = msg => useUI.getState().toast(msg)
@@ -56,7 +57,7 @@ export function KeySheet({ close }) {
 const when = at => {
   const d = new Date(at)
   const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  return d.toDateString() === new Date().toDateString() ? time : d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + time
+  return d.toDateString() === new Date().toDateString() ? time : sep(d.toLocaleDateString([], { day: 'numeric', month: 'short' })) + ' ' + time
 }
 
 /** The status line under the switch: the last send, or why it could not. */

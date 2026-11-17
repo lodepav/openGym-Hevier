@@ -83,7 +83,7 @@ describe('Routine page (D37, D128)', () => {
   it('shows last time beside what each set opens with, warm-ups included', () => {
     render(PLAN, undefined, { workouts: [last] })
     expect(container.querySelector('input')).toBeNull()
-    expect(rows()).toEqual([['W', '60 × 5', '60 kg × 5'], ['1', '100 × 5', '100 kg × 5'], ['2', '90 × 8', '90 kg × 8']])
+    expect(rows()).toEqual([['W', '60 kg × 5', '60 kg × 5'], ['1', '100 kg × 5', '100 kg × 5'], ['2', '90 kg × 8', '90 kg × 8']])
   })
 
   it('never done: the routine’s own numbers, no last time', () => {
@@ -96,28 +96,28 @@ describe('Routine page (D37, D128)', () => {
     render(PLAN, undefined, { workouts: [last] })
     const before = clone(useStore.getState().S.routines)
     act(() => nums()[2].click())
-    expect(document.querySelector('.hv-kp-hd').textContent).toContain('Last time: 100 × 5')
+    expect(document.querySelector('.hv-kp-hd').textContent).toContain('Last time: 100 kg × 5')
     key('1'); key('0'); key('2'); key('.'); key('5')
     expect(useStore.getState().S.hvPlan).toEqual({ r1: { ex: { [EX]: { 0: { w: 102.5 } } } } })
-    expect(rows()[1]).toEqual(['1', '100 × 5', '102.5 kg × 5'])
+    expect(rows()[1]).toEqual(['1', '100 kg × 5', '102.5 kg × 5'])
     const planned = container.querySelector('.hv-np-num.chg')
     expect(planned.textContent).toBe('102.5')
     expect(planned.getAttribute('aria-label')).toMatch(/Set 1, Weight 102.5 kg, planned$/)
     expect(container.querySelector('.hv-np-note')).toBeTruthy()
     // The warm-up stays last time's; the routine is not changed.
-    expect(rows()[0]).toEqual(['W', '60 × 5', '60 kg × 5'])
+    expect(rows()[0]).toEqual(['W', '60 kg × 5', '60 kg × 5'])
     expect(useStore.getState().S.routines).toEqual(before)
     // Next moves to the reps, + steps them; Last time puts them back.
     key('Next')
     expect(document.querySelector('.hv-kp-hd b').textContent).toMatch(/Set 1, Reps$/)
     press('Increase')
-    expect(rows()[1]).toEqual(['1', '100 × 5', '102.5 kg × 6'])
+    expect(rows()[1]).toEqual(['1', '100 kg × 5', '102.5 kg × 6'])
     key('Last time')
-    expect(rows()[1]).toEqual(['1', '100 × 5', '102.5 kg × 5'])
+    expect(rows()[1]).toEqual(['1', '100 kg × 5', '102.5 kg × 5'])
     // Stepped back to what it opens with, a number is no plan.
     key('Next')
     press('Decrease')
-    expect(rows()[2]).toEqual(['2', '90 × 8', '87.5 kg × 8'])
+    expect(rows()[2]).toEqual(['2', '90 kg × 8', '87.5 kg × 8'])
     press('Increase')
     expect(useStore.getState().S.hvPlan.r1.ex[EX][1]).toBeUndefined()
     // The last number's Next is Done, and closes the keypad.
@@ -167,6 +167,11 @@ describe('Routine page (D37, D128)', () => {
     render([{ id: EX, mode: 'time', sets: 1, sec: 45, weight: 0 }])
     expect(rows()[0][2]).toContain('45')
     expect(nums()).toHaveLength(0)
+  })
+
+  it('a set it cannot plan reads in the exercise’s own unit (D41)', () => {
+    render([{ id: EX, mode: 'time', sets: 1, sec: 45, weight: 20.41165665 }], undefined, { exUnit: { [EX]: { unit: 'lb', _ts: 1 } } })
+    expect(rows()[0][2]).toBe('0:45 · 45 lb')
   })
 
   it('Edit routine opens the editor', () => {

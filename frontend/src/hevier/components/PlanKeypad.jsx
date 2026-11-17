@@ -55,7 +55,7 @@ export default function PlanKeypad({ rid, start, close }) {
   const { step: inc, owned } = weightStep(S, f.x.cfg)
   const by = weight ? (owned ? '' : fmtNum(inc)) : '1'
   const unit = weight ? ' ' + exUnitOf(S, f.x.id) : ''
-  const last = lastText(f.set.last[0], { cfg: f.x.cfg, side: f.side, speedUnit: speedUnitOf(S), show: w => shownWeight(S, f.x.id, w) })
+  const last = lastText(f.set.last[0], { cfg: f.x.cfg, side: f.side, speedUnit: speedUnitOf(S), show: w => shownWeight(S, f.x.id, w), unit: exUnitOf(S, f.x.id) })
   const digit = d => <button key={d} type="button" onClick={() => key(d)}>{d}</button>
   return <div className="hv-kp">
     <div className="hv-kp-hd">
