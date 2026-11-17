@@ -10,12 +10,12 @@
 // same calls upstream's ExerciseBlock makes, so ticking, rest, supersets, progression and sync
 // behave exactly as they do there. The brand line under the name (D28) writes only the fork's own
 // label fields (components/GymLabels.jsx).
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { fitNumbers } from '../lib/fit-numbers.js'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass, useLang } from '../../lib/i18n.js'
 import { fmtNum, fmtPlate } from '../../lib/format.js'
 import { restTimerText, elapsedClock } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
@@ -51,7 +51,7 @@ import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stop
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
 import { previousCell } from '../lib/set-text.js'
-import { fieldSig } from '../lib/store-watch.js'
+import { useCardState } from './useCardState.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
 import { shownWeight } from '../../lib/ex-unit.js'
 import { setTrend, trendsOn } from '../lib/set-trend.js'
@@ -73,45 +73,74 @@ import { setNoteOf } from '../../lib/set-notes.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
-export default function HevyExerciseBlock(props) {
-  const {
-    entryIdx, editing, superset, onToggle, onToggleSide, onField, onAddSet, onRemoveSetAt, onCopySetAt,
-    onRest, onNoProg, onSetRowRef, open, onOpen,
-  } = props
-  const S = useStore(s => s.S)
-  const update = useStore(s => s.update)
+// A swiped-open row closes when a set is ticked, a rest or hold starts or the session moves on:
+// read here, so they do not re-render the whole card.
+function SwipeRowLive({ closeKey, ...rest }) {
   const restEnds = useUI(s => s.timer?.endsAt)
-  const swipeHint = useUI(s => (s.swipeHint?.idx === entryIdx ? s.swipeHint : null))
-  const setFlash = useUI(s => (s.setFlash?.idx === entryIdx ? s.setFlash : null))
   // only the end: the whole hold object is replaced every second while it counts
   const workEnds = useUI(s => s.work?.endsAt)
+  const cur = useStore(s => s.S.active?.cur)
+  return <SwipeRow {...rest} closeKey={closeKey + '|' + (restEnds || 0) + '|' + (workEnds || 0) + '|' + cur} />
+}
+
+// `live.current` holds the workout screen's latest props for this card, handlers included: the
+// card is memo'd on `sig` (lib/card-state.js propsSig) and calls the handlers through it, so a
+// skipped render never leaves it with old ones.
+function HevyExerciseBlock({ entryIdx, live }) {
+  // memo stops the app's re-render when a language pack lands: the card listens itself
+  useLang()
+  const props = live.current
+  const { editing, superset, open } = props
+  const call = k => (...a) => live.current[k]?.(...a)
+  const onToggle = call('onToggle'), onToggleSide = call('onToggleSide'), onField = call('onField'), onAddSet = call('onAddSet')
+  const onSetRowRef = call('onSetRowRef')
+  const onRemoveSetAt = props.onRemoveSetAt && call('onRemoveSetAt'), onCopySetAt = props.onCopySetAt && call('onCopySetAt')
+  const onRest = props.onRest && call('onRest'), onNoProg = props.onNoProg && call('onNoProg'), onOpen = props.onOpen && call('onOpen')
+  const S = useCardState(entryIdx, superset)
+  const update = useStore(s => s.update)
+  const swipeHint = useUI(s => (s.swipeHint?.idx === entryIdx ? s.swipeHint : null))
+  const setFlash = useUI(s => (s.setFlash?.idx === entryIdx ? s.setFlash : null))
 
   const entry = S.active.entries[entryIdx]
   const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
   const rowEls = useRef({})
   const card = useRef(null)
   const fitSig = useRef('')
+  const width = useRef(0)
   // Measures again only when a number, its placeholder, its weight or its row changed (or the card's width or text size):
   // fitNumbers writes then reads layout per field, too much for each render of a ticking workout.
-  useLayoutEffect(() => {
+  const fit = () => {
     const el = card.current
     if (!el) return
     // a field's own inline size is in it too: a remounted field has lost what fitNumbers set
-    const sig = el.className + '|' + el.clientWidth + '|' + getComputedStyle(el).fontSize + '|' + [...el.querySelectorAll('input.hv-num')]
+    const sig = el.className + '|' + width.current + '|' + getComputedStyle(el).fontSize + '|' + [...el.querySelectorAll('input.hv-num')]
       .map(f => f.closest('.hv-row')?.className + ':' + f.className + ':' + f.value + ':' + f.placeholder + ':' + f.style.fontSize).join('|')
     if (sig === fitSig.current) return
     fitSig.current = sig
     fitNumbers(el)
-  })
+  }
+  const fitRef = useRef(fit)
+  fitRef.current = fit
+  // The width comes from an observer, not clientWidth, which would force a layout on each render.
+  useLayoutEffect(() => {
+    const el = card.current
+    if (!el) return
+    width.current = el.clientWidth
+    if (typeof ResizeObserver !== 'function') return
+    const ro = new ResizeObserver(([e]) => { width.current = e.target.clientWidth; fitRef.current() })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  useLayoutEffect(fit)
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
   // The history only changes when a workout is saved, not for each set typed: kept, not rebuilt on
-  // every render (battery). Only its workouts are read. The store deep-copies S on
-  // every change, so the log is compared by content (fieldSig), not by identity.
+  // every render (battery). Only its workouts are read; the store keeps S.workouts the same object
+  // while a change does not touch it (useStore draftOf).
   const A = S.active
   const history = useMemo(() => ({ workouts: sessionHistory(S).workouts }),
-    [fieldSig(S, 'workouts'), A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
+    [S.workouts, A.backfill, A.editingWorkoutId, A.d, A.start]) // eslint-disable-line react-hooks/exhaustive-deps
   // D82: last time on this machine (its brand and cable setup), else with none.
   const prev = previousSetsFor(history, entry, previousMode(S), { label: sessionLabelKey(S, A, entryIdx) })
   // D127: the opened set, large (lib/open-set.js); this exercise is the open
@@ -263,7 +292,7 @@ export default function HevyExerciseBlock(props) {
   const restText = ownRest === 0 ? t('No timer') : restTimerText(ownRest, S.restSec, t('Off'))
   const plateLoading = !editing
   // D8: the ⋮ menu (exercise-menus.js).
-  const openMore = () => exerciseMenu(props, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
+  const openMore = () => exerciseMenu(live.current, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
     unitChoice, guidance, plateLoading })
 
   // Plate loading (Settings → Plates), the line upstream draws under a row whose stack changes;
@@ -505,16 +534,16 @@ export default function HevyExerciseBlock(props) {
     if (!swipeOn) return body
     const [from, count] = setSpanAt(entry.sets, i)
     const mine = j => j != null && j >= from && j < from + count
-    return <SwipeRow canDelete={editing || entry.sets.length > count}
+    return <SwipeRowLive canDelete={editing || entry.sets.length > count}
       onDelete={() => onRemoveSetAt(i)} onCopy={() => onCopySetAt(i)}
       onBlocked={() => useUI.getState().toast(t('Keep at least one set, champ'))}
       onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }) }}
       closeKey={[entry.sets.length, s.done ? 1 : 0, count === 2 && entry.sets[from + 1]?.done ? 1 : 0,
-        s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0, restEnds || 0, workEnds || 0, S.active.cur].join('|')}
+        s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0].join('|')}
       flash={setFlash && mine(setFlash.i) ? setFlash.id : 0}
       peek={swipeHint && mine(swipeHint.i) ? swipeHint.id : 0}>
       {body}
-    </SwipeRow>
+    </SwipeRowLive>
   }
   // A set as the table draws it. A timed per-side pair (L row, R row) swipes as the one set it is,
   // so its R row is drawn with the L row and not on its own.
@@ -548,11 +577,11 @@ export default function HevyExerciseBlock(props) {
       {!isOpen && onOpen && <button type="button" className="iconbtn hv-openex" aria-label={t('Open') + ', ' + exerciseNameFor(ex)} onClick={() => onOpen(null)}><Icon name="chevronDown" /></button>}
     </div>
     {isOpen && <div className="hv-acts">
-      {props.onSwap && <button type="button" disabled={props.busy} onClick={props.onSwap}><Icon name="swap" /><span>{t('Swap')}</span></button>}
+      {props.onSwap && <button type="button" disabled={props.busy} onClick={call('onSwap')}><Icon name="swap" /><span>{t('Swap')}</span></button>}
       <button type="button" className={entry.note ? 'on' : undefined} onClick={() => exerciseNoteSheet(entryIdx)}><Icon name="note" /><span>{t('Note')}</span></button>
       <button type="button" onClick={() => exerciseHistorySheet(entry.id)}><Icon name="history" /><span>{t('History')}</span></button>
       {onRest && <button type="button" aria-label={t('Rest') + ': ' + restText} onClick={() => exerciseRestMenu(useStore.getState().S, update, entryIdx)}><Icon name="timer" /><span>{restText}</span></button>}
-      {props.onReorder && <button type="button" disabled={props.busy} onClick={() => reorderExercisesSheet(props.onReorder)}><Icon name="chevronsUpDown" /><span>{t('Reorder')}</span></button>}
+      {props.onReorder && <button type="button" disabled={props.busy} onClick={() => reorderExercisesSheet(live.current.onReorder)}><Icon name="chevronsUpDown" /><span>{t('Reorder')}</span></button>}
       <button type="button" className="hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /><span>{t('More')}</span></button>
     </div>}
     {supersetInfo && <div className="hv-ss"><span className="hv-sspill">{supersetInfo.name || t('Superset')}</span>
@@ -576,7 +605,9 @@ export default function HevyExerciseBlock(props) {
     </div>)}
     {(isOpen || !entry.sets.length) && <div className="hv-addrow">
       <button type="button" className="hv-addset" onClick={onAddSet}><Icon name="plus" />{t('Set')}</button>
-      {props.onAddWarmup && <button type="button" className="hv-addwarm" onClick={props.onAddWarmup}><Icon name="plus" />{t('Warm-up')}</button>}
+      {props.onAddWarmup && <button type="button" className="hv-addwarm" onClick={call('onAddWarmup')}><Icon name="plus" />{t('Warm-up')}</button>}
     </div>}
   </div>
 }
+
+export default memo(HevyExerciseBlock)

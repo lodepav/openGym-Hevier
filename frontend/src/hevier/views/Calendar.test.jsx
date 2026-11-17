@@ -11,6 +11,7 @@ import { todayISO } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
+import { Month } from './Calendar.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -50,6 +51,19 @@ describe('hevier: Calendar', () => {
   it('the month counts workouts, two on one day as two', () => {
     render('/calendar', [w, { ...w, id: 'w2', start: start + 7200000, end: start + 9000000 }])
     expect([...container.querySelectorAll('.hv-cal-mt span')].some(x => x.textContent === '2 workouts')).toBe(true)
+  })
+
+  it('a month heading is a button only where it opens the month, and today is the current date', () => {
+    render('/calendar', [w])
+    expect(container.querySelector('.hv-cal-mh button')).toBeNull()
+    expect([...container.querySelectorAll('.hv-cal-mh')].some(h => h.textContent.includes('1 workout'))).toBe(true)
+    const cur = container.querySelectorAll('[aria-current="date"]')
+    expect(cur).toHaveLength(1)
+    expect(cur[0].textContent).toContain(String(Number(today.slice(8))))
+    const open = vi.fn()
+    act(() => root.render(<Month y={2026} mo={0} st={useStore.getState().S} byDay={{}} today={today} small onTitle={open} />))
+    click(container.querySelector('.hv-cal-mh button'))
+    expect(open).toHaveBeenCalledTimes(1)
   })
 
   it('fills today when trained and shows the streak', () => {

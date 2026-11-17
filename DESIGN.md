@@ -307,7 +307,8 @@ They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-dro
 
 ### Tertiary
 - The five heart-rate zones on the strap screen have their own ramp, grey to red (`#8e9aaf`,
-  `#0a84ff`, `#30d158`, `#ff9f0a`, `#ff453a`). They belong to that screen only.
+  `#0a84ff`, `#30d158`, `#ff9f0a`, `#ff453a`; `--hv-zone-1` to `--hv-zone-5` in theme.css). They
+  belong to that screen only.
 
 ### Neutral
 - **AMOLED Black** (`amoled-black`): the page, the bars, the sheets, the tab bar, the docked rest,
@@ -360,7 +361,7 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
 - **Value, opened** (700, 26px, tabular): the opened set's weight and reps; 20px on a phone 400px
   wide or narrower, and for a time.
 - **Headline** (700, 22px, 1.2): a routine's name on its page and in its editor, a saved
-  workout's title, the next set on the docked rest (800). Upstream's page titles are brought down
+  workout's title, the next set on the docked rest and Today's next session (800). Upstream's page titles are brought down
   to this size.
 - **Title** (700, 17px, 1.2): the page bar's title, an exercise's name, a card's title, a
   sheet's title (centred).
@@ -370,7 +371,8 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
   tiles take 20px/800 on History and 18px/800 in the record colour on an exercise's page.
 - **Value** (600, 16px, tabular): the weight and reps in a set's wells.
 - **Section** (400, 13px, grey): the heading over a part of a page, an h2 under the page's
-  title (h3 under a page's own h2), flush with the content's edge.
+  title (h3 under a page's own h2), flush with the content's edge; also the small line over
+  Today's cards and History's link groups.
 - **Label** (700, 11px, tracking 0.04em, caps): the set table's column heads (SET, PREVIOUS, KG,
   REPS) and the small caps over a saved workout's parts (12px there).
 

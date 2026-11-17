@@ -90,6 +90,22 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(sheetHost().textContent).toContain('Chest')
   })
 
+  it('a tap between the weekly chart’s bars picks the nearest week, once', () => {
+    render(<WeeklyChart />)
+    act(() => container.querySelectorAll('.hv-chip')[1].click())
+    const cols = [...container.querySelectorAll('button.hv-barcol')]
+    cols.forEach((c, i) => { c.getBoundingClientRect = () => ({ left: i * 10, width: 6 }) })
+    const open = vi.spyOn(useUI.getState(), 'openSheet')
+    // 10 px per week, a 6 px bar and a 4 px gap: x just past the second-to-last bar's edge is nearest to it
+    act(() => container.querySelector('.hv-bars').dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: (cols.length - 2) * 10 + 7 })))
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 0 sets$/)
+    expect(open).toHaveBeenCalledTimes(1)
+    act(() => cols.at(-1).click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 5 sets$/)
+    expect(open).toHaveBeenCalledTimes(2)
+    open.mockRestore()
+  })
+
   it('Settings → Volume switches it, kept in S', () => {
     installSettings()
     render(<Settings page={null} />)

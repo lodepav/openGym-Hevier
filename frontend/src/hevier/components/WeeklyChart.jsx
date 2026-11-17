@@ -9,6 +9,7 @@ import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { durationWords } from '../lib/elapsed.js'
 import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
+import { nearestIndex } from '../lib/nearest-bar.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
@@ -52,6 +53,7 @@ export default function WeeklyChart() {
   const day = iso => fmtDate(iso)
   const picked = pts.find(p => p.week === sel)
   const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
+  const tap = p => { const on = p.week === sel; setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }
   const head = picked ? weekText(picked) : kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))
   return <div className="hv-chart">
     <div className="hv-chart-h"><b>{head}</b>
@@ -59,12 +61,17 @@ export default function WeeklyChart() {
         title: t('Period'), items: RANGES.map(o => ({ label: t(o.label), on: o.weeks === weeks, onClick: () => setWeeks(o.weeks) })) })}>
         {t(RANGES.find(o => o.weeks === weeks).label)}<Icon name="chevronDown" /></button></div>
     <div className="hv-plot">
-    <div className="hv-bars" role="group" aria-label={t(LABEL[kind])}>
+    {/* one handler for the bars: a bar's own click (also TalkBack's and a key's) picks it, a tap between bars the nearest */}
+    <div className="hv-bars" role="group" aria-label={t(LABEL[kind])} onClick={e => {
+      const cols = [...e.currentTarget.children]
+      const hit = e.target.closest('.hv-barcol')
+      const i = hit ? cols.indexOf(hit) : nearestIndex(e.clientX, cols.map(c => { const r = c.getBoundingClientRect(); return r.left + r.width / 2 }))
+      if (pts[i]) tap(pts[i])
+    }}>
       {pts.map(p => {
         const bar = <i style={{ height: Math.round((p.value / max) * 100) + '%' }} className={p.value ? '' : 'zero'} />
         const on = p.week === sel
-        return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-pressed={on}
-          onClick={() => { setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }}>{bar}</button>
+        return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-pressed={on}>{bar}</button>
       })}
     </div>
     {/* the axis on the right, Hevy's: the top line and its half */}
