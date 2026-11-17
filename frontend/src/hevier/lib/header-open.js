@@ -28,14 +28,15 @@ export function scrollZone(prev, top, gap, detailsH = 0) {
 
 /**
  * True when session `A` is just started (no set ticked, warm-ups included; or no exercise yet) or
- * near its end (every set ticked, or the set opened next, `open` from open-set.js, is in the last exercise).
+ * near its end (every set ticked, or every set left is in one exercise or superset). `units` is the
+ * view's list of units, each an array of entry indices; a superset is one unit.
  */
-export function progressOpen(A, open) {
+export function progressOpen(A, units) {
   const E = A?.entries || []
   const sets = E.flatMap(e => e.sets || [])
   if (!sets.some(s => s?.done)) return true
-  if (sets.every(s => s?.done)) return true
-  return !!open && open.idx === E.length - 1
+  const left = (units || []).filter(u => u.some(i => (E[i]?.sets || []).some(s => !s?.done)))
+  return left.length <= 1
 }
 
 /**

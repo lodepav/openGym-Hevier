@@ -132,6 +132,16 @@ describe('hevier: Log Workout screen (seam S3)', () => {
       act(() => container.querySelector('.hv-wname').click())
       expect(shown()).toBe('true')
     })
+
+    it('a sheet’s scroll lock (fixed body, scrollY 0) does not count as the top', () => {
+      render(two(true))
+      Object.defineProperty(window, 'scrollY', { configurable: true, get: () => 0 })
+      document.body.style.position = 'fixed'
+      try {
+        act(() => window.dispatchEvent(new Event('scroll')))
+        expect(shown()).toBe('false')
+      } finally { document.body.style.position = '' }
+    })
   })
 
   // Upstream's check since 1.4.4 (#811, D90's 1.4.4 note): asked once, in upstream's words.

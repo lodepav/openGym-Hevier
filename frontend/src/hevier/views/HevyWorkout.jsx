@@ -50,6 +50,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   const detailsRef = useRef(null)
   useEffect(() => {
     const check = () => {
+      // An open sheet locks the page with a fixed body and scrollY reads 0; its unlock scrolls back and rechecks.
+      if (document.body.style.position === 'fixed') return
       const top = window.scrollY
       const gap = document.documentElement.scrollHeight - (top + window.innerHeight)
       const d = detailsRef.current
@@ -62,7 +64,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     window.addEventListener('resize', check)
     return () => { window.removeEventListener('scroll', check); window.removeEventListener('resize', check) }
   }, [])
-  const auto = edge || progressOpen(A, open)
+  const auto = edge || progressOpen(A, units)
   const [manual, setManual] = useState(null)
   const shown = resolveOpen(auto, manual)
   if (manual && !shown.manual) setManual(null)

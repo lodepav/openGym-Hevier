@@ -64,25 +64,38 @@ describe('scrollZone: the page edges, with room for the details to open (D127)',
 
 describe('progressOpen: just started or near the end (D127)', () => {
   const A = (...entries) => ({ entries: entries.map(sets => ({ id: 'x', sets })) })
+  const solo = n => Array.from({ length: n }, (_, i) => [i])
 
   it('an empty workout, or one with nothing ticked, is just started', () => {
-    expect(progressOpen({ entries: [] }, null)).toBe(true)
-    expect(progressOpen(A([set(false)], [set(false)]), { idx: 0, i: 0 })).toBe(true)
+    expect(progressOpen({ entries: [] }, [])).toBe(true)
+    expect(progressOpen(A([set(false)], [set(false)]), solo(2))).toBe(true)
   })
 
   it('a ticked warm-up counts as a set', () => {
     const w = A([{ ...set(true), type: 'warmup' }, set(false)], [set(false)])
-    expect(progressOpen(w, { idx: 0, i: 1 })).toBe(false)
+    expect(progressOpen(w, solo(2))).toBe(false)
   })
 
-  it('every set ticked, or the next set in the last exercise, is near the end', () => {
-    expect(progressOpen(A([set(true)], [set(true)]), null)).toBe(true)
-    expect(progressOpen(A([set(true)], [set(false)]), { idx: 1, i: 0 })).toBe(true)
+  it('every set ticked is near the end', () => {
+    expect(progressOpen(A([set(true)], [set(true)]), solo(2))).toBe(true)
   })
 
-  it('in between it is closed, also with nothing opened while sets remain', () => {
-    expect(progressOpen(A([set(true), set(false)], [set(false)]), { idx: 0, i: 1 })).toBe(false)
-    expect(progressOpen(A([set(true), set(false)], [set(false)]), null)).toBe(false)
+  it('one exercise left is near the end, wherever it sits in the list', () => {
+    expect(progressOpen(A([set(true)], [set(false)]), solo(2))).toBe(true)
+    expect(progressOpen(A([set(true)], [set(true), set(false)], [set(true)]), solo(3))).toBe(true)
+  })
+
+  it('a superset as the only unit left is near the end', () => {
+    expect(progressOpen(A([set(true)], [set(false)], [set(false)]), [[0], [1, 2]])).toBe(true)
+  })
+
+  it('a one-exercise session part way through counts as near the end', () => {
+    expect(progressOpen(A([set(true), set(false)]), solo(1))).toBe(true)
+  })
+
+  it('the last-listed exercise done first, with two others left, is not near the end', () => {
+    expect(progressOpen(A([set(false)], [set(false)], [set(true)]), solo(3))).toBe(false)
+    expect(progressOpen(A([set(true), set(false)], [set(false)]), solo(2))).toBe(false)
   })
 })
 
