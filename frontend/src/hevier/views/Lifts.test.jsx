@@ -87,7 +87,7 @@ describe('hevier: Lifts (D135)', () => {
     type('')
     act(() => [...container.querySelectorAll('.hv-lifts-by button')].find(b => b.textContent === 'By muscle').click())
     expect(useStore.getState().S.hvLiftsBy).toBe('muscle')
-    expect(container.querySelector('h4.sec').textContent).not.toBe('Recently trained')
+    expect(container.querySelector('h2.sec').textContent).not.toBe('Recently trained')
   })
 
   it('an empty log says so; the chips and All exercises lead on', () => {

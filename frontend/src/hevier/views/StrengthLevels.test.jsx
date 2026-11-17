@@ -48,7 +48,7 @@ describe('hevier: strength levels list', () => {
     render('/stats', { hvStrength: { [BENCH]: LV, [SQUAT]: LV } })
     act(() => link().click())
     expect(path).toBe('/strength')
-    const secs = [...container.querySelectorAll('h4.sec')].map(h => h.textContent)
+    const secs = [...container.querySelectorAll('h2.sec')].map(h => h.textContent)
     expect(secs).toEqual(['Intermediate · 1', 'No 1RM logged yet · 1'])
     expect(container.textContent).toContain('15 kg to Advanced')
     act(() => container.querySelector('.hv-report-row').click())

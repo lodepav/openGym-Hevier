@@ -5,24 +5,28 @@ import { dropsOf, clustersOf } from '../../lib/workout-model.js'
 import Icon from '../../components/Icon.jsx'
 import { NumberField } from '../../components/ui.jsx'
 import { useUI } from '../../store/useUI.js'
+import { menuSheet } from '../../sheets.jsx'
 import { withoutDrop, withDropAt, withDropField, withoutBurst, withBurstReps } from '../lib/set-rows.js'
 
 export default function SubRows({ src, side, show, store, edit }) {
-  // The × sits in the tick column, so a missed tick can hit it: the drop comes back with Undo.
+  // Removed from the D mark's menu, and back with Undo should that be a slip.
   const removeDrop = di => {
     let before = null
     edit(row => { before = JSON.parse(JSON.stringify(row)); return withoutDrop(row, di) })
     if (before) useUI.getState().toast(t('Drop removed.'), { action: t('Undo'), onAction: () => edit(row => withDropAt(row, di, before)) })
   }
+  const dropMenu = di => menuSheet({ title: t('Drop {0}', di + 1),
+    items: [{ icon: 'xmark', label: t('Remove drop'), danger: true, onClick: () => removeDrop(di) }] })
   return <>
     {dropsOf(src).map((d, di) => <div key={'d' + di} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
-      <span className="hv-set"><span className="hv-d">D</span></span><span />
+      <button type="button" className="hv-set" aria-label={t('Drop {0}, options', di + 1)} onClick={() => dropMenu(di)}>
+        <span className="hv-d" aria-hidden="true">D</span></button><span />
       <NumberField decimal className="hv-num" value={show(d.w) ?? ''} aria-label={t('Drop {0}', di + 1)}
         onChange={v => edit(row => withDropField(row, di, 'w', store(v), side))} />
       <NumberField decimal={false} className="hv-num" value={d.r ?? ''} aria-label={t('Reps')}
         onChange={v => edit(row => withDropField(row, di, 'r', v, side))} />
-      <button type="button" className="iconbtn hv-x" aria-label={t('Remove drop')} onClick={() => removeDrop(di)}>
-        <Icon name="xmark" /></button>
+      {/* the tick column stays empty: a missed tick must not remove the drop */}
+      <span />
     </div>)}
     {clustersOf(src).map((c, ci) => <div key={'c' + ci} className="hv-row hv-sub-row" style={{ '--nc': 2 }}>
       <span className="hv-set"><span className="hv-d">+</span></span><span className="hv-prev">{c.restSec}s</span><span />

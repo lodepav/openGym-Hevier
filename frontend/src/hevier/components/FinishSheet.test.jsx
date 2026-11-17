@@ -103,6 +103,26 @@ describe('hevier Finish sheet (D132)', () => {
     expect(hooks.workoutDetail).toHaveBeenCalledWith(expect.objectContaining({ id: S().workouts[0].id }))
   })
 
+  it('Show them closes the sheet and brings the first unticked set into view', () => {
+    vi.useFakeTimers()
+    try {
+      render()
+      act(() => useStore.getState().update(s => { s.active.entries[0].sets[1].done = false }))
+      const scrolled = []
+      const was = Element.prototype.scrollIntoView
+      Element.prototype.scrollIntoView = function (opts) { scrolled.push([this, opts]) }
+      const el = finish()
+      act(() => byText(el, 'button', 'Show them').click())
+      expect(useUI.getState().sheets).toHaveLength(0)
+      act(() => vi.advanceTimersByTime(10))
+      Element.prototype.scrollIntoView = was
+      const rows = [...container.querySelectorAll('.hv-ex .hv-row:not(.hv-sub-row)')]
+      expect(scrolled).toHaveLength(1)
+      expect(scrolled[0][0]).toBe(rows[1])   // bench's second set, not the ticked first
+      expect(scrolled[0][1].block).toBe('center')
+    } finally { vi.useRealTimers() }
+  })
+
   it('what the warning says is what Save does: an unticked set stays as not done and counts for nothing', () => {
     render()
     act(() => useStore.getState().update(s => { s.active.entries[0].sets[1].done = false }))

@@ -46,13 +46,13 @@ export default function Measures() {
     </div>
     {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
     {recent.length > 0 && <>
-      <h4 className="sec">{t('History')}</h4>
+      <h2 className="sec">{t('History')}</h2>
       <div className="hv-ms-list">{recent.map(b => <button key={b.d + (b.t || '')} type="button" className="hv-ms-row" onClick={weighInsSheet}>
         <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
       </button>)}</div>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
-    {(measOn || photosOn) && <h4 className="sec">{weightOn ? t('More') : t('Measures')}</h4>}
+    {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
       sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : undefined}
       onClick={() => nav('/measurements')} />}

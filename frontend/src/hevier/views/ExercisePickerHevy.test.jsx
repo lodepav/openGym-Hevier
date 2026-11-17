@@ -3,13 +3,14 @@
 // opens the fork's sheet; an add picks several, a titled pick (Replace, swap) takes one tap.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { exercisePicker, swapActiveWorkoutExercise } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
-import { installExercisePicker } from './ExercisePickerHevy.jsx'
+import { installExercisePicker, Exercises } from './ExercisePickerHevy.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -70,6 +71,17 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     click(add)
     expect(onPick.mock.calls.map(([e, quick]) => [e.id, quick])).toEqual([[SQUAT.id, true], [BENCH.id, true]])
     expect(useUI.getState().sheets).toHaveLength(0)
+  })
+
+  it('its sections are h4 under the sheet’s h3 title, and h2 under the library page’s h1', () => {
+    open(vi.fn())
+    expect(container.querySelector('.hv-pk-hd h3')).toBeTruthy()
+    expect(container.querySelectorAll('h4.sec').length).toBeGreaterThan(0)
+    expect(container.querySelector('h2.sec')).toBeNull()
+    act(() => root.render(<MemoryRouter><Exercises /></MemoryRouter>))
+    expect(container.querySelector('h1')).toBeTruthy()
+    expect([...container.querySelectorAll('h2.sec')].map(h => h.textContent)).toContain('All Exercises')
+    expect(container.querySelector('h4.sec')).toBeNull()
   })
 
   it('with nothing found, Create “…” opens the new exercise named as typed', () => {

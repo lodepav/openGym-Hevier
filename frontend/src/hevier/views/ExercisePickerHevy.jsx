@@ -198,8 +198,10 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     const when = r.d ? fmtDate(r.d) : ''
     return (r.n === 1 ? [t('once'), when] : [t('{0} times', r.n), when && t('last {0}', when)]).concat(set).filter(Boolean).join(' · ')
   }
+  // A section sits under the page's h1 in the library, under the sheet's h3 title in the picker.
+  const Sec = browse ? 'h2' : 'h4'
   const histSection = (head, rows, key) => rows.length > 0 && <section aria-label={head}>
-    <h4 className="sec">{head}</h4>
+    <Sec className="sec">{head}</Sec>
     <div className="list">{rows.map(r => row(r.ex, key, null, histLine(r)))}</div>
   </section>
 
@@ -216,18 +218,18 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span></button>
       <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}</button>
     </div>
-    {backupList.length > 0 && <><h4 className="sec">{t('Your backups')}</h4><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
+    {backupList.length > 0 && <><Sec className="sec">{t('Your backups')}</Sec><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {histSection(t('You swapped to these before'), swapRows, 'w')}
     {histSection(hereGym ? t('You have done these here') : t('You have done these'), hereRows, 'd')}
     {suggested.length > 0 && <section aria-label={sugHead}>
-      <h4 className="sec">{sugHead}</h4>
+      <Sec className="sec">{sugHead}</Sec>
       {!(swap && closeMatches.length) && <p className="small dim hv-pk-why">{suggestWhy}</p>}
       <div className="list">{suggested.map(e => row(e, 's'))}</div>
     </section>}
-    {recent.length > 0 && <><h4 className="sec">{t('Recent Exercises')}</h4><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
+    {recent.length > 0 && <><Sec className="sec">{t('Recent Exercises')}</Sec><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
     {/* D67: every match hidden by the gym, the hidden line comes first, clear of the keyboard */}
     {!(list.length === 0 && hidden.length > 0) && <>
-      <h4 className="sec">{browsing ? t('All Exercises') : tn('{0} exercise', '{0} exercises', list.length)}</h4>
+      <Sec className="sec">{browsing ? t('All Exercises') : tn('{0} exercise', '{0} exercises', list.length)}</Sec>
       <div className="list">
         {list.slice(0, shown).map(e => row(e, 'a'))}
         {list.length === 0 && <div className="empty">{t('No exercises found')}
@@ -236,7 +238,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     </>}
     {list.length > shown && <button ref={moreRef} className="btn hv-pk-more" onClick={() => setShown(s => s + PAGE)}>{t('Show more')}</button>}
     {hidden.length > 0 && (showHidden
-      ? <><h4 className="sec">{t('Not at {0}', profile?.name)}</h4><div className="list">{hidden.slice(0, showHidden).map(e => row(e, 'h', t('Needs {0}', gymLacks(profile, e).map(k => t(k)).join(', '))))}</div>
+      ? <><Sec className="sec">{t('Not at {0}', profile?.name)}</Sec><div className="list">{hidden.slice(0, showHidden).map(e => row(e, 'h', t('Needs {0}', gymLacks(profile, e).map(k => t(k)).join(', '))))}</div>
         {hidden.length > showHidden && <button className="btn hv-pk-more" onClick={() => setShowHidden(n => n + PAGE)}>{t('Show more')}</button>}</>
       : <button className="hv-pk-hidden" onClick={() => setShowHidden(PAGE)}>
         <span>{t('{0} hidden at {1}', hidden.length, profile?.name)}</span><span className="hv-link">{t('Show')}</span>

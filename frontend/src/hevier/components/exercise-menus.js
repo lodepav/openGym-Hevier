@@ -26,6 +26,8 @@ export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailu
   const hold = isHoldRow(s)
   const ticked = setTicked(sets, i)
   const otherWork = sets.some((x, j) => j !== i && !isWarmupRow(x))
+  // Why the kinds a warm-up can't be are greyed out.
+  const notWarm = t('Not for a warm-up')
   menuSheet({
     title: t('Select set type'),
     sections: [
@@ -34,9 +36,9 @@ export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailu
           onClick: () => { if (!warm) setPhaseAt(i, true) } },
         { icon: 'dumbbell', label: t('Normal set'), on: !warm && !fail && !isDropSet(s) && !hold, disabled: hold && ticked,
           onClick: () => { if (warm) setPhaseAt(i, false); else if (fail) setFailureAt(i, false); else if (hold) setHold(i, false) } },
-        !cardio && { icon: 'gauge', label: t('Failure set'), on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
-        mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: t('+ Drop'), disabled: warm || hold || isRestPauseSet(s), onClick: () => addDropRow(i) },
-        mode === 'reps' && { icon: 'timer', label: t('Timed hold'), sub: t('Seconds in place of reps'), on: hold,
+        !cardio && { icon: 'gauge', label: t('Failure set'), sub: warm ? notWarm : undefined, on: fail, disabled: warm, onClick: () => setFailureAt(i, !fail) },
+        mode === 'reps' && { icon: 'arrowDown', label: t('Drop set'), sub: warm ? notWarm : t('+ Drop'), disabled: warm || hold || isRestPauseSet(s), onClick: () => addDropRow(i) },
+        mode === 'reps' && { icon: 'timer', label: t('Timed hold'), sub: warm ? notWarm : t('Seconds in place of reps'), on: hold,
           disabled: ticked || (!hold && !canBeHold(s, mode)), onClick: () => setHold(i, !hold) },
       ] },
       { title: t('More'), items: [
