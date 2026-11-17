@@ -4,7 +4,7 @@
 # the api and mcp suites, the locale check and the fork's Java tests. The pre-push hook
 # and the release run this; see the verify skill.
 #
-#   hevier/tools/verify.sh    # about 3.5 minutes
+#   hevier/tools/verify.sh    # about 5.5 minutes
 #
 # A pass on a clean tree is remembered by commit, so pushing what was just checked doesn't
 # check it again, nor does a later commit that only touches docs or hevier/VERSION or adds an
@@ -78,7 +78,7 @@ fi
 cd frontend
 # Fewer workers beside the emulator (the verify skill). A failed test runs once more: upstream's
 # tour tests wait on real timers and fail on a loaded machine; a real failure fails twice.
-workers=4
+workers=6
 pgrep -x qemu-system-x86 >/dev/null && workers=2
 "$ROOT/hevier/tools/heavy.sh" npx vitest run --config src/hevier/build/vitest-fast.config.js --maxWorkers="$workers" --retry=1
 VITE_HEVIER=1 "$ROOT/hevier/tools/heavy.sh" npx vite build --logLevel error

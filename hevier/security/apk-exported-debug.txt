@@ -1,0 +1,5 @@
+# Exported components only debug builds have, written as in apk-exported.txt. `release-check.sh
+# --lists-only` drops them when it reads a debug APK as its release build would be; a release APK
+# with one of them fails apk-exported.txt as before. One per line, the reason after #.
+
+receiver ch.duartesantos.opengym.WatchRigReceiver    # the e2e rig's way in for the watch emulators (frontend/android/app/src/sideloadDebug/AndroidManifest.xml)

@@ -32,6 +32,10 @@
 #
 # CHECK_ONLY=1 builds, signs and runs every gate, then stops before the tag: nothing is pushed or
 # published. A version it commits stays committed, and the next run releases it as it is.
+#
+# What fails a release most is checked first: the source gates run beside verify.sh, and the APK
+# lists (permissions, native libraries, exported components) on the routine check's debug build.
+# It prints how long each step took.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -44,6 +48,7 @@ BT="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)"
 
 REPO="${VITE_UPDATE_REPO:-lodepav/openGym-Hevier}"
 cd "$ROOT"
+T=$SECONDS; took() { echo "-- $1: $((SECONDS - T)) s"; T=$SECONDS; }
 
 # Takes the local tag back (and the pushed one, if it got that far), so the version can run again.
 untag() {  # tag
@@ -111,16 +116,37 @@ publish() {  # version, lean apk, full apk
 # release-notes.mjs numbers the release and writes its notes: its tests (and supply-chain.mjs's)
 # before it is trusted with either. release-check.sh runs them again with the other gates.
 node --test hevier/tools/*.test.mjs >/dev/null || { echo "the release tools' tests fail: node --test hevier/tools/*.test.mjs" >&2; exit 2; }
+# The source gates (a Trivy finding, a new npm package) beside verify.sh, so a finding stops the
+# release before anything is built. The run beside the build below covers the release commit.
+EARLY_LOG="$(mktemp)"
+nice -n 19 hevier/tools/release-check.sh --sources-only > "$EARLY_LOG" 2>&1 & EARLY=$!
+# || true: the job has usually ended by now, and a failed kill would end the trap with its status.
+trap '[[ -z "$EARLY" ]] || kill "$EARLY" 2>/dev/null || true; wait; rm -f "$EARLY_LOG"' EXIT
 hevier/tools/verify.sh || { echo "the checks fail: nothing released" >&2; exit 2; }
+wait "$EARLY" || { EARLY=; cat "$EARLY_LOG"; echo "the source gates fail: nothing released" >&2; exit 2; }
+EARLY=; rm -f "$EARLY_LOG"; trap - EXIT
+took checks
 # Every routine of the test profile opens as it did at the last release: a debug build of this
-# commit on the emulator (routine-check.sh, about 5 minutes; ROUTINE_CHECK=0 leaves it out). An
-# emulator this started is stopped again, so the release build has the memory.
+# commit on the emulator (routine-check.sh, about a minute; --once skips it when it passed for
+# this app already, ROUTINE_CHECK=0 leaves it out). An emulator this started is stopped again,
+# so the release build has the memory.
 if [[ "${ROUTINE_CHECK:-1}" != 0 ]]; then
   WAS_UP="$("$ANDROID_HOME/platform-tools/adb" get-state 2>/dev/null || true)"
-  hevier/tools/routine-check.sh --build || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
+  DEBUG_APK=frontend/android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk STARTED=$(date +%s)
+  RSTAMP="$(git rev-parse --path-format=absolute --git-common-dir)/hevier-routines-checked"
+  hevier/tools/routine-check.sh --build --once || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
   [[ -n "$WAS_UP" ]] || "$ANDROID_HOME/platform-tools/adb" emu kill >/dev/null 2>&1 || true
   (cd frontend/android && ./gradlew --stop -q) >/dev/null 2>&1 || true
+  # Its debug APK asks for what the release will: a permission, library or exported component
+  # missing from hevier/security stops here, before the version is committed. Only when the check
+  # ran just now (its stamp is new; Gradle leaves an unchanged APK's date alone): skipped by --once,
+  # the APK may be another commit's, and the release APKs get the same gates below.
+  if [[ -f "$DEBUG_APK" && -f "$RSTAMP" && $(stat -c %Y "$RSTAMP") -ge $STARTED ]]; then
+    hevier/tools/release-check.sh --lists-only --apk "$DEBUG_APK" \
+      || { echo "the debug APK fails the release's lists in hevier/security: nothing released" >&2; exit 2; }
+  fi
 fi
+took "routine check"
 # Gradle's daemon takes about 40 s to start: start it now, while the notes are read, so the build
 # below finds it running (the build waits for this first: a busy daemon would make it start another).
 (cd frontend/android && nice -n 19 ./gradlew help -q --max-workers=2) >/dev/null 2>&1 & WARM=$!
@@ -165,6 +191,7 @@ else
   }
   VER="$NEW"
 fi
+took "version and notes"
 TMP="$(mktemp -d)"
 # The gates that read only the committed sources (git history, Trivy, npm packages) run while the
 # APK builds; the rest run once it is signed (D26). Stopped too if the build fails.
@@ -254,6 +281,7 @@ fi
 (cd android && ./gradlew --stop -q) >/dev/null 2>&1 || true
 # cap sync rewrites these in place; a release check needs the tree as committed.
 git -C "$ROOT" checkout -q -- frontend/android/capacitor.settings.gradle frontend/android/app/capacitor.build.gradle frontend/ios 2>/dev/null || true
+took build
 
 # First release: pin this key's certificate (D38), on this machine only.
 cd "$ROOT"
@@ -279,8 +307,10 @@ hevier/tools/release-check.sh --no-sources --no-build --apk "$OUT" || REST_OK=
 hevier/tools/release-check.sh --no-sources --no-build --apk "$FULL" || REST_OK=
 [[ -n "$SRC_OK" && -n "$REST_OK" ]] || {
   echo; echo "release check failed: nothing tagged or published" >&2; exit 1; }
+took "release check"
 [[ "${CHECK_ONLY:-}" == 1 ]] && { echo; echo "Go Hevier $VER passed every gate; CHECK_ONLY: nothing tagged or published"; exit 0; }
 
 git tag -a "gohevier-v$VER" -m "Go Hevier $VER" && echo "tagged gohevier-v$VER"
 publish "$VER" "$OUT" "$FULL"
 echo "published: https://github.com/$REPO/releases/tag/gohevier-v$VER"
+took publishing
