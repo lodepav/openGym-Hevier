@@ -69,7 +69,7 @@ its last pass (or, without one, in the last commit) it also runs `npm test` in `
 Android SDK there. `api/` and `mcp/` need `npm ci` once a clone.
 
 ```bash
-../hevier/tools/verify.sh                 # ~3.5 min, more when api/, mcp/ or Java changed: Bash timeout 600000
+../hevier/tools/verify.sh                 # ~5.5 min, more when api/, mcp/ or Java changed: Bash timeout 600000
 ```
 
 - A red **upstream** test means a seam or a fork wrapper changed behaviour it shouldn't have.
