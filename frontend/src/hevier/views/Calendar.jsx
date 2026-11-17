@@ -33,11 +33,13 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const ws = weekStartOf(st)
   const cells = monthCells(y, mo, ws)
   const n = cells.reduce((sum, iso) => sum + (iso && byDay[iso] ? byDay[iso].length : 0), 0)
+  const heading = <>
+    <b>{small ? t(MONTHS_LONG[mo]) : `${t(MONTHS_LONG[mo])} ${y}`}</b>
+    {!small && n > 0 && <span>{tn('{0} workout', '{0} workouts', n)}</span>}
+  </>
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
-    <h2 className="hv-cal-mh"><button type="button" className="hv-cal-mt" onClick={onTitle} disabled={!onTitle}>
-      <b>{small ? t(MONTHS_LONG[mo]) : `${t(MONTHS_LONG[mo])} ${y}`}</b>
-      {!small && n > 0 && <span>{tn('{0} workout', '{0} workouts', n)}</span>}
-    </button></h2>
+    <h2 className="hv-cal-mh">{onTitle ? <button type="button" className="hv-cal-mt" onClick={onTitle}>{heading}</button>
+      : <span className="hv-cal-mt">{heading}</span>}</h2>
     <div className="hv-cal-g">
       {!small && weekOrder(ws).map(d => <span key={d} className="hv-cal-h">{t(DAYS[d])}</span>)}
       {cells.map((iso, i) => {
@@ -51,7 +53,8 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
         const title = dayTitle(byDay[iso]) || (plan && !small ? planTitle(st, iso, byDay, today) : '')
         return small
           ? <span key={iso} className={cls} />
-          : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} onClick={() => openDay(iso, byDay[iso])}>
+          : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} aria-current={iso === today ? 'date' : undefined}
+            onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
             {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{title}</span>}
           </button>

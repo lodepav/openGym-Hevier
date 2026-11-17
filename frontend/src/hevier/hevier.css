@@ -42,11 +42,11 @@
 :root[data-ui="hevier"] .hv-strap-list{display:flex;flex-direction:column;gap:8px}
 :root[data-ui="hevier"] .hv-strap-dev{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:12px;background:var(--surface);border:0;color:var(--label);text-align:left}
 /* D80: the strap's heart rate full screen and its zones (Garmin's colours, grey to red). */
-:root[data-ui="hevier"] .hv-z1{--z:#8e9aaf}
-:root[data-ui="hevier"] .hv-z2{--z:#0a84ff}
-:root[data-ui="hevier"] .hv-z3{--z:#30d158}
-:root[data-ui="hevier"] .hv-z4{--z:#ff9f0a}
-:root[data-ui="hevier"] .hv-z5{--z:#ff453a}
+:root[data-ui="hevier"] .hv-z1{--z:var(--hv-zone-1)}
+:root[data-ui="hevier"] .hv-z2{--z:var(--hv-zone-2)}
+:root[data-ui="hevier"] .hv-z3{--z:var(--hv-zone-3)}
+:root[data-ui="hevier"] .hv-z4{--z:var(--hv-zone-4)}
+:root[data-ui="hevier"] .hv-z5{--z:var(--hv-zone-5)}
 :root[data-ui="hevier"] .hv-hrscreen{position:absolute;inset:0;background:var(--bg);color:var(--label);display:flex;flex-direction:column;align-items:stretch;gap:22px;padding:var(--sat) 16px calc(var(--sab) + 16px);overflow-y:auto;animation:pop-fade .2s var(--ease)}
 :root[data-ui="hevier"] .hv-hrscreen-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
 :root[data-ui="hevier"] .hv-hrscreen-bar .hv-title{flex:1;text-align:center;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -120,7 +120,7 @@
 :root[data-ui="hevier"] .hv-acts button:disabled{opacity:.5}
 :root[data-ui="hevier"] .hv-acts .hv-more .icn{transform:none}
 :root[data-ui="hevier"] .hv-ss{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-:root[data-ui="hevier"] .hv-sspill{background:var(--hv-superset,var(--purple));color:#000;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
+:root[data-ui="hevier"] .hv-sspill{background:var(--hv-superset,var(--purple));color:var(--hv-on-meaning);font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
 :root[data-ui="hevier"] .hv-noprog{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-link{color:var(--hv-acc-ink);background:none;padding:0;font-size:13px}
 :root[data-ui="hevier"] .hv-note{font-size:14px;margin-bottom:4px}
@@ -171,7 +171,6 @@
   /* D127: there the values and gaps give PREVIOUS a few more pixels, so "L 10kg × 11" stays on a line */
   :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid{column-gap:4px;grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 36px}
   :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid.hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 34px 36px}
-  :root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){font-size:18px}
 }
 :root[data-ui="hevier"] .hv-head .hv-prev-short{display:none}
 /* at 360 px or less PREVIOUS no longer fits its header, and last time's set ran into the weight box */
@@ -642,8 +641,8 @@
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-mt b{font-size:13px}
 :root[data-ui="hevier"] .hv-cal-c{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:49px;width:100%;min-width:0;background:none;border:0;padding:0;color:inherit}
 :root[data-ui="hevier"] .hv-cal-tl{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:9px;line-height:1.1;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-cal-d.done.k-cardio,:root[data-ui="hevier"] .hv-cal-key .k-cardio{background:var(--hv-cardio,var(--green));color:#000}
-:root[data-ui="hevier"] .hv-cal-d.done.k-deload,:root[data-ui="hevier"] .hv-cal-key .k-deload{background:var(--hv-deload,var(--orange));color:#000}
+:root[data-ui="hevier"] .hv-cal-d.done.k-cardio,:root[data-ui="hevier"] .hv-cal-key .k-cardio{background:var(--hv-cardio,var(--green));color:var(--hv-on-meaning)}
+:root[data-ui="hevier"] .hv-cal-d.done.k-deload,:root[data-ui="hevier"] .hv-cal-key .k-deload{background:var(--hv-deload,var(--orange));color:var(--hv-on-meaning)}
 :root[data-ui="hevier"] .hv-cal-key .k-strength{background:var(--acc)}
 :root[data-ui="hevier"] .hv-cal-key{display:flex;gap:14px;justify-content:center;margin:10px 0 2px;font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-cal-key span{display:flex;align-items:center;gap:5px}
@@ -879,6 +878,12 @@
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
+/* Text-sized secondary buttons (31–40 dp) reach 44 dp, up and down only, so a neighbour beside one keeps its own (A1). */
+:root[data-ui="hevier"] :is(.hv-next-plan, .hv-range, .hv-ftoggle, .hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look){position:relative}
+:root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-4px 0}
+:root[data-ui="hevier"] .hv-next-plan::after{content:"";position:absolute;inset:-2px 0}
+:root[data-ui="hevier"] .hv-range::after{content:"";position:absolute;inset:-6px 0}
+:root[data-ui="hevier"] .hv-ftoggle::after{content:"";position:absolute;inset:-7px 0}
 /* Plain stand-ins where color-mix() is missing (Safari before 16.2; upstream's color-mix-fallback test) */
 @supports not (color: color-mix(in srgb, red 50%, blue)){
 :root[data-ui="hevier"] .hv-row.done{background:var(--surface-2)}
@@ -933,8 +938,9 @@
 :root[data-ui="hevier"] #modal-root .center .btn ~ .btn{margin-top:8px}
 
 /* ---------- Today (hevier/views/Today.jsx, D134) ---------- */
-:root[data-ui="hevier"] .hv-cap{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-next .hv-next-n{margin:2px 0 6px;color:var(--label);font-size:24px;font-weight:800;line-height:1.15}
+/* the small line over a card or a group: the section heading's style (:is(h2, h3).sec), not tracked caps */
+:root[data-ui="hevier"] .hv-cap{display:block;font-size:var(--fs-footnote);font-weight:400;letter-spacing:-.004em;text-transform:none;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-next .hv-next-n{margin:2px 0 6px;color:var(--label);font-size:22px;font-weight:800;line-height:1.15}
 :root[data-ui="hevier"] .hv-next-ex{display:flex;gap:10px;padding:7px 0;font-size:14px;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-next-ex .grow{flex:1;min-width:0;font-weight:700}
 /* the sets wrap before they squeeze the name past its longest word (320 dp at 130% font) */

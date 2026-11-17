@@ -34,6 +34,7 @@ import { unitMoveSteps } from '../lib/reorder-units.js'
 import { openSet, pickAt } from '../lib/open-set.js'
 import { scrollZone, progressOpen, resolveOpen } from '../lib/header-open.js'
 import { propsSig } from '../lib/card-state.js'
+import { weightDecimals } from '../../lib/format.js'
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -119,6 +120,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     const entry = A.entries[idx]
     const props = {
       ...blockProps(idx),
+      // App sets the decimals in an effect; a memo'd card takes them on at the next render, as the rest of the app does
+      wdec: weightDecimals(),
       superset: unit.length > 1 ? unit : null,
       onUnpair: unit.length > 1 ? () => unpairAt(idx) : null,
       onPairPrev: idx > 0 ? () => pairAt(idx - 1, idx) : null,
@@ -150,6 +153,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
 
   const live = !(A.backfill || editing)
   return <div className="hv-workout">
+    {/* a heading TalkBack can jump to; the name on the bar is a button */}
+    <h1 className="vh">{editing ? t('Edit workout') : A.name || t('Log workout')}</h1>
     <div className="hv-whdr">
       <div className="hv-bar">
         {editing

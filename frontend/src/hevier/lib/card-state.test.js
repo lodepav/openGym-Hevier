@@ -36,6 +36,14 @@ describe('the exercise cards that a change re-renders (sameForCard)', () => {
     expect(sameForCard(a, after(a, n => { n.workouts = [{ id: 'w' }] }), 0)).toBe(false)
   })
 
+  it('re-renders every card when a partner leaves a superset, so the rest see the new rounds', () => {
+    const a = base()
+    a.active.entries.forEach(e => { e.sg = 's' })
+    const b = after(a, n => { delete n.active.entries[2].sg })
+    expect(sameForCard(a, b, 0, [0, 1, 2])).toBe(false)
+    expect(sameForCard(a, b, 1, [0, 1])).toBe(false)
+  })
+
   it('re-renders every card for the session’s own fields and for an exercise added, not for cur', () => {
     const a = base()
     expect(sameForCard(a, after(a, n => { n.active.cur = 2 }), 0)).toBe(true)

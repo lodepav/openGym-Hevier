@@ -228,7 +228,7 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "A routine's name on its page and in its editor, a saved workout's title, the docked rest's next set."
+        "purpose": "A routine's name on its page and in its editor, a saved workout's title, the docked rest's next set, Today's next session (800)."
       },
       "title": {
         "displayName": "Title",
@@ -248,7 +248,7 @@
       },
       "section": {
         "displayName": "Section",
-        "purpose": "The grey heading over a part of a page (h2, or h3 under an h2)."
+        "purpose": "The grey heading over a part of a page (h2, or h3 under an h2), and the small line over Today's cards and History's link groups."
       },
       "label": {
         "displayName": "Label",

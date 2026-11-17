@@ -15,7 +15,7 @@ import { fitNumbers } from '../lib/fit-numbers.js'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass, useLang } from '../../lib/i18n.js'
 import { fmtNum, fmtPlate } from '../../lib/format.js'
 import { restTimerText, elapsedClock } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
@@ -87,6 +87,8 @@ function SwipeRowLive({ closeKey, ...rest }) {
 // card is memo'd on `sig` (lib/card-state.js propsSig) and calls the handlers through it, so a
 // skipped render never leaves it with old ones.
 function HevyExerciseBlock({ entryIdx, live }) {
+  // memo stops the app's re-render when a language pack lands: the card listens itself
+  useLang()
   const props = live.current
   const { editing, superset, open } = props
   const call = k => (...a) => live.current[k]?.(...a)

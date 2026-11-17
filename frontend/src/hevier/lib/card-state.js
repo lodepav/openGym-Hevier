@@ -43,6 +43,8 @@ export function sameForCard(a, b, idx, unit) {
   const A = a.active, B = b.active
   if (!A || !B) return A === B
   if (A.entries?.length !== B.entries?.length) return false
+  // a partner leaving a superset of three changes only its own sg; the rest still draw the old rounds
+  if (A.entries.some((e, j) => e?.sg !== B.entries[j]?.sg)) return false
   const keys = new Set([...Object.keys(A), ...Object.keys(B)])
   for (const k of keys) if (!ACTIVE_SKIP.has(k) && !sameField(A[k], B[k])) return false
   for (const j of new Set([idx, ...(unit || [])])) if (!equal(A.entries[j], B.entries[j])) return false

@@ -5,7 +5,7 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -13,6 +13,8 @@ import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { previousSetsFor } from '../lib/previous-sets.js'
 import { supersetUnits } from '../../lib/history.js'
+import { setLang } from '../../lib/i18n.js'
+import { setWeightDecimals } from '../../lib/format.js'
 import HevyWorkout from './HevyWorkout.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -166,5 +168,22 @@ describe('hevier: the live workout re-renders only the card that changed', () =>
     expect(n[1]).toBeGreaterThan(0)
     expect(n[0]).toBeUndefined()
     expect(n[2]).toBeUndefined()
+  })
+
+  it('a card takes on a language pack that lands, though nothing in it changed', async () => {
+    render([entry(0), entry(1)])
+    onTestFinished(async () => { await act(async () => { await setLang('en') }) })
+    await act(async () => { await setLang('de') })
+    expect(card(1).querySelector('.hv-thumb').getAttribute('aria-label')).toBe('So geht’s')
+  })
+
+  it('a card takes on new weight decimals at the next render of the workout', () => {
+    const past = { id: 'w0', d: '2026-10-01', start: 1, end: 2, name: 'Old', entries: [{ id: REPS[1], sets: [{ w: 52.25, r: 8, done: true }] }] }
+    render([entry(0), entry(1)], [past])
+    onTestFinished(() => setWeightDecimals(1))
+    expect(card(1).querySelector('.hv-prev').textContent).toContain('52.3')
+    setWeightDecimals(2)
+    typeInto(card(0).querySelector('input.hv-num'), '61')
+    expect(card(1).querySelector('.hv-prev').textContent).toContain('52.25')
   })
 })
