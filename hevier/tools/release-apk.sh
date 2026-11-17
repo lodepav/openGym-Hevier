@@ -85,8 +85,8 @@ publish() {  # version, lean apk, full apk
   notes+=$'\n\nInstall go-hevier-'"$ver"'.apk, or update from Settings → About & updates. It downloads the exercise pictures once (about '"$mb"' MB) and keeps them across updates.'
   notes+=$'\n\ngo-hevier-full-'"$ver"'.apk carries the pictures inside, for a first install without a connection. Each download is checked against its .sha256 file.'
   echo; echo "$notes"; echo
-  # The pre-push hook may run the whole suite: without this build's flags, which upstream's tests
-  # do not expect (the release commit's fixture is not a doc, so the earlier pass does not cover it).
+  # The pre-push hook passes on the stamp (verify.sh lets a new fixture through; its upgrade test ran
+  # after the commit). Should it run the suite: without this build's flags, upstream's tests expect none.
   [[ "$(git branch --show-current)" == hevier/main ]] && env -u VITE_MOBILE -u VITE_HEVIER -u VITE_HEVIER_MEDIA -u VITE_UPDATE_REPO git push -q origin hevier/main
   # The pictures before the app's tag: an app release must never point at a zip that is not there.
   publish_media || {
@@ -157,6 +157,12 @@ else
   hevier/tools/upgrade-fixture.sh "$NEW"
   git add hevier/VERSION hevier/CHANGELOG.md "frontend/src/hevier/upgrade/fixtures/$NEW.json"
   git commit -q -m "hevier: Go Hevier $NEW" -- hevier/VERSION hevier/CHANGELOG.md "frontend/src/hevier/upgrade/fixtures/$NEW.json"
+  # The new fixture, checked here so the push's verify.sh need not run the suite again.
+  (cd frontend && ../hevier/tools/heavy.sh npx vitest run src/hevier/upgrade/upgrade.test.jsx) || {
+    echo "the upgrade test fails on the new fixture: nothing built or released." >&2
+    echo "The release commit stays; git reset --hard HEAD^ drops it." >&2
+    exit 2
+  }
   VER="$NEW"
 fi
 TMP="$(mktemp -d)"

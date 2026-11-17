@@ -7,7 +7,8 @@
 #   hevier/tools/verify.sh    # about 3.5 minutes
 #
 # A pass on a clean tree is remembered by commit, so pushing what was just checked doesn't
-# check it again, nor does a later commit that only touches docs or hevier/VERSION.
+# check it again, nor does a later commit that only touches docs or hevier/VERSION or adds an
+# upgrade fixture (the release checks that with the upgrade test).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -28,10 +29,12 @@ already_checked() {
   git merge-base --is-ancestor "$last" HEAD 2>/dev/null || return 1
   # Read whole first: in a pipe, grep -q stops a long list early and pipefail turns that into "only docs".
   names="$(git diff --name-only "$last" HEAD)"
-  [[ -z "$names" ]] || ! grep -qvE '\.md$|^hevier/VERSION$' <<<"$names"
+  [[ -z "$names" ]] || ! grep -qvE '\.md$|^hevier/VERSION$|^frontend/src/hevier/upgrade/fixtures/[^/]+\.json$' <<<"$names" || return 1
+  # A fixture only when added: a changed or deleted one changes what the upgrade test checks.
+  [[ -z "$(git diff --name-only --diff-filter=a "$last" HEAD -- frontend/src/hevier/upgrade/fixtures)" ]]
 }
 if already_checked; then
-  echo "verify: passed at $(git rev-parse --short "$(cat "$STAMP")"), and only docs changed since"
+  echo "verify: passed at $(git rev-parse --short "$(cat "$STAMP")"), and only docs or a new upgrade fixture changed since"
   exit 0
 fi
 
