@@ -127,7 +127,9 @@ function FinishSheet({ nav, close }) {
     </div>
     {left > 0 && <p className="hv-fin-warn">{facts.none
       ? t('You haven’t checked off any sets. Finish the workout anyway?')
-      : tn('{0} set still unchecked. Finish the workout now?', '{0} sets still unchecked. Finish the workout now?', left)}</p>}
+      // What Save does with them (lib/finish-workout.js buildCompletedWorkout): an unticked set stays on
+      // the record as not done, out of volume and records, and an exercise with none ticked is dropped.
+      : <><b>{t('{0} not ticked.', tn('{0} set', '{0} sets', left))}</b> <span>{t('Only ticked sets count, and an exercise with none is left out.')}</span></>}</p>}
     {facts.changed && <button type="button" role="checkbox" aria-checked={keepInRoutine} className="hv-fin-chk" onClick={() => setKeep(v => !v)}>
       <span className={'chk' + (keepInRoutine ? ' on' : '')} aria-hidden="true"><Icon name="check" /></span>
       <span><b>{t('Update the routine too')}</b><small>{changedText(facts.changed, t)}</small></span>

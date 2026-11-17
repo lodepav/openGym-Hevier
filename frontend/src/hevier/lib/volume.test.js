@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { volumeMode, muscleMode, workSets, muscleSets } from './volume.js'
-import { loadOf, MUSCLE_NAME } from '../../lib/muscles.js'
+import { volumeMode, muscleMode, workSets, muscleSets, mainMuscleLoad } from './volume.js'
+import { loadOf, MUSCLE_NAME, MUSCLES } from '../../lib/muscles.js'
+import { MUSCLE_GROUPS } from './muscle-groups.js'
 import { muscleOf } from './exercise-picker.js'
 
 const byMuscle = m => EXDB.filter(e => muscleOf(e) === m)
@@ -53,5 +54,17 @@ describe('hevier: secondary muscles in part (D42)', () => {
     expect(list[0]).toEqual({ muscle: MUSCLE_NAME.chest, sets: Math.round(load.chest * 10) / 10 })
     expect(list.length).toBe(Object.values(load).filter(v => v > 0).length)
     expect(list.slice(1).every(r => r.sets < 2)).toBe(true)
+  })
+
+  it('the map load for main muscles: each name its slug, Shoulders over its heads, Cardio none', () => {
+    expect(mainMuscleLoad([{ muscle: 'Upper Back', sets: 3 }, { muscle: 'Neck', sets: 1 }, { muscle: 'Cardio', sets: 2 }]))
+      .toEqual({ 'upper-back': 3, trapezius: 1 })
+    expect(mainMuscleLoad([{ muscle: 'Shoulders', sets: 2 }])).toEqual({ 'front-delts': 2, 'side-delts': 1.2, 'rear-delts': 0.8 })
+    // Every name a main muscle can be (the catalogue's, and the ones a user can choose, D76) lights the map.
+    const names = new Set([...EXDB.map(muscleOf), ...MUSCLE_GROUPS.flatMap(g => g.names)])
+    for (const muscle of names) {
+      if (!muscle || muscle === 'Cardio') continue
+      expect(Object.keys(mainMuscleLoad([{ muscle, sets: 1 }])).some(s => MUSCLES.includes(s)), muscle).toBe(true)
+    }
   })
 })

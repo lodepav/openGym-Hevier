@@ -15,7 +15,7 @@ import { exerciseNameText, fmtNum, uid } from '../../lib/format.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, pickedExerciseConfig, isBw, NOTE_MAX, pairAdjacent } from '../../lib/history.js'
 import { supersetMeta, setSupersetMeta } from '../../lib/superset-meta.js'
-import { fmtRest, REST_MAX } from '../../lib/duration.js'
+import { REST_MAX } from '../../lib/duration.js'
 import { replaceSlotExercise } from '../../lib/routines.js'
 import { copyRoutineHere } from '../lib/routine-copy.js'
 import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
@@ -179,8 +179,8 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const restText = restTimerText(e.restSec, S.restSec, t('Off'))
   const openRest = () => durationSheet({
     title: t('Rest for this exercise'), value: e.restSec > 0 ? e.restSec : 0, max: REST_MAX,
-    off: t('Default ({0})', fmtRest(S.restSec)),
-    footer: t('Rest after each set of this exercise. 0:00 means your default rest.'),
+    off: t('Settings ({0})', restTimerText(S.restSec, 0, t('Off'))),
+    footer: t('Rest after each set of this exercise. 0:00 means your rest from Settings.'),
     onDone: v => edit(c => { const next = { ...c }; if (v > 0) next.restSec = v; else delete next.restSec; return next }),
   })
   const saveNote = text => edit(c => {

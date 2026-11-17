@@ -83,7 +83,8 @@ describe('hevier Finish sheet (D132)', () => {
     expect(path).toBe('/workout')
     expect(el.querySelector('h3').textContent).toBe('Finish Upper A?')
     expect(el.textContent).toContain('2 sets')
-    expect(el.querySelector('.hv-fin-warn').textContent).toBe('1 set still unchecked. Finish the workout now?')
+    expect(el.querySelector('.hv-fin-warn').textContent).toBe('1 set not ticked. Only ticked sets count, and an exercise with none is left out.')
+    expect(el.querySelector('.hv-fin-warn b').textContent).toBe('1 set not ticked.')
     expect(el.querySelector('.hv-fin-chk')).toBeNull()   // the workout matches its routine
     expect(el.querySelector('.hv-fin-fields')).toBeNull()
   })
@@ -100,6 +101,18 @@ describe('hevier Finish sheet (D132)', () => {
     expect(useUI.getState().toastMsg).toBe('Workout saved')
     act(() => useUI.getState().toastAction.run())
     expect(hooks.workoutDetail).toHaveBeenCalledWith(expect.objectContaining({ id: S().workouts[0].id }))
+  })
+
+  it('what the warning says is what Save does: an unticked set stays as not done and counts for nothing', () => {
+    render()
+    act(() => useStore.getState().update(s => { s.active.entries[0].sets[1].done = false }))
+    const el = finish()
+    expect(el.querySelector('.hv-fin-warn').textContent).toContain('2 sets not ticked.')
+    act(() => el.querySelector('.hv-fin-save').click())
+    const [bench] = S().workouts[0].entries
+    expect(S().workouts[0].entries.map(e => e.id)).toEqual([BENCH])
+    expect(bench.sets.map(x => !!x.done)).toEqual([true, false])
+    expect(S().workouts[0].vol).toBe(60 * 5)
   })
 
   it('a duration changed on the sheet is the saved workout’s', () => {

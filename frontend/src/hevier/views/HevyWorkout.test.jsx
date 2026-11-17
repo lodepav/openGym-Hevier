@@ -503,6 +503,44 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sides.L.done).toBe(false)
   })
 
+  it('rest reads as a clock, and a set’s rest sheet names the exercise’s rest and the picked time', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8, restSec: 120 }, sets: [reps(100, 8), reps(100, 8, { restSec: 150 })] }])
+    expect(container.querySelector('[aria-label="Rest: 2:00"]')).toBeTruthy()
+    const items = i => {
+      act(() => container.querySelectorAll('.hv-set')[i].click())
+      const rest = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).find(x => x?.label === 'Rest after this set')
+      act(() => rest.onClick())
+      const out = [rest.sub, ...useUI.getState().sheets.at(-1).render(() => {}).props.items.map(x => (x.on ? '*' : '') + x.label)]
+      useUI.setState({ sheets: [] })
+      return out
+    }
+    expect(items(0)).toEqual(['This exercise (2:00)', '*This exercise (2:00)', 'No timer', 'Pick a time'])
+    expect(items(1)).toEqual(['2:30', 'This exercise (2:00)', 'No timer', '*Pick a time · 2:30'])
+  })
+
+  it('the card’s rest button opens the fork’s sheet: Settings named, No timer and a picked time shown', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(100, 8)] }])
+    const btn = () => container.querySelector('[aria-label^="Rest: "]')
+    const rows = () => {
+      act(() => btn().click())
+      return useUI.getState().sheets.at(-1).render(() => {}).props.items
+    }
+    expect(btn().getAttribute('aria-label')).toBe('Rest: 1:30')
+    expect(rows().map(x => (x.on ? '*' : '') + x.label)).toEqual(['*Settings (1:30)', 'No timer', 'Pick a time'])
+    act(() => rows()[1].onClick())
+    useUI.setState({ sheets: [] })
+    expect(useStore.getState().S.active.entries[0].target).toMatchObject({ restOff: true })
+    expect(btn().getAttribute('aria-label')).toBe('Rest: No timer')
+    act(() => rows()[2].onClick())
+    act(() => useUI.getState().sheets.at(-1).render(() => {}).props.onDone(150))
+    useUI.setState({ sheets: [] })
+    expect(useStore.getState().S.active.entries[0].target.restSec).toBe(150)
+    expect(useStore.getState().S.active.entries[0].target.restOff).toBeUndefined()
+    expect(btn().getAttribute('aria-label')).toBe('Rest: 2:30')
+    expect(rows().map(x => (x.on ? '*' : '') + x.label)).toEqual(['Settings (1:30)', 'No timer', '*Pick a time · 2:30'])
+    useUI.setState({ sheets: [] })
+  })
+
   it('the set type menu adds drops and bursts, edited and removed in their own rows (D5)', () => {
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(100, 8)] }])
     const pick = label => {

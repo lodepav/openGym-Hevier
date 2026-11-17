@@ -14,7 +14,7 @@ import { fmtNum, fmtVol, exerciseNameText, weekOrder, DAYS } from '../../lib/for
 import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
 import { speedUnitOf } from '../../lib/speed.js'
-import { volumeMode, muscleMode, workSets, muscleSets } from './volume.js'
+import { volumeMode, muscleMode, workSets, muscleSets, mainMuscleLoad } from './volume.js'
 import { workoutRecords, recordValue, KINDS } from './records.js'
 import { workoutTimeText, workoutWhenText } from './workout-when.js'
 import { sanitizeHr } from '../../lib/heart-rate.js'
@@ -92,7 +92,8 @@ export function shareCards(S, w, { body = 'male' } = {}) {
     }),
   })
 
-  const levels = levelsOf(loadOfWorkouts([w]))
+  // The map follows Settings → Muscle sets (D42) as the bars do: in 'main' only the muscles they count.
+  const levels = levelsOf(muscleMode(S) === 'main' ? mainMuscleLoad(muscles) : loadOfWorkouts([w]))
   if (MUSCLES.some(m => levels[m] > 0)) {
     const top = muscles.slice(0, MAX_MUSCLES)
     cards.push({
@@ -140,7 +141,7 @@ export function monthCards(S, { y, mo, report: r, workouts = [], byDay = {}, ws 
     days: weekOrder(ws).map(d => t(DAYS[d])),
     cells: monthCells(y, mo, ws).map(iso => iso && { day: Number(iso.slice(8)), kind: dayKind(byDay[iso]) }),
   })
-  const levels = levelsOf(loadOfWorkouts(monthWorkouts(workouts, y, mo)))
+  const levels = levelsOf(muscleMode(S) === 'main' ? mainMuscleLoad(r.muscles) : loadOfWorkouts(monthWorkouts(workouts, y, mo)))
   if (r.muscles.length && MUSCLES.some(m => levels[m] > 0)) {
     const top = r.muscles.slice(0, MAX_MUSCLES)
     cards.push({

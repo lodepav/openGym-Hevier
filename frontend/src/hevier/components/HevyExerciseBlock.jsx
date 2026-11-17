@@ -65,9 +65,9 @@ import { plateLineOn, warmupEffortOn } from '../lib/settings.js'
 import { withDrop, withBurst, withFailure, withSideField } from '../lib/set-rows.js'
 import { useTouchedFields } from './useTouchedFields.js'
 import { setLoads, plateLineAt } from '../lib/plate-line.js'
-import { setTypeMenu, exerciseMenu } from './exercise-menus.js'
+import { setTypeMenu, exerciseMenu, exerciseRestMenu } from './exercise-menus.js'
 import { defaultRestFor, setOwnRest } from '../lib/rest-extra.js'
-import { ownSetRest } from '../../lib/supersetFlow.js'
+import { ownSetRest, ownExerciseRest } from '../../lib/supersetFlow.js'
 import SubRows from './SubRows.jsx'
 import { setNoteOf } from '../../lib/set-notes.js'
 
@@ -259,8 +259,8 @@ export default function HevyExerciseBlock(props) {
     if (unitChoice?.step != null && !(entry.target?.inc > 0)) update(s => { const e = s.active?.entries[entryIdx]; if (e) e.target = { ...(e.target || {}), inc: convert(unitChoice.step, unitChoice.u, unit) } })
   }, [unitChoice?.step, entry.target?.inc])
 
-  const ownRest = entry.target?.restSec > 0 ? entry.target.restSec : 0
-  const restText = restTimerText(ownRest, S.restSec, t('Off'))
+  const ownRest = ownExerciseRest(entry.target)
+  const restText = ownRest === 0 ? t('No timer') : restTimerText(ownRest, S.restSec, t('Off'))
   const plateLoading = !editing
   // D8: the ⋮ menu (exercise-menus.js).
   const openMore = () => exerciseMenu(props, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
@@ -550,7 +550,7 @@ export default function HevyExerciseBlock(props) {
       {props.onSwap && <button type="button" disabled={props.busy} onClick={props.onSwap}><Icon name="swap" /><span>{t('Swap')}</span></button>}
       <button type="button" className={entry.note ? 'on' : undefined} onClick={() => exerciseNoteSheet(entryIdx)}><Icon name="note" /><span>{t('Note')}</span></button>
       <button type="button" onClick={() => exerciseHistorySheet(entry.id)}><Icon name="history" /><span>{t('History')}</span></button>
-      {onRest && <button type="button" aria-label={t('Rest') + ': ' + restText} onClick={onRest}><Icon name="timer" /><span>{restText}</span></button>}
+      {onRest && <button type="button" aria-label={t('Rest') + ': ' + restText} onClick={() => exerciseRestMenu(useStore.getState().S, update, entryIdx)}><Icon name="timer" /><span>{restText}</span></button>}
       {props.onReorder && <button type="button" disabled={props.busy} onClick={() => reorderExercisesSheet(props.onReorder)}><Icon name="chevronsUpDown" /><span>{t('Reorder')}</span></button>}
       <button type="button" className="hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /><span>{t('More')}</span></button>
     </div>}

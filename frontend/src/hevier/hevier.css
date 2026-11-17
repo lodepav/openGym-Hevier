@@ -257,6 +257,12 @@
 /* In the workout the toast sits above the rest bar's height, so Undo neither hides the rest bar
    nor the "+ Add Set" a swipe-delete leaves near the bottom (UX review, round 1). */
 :root[data-ui="hevier"] body.no-tabbar #toast{bottom:calc(96px + var(--sab))}
+/* The page ends above that toast (96 + its 44 + 8), so at the end of the list Undo leaves Add Exercise
+   and Settings / Discard in view; the docked rest keeps its own room (D127, 210px). */
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar #app{padding-bottom:calc(148px + var(--sab))}
+/* Over the docked rest (about 157px: clock, bar, the +1 min row) it rises above the panel.
+   shortcut: a px guess at the panel's height, too low with very large text; measure the panel if that shows. */
+:root[data-ui="hevier"] body.no-tabbar.hv-dock-room #toast{bottom:calc(164px + var(--sab))}
 /* Over a sheet it clears the tallest foot, the Finish sheet's Save and its link row (20 + 50 + 48). */
 :root[data-ui="hevier"] body:has(#modal-root.open) #toast{bottom:calc(132px + var(--sab))}
 
@@ -989,6 +995,7 @@
 :root[data-ui="hevier"] .hv-fin-dur{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-fin-min{width:52px;min-height:40px;text-align:end;color:var(--acc)}
 :root[data-ui="hevier"] .hv-fin-warn{color:var(--orange);margin:0 0 12px}
+:root[data-ui="hevier"] .hv-fin-warn span{color:var(--label-2)}
 :root[data-ui="hevier"] .hv-fin-chk{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;margin-bottom:12px;padding:8px 0;background:none;border:0;color:var(--label);text-align:start}
 :root[data-ui="hevier"] .hv-fin-chk b{display:block;font-weight:600}
 :root[data-ui="hevier"] .hv-fin-chk small{display:block;color:var(--label-2);font-size:13px}

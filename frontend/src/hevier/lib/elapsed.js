@@ -21,13 +21,11 @@ export function elapsedClock(sec) {
   return h ? h + ':' + String(m).padStart(2, '0') + ':' + ss : m + ':' + ss
 }
 
-/** An exercise's "Rest Timer: …" as Hevy writes it, "2min 0s" or "45s": its own rest, else the
- *  default one, else `off` (no rest timer). */
+/** A rest as the rest panel's clock reads it, "2:00" or "0:45", in every fork screen: its own
+ *  rest, else the fallback one, else `off` (no rest timer). */
 export function restTimerText(own, fallback, off) {
   const n = secsOf(own) || secsOf(fallback)
-  if (!n) return off
-  const m = Math.floor(n / 60), s = n % 60
-  return m ? m + 'min ' + s + 's' : s + 's'
+  return n ? elapsedClock(n) : off
 }
 
 /** A logged total as Hevy writes it, to the minute: "45min", "1h 15min", "24h 17min"; under a

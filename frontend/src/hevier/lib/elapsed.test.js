@@ -27,10 +27,10 @@ describe('elapsedClock', () => {
 })
 
 describe('restTimerText', () => {
-  it('reads the own rest, else the default, in Hevy words', () => {
-    expect(restTimerText(120, 90, 'Off')).toBe('2min 0s')
-    expect(restTimerText(0, 90, 'Off')).toBe('1min 30s')
-    expect(restTimerText(undefined, 45, 'Off')).toBe('45s')
+  it('reads the own rest, else the fallback, as the rest clock does', () => {
+    expect(restTimerText(120, 90, 'Off')).toBe('2:00')
+    expect(restTimerText(0, 90, 'Off')).toBe('1:30')
+    expect(restTimerText(undefined, 45, 'Off')).toBe('0:45')
     expect(restTimerText(0, 0, 'Off')).toBe('Off')
   })
 })

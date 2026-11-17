@@ -4,6 +4,8 @@ import { shareCards, monthCards, layoutShareCard, cardColours, SHARE_H, SHARE_W 
 import { monthReport } from './month-report.js'
 import { workoutsByDay } from './calendar.js'
 import { workoutRecords } from './records.js'
+import { levelsOf, loadOfWorkouts, MUSCLES } from '../../lib/muscles.js'
+import { muscleOf } from './exercise-picker.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const s = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
@@ -81,6 +83,36 @@ describe('share cards (D87)', () => {
     const layout = layoutShareCard(card, { measure, map: { aspect: 1.8 } })
     expect(layout.items.filter(i => i.kind === 'map').map(i => i.view)).toEqual(['front', 'back'])
     expect(layout.items.filter(i => i.kind === 'meter').length).toBe(card.rows.length)
+  })
+})
+
+describe('share cards: the map follows Settings → Muscle sets (D42)', () => {
+  const lit = card => MUSCLES.filter(m => card.levels[m] > 0)
+  const mapOf = S => w => shareCards({ unit: 'kg', workouts: [w], ...S }, w).find(c => c.kind === 'muscles')
+  const CARDIO = EXDB.find(e => muscleOf(e) === 'Cardio').id
+  const w = wk(2, [{ id: BENCH, sets: [s(80, 5), s(80, 5)] }])
+
+  it("'main' lights only the main muscle the bars count; 'share' lights the secondaries too, as before", () => {
+    const main = mapOf({})(w), share = mapOf({ hvMuscleSets: 'share' })(w)
+    expect(lit(main)).toEqual(['chest'])
+    expect(main.rows.map(r => r.muscle)).toEqual(['Chest'])
+    expect(lit(share).length).toBeGreaterThan(1)
+    expect(share.levels).toEqual(levelsOf(loadOfWorkouts([w])))
+  })
+
+  it('a cardio-only workout has no Muscles card in main; mixed with a lift, only the lift lights', () => {
+    const cardio = wk(3, [{ id: CARDIO, sets: [{ min: 20, done: true }] }])
+    expect(shareCards({ unit: 'kg', workouts: [cardio] }, cardio).map(c => c.kind)).toEqual(['summary', 'exercises'])
+    const mixed = wk(4, [...cardio.entries, ...w.entries])
+    expect(lit(mapOf({})(mixed))).toEqual(['chest'])
+  })
+
+  it("a month's map in main lights only its main muscles", () => {
+    const all = [w]
+    const S = { unit: 'kg', workouts: all }
+    const card = monthCards(S, { y: 2026, mo: 9, report: monthReport(all, 2026, 9, 1, 'main'), workouts: all, byDay: workoutsByDay(all), title: 'October' })
+      .find(c => c.kind === 'muscles')
+    expect(lit(card)).toEqual(['chest'])
   })
 })
 

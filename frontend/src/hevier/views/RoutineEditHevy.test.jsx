@@ -95,9 +95,10 @@ describe('hevier: routine editor (M3)', () => {
   it('the rest is a chip that opens the rest sheet (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60, restSec: 90 }])
     const chip = container.querySelector('.hv-addrow .hv-rtrest')
-    expect(chip.getAttribute('aria-label')).toBe('Rest: 1min 30s')
+    expect(chip.getAttribute('aria-label')).toBe('Rest: 1:30')
     act(() => chip.click())
     expect(useUI.getState().sheets).toHaveLength(1)
+    expect(useUI.getState().sheets[0].render(() => {}).props.off).toBe('Settings (1:30)')
     expect(container.querySelector('.hv-rest')).toBeNull()
   })
 
