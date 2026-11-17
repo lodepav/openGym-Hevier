@@ -33,6 +33,7 @@ import { partOn } from '../lib/module-parts.js'
 import { unitMoveSteps } from '../lib/reorder-units.js'
 import { openSet, pickAt } from '../lib/open-set.js'
 import { scrollZone, progressOpen, resolveOpen } from '../lib/header-open.js'
+import { propsSig } from '../lib/card-state.js'
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -60,9 +61,12 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       setEdge(z.top || z.end)   // React skips the render when it is unchanged
     }
     check()
-    window.addEventListener('scroll', check, { passive: true })
-    window.addEventListener('resize', check)
-    return () => { window.removeEventListener('scroll', check); window.removeEventListener('resize', check) }
+    // once a frame: scroll fires faster than that, and check reads layout
+    let frame = 0
+    const soon = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; check() }) }
+    window.addEventListener('scroll', soon, { passive: true })
+    window.addEventListener('resize', soon)
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', soon); window.removeEventListener('resize', soon) }
   }, [])
   const auto = edge || progressOpen(A, units)
   const [manual, setManual] = useState(null)
@@ -105,18 +109,39 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     }
   }
 
+  // Each card is memo'd (HevyExerciseBlock): it gets its latest props through a holder that keeps
+  // its identity, and re-renders when what it draws from them changes (propsSig).
+  const holders = useRef(new Map())
+  // A card's set rows by index, to bind again to the entry's new object when the card skips a render:
+  // upstream keys its row refs by the entry object, which every change replaces.
+  const rows = useRef(new Map())
   const block = (idx, unit) => {
-    const props = blockProps(idx)
     const entry = A.entries[idx]
-    return <HevyExerciseBlock entryIdx={idx} {...props}
-      superset={unit.length > 1 ? unit : null}
-      onUnpair={unit.length > 1 ? () => unpairAt(idx) : null}
-      onPairPrev={idx > 0 ? () => pairAt(idx - 1, idx) : null}
-      onPairNext={idx < A.entries.length - 1 ? () => pairAt(idx, idx + 1) : null}
-      onReorder={units.length > 1 ? reorder : null}
-      open={open?.idx === idx ? open : null}
-      onOpen={i => setPick(pickAt(useStore.getState().S.active, idx, i))}
-      onSetRowRef={(i, el) => bindSetRef(entry, i, el)} />
+    const props = {
+      ...blockProps(idx),
+      superset: unit.length > 1 ? unit : null,
+      onUnpair: unit.length > 1 ? () => unpairAt(idx) : null,
+      onPairPrev: idx > 0 ? () => pairAt(idx - 1, idx) : null,
+      onPairNext: idx < A.entries.length - 1 ? () => pairAt(idx, idx + 1) : null,
+      onReorder: units.length > 1 ? reorder : null,
+      open: open?.idx === idx ? open : null,
+      onOpen: i => setPick(pickAt(useStore.getState().S.active, idx, i)),
+      onSetRowRef: (i, el) => {
+        let m = rows.current.get(idx)
+        if (!m) rows.current.set(idx, (m = new Map()))
+        if (el) m.set(i, el); else m.delete(i)
+        bindSetRef(entry, i, el)
+      },
+    }
+    let live = holders.current.get(idx)
+    if (!live) holders.current.set(idx, (live = {}))
+    live.current = props
+    return <HevyExerciseBlock entryIdx={idx} live={live} sig={propsSig(props)} />
+  }
+  const bindEx = (idx, el) => {
+    const entry = A.entries[idx]
+    bindExRef(entry, el)
+    if (el) for (const [i, r] of rows.current.get(idx) || []) bindSetRef(entry, i, r)
   }
 
   // An edited workout goes back where its edit was opened (the feed, its detail page), not to
@@ -158,7 +183,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
 
     {A.entries.length ? units.map(u => <section key={u.join('-')} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
-      {u.map(idx => <div key={idx} ref={el => bindExRef(A.entries[idx], el)} data-exidx={idx}>{block(idx, u)}</div>)}
+      {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
     </section>) : <div className="hv-empty">
       <Icon name="dumbbell" />
       <b>{t('Get started')}</b>

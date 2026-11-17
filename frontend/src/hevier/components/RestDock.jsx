@@ -4,6 +4,7 @@
 // aside on this screen while there is a rest (hevier.css, body.hv-docked), and both go when it ends.
 // A timed set's countdown and a hold's count-in keep upstream's bar.
 import { useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
@@ -15,8 +16,8 @@ const clock = sec => Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '
 export default function RestDock() {
   const timer = useUI(s => s.timer)
   const other = useUI(s => !!(s.work || s.countIn))
-  const S = useStore(s => s.S)
-  const next = timer && !timer.ready ? dockNext(S, timer.forIdx) : null
+  // only what the panel shows of the session: the dock re-renders when the next set changes, not on every keystroke
+  const next = useStore(useShallow(s => (timer && !timer.ready ? dockNext(s.S, timer.forIdx) : null)))
   const mine = !!timer && !other
   const shown = mine && !timer.ready
   useEffect(() => {

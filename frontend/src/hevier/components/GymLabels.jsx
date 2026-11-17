@@ -10,6 +10,7 @@ import { t } from '../../lib/i18n.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import HvIcon from './HvIcon.jsx'
+import { useCardState } from './useCardState.js'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import {
   gymsOf, gymName, workoutGym, entryBrand, setWorkoutGym, setEntryBrand, knownBrands, hasLabel, BRAND_MAX,
@@ -179,7 +180,7 @@ export function cableSheet(idx) {
 
 /** A machine or cable exercise's brand, under its name (any exercise's once it has one); a cable's setup beside it. */
 export function BrandLine({ idx }) {
-  const S = useStore(s => s.S)
+  const S = useCardState(idx)
   const e = S.active?.entries?.[idx]
   const cable = e ? entryCable(S, S.active, idx) : null
   // Two stacks are logged per stack (D43): the session's entry says so, as a dumbbell's does.
