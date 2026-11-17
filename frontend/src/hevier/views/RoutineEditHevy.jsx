@@ -40,6 +40,7 @@ import { Thumb } from '../../components/Media.jsx'
 import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
+import HvIcon from '../components/HvIcon.jsx'
 import { hooks } from '../hooks.js'
 import PageBar from '../components/PageBar.jsx'
 import { restTimerText } from '../lib/elapsed.js'
@@ -261,7 +262,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
       aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1)}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
     <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
-      aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><Icon name="minus" /></button>
+      aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><HvIcon name="minusCircle" /></button>
   </div>
 
   const meta = unitOf.get(i)?.length > 1 && unitOf.get(i)[0] === i ? supersetMeta(r.ex, unitOf.get(i)) : null

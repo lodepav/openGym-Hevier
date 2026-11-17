@@ -62,7 +62,7 @@ export default function Statistics() {
     <div className="card hv-weekchart"><WeeklyChart /></div>
     <PhaseFilter />
     <LastSevenDays S={S} today={today} />
-    <h4 className="sec">{t('More')}</h4>
+    <h2 className="sec">{t('More')}</h2>
     <LinkRow icon="figureStrength" title={t('Sets per muscle')} sub={t('By week, month or year, and against your weekly range')} onClick={() => nav('/muscle-sets')} />
     {partOn(S, 'hvStats', 'report') && S.workouts.length > 0 && <LinkRow icon="calendar" title={t('Monthly report')} sub={t('Your month against the one before')} onClick={() => nav('/report')} />}
     {partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && S.hvStrength && Object.keys(S.hvStrength).length > 0 && <LinkRow icon="trophy" title={t('Strength levels')} sub={t('Your exercises by the level they reach')} onClick={() => nav('/strength')} />}

@@ -25,6 +25,8 @@ import { partOn } from '../lib/module-parts.js'
 import { gymSheet } from './GymLabels.jsx'
 import { markDiscarded } from '../../lib/watch-sync.js'
 import { discardActive } from './HevyTabBar.jsx'
+import { afterScrollRestore } from '../../components/Modals.jsx'
+import { firstUntickedRow, showRow } from '../lib/unticked-row.js'
 
 // Upstream's discard (views/Workout.jsx discardWorkout), from the sheet.
 const discard = (nav, close) => confirmSheet({
@@ -36,6 +38,13 @@ const discard = (nav, close) => confirmSheet({
     nav('/home', { replace: true })
   },
 })
+
+// Closes the sheet and brings the first unticked set into view, once the closing sheet has put
+// the page back where it stood (components/Modals.jsx), which would otherwise undo the scroll.
+const showUnticked = close => {
+  close()
+  setTimeout(() => afterScrollRestore(() => showRow(firstUntickedRow(document))), 0)
+}
 
 // The minutes of `h` hours and `m` minutes as typed, a cleared field being 0.
 const hm = (h, m) => Math.max(0, Math.round(Number(h) || 0) * 60 + Math.round(Number(m) || 0))
@@ -130,6 +139,7 @@ function FinishSheet({ nav, close }) {
       // What Save does with them (lib/finish-workout.js buildCompletedWorkout): an unticked set stays on
       // the record as not done, out of volume and records, and an exercise with none ticked is dropped.
       : <><b>{t('{0} not ticked.', tn('{0} set', '{0} sets', left))}</b> <span>{t('Only ticked sets count, and an exercise with none is left out.')}</span></>}</p>}
+    {left > 0 && <button type="button" className="hv-link hv-fin-show" onClick={() => showUnticked(close)}>{t('Show them')}</button>}
     {facts.changed && <button type="button" role="checkbox" aria-checked={keepInRoutine} className="hv-fin-chk" onClick={() => setKeep(v => !v)}>
       <span className={'chk' + (keepInRoutine ? ' on' : '')} aria-hidden="true"><Icon name="check" /></span>
       <span><b>{t('Update the routine too')}</b><small>{changedText(facts.changed, t)}</small></span>

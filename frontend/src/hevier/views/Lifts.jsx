@@ -76,8 +76,8 @@ export default function Lifts() {
       options={[{ value: 'recent', label: t('Recent') }, { value: 'muscle', label: t('By muscle') }]} />
     {chips.length > 0 && <div className="hv-chips">{chips.map(([label, to]) => <button key={to} type="button" className="hv-chip" onClick={() => nav(to)}>{t(label)}</button>)}</div>}
     {sections.map(sec => <section key={sec.key}>
-      <h4 className="sec">{t(sec.label)}</h4>
-      <div className="list">{sec.rows.map(r => <LiftRow key={r.id} r={r} S={S} today={today} />)}</div>
+      <h2 className="sec">{t(sec.label)}</h2>
+      <div className="list hv-flat">{sec.rows.map(r => <LiftRow key={r.id} r={r} S={S} today={today} />)}</div>
     </section>)}
     {!rows.length && <div className="empty"><div className="ico"><Icon name="dumbbell" /></div>{t('No exercises trained yet. They show here after your first workout.')}</div>}
     {rows.length > 0 && !sections.length && <div className="muted small hv-lifts-none">{t('No exercise you trained matches “{0}”.', q.trim())}</div>}

@@ -28,7 +28,7 @@ export default function StrengthLevels() {
     <PhaseFilter />
     {!groups.length && <div className="muted small">{t('No strength levels yet. Add them on an exercise’s Summary, under Strength level.')}</div>}
     {groups.map(g => <section key={String(g.level)}>
-      <h4 className="sec">{title(g.level)} <span className="dim">· {g.items.length}</span></h4>
+      <h2 className="sec">{title(g.level)} <span className="dim">· {g.items.length}</span></h2>
       <div className="list">{g.items.map(x => {
         const ex = exOr(x.id)
         return <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>

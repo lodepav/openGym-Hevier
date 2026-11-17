@@ -563,7 +563,7 @@ export default function HevyExerciseBlock(props) {
     {pinned && <div className="hv-note"><Icon name="pin" /> {pinned.note}</div>}
     {entry.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + entry.note} onClick={() => exerciseNoteSheet(entryIdx)}>{entry.note}</button>}
     <div className={'hv-head' + goGrid} style={grid} aria-hidden="true">
-      <span>{t('SET')}</span><span>{t('PREVIOUS')}</span>
+      <span>{t('SET')}</span><span><span className="hv-prev-long">{t('PREVIOUS')}</span><span className="hv-prev-short">{t('PREV')}</span></span>
       {cols.map(c => <span key={c.f}>{c.hd}</span>)}
       {effOn && <span>{t(effortCol.hd).toUpperCase()}</span>}{goOn && <span />}<span><Icon name="check" /></span>
     </div>

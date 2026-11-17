@@ -9,6 +9,8 @@ const P = {
   alarm: <><circle cx="12" cy="13" r="7" /><path d="M12 9.6v3.6l2.4 1.6M4 7.6A3.6 3.6 0 0 1 7.6 4M16.4 4A3.6 3.6 0 0 1 20 7.6M7.1 18.1l-1.5 1.8M16.9 18.1l1.5 1.8" /></>,
   // Hevy's Measures tile: a standing figure, arms out
   figure: <><circle cx="12" cy="4.8" r="1.9" /><path d="M5.6 8.6 12 9.6l6.4-1M12 9.6v5M12 14.6l-2.6 5.8M12 14.6l2.6 5.8" /></>,
+  // A set row's remove mark in the routine editor: upstream's plusCircle with the bar alone, so it can't read as an empty value
+  minusCircle: <><circle cx="12" cy="12" r="8.2" /><path d="M8.2 12h7.6" /></>,
 }
 
 export const HV_ICON_NAMES = Object.keys(P)

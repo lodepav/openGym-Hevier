@@ -169,7 +169,7 @@ export function WorkoutDetail() {
     {w.note && <p className="hv-wd-note">{w.note}</p>}
     {/* Shown when there is something to show; adding one is in All details. */}
     {workoutMediaCount(w) > 0 && <WorkoutMediaSection w={w} />}
-    <h4 className="sec">{t('Workout')}</h4>
+    <h3 className="sec">{t('Workout')}</h3>
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
       {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)}
         sideTrends={workoutSideTrends(st, w, i)} time={times[i]} scale={scale} />)}

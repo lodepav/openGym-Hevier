@@ -77,6 +77,9 @@
 :root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd .hv-mline{margin:-6px 0 14px}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
+/* The fork's section headings are h2 under the page's h1 (h3 under a page's own h2) for TalkBack,
+   drawn as upstream's h4.sec with theme.css's padding */
+:root[data-ui="hevier"] :is(h2, h3).sec{font-size:var(--fs-footnote);font-weight:400;letter-spacing:-.004em;color:var(--label-2);text-transform:none;margin:22px 0 8px;padding:0}
 
 :root[data-ui="hevier"] .hv-unit{margin:0 0 12px}
 /* Each exercise is a card (D123): black, a hairline drawn inside, nothing clipped, so the next set's
@@ -169,6 +172,13 @@
   :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid{column-gap:4px;grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 36px}
   :root[data-ui="hevier"] :is(.hv-head, .hv-row).hv-eff-grid.hv-go-grid{grid-template-columns:34px minmax(0,1fr) repeat(var(--nc,2),minmax(40px,50px)) 40px 34px 36px}
   :root[data-ui="hevier"] .hv-row.hv-open :is(.hv-num, .hv-num.hv-hint){font-size:18px}
+}
+:root[data-ui="hevier"] .hv-head .hv-prev-short{display:none}
+/* at 360 px or less PREVIOUS no longer fits its header, and last time's set ran into the weight box */
+@media (max-width:360px){
+  :root[data-ui="hevier"] .hv-head .hv-prev-long{display:none}
+  :root[data-ui="hevier"] .hv-head .hv-prev-short{display:inline}
+  :root[data-ui="hevier"] .hv-row .hv-prev{padding-inline-end:2px}
 }
 /* and alternate sets are striped, in the log and in the routine editor (each set is one unclassed
    wrapper in .hv-ex, so the stripe counts sets, not the drop and burst lines under them) */
@@ -367,7 +377,7 @@
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
 :root[data-ui="hevier"] .hv-rt-row.hv-rt-x{grid-template-columns:minmax(40px,1fr) repeat(var(--nc,2),minmax(0,1fr)) 44px}
-:root[data-ui="hevier"] .hv-rt-del{width:44px;height:44px;background:none;color:var(--label-3)}
+:root[data-ui="hevier"] .hv-rt-del{width:44px;height:44px;background:none;color:var(--red)}
 :root[data-ui="hevier"] .hv-addwarm:disabled{opacity:.5}
 :root[data-ui="hevier"] .hv-routine .hv-exnote{margin-bottom:6px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-routine .hv-nameline :is(.hv-addbrand, .hv-brand){position:relative}
@@ -527,17 +537,20 @@
 :root[data-ui="hevier"] .hv-mset-d.down{color:var(--hv-fail,var(--red))}
 :root[data-ui="hevier"] .hv-linkrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-linkrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+:root[data-ui="hevier"] .hv-linkrow-t .hv-sub{line-height:1.35}
 
 /* M3 Add Exercise picker (reference/SCREENS.md §8) */
 :root[data-ui="hevier"] .hv-pk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 :root[data-ui="hevier"] .hv-pk-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-pk-filters .btn{min-height:36px;font-size:14px}
 :root[data-ui="hevier"] .hv-pk-filters .btn.on{color:var(--acc)}
-/* Hevy's list: flat rows split by hairlines, not cards */
-:root[data-ui="hevier"] .hv-pk .list{gap:0}
+/* Hevy's list: flat rows split by hairlines, not cards; Lifts, Exercise time and the month's
+   report draw their exercises the same way (.hv-flat) */
+:root[data-ui="hevier"] :is(.hv-pk .list, .list.hv-flat){gap:0}
 :root[data-ui="hevier"] .hv-pk .item.hv-pk-row{gap:12px;background:none;border-radius:0;padding-inline:0;min-height:64px}
-:root[data-ui="hevier"] .hv-pk .item.hv-pk-row + .hv-pk-row{border-top:var(--hair) solid var(--sep)}
-:root[data-ui="hevier"] .hv-pk .item.hv-pk-row:active{background:var(--surface)}
+:root[data-ui="hevier"] .list.hv-flat > .item{background:none;border-radius:0;padding-inline:0}
+:root[data-ui="hevier"] :is(.hv-pk .item.hv-pk-row + .hv-pk-row, .list.hv-flat > .item + .item){border-top:var(--hair) solid var(--sep)}
+:root[data-ui="hevier"] :is(.hv-pk .item.hv-pk-row, .list.hv-flat > .item):active{background:var(--surface)}
 /* a pick shows in its ✓ circle, as in Hevy */
 :root[data-ui="hevier"] .hv-pk .item.hv-pk-row.on{box-shadow:none}
 :root[data-ui="hevier"] .hv-pk-check{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--label-3);color:var(--on-acc);font-size:13px}
@@ -675,8 +688,8 @@
 :root[data-ui="hevier"] .hv-report-row{width:100%;text-align:start;font:inherit;color:var(--label);gap:10px}
 :root[data-ui="hevier"] .hv-report-row .grow{display:flex;flex-direction:column;gap:2px}
 :root[data-ui="hevier"] .hv-report .hv-cal-mt{display:none}
-:root[data-ui="hevier"] .hv-report h4.sec{display:flex;align-items:center;gap:6px}
-:root[data-ui="hevier"] .hv-report h4.sec .icn{color:var(--hv-record,var(--yellow))}
+:root[data-ui="hevier"] .hv-report h3.sec{display:flex;align-items:center;gap:6px}
+:root[data-ui="hevier"] .hv-report h3.sec .icn{color:var(--hv-record,var(--yellow))}
 /* D28: the workout's gym and a machine's brand label */
 :root[data-ui="hevier"] .hv-gym{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:6px 0 2px;font-size:14px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-gym .icn{width:16px;height:16px}
@@ -733,7 +746,7 @@
 :root[data-ui="hevier"] .hv-tlinks .btn{font-size:15px;font-weight:700;min-height:40px}
 
 /* Workout Detail: Hevy's small grey caps over each part, and Edit Workout at the end. */
-:root[data-ui="hevier"] .hv-wd h4.sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-wd h3.sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wd-edit{width:100%;margin:18px 0 8px}
 
 /* The routine page's rows striped as the editor's. */
@@ -994,8 +1007,9 @@
 :root[data-ui="hevier"] .hv-fin-durbtn{min-height:44px;background:none;border:0;padding:0 2px;color:var(--acc);font-weight:700;font-size:16px}
 :root[data-ui="hevier"] .hv-fin-dur{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-fin-min{width:52px;min-height:40px;text-align:end;color:var(--acc)}
-:root[data-ui="hevier"] .hv-fin-warn{color:var(--orange);margin:0 0 12px}
+:root[data-ui="hevier"] .hv-fin-warn{color:var(--orange);margin:0 0 12px;line-height:1.35}
 :root[data-ui="hevier"] .hv-fin-warn span{color:var(--label-2)}
+:root[data-ui="hevier"] .hv-fin-show{display:flex;align-items:center;min-height:44px;margin:-12px 0 4px;font-size:14px;font-weight:700}
 :root[data-ui="hevier"] .hv-fin-chk{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;margin-bottom:12px;padding:8px 0;background:none;border:0;color:var(--label);text-align:start}
 :root[data-ui="hevier"] .hv-fin-chk b{display:block;font-weight:600}
 :root[data-ui="hevier"] .hv-fin-chk small{display:block;color:var(--label-2);font-size:13px}

@@ -85,6 +85,7 @@ describe('hevier: routine editor (M3)', () => {
     expect(slot()).toMatchObject({ sets: 2, warmupSets: 1 })
     const marks = () => [...container.querySelectorAll('.hv-rt-del')].map(b => b.getAttribute('aria-label'))
     expect(marks()).toEqual(['Remove warm-up 1', 'Remove set 1', 'Remove set 2'])
+    expect([...container.querySelectorAll('.hv-rt-del svg')].map(i => i.dataset.icon)).toEqual(['minusCircle', 'minusCircle', 'minusCircle'])
     act(() => container.querySelector('[aria-label="Remove set 2"]').click())
     expect(slot()).toMatchObject({ sets: 1, warmupSets: 1 })
     act(() => container.querySelector('[aria-label="Remove set 1"]').click())

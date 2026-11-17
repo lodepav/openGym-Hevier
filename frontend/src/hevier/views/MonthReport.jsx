@@ -77,21 +77,21 @@ export default function MonthReport() {
       <div className="hv-sub hv-report-vs">{t('Against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))}</div>
 
       {r.records.length > 0 && <>
-        <h4 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h4>
+        <h3 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h3>
         {/* One row per exercise: each kind of record once, its best this month, ×N when it was beaten
             N times, so the rows add up to the count above. The first five, then all on a tap. */}
-        <div className="list">{(allPrs ? prRows : prRows.slice(0, PR_ROWS)).map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
+        <div className="list hv-flat">{(allPrs ? prRows : prRows.slice(0, PR_ROWS)).map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
             {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}{rec.times > 1 && ' · ' + t('{0} times', rec.times)} · {fmtDate(rec.d)}</span>)}</span>
         </button>)}</div>
         {!allPrs && prRows.length > PR_ROWS && <button type="button" className="btn hv-report-more" onClick={() => setAllPrs(true)}>{t('Show all ({0})', prRows.length)}</button>}
       </>}
 
-      <h4 className="sec">{t('{0} of {1} weeks trained', r.weeks.trained, r.weeks.total)}</h4>
+      <h3 className="sec">{t('{0} of {1} weeks trained', r.weeks.trained, r.weeks.total)}</h3>
       <Month y={at.y} mo={at.mo} st={st} byDay={byDay} today={today} />
 
       {r.muscles.length > 0 && <>
-        <h4 className="sec">{t('Muscle Split')}</h4>
+        <h3 className="sec">{t('Muscle Split')}</h3>
         <div className="hv-msets">{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
           <span>{t(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
@@ -100,8 +100,8 @@ export default function MonthReport() {
       </>}
 
       {r.top.length > 0 && <>
-        <h4 className="sec">{t('Top exercises')}</h4>
-        <div className="list">{r.top.map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
+        <h3 className="sec">{t('Top exercises')}</h3>
+        <div className="list hv-flat">{r.top.map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className={'grow ' + exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
           <span className="dim">{tn('{0} set', '{0} sets', x.sets)}{x.best > 0 && ' · ' + fmtNum(x.best) + ' ' + unit}</span>
         </button>)}</div>

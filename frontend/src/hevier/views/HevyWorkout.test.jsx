@@ -555,7 +555,20 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const drop = container.querySelector('.hv-sub-row')
     typeInto(drop.querySelectorAll('.hv-num')[0], '70')
     expect(sets()[0].drops[0].w).toBe(70)
-    act(() => drop.querySelector('.hv-x').click())
+    // The tick column holds no remove mark; the D mark's menu removes the drop, Undo puts it back.
+    expect(drop.querySelector('.hv-x')).toBeNull()
+    act(() => drop.querySelector('[aria-label="Drop 1, options"]').click())
+    const menu = useUI.getState().sheets.at(-1).render(() => {}).props
+    expect(menu.items.map(x => x.label)).toEqual(['Remove drop'])
+    act(() => menu.items[0].onClick())
+    useUI.setState({ sheets: [] })
+    expect(sets()[0].drops || []).toHaveLength(0)
+    expect(useUI.getState().toastMsg).toBe('Drop removed.')
+    act(() => useUI.getState().runToastAction())
+    expect(sets()[0].drops[0].w).toBe(70)
+    act(() => container.querySelector('[aria-label="Drop 1, options"]').click())
+    act(() => useUI.getState().sheets.at(-1).render(() => {}).props.items[0].onClick())
+    useUI.setState({ sheets: [] })
     expect(sets()[0].drops || []).toHaveLength(0)
     pick('Rest-pause burst')
     const added = sets()[0].clusters[0].r
@@ -564,6 +577,31 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].r).toBe(9 + added)
     pick('Failure set')
     expect(sets()[0].failure).toBe(true)
+  })
+
+  it('a per-side drop is removed from either side’s D mark', () => {
+    const side = { w: 20, r: 8, done: false }
+    const sd = () => ({ ...side, type: 'dropset', drops: [{ w: 15, r: 6 }] })
+    render([{ id: EX, target: { sets: 1, reps: 16, side: true }, sets: [{ w: 20, r: 16, type: 'dropset', sides: { L: sd(), R: sd() } }] }])
+    const marks = container.querySelectorAll('.hv-sub-row [aria-label="Drop 1, options"]')
+    expect(marks).toHaveLength(2)
+    act(() => marks[1].click())
+    act(() => useUI.getState().sheets.at(-1).render(() => {}).props.items[0].onClick())
+    useUI.setState({ sheets: [] })
+    expect(sets()[0].sides.L.drops || []).toHaveLength(0)
+    expect(sets()[0].sides.R.drops || []).toHaveLength(0)
+  })
+
+  it('on a warm-up the set type menu says why Failure, Drop and Timed hold are greyed out', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(40, 8, { phase: 'warmup' }), reps(100, 8)] }])
+    const items = open => {
+      act(() => container.querySelectorAll('.hv-set')[open].click())
+      const all = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).filter(Boolean)
+      useUI.setState({ sheets: [] })
+      return Object.fromEntries(all.filter(x => ['Failure set', 'Drop set', 'Timed hold'].includes(x.label)).map(x => [x.label, [x.disabled, x.sub]]))
+    }
+    expect(items(0)).toEqual({ 'Failure set': [true, 'Not for a warm-up'], 'Drop set': [true, 'Not for a warm-up'], 'Timed hold': [true, 'Not for a warm-up'] })
+    expect(items(1)).toEqual({ 'Failure set': [false, undefined], 'Drop set': [false, '+ Drop'], 'Timed hold': [false, 'Seconds in place of reps'] })
   })
 
   it('a per-side weight is carried down to the sets after it (M1)', () => {

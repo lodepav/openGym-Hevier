@@ -53,8 +53,8 @@ export default function ExerciseTime() {
     <div className="small dim">{t('Average time a session, from the times your sets were ticked: the rest before each set counts.')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {sections.map(sec => <section key={sec.key}>
-      {by && <h4 className="sec">{title(sec.key)} <span className="dim">· {secs(sec.total)} {t('total')}</span></h4>}
-      <div className="list">{sec.rows.map(r => {
+      {by && <h2 className="sec">{title(sec.key)} <span className="dim">· {secs(sec.total)} {t('total')}</span></h2>}
+      <div className="list hv-flat">{sec.rows.map(r => {
         const ex = exOr(r.id)
         const g = gaps.get(r.id)
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
