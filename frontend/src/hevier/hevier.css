@@ -883,7 +883,7 @@
 :root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-4px 0}
 :root[data-ui="hevier"] .hv-next-plan::after{content:"";position:absolute;inset:-2px 0}
 :root[data-ui="hevier"] .hv-range::after{content:"";position:absolute;inset:-6px 0}
-:root[data-ui="hevier"] .hv-ftoggle::after{content:"";position:absolute;inset:-7px 0}
+:root[data-ui="hevier"] .hv-ftoggle::after{content:"";position:absolute;inset:-9px 0 -4px}
 /* Plain stand-ins where color-mix() is missing (Safari before 16.2; upstream's color-mix-fallback test) */
 @supports not (color: color-mix(in srgb, red 50%, blue)){
 :root[data-ui="hevier"] .hv-row.done{background:var(--surface-2)}
