@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-15T19:44:09+00:00",
+  "generatedAt": "2026-11-17T20:01:27+00:00",
   "title": "Design System: Go Hevier",
   "extensions": {
     "colorMeta": {
@@ -216,11 +216,19 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "The live heart rate on the strap screen only."
+        "purpose": "The strap screen's live heart rate only."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "purpose": "The docked rest's countdown, in the accent."
+      },
+      "value-open": {
+        "displayName": "Value, opened",
+        "purpose": "The opened set's weight and reps; 20px at 400px or narrower."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "A routine's name on its page and in its editor, a finished workout's title."
+        "purpose": "A routine's name on its page and in its editor, a saved workout's title, the docked rest's next set."
       },
       "title": {
         "displayName": "Title",
@@ -228,15 +236,19 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Rows, feed lines, buttons (700)."
+        "purpose": "Rows, list lines, buttons (700)."
       },
       "stat": {
         "displayName": "Stat",
-        "purpose": "A workout's Duration, Volume and Sets; the week strip's dates."
+        "purpose": "A workout's Duration, Volume and Sets; stat tiles go to 18 to 20px."
       },
       "value": {
         "displayName": "Value",
         "purpose": "The weight and reps in a set's wells, tabular."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "The grey heading over a part of a page (h2, or h3 under an h2)."
       },
       "label": {
         "displayName": "Label",
@@ -247,7 +259,7 @@
       {
         "name": "card-hairline",
         "value": "inset 0 0 0 1px #38352f",
-        "purpose": "The edge of every card, tile, the toast and a dragged row (--hv-card-line)."
+        "purpose": "The edge of every card, the toast and a dragged row (--hv-card-line)."
       },
       {
         "name": "sheet-edge",
@@ -257,12 +269,12 @@
       {
         "name": "inset-ring",
         "value": "inset 0 0 0 2px var(--acc)",
-        "purpose": "Today's date, the next set's tick, a focused field."
+        "purpose": "Today's date, the opened set's tick or effort button, a focused field; 1.5px for the next day in Today's week."
       },
       {
-        "name": "next-set-edge",
+        "name": "opened-set-edge",
         "value": "inset 4px 0 0 var(--acc)",
-        "purpose": "The accent bar down the left of the set to do next."
+        "purpose": "The accent bar down the left of the set to do now (D127)."
       },
       {
         "name": "sticky-fade",
@@ -296,6 +308,10 @@
       {
         "name": "narrow",
         "value": "400px"
+      },
+      {
+        "name": "smallest",
+        "value": "360px"
       }
     ]
   },
@@ -304,7 +320,7 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one filled accent action on a screen: Start Routine, Save, Add.",
+      "description": "The one filled accent action on a screen: Start, Save, Skip.",
       "html": "<button class=\"ds-btn-primary\">Start Routine</button>",
       "css": ".ds-btn-primary{font-family:Nunito,Roboto,system-ui,sans-serif;background:var(--acc,#34d08a);color:var(--on-acc,#000);border:0;border-radius:999px;padding:9px 14px;font-size:15px;font-weight:700;width:100%;transition:transform 140ms cubic-bezier(.32,.72,0,1),background 140ms}.ds-btn-primary:hover,.ds-btn-primary:active{background:var(--acc-2,#279c68)}.ds-btn-primary:active{transform:scale(.97)}.ds-btn-primary:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
     },
@@ -312,7 +328,7 @@
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Well-grey pill: New Routine, Add Exercise, Log.",
+      "description": "Well-grey pill: Today's links (Routines, Calendar, Empty workout), +1 min.",
       "html": "<button class=\"ds-btn-secondary\">New Routine</button>",
       "css": ".ds-btn-secondary{font-family:Nunito,Roboto,system-ui,sans-serif;background:#16140f;color:#ece8e1;border:0;border-radius:999px;padding:9px 14px;font-size:15px;font-weight:700;min-height:40px;width:100%;transition:transform 140ms cubic-bezier(.32,.72,0,1),background 140ms}.ds-btn-secondary:hover,.ds-btn-secondary:active{background:#1f1d19}.ds-btn-secondary:active{transform:scale(.97)}.ds-btn-secondary:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
     },
@@ -333,28 +349,60 @@
       "css": ".ds-pagebar{font-family:Nunito,Roboto,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);align-items:center;column-gap:6px;min-height:44px;padding:4px 8px;background:#000;color:#ece8e1;border-bottom:.5px solid #38352f}.ds-pagebar-back{background:none;border:0;color:#ece8e1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}.ds-pagebar-title{text-align:center;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-pagebar-end{display:flex;justify-content:flex-end}.ds-pagebar-finish{font-family:Nunito,Roboto,system-ui,sans-serif;background:var(--acc,#34d08a);color:var(--on-acc,#000);border:0;border-radius:999px;min-height:32px;padding:0 14px;font-size:14px;font-weight:700}.ds-pagebar-finish:hover{background:var(--acc-2,#279c68)}.ds-pagebar-back:focus-visible,.ds-pagebar-finish:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
     },
     {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Three tabs: Today, Lifts, History (D126). Grey at rest; the open one in the accent, its icon on a soft accent pill.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-tab-on\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11l8-7 8 7v9H4z\"/></svg></span><span>Today</span></button><button class=\"ds-tab\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\"><path d=\"M3 12h18M6 8v8M18 8v8M9 6v12M15 6v12\"/></svg></span><span>Lifts</span></button><button class=\"ds-tab\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 1 0 3-6.7L3 8\"/><path d=\"M3 3v5h5M12 7v5l3 2\"/></svg></span><span>History</span></button></nav>",
+      "css": ".ds-tabs{font-family:Nunito,Roboto,system-ui,sans-serif;display:flex;justify-content:space-around;padding:10px 6px 6px;background:#000;border-top:.5px solid #38352f}.ds-tab{font-family:Nunito,Roboto,system-ui,sans-serif;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:#a39e94;font-size:10px;font-weight:700;transition:color 140ms}.ds-tab-ic{position:relative;isolation:isolate;display:grid;color:#ece8e1}.ds-tab-on,.ds-tab-on .ds-tab-ic{color:var(--acc,#34d08a)}.ds-tab-on .ds-tab-ic::before{content:'';position:absolute;z-index:-1;inset:-4px -18px;border-radius:999px;background:color-mix(in srgb,var(--acc,#34d08a) 20%,#000)}.ds-tab:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+    },
+    {
       "name": "Set Table",
       "kind": "custom",
       "refersTo": "set-row",
-      "description": "The signature, inside an exercise card: flat 44px rows, values in wells, round ticks, a done band in the accent, the next set with its accent edge.",
-      "html": "<div class=\"ds-set\"><div class=\"ds-set-name\">Barbell Bench Press</div><div class=\"ds-set-head\"><span>SET</span><span>PREVIOUS</span><span>KG</span><span>REPS</span><span>✓</span></div><div class=\"ds-set-row ds-set-done\"><b class=\"ds-set-w\">W</b><span class=\"ds-set-prev\">20kg x 3</span><b class=\"ds-set-v\">40</b><b class=\"ds-set-v\">10</b><i class=\"ds-set-chk ds-set-on\">✓</i></div><div class=\"ds-set-row ds-set-next\"><b>1</b><span class=\"ds-set-prev\">80kg x 8</span><b class=\"ds-set-v\">80</b><b class=\"ds-set-v\">8</b><i class=\"ds-set-chk\">✓</i></div><div class=\"ds-set-row ds-set-stripe\"><b>2</b><span class=\"ds-set-prev\">80kg x 7</span><b class=\"ds-set-v ds-set-hint\">80</b><b class=\"ds-set-v ds-set-hint\">7</b><i class=\"ds-set-chk\">✓</i></div><button class=\"ds-set-add\">+ Add Set</button></div>",
-      "css": ".ds-set{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1;font-variant-numeric:tabular-nums;border-radius:26px;box-shadow:inset 0 0 0 1px #38352f;padding:12px 0 8px;overflow:hidden}.ds-set-name{font-size:17px;font-weight:700;color:var(--acc,#34d08a);padding:0 12px 8px}.ds-set-head,.ds-set-row{display:grid;grid-template-columns:34px minmax(0,1fr) 58px 58px 36px;column-gap:6px;align-items:center;text-align:center;padding:0 15px}.ds-set-head{font-size:11px;font-weight:700;letter-spacing:.04em;color:#a39e94;padding-bottom:4px}.ds-set-row{min-height:44px;margin:0 1px}.ds-set-row b{font-size:15px;font-weight:600}.ds-set-v{background:#16140f;border-radius:14px;padding:8px 0;font-size:16px!important}.ds-set-w{color:var(--hv-warmup,#efab03)}.ds-set-prev{font-size:14px;color:#a09b91;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-set-hint{color:#a09b91;font-weight:500!important}.ds-set-stripe{background:#0b0a08}.ds-set-done{background:color-mix(in srgb,var(--acc,#34d08a) 14%,#000)}.ds-set-done .ds-set-v{background:transparent}.ds-set-next{background:#1f1d19;box-shadow:inset 4px 0 0 var(--acc,#34d08a)}.ds-set-next b{font-weight:700}.ds-set-chk{font-style:normal;justify-self:center;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1f1d19;color:#a09b91;font-size:14px}.ds-set-next .ds-set-chk{background:#48433b;color:#a39e94;box-shadow:inset 0 0 0 2px var(--acc,#34d08a)}.ds-set-on{background:var(--acc,#34d08a);color:var(--on-acc,#000)}.ds-set-add{font-family:Nunito,Roboto,system-ui,sans-serif;display:block;width:calc(100% - 24px);margin:8px 12px 0;min-height:38px;border:0;border-radius:999px;background:#16140f;color:#ece8e1;font-size:15px}.ds-set-add:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+      "description": "The signature, inside an exercise card: flat 44px rows, values in wells, round ticks, done sets as accent bands, the set to do now opened with an accent edge, + Set and + Warm-up.",
+      "html": "<div class=\"ds-set\"><div class=\"ds-set-name\">Barbell Bench Press</div><div class=\"ds-set-head\"><span>SET</span><span>PREVIOUS</span><span>KG</span><span>REPS</span><span aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span></div><div class=\"ds-set-row ds-set-done\"><b class=\"ds-set-w\">W</b><span class=\"ds-set-prev\">40 × 10</span><b class=\"ds-set-v\">40</b><b class=\"ds-set-v\">10</b><i class=\"ds-set-chk ds-set-on\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></i></div><div class=\"ds-set-row ds-set-open\"><b>1</b><span class=\"ds-set-prev\">80 × 8</span><b class=\"ds-set-v\">80</b><b class=\"ds-set-v\">8</b><i class=\"ds-set-chk\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></i></div><div class=\"ds-set-row ds-set-stripe\"><b>2</b><span class=\"ds-set-prev\">80 × 7</span><b class=\"ds-set-v ds-set-hint\">80</b><b class=\"ds-set-v ds-set-hint\">7</b><i class=\"ds-set-chk\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></i></div><div class=\"ds-set-add\"><button>+ Set</button><button>+ Warm-up</button></div></div>",
+      "css": ".ds-set{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1;font-variant-numeric:tabular-nums;border-radius:26px;box-shadow:inset 0 0 0 1px #38352f;padding:12px 0 8px;overflow:hidden}.ds-set-name{font-size:17px;font-weight:700;color:var(--acc,#34d08a);padding:0 12px 8px}.ds-set-head,.ds-set-row{display:grid;grid-template-columns:34px minmax(0,1fr) 58px 58px 36px;column-gap:6px;align-items:center;text-align:center;padding:0 15px}.ds-set-head{font-size:11px;font-weight:700;letter-spacing:.04em;color:#a39e94;padding-bottom:4px}.ds-set-head svg{width:13px;height:13px}.ds-set-row{min-height:44px;margin:0 1px}.ds-set-row b{font-size:15px;font-weight:600}.ds-set-v{background:#16140f;border-radius:14px;padding:8px 0;font-size:16px!important}.ds-set-w{color:var(--hv-warmup,#efab03)}.ds-set-prev{font-size:14px;color:#a09b91;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-set-hint{color:#a09b91;font-weight:500!important}.ds-set-stripe{background:#0b0a08}.ds-set-done{background:color-mix(in srgb,var(--acc,#34d08a) 14%,#000)}.ds-set-done .ds-set-v{background:transparent}.ds-set-done .ds-set-prev{color:#a39e94}.ds-set-open{min-height:60px;background:#1f1d19;box-shadow:inset 4px 0 0 var(--acc,#34d08a)}.ds-set-open .ds-set-v{font-size:26px!important;font-weight:700;color:#ece8e1}.ds-set-chk{font-style:normal;justify-self:center;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1f1d19;color:#a09b91}.ds-set-open .ds-set-chk{width:44px;height:44px;background:#48433b;color:#a39e94;box-shadow:inset 0 0 0 2px var(--acc,#34d08a)}.ds-set-on{background:var(--acc,#34d08a);color:var(--on-acc,#000)}.ds-set-add{display:flex;gap:8px;margin:8px 12px 0}.ds-set-add button{font-family:Nunito,Roboto,system-ui,sans-serif;flex:1;min-height:44px;border:0;border-radius:999px;background:#16140f;color:#ece8e1;font-size:15px;transition:background 140ms}.ds-set-add button:hover{background:#1f1d19}.ds-set-add button:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
     },
     {
-      "name": "Chip",
-      "kind": "chip",
-      "refersTo": "chip",
-      "description": "A range or filter pill; the picked one wears the accent.",
-      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip-on\">Duration</button><button class=\"ds-chip\">Volume</button><button class=\"ds-chip\">Reps</button></div>",
-      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{font-family:Nunito,Roboto,system-ui,sans-serif;padding:6px 12px;border-radius:999px;border:0;font-size:13px;font-weight:700;background:#16140f;color:#ece8e1;transition:background 140ms}.ds-chip:hover{background:#1f1d19}.ds-chip-on,.ds-chip-on:hover{background:var(--acc,#34d08a);color:var(--on-acc,#000)}.ds-chip:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+      "name": "Rest Dock",
+      "kind": "custom",
+      "refersTo": "rest-dock",
+      "description": "The rest docked at the bottom of the live workout (D127): countdown, next set, a progress bar, three buttons.",
+      "html": "<div class=\"ds-dock\"><div class=\"ds-dock-top\"><div class=\"ds-dock-clock\"><span>Rest</span><b>1:24</b></div><div class=\"ds-dock-next\"><span>Next · Set 3</span><b>80 × 8</b></div></div><div class=\"ds-dock-bar\"><i></i></div><div class=\"ds-dock-btns\"><button>+1 min</button><button>+2 min</button><button class=\"ds-dock-skip\">Skip</button></div></div>",
+      "css": ".ds-dock{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1;border-top:.5px solid #38352f;padding:10px 16px}.ds-dock-top{display:flex;align-items:center;gap:14px}.ds-dock-clock,.ds-dock-next{display:flex;flex-direction:column}.ds-dock-next{flex:1;min-width:0}.ds-dock-clock span,.ds-dock-next span{font-size:12px;color:#a39e94}.ds-dock-clock b{font-size:50px;line-height:1.05;font-weight:800;font-variant-numeric:tabular-nums;color:var(--acc,#34d08a)}.ds-dock-next b{font-size:22px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}.ds-dock-bar{height:4px;margin:8px 0;border-radius:2px;background:#1f1d19;overflow:hidden}.ds-dock-bar i{display:block;height:100%;width:60%;background:var(--acc,#34d08a)}.ds-dock-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.ds-dock-btns button{font-family:Nunito,Roboto,system-ui,sans-serif;min-height:48px;border:0;border-radius:999px;background:#16140f;color:#ece8e1;font-size:16px;font-weight:800;transition:transform 140ms}.ds-dock-btns button:active{transform:scale(.97)}.ds-dock-btns button:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}.ds-dock-btns .ds-dock-skip{background:var(--acc,#34d08a);color:var(--on-acc,#000)}"
     },
     {
       "name": "Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "A routine on the Workout tab: black, 26px corners, a hairline drawn inside, no shadow.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-t\">Push A</div><div class=\"ds-card-s\">Bench Press, Overhead Press, Triceps Pushdown</div><button class=\"ds-card-b\">Start Routine</button></div>",
-      "css": ".ds-card{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1;border-radius:26px;box-shadow:inset 0 0 0 1px #38352f;padding:14px 16px}.ds-card-t{font-size:17px;font-weight:700}.ds-card-s{font-size:14px;font-weight:500;color:#a39e94;margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-card-b{font-family:Nunito,Roboto,system-ui,sans-serif;width:100%;background:var(--acc,#34d08a);color:var(--on-acc,#000);border:0;border-radius:999px;padding:9px 14px;font-size:15px;font-weight:700}.ds-card-b:hover{background:var(--acc-2,#279c68)}.ds-card-b:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+      "description": "A finished workout on History: black, 26px corners, a hairline drawn inside, no shadow; avatar and date, title, four stat columns, the first exercises.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-h\"><i class=\"ds-card-av\">A</i><span><b>Alex</b><small>Monday, 16 Nov</small></span></div><div class=\"ds-card-t\">Push A</div><div class=\"ds-card-st\"><div><span>Time</span><b>1 h 05</b></div><div><span>Volume</span><b>8,240 kg</b></div><div><span>Sets</span><b>18</b></div><div><span>Records</span><b>2</b></div></div><div class=\"ds-card-ex\"><i></i><b>3 sets Bench Press</b></div><div class=\"ds-card-ex\"><i></i><b>3 sets Overhead Press</b></div></div>",
+      "css": ".ds-card{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1;border-radius:26px;box-shadow:inset 0 0 0 1px #38352f;padding:14px 16px 12px;transition:background 140ms}.ds-card:hover,.ds-card:active{background:#16140f}.ds-card-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}.ds-card-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#1f1d19;color:var(--acc,#34d08a);font-style:normal;font-size:17px;font-weight:600}.ds-card-h span{display:flex;flex-direction:column}.ds-card-h b{font-size:15px;font-weight:500}.ds-card-h small{font-size:12px;color:#a39e94}.ds-card-t{font-size:17px;font-weight:700;margin-bottom:8px}.ds-card-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}.ds-card-st div{display:flex;flex-direction:column;gap:2px}.ds-card-st span{font-size:11px;color:#a39e94}.ds-card-st b{font-size:15px;font-weight:400;font-variant-numeric:tabular-nums}.ds-card-ex{display:flex;align-items:center;gap:12px;padding:4px 0;font-size:15px}.ds-card-ex i{width:40px;height:40px;border-radius:50%;background:#fff;flex:none}.ds-card-ex b{font-weight:400}"
+    },
+    {
+      "name": "Stat Tile",
+      "kind": "card",
+      "refersTo": "stat-tile",
+      "description": "Filled, not outlined: History's tiles and an exercise's best sets.",
+      "html": "<div class=\"ds-tiles\"><div class=\"ds-tile\"><span>This week</span><b>3 of 4</b><span>workouts</span></div><div class=\"ds-tile\"><span>Time</span><b>3 h 10 min</b><span>this week</span></div><div class=\"ds-tile\"><span>Sets</span><b>58</b><span class=\"ds-tile-pr\">2 records</span></div></div>",
+      "css": ".ds-tiles{font-family:Nunito,Roboto,system-ui,sans-serif;display:flex;gap:8px}.ds-tile{flex:1;min-width:0;display:flex;flex-direction:column;padding:10px 12px;border-radius:20px;background:#16140f;font-size:12px;color:#a39e94}.ds-tile b{font-size:20px;font-weight:800;color:#ece8e1;white-space:nowrap;font-variant-numeric:tabular-nums}.ds-tile .ds-tile-pr{color:var(--hv-record,#efab03);font-weight:800}"
+    },
+    {
+      "name": "Flat List",
+      "kind": "custom",
+      "refersTo": "flat-row",
+      "description": "Exercises and routines as flat rows split by hairlines; the picked one fills its check circle.",
+      "html": "<div class=\"ds-flat\"><button class=\"ds-flat-row\"><i class=\"ds-flat-th\"></i><span>Barbell Bench Press<small>Chest</small></span><i class=\"ds-flat-chk ds-on\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></i></button><button class=\"ds-flat-row\"><i class=\"ds-flat-th\"></i><span>Incline Dumbbell Press<small>Chest</small></span><i class=\"ds-flat-chk\"></i></button></div>",
+      "css": ".ds-flat{font-family:Nunito,Roboto,system-ui,sans-serif;background:#000;color:#ece8e1}.ds-flat-row{font-family:Nunito,Roboto,system-ui,sans-serif;display:flex;align-items:center;gap:12px;width:100%;min-height:64px;background:none;border:0;color:inherit;font-size:15px;text-align:start;transition:background 140ms}.ds-flat-row+.ds-flat-row{border-top:.5px solid #38352f}.ds-flat-row:hover,.ds-flat-row:active{background:#16140f}.ds-flat-row:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:-2px}.ds-flat-row span{flex:1;display:flex;flex-direction:column}.ds-flat-row small{font-size:13px;color:#a39e94}.ds-flat-th{width:40px;height:40px;border-radius:50%;background:#fff;flex:none}.ds-flat-chk{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;box-sizing:border-box;border:2px solid #a09b91;color:var(--on-acc,#000)}.ds-flat-chk svg{width:13px;height:13px}.ds-flat-chk.ds-on{background:var(--acc,#34d08a);border-color:var(--acc,#34d08a)}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A range, filter or link pill; the picked one wears the accent.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip-on\">Duration</button><button class=\"ds-chip\">Volume</button><button class=\"ds-chip\">Reps</button></div>",
+      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{font-family:Nunito,Roboto,system-ui,sans-serif;padding:6px 12px;border-radius:999px;border:0;font-size:13px;font-weight:700;background:#16140f;color:#ece8e1;transition:background 140ms}.ds-chip:hover{background:#1f1d19}.ds-chip-on,.ds-chip-on:hover{background:var(--acc,#34d08a);color:var(--on-acc,#000)}.ds-chip:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
     },
     {
       "name": "Input",
@@ -362,26 +410,18 @@
       "refersTo": "input",
       "description": "A well-grey field with no border; focus is an inset accent ring.",
       "html": "<input class=\"ds-input\" placeholder=\"Routine title\">",
-      "css": ".ds-input{font-family:Nunito,Roboto,system-ui,sans-serif;width:100%;box-sizing:border-box;background:#16140f;color:#ece8e1;border:0;border-radius:20px;padding:13px 15px;font-size:15px;font-weight:500;outline:none;transition:box-shadow 140ms}.ds-input::placeholder{color:#a09b91}.ds-input:focus{box-shadow:inset 0 0 0 2px var(--acc,#34d08a)}"
-    },
-    {
-      "name": "Tab Bar",
-      "kind": "nav",
-      "refersTo": "tab-active",
-      "description": "Three tabs: Home, Workout, Profile. Grey at rest; the open one in the accent, its icon on a soft accent pill.",
-      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-tab-on\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11l8-7 8 7v9H4z\"/></svg></span><span>Home</span></button><button class=\"ds-tab\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\"><path d=\"M3 12h18M6 8v8M18 8v8M9 6v12M15 6v12\"/></svg></span><span>Workout</span></button><button class=\"ds-tab\"><span class=\"ds-tab-ic\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1-4 4-6 8-6s7 2 8 6\"/></svg></span><span>Profile</span></button></nav>",
-      "css": ".ds-tabs{font-family:Nunito,Roboto,system-ui,sans-serif;display:flex;justify-content:space-around;padding:10px 6px 6px;background:#000;border-top:.5px solid #38352f}.ds-tab{font-family:Nunito,Roboto,system-ui,sans-serif;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:#a39e94;font-size:10px;font-weight:700;transition:color 140ms}.ds-tab-ic{position:relative;isolation:isolate;display:grid;color:#ece8e1}.ds-tab-on,.ds-tab-on .ds-tab-ic{color:var(--acc,#34d08a)}.ds-tab-on .ds-tab-ic::before{content:'';position:absolute;z-index:-1;inset:-4px -18px;border-radius:999px;background:color-mix(in srgb,var(--acc,#34d08a) 20%,#000)}.ds-tab:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+      "css": ".ds-input{font-family:Nunito,Roboto,system-ui,sans-serif;width:100%;box-sizing:border-box;background:#16140f;color:#ece8e1;border:0;border-radius:20px;padding:13px 15px;font-size:17px;font-weight:500;outline:none;transition:box-shadow 140ms}.ds-input::placeholder{color:#a09b91}.ds-input:focus{box-shadow:inset 0 0 0 2px var(--acc,#34d08a)}"
     }
   ],
   "narrative": {
     "northStar": "The Familiar Rack",
-    "overview": "Everything is where a Hevy user's hand already goes. The layout is Hevy's on purpose: its set table, its page bar, its three tabs, its feed. The skin is OpenBite's (D123): Nunito, warm greys, round shapes, each exercise in its own card on a pure black page. A new screen is right when someone who trained with Hevy for years finds every control where they expect it, and someone who uses OpenBite knows the look.\n\nThe mood is dark, calm and dense. Rows stay compact, parts are split by hairlines, and there is no decoration. The numbers are the content. Cards are black with a hairline drawn inside, not grey slabs, so the page stays one black surface and the cards read as outlines on it. Buttons and chips are full pills; set values sit in small rounded wells; ticks are circles.\n\nIt is not upstream openGym's iOS look: no large titles, no tinted icon tiles, no Apple system colours. It is not a gamified fitness app either: no gradients, no glow, no badges, no confetti, no hero numbers for show. Control sizes are Hevy's; D123 changed the skin, not the hit targets.",
+    "overview": "Everything is where a Hevy user's hand already goes. The layout starts from Hevy's on purpose: its set table, its page bar, its list of finished workouts. The skin is OpenBite's (D123): Nunito, warm greys, round shapes, each exercise in its own card on a pure black page. A new screen is right when someone who trained with Hevy for years finds every control where they expect it, and someone who uses OpenBite knows the look.\n\nThe mood is dark, calm and dense. Rows stay compact, parts are split by hairlines, and there is no decoration. The numbers are the content. Cards are black with a hairline drawn inside, not grey slabs, so the page stays one black surface and the cards read as outlines on it. Buttons and chips are full pills; set values sit in small rounded wells; ticks are circles.\n\nIt is not upstream openGym's iOS look: no large titles, no tinted icon tiles, no Apple system colours. It is not a gamified fitness app either: no gradients, no glow, no badges, no confetti, no hero numbers for show. Control sizes are Hevy's; D123 changed the skin, not the hit targets.",
     "keyCharacteristics": [
-      "A pure black page. Exercises, feed workouts, routines and the Today row each sit in a black card with a hairline; Home's widgets and Settings run flat between hairlines.",
+      "A pure black page. An exercise in a workout, a finished workout, Today's next session and its last workout each sit in a black card with a hairline. Lists of exercises and routines run flat between hairlines; fills are kept for controls, wells and stat tiles.",
       "One accent, which the user chooses. It means \"tap this\", \"this is next\" and \"this is done\".",
       "The other colours carry meanings (warm-up, failure, drop set, superset, cardio, deload, record, note), and each steps aside when the accent or another meaning comes too close.",
       "Warm greys and warm white text, never cool blue-greys.",
-      "Tabular numbers everywhere, so a column of sets lines up.",
+      "Tabular numbers everywhere, so a column of sets lines up, and one way of writing a set.",
       "One page bar on every screen: a bare chevron, a small centred title, plain actions."
     ],
     "rules": [
@@ -402,17 +442,22 @@
       },
       {
         "name": "The Grey Until Touched Rule",
-        "body": "A value the app filled in is faint grey and medium weight. It turns white and bold once it is typed or its set is ticked (D2).",
+        "body": "A value the app filled in is faint grey and medium weight. It turns white and bold once it is typed or its set is ticked (D2). The opened set is the one exception: its prefilled values are already white and bold, since they are what you lift now (D127).",
         "section": "colors"
       },
       {
         "name": "The No Large Title Rule",
-        "body": "A page names itself in the 17px bar. Nothing on a page is set above 22px except a live readout that is the page's whole point.",
+        "body": "A page names itself in the 17px bar. Nothing on a page is set above 22px except a number you act on now: the opened set's values, the rest countdown, the plan keypad's value, the strap's live readouts (D127).",
         "section": "typography"
       },
       {
         "name": "The Tabular Rule",
         "body": "Any number that can change or sit in a column uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Set Format Rule",
+        "body": "A set is written one way everywhere: \"80 × 8\", spaced. Where no KG or LB column head names the unit, it comes once, after the weight: \"80 kg × 8\". Repeats lead with their count, \"2 × 80 × 8, 80 × 7\". PREVIOUS in the live table carries no unit, since its column head does. Only the share cards keep Hevy's \"80kg × 8 reps\".",
         "section": "typography"
       },
       {
@@ -423,13 +468,16 @@
     ],
     "dos": [
       "**Do** put a new screen's title in the one page bar: bare chevron, centred 17px/700, plain actions (D49).",
-      "**Do** put an exercise, a feed workout or a routine in a black 26px card with the card hairline (`--hv-card-line`), and let its rows run to the card's edges.",
+      "**Do** put an exercise in a workout, or a finished workout, in a black 26px card with the card hairline (`--hv-card-line`), and let its rows run to the card's edges.",
+      "**Do** list exercises and routines as flat rows split by hairlines.",
+      "**Do** write every set through `setFormat` or `setRuns`: \"80 × 8\", the unit once where no column head names it.",
       "**Do** draw the accent from `--acc`, `--acc-2` and `--on-acc`, never from a hex: the user chooses it.",
       "**Do** read a meaning colour from its `--hv-*` variable (`var(--hv-warmup, var(--yellow))`), so it steps aside from the accent.",
       "**Do** draw with the tokens in `theme.css` (`--bg`, `--surface`, `--surface-2`, `--surface-3`, `--label`, `--label-2`, `--label-3`, `--sep`, `--r-sm`, `--r`, `--r-card`, `--r-xl`), scoped under `:root[data-ui=\"hevier\"]`.",
+      "**Do** head a part of a page with a 13px grey section heading (h2, or h3 under an h2).",
       "**Do** keep every target at 44px by extending it invisibly, not by making the control bigger.",
       "**Do** set every changing number in tabular figures.",
-      "**Do** keep the faint grey (`--label-3`) at 4.5:1 on the next set's row."
+      "**Do** keep the faint grey (`--label-3`) at 4.5:1 on the opened set's row."
     ],
     "donts": [
       "**Don't** bring back upstream's iOS look: large titles, tinted icon tiles, filled circles behind header icons, Apple's system colours.",
@@ -440,8 +488,9 @@
       "**Don't** add a preset accent that sits under 0.12 OKLab from a meaning colour or another preset.",
       "**Don't** offer a light theme (D17). The light token block exists only for upstream's timer flash.",
       "**Don't** use cool blue-greys; the greys are warm.",
-      "**Don't** add a second typeface, or set anything above 22px that is not a live readout.",
-      "**Don't** give a card, a chip or a field a CSS border."
+      "**Don't** add a second typeface, or set anything above 22px that is not a number you act on now.",
+      "**Don't** outline a card, a chip or a field with a CSS border; a card's edge is the inset hairline, a title field's the hairline under it.",
+      "**Don't** write a set as \"80kg x 8\" or \"80×8\", or repeat the unit under a KG or LB head."
     ]
   }
 }
