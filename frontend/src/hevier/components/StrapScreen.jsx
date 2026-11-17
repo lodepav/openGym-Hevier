@@ -1,5 +1,5 @@
-// [hevier] The strap's heart rate full screen (hevier/DECISIONS.md D80): ♥ beside the workout's ⏱
-// opens it. The heart rate large, its zone, the zone bar with a marker, this workout's average and
+// [hevier] The strap's heart rate full screen (hevier/DECISIONS.md D80): a tap on the heart rate in
+// the workout's header opens it. The heart rate large, its zone, the zone bar with a marker, this workout's average and
 // highest, and the time in each zone; with a set's timer running (D53), that set's time on top.
 // The zones are hevier/lib/hr-zones.js's, from the maximum in S.hvHrMax.
 import { useEffect, useState } from 'react'
@@ -122,12 +122,4 @@ function Screen({ close }) {
 }
 
 // A viewer sheet: full screen, and Android's back closes it (lib/back.js).
-const screen = () => useUI.getState().openSheet(close => <Screen close={close} />, { kind: 'viewer' })
-
-/** ♥ beside the workout's ⏱, while a strap is connected or connecting. */
-export default function StrapButton() {
-  const [state, setState] = useState(() => liveStrap().state)
-  useEffect(() => onLive(l => setState(l.state)), [])
-  if (state === 'off') return null
-  return <button type="button" className="iconbtn hv-hrbtn" aria-label={t('Heart rate full screen')} onClick={screen}><Icon name="heart" /></button>
-}
+export const strapScreen = () => useUI.getState().openSheet(close => <Screen close={close} />, { kind: 'viewer' })

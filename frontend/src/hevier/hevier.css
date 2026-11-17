@@ -25,7 +25,8 @@
 :root[data-ui="hevier"] .hv-wname > span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wname-chev{flex:none;font-size:14px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wtime{flex:none;font-size:14px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums}
-/* the header's heart rate: the number alone, its label for screen readers only */
+/* the header's heart rate: the number alone, its label for screen readers only; a tap opens D80's page */
+:root[data-ui="hevier"] .hv-bar .hv-strap{background:none;border:0;padding:0 4px;color:inherit;font:inherit;min-height:44px;min-width:44px}
 :root[data-ui="hevier"] .hv-bar .hv-strap > span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :root[data-ui="hevier"] .hv-wdetails{margin-top:6px}
 :root[data-ui="hevier"] .hv-stats{display:flex;gap:28px;margin-top:8px}
@@ -40,7 +41,6 @@
 :root[data-ui="hevier"] .hv-strap b.on svg{color:var(--red)}
 :root[data-ui="hevier"] .hv-strap-list{display:flex;flex-direction:column;gap:8px}
 :root[data-ui="hevier"] .hv-strap-dev{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:12px;background:var(--surface);border:0;color:var(--label);text-align:left}
-:root[data-ui="hevier"] .hv-hrbtn svg{color:var(--red);fill:currentColor}
 /* D80: the strap's heart rate full screen and its zones (Garmin's colours, grey to red). */
 :root[data-ui="hevier"] .hv-z1{--z:#8e9aaf}
 :root[data-ui="hevier"] .hv-z2{--z:#0a84ff}
