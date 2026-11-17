@@ -28,7 +28,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Exercise block: picture, name and brand on one line; on the open exercise Swap, Note, History, Rest, Reorder and More, and + Set beside + Warm-up | D7, D127 | Fork |
 | Progression guidance behind ⋮ (Exercise settings), nothing about it on the card | D8 | Fork |
 | Swipe left deletes a set, with undo | D9 | Fork |
-| Header: name, duration, heart rate, ⏱ Timer/Stopwatch and Finish; the gym and the workout note behind the name's chevron | D10, D127 | Fork |
+| Header: name, duration, heart rate (a tap opens its full screen), ⏱ Timer/Stopwatch and Finish; the gym and the workout note below the name, open at the page's top and bottom and at the start and end of the session, the chevron toggles them | D10, D80, D127 | Fork |
 | Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
 | Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue: a Timer and a Stopwatch in the workout) |
@@ -36,7 +36,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offer (upstream 1.4.3's #592 keeps added exercises) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offer (upstream 1.4.5 runs timed holds by themselves, but has no count-up timer on a cardio set) |
-| Workout note behind the workout's name and on the feed cards | D54, D127 | Fork |
+| Workout note below the workout's name and on the feed cards | D54, D127 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Offered (#902, built in release-1.4.5; upstream's replaces the fork's at the merge, D103) |
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |

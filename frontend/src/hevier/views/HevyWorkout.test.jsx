@@ -83,21 +83,55 @@ describe('hevier: Log Workout screen (seam S3)', () => {
   })
 
   // The sets are counted on the Finish sheet now (lib/finish-facts.test.js, D18 there).
-  it('the header is name, duration and Finish; the gym and the workout note sit behind the name (D127)', () => {
+  it('the header is name, duration and Finish; the gym and the workout note open below the name at the start (D127)', () => {
     render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
     expect(container.querySelector('.hv-stats')).toBeNull()
     expect(container.textContent).not.toContain('Volume')
     expect(container.querySelector('.hv-wtime')).toBeTruthy()
     expect(container.querySelector('.hv-finish').textContent).toBe('Finish')
-    expect(container.querySelector('.hv-gym')).toBeNull()
-    expect(container.querySelector('.hv-wnote')).toBeNull()
     const name = container.querySelector('.hv-wname')
     expect(name.textContent).toBe('Leg Day')
-    act(() => name.click())
     expect(name.getAttribute('aria-expanded')).toBe('true')
     expect(container.querySelector('.hv-gym')).toBeTruthy()
     expect(container.querySelector('.hv-wnote').textContent).toBe('Workout note')
     expect(container.textContent).not.toContain('Add notes here')
+    act(() => name.click())
+    expect(name.getAttribute('aria-expanded')).toBe('false')
+    expect(container.querySelector('.hv-gym')).toBeNull()
+    expect(container.querySelector('.hv-wnote')).toBeNull()
+  })
+
+  describe('scrolled into the middle of a long page (D127)', () => {
+    const was = {}
+    beforeEach(() => {
+      for (const [o, k, v] of [[window, 'scrollY', 600], [window, 'innerHeight', 800], [document.documentElement, 'scrollHeight', 3000]]) {
+        was[k] = Object.getOwnPropertyDescriptor(o, k)
+        Object.defineProperty(o, k, { configurable: true, get: () => v })
+      }
+    })
+    afterEach(() => {
+      for (const [o, k] of [[window, 'scrollY'], [window, 'innerHeight'], [document.documentElement, 'scrollHeight']]) {
+        if (was[k]) Object.defineProperty(o, k, was[k]); else delete o[k]
+      }
+    })
+    const two = first => [
+      { id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8, { done: first }), reps(60, 8)] },
+      { id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] },
+    ]
+    const shown = () => container.querySelector('.hv-wname').getAttribute('aria-expanded')
+
+    it('a session just started still shows the gym and the note', () => {
+      render(two(false))
+      expect(shown()).toBe('true')
+    })
+
+    it('mid-session they close, and a tap on the name opens them', () => {
+      render(two(true))
+      expect(shown()).toBe('false')
+      expect(container.querySelector('.hv-gym')).toBeNull()
+      act(() => container.querySelector('.hv-wname').click())
+      expect(shown()).toBe('true')
+    })
   })
 
   // Upstream's check since 1.4.4 (#811, D90's 1.4.4 note): asked once, in upstream's words.

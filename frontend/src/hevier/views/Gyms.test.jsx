@@ -79,7 +79,6 @@ afterEach(() => {
 describe('hevier gyms and machine labels on screen (D28)', () => {
   it('the workout shows the active profile as its gym, and the gym can be changed', () => {
     render(<Workout />, { entries: [{ id: DB, target: { sets: 1, reps: 8 }, sets: [{ w: 20, r: 8, done: false }] }] })
-    act(() => container.querySelector('.hv-wname').click())   // the gym sits behind the name's chevron (D127)
     const row = container.querySelector('.hv-gym')
     expect(row.textContent).toContain('City Gym')
     act(() => row.click())
@@ -92,8 +91,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
 
   it('with no gym yet the line reads No gym, and a custom gym is added and picked from its sheet (D47)', () => {
     render(<Workout />, { entries: [{ id: DB, sets: [] }], extra: { equipProfiles: [], activeEquipId: null } })
-    act(() => container.querySelector('.hv-wname').click())
-    expect(container.querySelector('.hv-gym').textContent).toContain('No gym')
+    expect(container.querySelector('.hv-gym').textContent).toContain('No gym')   // a new session opens with its gym shown (D127)
     act(() => container.querySelector('.hv-gym').click())
     const menu = sheet()
     act(() => byText(menu, '.menu-item', 'Custom gym').click())

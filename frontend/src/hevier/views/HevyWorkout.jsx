@@ -5,7 +5,7 @@
 // has run, passing this screen its own handlers. Nothing here writes the session except through
 // those handlers and upstream's sheets, so finishing, discarding, rest and progression are
 // upstream's, unchanged.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -23,7 +23,6 @@ import Icon from '../../components/Icon.jsx'
 import HevyExerciseBlock from '../components/HevyExerciseBlock.jsx'
 import HvIcon from '../components/HvIcon.jsx'
 import StrapBpm from '../components/StrapBpm.jsx'
-import StrapButton from '../components/StrapScreen.jsx'
 import RestDock from '../components/RestDock.jsx'
 import { GymRow } from '../components/GymLabels.jsx'
 import { useSupersetTarget } from './ExercisePickerHevy.jsx'
@@ -33,6 +32,7 @@ import { exOr } from '../../lib/exercises.js'
 import { partOn } from '../lib/module-parts.js'
 import { unitMoveSteps } from '../lib/reorder-units.js'
 import { openSet, pickAt } from '../lib/open-set.js'
+import { scrollZone, progressOpen, resolveOpen } from '../lib/header-open.js'
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
@@ -43,7 +43,30 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   // D127: the set opened up, the next one to do until another is tapped (lib/open-set.js).
   const [pick, setPick] = useState(null)
   const open = openSet(A, pick)
-  const [details, setDetails] = useState(false)
+  // D127: the gym and the note show at the page's top or bottom, at the start or near the end;
+  // a tap on the name holds until that changes (lib/header-open.js).
+  const [edge, setEdge] = useState(true)
+  const zone = useRef(null)
+  const detailsRef = useRef(null)
+  useEffect(() => {
+    const check = () => {
+      const top = window.scrollY
+      const gap = document.documentElement.scrollHeight - (top + window.innerHeight)
+      const d = detailsRef.current
+      const h = d ? d.getBoundingClientRect().height + (parseFloat(getComputedStyle(d).marginTop) || 0) : 0
+      const z = zone.current = scrollZone(zone.current, top, gap, h)
+      setEdge(z.top || z.end)   // React skips the render when it is unchanged
+    }
+    check()
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', check)
+    return () => { window.removeEventListener('scroll', check); window.removeEventListener('resize', check) }
+  }, [])
+  const auto = edge || progressOpen(A, open)
+  const [manual, setManual] = useState(null)
+  const shown = resolveOpen(auto, manual)
+  if (manual && !shown.manual) setManual(null)
+  const details = shown.open
   const { addExercise, discardWorkout, markAllDone, pairAt, unpairAt, noProgSwitchable, toggleSessionNoProg } = actions
   // The picker's "Add superset": upstream's add puts each pick after the current one and moves
   // there, so the last one added is the session's current exercise.
@@ -105,13 +128,12 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
         {editing
           ? <button className="iconbtn" aria-label={t('Close editor')} onClick={() => exitWorkoutEdit(leave)}><Icon name="xmark" /></button>
           : <button className="iconbtn" aria-label={t('Minimize')} onClick={() => nav('/home')}><Icon name="chevronDown" /></button>}
-        {/* The gym and the workout note sit behind the name's chevron (D127). */}
-        <button type="button" className="hv-title hv-wname" aria-expanded={details} onClick={() => setDetails(v => !v)}>
+        {/* The gym and the workout note open below the name, by themselves or by its chevron (D127). */}
+        <button type="button" className="hv-title hv-wname" aria-expanded={details} onClick={() => setManual({ auto, open: !details })}>
           <span>{editing ? t('Edit workout') : A.name || t('Log workout')}</span>
           <Icon name={details ? 'chevronUp' : 'chevronDown'} className="hv-wname-chev" /></button>
         <span className="hv-wtime">{live ? <Elapsed start={A.start} /> : fmtDate(A.d, true)}</span>
         {live && partOn(S, 'health', 'strap') && <StrapBpm />}
-        {live && partOn(S, 'health', 'strap') && <StrapButton />}
         {live && partOn(S, 'hvWorkout', 'clock') && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.start} /></button>}
         <button className="btn primary pill hv-finish" onClick={() => {
@@ -121,7 +143,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
           else finishWorkout()
         }}>{editing ? t('Save') : t('Finish')}</button>
       </div>
-      {details && <div className="hv-wdetails">
+      {details && <div className="hv-wdetails" ref={detailsRef}>
         <GymRow />
         <button type="button" className={'hv-notes hv-wnote' + (A.note ? ' has' : '')} onClick={sessionNoteSheet}>
           {A.note || t('Workout note')}
