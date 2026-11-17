@@ -96,12 +96,15 @@
 /* ---------- one exercise (hevier/components/HevyExerciseBlock.jsx) ---------- */
 :root[data-ui="hevier"] .hv-exhd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 :root[data-ui="hevier"] .hv-thumb{flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;background:#fff;padding:0}
-:root[data-ui="hevier"] .hv-thumb img{width:100%;height:100%;object-fit:cover}
+/* .thumb too: an exercise without a picture is upstream's 50px tile, which the circle cut off-centre */
+:root[data-ui="hevier"] .hv-thumb :is(img, .thumb){width:100%;height:100%;object-fit:cover}
 :root[data-ui="hevier"] .hv-name{flex:1;min-width:0;text-align:start;font-size:17px;font-weight:700;color:var(--acc);background:none;padding:0}
 :root[data-ui="hevier"] .hv-more{flex:none}
 /* D127: picture · name · brand on one line, the brand wrapping under the name when it must */
 :root[data-ui="hevier"] .hv-nameline{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:2px}
 :root[data-ui="hevier"] .hv-nameline .hv-name{flex:0 1 auto}
+/* the name's heading for TalkBack takes the button's place in the line and draws nothing of its own */
+:root[data-ui="hevier"] .hv-name-h{display:flex;flex:0 1 auto;min-width:0;margin:0;font:inherit;letter-spacing:inherit}
 :root[data-ui="hevier"] .hv-addbrand{min-height:32px;padding:0 10px;border-radius:999px;background:var(--surface-2);color:var(--label-2);font-size:13px}
 :root[data-ui="hevier"] .hv-openex{flex:none;background:none}
 :root[data-ui="hevier"] .hv-exnote{display:block;width:100%;text-align:start;background:none;border:0;padding:0;color:var(--label)}
@@ -180,6 +183,9 @@
 :root[data-ui="hevier"] .hv-hold svg{font-size:11px;color:var(--hv-drop,var(--blue))}
 :root[data-ui="hevier"] .hv-d{color:var(--hv-drop,var(--blue))}
 :root[data-ui="hevier"] .hv-prev{background:none;padding:0;text-align:center;font-size:14px;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a copyable PREVIOUS takes the row's full height, so a near miss copies instead of opening the set;
+   a disabled one stays small, since it swallows the tap that opens the set (D127) */
+:root[data-ui="hevier"] .hv-prev:enabled{align-self:stretch}
 :root[data-ui="hevier"] .hv-num{width:100%;text-align:center;font-size:16px;font-weight:600;background:none;border:0;padding:8px 0;color:var(--label)}
 /* the set's values in OpenBite's filled wells; a done set's sit on its band */
 :root[data-ui="hevier"] .hv-row .hv-num{background:var(--surface-2);border-radius:var(--r-sm)}
@@ -251,6 +257,8 @@
 /* In the workout the toast sits above the rest bar's height, so Undo neither hides the rest bar
    nor the "+ Add Set" a swipe-delete leaves near the bottom (UX review, round 1). */
 :root[data-ui="hevier"] body.no-tabbar #toast{bottom:calc(96px + var(--sab))}
+/* Over a sheet it clears the tallest foot, the Finish sheet's Save and its link row (20 + 50 + 48). */
+:root[data-ui="hevier"] body:has(#modal-root.open) #toast{bottom:calc(132px + var(--sab))}
 
 /* ---------- Workout tab (hevier/views/WorkoutTab.jsx) ---------- */
 /* Hevy's ⋯, folder and gear buttons are bare glyphs, here and on the three tabs */
@@ -460,6 +468,8 @@
 :root[data-ui="hevier"] .hv-xd-sides{margin:8px 2px 4px;font-size:14px;color:var(--label-2)}
 /* A section's caption with its link or switch at the end. */
 :root[data-ui="hevier"] .hv-xd-cap{display:flex;align-items:center;justify-content:space-between;gap:10px}
+/* the exercise's curve is a plain accent line: upstream's LineChart always fills the area under it */
+:root[data-ui="hevier"] .hv-xd-chart polygon{display:none}
 :root[data-ui="hevier"] .hv-xd-cap .hv-link{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px;font-size:14px;font-weight:700}
 /* The last sessions, one line each (D131). */
 :root[data-ui="hevier"] .hv-xd-ls{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 2px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
@@ -650,7 +660,8 @@
 /* ---------- Monthly report (hevier/views/MonthReport.jsx, D23) ---------- */
 :root[data-ui="hevier"] .hv-report-bar{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
 :root[data-ui="hevier"] .hv-report-bar > div{flex:1;text-align:center}
-:root[data-ui="hevier"] .hv-report-bar h1{font-size:22px;margin:0}
+/* h2: the page bar above holds the page's h1 */
+:root[data-ui="hevier"] .hv-report-bar h2{font-size:22px;margin:0}
 :root[data-ui="hevier"] .hv-report-stats em{font-style:normal;font-size:12px;font-weight:500}
 :root[data-ui="hevier"] .hv-report-stats em.up{color:var(--acc)}
 :root[data-ui="hevier"] .hv-report-stats em.down{color:var(--hv-fail,var(--red))}
@@ -772,6 +783,8 @@
 :root[data-ui="hevier"] .hv-eqg-sub .chip{font-size:13px;padding:5px 11px}
 /* …and the picker's filter: a group's kinds indented under it, its chevron after the tick. */
 :root[data-ui="hevier"] .menu-item .hv-eqg-x{margin-inline-end:-8px;color:var(--label-2)}
+/* a list name wrapped to two or three lines (Lifts, the picker) reads less cramped */
+:root[data-ui="hevier"] .item .tt{line-height:1.3}
 :root[data-ui="hevier"] .menu-item.hv-eqg-kind .tt{padding-inline-start:20px;color:var(--label-2)}
 /* …and the muscle explorer's strip: the open group's kinds in a second strip, set in a little. */
 :root[data-ui="hevier"] .chips .hv-eqg-chip{flex:none}
@@ -959,7 +972,9 @@
 /* ---------- D132: the Finish sheet (components/FinishSheet.jsx) ---------- */
 :root[data-ui="hevier"] .hv-fin-hd h3{margin:0 0 2px}
 :root[data-ui="hevier"] .hv-fin-hd{margin-bottom:12px;text-align:center}
-:root[data-ui="hevier"] .hv-fin-best{color:var(--hv-record,var(--yellow));margin-inline-end:3px}
+:root[data-ui="hevier"] .hv-fin-best{color:var(--hv-record,var(--yellow));margin-inline-end:3px;display:inline-block;vertical-align:-.125em}
+/* the trophy and its count wrap as one item, never the icon alone */
+:root[data-ui="hevier"] .hv-fin-bestw{white-space:nowrap}
 :root[data-ui="hevier"] .hv-fin-kv{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;border-top:var(--hair) solid var(--sep);border-bottom:var(--hair) solid var(--sep);margin-bottom:12px}
 :root[data-ui="hevier"] .hv-fin-kv > span:first-child{color:var(--label-2)}
 :root[data-ui="hevier"] .hv-fin-durbtn{min-height:44px;background:none;border:0;padding:0 2px;color:var(--acc);font-weight:700;font-size:16px}

@@ -161,7 +161,7 @@ function Chart({ ex, sum, st }) {
         <option value="1y">{t('Year')}</option>
         <option value="all">{t('All time')}</option>
       </select></div>
-    <div className="chart"><LineChart points={points} h={150} unit={cu} color="var(--blue)" /></div>
+    <div className="chart hv-xd-chart"><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}

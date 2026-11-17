@@ -8,13 +8,14 @@ export const LABEL = 'var(--label)'
 const VIOLET = '#bf5af2'
 const YELLOW = '#efab03'
 
-// [first, backup]: theme.css's --green, --yellow, --red, --blue and upstream's --orange, --purple.
+// [first, backup]: theme.css's --green, --yellow, --blue and upstream's --orange, --purple; fail is
+// lighter than --red, so the F reads at 4.5:1 on a done set's band and on the open row.
 export const MEANINGS = {
   cardio: ['#2fbf5b', HEVY_BLUE],
   deload: ['#ff9f0a', VIOLET],
   drop: [HEVY_BLUE, VIOLET],
   warmup: [YELLOW, LABEL],
-  fail: ['#e34b37', LABEL],
+  fail: ['#ec5a45', LABEL],
   superset: [VIOLET, LABEL],
   record: [YELLOW, LABEL],
   note: [YELLOW, LABEL],
