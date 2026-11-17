@@ -298,7 +298,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 55, r: 9, done: true }] }] }]
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }], past)
     const prev = container.querySelectorAll('.hv-prev')
-    expect(prev[0].textContent).toBe('55kg × 9')
+    expect(prev[0].textContent).toBe('55 × 9')
     expect(prev[1].textContent).toBe('–')
     act(() => prev[0].click())
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
@@ -363,7 +363,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(container.querySelector('.hv-head').textContent).toContain('LB')
     const w = container.querySelector('.hv-row .hv-num')
     expect(w.placeholder).toBe('45')   // untouched: Hevy's grey hint (D2)
-    expect(container.querySelector('.hv-prev').textContent).toContain('45lb × 8')
+    expect(container.querySelector('.hv-prev').textContent).toContain('45 × 8')
     typeInto(w, '50')
     expect(sets()[0].w).toBeCloseTo(50 * 0.45359237, 4)   // upstream stores a converted weight to four places (#657)
     expect(useStore.getState().S.active.entries[0].target.inc).toBeCloseTo(5 * 0.45359237, 9)

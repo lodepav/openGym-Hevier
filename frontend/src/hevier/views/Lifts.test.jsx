@@ -69,7 +69,7 @@ describe('hevier: Lifts (D135)', () => {
     const w = wo('2026-11-02', A.id, 80)
     w.entries[0].sets = [{ sides: { L: side, R: side }, done: true }]
     render({ workouts: [w], exUnit: withExUnit({}, A.id, 'lb') })
-    expect(container.querySelector('.hv-lift-r b').textContent).toBe('L 45×8\nR 45×8')
+    expect(container.querySelector('.hv-lift-r b').textContent).toBe('L 45 × 8\nR 45 × 8')
   })
 
   it('the search finds an exercise by the brand it was done on', () => {

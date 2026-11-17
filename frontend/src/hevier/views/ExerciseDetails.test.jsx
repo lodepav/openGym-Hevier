@@ -72,7 +72,7 @@ describe('hevier: exercise details (seam S10)', () => {
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
     expect(lines).toHaveLength(1)
     // The only session holds every best: its sets carry the star, read out, and the line says best.
-    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best set: 60×8 · ★ Best set: 62.5×6')
+    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best set: 60 kg × 8 · ★ Best set: 62.5 kg × 6')
     expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('best')
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
@@ -89,7 +89,7 @@ describe('hevier: exercise details (seam S10)', () => {
 
   it('an exercise pinned to lb reads in lb: the sessions, the bests, the rep counts and All history (D41)', () => {
     open([{ ...log[0], entries: [{ id: EX.id, sets: [{ w: 50, r: 12, done: true }] }] }], S => { S.exUnit = withExUnit(S.exUnit, EX.id, 'lb'); S.hvStrength = { [EX.id]: { lv: [40, 60, 80, 100, 120], u: 'kg' } } })
-    expect(container.querySelector('.hv-xd-lsets').textContent).toMatch(/110\.23?×12/)
+    expect(container.querySelector('.hv-xd-lsets').textContent).toMatch(/110\.23? lb × 12/)
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toMatch(/^110\.23? lb$/)
     expect(tiles[2]).toMatch(/^110\.23? × 12$/)
@@ -102,7 +102,7 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-sl-foot').textContent).toMatch(/Best 1RM 1[45]\d(\.\d+)? lb/)
     expect(container.querySelector('.hv-sl-ticks').textContent).toMatch(/^88132\.5/)
     const all = sub('All history')
-    expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23?×12/)
+    expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
   })
 
   it('marks each session against the one before, with its effort', () => {
@@ -153,7 +153,7 @@ describe('hevier: exercise details (seam S10)', () => {
     ps[0].entries[0].sets = [{ w: 20, r: 19, done: true, rpe: 8, sides: { L: { w: 20, r: 10, done: true, rpe: 8 }, R: { w: 20, r: 9, done: true, rpe: 7 } } }]
     open(ps)
     const sets = [...sub('All history').querySelectorAll('.hv-xd-sess .hv-xd-set')]
-    expect(sets.map(r => [r.querySelector('.hv-xd-n').textContent, r.children[1].textContent])).toEqual([['1', 'L20×10 (RPE 8)'], ['', 'R20×9 (RPE 7)']])
+    expect(sets.map(r => [r.querySelector('.hv-xd-n').textContent, r.children[1].textContent])).toEqual([['1', 'L20 kg × 10 (RPE 8)'], ['', 'R20 kg × 9 (RPE 7)']])
   })
 
   it('How to offers upstream’s YouTube search, and plays a video linked in the pinned note (D101)', () => {

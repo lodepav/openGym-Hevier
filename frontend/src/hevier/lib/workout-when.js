@@ -1,7 +1,7 @@
 // A finished workout's day, start time and length as the fork's cards and Workout Detail show
 // them: "Sat 17 Oct · 18:05" and "45 min", or "40s" for one under a minute. Imported history
 // without a clock (no end after its start) keeps upstream's day alone and a dash.
-import { fmtDate } from '../../lib/format.js'
+import { fmtDate } from './dates.js'
 import { durationWords } from './elapsed.js'
 import { fmtDuration } from '../../lib/duration.js'
 import { dateLocale } from '../../lib/i18n-core.js'

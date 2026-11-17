@@ -4,7 +4,8 @@
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
-import { fmtNum, fmtDate, todayISO } from '../../lib/format.js'
+import { fmtNum, todayISO } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { openExternal } from '../../components/CustomMedia.jsx'
 import { LEVELS, compareUrl, levelsIn, setLevels, strengthLevel, validLevels } from '../lib/strength-level.js'
 

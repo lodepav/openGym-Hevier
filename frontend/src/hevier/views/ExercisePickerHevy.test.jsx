@@ -191,7 +191,7 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
       expect(tried).not.toContain(DB_BENCH.n)
       expect(tried).not.toContain(FLY.n)
       const swapped = container.querySelector('section[aria-label="You swapped to these before"] .hv-pk-row')
-      expect(swapped.querySelector('.ss').textContent).toMatch(/^once · .+ · 27\.5kg × 8$/)
+      expect(swapped.querySelector('.ss').textContent).toMatch(/^once · .+ · 27\.5 kg × 8$/)
       expect(swapped.querySelector('.tap-main').getAttribute('aria-label')).toMatch(new RegExp('^Use ' + DB_BENCH.n, 'i'))
       expect(swapped.querySelector('.hv-pk-use').textContent).toBe('Use')
       search('curl')

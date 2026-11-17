@@ -2,7 +2,8 @@
 // the same days as next-planned.js (D124), else when it was last done.
 import { effectiveRoutineIds } from '../../lib/history.js'
 import { workoutsOn } from '../../lib/backfill.js'
-import { fmtDate, isoOf } from '../../lib/format.js'
+import { isoOf } from '../../lib/format.js'
+import { fmtDate } from './dates.js'
 import { t } from '../../lib/i18n.js'
 import { nextPlanned } from './next-planned.js'
 

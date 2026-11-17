@@ -80,6 +80,8 @@ describe('hevier: lift trends page', () => {
     render('/lift-trends', log.slice(1))
     expect(rows()).toHaveLength(0)
     expect(container.textContent).toContain('An exercise shows here once you have done it in two workouts of the last 3 weeks')
+    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Open Lifts').click())
+    expect(path).toBe('/lifts')
   })
 
   it('goes back to Statistics with the part off', () => {

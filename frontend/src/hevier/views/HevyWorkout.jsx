@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
-import { fmtDate } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { sessionNoProg } from '../../lib/session-noprog.js'
 import {
   finishWorkout, exitWorkoutEdit, saveWorkoutEdits, menuSheet, sessionNoteSheet, renameWorkoutSheet,

@@ -2,7 +2,7 @@
 // Rising as D95 reads it (lib/lift-trends.js), with the change in its estimated 1RM over that time
 // and the days since its last record. Falling first. A tap opens exercise details.
 import { useMemo } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { todayISO } from '../../lib/format.js'
@@ -29,6 +29,7 @@ export default function LiftTrends() {
 }
 
 function LiftTrendsPage() {
+  const nav = useNavigate()
   const st = useStore(s => s.S)
   const rows = useMemo(() => liftTrends(st, todayISO()), [st])
   const records = partOn(st, 'motivation', 'records')
@@ -37,7 +38,10 @@ function LiftTrendsPage() {
   return <div className="narrow hv-statpage">
     <BackTo label={t('Statistics')} to="/stats" title={t('Lift trends')} />
     <div className="small dim">{t('The last 3 weeks, each session against the one before it.')}</div>
-    {!rows.length && <div className="muted small" style={{ marginTop: 10 }}>{t('An exercise shows here once you have done it in two workouts of the last 3 weeks, each with a workout before it to compare with.')}</div>}
+    {!rows.length && <>
+      <div className="muted small" style={{ marginTop: 10 }}>{t('An exercise shows here once you have done it in two workouts of the last 3 weeks, each with a workout before it to compare with.')}</div>
+      <button type="button" className="btn" style={{ marginTop: 12 }} onClick={() => nav('/lifts')}>{t('Open Lifts')}</button>
+    </>}
     {rows.length > 0 && <div className="list">{rows.map(r => {
       const ex = exOr(r.id)
       const [v, word] = STATE[r.state]

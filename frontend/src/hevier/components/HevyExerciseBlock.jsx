@@ -279,7 +279,8 @@ export default function HevyExerciseBlock(props) {
     </div>
   }
 
-  const prevOpts = { mode, bw, unit: exUnit, show: showWeight, id: entry.id, target: last?.target, speedUnit }
+  // No unit: the KG/LB column header names it ("90 × 1").
+  const prevOpts = { mode, bw, unit: '', show: showWeight, id: entry.id, target: last?.target, speedUnit }
   // A tap on PREVIOUS copies it into the row, field by field, in the row's own shape.
   const copyPrev = (i, p, side) => {
     if (!p) return

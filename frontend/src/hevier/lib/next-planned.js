@@ -3,7 +3,8 @@
 // while the Calendar showed the planned one; here the line reads the days themselves.
 import { effectiveRoutineIds } from '../../lib/history.js'
 import { workoutsOn } from '../../lib/backfill.js'
-import { fmtDate, isoOf } from '../../lib/format.js'
+import { isoOf } from '../../lib/format.js'
+import { fmtDate } from './dates.js'
 import { t } from '../../lib/i18n.js'
 
 const AHEAD = 28  // days looked at; past four weeks upstream's line stays

@@ -7,12 +7,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
-import { exCount, fmtDate, fmtNum, todayISO } from '../../lib/format.js'
+import { exCount, fmtNum, todayISO } from '../../lib/format.js'
+import { fmtDate } from '../lib/dates.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, isBw } from '../../lib/history.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { shownWeight, exUnitOf } from '../../lib/ex-unit.js'
+import { mapSetWeights } from '../../lib/units.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { startFlow, exerciseDetailSheet } from '../../sheets.jsx'
@@ -27,7 +29,7 @@ import { workCount } from '../lib/routine-table.js'
 import { folderOf } from '../lib/routine-folders.js'
 import { nextPlanned } from '../lib/next-planned.js'
 import { nextSession, planFields, lastText } from '../lib/next-plan.js'
-import { hevySetLabel } from '../lib/set-text.js'
+import { setText } from '../lib/set-text.js'
 import { gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
 import { startGym } from '../lib/routine-brand.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
@@ -56,13 +58,13 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const lines = set => {
     const [row] = set.rows
     if (set.plannable) return (isSideSet(row) ? ['L', 'R'] : [null]).map(side => ({
-      side, last: lastText(set.last[0], { cfg, side, speedUnit, show }),
+      side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit }),
       next: <>{isBw(cfg) && '+'}{num(field(set, side, 'w'))} {unit} × {num(field(set, side, 'r'))}</>,
     }))
     const pair = set.rows.length > 1
     return set.rows.map((s, i) => {
       const side = pair ? (i ? 'R' : 'L') : null
-      return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show }), next: <span className="hv-np-ro">{hevySetLabel(x.id, s, cfg, speedUnit)}</span> }
+      return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show, unit }), next: <span className="hv-np-ro">{setText(x.id, mapSetWeights(s, show), cfg, speedUnit, unit)}</span> }
     })
   }
   const mark = set => (set.kind === 'warm' ? <span className="hv-w">W</span> : set.rows[0].failure ? <span className="hv-f">F</span> : set.n + 1)

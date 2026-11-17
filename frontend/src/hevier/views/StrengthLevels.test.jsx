@@ -54,4 +54,12 @@ describe('hevier: strength levels list', () => {
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
   })
+  it('with no levels yet, lists the lifts trained to open and set one on', () => {
+    render('/strength')
+    expect(container.textContent).toContain('No strength levels yet. Open a lift and set its strength level.')
+    const rows = [...container.querySelectorAll('.list.hv-flat .hv-report-row')]
+    expect(rows.map(r => r.textContent.toLowerCase())).toEqual(['barbell bench press'])
+    act(() => rows[0].click())
+    expect(useUI.getState().sheets.length).toBe(1)
+  })
 })
