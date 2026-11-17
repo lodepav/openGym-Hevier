@@ -10,6 +10,9 @@
 #   hevier/tools/release-check.sh --sources-only  # only the gates that read the committed sources
 #   hevier/tools/release-check.sh --no-sources    # every gate but those (the release script runs
 #                                                 # the first while the APK builds, then this)
+#   hevier/tools/release-check.sh --lists-only --apk <file>   # only the APK's permissions, native
+#                                                 # libraries and exported components; a debug APK
+#                                                 # is read as its release build would be
 #
 # Every gate runs even when an earlier one fails; exit 1 if any failed. The gates run at the same
 # time, each into its own log, and the ones that read only the sources start before the bundle is
@@ -23,17 +26,19 @@ SEC="$ROOT/hevier/security"
 # The release key's pinned certificate lives beside the keystore, never in the repo (D38).
 CERT="${HEVIER_CERT:-$HOME/.config/hevier/apk-cert.txt}"
 export PATH="$HOME/.local/opt/node/bin:$HOME/.local/opt/gitleaks:$HOME/.local/opt/trivy:$PATH"
-BUILD=1 APK="" SOURCES=1 REST=1
+BUILD=1 APK="" SOURCES=1 REST=1 LISTS=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-build) BUILD=0 ;;
     --apk) APK="$(realpath "$2")"; shift ;;
     --sources-only) REST=0 BUILD=0 ;;
     --no-sources) SOURCES=0 ;;
+    --lists-only) LISTS=1 REST=0 BUILD=0 SOURCES=0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
   shift
 done
+[[ $LISTS == 0 || -n "$APK" ]] || { echo "--lists-only needs --apk <file>" >&2; exit 2; }
 
 for t in gitleaks trivy node; do
   command -v "$t" >/dev/null || { echo "$t not found: run hevier/tools/install-scanners.sh" >&2; exit 2; }
@@ -61,6 +66,10 @@ gate() {   # name, command... : started in the background, its output kept for r
 }
 sgate() {   # the same, for a gate that reads only the committed sources (--sources-only)
   [[ $SOURCES == 1 ]] || return 0
+  ugate "$@"
+}
+lgate() {   # the same, for an APK list gate (--lists-only runs these alone)
+  [[ $REST == 1 || $LISTS == 1 ]] || return 0
   ugate "$@"
 }
 ugate() {
@@ -108,7 +117,7 @@ worktree_secrets() {
   return $rc
 }
 gate "secrets: working tree" worktree_secrets
-if [[ -n "$APK" ]]; then
+if [[ -n "$APK" && $REST == 1 ]]; then
   unzip -q "$APK" -d "$TMP/apk"
   gate "secrets: APK" gitleaks dir "$TMP/apk" "${GL[@]}"
 fi
@@ -175,8 +184,10 @@ apk_native() {
   unzip -Z1 "$APK" | sed -n 's|^lib/[^/]*/\([^/]*\.so\)$|\1|p' | against "$SEC/apk-native-libs.txt" "native libraries"
 }
 # What other apps can reach: every exported activity, alias, service, receiver and provider is in
-# the reviewed list, written "type name" (with the permission that guards it, if any).
+# the reviewed list, written "type name" (with the permission that guards it, if any). A debug
+# APK is read as its release build: the .test app id taken out, debug-only components dropped.
 apk_exported() {
+  local pkg; pkg="$("${BT}aapt2" dump badging "$APK" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
   "${BT}aapt2" dump xmltree --file AndroidManifest.xml "$APK" | awk '
     function out() { if (t != "" && ex == "true") print t " " n (perm != "" ? " [" perm "]" : "") ; t = "" }
     /E: (activity|activity-alias|receiver|service|provider) / { out(); t = $2; n = ""; ex = ""; perm = ""; depth = index($0, "E:"); next }
@@ -184,15 +195,17 @@ apk_exported() {
     t != "" && /android:name\(/ && n == "" { match($0, /="[^"]*"/); n = substr($0, RSTART + 2, RLENGTH - 3) }
     t != "" && /android:exported\(/ { ex = ($0 ~ /=true/) ? "true" : "false" }
     t != "" && /android:permission\(/ { match($0, /="[^"]*"/); perm = substr($0, RSTART + 2, RLENGTH - 3) }
-    END { out() }' | against "$SEC/apk-exported.txt" "exported components"
+    END { out() }' | if [[ "$pkg" == "$APP_ID.test" ]]; then
+      sed "s/\[$APP_ID\.test\./[$APP_ID./" | { grep -vxF -f <(listed "$SEC/apk-exported-debug.txt") || true; }
+    else cat; fi | against "$SEC/apk-exported.txt" "exported components"
 }
 if [[ -n "$APK" ]]; then
   gate "APK: signing certificate" apk_signature
   gate "APK: signature scheme" apk_scheme
   gate "APK: release build" apk_release
-  gate "APK: permissions" apk_permissions
-  gate "APK: native libraries" apk_native
-  gate "APK: exported components" apk_exported
+  lgate "APK: permissions" apk_permissions
+  lgate "APK: native libraries" apk_native
+  lgate "APK: exported components" apk_exported
 fi
 
 # Trivy refreshes its database when it is due, but a stale one would pass in silence: say how old

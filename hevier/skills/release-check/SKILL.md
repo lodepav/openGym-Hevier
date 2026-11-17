@@ -11,6 +11,9 @@ hevier/tools/release-check.sh           # clean tree; builds the mobile bundle, 
 hevier/tools/release-check.sh --apk <signed release APK>   # + the APK gates (D38)
 hevier/tools/release-check.sh --sources-only   # only the gates that read the committed sources
 hevier/tools/release-check.sh --no-sources     # all the others (the release script runs both halves)
+hevier/tools/release-check.sh --lists-only --apk <APK>   # only permissions, native libraries and exported
+                                        # components; a debug APK is read as its release build
+                                        # (the release script runs it on the routine check's build)
 node --test hevier/tools/*.test.mjs     # the release tools' tests alone (release-check.sh runs them too)
 ```
 

@@ -24,9 +24,9 @@ test that the current code still reads it; `hevier/tools/upgrade-fixture.sh <ver
 Whole suites and builds take turns through `hevier/tools/heavy.sh`, a lock shared with OpenBite's
 copy, so one waits for the other, in either repo.
 
-`$FAST` is `--config src/hevier/build/vitest-fast.config.js --maxWorkers=4`: the threads pool with 4 workers, and the tests that set `process.env.TZ` in a process of their own, as a thread cannot move the clock. Threads measured 2026-10-25 (8 cores, 14 GB): the full suite
-283 s → 145 s, the fork's 39 s → 25 s, about 3 GB at its peak. Not faster: 6 workers (130 s for
-7 GB), `--pool=vmThreads` (filled the memory), `--no-isolate` (311 of upstream's tests fail when
+`$FAST` is `--config src/hevier/build/vitest-fast.config.js --maxWorkers=4`: the threads pool with 4 workers, and the tests that set `process.env.TZ` in a process of their own, as a thread cannot move the clock. `verify.sh` runs the
+whole suite with 6 workers: measured 2026-11-17 (8 cores, 14 GB), 4 workers 363 s, 6 workers 319 s,
+8 workers 316 s, more than 9 GB free throughout. Not faster: `--pool=vmThreads` (filled the memory), `--no-isolate` (311 of upstream's tests fail when
 files share a process), Vite's dependency pre-bundling (no change). Most of the time is each
 file's setup (the 1.1 MB catalogue, happy-dom), not its tests. With the emulator up, run
 `nice -n 19` and `--maxWorkers=2`.
