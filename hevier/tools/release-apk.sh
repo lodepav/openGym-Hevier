@@ -120,7 +120,8 @@ node --test hevier/tools/*.test.mjs >/dev/null || { echo "the release tools' tes
 # release before anything is built. The run beside the build below covers the release commit.
 EARLY_LOG="$(mktemp)"
 nice -n 19 hevier/tools/release-check.sh --sources-only > "$EARLY_LOG" 2>&1 & EARLY=$!
-trap '[[ -n "$EARLY" ]] && kill "$EARLY" 2>/dev/null; wait; rm -f "$EARLY_LOG"' EXIT
+# || true: the job has usually ended by now, and a failed kill would end the trap with its status.
+trap '[[ -z "$EARLY" ]] || kill "$EARLY" 2>/dev/null || true; wait; rm -f "$EARLY_LOG"' EXIT
 hevier/tools/verify.sh || { echo "the checks fail: nothing released" >&2; exit 2; }
 wait "$EARLY" || { EARLY=; cat "$EARLY_LOG"; echo "the source gates fail: nothing released" >&2; exit 2; }
 EARLY=; rm -f "$EARLY_LOG"; trap - EXIT
