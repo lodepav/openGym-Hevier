@@ -45,6 +45,7 @@
   --hv-next-tick:  #48433b;          /* the next set's unticked box, a step above --surface-3 */
   --hv-tick:       var(--acc);       /* a ticked box and the tint of its row: done always wears the accent (D123) */
   --hv-tick-ink:   var(--on-acc);
+  --hv-acc-ink:    var(--acc-ink);   /* the accent as text, until lib/meaning-colours-run.js sets it for our surfaces */
 
   color-scheme: dark;
 }
