@@ -10,7 +10,7 @@ export default function PageBar({ title, onBack, backLabel, start, children, cla
       {onBack && <button type="button" className="iconbtn hv-pb-back" data-back="" aria-label={backLabel || t('Back')} onClick={onBack}><Icon name="chevronLeft" /></button>}
       {start}
     </div>
-    <div className="hv-title">{title}</div>
+    <h1 className="hv-title">{title}</h1>
     <div className="hv-pb-side end">{children}</div>
   </div>
 }

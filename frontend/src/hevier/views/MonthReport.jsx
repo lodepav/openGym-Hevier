@@ -63,7 +63,7 @@ export default function MonthReport() {
     <PhaseFilter />
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
-      <div><h1>{title}</h1>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
+      <div><h2>{title}</h2>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
       <button type="button" className="iconbtn" aria-label={t('Next month')} disabled={isNow} onClick={() => step(1)}><Icon name="chevronRight" /></button>
     </div>
     {!trained ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>

@@ -2,6 +2,9 @@
 // M6: Hevy's Statistics and Measures pages, and the way back from upstream's pages under them
 // (hevier/DECISIONS.md D14).
 import React, { act } from 'react'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -50,6 +53,18 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
+  })
+
+  // D135 (2026-11-17): hevier.css hides upstream's week streak card on All statistics; happy-dom
+  // applies no stylesheet, so the rule's selector is run here against the page as drawn.
+  it('All statistics: hevier.css hides upstream’s week streak card', () => {
+    render(['/stats/all'], { workouts: [workout(todayISO())] })
+    const card = container.querySelector('[data-streak-card]')
+    expect(card).toBeTruthy()
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
+    const sel = css.match(/:root\[data-ui="hevier"\] (\.hv-allstats ~ [^{]*\[data-streak-card\])\{display:none\}/)?.[1]
+    expect(sel).toBeTruthy()
+    expect(container.querySelector(sel)).toBe(card)
   })
 
   it('Sets per muscle is a page of its own, a row on Statistics: the counts by period, back to Statistics', () => {

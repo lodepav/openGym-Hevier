@@ -131,7 +131,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Three tabs (Today · Lifts · History, in place of Home · Workout · Profile); no Coach tab | D11, D126 | Fork |
 | Today: the next session (when, where, the first five exercises and their sets), Start, the week in seven days, the round and the streak, Routines · Calendar · Empty workout, the last workout | D134 | Fork |
 | Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels, Trends and Exercise time | D135 | Fork |
-| History: this week in three numbers, chips to Calendar, Statistics, Month report, Sets per muscle, Body weight and More, the phase filter and the workout feed | D135 | Fork |
+| History: this week in three numbers, chips in two rows (Look back: Calendar, Month report; Numbers: Statistics, Sets per muscle, Body weight, All statistics), the phase filter and the workout feed | D135 | Fork |
+| All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
 | Sets per muscle as a page of its own: the counts by week, month or year and the weekly sets against a range; History's chip and a row on Statistics open it | D14, D135 | Fork |

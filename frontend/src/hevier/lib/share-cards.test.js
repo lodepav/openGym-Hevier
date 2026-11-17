@@ -139,7 +139,7 @@ describe('share cards: a month report (D23, D87)', () => {
 
 describe('the cards\' colours follow the accent (D123)', () => {
   it('under the default green: strength and up the accent with black ink, cardio steps aside to teal, deload to pink', () => {
-    expect(cardColours('#34d08a')).toEqual({ acc: '#34d08a', strength: '#34d08a', cardio: '#40c8e0', deload: '#ff7eb6', up: '#34d08a', down: '#e34b37', onStrength: '#000000', onLight: '#000' })
+    expect(cardColours('#34d08a')).toEqual({ acc: '#34d08a', strength: '#34d08a', cardio: '#40c8e0', deload: '#ff7eb6', up: '#34d08a', down: '#ec5a45', onStrength: '#000000', onLight: '#000' })
   })
   it('under a kept orange deload turns pink; under a red, worse is teal', () => {
     expect(cardColours('#ff9f0a')).toMatchObject({ acc: '#ff9f0a', cardio: '#2fbf5b', deload: '#ff7eb6' })

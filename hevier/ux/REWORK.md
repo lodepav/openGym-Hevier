@@ -558,6 +558,11 @@ Statistics.
 Approved 2026-11-16 as D135, with the user's addition "let's also have lifts separated by
 muscles": read as a switch Recent · By muscle on the one list (my reading of "also").
 
+2026-11-17, from the design critique (`hevier/ux/mockups/critique-2026-11.html`): the user took
+proposal 4 version C, History's six chips in two labelled rows (Look back, Numbers) at 48 dp with
+"More" renamed "All statistics" (23 of 27 against 21), and proposal 1 version C, upstream's week
+streak card hidden on All statistics so D59's streak is the only one on the app's pages. Recorded in D135.
+
 ### Settings, gyms, strap, library, Measurements
 
 2026-11-16: not redrawn. The user: "settings can be kept as they are, just make group separators

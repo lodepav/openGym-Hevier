@@ -11,7 +11,8 @@ colors:
   accent-pink: "#ff7eb6"
   cardio-green: "#2fbf5b"
   warmup-yellow: "#efab03"
-  failure-red: "#e34b37"
+  failure-red: "#ec5a45"
+  danger-red: "#e34b37"
   superset-violet: "#bf5af2"
   deload-orange: "#ff9f0a"
   deload-pink: "#ff7eb6"
@@ -94,7 +95,7 @@ components:
     padding: "9px 14px"
   button-danger:
     backgroundColor: "{colors.well-grey}"
-    textColor: "{colors.failure-red}"
+    textColor: "{colors.danger-red}"
     rounded: "{rounded.pill}"
     padding: "9px 14px"
   button-danger-active:
@@ -237,9 +238,9 @@ They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-dro
 `--hv-superset`, `--hv-deload`, `--hv-record` and `--hv-note`.
 - **Warm-up Yellow** (`warmup-yellow`): the W of a warm-up set, a record's trophy and a note's
   mark. Backup: teal (under an orange accent).
-- **Failure Red** (`failure-red`): the F of a failure set. Backup: teal (under a red accent). Red as such
-  (`--red`) also marks Discard, danger buttons' text, the live heart and "less than last time";
-  that red does not step aside.
+- **Failure Red** (`failure-red`): the F of a failure set and "less than last time", light enough for
+  4.5:1 on a done set's band. Backup: teal (under a red accent). Red as such (`--red`, `danger-red`, a
+  little darker) marks Discard, danger buttons' text and the live heart; that red does not step aside.
 - **Drop Blue** (`hevy-blue`): the D of a drop set and a hold's mark. Backup: violet.
 - **Superset Violet** (`superset-violet`): the rule down a superset's card and its pill. Backup:
   teal or pink.

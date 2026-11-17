@@ -83,13 +83,26 @@ export default function HevyExerciseBlock(props) {
   const restEnds = useUI(s => s.timer?.endsAt)
   const swipeHint = useUI(s => (s.swipeHint?.idx === entryIdx ? s.swipeHint : null))
   const setFlash = useUI(s => (s.setFlash?.idx === entryIdx ? s.setFlash : null))
-  const working = useUI(s => s.work)
+  // only the end: the whole hold object is replaced every second while it counts
+  const workEnds = useUI(s => s.work?.endsAt)
 
   const entry = S.active.entries[entryIdx]
   const { isTouched, touch, untouch, reorder, typedOver } = useTouchedFields(entry.sets)
   const rowEls = useRef({})
   const card = useRef(null)
-  useLayoutEffect(() => fitNumbers(card.current))
+  const fitSig = useRef('')
+  // Measures again only when a number, its placeholder, its weight or its row changed (or the card's width or text size):
+  // fitNumbers writes then reads layout per field, too much for each render of a ticking workout.
+  useLayoutEffect(() => {
+    const el = card.current
+    if (!el) return
+    // a field's own inline size is in it too: a remounted field has lost what fitNumbers set
+    const sig = el.className + '|' + el.clientWidth + '|' + getComputedStyle(el).fontSize + '|' + [...el.querySelectorAll('input.hv-num')]
+      .map(f => f.closest('.hv-row')?.className + ':' + f.className + ':' + f.value + ':' + f.placeholder + ':' + f.style.fontSize).join('|')
+    if (sig === fitSig.current) return
+    fitSig.current = sig
+    fitNumbers(el)
+  })
   const ex = exOr(entry.id)
   const cfg = { ...(entry.target || {}), id: entry.id }
   const bw = isBw(cfg)
@@ -496,7 +509,7 @@ export default function HevyExerciseBlock(props) {
       onBlocked={() => useUI.getState().toast(t('Keep at least one set, champ'))}
       onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }) }}
       closeKey={[entry.sets.length, s.done ? 1 : 0, count === 2 && entry.sets[from + 1]?.done ? 1 : 0,
-        s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0, restEnds || 0, working?.endsAt || 0, S.active.cur].join('|')}
+        s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0, restEnds || 0, workEnds || 0, S.active.cur].join('|')}
       flash={setFlash && mine(setFlash.i) ? setFlash.id : 0}
       peek={swipeHint && mine(swipeHint.i) ? swipeHint.id : 0}>
       {body}
@@ -527,7 +540,7 @@ export default function HevyExerciseBlock(props) {
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
-        <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+        <h3 className="hv-name-h"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
         <BrandLine idx={entryIdx} />
         {addBrand && <button type="button" className="hv-addbrand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
       </div>

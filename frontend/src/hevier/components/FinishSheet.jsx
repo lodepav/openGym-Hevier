@@ -108,7 +108,7 @@ function FinishSheet({ nav, close }) {
     <div className="hv-fin-hd">
       <h3>{t('Finish {0}?', A.name || t('Workout'))}</h3>
       <span className="hv-sub">{tn('{0} set', '{0} sets', facts.sets)}
-        {facts.best > 0 && <> · <Icon name="trophy" className="hv-fin-best" />{t('{0} best', facts.best)}</>}</span>
+        {facts.best > 0 && <> · <span className="hv-fin-bestw"><Icon name="trophy" className="hv-fin-best" />{t('{0} best', facts.best)}</span></>}</span>
     </div>
     <div className="hv-fin-kv">
       <span>{t('Duration')}</span>

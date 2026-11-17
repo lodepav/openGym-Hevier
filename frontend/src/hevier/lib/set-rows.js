@@ -7,6 +7,7 @@ import {
   isFailureSet, toggleFailure, dropsOf, clustersOf, addDrop, addCluster, removeDropAt, removeClusterAt,
   setDropAt, setClusterAt, nextDropWeight, nextBurstReps, isSideSet, setSideField, addSideDrop,
   removeSideDropAt, setSideDropAt, addSideCluster, removeSideClusterAt, setSideClusterAt, WEIGHT_ORIGIN_MANUAL,
+  isRestPauseSet, syncSideAggregate,
 } from '../../lib/workout-model.js'
 
 /** One more drop, lighter than the last by the drop-set's percentage, on a weight `grid` can load. */
@@ -18,6 +19,22 @@ export function withDrop(row, { pct, grid } = {}) {
 }
 
 export const withoutDrop = (row, di) => (isSideSet(row) ? removeSideDropAt(row, di) : removeDropAt(row, di))
+
+/**
+ * Undo of withoutDrop: drop `di` of `before` (the row as it was) back at its place in `row`, on
+ * both sides of a per-side row. A row that no longer has room for it there stays as it is.
+ */
+export function withDropAt(row, di, before) {
+  const put = (r, b) => {
+    const d = dropsOf(b)[di]
+    const drops = dropsOf(r)
+    if (!d || di > drops.length || isRestPauseSet(r)) return r
+    return { ...r, type: 'dropset', drops: [...drops.slice(0, di), { ...d }, ...drops.slice(di)] }
+  }
+  if (!row || isSideSet(row) !== isSideSet(before)) return row
+  if (!isSideSet(row)) return put(row, before)
+  return syncSideAggregate({ ...row, sides: { L: put(row.sides.L, before.sides.L), R: put(row.sides.R, before.sides.R) } })
+}
 
 /** One field of drop `di`, of one side's drops when `side` is given. */
 export const withDropField = (row, di, field, v, side) =>
