@@ -89,3 +89,20 @@ describe('the Timer does not lead into a hold', () => {
     expect(useUI.getState().countIn?.owner).toEqual(owner)
   })
 })
+
+describe('the Android notification moves the Timer', () => {
+  it('keeps it the Timer through Pause, Resume and ±15 s', () => {
+    useUI.setState({ timer: timer({ hvClock: true }) })
+    useUI.getState().followNativeRest({ endsAt: 0, left: 50, total: 60, paused: true })
+    expect(useUI.getState().timer).toMatchObject({ paused: true, hvClock: true })
+    useUI.getState().followNativeRest({ endsAt: Date.now() + 65_000, left: 65, total: 75, paused: false })
+    expect(useUI.getState().timer).toMatchObject({ left: 65, hvClock: true })
+    expect(isClockTimer(useUI.getState().timer)).toBe(true)
+  })
+  it('keeps a rest after a set its kind, so it ends with its own sound', () => {
+    useUI.getState().startRest(60, 0, { rest: 'superset' })
+    useUI.getState().followNativeRest({ endsAt: Date.now() + 65_000, left: 65, total: 75, paused: false })
+    expect(useUI.getState().timer).toMatchObject({ rk: 'superset' })
+    expect(useUI.getState().timer.hvClock).toBeUndefined()
+  })
+})

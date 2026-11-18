@@ -32,11 +32,21 @@ let chained = false
 export function initClockChain(ui = useUI) {
   if (chained) return
   chained = true
-  const { bindAuto, skipRest } = ui.getState()
+  const { bindAuto, skipRest, followNativeRest } = ui.getState()
   const noHold = () => quiet > 0 || isClockTimer(ui.getState().timer)
   ui.setState({
     bindAuto: h => bindAuto(h && { ...h, peek: () => (noHold() ? null : h.peek?.()) }),
     // skipRest stops the countdown before it asks for the next hold, so the mark is read first
     skipRest: (...a) => (isClockTimer(ui.getState().timer) ? quietly(() => skipRest(...a)) : skipRest(...a)),
+    // The Android notification's Pause and ±15 s rebuild upstream's timer without the Timer's mark
+    // or the rest's kind (its end sound): both are put back.
+    followNativeRest: (...a) => {
+      const was = ui.getState().timer
+      const keep = { ...(was?.hvClock ? { hvClock: true } : {}), ...(was?.rk ? { rk: was.rk } : {}) }
+      const out = was?.hvClock ? quietly(() => followNativeRest(...a)) : followNativeRest(...a)
+      const tm = ui.getState().timer
+      if (tm && Object.keys(keep).length) ui.setState({ timer: { ...tm, ...keep } })
+      return out
+    },
   })
 }
