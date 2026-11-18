@@ -12,6 +12,7 @@ import { importId, matchHevyTitle } from '../../lib/import-csv.js'
 import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../../lib/workout-model.js'
 import { isPerSide, modeOf } from '../../lib/history.js'
 import { isHoldRow, setNumberOf } from './hold-set.js'
+import { savedCable, cableText } from './gym-labels.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
 import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
@@ -89,7 +90,7 @@ function setRows(s, unit, cardio) {
 /* ------------------------------------------------------------------------------ extras -- */
 // What Hevy's API has no field for goes into the notes (D137): the workout's heart rate, gym and
 // phase into its description, each exercise's time, holds, uneven sides and heart rate per set into
-// its note. English, as Hevy shows it whatever the app's language. Your own note comes first and
+// its note, with its brand and cable setup ("Hammer · cable 2:1"). English, as Hevy shows it whatever the app's language. Your own note comes first and
 // stays whole; added lines that would pass NOTE_MAX are left off from the last.
 const fit = (own, lines) => {
   let out = text(own)
@@ -131,9 +132,12 @@ function minutesOf(entries, i, ss, start) {
   return last > from ? Math.max(1, Math.round((last - from) / 60000)) : null
 }
 
-/** An exercise note's added lines: time, then each hold and uneven per-side set, then heart rate per set. */
+/** An exercise note's added lines: brand and cable setup, time, then each hold and uneven per-side set, then heart rate per set. */
 function exerciseLines(e, unit, minutes, holds) {
   const rows = e.sets || [], out = []
+  const cable = savedCable(e)
+  const label = [text(e.hvBrand), cable && 'cable ' + cableText(cable)].filter(Boolean).join(' · ')
+  if (label) out.push(label[0].toUpperCase() + label.slice(1))
   if (minutes) out.push('Time ' + minutes + ' min')
   rows.forEach((s, i) => {
     if (!done(s)) return
