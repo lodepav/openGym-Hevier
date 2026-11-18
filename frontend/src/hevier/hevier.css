@@ -333,8 +333,8 @@
 :root[data-ui="hevier"] .hv-xaxis span{position:absolute;top:0;inset-inline-start:calc((var(--i) + .5) / var(--n) * 100%);transform:translateX(-50%);white-space:nowrap}
 :root[data-ui="hevier"] .hv-xaxis span:first-child{transform:none;inset-inline-start:0}
 :root[data-ui="hevier"] .hv-xaxis span:last-child{transform:none;inset-inline-start:auto;inset-inline-end:0}
-:root[data-ui="hevier"] .hv-range{display:inline-flex;align-items:center;gap:2px;font-size:14px;min-height:32px}
-:root[data-ui="hevier"] .hv-range .icn{font-size:14px}
+:root[data-ui="hevier"] .hv-link.hv-range{display:inline-flex;align-items:center;gap:2px;font-size:14px;min-height:32px}
+:root[data-ui="hevier"] .hv-link.hv-range .icn{font-size:14px}
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
 :root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:6px 6px 0 0;min-height:2px}
 :root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
@@ -879,10 +879,10 @@
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
 /* Text-sized secondary buttons (31–40 dp) reach 44 dp, up and down only, so a neighbour beside one keeps its own (A1). */
-:root[data-ui="hevier"] :is(.hv-next-plan, .hv-range, .hv-ftoggle, .hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look){position:relative}
+:root[data-ui="hevier"] :is(.hv-next-plan, .hv-link.hv-range, .hv-ftoggle, .hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look){position:relative}
 :root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-4px 0}
 :root[data-ui="hevier"] .hv-next-plan::after{content:"";position:absolute;inset:-2px 0}
-:root[data-ui="hevier"] .hv-range::after{content:"";position:absolute;inset:-6px 0}
+:root[data-ui="hevier"] .hv-link.hv-range::after{content:"";position:absolute;inset:-6px 0}
 :root[data-ui="hevier"] .hv-ftoggle::after{content:"";position:absolute;inset:-9px 0 -4px}
 /* Plain stand-ins where color-mix() is missing (Safari before 16.2; upstream's color-mix-fallback test) */
 @supports not (color: color-mix(in srgb, red 50%, blue)){
