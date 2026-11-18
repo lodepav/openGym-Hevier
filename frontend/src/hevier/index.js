@@ -48,6 +48,7 @@ import { initFieldReveal } from './lib/field-reveal.js'
 import { initSheetToast } from './lib/sheet-toast-run.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
+import { initCurFollow } from './lib/cur-follow.js'
 import { initClockOff, initClockChain } from './lib/clock-off-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { askMedia } from './components/MediaSection.jsx'
@@ -97,6 +98,7 @@ function install() {
   initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
+  initCurFollow(store)                                    // the notification starts where the screen does, after a swap too (D127)
   initClockOff(store)                                     // a Timer countdown ends when Timer and Stopwatch are switched off (D117)
   initClockChain()                                        // the Timer never leads into a hold that starts by itself (D10)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
