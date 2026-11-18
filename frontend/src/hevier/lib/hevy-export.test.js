@@ -124,6 +124,15 @@ describe('hevier export to Hevy: what Hevy has no field for goes into the notes 
     expect(d.exercises[2].sets).toHaveLength(1)
   })
 
+  it('an exercise note starts with its brand and cable setup, a cable\'s 1:1 too', () => {
+    const d = workoutDraft(workout({ entries: [
+      { id: '0007', hvBrand: 'LifeFitness', hvCable: 'x2', sets: [{ w: 40, r: 10, done: true }] },
+      { id: '0007', sets: [{ w: 40, r: 10, done: true }] },
+      { id: squat, hvBrand: 'Hammer', sets: [{ w: 100, r: 5, done: true }] },
+    ] }))
+    expect(d.exercises.map(e => e.notes)).toEqual(['LifeFitness · cable ×2', 'Cable 1:1', 'Hammer'])
+  })
+
   it('the own note stays whole; added lines that would pass 280 characters are left off from the last', () => {
     const own = 'x'.repeat(250)
     const d = workoutDraft(workout({ note: own, hr: { avg: 100, max: 150 }, gym: { name: 'A gym with a long name' } }))
