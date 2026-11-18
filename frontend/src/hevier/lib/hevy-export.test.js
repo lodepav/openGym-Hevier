@@ -143,6 +143,14 @@ describe('hevier export to Hevy: what Hevy has no field for goes into the notes 
 describe('hevier export to Hevy: what is pending (D34)', () => {
   const S = () => ({ unit: 'kg', workouts: [workout({ id: 'old' })], routines: [{ id: 'R', name: 'Legs', ex: [{ id: squat, sets: 3, reps: 5, weight: 100, mode: 'reps' }] }] })
 
+  it('names the gym the exercises were tagged with, when the workout started at another', () => {
+    const s = { ...S(), equipProfiles: [{ id: 'g1', name: 'Lemon Gym · Grostonas iela 1' }, { id: 'g2', name: 'myfitness · Tīnūžu iela 2' }] }
+    const st = { base: baseline(s), out: { w: {}, r: {} }, failed: {} }
+    const e = workout().entries.map(x => ({ ...x, hvGym: 'g2' }))
+    s.workouts.push(workout({ id: 'new', note: '', gym: { id: 'g1', name: 'Lemon Gym · Grostonas iela 1' }, entries: e }))
+    expect(pending(s, st).workouts[0].draft.description).toBe('At myfitness')
+  })
+
   it('sends only what came after the switch, never an imported workout, and an edit as an update', () => {
     const s = S()
     const st = { base: baseline(s), out: { w: {}, r: {} }, failed: {} }

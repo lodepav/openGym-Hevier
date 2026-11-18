@@ -26,6 +26,15 @@ describe('hevier gyms and machine labels (D28)', () => {
     expect(isMachine('nope')).toBe(false)
   })
 
+  it('a gym changed in a live session is the one the saved workout keeps (upstream\'s gym too)', () => {
+    const S = state()
+    S.active = live([{ id: CABLE, sets: [] }], { gym: { id: 'g1', name: 'City Gym' } })
+    setWorkoutGym(S, 'g2')
+    expect(S.active.gym).toEqual({ id: 'g2', name: 'Home' })
+    setWorkoutGym(S, null)
+    expect(S.active.gym).toEqual({ id: 'g2', name: 'Home' })   // "no gym" leaves it, as it leaves the profile
+  })
+
   it('tags a live session with the active profile until the gym is changed', () => {
     const S = state()
     S.active = live([{ id: CABLE, sets: [] }])

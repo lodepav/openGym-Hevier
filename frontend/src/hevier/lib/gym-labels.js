@@ -94,7 +94,10 @@ export function setWorkoutGym(s, gymId) {
     if (gymId) e.hvGym = gymId
     else delete e.hvGym
   }
-  if (gymId && !editingOf(A)) s.activeEquipId = gymId
+  if (gymId && !editingOf(A)) {
+    s.activeEquipId = gymId
+    A.gym = { id: gymId, name: gymName(s, gymId) || '' }   // upstream's finish saves this one (switchGym does the same)
+  }
 }
 
 /**

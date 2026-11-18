@@ -12,7 +12,7 @@ import { importId, matchHevyTitle } from '../../lib/import-csv.js'
 import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../../lib/workout-model.js'
 import { isPerSide, modeOf } from '../../lib/history.js'
 import { isHoldRow, setNumberOf } from './hold-set.js'
-import { savedCable, cableText } from './gym-labels.js'
+import { savedCable, cableText, savedGym, gymName } from './gym-labels.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
 import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
@@ -108,11 +108,12 @@ const load = (w, unit) => (Number(w) > 0 ? num(w) + ' ' + unit : 'bodyweight')
 const setName = (rows, i) => (isWarmupRow(rows[i]) ? 'Warm-up ' : 'Set ') + setNumberOf(rows, i)
 
 /** The workout description's added lines: heart rate, gym, phase. */
-function workoutLines(w) {
+function workoutLines(w, S) {
   const out = []
   if (Number(w.hr?.avg) > 0) out.push('Heart rate ' + Math.round(w.hr.avg) + ' avg' + (Number(w.hr.max) > 0 ? ', ' + Math.round(w.hr.max) + ' max' : ''))
   // An OpenStreetMap gym is stored as "Name · street": the name only.
-  const gym = text(w.gym?.name).split(' · ')[0].trim()
+  // The gym the exercises were tagged with (D28) first: one changed in the session is not in w.gym.
+  const gym = text(gymName(S, savedGym(w)) || w.gym?.name).split(' · ')[0].trim()
   if (gym) out.push('At ' + gym)
   if (w.hvPhase?.p) out.push('Phase: ' + w.hvPhase.p)
   return out
@@ -164,7 +165,7 @@ function exerciseLines(e, unit, minutes, holds) {
  * A hold in a reps exercise (D89) has no place in Hevy's weight-and-reps template: it goes in the
  * note instead (D137), unless the exercise has nothing else to send.
  */
-export function workoutDraft(w, unit = 'kg') {
+export function workoutDraft(w, unit = 'kg', S = null) {
   const entries = (w?.entries || []).filter(e => e?.id && (e.sets || []).some(done))
   if (!entries.length || !(Number(w.start) > 0)) return null
   const ss = supersets(entries)
@@ -172,7 +173,7 @@ export function workoutDraft(w, unit = 'kg') {
   const end = Number(w.end) > start ? Number(w.end) : start
   return {
     title: text(w.name) || 'Workout',
-    description: fit(w.note, workoutLines(w)),
+    description: fit(w.note, workoutLines(w, S)),
     start_time: new Date(start).toISOString(),
     end_time: new Date(end).toISOString(),
     exercises: entries.map((e, i) => {
@@ -259,7 +260,7 @@ export function pending(S, st) {
   const workouts = [], routines = []
   for (const w of S?.workouts || []) {
     if (!w?.id || before.has(w.id) || isImported(w) || tooOld(w)) continue
-    const draft = workoutDraft(w, unit)
+    const draft = workoutDraft(w, unit, S)
     if (!draft) continue
     const h = fingerprint(draft), sent = sentW[w.id]
     if (sent?.h === h || failed[w.id] === h) continue
