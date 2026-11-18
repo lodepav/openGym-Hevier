@@ -372,7 +372,7 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
 - **Value** (600, 16px, tabular): the weight and reps in a set's wells.
 - **Section** (400, 13px, grey): the heading over a part of a page, an h2 under the page's
   title (h3 under a page's own h2), flush with the content's edge; also the small line over
-  Today's cards and History's link groups.
+  Today's cards, History's link groups and a routine preview's Next line.
 - **Label** (700, 11px, tracking 0.04em, caps): the set table's column heads (SET, PREVIOUS, KG,
   REPS) and the small caps over a saved workout's parts (12px there).
 

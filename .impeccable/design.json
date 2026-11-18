@@ -248,7 +248,7 @@
       },
       "section": {
         "displayName": "Section",
-        "purpose": "The grey heading over a part of a page (h2, or h3 under an h2), and the small line over Today's cards and History's link groups."
+        "purpose": "The grey heading over a part of a page (h2, or h3 under an h2), and the small line over Today's cards, History's link groups and a routine preview's Next line."
       },
       "label": {
         "displayName": "Label",

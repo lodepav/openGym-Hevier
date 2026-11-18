@@ -59,7 +59,7 @@ describe('hevier: Calendar', () => {
     expect([...container.querySelectorAll('.hv-cal-mh')].some(h => h.textContent.includes('1 workout'))).toBe(true)
     const cur = container.querySelectorAll('[aria-current="date"]')
     expect(cur).toHaveLength(1)
-    expect(cur[0].textContent).toContain(String(Number(today.slice(8))))
+    expect(cur[0].querySelector('.hv-cal-d').textContent).toBe(String(Number(today.slice(8))))
     const open = vi.fn()
     act(() => root.render(<Month y={2026} mo={0} st={useStore.getState().S} byDay={{}} today={today} small onTitle={open} />))
     click(container.querySelector('.hv-cal-mh button'))
