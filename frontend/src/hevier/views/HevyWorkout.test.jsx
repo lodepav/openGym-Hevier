@@ -478,6 +478,17 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(host.textContent).toContain('Weight: 3 kg is under a third of last time’s 30 kg.')
   })
 
+  it('a hold in a reps exercise ticks without asking: it has seconds, not reps (D89, D90)', () => {
+    const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(0, 10, { done: true })] }] }]
+    render([{ id: EX, target: { sets: 1, reps: 10 }, sets: [{ mode: 'time', sec: 45, w: 0, done: false }] }], past)
+    act(() => container.querySelector('.hv-chk').click())
+    const top = useUI.getState().sheets.at(-1)   // upstream's all-sets-done prompt, not the typo check
+    const host = document.createElement('div')
+    if (top) act(() => createRoot(host).render(top.render(() => {})))
+    expect(host.textContent).not.toContain('Is that right?')
+    expect(sets()[0].done).toBe(true)
+  })
+
   it('a per-side set has an L and an R line, each ticked on its own (M1)', () => {
     const side = { w: 20, r: 8, done: false }
     render([{ id: EX, target: { sets: 1, reps: 16, side: true }, sets: [{ w: 20, r: 16, sides: { L: { ...side }, R: { ...side } } }] }])

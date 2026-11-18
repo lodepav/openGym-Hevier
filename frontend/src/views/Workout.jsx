@@ -2384,6 +2384,7 @@ function ActiveWorkout() {
     const e = st.active?.entries?.[idx]
     const row = side ? e?.sets?.[i]?.sides?.[side] : e?.sets?.[i]
     if (editing || !row || row.done || modeAt(idx) !== 'reps') return toggle(idx, i, side, opts)
+    if (row.mode && row.mode !== 'reps') return toggle(idx, i, side, opts) // [hevier] S69: a hold in a reps exercise (D89) has seconds, not reps
     const last = lastEntryFor(st, e.id, e.rid)
     const odd = oddValues(row, bestsFor(st.workouts, e.id), {
       unit: st.unit, assisted: isAssisted(e.id), last: lastRowFor(last?.sets, e.sets, i, side),
