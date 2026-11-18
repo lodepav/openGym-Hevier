@@ -2,6 +2,26 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.0.1 · 2026-11-18
+
+Based on openGym 1.4.5.
+
+### Fixes and changes
+
+- the notification's Pause and ±15 keep the Timer the Timer, and a rest its end sound
+- the stopwatch survives a pause, Log weight needs the Health module, the Timer leads into no hold
+- UX round 13 fixes
+- the rep range sheet is tappable again
+- audit fixes, accent text, chart taps, lighter workout renders
+- DESIGN.md refreshed from the current code
+- one set format, PREVIOUS without the unit, empty states that lead on
+- one flat exercise row, drops removed from their D mark, Show them on Finish
+- clearer set counts, rest as a clock, a plain Finish warning, body maps that follow Muscle sets
+- fixes from a design critique, History's chips in two rows, no upstream streak on All statistics
+- a tap on the heart rate opens its page, the workout header opens at the edges
+- a release fails early and prints its step times
+- a release runs the suite once
+
 ## 3.0.0 · 2026-11-16
 
 Based on openGym 1.4.5.
