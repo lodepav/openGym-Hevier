@@ -21,7 +21,7 @@ export default function Measures() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const weightOn = partOn(S, 'body', 'weight'), measOn = partOn(S, 'body', 'measurements'), photosOn = partOn(S, 'body', 'photos')
-  const hc = useHcOnly()
+  const hc = useHcOnly(S)
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)

@@ -28,9 +28,9 @@ const btn = text => [...host.querySelectorAll('button')].find(b => b.textContent
 beforeEach(() => {
   localStorage.clear()
   apply.mockClear()
-  useUI.setState({ sheets: [], timer: null })
+  useUI.setState({ sheets: [], timer: null, work: null, countIn: null })
   useStopwatch.setState({ w: { session: null, since: null, acc: 0 } })
-  useStore.setState(st => ({ S: { ...st.S, restSec: 120, hvTimerSec: 0, active: { start: 1000, entries: [] } } }))
+  useStore.setState(st => ({ S: { ...st.S, restSec: 120, hvTimerSec: 0, active: { id: 'w1', start: 1000, entries: [] } } }))
 })
 afterEach(() => { if (root) act(() => root.unmount()); host?.remove(); root = host = null; vi.useRealTimers() })
 
@@ -106,7 +106,31 @@ describe('hevier workout clock', () => {
     expect(host.querySelector('.hv-sw').textContent).toBe('0:04.2')
     act(() => btn('Reset').click())
     expect(host.querySelector('.hv-sw').textContent).toBe('0:00.0')
-    expect(JSON.parse(localStorage.getItem('hevier_stopwatch'))).toMatchObject({ session: 1000, acc: 0, since: null })
+    expect(JSON.parse(localStorage.getItem('hevier_stopwatch'))).toMatchObject({ session: 'w1', acc: 0, since: null })
+  })
+
+  it('a paused and resumed workout keeps its stopwatch: the start moves, the id stays', () => {
+    vi.useFakeTimers({ now: 50_000 })
+    open()
+    act(() => [...host.querySelectorAll('.seg button')].find(b => b.textContent === 'Stopwatch').click())
+    act(() => btn('Start').click())
+    act(() => vi.advanceTimersByTime(3000))
+    act(() => btn('Stop').click())
+    act(() => root.unmount()); host.remove()
+    useStore.setState(st => ({ S: { ...st.S, active: { ...st.S.active, start: 9000 } } }))   // lib/workout-pause.js resume
+    open()
+    expect(host.querySelector('.seg button.on').textContent).toBe('Stopwatch')
+    expect(host.querySelector('.hv-sw').textContent).toBe('0:03.0')
+  })
+
+  it('the Start timer button waits while a hold or its count-in runs', () => {
+    useUI.setState({ work: { left: 30, total: 30 } })
+    open()
+    expect(btn('Start timer').disabled).toBe(true)
+    act(() => useUI.setState({ work: null, countIn: { left: 3, total: 3 } }))
+    expect(btn('Start timer').disabled).toBe(true)
+    act(() => useUI.setState({ countIn: null }))
+    expect(btn('Start timer').disabled).toBe(false)
   })
 
   it('the header shows a running stopwatch of this workout, not of another', () => {

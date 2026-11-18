@@ -48,7 +48,7 @@ import { initFieldReveal } from './lib/field-reveal.js'
 import { initSheetToast } from './lib/sheet-toast-run.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
-import { initClockOff } from './lib/clock-off-run.js'
+import { initClockOff, initClockChain } from './lib/clock-off-run.js'
 import { initUpdateNotice } from './components/UpdateNotice.jsx'
 import { askMedia } from './components/MediaSection.jsx'
 import { initMediaPack } from './lib/media-pack-run.js'
@@ -98,6 +98,7 @@ function install() {
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
   initClockOff(store)                                     // a Timer countdown ends when Timer and Stopwatch are switched off (D117)
+  initClockChain()                                        // the Timer never leads into a hold that starts by itself (D10)
   initFieldReveal()                                       // a set typed into stays clear of the header, timer and keyboard
   initSheetToast()                                        // a sheet opening takes the page's toast with it
   initGymBackups(store)                                   // a gym swaps in the backups it took last time (D46)
@@ -146,7 +147,7 @@ function install() {
   // runs (D79).
   initHrStrap(store)
   initWeighInSource()
-  hooks.weighIns = opts => weighInBlocked(opts, () => store.toast(t('Weigh-ins come from Health Connect')))
+  hooks.weighIns = opts => weighInBlocked(state(), opts, () => store.toast(t('Weigh-ins come from Health Connect')))
   initHevyExport(store)
   initMonthWidget(store, route => nav(route), todayISO)
   initStrengthSignal(store, todayISO)                     // strength in the phase, for OpenBite to read (D95)

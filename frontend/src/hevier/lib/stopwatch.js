@@ -1,7 +1,7 @@
 // The workout's stopwatch (hevier/DECISIONS.md D10): Hevy's clock has a
 // Timer and a Stopwatch, for a plank or a carry timed outside a timed set. Nothing is logged: it
 // only counts. Its state is `{ session, since, acc }`: the session it belongs to (the workout's
-// start), when it was last started (null while stopped) and the milliseconds counted before that.
+// id: its start moves when a paused workout resumes, lib/workout-pause.js), when it was last started (null while stopped) and the milliseconds counted before that.
 // It is kept on the device (localStorage `hevier_stopwatch`), so it keeps counting while the app
 // is in the background or reloads, and a new workout starts it from zero.
 import { create } from 'zustand'
