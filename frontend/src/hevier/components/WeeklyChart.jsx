@@ -8,6 +8,7 @@ import { t, tn } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { durationWords } from '../lib/elapsed.js'
+import { muscleText } from '../lib/main-muscle.js'
 import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
 import { nearestIndex } from '../lib/nearest-bar.js'
 import { menuSheet } from '../../sheets.jsx'
@@ -27,7 +28,7 @@ function weekSheet(S, week) {
   useUI.getState().openSheet(() => <>
     <h3>{t('Week of {0}', fmtDate(week, true))}</h3>
     {list.length ? <div className="hv-msets">{list.map(m => <div key={m.muscle} className="hv-wd-split">
-      <span>{t(m.muscle)}</span>
+      <span>{muscleText(m.muscle)}</span>
       <span className="hv-mset-bar"><i style={{ width: (m.sets / list[0].sets) * 100 + '%' }} /></span>
       <b>{tn('{0} set', '{0} sets', m.sets)}</b>
     </div>)}</div> : <div className="muted small">{t('No sets in this period yet.')}</div>}

@@ -17,7 +17,7 @@ import { BackTo } from './Statistics.jsx'
 import { timedSessions, timeSections, periodSince } from '../lib/exercise-time.js'
 import { setGaps } from '../lib/set-gaps.js'
 import { elapsedWords, elapsedClock, restTimerText } from '../lib/elapsed.js'
-import { mainMuscleOf } from '../lib/main-muscle.js'
+import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
 
 const PERIODS = [['30d', '30 days'], ['90d', '90 days'], ['year', 'Year'], ['all', 'All']]
@@ -37,7 +37,7 @@ export default function ExerciseTime() {
   const gaps = useMemo(() => setGaps(log, periodSince(period, todayISO()), st), [log, period, st])
   const sections = timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) })
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
-    : key ? t(key) : t('Other'))
+    : key ? muscleText(key) : t('Other'))
   const group = k => setBy(by === k ? null : k)
   return <div className="narrow hv-statpage">
     <BackTo label={t('Statistics')} to="/stats" title={t('Exercise time')} />

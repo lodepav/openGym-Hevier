@@ -18,7 +18,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy } from '../lib/lifts-list.js'
-import { mainMuscleOf } from '../lib/main-muscle.js'
+import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { previousCell } from '../lib/set-text.js'
 import { exUnitOf, shown } from '../lib/ex-unit.js'
@@ -39,7 +39,7 @@ function LiftRow({ r, S, today }) {
     <span className="hv-thumb"><Thumb ex={ex} /></span>
     <span className="grow">
       <span className={'tt ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>
-      <span className="ss">{[muscle && t(muscle), r.d && fmtDaysAgo(r.d, today)].filter(Boolean).join(' · ')}</span>
+      <span className="ss">{[muscle && muscleText(muscle), r.d && fmtDaysAgo(r.d, today)].filter(Boolean).join(' · ')}</span>
     </span>
     {r.last && <span className="hv-lift-r">
       <b>{text(r.last)}</b>

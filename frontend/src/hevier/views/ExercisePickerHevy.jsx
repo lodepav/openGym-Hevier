@@ -22,6 +22,7 @@ import { gymById, gymHas, gymLacks, pickerGym, rememberGym, inWorkout, currentPa
 import { eqMatches, groupIdOf, EQUIP_GROUPS } from '../lib/equip-groups.js'
 import { EquipFilterSheet, MuscleFilterSheet } from '../components/EquipGroups.jsx'
 import { muscleValueLabel, muscleFilterValue } from '../lib/muscle-groups.js'
+import { muscleText } from '../lib/main-muscle.js'
 import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../../lib/favourites.js'
 import { useSheetKeyboard } from '../../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../../lib/use-auto-more.js'
@@ -178,7 +179,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   // `line`: a row from the log says how often, when and the last set in place of the muscle (D129).
   // On a swap the whole row is its Use button.
   const row = (e, key, why, line) => {
-    const sub = line ?? [t(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')
+    const sub = line ?? [muscleText(muscleOf(e)), brandOf.get(e.id), why].filter(Boolean).join(' · ')
     return <div key={key + e.id} className={'item hv-pk-row tap-host' + (isOn(e) ? ' on' : '')}>
       <button className="hv-thumb" {...(browse || chartOn ? { 'aria-hidden': 'true', tabIndex: -1 } : { type: 'button', 'aria-label': t('Details') + ', ' + exerciseNameText(e) })} onClick={ev => details(ev, e)}><Thumb ex={e} /></button>
       <button type="button" className="grow item-open tap-main" onClick={() => tap(e)}
@@ -218,7 +219,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
     <div className="hv-pk-filters">
       {/* A chevron says each opens a list to pick from. */}
       <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span><Icon name="chevronDown" /></button>
-      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? t(muscleValueLabel(muscle)) : t('All Muscles')}<Icon name="chevronDown" /></button>
+      <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? muscleText(muscleValueLabel(muscle)) : t('All Muscles')}<Icon name="chevronDown" /></button>
     </div>
     {backupList.length > 0 && <><Sec className="sec">{t('Your backups')}</Sec><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {histSection(t('You swapped to these before'), swapRows, 'w')}

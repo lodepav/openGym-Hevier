@@ -406,7 +406,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       </>)
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
-      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? t('log it with {0}', t(effortCol.hd)) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
       style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>

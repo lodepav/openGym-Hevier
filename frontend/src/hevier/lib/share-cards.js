@@ -15,6 +15,7 @@ import { t, tn } from '../../lib/i18n-core.js'
 import { wrapText } from '../../lib/workout-card.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { volumeMode, muscleMode, workSets, muscleSets, mainMuscleLoad } from './volume.js'
+import { muscleText } from './main-muscle.js'
 import { workoutRecords, recordValue, KINDS } from './records.js'
 import { workoutTimeText, workoutWhenText } from './workout-when.js'
 import { sanitizeHr } from '../../lib/heart-rate.js'
@@ -98,7 +99,7 @@ export function shareCards(S, w, { body = 'male' } = {}) {
     const top = muscles.slice(0, MAX_MUSCLES)
     cards.push({
       kind: 'muscles', ...head, heading: t('Muscle Split'), levels, body,
-      rows: top.map(m => ({ muscle: t(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
+      rows: top.map(m => ({ muscle: muscleText(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
     })
   }
 
@@ -146,7 +147,7 @@ export function monthCards(S, { y, mo, report: r, workouts = [], byDay = {}, ws 
     const top = r.muscles.slice(0, MAX_MUSCLES)
     cards.push({
       kind: 'muscles', ...head, heading: t('Muscle Split'), levels, body,
-      rows: top.map(m => ({ muscle: t(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
+      rows: top.map(m => ({ muscle: muscleText(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
     })
   }
   if (r.records.length) {

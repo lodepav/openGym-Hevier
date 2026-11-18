@@ -6,6 +6,7 @@ import { t } from '../../lib/i18n.js'
 import Icon from '../../components/Icon.jsx'
 import { tappable } from '../../lib/use-sheet-keyboard.js'
 import { groupOfName, nameGroups, muscleGroupValue, muscleGroupIdOf } from '../lib/muscle-groups.js'
+import { muscleText } from '../lib/main-muscle.js'
 import { groupKinds, groupState, toggleGroup, groupValue, groupIdOf, groupOf, eqOnAmong, eqMatches } from '../lib/equip-groups.js'
 
 const Chevron = ({ open, label, onClick, className }) => <button type="button" className={className}
@@ -168,7 +169,7 @@ export function MuscleFilterSheet({ value, names, onPick, close }) {
     <div className="menu-group grouped"><div className="list menu-list">
       <GroupRows groups={nameGroups(names)} open={open} flip={flip}
         valueOf={g => (g.kinds.length > 1 ? muscleGroupValue(g.id) : g.kinds[0])} isOn={v => value === v}
-        onPick={pick} kindLabel={k => t(k)} />
+        onPick={pick} kindLabel={muscleText} />
     </div></div>
   </>
 }
