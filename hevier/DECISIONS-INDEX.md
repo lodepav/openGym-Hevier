@@ -140,3 +140,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D134** Today's layout: the next session leads.
 - **D135** The History and Lifts tabs.
 - **D136** Settings, gyms, the strap, the exercise library and Measurements stay as they are.
+- **D137** What Hevy has no field for goes into the notes of the workout sent to it.

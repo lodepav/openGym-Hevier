@@ -10,7 +10,8 @@ import { EXIDX, allExercises, canonicalExId, isAssisted, isBodyweightEq, isCardi
 import { HEVY_ID_MAP } from '../../lib/import-hevy.js'
 import { importId, matchHevyTitle } from '../../lib/import-csv.js'
 import { isWarmupRow, isFailureSet, isSideSet, dropsOf, clustersOf } from '../../lib/workout-model.js'
-import { isPerSide } from '../../lib/history.js'
+import { isPerSide, modeOf } from '../../lib/history.js'
+import { isHoldRow, setNumberOf } from './hold-set.js'
 import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
 import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
@@ -85,9 +86,79 @@ function setRows(s, unit, cardio) {
   return out.map(r => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== undefined)))
 }
 
+/* ------------------------------------------------------------------------------ extras -- */
+// What Hevy's API has no field for goes into the notes (D137): the workout's heart rate, gym and
+// phase into its description, each exercise's time, holds, uneven sides and heart rate per set into
+// its note. English, as Hevy shows it whatever the app's language. Your own note comes first and
+// stays whole; added lines that would pass NOTE_MAX are left off from the last.
+const fit = (own, lines) => {
+  let out = text(own)
+  for (const l of lines) {
+    const next = out ? out + '\n' + l : l
+    if (next.length > NOTE_MAX) break
+    out = next
+  }
+  return out || null
+}
+const tickAt = s => Math.max(Number(s?.at) || 0, Number(s?.sides?.L?.at) || 0, Number(s?.sides?.R?.at) || 0)
+const ticks = e => (e.sets || []).filter(done).map(tickAt).filter(t => t > 0)
+const num = v => String(Math.round(Number(v) * 100) / 100)
+const load = (w, unit) => (Number(w) > 0 ? num(w) + ' ' + unit : 'bodyweight')
+const setName = (rows, i) => (isWarmupRow(rows[i]) ? 'Warm-up ' : 'Set ') + setNumberOf(rows, i)
+
+/** The workout description's added lines: heart rate, gym, phase. */
+function workoutLines(w) {
+  const out = []
+  if (Number(w.hr?.avg) > 0) out.push('Heart rate ' + Math.round(w.hr.avg) + ' avg' + (Number(w.hr.max) > 0 ? ', ' + Math.round(w.hr.max) + ' max' : ''))
+  // An OpenStreetMap gym is stored as "Name · street": the name only.
+  const gym = text(w.gym?.name).split(' · ')[0].trim()
+  if (gym) out.push('At ' + gym)
+  if (w.hvPhase?.p) out.push('Phase: ' + w.hvPhase.p)
+  return out
+}
+
+/** Minutes exercise `i` took: from the last tick of another exercise before its first (else the
+ *  workout's start) to its own last tick. Superset partners ran together and share the span. */
+function minutesOf(entries, i, ss, start) {
+  const own = ticks(entries[i])
+  if (!own.length) return null
+  const first = Math.min(...own), last = Math.max(...own)
+  let from = start
+  entries.forEach((e, k) => {
+    if (k === i || (ss[i] != null && ss[k] === ss[i])) return
+    for (const t of ticks(e)) if (t < first && t > from) from = t
+  })
+  return last > from ? Math.max(1, Math.round((last - from) / 60000)) : null
+}
+
+/** An exercise note's added lines: time, then each hold and uneven per-side set, then heart rate per set. */
+function exerciseLines(e, unit, minutes, holds) {
+  const rows = e.sets || [], out = []
+  if (minutes) out.push('Time ' + minutes + ' min')
+  rows.forEach((s, i) => {
+    if (!done(s)) return
+    if (holds && isHoldRow(s)) {
+      if (s.side === 'R' && rows[i - 1]?.side === 'L' && isHoldRow(rows[i - 1])) return   // written with its L row
+      const pair = s.side === 'L' && rows[i + 1]?.side === 'R' && isHoldRow(rows[i + 1]) && done(rows[i + 1])
+      const one = (h, side) => num(Number(h.sec) || 0) + ' s' + (side ? ' ' + side : '')
+      const held = pair ? one(s, 'L') + ', ' + one(rows[i + 1], 'R') : one(s, s.side)
+      out.push(setName(rows, i) + ': hold ' + held + (Number(s.w) > 0 ? ' at ' + load(s.w, unit) : ''))
+    } else if (isSideSet(s)) {
+      const { L, R } = s.sides
+      if (!L?.done || !R?.done || (Number(L.w) === Number(R.w) && Number(L.r) === Number(R.r))) return
+      out.push(setName(rows, i) + ': L ' + load(L.w, unit) + ' × ' + (Number(L.r) || 0) + ', R ' + load(R.w, unit) + ' × ' + (Number(R.r) || 0))
+    }
+  })
+  const hr = rows.filter(done).map(s => Math.round(Number(s.hr?.avg) || 0)).filter(n => n > 0)
+  if (hr.length) out.push('HR ' + hr.join(', '))
+  return out
+}
+
 /**
  * A finished workout as Hevy's workout body, with openGym exercise ids (`ex`) in place of the
  * templates: only ticked sets, the entries without one left out. Null when nothing is left.
+ * A hold in a reps exercise (D89) has no place in Hevy's weight-and-reps template: it goes in the
+ * note instead (D137), unless the exercise has nothing else to send.
  */
 export function workoutDraft(w, unit = 'kg') {
   const entries = (w?.entries || []).filter(e => e?.id && (e.sets || []).some(done))
@@ -97,18 +168,22 @@ export function workoutDraft(w, unit = 'kg') {
   const end = Number(w.end) > start ? Number(w.end) : start
   return {
     title: text(w.name) || 'Workout',
-    description: text(w.note) || null,
+    description: fit(w.note, workoutLines(w)),
     start_time: new Date(start).toISOString(),
     end_time: new Date(end).toISOString(),
-    exercises: entries.map((e, i) => ({
-      ex: canonicalExId(e.id),
-      ...(text(e.hvBrand) ? { brand: text(e.hvBrand) } : {}),
-      ...(text(e.hvBrand) && ['2:1', 'x2'].includes(e.hvCable) ? { cable: e.hvCable } : {}),
-      ...(text(e.hvBrand) && e.sets.some(s => done(s) && isSideSet(s)) ? { side: true } : {}),
-      superset_id: ss[i],
-      notes: text(e.note) || null,
-      sets: e.sets.filter(done).flatMap(s => setRows(s, unit, isCardio(e.id))),
-    })),
+    exercises: entries.map((e, i) => {
+      const reps = modeOf({ ...(e.target || {}), id: e.id }) === 'reps'
+      const kept = e.sets.filter(done).filter(s => !(reps && isHoldRow(s)))
+      return {
+        ex: canonicalExId(e.id),
+        ...(text(e.hvBrand) ? { brand: text(e.hvBrand) } : {}),
+        ...(text(e.hvBrand) && ['2:1', 'x2'].includes(e.hvCable) ? { cable: e.hvCable } : {}),
+        ...(text(e.hvBrand) && e.sets.some(s => done(s) && isSideSet(s)) ? { side: true } : {}),
+        superset_id: ss[i],
+        notes: fit(e.note, exerciseLines(e, unit, minutesOf(entries, i, ss, start), reps)),
+        sets: (kept.length ? kept : e.sets.filter(done)).flatMap(s => setRows(s, unit, isCardio(e.id))),
+      }
+    }),
   }
 }
 

@@ -78,10 +78,56 @@ describe('hevier export to Hevy: the bodies (D34)', () => {
     expect(d.exercises[1].sets[0]).toMatchObject({ type: 'normal', weight_kg: 40, reps: null, rep_range: { start: 8, end: 12 } })
   })
 
-  it('a fingerprint changes with what Hevy would show, not with a sync stamp or a heart rate', () => {
+  it('a fingerprint changes with what Hevy would show, not with a sync stamp; a heart rate shows now (D137)', () => {
     const a = fingerprint(workoutDraft(workout()))
-    expect(fingerprint(workoutDraft(workout({ _ts: 9, hr: { avg: 120 } })))).toBe(a)
+    expect(fingerprint(workoutDraft(workout({ _ts: 9 })))).toBe(a)
+    expect(fingerprint(workoutDraft(workout({ hr: { avg: 120 } })))).not.toBe(a)
     expect(fingerprint(workoutDraft(workout({ name: 'Leg day' })))).not.toBe(a)
+  })
+})
+
+describe('hevier export to Hevy: what Hevy has no field for goes into the notes (D137)', () => {
+  const min = 60e3
+  it('the description: own note, then heart rate, the gym without its street, the phase', () => {
+    const d = workoutDraft(workout({ hr: { avg: 106.4, max: 145 }, gym: { id: 'g', name: 'Lemon Gym · Andreja Saharova iela 30' }, hvPhase: { p: 'maintaining' } }))
+    expect(d.description).toBe('good day\nHeart rate 106 avg, 145 max\nAt Lemon Gym\nPhase: maintaining')
+    expect(workoutDraft(workout({ note: '' })).description).toBe(null)
+  })
+
+  it('an exercise note: time from the exercise before, holds out of the sets, uneven sides, heart rate per set', () => {
+    const d = workoutDraft(workout({ entries: [
+      { id: legCurl, sets: [{ w: 40, r: 12, done: true, at: T0 + 10 * min }] },
+      { id: squat, note: 'belt', sets: [
+        { w: 100, r: 5, done: true, at: T0 + 15 * min, hr: { avg: 121, max: 130 } },
+        { mode: 'time', side: 'L', w: 0, sec: 75, done: true, at: T0 + 18 * min },
+        { mode: 'time', side: 'R', w: 0, sec: 70, done: true, at: T0 + 19 * min },
+        { w: 100, r: 5, done: true, sides: { L: { w: 100, r: 5, done: true, at: T0 + 22 * min }, R: { w: 102.5, r: 4, done: true, at: T0 + 24 * min } }, hr: { avg: 135 } },
+        { w: 100, r: 5, done: true, sides: { L: { w: 100, r: 5, done: true }, R: { w: 100, r: 5, done: true } }, at: T0 + 26 * min },
+      ] },
+    ] }))
+    const sq = d.exercises[1]
+    expect(d.exercises[0].notes).toBe('Time 10 min')
+    expect(sq.notes).toBe('belt\nTime 16 min\nSet 2: hold 75 s L, 70 s R\nSet 3: L 100 kg × 5, R 102.5 kg × 4\nHR 121, 135')
+    expect(sq.sets).toHaveLength(3)
+    expect(sq.sets.every(s => s.reps > 0)).toBe(true)
+  })
+
+  it('superset partners share their span; an exercise of only holds still sends them', () => {
+    const d = workoutDraft(workout({ entries: [
+      { id: squat, sg: 'a', sets: [{ w: 100, r: 5, done: true, at: T0 + 5 * min }, { w: 100, r: 5, done: true, at: T0 + 9 * min }] },
+      { id: legCurl, sg: 'a', sets: [{ w: 40, r: 12, done: true, at: T0 + 7 * min }] },
+      { id: '0043', sets: [{ mode: 'time', sec: 30, w: 0, done: true, at: T0 + 12 * min }] },
+    ] }))
+    expect(d.exercises[0].notes).toBe('Time 9 min')
+    expect(d.exercises[1].notes).toBe('Time 7 min')
+    expect(d.exercises[2]).toMatchObject({ notes: 'Time 3 min\nSet 1: hold 30 s' })
+    expect(d.exercises[2].sets).toHaveLength(1)
+  })
+
+  it('the own note stays whole; added lines that would pass 280 characters are left off from the last', () => {
+    const own = 'x'.repeat(250)
+    const d = workoutDraft(workout({ note: own, hr: { avg: 100, max: 150 }, gym: { name: 'A gym with a long name' } }))
+    expect(d.description).toBe(own + '\nHeart rate 100 avg, 150 max')
   })
 })
 
