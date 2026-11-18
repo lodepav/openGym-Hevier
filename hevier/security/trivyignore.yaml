@@ -10,3 +10,7 @@ vulnerabilities:
     purls: ["pkg:npm/uuid@7.0.3"]
     statement: MEDIUM, @capacitor/cli 8 → xcode → uuid, iOS project tooling run by cap sync, never shipped
     expired_at: 2027-01-17
+  - id: CVE-2026-112366
+    purls: ["pkg:npm/picomatch@4.0.7", "pkg:npm/picomatch@2.3.2"]
+    statement: HIGH, no fixed version yet; dev tooling only (vitest's file globbing in mcp/, the Zepp watch build tools), matches our own glob patterns, never shipped in the APK
+    expired_at: 2027-01-18
