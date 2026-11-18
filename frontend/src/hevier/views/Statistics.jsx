@@ -69,6 +69,7 @@ export default function Statistics() {
     {partOn(S, 'hvStats', 'time') && S.workouts.some(hasTimes) && <LinkRow icon="timer" title={t('Exercise time')} sub={t('How long each exercise takes')} onClick={() => nav('/exercise-time')} />}
     {partOn(S, 'hvStats', 'trends') && S.workouts.length > 0 && <LinkRow icon="chartLine" title={t('Lift trends')} sub={t('Which lifts are rising, holding or falling')} onClick={() => nav('/lift-trends')} />}
     <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
-    {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.')} onClick={() => nav('/structural-balance')} />}
+    {/* Upstream's sentence, translated, without its full stop, as the rows above end. */}
+    {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.').replace(/[.。।]$/, '')} onClick={() => nav('/structural-balance')} />}
   </div>
 }

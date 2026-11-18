@@ -9,6 +9,7 @@ import { matchExercise, matchHevyTitle } from '../../lib/import-csv.js'
 import { EXIDX, isCustomEx, smOf } from '../../lib/exercises.js'
 import { muscleWeightsOf } from '../../lib/muscles.js'
 import { HEAD_NAME } from './delt-heads.js'
+import { t } from '../../lib/i18n-core.js'
 
 // Hevy's muscle names over the catalogue's `tg` spellings, upstream's muscle slugs (a custom
 // exercise's `primaries`, the catalogue's muscle model) and the ones a custom exercise stores.
@@ -30,6 +31,13 @@ const LABEL = {
   'lower back': 'Lower Back', 'hip flexors': 'Hip Flexors', core: 'Abdominals', abdominals: 'Abdominals',
 }
 export const muscleLabel = tg => (typeof tg === 'string' ? LABEL[tg] || tg : '')
+
+// The names above stay the keys (S.hvMainMuscle, the groups); shown, they are in sentence case as
+// upstream's are ('Upper back'), which also finds upstream's translations.
+const OURS = new Set(Object.values(LABEL))
+/** A muscle name as the page writes it, translated: the fork's 'Upper Back' → 'Upper back'; any other name as it is. */
+export const muscleText = name => (typeof name === 'string' && name
+  ? t(OURS.has(name) ? name[0] + name.slice(1).toLowerCase() : name) : '')
 
 // Each rule: the name it reads and the muscle it gives, for a custom exercise with no muscles whose
 // name finds no catalogue exercise. The first that matches wins, so the narrower come first (a

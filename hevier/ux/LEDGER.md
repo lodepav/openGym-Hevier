@@ -274,3 +274,26 @@ their text; the delete toast says "Set 3 gone." without the exercise; at 200% To
 below the fold (discuss, D134). Notes: with effort on a set takes two taps to log (the user's
 change to D127); after a swap the Finish sheet says "1 added".
 
+
+## Round 13 (2026-11-18, after the audit fixes: J1 routine lifter, J5 numbers person)
+
+Both finished. Round 12's checks hold: the new 44 dp hit areas on Today's plan link, the chart's
+period, Look up and Show earlier months; a chart tap picks its week; the calendar's month heading
+is plain and today is the current date; Today's name is 22 px; Finish says "1 swapped".
+
+| Id | Sev | Rule | Claim | Outcome |
+|---|---|---|---|---|
+| R13-U1 | medium | A1 | The toast's Undo is 36 dp tall and its × 36×36 | **fixed**: both reach 48 dp, nothing sideways |
+| R13-U2 | low | H4 | One page writes "Upper Back" and "Upper back" | **fixed**: muscles are shown in sentence case everywhere (`muscleText`); the stored names stay |
+| R13-U3 | low | H4 | Workout detail writes "4min" over "+2 min" | **fixed**: "+2min" (D49) |
+| R13-U4 | low | C5 | History's chip says "Month report", its page "Monthly report" | **fixed**: "Monthly report" |
+| R13-U5 | low | A1 | Strength level's Cancel and Save are 37 dp | **fixed**: 48 dp |
+| R13-U6 | low | H4 | Last sessions break "80 kg" from "× 6"; the Best set tile drops its unit (R11-U6) | **fixed**: a set wraps whole, the tile writes "60 kg × 12"; R11-U6 closed |
+
+Improvements: **fixed**, Structural balance's line without its full stop and the RIR button
+spoken "log it with reps in reserve"; **discuss**, open the new card or say so after a Swap, a
+Done on the plan page's keypad, and a discarded start using up the planned weight (D128);
+**open**, the chart axis's "7 h" beside "2min this week". Notes: R8-U3 still open, the chart's first
+date sits under bars 1 and 2 while its week is bar 3; "1.6 year streak" after four empty weeks
+(D59); the exercise animation is blank in the headless emulator's screenshots while the video
+reports playing (check on a phone).

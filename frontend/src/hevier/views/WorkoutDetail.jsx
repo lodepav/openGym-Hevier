@@ -27,7 +27,7 @@ import PageBar from '../components/PageBar.jsx'
 import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
 import { setText, noEffort } from '../lib/set-text.js'
 import { entryTimes } from '../lib/exercise-time.js'
-import { elapsedWords } from '../lib/elapsed.js'
+import { elapsedWords, durationWords } from '../lib/elapsed.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
@@ -113,7 +113,7 @@ function Gone() {
   return null
 }
 
-// "+320 kg · +1 set · −4 min vs 3 Nov": this workout against the same routine's last one, the
+// "+320 kg · +1 set · −4min vs 3 Nov": this workout against the same routine's last one, the
 // stats row's own numbers (volume only where the row shows it, D18). A number that did not change
 // is left out; with none left the line reads "Same as 3 Nov".
 function VsLast({ st, w, mode }) {
@@ -123,7 +123,7 @@ function VsLast({ st, w, mode }) {
   const parts = [
     mode === 'weight' && part(Math.round(c.volume * 10) / 10, v => fmtVol(v, st.unit)),
     part(c.sets, n => tn('{0} set', '{0} sets', n)),
-    c.minutes != null && part(c.minutes, n => t('{0} min', n)),
+    c.minutes != null && part(c.minutes, n => durationWords(n * 60000)),
   ].filter(Boolean)
   return <div className="hv-wd-vs">{parts.length ? t('{0} vs {1}', parts.join(' · '), fmtDate(c.prev.d)) : t('Same as {0}', fmtDate(c.prev.d))}</div>
 }

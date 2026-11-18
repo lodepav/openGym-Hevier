@@ -59,7 +59,7 @@ describe('hevier: History (D135)', () => {
     render()
     const rows = () => [...container.querySelectorAll('.hv-hgroup')].map(g =>
       [g.querySelector('.hv-cap').textContent, [...g.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)])
-    expect(rows()).toEqual([['Look back', ['Calendar', 'Month report']],
+    expect(rows()).toEqual([['Look back', ['Calendar', 'Monthly report']],
       ['Numbers', ['Statistics', 'Sets per muscle', 'Body weight', 'All statistics']]])
     expect(container.querySelector('.hv-hscroll').closest('.hv-hgroup').querySelector('.hv-cap').textContent).toBe('Numbers')
     act(() => chip('Sets per muscle').click())
@@ -70,7 +70,7 @@ describe('hevier: History (D135)', () => {
     expect(path).toBe('/stats/all')
   })
 
-  it('a row with Calendar and Month report both off is not drawn, label and all', () => {
+  it('a row with Calendar and Monthly report both off is not drawn, label and all', () => {
     render({ hvModuleParts: { 'hvStats.calendar': false, 'hvStats.report': false } })
     expect([...container.querySelectorAll('.hv-hgroup .hv-cap')].map(c => c.textContent)).toEqual(['Numbers'])
   })

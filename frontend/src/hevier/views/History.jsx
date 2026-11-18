@@ -47,7 +47,7 @@ export default function History() {
   const groups = [
     ['Look back', [
       partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
-      partOn(S, 'hvStats', 'report') && ['Month report', () => nav('/report')],
+      partOn(S, 'hvStats', 'report') && ['Monthly report', () => nav('/report')],
     ]],
     ['Numbers', [
       ['Statistics', () => nav('/stats')],

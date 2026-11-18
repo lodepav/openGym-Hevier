@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect } from 'vitest'
 import { EXIDX, registerCustom } from '../../lib/exercises.js'
-import { mainMuscleOf, musclesShown, readChosenMuscles, autoMuscleOf, setMainMuscle } from './main-muscle.js'
+import { mainMuscleOf, musclesShown, readChosenMuscles, autoMuscleOf, setMainMuscle, muscleText } from './main-muscle.js'
 import { muscleSets } from './volume.js'
 
 const main = id => mainMuscleOf(EXIDX[id])
@@ -124,5 +124,13 @@ describe('the main muscle the user chose (D76)', () => {
     setMainMuscle(s, '0739', null)
     expect(s.hvMainMuscle).toEqual({})
     expect(main('0739')).toBe('Quadriceps')
+  })
+})
+
+describe('muscleText', () => {
+  it('shows the fork’s names in sentence case, as upstream’s, and leaves other names alone', () => {
+    expect(['Upper Back', 'Rear Delts', 'Hip Flexors', 'Chest'].map(muscleText)).toEqual(['Upper back', 'Rear delts', 'Hip flexors', 'Chest'])
+    expect(muscleText('Rotator Cuff')).toBe('Rotator Cuff')   // a custom exercise's own spelling
+    expect(muscleText('')).toBe('')
   })
 })

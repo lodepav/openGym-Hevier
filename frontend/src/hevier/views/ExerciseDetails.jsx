@@ -5,7 +5,7 @@
 // opens an exercise gets the same page. The numbers are upstream's read-back of the log
 // (lib/exercise-history.js) through hevier/lib/exercise-summary.js and exercise-page.js; upstream's
 // own details sheet (plate loading, "weight means", the 1RM calculator) is ⋯ → All details.
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
@@ -14,7 +14,7 @@ import { mapSetWeights } from '../../lib/units.js'
 import { fmtNum, fmtVol, capWords, todayISO } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { pinnedNoteFor, EFFORT } from '../../lib/history.js'
-import { setText, noEffort } from '../lib/set-text.js'
+import { setText, setFormat, noEffort } from '../lib/set-text.js'
 import { historyRows, setMark } from '../lib/history-rows.js'
 import { isCustomEx } from '../../lib/exercises.js'
 import { isSideSet } from '../../lib/workout-model.js'
@@ -45,7 +45,7 @@ import PhaseFilter from '../components/PhaseFilter.jsx'
 import TrendMark from '../components/TrendMark.jsx'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
-import { musclesShown, mainMuscleOf } from '../lib/main-muscle.js'
+import { musclesShown, mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { partOn } from '../lib/module-parts.js'
@@ -70,8 +70,8 @@ function ExerciseFacts({ ex }) {
   const { primary, secondary } = musclesShown(ex, s => MUSCLE_NAME[s] || s)
   const other = MUSCLE_NAME[ex.tg] || ex.tg || ex.bp
   const lines = [
-    [t('Primary'), (primary && t(primary)) || (other ? t(other) : '')],
-    [t('Secondary'), secondary.map(m => t(m)).join(', ')],
+    [t('Primary'), (primary && muscleText(primary)) || (other ? t(other) : '')],
+    [t('Secondary'), secondary.map(muscleText).join(', ')],
     [t('Equipment'), ex.eq ? t(ex.eq) : ''],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">{lines.map(([k, v]) => <span key={k}>{k}: {v}</span>)}</div>
@@ -101,15 +101,19 @@ function LastSessions({ ex, sum, st, onAll }) {
       const effort = l.effort.map(e => effortShown(e, scale)).filter(v => v != null)
       return <div key={l.id ?? k} className="hv-xd-ls" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
         <span className="hv-xd-ld">{fmtDate(l.d, false, notThisYear(l.d))}</span>
-        <span className="hv-xd-lsets">{l.sets.map((x, j) => <span key={j}>{j > 0 && ' · '}{x.star
+        {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
+        <span className="hv-xd-lsets">{l.sets.map((x, j) => <Fragment key={j}>{j > 0 && ' · '}<span className="hv-xd-lset">{x.star
           ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{t('Best set')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
-          : shortSet(ex, x.s, l.target, st)}</span>)}
+          : shortSet(ex, x.s, l.target, st)}</span></Fragment>)}
           {effort.length > 0 && <small> {t(EFFORT[scale].hd)} {effort.map(fmtNum).join(' · ')}</small>}</span>
         {l.best ? <span className="hv-xd-best">{t('best')}</span> : <TrendMark v={l.trend} />}
       </div>
     })}
   </section>
 }
+
+// A narrow tile breaks "102.5 kg × 12" before its "×" only, never inside "102.5 kg" or "× 12".
+const wholeParts = text => text.split(/ (?=× )/).map((p, i) => <Fragment key={i}>{i > 0 && ' '}<span className="hv-xd-whole">{p}</span></Fragment>)
 
 // The best sets (D131): three tiles, the best session's volume under them, then the best at each
 // rep count, the ones from the last month in yellow with "new".
@@ -121,7 +125,7 @@ function Bests({ ex, sum, st }) {
   const tiles = [
     r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
     r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
-    r.setVol && { k: 'setVol', label: t('Best set'), v: `${fmtNum(show(r.setVol.w))} × ${r.setVol.r}`, d: r.setVol.d },
+    r.setVol && { k: 'setVol', label: t('Best set'), v: wholeParts(setFormat(`${fmtNum(show(r.setVol.w))}×${r.setVol.r}`, unit)), d: r.setVol.d },
   ].filter(Boolean)
   const reps = repBests(sum.reps, todayISO())
   return <>
@@ -313,7 +317,7 @@ function ExerciseDetails({ ex, close }) {
         { icon: 'plus', label: t('Add to my plan'), onClick: () => addToRoutineSheet(ex) },
         partOn(st, 'hvExercise', 'names') && { icon: 'pencil', label: t('Other names'), sub: aliasesOf(st, ex.id).join(', ') || t('Found by the search'), onClick: () => aliasSheet(ex) },
         // D76: the muscle its sets count for, as the user chooses it.
-        partOn(st, 'hvExercise', 'muscle') && { icon: 'figureStrength', label: t('Main muscle'), sub: (t(mainMuscleOf(ex)) || t('None')) + (st.hvMainMuscle?.[ex.id] ? ' · ' + t('your choice') : ''), onClick: () => mainMuscleSheet(ex) },
+        partOn(st, 'hvExercise', 'muscle') && { icon: 'figureStrength', label: t('Main muscle'), sub: (muscleText(mainMuscleOf(ex)) || t('None')) + (st.hvMainMuscle?.[ex.id] ? ' · ' + t('your choice') : ''), onClick: () => mainMuscleSheet(ex) },
         { icon: 'gear', chevron: true, label: t('All details'), sub: t('Plate loading, estimated 1RM'), onClick: () => upstreamExerciseDetailSheet(ex) },
       ] },
       isCustomEx(ex) && { items: [

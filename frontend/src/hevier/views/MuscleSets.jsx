@@ -8,6 +8,7 @@ import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
 import { signed } from '../lib/delta.js'
 import { muscleSetCounts, PERIODS } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
+import { muscleText } from '../lib/main-muscle.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
@@ -31,7 +32,7 @@ function SetCounts({ S, today }) {
     {rows.length ? <div className="hv-msets">{rows.map(r => {
       const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
       return <div key={r.muscle} className="hv-mset">
-        <span className="hv-mset-n">{t(r.muscle)}</span>
+        <span className="hv-mset-n">{muscleText(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>
         <b>{fmtNum(r.sets)}</b>
         <span className={'hv-mset-d' + (d ? (d.up ? ' up' : ' down') : '')}>{d?.text}</span>

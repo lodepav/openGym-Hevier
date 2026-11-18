@@ -491,6 +491,8 @@
 :root[data-ui="hevier"] .hv-xd-ld{flex:none;width:5.5em;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-lsets{flex:1;min-width:0;font-weight:700;font-size:15px}
 :root[data-ui="hevier"] .hv-xd-lsets small{font-weight:500;font-size:12px;color:var(--label-2)}
+/* A set, and a tile's weight or reps, moves to the next line whole; one wider than the line still wraps inside. */
+:root[data-ui="hevier"] :is(.hv-xd-lset, .hv-xd-whole){display:inline-block}
 :root[data-ui="hevier"] :is(.hv-xd-star, .hv-xd-best, .hv-xd-new){font-style:normal;color:var(--hv-record,var(--yellow));font-weight:800}
 :root[data-ui="hevier"] .hv-xd-best,:root[data-ui="hevier"] .hv-xd-new{font-size:12px}
 /* The best sets: three tiles, then the best at each rep count (D131). */
@@ -667,7 +669,7 @@
 :root[data-ui="hevier"] .hv-sl-form{margin-top:10px}
 :root[data-ui="hevier"] .hv-sl-form p{margin:0 0 10px}
 :root[data-ui="hevier"] .hv-sl-look{width:100%;margin-bottom:14px}
-:root[data-ui="hevier"] .hv-sl-form .hv-sl-btns .btn{flex:1}
+:root[data-ui="hevier"] .hv-sl-form .hv-sl-btns .btn{flex:1;min-height:48px}
 :root[data-ui="hevier"] .hv-sl-rm{display:block;margin:8px auto 0}
 :root[data-ui="hevier"] .hv-sl-err{color:var(--red)}
 

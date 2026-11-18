@@ -226,7 +226,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
       s.hvVolume = 'weight'
       Object.assign(s.workouts[0], { name: 'Push Day', end: s.workouts[0].start + 50 * 60000 })
     }))
-    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set · +10 min vs 3 Oct')
+    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set · +10min vs 3 Oct')
     // A number that did not change is left out, and with none left the line says so.
     act(() => useStore.getState().update(s => { s.workouts[0].end = s.workouts[0].start + 60 * 60000 }))
     expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set vs 3 Oct')

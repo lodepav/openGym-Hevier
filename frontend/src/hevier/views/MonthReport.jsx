@@ -10,6 +10,7 @@ import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
+import { muscleText } from '../lib/main-muscle.js'
 import { workoutsByDay } from '../lib/calendar.js'
 import { durationWords } from '../lib/elapsed.js'
 import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
@@ -97,7 +98,7 @@ export default function MonthReport() {
       {r.muscles.length > 0 && <>
         <h3 className="sec">{t('Muscle Split')}</h3>
         <div className="hv-msets">{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
-          <span>{t(m.muscle)}</span>
+          <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
           <b>{tn('{0} set', '{0} sets', m.sets)}</b>
         </div>)}</div>

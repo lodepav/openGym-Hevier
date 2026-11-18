@@ -73,10 +73,13 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(lines).toHaveLength(1)
     // The only session holds every best: its sets carry the star, read out, and the line says best.
     expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best set: 60 kg × 8 · ★ Best set: 62.5 kg × 6')
+    // Each set is one unit the line wraps around, the separators between them.
+    expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best set: 60 kg × 8', '★ Best set: 62.5 kg × 6'])
     expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('best')
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
-    expect(tiles[2]).toBe('60 × 8')
+    expect(tiles[2]).toBe('60 kg × 8')
+    expect([...container.querySelectorAll('.hv-xd-tile')][2].querySelectorAll('.hv-xd-whole')).toHaveLength(2)
     expect(container.textContent).toContain('Best Session Volume')
     const rows = [...container.querySelectorAll('.hv-xd-rr')]
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['6 reps', '8 reps'])
@@ -92,7 +95,7 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-xd-lsets').textContent).toMatch(/110\.23? lb × 12/)
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toMatch(/^110\.23? lb$/)
-    expect(tiles[2]).toMatch(/^110\.23? × 12$/)
+    expect(tiles[2]).toMatch(/^110\.23? lb × 12$/)
     expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
     expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
@@ -226,7 +229,7 @@ describe('hevier: exercise details (seam S10)', () => {
   it('names the main muscle, the others and the equipment under the picture, on one line', () => {
     open(log)
     const lines = [...container.querySelectorAll('.hv-xd-facts span')].map(s => s.textContent)
-    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Front Delts', 'Equipment: barbell'])
+    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Front delts', 'Equipment: barbell'])
   })
 
   it('without the hook it is upstream’s sheet', () => {
