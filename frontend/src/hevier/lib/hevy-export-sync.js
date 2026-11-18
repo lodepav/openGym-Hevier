@@ -50,7 +50,8 @@ const createdId = (res, k) => { const id = idOf(res, k); if (!id) throw new Hevy
 // A workout whose POST got no answer (a timeout, the network gone) may still be in Hevy, which
 // cannot delete a copy: the next pass looks for it among Hevy's newest workouts by its start.
 const RECENT = '/v1/workouts?page=1&pageSize=10'
-const sameStart = (a, b) => a != null && b != null && Date.parse(a) === Date.parse(b)
+// To the second: Hevy drops the milliseconds the phone sends.
+const sameStart = (a, b) => a != null && b != null && Math.floor(Date.parse(a) / 1e3) === Math.floor(Date.parse(b) / 1e3)
 
 /**
  * One export pass over `S`. `st` is the export state, changed in place and saved through `save`
