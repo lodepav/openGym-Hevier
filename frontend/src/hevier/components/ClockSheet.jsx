@@ -1,6 +1,7 @@
 // [hevier] The workout header's clock (hevier/DECISIONS.md D10): Timer · Stopwatch, as Hevy's.
 // The Timer always opens on a new countdown at the time it last ran (`S.hvTimerSec`, else the rest
 // set in Settings), with the rest's alert; starting it ends a rest between sets that is running
+// but waits for a hold, and it never leads into a hold that starts by itself (clock-off-run.js)
 // (changed 2026-10-25: a running rest opened its "Time left" wheel here, which the rest bar's time
 // still does). While its countdown runs the sheet shows it as Hevy does, a large ring with
 // −15 · +15 · Skip. The Stopwatch only counts (hevier/lib/stopwatch.js); the sheet opens on it
@@ -15,7 +16,7 @@ import { applyRestLeft } from '../../components/RestTimer.jsx'
 import { Button, Segmented } from '../../components/ui.jsx'
 import { RUN, GOAL, goalLeft, runningSec, startRun, stopped, moveGoal } from '../lib/set-timer.js'
 import { elapsed, running, startW, stopW, resetW, ofSession, showing, stopwatchText, stopwatchShort, useStopwatch } from '../lib/stopwatch.js'
-import { isClockTimer as isClock } from '../lib/clock-off-run.js'
+import { isClockTimer as isClock, startingClock } from '../lib/clock-off-run.js'
 
 const lastTimer = S => (S.hvTimerSec > 0 ? S.hvTimerSec : S.restSec > 0 ? S.restSec : 90)
 
@@ -23,6 +24,7 @@ function TimerTab() {
   const timer = useUI(s => s.timer)
   const [v, setV] = useState(() => Math.min(lastTimer(useStore.getState().S), REST_MAX))
   const read = useRef(null)
+  const holding = useUI(s => !!(s.work || s.countIn))   // a hold or its count-in runs: the Timer waits for it
   if (isClock(timer)) {
     const ui = useUI.getState()
     return <Ring left={leftOf(timer)} total={timer.total} label={t('Timer')}
@@ -33,13 +35,13 @@ function TimerTab() {
     if (!(now > 0)) return
     useStore.getState().update(s => { s.hvTimerSec = now })
     useUI.getState().stopRest()
-    applyRestLeft(now)
+    startingClock(() => applyRestLeft(now))
     useUI.setState(st => (st.timer ? { timer: { ...st.timer, hvClock: true } } : {}))
   }
   return <div className="hv-clock">
     <div className="dw-read" aria-hidden="true">{fmtDuration(v)}</div>
     <DurationWheel value={v} onChange={setV} min={5} max={REST_MAX} readRef={read} />
-    <Button variant="primary" onClick={go}>{t('Start timer')}</Button>
+    <Button variant="primary" onClick={go} disabled={holding}>{t('Start timer')}</Button>
   </div>
 }
 
@@ -146,7 +148,7 @@ export function ClockSheet({ close, session, tab: first = 'timer' }) {
 
 /** Opens the clock sheet from the header's ⏱. */
 export function timerSheet() {
-  const session = useStore.getState().S.active?.start ?? null
+  const session = useStore.getState().S.active?.id ?? null
   const tab = showing(ofSession(useStopwatch.getState().w, session)) ? 'stopwatch' : 'timer'
   return useUI.getState().openSheet(close => <ClockSheet close={close} session={session} tab={tab} />)
 }

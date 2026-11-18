@@ -1,18 +1,22 @@
 // @vitest-environment happy-dom
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { initClockOff, isClockTimer } from './clock-off-run.js'
+import { initClockOff, initClockChain, isClockTimer, startingClock } from './clock-off-run.js'
 import { storeAdapter } from './store-watch.js'
 
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 
 initClockOff(storeAdapter(useStore, () => {}))
+initClockChain()
 const timer = extra => ({ left: 60, total: 60, endsAt: Date.now() + 60000, ...extra })
 
 beforeEach(() => {
   useStore.setState({ S: JSON.parse(JSON.stringify(DEF)), user: null })
-  useUI.setState({ timer: null })
+  useUI.getState().stopRest()
+  useUI.getState().stopCountIn()
+  useUI.setState({ timer: null, work: null, countIn: null })
+  vi.useRealTimers()
 })
 
 describe('the Timer and Stopwatch switched off (D117)', () => {
@@ -39,5 +43,49 @@ describe('the Timer and Stopwatch switched off (D117)', () => {
     expect(isClockTimer(timer())).toBe(false)
     expect(isClockTimer(timer({ hvClock: true, ready: true }))).toBe(false)
     expect(isClockTimer(null)).toBe(false)
+  })
+})
+
+describe('the Timer does not lead into a hold', () => {
+  const owner = { idx: 0, i: 0, id: 'plank', plan: 30, label: 'Plank' }
+  let unbind
+  const bind = () => { unbind = useUI.getState().bindAuto({ peek: () => owner, focus: vi.fn(), startHold: vi.fn(), forecast: () => [], stop: vi.fn() }) }
+  // ClockSheet.jsx TimerTab's go(): the countdown started, then marked as the Timer's
+  const startTimer = sec => {
+    startingClock(() => useUI.getState().startRest(sec))
+    useUI.setState(st => (st.timer ? { timer: { ...st.timer, hvClock: true } } : {}))
+  }
+  afterEach(() => unbind?.())
+
+  it('a rest after a set still names the hold that starts by itself', () => {
+    bind()
+    useUI.getState().startRest(60)
+    expect(useUI.getState().timer.autoNext).toBe('Plank')
+  })
+  it('the Timer names no next hold, and its Skip starts no count-in', () => {
+    bind()
+    startTimer(60)
+    expect(isClockTimer(useUI.getState().timer)).toBe(true)
+    expect(useUI.getState().timer.autoNext).toBeUndefined()
+    useUI.getState().skipRest()
+    expect(useUI.getState().timer).toBeNull()
+    expect(useUI.getState().countIn).toBeNull()
+  })
+  it('the Timer running out starts no count-in', () => {
+    vi.useFakeTimers({ now: 100_000 })
+    bind()
+    startTimer(5)
+    vi.advanceTimersByTime(6000)
+    expect(useUI.getState().countIn).toBeNull()
+    expect(useUI.getState().timer?.ready).toBe(true)
+  })
+  it('a rest after the Timer chains again', () => {
+    bind()
+    startTimer(60)
+    useUI.getState().skipRest()
+    useUI.getState().startRest(60)
+    expect(useUI.getState().timer.autoNext).toBe('Plank')
+    useUI.getState().skipRest()
+    expect(useUI.getState().countIn?.owner).toEqual(owner)
   })
 })

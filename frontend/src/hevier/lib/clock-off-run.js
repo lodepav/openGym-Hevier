@@ -17,3 +17,26 @@ export function initClockOff(store, ui = useUI) {
     if (!partOn(store.get(), 'hvWorkout', 'clock') && isClockTimer(ui.getState().timer)) ui.getState().stopRest()
   })
 }
+
+// The Timer is not a rest after a set, so it never leads into a hold that starts by itself
+// (lib/auto-holds.js): while its countdown is up, while it starts and while it is skipped, the
+// workout screen's hooks (useUI bindAuto) see no next hold. Upstream's rest asks them for one when
+// it starts (its "Up next" and the alarm's chain cues), runs out and is skipped.
+let quiet = 0
+const quietly = fn => { quiet++; try { return fn() } finally { quiet-- } }
+/** ClockSheet.jsx starts the Timer's countdown through this: it is marked only once it runs. */
+export const startingClock = quietly
+
+/** At launch (hevier/index.js), before the workout screen binds its hooks. */
+let chained = false
+export function initClockChain(ui = useUI) {
+  if (chained) return
+  chained = true
+  const { bindAuto, skipRest } = ui.getState()
+  const noHold = () => quiet > 0 || isClockTimer(ui.getState().timer)
+  ui.setState({
+    bindAuto: h => bindAuto(h && { ...h, peek: () => (noHold() ? null : h.peek?.()) }),
+    // skipRest stops the countdown before it asks for the next hold, so the mark is read first
+    skipRest: (...a) => (isClockTimer(ui.getState().timer) ? quietly(() => skipRest(...a)) : skipRest(...a)),
+  })
+}
