@@ -2,6 +2,26 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.1.0 · 2026-11-18
+
+Based on openGym 1.4.5.
+
+### Before you update
+
+- Every workout already sent to Hevy is updated once with the new notes after this update.
+
+### New
+
+- heart rate, gym, exercise time and holds go to Hevy in the notes
+
+### Fixes and changes
+
+- a workout whose send to Hevy timed out is not sent twice
+- a gym changed during a workout is the one saved and sent to Hevy
+- the brand and cable setup go to Hevy in the exercise note
+- the workout notification stays on the exercise you are at after a swap
+- a timed hold ticks without asking "Is that right?"
+
 ## 3.0.1 · 2026-11-18
 
 Based on openGym 1.4.5.
