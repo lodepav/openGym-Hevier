@@ -376,6 +376,18 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     expect(st.unsure).toEqual({})
   })
 
+  it('a timed-out workout is found in Hevy, which keeps its start to the second', async () => {
+    const { S, st, calls, call, pages, replies } = setup()
+    S.workouts.push(workout({ id: 'a', start: T0 + 897, entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v1/workouts'] = new HevyApiError(0, 'offline')
+    await exportOnce(S, st, { call, pages })
+    delete replies['POST /v1/workouts']
+    replies['GET /v1/workouts?page=1&pageSize=10'] = { workouts: [{ id: 'HX', start_time: new Date(T0).toISOString().replace('.000Z', '+00:00') }] }
+    calls.length = 0
+    await exportOnce(S, st, { call, pages })
+    expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['GET /v1/workouts?page=1&pageSize=10', 'PUT /v1/workouts/HX'])
+  })
+
   it('a timed-out workout Hevy does not have is posted again', async () => {
     const { S, st, calls, call, pages, replies } = setup()
     S.workouts.push(workout({ id: 'a', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
