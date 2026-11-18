@@ -36,15 +36,15 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue; PR #1361, a Timer and a Stopwatch in the header) |
 | Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
-| "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offer (upstream 1.4.3's #592 keeps added exercises) |
+| "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offered (#1376: removed, swapped and reordered exercises with Undo, against the routine as the workout started; no set counts) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
-| TIME column with a count-up timer for cardio and holds | D53 | Offer (upstream 1.4.5 runs timed holds by themselves, but has no count-up timer on a cardio set) |
+| TIME column with a count-up timer for cardio and holds | D53 | Offered (#1375: the count-up clock on a cardio set, whole minutes; holds already run by themselves upstream) |
 | Workout note below the workout's name and on the feed cards | D54, D127 | Fork |
 | An exercise last logged as holds starts as one (upstream starts its catalogue holds timed since 1.4.3, #694) | D55 | Ported (#902, upstream's Start as last logged since 1.4.5; S32 is gone, D103, D121) |
 | An exercise last logged per side starts per side (upstream does one-limb lifts since 1.4.3, #736) | D75 | Ported (#902, upstream's Start as last logged since 1.4.5; S32 is gone, D103, D121) |
 | Duration wheels in 5-second steps | D48 | Offered (#1156, as a Settings choice of 1 s or 5 s; S28 goes when merged) |
 | "Still training?" after five hours | D60 | Ported (#906, upstream's Forgotten workouts since 1.4.5, after 45 quiet minutes; the fork's own is gone, D103) |
-| A rest after every set, including one side and the last set; Ready clears itself | D70 | Offer (upstream 1.4.5 adds a rest before the next exercise, #487, #1020; not after one side) |
+| A rest after every set, including one side and the last set; Ready clears itself | D70 | Offered (#1377: only an opt-in profile rest between sides for reps; the rest after the last set and Ready stay the fork's) |
 | The next set to do opens large, with the effort button in the tick's place when effort is on, its dialog ending with Log without rating; a tap opens another set | D71, D127 | Fork |
 | The rest docks at the bottom of the workout: countdown, next set, +1 min, +2 min, Skip | D127 | Fork |
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
@@ -124,7 +124,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Weekly sets per muscle against a target range (upstream 1.4.4's card), counted by the fork's main muscle | D99 | Fork |
 | Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
 | A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
-| Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Fork |
+| Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374) |
 | The phone's font size zooms all text again, the fork's screens included, as before 1.4.5 | D122 | Fork |
 
 ## Home, navigation and look
