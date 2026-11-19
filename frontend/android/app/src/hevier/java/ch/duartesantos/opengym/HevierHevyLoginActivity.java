@@ -12,12 +12,13 @@ import android.window.OnBackInvokedDispatcher;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 /**
  * [hevier] The screen behind HevierHevyLoginPlugin (hevier/DECISIONS.md D138): hevy.com's login
  * page in a WebView of its own. Once the page has logged in, hevy.com sets the `auth2.0-token`
- * cookie; the screen hands its value back and closes. Back goes back a page, or closes the screen
- * without a login. Only hevy.com's session cookies are cleared first, so an old, already refreshed
+ * cookie; the screen hands its value back and closes. Back goes back a page (or to the login page),
+ * or closes the screen without a login. Only hevy.com's session cookies are cleared first, so an old, already refreshed
  * session is not handed back; the app's own WebView keeps its cookies.
  */
 public class HevierHevyLoginActivity extends Activity {
@@ -64,20 +65,28 @@ public class HevierHevyLoginActivity extends Activity {
         CookieManager cookies = CookieManager.getInstance();
         clearSession();
         web = new WebView(this);
-        web.setBackgroundColor(Color.BLACK);
+        web.setBackgroundColor(Color.WHITE);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         // The page as in a phone's browser: some sign-in checks refuse a WebView's "; wv".
         s.setUserAgentString(s.getUserAgentString().replace("; wv", ""));
         web.setWebViewClient(new WebViewClient());
-        // Below the status bar and above the navigation bar (edge to edge from Android 15).
-        web.setOnApplyWindowInsetsListener((v, insets) -> {
+        // Below the status bar and above the navigation bar (edge to edge from Android 15). The
+        // padding goes on a frame: a WebView draws under its own padding.
+        FrameLayout frame = new FrameLayout(this);
+        frame.setBackgroundColor(Color.WHITE);   // hevy.com's login page is white
+        frame.addView(web);
+        frame.setOnApplyWindowInsetsListener((v, insets) -> {
             android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.ime());
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
             return insets;
         });
-        setContentView(web);
+        setContentView(frame);
+        // Dark status and navigation bar icons on the white page.
+        getWindow().getInsetsController().setSystemBarsAppearance(
+            android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+            android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         web.loadUrl(SITE + "/login");
         handler.postDelayed(poll, POLL_MS);
         // The app runs on Android 13 and up (D116), where back comes this way (predictive back).
@@ -100,7 +109,10 @@ public class HevierHevyLoginActivity extends Activity {
     }
 
     private void back() {
+        String url = web != null ? web.getUrl() : null;
         if (web != null && web.canGoBack()) web.goBack();
+        // hevy.com moves between its pages without history: from any other page, back to the login.
+        else if (url != null && !url.startsWith(SITE + "/login")) web.loadUrl(SITE + "/login");
         else {
             done = true;
             setResult(RESULT_CANCELED);
