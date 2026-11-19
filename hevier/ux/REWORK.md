@@ -619,6 +619,25 @@ Part 3 of `ux/STATS-PREPLAN.md`. Old: By muscle as built for D140, scored 2026-1
 A "a header per group" (recommended), B "an overview first", C "groups, then their lifts".
 A approved 2026-11-19 as D141.
 
+### Statistics: one real page (round 5, F13)
+
+Part 4 of `ux/STATS-PREPLAN.md`. Old: History's chips and the Statistics page (D135), scored
+2026-11-19 from the code. F13 counts on line 4. Mockup `hevier/ux/mockups/stats-page.html`.
+
+| # | Line | Old | A | B | C | Evidence |
+|---|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | 3 | T7 and T9 keep their taps. |
+| 2 | Read at a glance | 1 | 2 | 3 | 2 | Old opens on the rarely looked at chart and body graph. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 3 | 2 | C: the feed (T7) a long scroll lower. |
+| 4 | F13 | 0 | 3 | 2 | 3 | B: still a page per stat behind a tile. |
+| 5 | What is looked at is in view | 1 | 3 | 3 | 2 | A: exercise time and body weight first. |
+| 6 | Found where it is expected | 1 | 3 | 2 | 2 | Old: stats from three places, sets per muscle in five. |
+| 7 | The standing rules | 2 | 2 | 2 | 2 | Read off the frames. |
+| | Total of 33 | 18 | 30 | 29 | 26 | |
+
+A "cards in the order you look at them" (recommended), B "four tiles, a page each", C "no
+Statistics page". Status: mockup, with the owner.
+
 ### Settings, gyms, strap, library, Measurements
 
 2026-11-16: not redrawn. The user: "settings can be kept as they are, just make group separators
