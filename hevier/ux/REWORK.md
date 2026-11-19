@@ -248,6 +248,9 @@ Source is `gym`, `review Rn` (a LEDGER.md round) or `other`.
 | F8 | 2026-11-16 | Live workout | A warm-up set takes two steps: Add Set, then change the new set's type | other (interview) |
 | F9 | 2026-11-16 | Live workout | The switch to per side is hidden too deep (rarely needed) | other (interview) |
 | F10 | 2026-11-16 | Live workout | Extending the rest means tapping +15 s many times; the extra rest wanted is always 1 to 5 minutes, never seconds (the rest bar) | other (interview) |
+| F11 | 2026-11-18 | Lifts and History tabs | Lifts: a row shows the last set and the best, which says nothing about where a lift is going; the cards could be bigger and show progress over time ("looking at lifts alone is not very informative") | other (notes) |
+| F12 | 2026-11-18 | Lifts and History tabs | Lifts, By muscle: no progress per muscle group (compound lifts counted in full, isolation at half) | other (notes) |
+| F13 | 2026-11-18 | Lifts and History tabs | The statistics open from chips on Lifts, chips on History and a Statistics page of links; they should be better organised | other (notes) |
 | F2 | 2026-11-16 | Workout tab: routines and folders | The next session's weights can only be set by editing the routine, so they are not planned ahead and get adjusted during the workout (tied to this screen by Claude: the routine page is where the next session is looked at) | other (interview) |
 
 ## Screens
@@ -270,7 +273,7 @@ taps of the screen's main tasks.
 | 6 | Save workout and the finished screen | `views/SaveWorkout.jsx` | J1 | | 18/33 (1·2·3·0 | 2·2·2); Finish, Save, a routine pop-up, then a "Nice work!" page | 28/33 (3·2·3·3 | 2·2·2); Finish, Save: 2 taps, lands on Today with "Workout saved" | built (D132, `hevier/rework`) |
 | 7 | Workout detail and edit | `views/WorkoutDetail.jsx` | J5 | | 19/27 (2·2·3 | 1·2·2); muscles shown twice before the first exercise, a row and a heart-rate line per set | 21/27 (2·2·3 | 2·2·2); L and R rows, RPE in its own column, no muscle bars | built (D133, `hevier/rework`) |
 | 8 | Home feed | `views/HevyHome.jsx` | J1, J5 | | 17/27 (1·2·3 | 1·2·2); the rotation chips fill half the first screen, no Start, the next session is not shown | 26/27 (3·3·3 | 3·3·2); the next session with its sets and Start (380 × 48) on one screen | built (D134, `hevier/rework`) |
-| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | built (D135, `hevier/rework`) |
+| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | F11, F12, F13 | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | approved (D140, F11; D141, F12; D142, F13) |
 | 10 | Settings, gyms and the heart-rate strap | `views/SettingsRootHevy.jsx`, `components/StrapScreen.jsx` | J2, J3 | | | | kept as it is (D136) |
 | 11 | Exercise library | `/library` in `routes.jsx` | J6 | | | | kept as it is (D136) |
 | 12 | Measurements | `views/Measures.jsx` | J5 | | | | kept as it is (D136) |
@@ -563,6 +566,84 @@ proposal 4 version C, History's six chips in two labelled rows (Look back, Numbe
 "More" renamed "All statistics" (23 of 27 against 21), and proposal 1 version C, upstream's week
 streak card hidden on All statistics so D59's streak is the only one on the app's pages. Recorded in D135.
 
+### Lifts: progress over time (round 3, F11)
+
+Today's Lifts (D135) scored 2026-11-19 from the code: the emulator is shared, so there is no picture
+and nothing measured. F11 counts on line 4; F12 and F13 belong to parts 3 and 4. Mockup
+`hevier/ux/mockups/lifts-progress.html`.
+
+| # | Line | Old | A | B | C | Evidence |
+|---|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | 3 | T6: 2 taps in all (the tab, the lift). |
+| 2 | Read at a glance | 1 | 3 | 3 | 2 | Old: last and best, no direction. C cuts names. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 3 | 3 | T6 stays 2 taps. |
+| 4 | F11 | 0 | 3 | 2 | 3 | B's chart is 64 px. |
+| 5 | What is looked at is in view | 2 | 2 | 3 | 2 | A: 4 lifts a screen against 8. C: last and best a tap away. |
+| 6 | Found where it is expected | 2 | 3 | 2 | 2 | Old: no phase on Lifts. B filters by tapping a count. C has no sort. |
+| 7 | The standing rules | 2 | 2 | 2 | 1 | Read off the frames. C cuts names at 200 %. |
+| | Total of 33 | 20 | 31 | 29 | 27 | |
+
+A "a card per lift, with its chart" (recommended), B "a summary first, then compact rows", C "a grid of tiles".
+
+Round 2, 2026-11-19, the owner: "A with totals from B, B with bigger graphs and still smaller elements than A". C dropped.
+
+| # | Line | Old | A2 | B2 | Evidence |
+|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | T6: 2 taps. |
+| 2 | Read at a glance | 1 | 3 | 3 | The totals lead; the change beside every lift. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 3 | T6 stays 2 taps. |
+| 4 | F11 | 0 | 3 | 3 | A2 a 62 px chart with its scale; B2 32 px with its scale (round 3). |
+| 5 | What is looked at is in view | 2 | 2 | 3 | Under the controls: A2 2½ lifts, B2 5. |
+| 6 | Found where it is expected | 2 | 3 | 3 | The window on Lifts; the totals are outlined buttons with a line saying they filter. |
+| 7 | The standing rules | 2 | 2 | 2 | Read off the frames. |
+| | Total of 33 | 20 | 31 | 32 | |
+
+B2 recommended. Round 3: B2's chart 32 px with its scale. Approved 2026-11-19 as D140.
+
+### Lifts: progress per muscle group (round 4, F12)
+
+Part 3 of `ux/STATS-PREPLAN.md`. Old: By muscle as built for D140, scored 2026-11-19 from the code
+(the emulator is shared). F12 counts on line 4. Mockup `hevier/ux/mockups/muscle-progress.html`.
+
+| # | Line | Old | A | B | C | Evidence |
+|---|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | 2 | T6: 2 taps; C makes it 3 under By muscle. |
+| 2 | Read at a glance | 3 | 3 | 3 | 3 | Each answers "how is my chest doing" without a tap. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 2 | 2 | B: lifts a scroll lower. C: a lift a tap deeper. |
+| 4 | F12 | 0 | 3 | 3 | 3 | Weighted change and count per group in all three. |
+| 5 | What is looked at is in view | 3 | 3 | 2 | 3 | A: 4 lifts and 2 groups under the controls. B: no lift. |
+| 6 | Found where it is expected | 3 | 3 | 3 | 2 | C hides the lifts behind the group. |
+| 7 | The standing rules | 2 | 2 | 2 | 2 | Read off the frames. |
+| | Total of 33 | 26 | 32 | 29 | 27 | |
+
+A "a header per group" (recommended), B "an overview first", C "groups, then their lifts".
+A approved 2026-11-19 as D141.
+
+### Statistics: one real page (round 5, F13)
+
+Part 4 of `ux/STATS-PREPLAN.md`. Old: History's chips and the Statistics page (D135), scored
+2026-11-19 from the code. F13 counts on line 4. Mockup `hevier/ux/mockups/stats-page.html`.
+
+| # | Line | Old | A | B | C | Evidence |
+|---|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | 3 | T7 and T9 keep their taps. |
+| 2 | Read at a glance | 1 | 2 | 3 | 2 | Old opens on the rarely looked at chart and body graph. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 3 | 2 | C: the feed (T7) a long scroll lower. |
+| 4 | F13 | 0 | 3 | 2 | 3 | B: still a page per stat behind a tile. |
+| 5 | What is looked at is in view | 1 | 3 | 3 | 2 | A: exercise time and body weight first. |
+| 6 | Found where it is expected | 1 | 3 | 2 | 2 | Old: stats from three places, sets per muscle in five. |
+| 7 | The standing rules | 2 | 2 | 2 | 2 | Read off the frames. |
+| | Total of 33 | 18 | 30 | 29 | 26 | |
+
+A "cards in the order you look at them" (recommended), B "four tiles, a page each", C "no
+Statistics page".
+
+Round 2, 2026-11-19, the owner: "A, but the History rows stay as they are; at the top are the
+numbers from B; take OpenBite's Trends page, where items can be rearranged and switched on and
+off". A2: B's tiles, A's cards, an Arrange Statistics page as OpenBite's Arrange Trends; History
+drawn as the fork has it. Scored 18 → 32/33 (6·6·6·6 | 3·3·2), the old screen on the emulator.
+A2 approved 2026-11-19 as D142.
+
 ### Settings, gyms, strap, library, Measurements
 
 2026-11-16: not redrawn. The user: "settings can be kept as they are, just make group separators
@@ -582,7 +663,6 @@ goes into a committed file.
 Filled while a screen's mockup is with the user, one heading per screen, a line per settled
 point, so the work can stop and carry on in another session. Cleared once the screen's decision
 is written.
-
 
 ## Open questions
 

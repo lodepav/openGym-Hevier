@@ -1,12 +1,14 @@
 // The Lifts tab (hevier/DECISIONS.md D135): every exercise the log holds, with its last set and its
-// best, the most recently trained first or grouped by muscle group. The sets are upstream's
+// best, the most recently trained first or grouped by D95's muscle groups (D141). The sets are upstream's
 // bestSetFor (lib/exercise-history.js): the last set is the best of the last session, the best the
 // best of all of them. A new best is a record the last session set (records.js, the feed's trophies).
 import { currentDbLoad } from '../../lib/dumbbells.js'
 import { metricRowsForEntry, metricModeForEntry, workoutAt, workoutDay } from '../../lib/history.js'
 import { bestSetFor } from '../../lib/exercise-history.js'
-import { groupBy, groupOfName } from './muscle-groups.js'
+import { MUSCLE_GROUPS } from './muscle-groups.js'
 import { workoutRecords } from './records.js'
+import { previousCell } from './set-text.js'
+import { tn } from '../../lib/i18n.js'
 
 /** The list's order, kept in S.hvLiftsBy: 'recent' unless 'muscle' was picked. */
 export const liftsBy = S => (S?.hvLiftsBy === 'muscle' ? 'muscle' : 'recent')
@@ -40,14 +42,43 @@ export function liftRows(S) {
   return rows.sort((a, b) => b.at - a.at || String(a.id).localeCompare(String(b.id)))
 }
 
+// A line with reps and no weight: "× 12", "0 × 12", "L × 12"; on body weight also a bare "L 12" (upstream's per-side words).
+const NO_WEIGHT = /^([LR] )?(?:0 )?× (\d+)$/gm
+const NO_WEIGHT_BW = /^([LR] )?(?:(?:0 )?× )?(\d+)$/gm
+
+/**
+ * A row's last or best set (D135): as the workout's PREVIOUS column writes it (previousCell, same
+ * `opts`), except a set with no weight, "× 12" or "0 × 12", which reads "12 reps" on its own,
+ * each side's line of a per-side one too.
+ */
+export const liftSetText = (set, opts) => previousCell(set, opts)
+  .replace(opts?.bw ? NO_WEIGHT_BW : NO_WEIGHT, (_, side, n) => (side || '') + tn('{0} rep', '{0} reps', Number(n)))
+
+// By muscle's order is the muscle-groups.js order Lifts had before D141, read muscle by muscle:
+// Back sits where the lats are. A muscle it does not name comes after, by name, then Other.
+const ORDER = MUSCLE_GROUPS.flatMap(g => g.names)
+const rank = g => { const i = ORDER.indexOf(g === 'Back' ? 'Lats' : g); return i < 0 ? (g ? ORDER.length : ORDER.length + 1) : i }
+
 /**
  * The rows in sections: one ('recent', titled Recently trained) or, `by` 'muscle', one per muscle
- * group in the groups' order, the most recent first in each. `keep` (a Set of ids) is a search's
- * hits; `muscleOf(id)` the exercise's main muscle by name. Sections with no row are left out.
+ * group (`groupOf(id)`, strength-signal.js muscleGroup; '' is Other), the most recent first in each.
+ * `keep` (a Set of ids) is a search's or a total's hits; a section keeps in `ids` every row of its
+ * group, kept or not, so its header can speak for the whole group. Sections with no row are left out.
  */
-export function liftSections(rows, { by = 'recent', keep = null, muscleOf = () => '' } = {}) {
-  const list = keep ? rows.filter(r => keep.has(r.id)) : rows
-  if (!list.length) return []
-  if (by !== 'muscle') return [{ key: 'recent', label: 'Recently trained', rows: list }]
-  return groupBy(list, r => groupOfName(muscleOf(r.id))).map(g => ({ key: g.id, label: g.label, rows: g.kinds }))
+export function liftSections(rows, { by = 'recent', keep = null, groupOf = () => '' } = {}) {
+  const shown = r => !keep || keep.has(r.id)
+  if (by !== 'muscle') {
+    const list = rows.filter(shown)
+    return list.length ? [{ key: 'recent', label: 'Recently trained', rows: list }] : []
+  }
+  const groups = new Map()
+  for (const r of rows) {
+    const g = groupOf(r.id) || ''
+    if (!groups.has(g)) groups.set(g, [])
+    groups.get(g).push(r)
+  }
+  return [...groups]
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+    .map(([g, list]) => ({ key: g || 'other', label: g || 'Other', ids: list.map(r => r.id), rows: list.filter(shown) }))
+    .filter(sec => sec.rows.length)
 }

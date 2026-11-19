@@ -49,6 +49,7 @@ import { musclesShown, mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { mainMuscleSheet } from '../components/MuscleChoice.jsx'
 import { MUSCLE_NAME } from '../../lib/muscles.js'
 import { partOn } from '../lib/module-parts.js'
+import { isOn } from '../../lib/modules.js'
 import { setNoteOf } from '../../lib/set-notes.js'
 import { workoutAs, currentDbLoad } from '../../lib/dumbbells.js'
 import { timedSessions, timeSections } from '../lib/exercise-time.js'
@@ -350,7 +351,7 @@ function ExerciseDetails({ ex, close }) {
       {sum.total > 0 && <Chart ex={ex} sum={sum} st={st} />}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
-        {e1rm && partOn(st, 'strength', 'details') && <StrengthLevel exId={ex.id} oneRm={shownWeight(st, ex.id, e1rm.v)} unit={exUnitOf(st, ex.id)} st={st} />}
+        {e1rm && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={shownWeight(st, ex.id, e1rm.v)} unit={exUnitOf(st, ex.id)} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
         {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}

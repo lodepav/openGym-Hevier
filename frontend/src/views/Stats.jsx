@@ -260,7 +260,8 @@ function MusclesCard({ S, planFocus = false }) {
   const hasPlan = Object.values(plan).some(v => v > 0)
   const weeks = weekly ? 1 : weeksIn(win, inWin, now)
   const tickOn = !planned && weekly && weekOffset === 0 && hasPlan
-  const rowOf = m => ({ m, v: round1(planned ? plan[m] : (done[m] || 0) / weeks), range: targetOf(S, m), plan: tickOn ? round1(plan[m]) : null })
+  const noRanges = hooks.statsOff?.includes('ranges') // [hevier] S61: no target ranges in the fork (D139)
+  const rowOf = m => ({ m, v: round1(planned ? plan[m] : (done[m] || 0) / weeks), range: noRanges ? null : targetOf(S, m), plan: tickOn ? round1(plan[m]) : null })
   // The ten main muscles (they have a target range), most sets first, and any other muscle that got
   // or is planned sets after them. Five rows until Show more; a muscle not trained and not on a row
   // is a chip under the bars, so each muscle shows up once.
@@ -329,10 +330,10 @@ function MusclesCard({ S, planFocus = false }) {
             {/* The fill is the figure at the end of its row; the key names the two marks that
                 are not written out: the range and the plan. */}
             <ChartLegend items={[
-              { key: 'r', mark: 'band', label: t('Target range') },
+              ...(noRanges ? [] : [{ key: 'r', mark: 'band', label: t('Target range') }]), /* [hevier] S61 */
               ...(tickOn ? [{ key: 'p', mark: 'tick', label: t('Planned') }] : []),
             ]} />
-            <Button size="sm" variant="ghost" icon="slider" onClick={muscleTargetsSheet}>{t('Ranges')}</Button>
+            {!noRanges && <Button size="sm" variant="ghost" icon="slider" onClick={muscleTargetsSheet}>{t('Ranges')}</Button> /* [hevier] S61 */}
           </div>
         </>}
       {!sel && missed.length > 0 && inWin.length > 0 && <>

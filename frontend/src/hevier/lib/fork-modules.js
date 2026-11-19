@@ -12,7 +12,7 @@ export const moduleOn = (S, id) => isOn(S, id)
 export const FORK_PARTS = {
   effort: ['D6: the workout’s effort column (through upstream’s effortOf)'],
   plates: ['D84: the plate line under a set', 'D69: automatic warm-ups where a routine progresses (through upstream’s warmupAutoOf)'],
-  strength: ['D19: the level in an exercise’s details', 'D99: weekly sets per muscle'],
+  strength: ['D19: the level in an exercise’s details'],
   body: ['D12: the body-weight Home widget', 'D14: Measures on Profile'],
   health: ['D79: the heart-rate strap, its button, live reading and Settings', 'D80: the strap’s full screen', 'D91: its workout card'],
   motivation: ['D59: the streak (Home widget, Calendar)', 'D87: sharing a workout or a month as a picture', 'D22, D51: the record marks on a set and a finished workout'],
@@ -20,7 +20,7 @@ export const FORK_PARTS = {
   hvExercise: ['D114: the optional categories of an exercise’s settings', 'D73: other names', 'D76: the main muscle choice'],
   hvWorkout: ['D10: the Timer and Stopwatch', 'D101, D58: the How to video and the picker’s chart button'],
   hvGyms: ['D28, D36, D43, D82, D96: machine brands and cable setups', 'D47: gyms nearby', 'D46, D86: backups per gym'],
-  hvStats: ['D23: the monthly report', 'D88: exercise time', 'D119: Lift trends', 'D81: the Strength levels list', 'D68: the Calendar and planned days'],
+  hvStats: ['D23: the monthly report', 'D88: exercise time', 'D81: the Strength levels list', 'D68: the Calendar and planned days'],
 }
 
 // The fork's own modules (D97, D114), listed on Settings → Modules beside upstream's (seam S54) and
@@ -35,13 +35,13 @@ export const FORK_MODULES = [
   { id: 'hvGyms', group: 'training', icon: 'pin', tint: 'var(--green)', title: 'Gyms',
     desc: 'Machine brands per gym, gyms nearby and backups per gym.' },
   { id: 'hvStats', group: 'extras', icon: 'chart', tint: 'var(--blue)', title: 'Statistics extras',
-    desc: 'The monthly report, exercise time, lift trends, the strength levels list and the calendar.' },
+    desc: 'The monthly report, exercise time, the strength levels list and the calendar.' },
 ]
 export const forkModuleCopy = () => ({
   hvExercise: [t('Exercise settings'), t('Progression, plate loading, drop-sets, units, other names and the main muscle of an exercise.')],
   hvWorkout: [t('Workout extras'), t('The Timer and Stopwatch, and exercise demos.')],
   hvGyms: [t('Gyms'), t('Machine brands per gym, gyms nearby and backups per gym.')],
-  hvStats: [t('Statistics extras'), t('The monthly report, exercise time, lift trends, the strength levels list and the calendar.')],
+  hvStats: [t('Statistics extras'), t('The monthly report, exercise time, the strength levels list and the calendar.')],
 })
 
 /** Upstream's setModule for its own modules, and the same write for the fork's. */

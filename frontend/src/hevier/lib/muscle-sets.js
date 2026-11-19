@@ -1,10 +1,8 @@
-// Hevy's Statistics page (reference/SCREENS.md §6): the last 7 days as a week strip and a body
-// map, and the set count per muscle group for this week, month or year against the one before.
+// Statistics' Sets per muscle (reference/SCREENS.md §6, D142): the set count per muscle group for
+// this week, month or year against the one before.
 // Counted as Settings → Muscle sets says (D42, hevier/lib/volume.js muscleSets): each set for its
-// main muscle, or with upstream's own load, a secondary muscle getting its share. The body map
-// follows the same setting. Nothing is stored.
-import { loadOfWorkouts } from '../../lib/muscles.js'
-import { muscleSets, mainMuscleLoad } from './volume.js'
+// main muscle, or with upstream's own load, a secondary muscle getting its share. Nothing is stored.
+import { muscleSets } from './volume.js'
 import { workoutDay } from '../../lib/history.js'
 import { isoOf, weekKey } from '../../lib/format.js'
 
@@ -50,20 +48,4 @@ export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main
   for (const [muscle, sets] of prev) if (!rows.some(r => r.muscle === muscle)) rows.push({ muscle, sets: 0, prev: sets })
   rows.sort((a, b) => b.sets - a.sets || b.prev - a.prev || a.muscle.localeCompare(b.muscle))
   return { ...now, rows }
-}
-
-/** The week's body map shades by sets in fixed steps: upstream's map scales to the
- *  busiest muscle, so a balanced week of six workouts painted nearly every muscle full. 1–3 sets
- *  in the week is the lightest, 4–7, 8–11, and 12 or more full, roughly the weekly volumes a
- *  muscle is trained with. Upstream's `thresholds` prop takes them; its map is not changed. */
-export const WEEK_HEAT = [{ at: 0, level: 1, exclusive: true }, { at: 4, level: 2 }, { at: 8, level: 3 }, { at: 12, level: 4 }]
-
-/** The last `days` days up to `today`, oldest first, each marked trained or not, with the
- *  muscle load of the workouts in them (for the body map), by `mode` ('main' or 'share', D42). */
-export function lastDays(workouts, today, days = 7, mode = 'main') {
-  const span = { from: plusDays(today, 1 - days), to: today }
-  const ws = within(workouts, span)
-  const trained = new Set(ws.map(workoutDay))
-  const list = Array.from({ length: days }, (_, i) => plusDays(span.from, i)).map(d => ({ d, trained: trained.has(d) }))
-  return { days: list, workouts: ws, load: mode === 'share' ? loadOfWorkouts(ws) : mainMuscleLoad(muscleSets(entriesOf(ws), 'main')) }
 }

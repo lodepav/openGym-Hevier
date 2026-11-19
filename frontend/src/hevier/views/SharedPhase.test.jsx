@@ -126,13 +126,30 @@ describe('the statistics filter', () => {
     expect(chips()[0].getAttribute('aria-pressed')).toBe('true')
   })
   it('narrows the set counts on the page to the phase, and All brings them back', () => {
-    render('/muscle-sets', { workouts: log })
+    render('/stats', { workouts: log })
     const sets = () => container.querySelector('.hv-mset b').textContent
     expect(sets()).toBe('14')
     act(() => chips()[1].click())
     expect(sets()).toBe('2')
     act(() => chips()[0].click())
     expect(sets()).toBe('14')
+  })
+  it('narrows the weekly chart too (D142)', () => {
+    render('/stats', { workouts: log })
+    // The headline is a plain title until a week is tapped, so this week's bar is read by its title.
+    const head = () => [...container.querySelectorAll('button.hv-barcol')].at(-1).getAttribute('title')
+    const all = head()
+    act(() => chips().find(c => c.textContent === 'Bulking').click())
+    expect(head()).not.toBe(all)
+    act(() => chips()[0].click())
+    expect(head()).toBe(all)
+  })
+  it('keeps a card’s own choice when the filter changes', () => {
+    render('/stats', { workouts: log })
+    const year = () => [...container.querySelectorAll('[data-card="sets"] .hv-chip')].find(c => c.textContent === 'Year')
+    act(() => year().click())
+    act(() => chips()[1].click())
+    expect(year().getAttribute('aria-pressed')).toBe('true')
   })
   it('narrows the workout feed', () => {
     render('/history-tab', { workouts: log })

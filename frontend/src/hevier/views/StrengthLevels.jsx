@@ -1,4 +1,4 @@
-// Profile → Statistics → Strength levels: every exercise with levels typed in (D19), one section per
+// Lifts → Strength levels (D140): every exercise with levels typed in (D19), one section per
 // level its best 1RM reaches, Elite first, then those with no 1RM logged yet. The 1RM is exercise
 // details' own Best 1RM over every set (D19, D57's counted log). A tap opens exercise details.
 import { useMemo } from 'react'
@@ -25,7 +25,7 @@ export default function StrengthLevels() {
     return levelGroups(st.hvStrength, unit, id => exerciseSummary(counted, id).records.e1rm?.v)
   }, [st.hvStrength, counted, st.dbLoad, unit]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="narrow hv-statpage">
-    <BackTo label={t('Statistics')} to="/stats" title={t('Strength levels')} />
+    <BackTo label={t('Lifts')} to="/lifts" title={t('Strength levels')} />
     <PhaseFilter />
     {!groups.length && <>
       <div className="muted small">{t('No strength levels yet. Open a lift and set its strength level.')}</div>

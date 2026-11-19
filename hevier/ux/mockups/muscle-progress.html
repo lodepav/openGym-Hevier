@@ -1,0 +1,225 @@
+<title>Muscle group progress</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: three versions side by side as 411 × 891 phone frames, scores under them.
+   Tokens copied from frontend/src/hevier/theme.css (D123). The app is dark only, so is this page. */
+:root {
+  color-scheme:dark;
+  --bg:#000; --surface:#16140f; --surface-3:#1f1d19; --label:#ece8e1; --label-2:#a39e94;
+  --sep:#38352f; --acc:#2fbf5b; --on-acc:#000; --yellow:#efab03; --red:#e34b37; --page:#0b0a08;
+  --r-sm:14px; --r:20px; --r-card:26px;
+  --font:'Nunito',Roboto,system-ui,sans-serif;
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--page); color:var(--label); font:500 15px/1.35 var(--font); padding-block:24px 48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size:26px; font-weight:800; text-wrap:balance; }
+h2 { font-size:20px; font-weight:800; margin:40px 0 4px; text-wrap:balance; }
+h2 .rec { font-size:12px; font-weight:800; background:var(--acc); color:var(--on-acc); border-radius:99px; padding:3px 10px; margin-left:8px; vertical-align:3px; }
+p.lead { color:var(--label-2); max-width:72ch; margin:6px 0 0; }
+ul.moves { color:var(--label-2); max-width:80ch; margin:10px 0 0 18px; }
+ul.moves b { color:var(--label); font-weight:700; }
+.row { display:flex; gap:20px; overflow-x:auto; padding:16px 0 8px; }
+figure { flex:none; }
+figcaption { color:var(--label-2); font-size:13px; margin-top:8px; width:411px; }
+.phone { width:411px; height:891px; background:var(--bg); border:1px solid var(--sep); border-radius:34px; overflow:hidden; display:flex; flex-direction:column; }
+.top { padding:44px 16px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--sep); }
+.top b { font-size:17px; font-weight:800; flex:1; }
+.top span { color:var(--label-2); font-size:16px; }
+.body { flex:1; overflow:hidden; padding:12px 16px 0; display:flex; flex-direction:column; gap:10px; }
+.tabs { display:flex; border-top:1px solid var(--sep); padding:6px 0 18px; }
+.tabs div { flex:1; text-align:center; font-size:12px; font-weight:700; padding-top:36px; position:relative; min-height:56px; }
+.tabs div::before { content:""; position:absolute; top:4px; left:50%; width:56px; height:26px; margin-left:-28px; border-radius:99px; border:2px solid var(--label-2); opacity:.5; }
+.tabs .on { color:var(--acc); }
+.tabs .on::before { background:rgba(47,191,91,.22); border-color:var(--acc); opacity:1; }
+.srch { background:var(--surface); border-radius:99px; padding:10px 14px; color:var(--label-2); font-size:14px; }
+.ctl { display:flex; gap:8px; align-items:center; }
+.seg { display:flex; background:var(--surface-3); border-radius:99px; padding:4px; flex:1; }
+.seg span { flex:1; text-align:center; padding:8px 6px; border-radius:99px; font-weight:700; font-size:14px; color:var(--label-2); white-space:nowrap; }
+.seg .on { background:var(--bg); color:var(--label); }
+.chip { background:var(--surface); border-radius:99px; padding:9px 13px; font-weight:700; font-size:14px; white-space:nowrap; }
+.chip.on { background:var(--acc); color:var(--on-acc); }
+.cap { font-size:12px; font-weight:800; letter-spacing:.05em; color:var(--label-2); text-transform:uppercase; }
+.dim { color:var(--label-2); }
+.sm { font-size:13px; }
+.link { color:var(--acc); font-weight:700; font-size:14px; padding:12px 0; border-bottom:1px solid var(--sep); }
+/* Version A: a card per lift */
+.lc { background:var(--surface); border-radius:var(--r-card); padding:12px 14px 12px; display:flex; flex-direction:column; gap:6px; }
+.lc .hd { display:flex; align-items:center; gap:10px; }
+.th { width:38px; height:38px; border-radius:50%; background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--sep); flex:none; }
+.lc .nm { flex:1; min-width:0; } .lc .nm b { display:block; font-size:16px; font-weight:800; } .lc .nm small { color:var(--label-2); font-size:12px; }
+.pill { font-size:13px; font-weight:800; border-radius:99px; padding:4px 10px; white-space:nowrap; }
+.pill.up { color:var(--acc); background:rgba(47,191,91,.14); }
+.pill.flat { color:var(--label-2); background:var(--surface-3); }
+.pill.down { color:var(--red); background:rgba(227,75,55,.16); }
+.lc .ft { display:flex; justify-content:space-between; font-size:13px; color:var(--label-2); }
+.lc .ft b { color:var(--label); font-weight:800; }
+.lc .ft .pr { color:var(--yellow); font-weight:800; }
+.legend { display:flex; gap:12px; font-size:12px; color:var(--label-2); }
+.legend i { display:inline-block; width:10px; height:3px; border-radius:2px; vertical-align:3px; margin-right:5px; }
+svg.sp { display:block; width:100%; }
+/* Version B: summary, then compact rows */
+.sum { display:flex; gap:8px; }
+.sum div { flex:1; background:var(--surface); border-radius:var(--r); padding:10px 12px; }
+.sum b { display:block; font-size:24px; font-weight:800; line-height:1.1; }
+.sum small { font-size:12px; color:var(--label-2); font-weight:700; }
+.sum .on { box-shadow:inset 0 0 0 2px var(--red); }
+.lr { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--sep); }
+.lr .nm { flex:1; min-width:0; } .lr .nm b { display:block; font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .lr .nm small { color:var(--label-2); font-size:12px; }
+.lr .r { text-align:right; font-size:13px; font-weight:700; width:74px; flex:none; } .lr .r small { display:block; font-size:12px; font-weight:800; }
+.lr svg { width:64px; flex:none; }
+/* Summary counts as filter buttons */
+.sum div { box-shadow:inset 0 0 0 1px var(--sep); }
+.sum .on { box-shadow:inset 0 0 0 2px var(--red); }
+.hint { font-size:12px; color:var(--label-2); margin-top:-4px; }
+/* Version B2: a row with a wider chart */
+.lb { padding:6px 0 8px; border-bottom:1px solid var(--sep); display:flex; flex-direction:column; gap:4px; }
+.lb .hd { display:flex; align-items:center; gap:10px; }
+.lb .hd .th { width:30px; height:30px; }
+.lb .nm { flex:1; min-width:0; } .lb .nm b { font-size:15px; font-weight:800; } .lb .nm small { color:var(--label-2); font-size:12px; margin-left:6px; }
+.lb .mid { display:flex; align-items:center; gap:10px; }
+.lb .mid svg { flex:1; min-width:0; }
+.lb .hd .ch { font-size:13px; font-weight:800; white-space:nowrap; }
+.lb .r { text-align:right; font-size:13px; font-weight:700; width:86px; flex:none; } .lb .r small { display:block; font-size:12px; color:var(--label-2); font-weight:700; } .lb .r small.pr { color:var(--yellow); }
+/* Version C: a grid of tiles */
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.gt { background:var(--surface); border-radius:var(--r); padding:10px 12px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.gt b.n { font-size:14px; font-weight:800; line-height:1.2; height:34px; overflow:hidden; }
+.gt .v { display:flex; align-items:baseline; justify-content:space-between; gap:6px; }
+.gt .v span { font-size:22px; font-weight:800; } .gt .v span small { font-size:12px; color:var(--label-2); font-weight:700; }
+table { border-collapse:collapse; margin-top:12px; font-size:14px; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; }
+th, td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid var(--sep); vertical-align:top; }
+th { color:var(--label-2); font-weight:700; }
+td.n { font-weight:800; }
+.up { color:var(--acc); } .down { color:var(--red); }
+/* Part 3: group headers and the overview */
+.gh { display:flex; align-items:baseline; gap:8px; padding:12px 0 2px; border-bottom:1px solid var(--sep); }
+.gh b { font-size:16px; font-weight:800; flex:1; }
+.gh .ch { font-size:14px; font-weight:800; white-space:nowrap; }
+.gh small { color:var(--label-2); font-size:12px; font-weight:700; white-space:nowrap; }
+.gsub { color:var(--label-2); font-size:12px; padding:2px 0 4px; }
+.ov { display:grid; grid-template-columns:1fr auto auto; column-gap:12px; row-gap:0; font-size:14px; }
+.ov > span { padding:9px 0; border-bottom:1px solid var(--sep); white-space:nowrap; }
+.ov .g { font-weight:800; } .ov .p { font-weight:800; text-align:right; } .ov .k { color:var(--label-2); font-size:12px; font-weight:700; text-align:right; }
+.gr { display:flex; flex-direction:column; gap:4px; padding:8px 0 10px; border-bottom:1px solid var(--sep); }
+.gr .hd { display:flex; align-items:baseline; gap:8px; } .gr .hd b { font-size:16px; font-weight:800; flex:1; }
+.gr .mid { display:flex; align-items:center; gap:10px; } .gr .mid svg { flex:1; min-width:0; }
+.gr .mid small { width:86px; flex:none; text-align:right; color:var(--label-2); font-size:12px; font-weight:700; }
+.half { font-size:11px; font-weight:800; color:var(--label-2); border:1px solid var(--sep); border-radius:99px; padding:0 6px; margin-left:6px; vertical-align:1px; }
+</style>
+
+<h1>Lifts: progress per muscle group</h1>
+<p class="lead">Part 3 of the statistics pre-plan (F12: "the By muscle grouping on Lifts can show the same progress per muscle group, with compound exercises counted in full and isolation exercises at half"). It builds on D140's rows, which stay as they are. A group's change is the weighted mean of its lifts' changes over the window: compound lifts count 1, isolation lifts ½. Which is which comes from upstream's name guess with its slips fixed. The count beside it ("2 of 3 rising") is not weighted. A group shows no number until it has two lifts with a change. The groups are D95's: Back covers lats, upper back, lower back and traps, Shoulders covers the three delt heads, and calves and abs are included. Exercise names are yours; every number is made up. Pictures are grey placeholders.</p>
+<ul class="moves">
+  <li><b>By muscle's sections:</b> D95's groups in all three versions, in place of Lifts' six groups (Push, Pull, Legs…), which put squats with calves and biceps with triceps.</li>
+  <li><b>Recent:</b> unchanged; group progress shows only under By muscle.</li>
+</ul>
+
+<h2>A · A header per group <span class="rec">Recommended</span></h2>
+<p class="lead">Each section header carries its group's change and count. The lifts stay under it as today, and an isolation lift has a small ½ mark so you can see why the group's number weighs it less. Nothing moves and nothing is added above the list. T6 (look back at a lift) stays 2 taps.</p>
+<div class="row" id="rowA"></div>
+
+<h2>B · An overview first</h2>
+<p class="lead">By muscle opens with a table of every group: change and count. A group's row jumps to its section, and the sections below have plain headers. You see the whole body at once, but the lifts start below the table.</p>
+<div class="row" id="rowB"></div>
+
+<h2>C · Groups, then their lifts</h2>
+<p class="lead">By muscle lists only the groups, each with its own chart: the weighted change of its lifts, week by week, as an index from 100. A group opens its lifts. The most compact view of the body, but a lift is one tap deeper under By muscle (Recent still opens lifts directly).</p>
+<div class="row" id="rowC"></div>
+
+<h2>Scores</h2>
+<p class="lead">Old: Lifts' By muscle as built for D140, scored from the code (the emulator is shared). F12 is the friction row this round answers. Out of 33: lines 1 to 4 count double.</p>
+<table>
+<tr><th>#</th><th>Line</th><th>Old</th><th>A</th><th>B</th><th>C</th><th>Evidence</th></tr>
+<tr><td>1</td><td>Main tasks' steps</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td>T6: 2 taps; C makes it 3 under By muscle.</td></tr>
+<tr><td>2</td><td>Read at a glance</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td>Each answers "how is my chest doing" without a tap.</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td>B: the lifts start a scroll lower. C: a lift is a tap deeper.</td></tr>
+<tr><td>4</td><td>F12</td><td class="n">0</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td>All show the weighted change and the count per group.</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td class="n">3</td><td>A: 4 lifts and 2 groups under the controls. B: the table, no lift. C: 8 groups.</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td>A: the group's number sits on its own section. C hides the lifts behind the group.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td>Read off the frames; 200 % text, TalkBack and contrast are measured on the build.</td></tr>
+<tr><td></td><td><b>Total of 33</b></td><td class="n">26</td><td class="n">32</td><td class="n">29</td><td class="n">27</td><td></td></tr>
+</table>
+<p class="lead" style="margin-top:12px">Edge cases shown: a group with one lift (Calves: no number), a falling group (Quadriceps). The header's spoken label: "Chest, up 7 %, 3 of 3 lifts rising".</p>
+
+<script>
+// Made-up lifts: c = compound, i = isolation; p = the change over 12 weeks.
+const G = [
+  ['Chest', [['Lever Chest Press', 'c', 9, '70 × 12', '80 × 8'], ['Dumbbell Incline Bench Press', 'c', 4, '30 × 9', '32.5 × 8'], ['Lever Seated Fly', 'i', 7, '72.5 × 11', null]]],
+  ['Back', [['Cable Bar Lateral Pulldown', 'c', 0, '80 × 7', '85 × 8'], ['Lever T Bar Row', 'c', 1, '55 × 7', '60 × 8'], ['Lever Seated Row', 'c', 3, '70 × 10', '72.5 × 9'], ['Hyperextension v. 2', 'i', -3, '20 × 12', '25 × 12']]],
+  ['Shoulders', [['Lever Military Press', 'c', 11, '62.5 × 9', null], ['Lever Lateral Raise', 'i', -4, '45 × 10', '45 × 12'], ['Cable One Arm Lateral Raise', 'i', 2, '10 × 14', '12.5 × 10']]],
+  ['Quadriceps', [['Sled 45° Leg Press', 'c', -5, '180 × 9', '200 × 8'], ['Barbell Full Squat', 'c', -3, '90 × 6', '100 × 5'], ['Lever Leg Extension', 'i', 1, '65 × 12', '70 × 10']]],
+  ['Hamstrings', [['Barbell Romanian Deadlift', 'c', 2, '100 × 8', '105 × 8'], ['Lever Lying Leg Curl', 'i', 8, '45 × 12', '50 × 12']]],
+  ['Biceps', [['Dumbbell Hammer Curl v. 2', 'i', 5, '18 × 10', '20 × 8'], ['Lever Preacher Curl', 'i', 3, '35 × 10', '37.5 × 8']]],
+  ['Triceps', [['Lever Seated Dip', 'c', 2, '90 × 10', '95 × 8'], ['Cable Single Arm Triceps Pushdown', 'i', -2, '15 × 12', '17.5 × 10']]],
+  ['Calves', [['Lever Rotary Calf', 'i', 3, '70 × 15', '75 × 12']]],
+]
+const st = p => (p >= 2 ? 'up' : p <= -2 ? 'down' : 'flat')
+const mk = p => ({ up: '↑ +' + p + '%', down: '↓ ' + p + '%', flat: '→ ' + (p > 0 ? '+' : '') + p + '%' })[st(p)]
+const tn = p => ({ up: 'var(--acc)', down: 'var(--red)', flat: 'var(--label-2)' })[st(p)]
+// A made-up weekly series ending p % above its start, with a little noise.
+const ser = (p, base = 80, seed = 1) => Array.from({ length: 12 }, (_, i) => +(base * (1 + p / 100 * i / 11) + Math.sin(i * 1.7 + seed) * base * 0.006).toFixed(1))
+const group = lifts => {
+  if (lifts.length < 2) return null
+  const w = l => (l[1] === 'c' ? 1 : 0.5)
+  const p = Math.round(lifts.reduce((s, l) => s + w(l) * l[2], 0) / lifts.reduce((s, l) => s + w(l), 0))
+  return { p, up: lifts.filter(l => st(l[2]) === 'up').length, n: lifts.length }
+}
+
+function spark(series, w, h, { grid = true, labels = false } = {}) {
+  const all = series.flatMap(x => x.s)
+  let lo = Math.min(...all), hi = Math.max(...all)
+  if (hi - lo < 4) { lo -= 2; hi += 2 }
+  const padL = labels ? 30 : 2, padR = 6, padT = 6, padB = 6
+  const X = i => padL + i * (w - padL - padR) / 11, Y = v => padT + (hi - v) * (h - padT - padB) / (hi - lo)
+  let out = ''
+  if (grid) for (const v of [lo, (lo + hi) / 2, hi]) out += `<line x1="${padL}" x2="${w - padR}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--sep)" stroke-width="1"/>`
+  if (labels) for (const v of [lo, hi]) out += `<text x="0" y="${Y(v) + 4}" fill="var(--label-2)" font-size="11" font-weight="700" font-family="Nunito,sans-serif">${Math.round(v)}</text>`
+  for (const x of series) {
+    const pts = x.s.map((v, i) => [X(i), Y(v)])
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ')
+    out += `<path d="${d} L${pts.at(-1)[0]} ${h - padB} L${pts[0][0]} ${h - padB} Z" fill="${x.col}" fill-opacity=".12"/>`
+    out += `<path d="${d}" fill="none" stroke="${x.col}" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3.5" fill="${x.col}"/>`
+  }
+  return `<svg class="sp" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${out}</svg>`
+}
+const phone = (inner, cap) => `<figure><div class="phone"><div class="top"><b>Lifts</b><span>⚙</span></div><div class="body">${inner}</div>
+  <div class="tabs"><div>Today</div><div class="on">Lifts</div><div>History</div></div></div><figcaption>${cap}</figcaption></figure>`
+const ctl = `<div class="srch">Search exercises</div>
+  <div class="ctl"><div class="seg"><span>Recent</span><span class="on">By muscle</span></div></div>
+  <div class="ctl"><div class="seg"><span class="on">12 weeks</span><span>Phase</span><span>All</span></div></div>`
+const sum = `<div class="sum"><div><b class="up">11</b><small>Rising</small></div><div><b>5</b><small>Holding</small></div><div><b class="down">5</b><small>Falling</small></div></div>`
+const row = (l, half, k) => `<div class="lb"><div class="hd"><i class="th"></i><span class="nm"><b>${l[0]}</b>${half && l[1] === 'i' ? '<span class="half">½</span>' : ''}</span><span class="ch" style="color:${tn(l[2])}">${mk(l[2])}</span></div>
+  <div class="mid">${spark([{ s: ser(l[2], 60 + k * 7, k), col: tn(l[2]) }], 262, 32, { labels: true })}<span class="r">${l[3]}${l[4] ? `<small>best ${l[4]}</small>` : '<small class="pr">🏆 new best</small>'}</span></div></div>`
+const head = ([name, lifts]) => { const g = group(lifts)
+  return g ? `<div class="gh"><b>${name}</b><span class="ch" style="color:${tn(g.p)}">${mk(g.p)}</span><small>${g.up} of ${g.n} rising</small></div>`
+    : `<div class="gh"><b>${name}</b><small>1 lift · a group number needs two</small></div>` }
+const plain = ([name]) => `<div class="gh"><b>${name}</b></div>`
+const section = (gr, h, half) => h(gr) + '<div>' + gr[1].map((l, k) => row(l, half, k)).join('') + '</div>'
+
+document.getElementById('rowA').innerHTML =
+  phone(ctl + sum + '<div class="hint">Tap a total to show only those lifts · ½ counts half in its group</div>' + section(G[0], head, true) + section(G[1], head, true),
+    'By muscle, 12 weeks: each group\'s change and count on its header. Chest rises 7 %: the fly counts half.') +
+  phone(section(G[3], head, true) + section(G[7], head, true) + section(G[4], head, true),
+    'Further down: Quadriceps falling (two compound lifts down, the extension holding), Calves with one lift and no group number.')
+
+const ov = '<div class="ov">' + G.map(gr => { const g = group(gr[1])
+  return `<span class="g">${gr[0]} ›</span>` + (g ? `<span class="p" style="color:${tn(g.p)}">${mk(g.p)}</span><span class="k">${g.up} of ${g.n} rising</span>` : '<span class="p dim">·</span><span class="k">1 lift</span>') }).join('') + '</div>'
+document.getElementById('rowB').innerHTML =
+  phone(ctl + sum + '<span class="cap">Muscle groups</span>' + ov + section(G[0], plain, false),
+    'By muscle opens with the table; the first section starts under it.') +
+  phone(section(G[3], plain, false) + section(G[4], plain, false) + section(G[5], plain, false),
+    'Quadriceps tapped in the table: the list jumps to its section.')
+
+const gser = lifts => { const w = l => (l[1] === 'c' ? 1 : 0.5), W = lifts.reduce((s, l) => s + w(l), 0)
+  return Array.from({ length: 12 }, (_, i) => +(100 + lifts.reduce((s, l) => s + w(l) * l[2] * i / 11, 0) / W + Math.sin(i * 2.1 + W) * 0.5).toFixed(1)) }
+const grow = ([name, lifts]) => { const g = group(lifts)
+  if (!g) return `<div class="gr"><div class="hd"><b>${name} ›</b><small class="dim sm">1 lift · a group number needs two</small></div></div>`
+  return `<div class="gr"><div class="hd"><b>${name} ›</b><span class="ch" style="color:${tn(g.p)};font-weight:800;font-size:14px">${mk(g.p)}</span></div>
+  <div class="mid">${spark([{ s: gser(lifts), col: tn(g.p) }], 262, 32, { labels: true })}<small>${g.up} of ${g.n} rising</small></div></div>` }
+document.getElementById('rowC').innerHTML =
+  phone(ctl + sum + '<div>' + G.slice(0, 6).map(grow).join('') + '</div>',
+    'By muscle lists groups only, each with its weighted index (100 at the window\'s start).') +
+  phone('<div class="ctl"><span class="chip">‹ All groups</span></div>' + head(G[0]) + '<div>' + G[0][1].map((l, k) => row(l, true, k)).join('') + '</div>',
+    'Chest opened: its lifts as D140 draws them.')
+</script>

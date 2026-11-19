@@ -1,6 +1,8 @@
 // Hevy's Profile chart (reference/SCREENS.md §5): the last 12 weeks as bars, switched between
 // Duration · Volume · Reps. In sets mode (hevier/DECISIONS.md D18) Volume is Sets, and a tap on a
 // week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
+// On Statistics it follows the page's phase filter (D142); untapped its headline is a plain title, as
+// this week's figure is the Training time tile's, headed as the page's cards are (hv-scard-h).
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -16,6 +18,7 @@ import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { sessionVolume } from '../../lib/history.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
@@ -36,7 +39,7 @@ function weekSheet(S, week) {
 }
 
 export default function WeeklyChart() {
-  const S = useStore(s => s.S)
+  const S = usePhasedS(useStore(s => s.S))
   const [pick, setKind] = useState('duration')
   const [weeks, setWeeks] = useState(12)
   const [sel, setSel] = useState(null)
@@ -49,15 +52,14 @@ export default function WeeklyChart() {
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))
-  const cur = pts.at(-1).value
   const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
   const day = iso => fmtDate(iso)
   const picked = pts.find(p => p.week === sel)
   const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
   const tap = p => { const on = p.week === sel; setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }
-  const head = picked ? weekText(picked) : kind === 'duration' ? t('{0} this week', durationWords(cur)) : t('{0} this week', fmt(cur))
+  const head = picked ? weekText(picked) : t('Weekly chart')
   return <div className="hv-chart">
-    <div className="hv-chart-h"><b>{head}</b>
+    <div className="hv-chart-h hv-scard-h"><h2>{head}</h2>
       <button type="button" className="hv-link hv-range" onClick={() => menuSheet({
         title: t('Period'), items: RANGES.map(o => ({ label: t(o.label), on: o.weeks === weeks, onClick: () => setWeeks(o.weeks) })) })}>
         {t(RANGES.find(o => o.weeks === weeks).label)}<Icon name="chevronDown" /></button></div>

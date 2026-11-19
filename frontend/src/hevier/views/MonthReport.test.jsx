@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// Profile → Statistics → Monthly report (hevier/DECISIONS.md D23).
+// History → Monthly report (hevier/DECISIONS.md D23, D142).
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
@@ -45,9 +45,9 @@ beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }) })
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: monthly report (D23)', () => {
-  it('Statistics links to it, and it opens on last month with its changes', () => {
-    render('/stats', log)
-    act(() => [...container.querySelectorAll('.hv-linkrow')].find(b => b.textContent.includes('Monthly report')).click())
+  it('History’s chip opens it, on last month with its changes (D142)', () => {
+    render('/history-tab', log)
+    act(() => [...container.querySelectorAll('.hv-hlinks button')].find(b => b.textContent === 'Monthly report').click())
     expect(path).toBe('/report')
     expect(container.querySelector('.hv-report-bar h2').textContent).toBe(MONTHS_LONG[last.mo] + (last.y !== new Date().getFullYear() ? ' ' + last.y : ''))
     expect(stat('Workouts').textContent).toBe('Workouts2+1')
@@ -56,6 +56,14 @@ describe('hevier: monthly report (D23)', () => {
     // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
+    // Back goes to History, where it opens from (D142).
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')
+  })
+
+  it('opened directly, back goes to History', () => {
+    render('/report', log)
+    act(() => container.querySelector('.hv-pb-back').click())
+    expect(path).toBe('/history-tab')
   })
 
   it('weight mode shows Volume in place of Sets', () => {

@@ -10,17 +10,13 @@
 // switches; Effort's Stats part, Health's reads and the Integrations cards are upstream's screens,
 // which follow upstream's module switch). Motivation's challenges, recaps and Your year, and Health's
 // recovery tips, joined as Home widgets (D98). D114 (2026-11-09) adds Integrations' Send to Hevy and
-// OpenBite, Motivation's record marks, Strength's weekly sets, the Exercise settings categories, and
+// OpenBite, Motivation's record marks, Strength's weekly sets (gone with D139), the Exercise settings categories, and
 // the fork's own modules Gyms (`hvGyms`) and Statistics extras (`hvStats`, lib/fork-modules.js),
 // which the Strength levels list moved into (its old switch, `strength.list`, still decides until
 // the new one is set: `was`).
 import { isOn, MODULE } from '../../lib/modules.js'
 
 export const PARTS = {
-  strength: [
-    { id: 'details', title: 'In an exercise’s details', desc: 'Beginner to Elite from your own thresholds, under the records.' },
-    { id: 'weekly', title: 'Weekly sets per muscle', desc: 'Sets per muscle this week against a target range, on Home and Statistics.' },
-  ],
   body: [
     { id: 'weight', title: 'Body weight', desc: 'The Home widget, and the weight chart, goal and log in Measures.' },
     { id: 'measurements', title: 'Body measurements', desc: 'Circumferences and your own fields, in Measures.' },
@@ -65,12 +61,11 @@ export const PARTS = {
     { id: 'backups', title: 'Backups per gym', desc: 'A routine started at a gym swaps in the backups that gym takes.' },
   ],
   hvStats: [
-    { id: 'report', title: 'Monthly report', desc: 'Your month in numbers, on Statistics.' },
+    { id: 'report', title: 'Monthly report', desc: 'Your month in numbers, from History.' },
     { id: 'time', title: 'Exercise time', desc: 'How long each exercise takes, on a workout and on a page of its own.' },
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
     // D117
-    { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
-    { id: 'trends', title: 'Lift trends', desc: 'Each exercise of the last 3 weeks, rising, holding or falling.' },
+    { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on History, with planned days as dots.' },
   ],
 }
 
