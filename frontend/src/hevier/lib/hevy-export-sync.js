@@ -57,11 +57,13 @@ const RECENT = '/v1/workouts?page=1&pageSize=10'
 // To the second: Hevy drops the milliseconds the phone sends.
 const sameStart = (a, b) => a != null && b != null && Math.floor(Date.parse(a) / 1e3) === Math.floor(Date.parse(b) / 1e3)
 
+// The most the private API's workout list gives at once: 6 and more are refused with a 400.
+const PAGE = 5
 // The private API's workouts, newest first, for the same twin check (D138).
 const webRecent = async (web, st) => {
   if (!st.user) st.user = (await web('GET', '/account'))?.username || null
   if (!st.user) return []
-  const res = await web('GET', `/user_workouts_paged?username=${encodeURIComponent(st.user)}&limit=10&offset=0`)
+  const res = await web('GET', `/user_workouts_paged?username=${encodeURIComponent(st.user)}&limit=${PAGE}&offset=0`)
   return (Array.isArray(res?.workouts) ? res.workouts : []).map(w => ({ id: w.id, start: w.start_time }))
 }
 const uuid = () => globalThis.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16))
@@ -401,19 +403,30 @@ const idsIn = list => (list || []).flatMap(x => (x?.exercises || []).map(e => St
 
 /**
  * The account's custom exercises that no workout or routine in Hevy uses and the export no longer
- * sends to: [{ id, title }]. Reads all of the account's workouts, ten at a time.
+ * sends to: [{ id, title }]. Reads all of the account's workouts, five at a time.
  */
 export async function unusedCustoms() {
   const st = await loadExport()
   const web = webOf()
   const used = new Set(Object.values(st.tpl || {}).map(v => String(v?.id)))
   if (!st.user) st.user = (await web('GET', '/account'))?.username || null
-  for (let offset = 0; st.user; offset += 10) {
-    const page = (await web('GET', `/user_workouts_paged?username=${encodeURIComponent(st.user)}&limit=10&offset=${offset}`))?.workouts || []
+  // Without the workouts every custom would look unused.
+  if (!st.user) throw new HevyApiError(0, 'no username')
+  for (let offset = 0; ; offset += PAGE) {
+    const page = (await web('GET', `/user_workouts_paged?username=${encodeURIComponent(st.user)}&limit=${PAGE}&offset=${offset}`))?.workouts
+    if (!Array.isArray(page)) throw new HevyApiError(0, 'no workout list')
     for (const id of idsIn(page)) used.add(id)
-    if (page.length < 10) break
+    if (page.length < PAGE) break
   }
-  for (const id of idsIn((await web('POST', '/routines_sync_batch', {}))?.updated)) used.add(id)
+  // As hevy.com does: tell it the routines already read, ask again while it has more.
+  const known = {}
+  for (let i = 0; i < 100; i++) {
+    const res = await web('POST', '/routines_sync_batch', known)
+    if (!Array.isArray(res?.updated)) throw new HevyApiError(0, 'no routine list')
+    for (const r of res.updated) known[r.id] = r.updated_at || '2018-07-31T12:53:33.333Z'
+    for (const id of idsIn(res.updated)) used.add(id)
+    if (!res.isMore || !res.updated.length) break
+  }
   return (await webCustoms(web)).filter(c => !used.has(String(c.id))).map(c => ({ id: String(c.id), title: c.title }))
 }
 

@@ -155,6 +155,34 @@ describe('sendToHevy over the private web API (D138)', () => {
     } finally { delete S.workouts[0].entries[0].hvBrand }
   })
 
+  it('lists as unused only the customs no workout, routine or export template uses, reading every page', async () => {
+    const asked = []
+    const w = id => ({ exercises: [{ exercise_template_id: id }] })
+    vi.stubGlobal('fetch', async (url, init) => {
+      const path = String(url).replace('https://api.hevyapp.com', '')
+      asked.push(init.method + ' ' + path + (init.body ? ' ' + init.body : ''))
+      const off = Number(/offset=(\d+)/.exec(path)?.[1])
+      const body = path === '/account' ? { username: 'me' }
+        : path.startsWith('/user_workouts_paged') ? { workouts: off === 0 ? [w('C1'), w('B'), w('B'), w('B'), w('B')] : off === 5 ? [w('C2')] : [] }
+        : path === '/routines_sync_batch' ? (init.body === '{}' ? { updated: [{ id: 'R1', updated_at: 't1', exercises: [{ exercise_template_id: 'C3' }] }], deleted: [], isMore: true }
+          : { updated: [{ id: 'R2', updated_at: 't2', exercises: [{ exercise_template_id: 'C4' }] }], deleted: [], isMore: false })
+        : path === '/custom_exercise_templates' ? ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'GONE'].map(id => ({ id, title: 'T ' + id, is_archived: id === 'GONE' }))
+        : null
+      return { ok: true, status: 200, text: async () => (body ? JSON.stringify(body) : '') }
+    })
+    file.tpl = { 2950: { id: 'C5' } }
+    delete file.user
+    expect(await mod.unusedCustoms()).toEqual([{ id: 'C6', title: 'T C6' }])
+    expect(asked.filter(a => a.includes('offset=')).map(a => /limit=(\d+)&offset=(\d+)/.exec(a).slice(1).join('/'))).toEqual(['5/0', '5/5'])
+    expect(asked.filter(a => a.includes('routines_sync_batch'))).toEqual(['POST /routines_sync_batch {}', 'POST /routines_sync_batch {"R1":"t1"}'])
+  })
+
+  it('lists nothing when it cannot tell whose workouts to read', async () => {
+    vi.stubGlobal('fetch', async () => ({ ok: true, status: 200, text: async () => '{}' }))
+    delete file.user
+    await expect(mod.unusedCustoms()).rejects.toThrow()
+  })
+
   it('without a key, routines wait and nothing goes to the official API', async () => {
     S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
     try {
