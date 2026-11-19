@@ -51,6 +51,12 @@ const SPAN = {
   phase: 'estimated 1RM {0} to {1} {2} in this phase',
   all: 'estimated 1RM {0} to {1} {2} over all your workouts',
 }
+// The same for a flat line, whose lowest and highest are one number.
+const SPAN_FLAT = {
+  '12w': 'estimated 1RM {0} {1} over 12 weeks',
+  phase: 'estimated 1RM {0} {1} in this phase',
+  all: 'estimated 1RM {0} {1} over all your workouts',
+}
 // One colour per machine label, the most recent first (D82); shortcut: a fourth label is not drawn, until someone logs one lift on four.
 const LINE_TONES = ['var(--acc)', 'var(--yellow)', 'var(--label-2)']
 
@@ -97,6 +103,8 @@ function LiftRow({ r, S, today, p, win, half }) {
   const change = [ARROW[p?.state], pctText(pct)].filter(Boolean).join(' ')
   const ys = lines.flatMap(l => l.points.map(x => x.y))
   const scale = ys.length ? [Math.min(...ys), Math.max(...ys)].map(v => Math.round(convert(v, S.unit, unit))) : null
+  // A flat line is drawn mid-height (LiftChart widens its range), so its one number sits there.
+  const flat = scale && scale[0] === scale[1]
   const brand = l => labelText({ brand: l.key.split('|')[0], cable: l.key.split('|')[1] }, t)
   const lastBest = r.last && <span className="hv-lift-r">
     <b>{text(r.last)}</b>
@@ -106,7 +114,7 @@ function LiftRow({ r, S, today, p, win, half }) {
   const spoken = s => s.replace(/\n/g, ', ')
   const label = [
     name, sub,
-    scale && t(SPAN[win], scale[0], scale[1], unit),
+    scale && (flat ? t(SPAN_FLAT[win], scale[0], unit) : t(SPAN[win], scale[0], scale[1], unit)),
     p?.state && t(WORD[p.state]),
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
@@ -127,7 +135,7 @@ function LiftRow({ r, S, today, p, win, half }) {
         {!scale && lastBest}
       </span>
       {scale && <span className="hv-lift-mid">
-        <span className="hv-lift-scale"><span>{scale[1]}</span><span>{scale[0]}</span></span>
+        <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}</span><span>{scale[0]}</span></>}</span>
         <LiftChart lines={lines} tones={tones} />
         {lastBest}
       </span>}
@@ -138,23 +146,24 @@ function LiftRow({ r, S, today, p, win, half }) {
   </button>
 }
 
-// A muscle group's header (D141): its change in the rows' colours, by the sign alone since a
-// group has no D95 state, and how many of its lifts are rising; no number until two lifts have one.
+// A muscle group's header (D141): its lifts' state as the rows draw theirs, the weighted change
+// beside it unless it points the other way (shownPct), and how many of its lifts are rising; no
+// number until two lifts have a change.
 function GroupHead({ label, ids, progress }) {
   const g = groupProgress(progress, ids)
-  const state = g.pct == null ? null : g.pct > 0 ? 'rising' : g.pct < 0 ? 'falling' : 'holding'
-  const count = g.judged > 0 && t('{0} of {1} rising', g.rising, g.judged)
-  const none = !state && [ids.length === 1 ? t('1 lift') : t('{0} lifts', ids.length), t('a group number needs two')]
+  const state = g.pct == null ? null : g.state
+  const pct = g.pct == null ? null : shownPct(state, g.pct)
+  const count = g.pct != null && g.judged > 0 && t('{0} of {1} rising', g.rising, g.judged)
+  const none = g.pct == null && [ids.length === 1 ? t('1 lift') : t('{0} lifts', ids.length), t('a group number needs two')]
   const spoken = [label,
-    ...(state ? [pctSpoken(g.pct)] : none),
-    state && g.judged > 0 && (g.judged === 1 ? t('{0} of 1 lift rising', g.rising) : t('{0} of {1} lifts rising', g.rising, g.judged)),
+    ...(none || [pct != null ? pctSpoken(pct) : state && t(WORD[state])]),
+    count && (g.judged === 1 ? t('{0} of 1 lift rising', g.rising) : t('{0} of {1} lifts rising', g.rising, g.judged)),
   ].filter(Boolean).join(', ')
   return <h2 className="sec hv-lifts-gh" aria-label={spoken}>
     <b>{label}</b>
-    {state ? <>
-      <span className={'hv-lift-ch ' + state}>{ARROW[state] + ' ' + pctText(g.pct)}</span>
-      {count && <small>{count}</small>}
-    </> : <small>{none.join(' · ')}</small>}
+    {(state || pct != null) && <span className={'hv-lift-ch ' + (state || '')}>{[ARROW[state], pctText(pct)].filter(Boolean).join(' ')}</span>}
+    {count && <small>{count}</small>}
+    {none && <small>{none.join(' · ')}</small>}
   </h2>
 }
 

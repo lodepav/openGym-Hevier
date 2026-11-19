@@ -151,6 +151,17 @@ describe('hevier: Lifts (D135)', () => {
     expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 × 8, best 80 × 8`)
   })
 
+  it('a flat line shows one number on its scale and speaks it once', () => {
+    render({ workouts: [wo('2026-11-02', A.id, 70), wo('2026-11-09', A.id, 70), wo('2026-11-15', A.id, 70)] })
+    const a = container.querySelector('.hv-lift')
+    const scale = a.querySelector('.hv-lift-scale')
+    expect(scale.classList.contains('flat')).toBe(true)
+    const nums = [...scale.querySelectorAll('span')].map(s => s.textContent)
+    expect(nums).toHaveLength(1)
+    expect(a.getAttribute('aria-label')).toContain(`estimated 1RM ${nums[0]} kg over 12 weeks`)
+    expect(a.getAttribute('aria-label')).not.toMatch(/ to /)
+  })
+
   it('a lift on two brands has a line per brand, named under the chart (D140)', () => {
     const lf = trend.slice(0, 3).map(w => ({ ...w, entries: [{ ...w.entries[0], hvBrand: 'LF' }] }))
     const hs = [wo('2026-11-03', A.id, 50), wo('2026-11-10', A.id, 55)].map(w => ({ ...w, id: w.id + 'hs', entries: [{ ...w.entries[0], hvBrand: 'HS' }] }))
@@ -186,6 +197,15 @@ describe('hevier: Lifts (D135)', () => {
     expect(row(P).querySelector('.hv-lift-half')).toBeNull()
     expect(row(F).getAttribute('aria-label')).toMatch(/, isolation, counts half in its group$/)
     expect(row(P).getAttribute('aria-label')).not.toMatch(/isolation/)
+  })
+
+  it('the header’s arrow follows its lifts’ states, not the sign of its change (D141)', () => {
+    render({ workouts: [...three(P.id, [40, 45, 50]), ...three(Q.id, [80, 75, 70])] })
+    act(() => [...container.querySelectorAll('.hv-lifts-by button')].find(b => b.textContent === 'By muscle').click())
+    const ch = heads()[0].querySelector('.hv-lift-ch')
+    expect(ch.textContent).toMatch(/^→ \+\d+%$/)   // one rising, one falling: holding, though the mean is up
+    expect(ch.classList.contains('holding')).toBe(true)
+    expect(heads()[0].textContent).toMatch(/1 of 2 rising$/)
   })
 
   it('a filter hides rows and empty groups, but a header still speaks for its whole group (D141)', () => {

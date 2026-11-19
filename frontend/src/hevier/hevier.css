@@ -1003,6 +1003,7 @@
 :root[data-ui="hevier"] .hv-lift-ch.falling{color:var(--hv-fail,var(--red))}
 :root[data-ui="hevier"] .hv-lift-mid{display:flex;align-items:center;gap:8px}
 :root[data-ui="hevier"] .hv-lift-scale{flex:none;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;min-height:32px;font-size:11px;font-weight:700;line-height:1.1;color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-lift-scale.flat{justify-content:center}
 :root[data-ui="hevier"] .hv-lift-chart{flex:1;min-width:64px;height:32px;overflow:visible}
 :root[data-ui="hevier"] .hv-lift-grid{stroke:var(--sep);stroke-width:1}
 :root[data-ui="hevier"] .hv-lift-mid .hv-lift-r{flex:none;max-width:45%}

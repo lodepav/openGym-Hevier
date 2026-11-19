@@ -138,20 +138,24 @@ export function progressTotals(map) {
 
 /**
  * A muscle group's progress (D141) from its lifts' reads in `map` (liftProgress), for the group's
- * exercise `ids`: `{ pct, rising, judged }`. `pct` is the whole-percent mean of the lifts' changes,
+ * exercise `ids`: `{ state, pct, rising, falling, judged }`. `state` follows the lifts' own: 'rising'
+ * when more judged lifts rise than fall, 'falling' the other way round, else 'holding'; null with
+ * none judged. `pct` is the whole-percent mean of the lifts' changes,
  * a compound lift (`isCompound(id)`, compound.js's by default) counting 1 and an isolation lift ½, or
  * null while fewer than two lifts have a change. `rising` of `judged` lifts are rising; a lift
  * without a state is not judged.
  */
 export function groupProgress(map, ids, { isCompound = compoundEx } = {}) {
-  let sum = 0, weight = 0, changed = 0, rising = 0, judged = 0
+  let sum = 0, weight = 0, changed = 0, rising = 0, falling = 0, judged = 0
   for (const id of new Set(ids || [])) {
     const p = map?.get?.(id)
     if (!p) continue
-    if (p.state) { judged++; if (p.state === 'rising') rising++ }
+    if (p.state) { judged++; if (p.state === 'rising') rising++; if (p.state === 'falling') falling++ }
     if (p.pct == null) continue
     const w = isCompound(id) ? 1 : 0.5   // the owner: isolation progresses more slowly
     sum += w * p.pct; weight += w; changed++
   }
-  return { pct: changed >= 2 ? Math.round(sum / weight) || 0 : null, rising, judged }   // never -0
+  // The arrow is the lifts' states, so a header never points against its rows; the percent is weighted.
+  const state = !judged ? null : rising > falling ? 'rising' : falling > rising ? 'falling' : 'holding'
+  return { state, pct: changed >= 2 ? Math.round(sum / weight) || 0 : null, rising, falling, judged }   // never -0
 }
