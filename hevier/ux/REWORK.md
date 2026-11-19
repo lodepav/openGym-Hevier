@@ -600,6 +600,25 @@ Round 2, 2026-11-19, the owner: "A with totals from B, B with bigger graphs and 
 
 B2 recommended. Round 3: B2's chart 32 px with its scale. Approved 2026-11-19 as D140.
 
+### Lifts: progress per muscle group (round 4, F12)
+
+Part 3 of `ux/STATS-PREPLAN.md`. Old: By muscle as built for D140, scored 2026-11-19 from the code
+(the emulator is shared). F12 counts on line 4. Mockup `hevier/ux/mockups/muscle-progress.html`.
+
+| # | Line | Old | A | B | C | Evidence |
+|---|---|---|---|---|---|---|
+| 1 | Main tasks' steps | 3 | 3 | 3 | 2 | T6: 2 taps; C makes it 3 under By muscle. |
+| 2 | Read at a glance | 3 | 3 | 3 | 3 | Each answers "how is my chest doing" without a tap. |
+| 3 | Nothing that must stay fast got slower | 3 | 3 | 2 | 2 | B: lifts a scroll lower. C: a lift a tap deeper. |
+| 4 | F12 | 0 | 3 | 3 | 3 | Weighted change and count per group in all three. |
+| 5 | What is looked at is in view | 3 | 3 | 2 | 3 | A: 4 lifts and 2 groups under the controls. B: no lift. |
+| 6 | Found where it is expected | 3 | 3 | 3 | 2 | C hides the lifts behind the group. |
+| 7 | The standing rules | 2 | 2 | 2 | 2 | Read off the frames. |
+| | Total of 33 | 26 | 32 | 29 | 27 | |
+
+A "a header per group" (recommended), B "an overview first", C "groups, then their lifts".
+Status: mockup, with the owner.
+
 ### Settings, gyms, strap, library, Measurements
 
 2026-11-16: not redrawn. The user: "settings can be kept as they are, just make group separators
