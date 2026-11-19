@@ -273,7 +273,7 @@ taps of the screen's main tasks.
 | 6 | Save workout and the finished screen | `views/SaveWorkout.jsx` | J1 | | 18/33 (1·2·3·0 | 2·2·2); Finish, Save, a routine pop-up, then a "Nice work!" page | 28/33 (3·2·3·3 | 2·2·2); Finish, Save: 2 taps, lands on Today with "Workout saved" | built (D132, `hevier/rework`) |
 | 7 | Workout detail and edit | `views/WorkoutDetail.jsx` | J5 | | 19/27 (2·2·3 | 1·2·2); muscles shown twice before the first exercise, a row and a heart-rate line per set | 21/27 (2·2·3 | 2·2·2); L and R rows, RPE in its own column, no muscle bars | built (D133, `hevier/rework`) |
 | 8 | Home feed | `views/HevyHome.jsx` | J1, J5 | | 17/27 (1·2·3 | 1·2·2); the rotation chips fill half the first screen, no Start, the next session is not shown | 26/27 (3·3·3 | 3·3·2); the next session with its sets and Start (380 × 48) on one screen | built (D134, `hevier/rework`) |
-| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | F11, F12, F13 | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | approved (D140, F11; D141, F12; F13 open: part 4 of `ux/STATS-PREPLAN.md`) |
+| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | F11, F12, F13 | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | approved (D140, F11; D141, F12; D142, F13) |
 | 10 | Settings, gyms and the heart-rate strap | `views/SettingsRootHevy.jsx`, `components/StrapScreen.jsx` | J2, J3 | | | | kept as it is (D136) |
 | 11 | Exercise library | `/library` in `routes.jsx` | J6 | | | | kept as it is (D136) |
 | 12 | Measurements | `views/Measures.jsx` | J5 | | | | kept as it is (D136) |
@@ -642,7 +642,7 @@ Round 2, 2026-11-19, the owner: "A, but the History rows stay as they are; at th
 numbers from B; take OpenBite's Trends page, where items can be rearranged and switched on and
 off". A2: B's tiles, A's cards, an Arrange Statistics page as OpenBite's Arrange Trends; History
 drawn as the fork has it. Scored 18 → 32/33 (6·6·6·6 | 3·3·2), the old screen on the emulator.
-Status: mockup, with the owner.
+A2 approved 2026-11-19 as D142.
 
 ### Settings, gyms, strap, library, Measurements
 
