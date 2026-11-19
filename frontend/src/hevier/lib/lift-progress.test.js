@@ -146,10 +146,10 @@ describe('liftProgress', () => {
 })
 
 describe('shownPct', () => {
-  it('leaves out a percent that points against the state; holding and no state keep theirs', () => {
+  it('leaves out a percent that points against the state, and a holding lift\'s; no state keeps its', () => {
     expect([shownPct('rising', -2), shownPct('falling', 3), shownPct('rising', 0), shownPct('falling', 0)]).toEqual([null, null, 0, 0])
-    expect([shownPct('rising', 5), shownPct('falling', -4), shownPct('holding', 3), shownPct('holding', -3), shownPct(null, -3), shownPct('rising', null)])
-      .toEqual([5, -4, 3, -3, -3, null])
+    expect([shownPct('rising', 5), shownPct('falling', -4), shownPct(null, -3), shownPct('rising', null)]).toEqual([5, -4, -3, null])
+    expect([shownPct('holding', 6), shownPct('holding', -3), shownPct('holding', 0), shownPct('holding', null)]).toEqual([null, null, null, null])
   })
 })
 

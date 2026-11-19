@@ -3,7 +3,8 @@
 // Exercise time page's first period (90 days), sets and hours from the weekly chart's series for this
 // week, the month from muscle-sets.js's periods, effort from upstream's effort.js. Nothing is stored.
 import { workoutDay } from '../../lib/history.js'
-import { isoOf } from '../../lib/format.js'
+import { isoOf, fmtNum } from '../../lib/format.js'
+import { t } from '../../lib/i18n.js'
 import { isWarmupRow, hasCompletedWork } from '../../lib/workout-model.js'
 import { rirOf, toScale, MIN_RATED } from '../../lib/effort.js'
 import { timedSessions, timeSections, periodSince } from './exercise-time.js'
@@ -50,6 +51,13 @@ export const bodyWeightPoints = (bodyweight, today) => {
 export function thisWeek(workouts, today, weekStart) {
   const one = kind => weeklySeries(workouts, kind, { today, weeks: 1, weekStart })[0].value
   return { sets: one('sets'), ms: one('duration') }
+}
+
+/** Training time as its tile writes it: whole minutes under an hour, "2 min", then hours to one
+ *  decimal, "4.5 h" (fmtNum drops a ".0": "1 h"). */
+export function trainingTime(ms) {
+  const min = Math.round((Number(ms) || 0) / 60000)
+  return min < 60 ? t('{0} min', min) : t('{0} h', fmtNum(Math.round(min / 6) / 10))
 }
 
 /** Workouts logged in the month `today` is in. */

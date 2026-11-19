@@ -38,7 +38,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange Statistics').click())
     expect(path).toBe('/stats/arrange')
     expect(container.textContent).toContain('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')
-    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Hours a week', 'Workouts this month', 'Average RPE'])
+    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(names(1)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Weekly chart'])
     const sw = row(0, 'Average RPE').querySelector('[role="switch"]')
     expect(sw.getAttribute('aria-label')).toBe('Average RPE')
@@ -79,7 +79,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
 
   it('leaves out what has its module part off, a move stepping over it; no data yet still lists it', () => {
     render(['/stats/arrange'], { bodyweight: [], hvModuleParts: { 'hvStats.time': false } })
-    expect(names(0)).toEqual(['Body weight', 'Sets per muscle', 'Hours a week', 'Workouts this month', 'Average RPE'])
+    expect(names(0)).toEqual(['Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(names(1)).toEqual(['Body weight', 'Sets per muscle', 'Weekly chart'])
     act(() => root.unmount()); container.remove()
     render(['/stats/arrange'], { hvModuleParts: { 'body.weight': false } })
@@ -94,7 +94,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     render(['/stats/arrange'], { hvStatsLayout: mine })
     expect(names(0)[0]).toBe('Average RPE')
     act(() => [...container.querySelectorAll('.hv-pagebar button')].find(b => b.textContent === 'Reset').click())
-    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Hours a week', 'Workouts this month', 'Average RPE'])
+    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(layout().tiles.hidden).toEqual(['month', 'rpe'])
     expect(useUI.getState().toastMsg).toBe('Layout reset')
     act(() => useUI.getState().toastAction.run())

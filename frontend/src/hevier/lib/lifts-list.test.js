@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { liftRows, liftSections, liftsBy } from './lifts-list.js'
+import { liftRows, liftSections, liftsBy, liftSetText } from './lifts-list.js'
+import { EXDB } from '../../lib/exercises.js'
 
 const set = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
 const wo = (d, entries) => ({ id: 'w' + d, d, start: Date.parse(d + 'T10:00:00'), end: Date.parse(d + 'T11:00:00'), entries })
@@ -72,5 +73,24 @@ describe('Lifts: recent or by muscle, and the search', () => {
 
   it('remembers By muscle only when picked', () => {
     expect([liftsBy({ hvLiftsBy: 'muscle' }), liftsBy({ hvLiftsBy: 'x' }), liftsBy({}), liftsBy(null)]).toEqual(['muscle', 'recent', 'recent', 'recent'])
+  })
+})
+
+describe('Lifts: a set as a row writes it', () => {
+  const opts = { mode: 'reps', unit: '', id: 'pullup' }
+  it('a body-weight set with no added load reads its reps, a weighted one "80 × 8"', () => {
+    expect(liftSetText({ w: 0, r: 12 }, { ...opts, bw: true })).toBe('12 reps')
+    expect(liftSetText({ r: 1 }, { ...opts, bw: true })).toBe('1 rep')
+    expect(liftSetText({ w: 10, r: 12 }, { ...opts, bw: true })).toBe('+10 × 12')
+    expect(liftSetText({ w: 80, r: 8 }, opts)).toBe('80 × 8')
+    expect(liftSetText({ w: 0, r: 15 }, opts)).toBe('15 reps')
+    expect(liftSetText({ w: 10, r: 10 }, opts)).toBe('10 × 10')
+  })
+  it('a per-side body-weight set reads its reps on each side', () => {
+    const side = { w: 0, r: 12 }
+    expect(liftSetText({ sides: { L: side, R: side }, done: true }, { ...opts, bw: true })).toBe('L 12 reps\nR 12 reps')
+    const id = EXDB.find(e => e.eq === 'body weight' && /pull.?up/i.test(e.n)).id
+    expect(liftSetText({ sides: { L: side, R: side }, done: true }, { ...opts, id, bw: true })).toBe('L 12 reps\nR 12 reps')
+    expect(liftSetText({ sides: { L: { w: 5, r: 8 }, R: { w: 5, r: 8 } }, done: true }, { ...opts, id, bw: true })).toBe('L +5 × 8\nR +5 × 8')
   })
 })

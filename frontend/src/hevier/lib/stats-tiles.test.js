@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe } from './stats-tiles.js'
+import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from './stats-tiles.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const SQUAT = EXDB.find(e => /^barbell full squat$/i.test(e.n)).id
@@ -50,5 +50,10 @@ describe('Statistics tile numbers (D142)', () => {
     expect(weekRpe([plain('2026-11-17', rated)], TODAY, 1)).toEqual({ rpe: 8.6, n: 5 })
     expect(weekRpe([plain('2026-11-17', rated.slice(0, 2))], TODAY, 1)).toEqual({ rpe: null, n: 2 })
     expect(weekRpe([plain('2026-11-10', rated)], TODAY, 1).n).toBe(0)
+  })
+
+  it('training time: minutes under an hour, then hours to one decimal', () => {
+    expect([0, 29000, 2 * MIN, 59 * MIN, 59.6 * MIN, 60 * MIN, 270 * MIN, 273 * MIN].map(trainingTime))
+      .toEqual(['0 min', '0 min', '2 min', '59 min', '1 h', '1 h', '4.5 h', '4.6 h'])
   })
 })

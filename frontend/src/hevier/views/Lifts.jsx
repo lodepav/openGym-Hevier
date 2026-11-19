@@ -2,7 +2,7 @@
 // where it is going over a window (12 weeks, the current OpenBite phase, or all, kept in
 // S.hvLiftsWindow): the change in its estimated 1RM, a chart of it, and beside the chart its last set
 // and under it the best (a record the last session set in yellow). Totals of rising, holding and
-// falling lifts filter the list. The most recently trained first or by muscle group, a choice kept
+// falling lifts filter the list, a hint saying so until the first tap on one (S.hvLiftsTapSeen). The most recently trained first or by muscle group, a choice kept
 // in S.hvLiftsBy; under By muscle each group's header carries its change and how many of its lifts
 // are rising, an isolation lift counting half (D141). A row opens the exercise's details the way the library's rows do (seam S10). The
 // list is hevier/lib/lifts-list.js, the progress hevier/lib/lift-progress.js.
@@ -21,7 +21,7 @@ import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
-import { liftRows, liftSections, liftsBy } from '../lib/lifts-list.js'
+import { liftRows, liftSections, liftsBy, liftSetText } from '../lib/lifts-list.js'
 import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress } from '../lib/lift-progress.js'
 import { isCompound } from '../lib/compound.js'
 import { PHASE_LABEL } from '../lib/shared-phase.js'
@@ -29,7 +29,6 @@ import { dayNo, muscleGroup } from '../lib/strength-signal.js'
 import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { labelText } from '../lib/gym-labels.js'
-import { previousCell } from '../lib/set-text.js'
 import { exUnitOf, shown, convert } from '../lib/ex-unit.js'
 import { signed } from '../lib/delta.js'
 import { mapSetWeights } from '../../lib/units.js'
@@ -92,8 +91,8 @@ function LiftRow({ r, S, today, p, win, half }) {
   const unit = exUnitOf(S, r.id)
   // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41),
   // without the effort, a per-side set as two lines, L over R.
-  // The set is converted whole, so a per-side set, a hold and a carry follow the unit too.
-  const text = set => previousCell(mapSetWeights(set, w => shown(w, S.unit, unit)),
+  // The set is converted whole, so a per-side set, a hold and a carry follow the unit too. No weight reads "12 reps".
+  const text = set => liftSetText(mapSetWeights(set, w => shown(w, S.unit, unit)),
     { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target, speedUnit: speedUnitOf(S) })
   const name = exerciseNameFor(ex)
   const sub = [muscle && muscleText(muscle), r.d && fmtDaysAgo(r.d, today)].filter(Boolean).join(' · ')
@@ -147,7 +146,7 @@ function LiftRow({ r, S, today, p, win, half }) {
 }
 
 // A muscle group's header (D141): its lifts' state as the rows draw theirs, the weighted change
-// beside it unless it points the other way (shownPct), and how many of its lifts are rising; no
+// beside it unless it points the other way or the group holds (shownPct), and how many of its lifts are rising; no
 // number until two lifts have a change.
 function GroupHead({ label, ids, progress }) {
   const g = groupProgress(progress, ids)
@@ -195,6 +194,9 @@ export default function Lifts() {
     ...(partOn(S, 'hvGyms', 'brands') ? brandMatches(trained, brandsByExercise(S), q, searchExercises).map(m => m.ex) : [])].map(e => e.id)) : null
   if (filter) keep = new Set(rows.filter(r => progress.get(r.id)?.state === filter && (!keep || keep.has(r.id))).map(r => r.id))
   const sections = liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
+  // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
+  const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
+    by === 'muscle' && t('½ counts half in its group')].filter(Boolean).join(' · ')
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
   ].filter(Boolean)
@@ -203,20 +205,22 @@ export default function Lifts() {
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
-    <Segmented className="hv-lifts-by" value={by} onChange={v => update(s => { s.hvLiftsBy = v })}
-      options={[{ value: 'recent', label: t('Recent') }, { value: 'muscle', label: t('By muscle') }]} />
+    <div className="hv-lifts-ctl">
+      <Segmented className="hv-lifts-by" value={by} onChange={v => update(s => { s.hvLiftsBy = v })}
+        options={[{ value: 'recent', label: t('Recent') }, { value: 'muscle', label: t('By muscle') }]} />
+      {rows.length > 0 && <Segmented className="hv-lifts-win" value={win} onChange={v => update(s => { s.hvLiftsWindow = v })}
+        options={[{ value: '12w', label: t('12 weeks') }, phase && { value: 'phase', label: t('Phase') }, { value: 'all', label: t('All') }].filter(Boolean)} />}
+    </div>
     {rows.length > 0 && <>
-      <Segmented className="hv-lifts-win" value={win} onChange={v => update(s => { s.hvLiftsWindow = v })}
-        options={[{ value: '12w', label: t('12 weeks') }, phase && { value: 'phase', label: t('Phase') }, { value: 'all', label: t('All') }].filter(Boolean)} />
       {win === 'phase' && <div className="small dim hv-lifts-phase">
         {t('{0} since {1}', t(PHASE_LABEL[phase.phase]), fmtDate(phase.since))} · {weeksText(dayNo(today) - dayNo(phase.since))}
       </div>}
       <div className="hv-lifts-totals">{STATES.map(st => <button key={st} type="button" className={'hv-lifts-total ' + st + (filter === st ? ' on' : '')}
-        aria-pressed={filter === st} onClick={() => setFilter(f => (f === st ? null : st))}
+        aria-pressed={filter === st} onClick={() => { setFilter(f => (f === st ? null : st)); if (!S.hvLiftsTapSeen) update(s => { s.hvLiftsTapSeen = true }) }}
         aria-label={(totals[st] === 1 ? t('{0}, 1 lift', t(WORD[st])) : t('{0}, {1} lifts', t(WORD[st]), totals[st])) + (filter === st ? ', ' + t('filter on') : '')}>
         <b>{totals[st]}</b><small>{t(WORD[st])}</small>
       </button>)}</div>
-      <div className="small dim hv-lifts-hint">{filter ? t(SHOWING[filter]) : t('Tap a total to show only those lifts')}{by === 'muscle' && ' · ' + t('½ counts half in its group')}</div>
+      {hint && <div className="small dim hv-lifts-hint">{hint}</div>}
     </>}
     {sections.map(sec => <section key={sec.key}>
       {by === 'muscle' ? <GroupHead label={muscleText(sec.label)} ids={sec.ids} progress={progress} /> : <h2 className="sec">{t(sec.label)}</h2>}

@@ -54,8 +54,17 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(cards()).toEqual(['sets', 'weekly'])
     expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
     expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
-    expect(container.querySelectorAll('.hv-linkrow')).toHaveLength(2)
-    act(() => byText('.hv-linkrow', 'All statistics').click())
+    const hours = container.querySelector('[data-tile="hours"]')
+    expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
+    expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h this week')
+    // Tile = now, card = more: the weekly chart does not repeat this week's time.
+    expect(container.querySelector('.hv-chart-h b').textContent).toBe('Weekly chart')
+    // The page ends as Lifts does, with flat accent links, no icon cards and no filled button.
+    expect(container.querySelector('.hv-linkrow')).toBeNull()
+    expect(container.querySelector('.btn')).toBeNull()
+    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => [b.tagName, b.textContent]))
+      .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange Statistics']])
+    act(() => byText('.hv-lifts-ends .hv-link', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
@@ -125,9 +134,24 @@ describe('hevier: Statistics and Measures (M6)', () => {
     } finally { hooks.statsOff = was }
   })
 
-  it('an empty history says so on the sets card', () => {
+  it('an empty history says so on the sets card, and links no Structural balance', () => {
     render(['/stats'])
     expect(container.textContent).toContain('No sets in this period yet.')
+    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
+  })
+
+  // happy-dom applies no stylesheet, so hevier.css's rule is run against the tiles as drawn.
+  it('with an odd number of tiles the last spans both columns', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
+    const sel = css.match(/:root\[data-ui="hevier"\] (\.hv-stiles[^{]*:last-child:nth-child\(odd\))\{grid-column:1 \/ -1\}/)?.[1]
+    expect(sel).toBeTruthy()
+    render(['/stats'], { workouts: [workout(todayISO())] })
+    expect(tiles()).toHaveLength(2)
+    expect(container.querySelector(sel)).toBeNull()
+    act(() => root.unmount()); container.remove()
+    render(['/stats'], { workouts: [workout(todayISO())], bodyweight: [{ d: daysAgo(1), w: 82.4 }] })
+    expect(tiles()).toEqual(['weight', 'sets', 'hours'])
+    expect([...container.querySelectorAll(sel)].map(x => x.dataset.tile)).toEqual(['hours'])
   })
 
   it('upstream’s ?focus= links land on upstream’s statistics', () => {

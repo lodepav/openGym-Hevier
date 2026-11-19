@@ -16,6 +16,7 @@ export const STORED_FIELDS = [
   { field: 'hvHome', at: 'S', sample: { order: ['week', 'routines'], hidden: ['week'] } },
   { field: 'hvLiftsBy', at: 'S', sample: 'muscle' },
   { field: 'hvLiftsWindow', at: 'S', sample: 'all' },
+  { field: 'hvLiftsTapSeen', at: 'S', sample: true },
   { field: 'hvHrMax', at: 'S', sample: { max: 190, born: 1990 } },
   { field: 'hvImportCable', at: 'S', sample: { 'Hevy|lat pulldown (cable)': '2:1' } },
   { field: 'hvMachines', at: 'S', sample: { '8878': { g1: 'Life Fitness' } } },

@@ -15,7 +15,7 @@ import { TILES, CARDS, arrange, moveAmong, toggle, defaults, moduleOn } from '..
 import { BackTo } from './Statistics.jsx'
 
 const NAMES = {
-  tiles: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', hours: 'Hours a week', month: 'Workouts this month', rpe: 'Average RPE' },
+  tiles: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', hours: 'Training time', month: 'Workouts this month', rpe: 'Average RPE' },
   cards: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', weekly: 'Weekly chart' },
 }
 const LISTS = [['tiles', 'Tiles', TILES], ['cards', 'Cards', CARDS]]

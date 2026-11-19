@@ -7,6 +7,8 @@ import { metricRowsForEntry, metricModeForEntry, workoutAt, workoutDay } from '.
 import { bestSetFor } from '../../lib/exercise-history.js'
 import { MUSCLE_GROUPS } from './muscle-groups.js'
 import { workoutRecords } from './records.js'
+import { previousCell } from './set-text.js'
+import { tn } from '../../lib/i18n.js'
 
 /** The list's order, kept in S.hvLiftsBy: 'recent' unless 'muscle' was picked. */
 export const liftsBy = S => (S?.hvLiftsBy === 'muscle' ? 'muscle' : 'recent')
@@ -39,6 +41,18 @@ export function liftRows(S) {
   }
   return rows.sort((a, b) => b.at - a.at || String(a.id).localeCompare(String(b.id)))
 }
+
+// A line with reps and no weight: "× 12", "0 × 12", "L × 12"; on body weight also a bare "L 12" (upstream's per-side words).
+const NO_WEIGHT = /^([LR] )?(?:0 )?× (\d+)$/gm
+const NO_WEIGHT_BW = /^([LR] )?(?:(?:0 )?× )?(\d+)$/gm
+
+/**
+ * A row's last or best set (D135): as the workout's PREVIOUS column writes it (previousCell, same
+ * `opts`), except a set with no weight, "× 12" or "0 × 12", which reads "12 reps" on its own,
+ * each side's line of a per-side one too.
+ */
+export const liftSetText = (set, opts) => previousCell(set, opts)
+  .replace(opts?.bw ? NO_WEIGHT_BW : NO_WEIGHT, (_, side, n) => (side || '') + tn('{0} rep', '{0} reps', Number(n)))
 
 // By muscle's order is the muscle-groups.js order Lifts had before D141, read muscle by muscle:
 // Back sits where the lats are. A muscle it does not name comes after, by name, then Other.

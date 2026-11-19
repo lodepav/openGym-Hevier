@@ -85,8 +85,9 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const chips = [...container.querySelectorAll('.hv-chip')]
     expect(chips.map(c => c.textContent)).toEqual(['Duration', 'Sets', 'Reps'])
     act(() => chips[1].click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toBe('5 sets this week')
+    expect(container.querySelector('.hv-chart-h b').textContent).toBe('Weekly chart')
     act(() => [...container.querySelectorAll('button.hv-barcol')].at(-1).click())
+    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 5 sets$/)
     expect(sheetHost().textContent).toContain('Chest')
   })
 

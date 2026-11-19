@@ -1,7 +1,8 @@
 // Statistics, opened from History (hevier/DECISIONS.md D14, D142): the phase filter over the whole
 // page, number tiles two to a row, then cards (exercise time, body weight, sets per muscle, the weekly
 // chart), in the order and with the ones switched off that Arrange Statistics keeps (lib/stats-layout.js),
-// then upstream's own statistics and structural balance. A tile opens what its card opens; a tile or
+// then links to upstream's own statistics, structural balance and Arrange. A tile is the number now, its
+// card the more behind it, never the same number again. A tile opens what its card opens; a tile or
 // card whose module or data is missing is not drawn.
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -19,7 +20,7 @@ import MuscleSetsCard from '../components/MuscleSetsCard.jsx'
 import { durationWords, elapsedWords } from '../lib/elapsed.js'
 import { partOn } from '../lib/module-parts.js'
 import { TILES, CARDS, shown, moduleOn } from '../lib/stats-layout.js'
-import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe } from '../lib/stats-tiles.js'
+import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from '../lib/stats-tiles.js'
 import { HISTORY_PATH } from './History.jsx'
 
 /** The page bar of a fork page under a tab: ‹ back to `to` (named `label`) and the page's title. */
@@ -60,7 +61,8 @@ function items(S, today, nav) {
   if (exTime != null) {
     const v = durationWords(exTime)
     out.time = {
-      tile: { title: t('Exercise time'), value: v, sub: t('a workout'), spoken: t('Exercise time, {0} a workout', v), onClick: () => nav('/exercise-time') },
+      // All of a workout's exercise times added up, averaged over the workouts (stats-tiles.js), not one exercise's.
+      tile: { title: t('Exercise time'), value: v, sub: t('a workout, on average'), spoken: t('Exercise time, {0} a workout on average', v), onClick: () => nav('/exercise-time') },
       card: () => <div className="card hv-scard">
         <CardHead title={t('Exercise time')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
         {longestExercises(S.workouts, today).map(r => {
@@ -94,9 +96,9 @@ function items(S, today, nav) {
       scroll: 'sets' },
     card: () => <MuscleSetsCard S={S} today={today} />,
   }
-  const hours = week.ms ? durationWords(week.ms) : '0'
+  const hours = trainingTime(week.ms)
   out.hours = {
-    tile: { title: t('Hours a week'), value: hours, sub: t('this week'), spoken: t('Hours a week, {0} this week', hours),
+    tile: { title: t('Training time'), value: hours, sub: t('this week'), spoken: t('Training time, {0} this week', hours),
       scroll: 'weekly' },
   }
   out.weekly = { card: () => <div className="card hv-weekchart"><WeeklyChart /></div> }
@@ -125,15 +127,17 @@ export default function Statistics() {
   const tiles = shown(TILES, layout.tiles).filter(id => all[id]?.tile)
   // A tile whose card is on the page scrolls to it; with its card switched off it opens nothing.
   const tileOf = ({ scroll, ...tile }) => (scroll ? { ...tile, onClick: cards.includes(scroll) ? scrollTo(scroll) : null } : tile)
+  const ends = [['All statistics', '/stats/all'], S.workouts.length > 0 && ['Structural balance', '/structural-balance'],
+    ['Arrange Statistics', '/stats/arrange']].filter(Boolean)
   return <div className="narrow hv-statpage">
     <BackTo label={t('History')} to={HISTORY_PATH} title={t('Statistics')} />
     <PhaseFilter />
     {tiles.length > 0 && <div className="hv-stiles">{tiles.map(id => <Tile key={id} id={id} {...tileOf(all[id].tile)} />)}</div>}
     {/* Called, not mounted as <Card />: a new function each render would remount it and lose its choices. */}
     {cards.map(id => <section key={id} id={cardId(id)} className="hv-ssec" data-card={id}>{all[id].card()}</section>)}
-    <LinkRow icon="chart" title={t('All statistics')} sub={t('Muscle balance, activity, effort, exercise progress')} onClick={() => nav('/stats/all')} />
-    {/* Upstream's sentence, translated, without its full stop, as the rows above end. */}
-    {S.workouts.length > 0 && <LinkRow icon="target" title={t('Structural balance')} sub={t('See which lift is holding back the rest.').replace(/[.。।]$/, '')} onClick={() => nav('/structural-balance')} />}
-    <button type="button" className="btn hv-arrange-b" onClick={() => nav('/stats/arrange')}><Icon name="slider" />{t('Arrange Statistics')}</button>
+    {/* The page ends as Lifts does: flat accent links. */}
+    <div className="hv-lifts-ends">
+      {ends.map(([label, to]) => <button key={to} type="button" className="hv-link hv-lifts-link" onClick={() => nav(to)}>{t(label)}<Icon name="chevronRight" /></button>)}
+    </div>
   </div>
 }

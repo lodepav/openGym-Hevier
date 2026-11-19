@@ -126,8 +126,9 @@ export function liftProgress(S, { from = null } = {}) {
   return out
 }
 
-/** The percent a row shows beside its state: none when it points against it (↓ +3%), so the two never disagree. */
-export const shownPct = (state, pct) => ((state === 'rising' && pct < 0) || (state === 'falling' && pct > 0) ? null : pct ?? null)
+/** The percent a row shows beside its state: none when it points against it (↓ +3%), so the two never
+ *  disagree, and none for a holding lift, whose arrow says it is not moving (→ +6% read as rising). */
+export const shownPct = (state, pct) => (state === 'holding' || (state === 'rising' && pct < 0) || (state === 'falling' && pct > 0) ? null : pct ?? null)
 
 /** How many lifts are rising, holding and falling; a lift without a state is not counted. */
 export function progressTotals(map) {

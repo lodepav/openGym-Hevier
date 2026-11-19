@@ -136,7 +136,8 @@ describe('the statistics filter', () => {
   })
   it('narrows the weekly chart too (D142)', () => {
     render('/stats', { workouts: log })
-    const head = () => container.querySelector('.hv-chart-h b').textContent
+    // The headline is a plain title until a week is tapped, so this week's bar is read by its title.
+    const head = () => [...container.querySelectorAll('button.hv-barcol')].at(-1).getAttribute('title')
     const all = head()
     act(() => chips().find(c => c.textContent === 'Bulking').click())
     expect(head()).not.toBe(all)

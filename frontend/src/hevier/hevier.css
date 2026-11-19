@@ -537,6 +537,7 @@
 :root[data-ui="hevier"] .hv-linkrow-t .hv-sub{line-height:1.35}
 /* D142 Statistics: tiles two to a row, then the cards; nothing of fixed height, for 200 % text */
 :root[data-ui="hevier"] .hv-stiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+:root[data-ui="hevier"] .hv-stiles>.hv-stile:last-child:nth-child(odd){grid-column:1 / -1}
 :root[data-ui="hevier"] .hv-stile{display:flex;flex-direction:column;gap:2px;min-width:0;min-height:48px;padding:12px;border-radius:var(--r);background:var(--surface);color:var(--label-2);font:inherit;font-size:12px;text-align:start}
 :root[data-ui="hevier"] .hv-stile-t{font-weight:700;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-stile b{font-size:24px;font-weight:800;color:var(--label);overflow-wrap:anywhere}
@@ -547,7 +548,6 @@
 :root[data-ui="hevier"] .hv-scard-h .hv-link{display:inline-flex;align-items:center;min-height:48px;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row b{margin-inline-start:auto}
-:root[data-ui="hevier"] .btn.hv-arrange-b{width:100%;margin-top:12px;gap:8px;min-height:48px}
 /* Arrange Statistics: a row 48 px at least, its handle always shown, the switch's target 48 px */
 :root[data-ui="hevier"] .hv-arr-hint{margin:4px 0 0}
 :root[data-ui="hevier"] .hv-arrlist{gap:0}
@@ -556,6 +556,8 @@
 :root[data-ui="hevier"] .hv-arr .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-arr .hv-grip{min-width:48px;min-height:48px;padding:0;align-items:center;justify-content:center;margin-inline-start:-12px}
 :root[data-ui="hevier"] .hv-arr .sw::before{inset:-9px -4px}
+/* An off track is --surface-3 on the row's --surface, 1.09:1; its hairline in --label-3 is 6.65:1 (WCAG 1.4.11). */
+:root[data-ui="hevier"] .hv-arrange .sw:not(.on){box-shadow:inset 0 0 0 1px var(--label-3)}
 
 /* M3 Add Exercise picker (reference/SCREENS.md §8) */
 :root[data-ui="hevier"] .hv-pk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -987,20 +989,21 @@
 :root[data-ui="hevier"] .hv-hlinks .hv-chip::after{content:none}
 
 /* ---------- Lifts (hevier/views/Lifts.jsx, D135, D140, D141) ---------- */
-:root[data-ui="hevier"] .hv-lifts-by{margin-top:10px}
-:root[data-ui="hevier"] .hv-lifts-win{margin-top:8px}
+/* Recent/By muscle and the window share a row, half each, until either's labels no longer fit: then two rows. */
+:root[data-ui="hevier"] .hv-lifts-ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+:root[data-ui="hevier"] .hv-lifts-ctl>.seg{flex:1 1 0;min-width:fit-content}
 :root[data-ui="hevier"] :is(.hv-lifts-by, .hv-lifts-win) button{min-height:48px}
 :root[data-ui="hevier"] .hv-lifts-phase{margin-top:8px}
-/* The totals filter the list (D140): outlined toggles, the one on drawn in its own colour. */
+/* The totals filter the list (D140): filled like stat tiles; the one on a step lighter, ringed in its own colour. */
 :root[data-ui="hevier"] .hv-lifts-totals{display:flex;gap:8px;margin-top:10px}
-:root[data-ui="hevier"] .hv-lifts-total{flex:1;min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:flex-start;padding:8px 12px;border-radius:var(--r,20px);background:var(--surface);box-shadow:inset 0 0 0 1px var(--sep);color:var(--label);font:inherit;text-align:start}
+:root[data-ui="hevier"] .hv-lifts-total{flex:1;min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:var(--r,20px);background:var(--surface-2);color:var(--label);font:inherit;text-align:start}
 :root[data-ui="hevier"] .hv-lifts-total b{font-size:22px;font-weight:800;line-height:1.1}
 :root[data-ui="hevier"] .hv-lifts-total small{font-size:12px;font-weight:700;color:var(--label-2);overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-lifts-total.rising b{color:var(--hv-acc-ink)}
 :root[data-ui="hevier"] .hv-lifts-total.falling b{color:var(--hv-fail,var(--red))}
-:root[data-ui="hevier"] .hv-lifts-total.on{box-shadow:inset 0 0 0 2px var(--label)}
-:root[data-ui="hevier"] .hv-lifts-total.rising.on{box-shadow:inset 0 0 0 2px var(--acc)}
-:root[data-ui="hevier"] .hv-lifts-total.falling.on{box-shadow:inset 0 0 0 2px var(--hv-fail,var(--red))}
+:root[data-ui="hevier"] .hv-lifts-total.on{background:var(--surface-3);box-shadow:inset 0 0 0 1.5px var(--label)}
+:root[data-ui="hevier"] .hv-lifts-total.rising.on{box-shadow:inset 0 0 0 1.5px var(--acc)}
+:root[data-ui="hevier"] .hv-lifts-total.falling.on{box-shadow:inset 0 0 0 1.5px var(--hv-fail,var(--red))}
 :root[data-ui="hevier"] .hv-lifts-hint{margin-top:6px}
 /* By muscle's group header (D141): name, change, count; it wraps at large text instead of cutting. */
 :root[data-ui="hevier"] h2.sec.hv-lifts-gh{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:2px;font-size:16px;font-weight:800;color:var(--label)}
