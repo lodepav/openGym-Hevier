@@ -7,20 +7,24 @@ const pla = { id: 2, name: 'Lemon Gym Pļavnieki', latitude: 56.9455, longitude:
 const ours = { name: 'Lemon Gym · Grostonas iela 1', lat: 56.9646269, lng: 24.1186412 }
 
 describe('hevier which Hevy gym a gym is (D143)', () => {
-  it('takes the one Hevy gym within 150 m of the place, whatever its name', () => {
-    expect(hevyGymFor(ours, [pla, lemon])).toBe(1)
+  it('takes a Hevy gym within 150 m of the place only when its name matches too', () => {
+    expect(hevyGymFor(ours, [pla, lemon])).toBe(1)   // "Lemon Gym" about 40 m away
     expect(hevyGymFor({ name: 'Plavnieki', lat: 56.9454762, lng: 24.2096501 }, [lemon, pla])).toBe(2)
-    expect(hevyGymFor({ ...ours, name: 'Somewhere else' }, [lemon])).toBe(1)
+    // Hevy's nearby list holds any place: a yoga studio 44 m off is not our gym.
+    expect(hevyGymFor(ours, [{ id: 9, name: 'Yoga Matter', latitude: 56.9650269, longitude: 24.1186412 }])).toBe(null)
+    expect(hevyGymFor({ ...ours, name: 'Somewhere else' }, [lemon])).toBe(null)
     // 300 m off is another place.
     expect(hevyGymFor({ ...ours, lat: ours.lat + 0.0027 }, [lemon])).toBe(null)
     expect(hevyGymFor(ours, [{ id: 3, name: 'Lemon Gym' }])).toBe(null)   // no place, no match by name
   })
 
-  it('of several near the place, takes the one whose name matches, else none', () => {
+  it('of several near the place, takes the one whose name matches, the nearest of several, else none', () => {
     const next = { id: 4, name: 'Iron Box', latitude: 56.9646, longitude: 24.1183 }
     expect(hevyGymFor(ours, [next, lemon])).toBe(1)
     expect(hevyGymFor({ ...ours, name: 'Other' }, [next, lemon])).toBe(null)
-    expect(hevyGymFor(ours, [{ ...next, name: 'Lemon Gym Centrs' }, lemon])).toBe(null)
+    // Two that match: the nearer, about 20 m off against about 40 m.
+    expect(hevyGymFor(ours, [lemon, { ...next, name: 'Lemon Gym Centrs' }])).toBe(4)
+    expect(hevyGymFor(ours, [{ ...next, name: 'Lemon Gym' }, lemon])).toBe(4)
   })
 
   it('without a place, takes only a single name match, accents and case folded', () => {

@@ -15,8 +15,9 @@ export const gymList = res => (Array.isArray(res) ? res : Object.values(res || {
 
 /**
  * The id of the Hevy gym (`candidates`: { id, name, latitude, longitude }) that `gym` ({ name,
- * lat?, lng? }) is, or null when it is not clear. With a place: the one gym within NEAR_M, or of
- * several there the one whose name matches. Without: the one whose name matches, so call it then
+ * lat?, lng? }) is, or null when it is not clear. With a place: of the gyms within NEAR_M whose
+ * name matches, the nearest (Hevy's nearby list holds yoga studios and clinics too, so a near
+ * place with another name is never taken). Without: the one whose name matches, so call it then
  * only with the account's visited gyms, never with gyms near a point.
  */
 export function hevyGymFor(gym, candidates) {
@@ -26,11 +27,9 @@ export function hevyGymFor(gym, candidates) {
   const placed = Number.isFinite(num(gym?.lat)) && Number.isFinite(num(gym?.lng))
   if (!placed) { const m = named(list); return m.length === 1 ? m[0].id : null }
   const here = { lat: num(gym.lat), lng: num(gym.lng) }
-  const near = list.filter(g => {
-    const at = { lat: num(g.latitude), lng: num(g.longitude) }
-    return Number.isFinite(at.lat) && Number.isFinite(at.lng) && distance(here, at) <= NEAR_M
-  })
-  if (near.length === 1) return near[0].id
-  const m = named(near)
-  return m.length === 1 ? m[0].id : null
+  const near = named(list).map(g => ({ id: g.id, at: { lat: num(g.latitude), lng: num(g.longitude) } }))
+    .filter(g => Number.isFinite(g.at.lat) && Number.isFinite(g.at.lng))
+    .map(g => ({ id: g.id, d: distance(here, g.at) })).filter(g => g.d <= NEAR_M)
+    .sort((a, b) => a.d - b.d)
+  return near.length ? near[0].id : null
 }
