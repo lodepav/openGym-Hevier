@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { weeklySeries, niceMax, labelledWeeks } from './weekly-series.js'
+import { weeklySeries, niceMax, labelledWeeks, fittedWeeks } from './weekly-series.js'
 import { sessionVolume } from '../../lib/history.js'
 
 const H = 3600000
@@ -59,5 +59,12 @@ describe('the chart axis', () => {
     expect(labelledWeeks(26)).toEqual([1, 9, 17, 25])
     expect(labelledWeeks(52)).toEqual([0, 17, 34, 51])
     expect(labelledWeeks(3)).toEqual([0, 1, 2])
+  })
+  it('dates fewer bars when the dates would run into each other (large text)', () => {
+    // 12 bars on 380 px: 40 px dates fit four, 75 px dates (200 % text) three, wider than half the axis only the newest.
+    expect(fittedWeeks(12, 380, 40)).toEqual([2, 5, 8, 11])
+    expect(fittedWeeks(12, 380, 75)).toEqual([1, 6, 11])
+    expect(fittedWeeks(12, 380, 200)).toEqual([11])
+    expect(fittedWeeks(1, 380, 75)).toEqual([0])
   })
 })

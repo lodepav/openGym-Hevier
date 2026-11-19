@@ -3,7 +3,7 @@
 // week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
 // On Statistics it follows the page's phase filter (D142); untapped its headline is a plain title, as
 // this week's figure is the Training time tile's, headed as the page's cards are (hv-scard-h).
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -11,7 +11,7 @@ import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { durationWords } from '../lib/elapsed.js'
 import { muscleText } from '../lib/main-muscle.js'
-import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks } from '../lib/weekly-series.js'
+import { weeklySeries, SERIES, inWeek, niceMax, labelledWeeks, fittedWeeks } from '../lib/weekly-series.js'
 import { nearestIndex } from '../lib/nearest-bar.js'
 import { menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -58,6 +58,15 @@ export default function WeeklyChart() {
   const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
   const tap = p => { const on = p.week === sel; setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }
   const head = picked ? weekText(picked) : t('Weekly chart')
+  // Large system text widens the dates: measure the widest one and keep only the dates that fit.
+  const axisRef = useRef(null), probeRef = useRef(null)
+  const [fit, setFit] = useState(null)
+  const widest = pts.map(p => day(p.week)).reduce((a, b) => (b.length > a.length ? b : a), '')
+  useLayoutEffect(() => {
+    const ax = axisRef.current, pr = probeRef.current
+    if (ax && pr) setFit(fittedWeeks(pts.length, ax.clientWidth, pr.offsetWidth))
+  }, [pts.length, widest])
+  const dated = fit && fit.every(i => i < pts.length) ? fit : labelledWeeks(pts.length)
   return <div className="hv-chart">
     <div className="hv-chart-h hv-scard-h"><h2>{head}</h2>
       <button type="button" className="hv-link hv-range" onClick={() => menuSheet({
@@ -74,13 +83,14 @@ export default function WeeklyChart() {
       {pts.map(p => {
         const bar = <i style={{ height: Math.round((p.value / max) * 100) + '%' }} className={p.value ? '' : 'zero'} />
         const on = p.week === sel
-        return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-pressed={on}>{bar}</button>
+        return <button key={p.week} type="button" className={'hv-barcol' + (on ? ' on' : '')} title={weekText(p)} aria-label={weekText(p)} aria-pressed={on}>{bar}</button>
       })}
     </div>
     {/* the axis on the right, Hevy's: the top line and its half */}
     <div className="hv-yaxis" aria-hidden="true"><span>{axis(max)}</span><span>{axis(max / 2)}</span><span>0</span></div>
-    <div className="hv-xaxis" aria-hidden="true" style={{ '--n': pts.length }}>
-      {labelledWeeks(pts.length).map(i => <span key={i} style={{ '--i': i }}>{day(pts[i].week)}</span>)}
+    <div className="hv-xaxis" aria-hidden="true" style={{ '--n': pts.length }} ref={axisRef}>
+      {dated.map(i => <span key={i} style={{ '--i': i }}>{day(pts[i].week)}</span>)}
+      <b className="hv-xprobe" ref={probeRef}>{widest}</b>
     </div>
     </div>
     <div className="hv-chips">{kinds.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}

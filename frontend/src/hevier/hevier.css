@@ -331,8 +331,9 @@
 :root[data-ui="hevier"] .hv-yaxis{display:flex;flex-direction:column;justify-content:space-between;height:120px;margin-top:-7px;margin-bottom:-7px;font-size:11px;color:var(--label-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 :root[data-ui="hevier"] .hv-xaxis{position:relative;height:16px;margin:4px 0 0;font-size:11px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xaxis span{position:absolute;top:0;inset-inline-start:calc((var(--i) + .5) / var(--n) * 100%);transform:translateX(-50%);white-space:nowrap}
-:root[data-ui="hevier"] .hv-xaxis span:first-child{transform:none;inset-inline-start:0}
-:root[data-ui="hevier"] .hv-xaxis span:last-child{transform:none;inset-inline-start:auto;inset-inline-end:0}
+:root[data-ui="hevier"] .hv-xaxis span:first-of-type{transform:none;inset-inline-start:0}
+:root[data-ui="hevier"] .hv-xaxis span:last-of-type{transform:none;inset-inline-start:auto;inset-inline-end:0}
+:root[data-ui="hevier"] .hv-xaxis .hv-xprobe{position:absolute;visibility:hidden;white-space:nowrap;font-weight:inherit}
 :root[data-ui="hevier"] .hv-link.hv-range{display:inline-flex;align-items:center;gap:2px;font-size:14px;min-height:32px}
 :root[data-ui="hevier"] .hv-link.hv-range .icn{font-size:14px}
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
@@ -544,6 +545,9 @@
 :root[data-ui="hevier"] .hv-stile-s{overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-ssec{scroll-margin-top:64px}
 :root[data-ui="hevier"] .hv-scard-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px}
+/* A card head's link keeps its text height, so the title sits where a plain card title does; its 48 dp is an invisible area centred on it. */
+:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link{min-height:0;position:relative}
+:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link::after{content:"";position:absolute;inset-inline:0;top:50%;height:48px;transform:translateY(-50%)}
 :root[data-ui="hevier"] .hv-scard-h h2{margin:0}
 :root[data-ui="hevier"] .hv-scard-h .hv-link{display:inline-flex;align-items:center;min-height:48px;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
@@ -558,6 +562,8 @@
 :root[data-ui="hevier"] .hv-arr .sw::before{inset:-9px -4px}
 /* An off track is --surface-3 on the row's --surface, 1.09:1; its hairline in --label-3 is 6.65:1 (WCAG 1.4.11). */
 :root[data-ui="hevier"] .hv-arrange .sw:not(.on){box-shadow:inset 0 0 0 1px var(--label-3)}
+/* Reset in the page bar reaches 48 dp (A1); it clips its overflow, so the height itself grows. */
+:root[data-ui="hevier"] .hv-arrange .hv-pagebar .hv-link{min-height:48px}
 
 /* M3 Add Exercise picker (reference/SCREENS.md §8) */
 :root[data-ui="hevier"] .hv-pk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -897,6 +903,8 @@
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
+/* Statistics' chips (Week/Month/Year, Duration/Sets/Reps, 29 dp) reach 49 dp: nothing tappable sits close above or below. */
+:root[data-ui="hevier"] .hv-statpage .hv-chip::after{inset:-10px 0}
 /* Text-sized secondary buttons (31–40 dp) reach 44 dp, up and down only, so a neighbour beside one keeps its own (A1). */
 :root[data-ui="hevier"] :is(.hv-next-plan, .hv-link.hv-range, .hv-ftoggle, .hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look){position:relative}
 :root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-4px 0}

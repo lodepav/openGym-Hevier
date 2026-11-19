@@ -105,6 +105,8 @@ function LiftRow({ r, S, today, p, win, half }) {
   const span = ys.length ? (Math.min(...ys) === Math.max(...ys) ? { lo: ys[0], hi: ys[0] } : chartRange(ys)) : null
   const scale = span ? [span.lo, span.hi].map(v => Math.round(convert(v, S.unit, unit))) : null
   const flat = scale && scale[0] === scale[1]
+  // Spoken: what the lift itself did, not the padded edges.
+  const said = ys.length ? [Math.min(...ys), Math.max(...ys)].map(v => Math.round(convert(v, S.unit, unit))) : null
   const brand = l => labelText({ brand: l.key.split('|')[0], cable: l.key.split('|')[1] }, t)
   const lastBest = r.last && <span className="hv-lift-r">
     <b>{text(r.last)}</b>
@@ -114,7 +116,7 @@ function LiftRow({ r, S, today, p, win, half }) {
   const spoken = s => s.replace(/\n/g, ', ')
   const label = [
     name, sub,
-    scale && (flat ? t(SPAN_FLAT[win], scale[0], unit) : t(SPAN[win], scale[0], scale[1], unit)),
+    said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], unit) : t(SPAN[win], said[0], said[1], unit)),
     p?.state && t(WORD[p.state]),
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
