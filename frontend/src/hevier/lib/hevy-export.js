@@ -18,6 +18,7 @@ import { folderOf } from './routine-folders.js'
 import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
 import { pickFor } from '../../lib/import-choices.js'
 import { HEVY_BUILTINS } from './hevy-builtins.js'
+import { placeOf } from './nearby-gyms.js'
 
 const LB_TO_KG = 0.45359237
 const NOTE_MAX = 280
@@ -108,13 +109,23 @@ const num = v => String(Math.round(Number(v) * 100) / 100)
 const load = (w, unit) => (Number(w) > 0 ? num(w) + ' ' + unit : 'bodyweight')
 const setName = (rows, i) => (isWarmupRow(rows[i]) ? 'Warm-up ' : 'Set ') + setNumberOf(rows, i)
 
+// An OpenStreetMap gym is stored as "Name · street": the name only.
+// The gym the exercises were tagged with (D28) first: one changed in the session is not in w.gym.
+const gymText = (w, S) => text(gymName(S, savedGym(w)) || w.gym?.name).split(' · ')[0].trim()
+
+/** The workout's gym for Hevy's gym field (D143): { id, name, lat?, lng? }, or null. */
+function gymOf(w, S) {
+  const id = savedGym(w) || w.gym?.id
+  if (!id) return null
+  const at = placeOf(S, id)
+  return { id: String(id), name: gymText(w, S) || text(at?.name), ...(at ? { lat: at.lat, lng: at.lng } : {}) }
+}
+
 /** The workout description's added lines: heart rate, gym, phase. */
 function workoutLines(w, S) {
   const out = []
   if (Number(w.hr?.avg) > 0) out.push('Heart rate ' + Math.round(w.hr.avg) + ' avg' + (Number(w.hr.max) > 0 ? ', ' + Math.round(w.hr.max) + ' max' : ''))
-  // An OpenStreetMap gym is stored as "Name · street": the name only.
-  // The gym the exercises were tagged with (D28) first: one changed in the session is not in w.gym.
-  const gym = text(gymName(S, savedGym(w)) || w.gym?.name).split(' · ')[0].trim()
+  const gym = gymText(w, S)
   if (gym) out.push('At ' + gym)
   if (w.hvPhase?.p) out.push('Phase: ' + w.hvPhase.p)
   return out
@@ -172,6 +183,7 @@ export function workoutDraft(w, unit = 'kg', S = null) {
   const ss = supersets(entries)
   const start = Number(w.start)
   const end = Number(w.end) > start ? Number(w.end) : start
+  const gym = gymOf(w, S)
   return {
     title: text(w.name) || 'Workout',
     description: fit(w.note, workoutLines(w, S)),
@@ -187,10 +199,24 @@ export function workoutDraft(w, unit = 'kg', S = null) {
         ...(text(e.hvBrand) && e.sets.some(s => done(s) && isSideSet(s)) ? { side: true } : {}),
         superset_id: ss[i],
         notes: fit(e.note, exerciseLines(e, unit, minutesOf(entries, i, ss, start), reps)),
-        sets: (kept.length ? kept : e.sets.filter(done)).flatMap(s => setRows(s, unit, isCardio(e.id))),
+        // Every row of a set (its drops and bursts) goes with that set's tick time (D143).
+        sets: (kept.length ? kept : e.sets.filter(done)).flatMap(s => {
+          const at = tickAt(s)
+          return setRows(s, unit, isCardio(e.id)).map(r => (at > 0 ? { ...r, completed_at: new Date(at).toISOString() } : r))
+        }),
       }
     }),
+    ...(gym ? { gym } : {}),
   }
+}
+
+/**
+ * A workout draft without what D143 added (set times, the gym), in the same key order: what its
+ * fingerprint is taken of, so no workout sent before goes again, and what the key-only API gets.
+ */
+export function bare(draft) {
+  const { gym, ...rest } = draft
+  return { ...rest, exercises: rest.exercises.map(e => ({ ...e, sets: e.sets.map(({ completed_at, ...s }) => s) })) }
 }
 
 /** A routine as Hevy's routine body, drawn as D15's table, with openGym exercise ids (`ex`). */
@@ -263,7 +289,7 @@ export function pending(S, st) {
     if (!w?.id || before.has(w.id) || isImported(w) || tooOld(w)) continue
     const draft = workoutDraft(w, unit, S)
     if (!draft) continue
-    const h = fingerprint(draft), sent = sentW[w.id]
+    const h = fingerprint(bare(draft)), sent = sentW[w.id]
     if (sent?.h === h || failed[w.id] === h) continue
     workouts.push({ id: w.id, draft, h, hevyId: sent?.id || null })
   }
@@ -455,10 +481,59 @@ export function repairMarks(S, st, find) {
 }
 
 const nul = v => (v == null ? null : v)
+export const uuid = () => globalThis.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16))
+
 /**
- * A finished workout body (`finish`) as the body of Hevy's private web API (D138): camelCase,
- * times in seconds, each set with every measure present. `titleOf(templateId)` names each
- * exercise; `clientId` is the phone's id for this workout.
+ * A finished workout body (`finish`) as the body of `POST /v2/workout`, the route Hevy's own app
+ * uses (D143): each set with its time, the workout at its Hevy gym (`gymId`, left out when none).
+ * `workoutId` is the uuid Hevy keeps as the workout's id. The edit (`PUT /v2/workout/{id}`) takes
+ * the same fields, less `workout_id`, as `{ workoutUpdate }`.
+ */
+export function v2Workout(body, { titleOf = () => '', workoutId, isPrivate = false, gymId = null, now = Date.now() } = {}) {
+  return {
+    workout: {
+      workout_id: String(workoutId),
+      title: body.title,
+      description: body.description || '',
+      media: [],
+      exercises: body.exercises.map(e => ({
+        title: titleOf(e.exercise_template_id) || '',
+        exercise_template_id: e.exercise_template_id,
+        rest_timer_seconds: null,
+        notes: '',
+        // Hevy drops a plain note on this route: it keeps only a pinned one.
+        pinned_notes: e.notes ? [{ id: uuid(), content: e.notes, createdAt: new Date(now).toISOString() }] : [],
+        volume_doubling_enabled: false,
+        superset_id: nul(e.superset_id),
+        sets: e.sets.map((s, index) => ({
+          index, type: s.type || 'normal',
+          weight_kg: nul(s.weight_kg), reps: nul(s.reps), distance_meters: nul(s.distance_meters), duration_seconds: nul(s.duration_seconds),
+          rpe: nul(s.rpe), completed_at: nul(s.completed_at),
+        })),
+      })),
+      start_time: Math.floor(Date.parse(body.start_time) / 1e3),
+      end_time: Math.floor(Date.parse(body.end_time) / 1e3),
+      apple_watch: false,
+      wearos_watch: false,
+      is_private: !!isPrivate,
+      // Never chosen by the user: no workout on a gym's page, no heart rate shown to others.
+      is_biometrics_public: false,
+      show_on_gym_profile: false,
+      // No gym rather than null: null would clear a gym set by hand in Hevy.
+      ...(gymId != null ? { gym: { type: 'commercial', gym_id: gymId } } : {}),
+    },
+    share_to_strava: false,
+  }
+}
+
+/** The edit's body for `PUT /v2/workout/{id}`: the v2 workout less its id. */
+export const v2Update = v2 => { const { workout_id, ...workoutUpdate } = v2.workout; return { workoutUpdate } }
+
+/**
+ * A finished workout body (`finish`) as the body of `PUT /workout` (D138): camelCase, times in
+ * seconds, each set with every measure present. It drops set times, but it is the one call that
+ * moves a workout's start and end, so an edit makes it before the v2 one (D143).
+ * `titleOf(templateId)` names each exercise; `clientId` is the phone's id for this workout.
  */
 export function webWorkout(body, { titleOf = () => '', clientId, isPrivate = false } = {}) {
   return {

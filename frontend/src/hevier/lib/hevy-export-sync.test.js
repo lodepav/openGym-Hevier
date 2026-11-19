@@ -134,7 +134,7 @@ describe('sendToHevy over the private web API (D138)', () => {
       const path = String(url).replace('https://api.hevyapp.com', '')
       web.push({ key: init.method + ' ' + path, auth: init.headers.authorization, body: init.body && JSON.parse(init.body) })
       const body = path === '/custom_exercise_templates' ? [{ id: 'OLD', title: 'Squat (Barbell) (brand: Eleiko)', is_archived: false }]
-        : path === '/workout' && init.method === 'POST' ? { id: 'PW1' } : null
+        : path === '/v2/workout' && init.method === 'POST' ? { id: 'PW1' } : null
       return { ok: true, status: 200, text: async () => (body ? JSON.stringify(body) : '') }
     })
   })
@@ -145,12 +145,12 @@ describe('sendToHevy over the private web API (D138)', () => {
     try {
       const st = await mod.sendToHevy(getState, { force: true })
       expect(st.last).toMatchObject({ sent: 1, error: null })
-      expect(web.map(c => c.key)).toEqual(['GET /custom_exercise_templates', 'POST /workout'])
+      expect(web.map(c => c.key)).toEqual(['GET /custom_exercise_templates', 'POST /v2/workout'])
       expect(web[1].auth).toBe('Bearer a1')
       const ex = web[1].body.workout.exercises[0]
-      expect(ex.id).toBe('D04AC939')            // Squat (Barbell), not the Eleiko custom
+      expect(ex.exercise_template_id).toBe('D04AC939')            // Squat (Barbell), not the Eleiko custom
       expect(ex.title).toBe('Squat (Barbell)')
-      expect(ex.notes).toMatch(/^Eleiko/)
+      expect(ex.pinned_notes[0].content).toMatch(/^Eleiko/)
       expect(st.out.w.a.id).toBe('PW1')
     } finally { delete S.workouts[0].entries[0].hvBrand }
   })
@@ -206,7 +206,7 @@ describe('sendToHevy over the private web API (D138)', () => {
     hevy({ 'GET /account': { username: 'me' }, 'GET /user_workouts_paged?username=me&limit=5&offset=0': { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] } })
     file.unsure = { a: 1 }
     const st = await mod.sendToHevy(getState, { force: true })
-    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['PUT /workout', 'PUT /v2/workout/TW'])
     expect(web.find(c => c.key === 'PUT /workout').body.workout_id).toBe('TW')
     expect(st.out.w.a.id).toBe('TW')
   })
@@ -215,7 +215,7 @@ describe('sendToHevy over the private web API (D138)', () => {
     hevy({ 'PUT /workout': 404 })
     file.out.w.a = { id: 'OLD', h: 'repair' }
     const st = await mod.sendToHevy(getState, { force: true })
-    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['PUT /workout'])
     expect(st.out.w.a.id).toBe('OLD')
     expect(st.out.w.a.h).not.toBe('repair')
     expect(st.last.error).toBeNull()
@@ -223,7 +223,7 @@ describe('sendToHevy over the private web API (D138)', () => {
 
   it('a refused routine key stops only the routines, and is not told as a logout', async () => {
     secrets['hevy-api-key'] = 'k1'
-    hevy({ 'POST /workout': { id: 'PW1' }, 'GET /v1/routine_folders?page=1&pageSize=10': 401, 'POST /v1/routines': 401, 'GET /v1/exercise_templates?page=1&pageSize=100': 401 })
+    hevy({ 'POST /v2/workout': { id: 'PW1' }, 'GET /v1/routine_folders?page=1&pageSize=10': 401, 'POST /v1/routines': 401, 'GET /v1/exercise_templates?page=1&pageSize=100': 401 })
     S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
     try {
       const st = await mod.sendToHevy(getState, { force: false })

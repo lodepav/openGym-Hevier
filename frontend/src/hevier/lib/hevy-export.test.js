@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, isImported, EXPORT_FIXES, builtinTemplates, webWorkout, repairMarks } from './hevy-export.js'
+import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, bare, isImported, EXPORT_FIXES, builtinTemplates, webWorkout, v2Workout, v2Update, repairMarks } from './hevy-export.js'
 import { exportOnce } from './hevy-export-sync.js'
 import { HevyApiError, HEVY_ID_MAP } from '../../lib/import-hevy.js'
 import { HEVY_TITLE_MAP } from '../../lib/hevy-id-map.js'
@@ -83,6 +83,85 @@ describe('hevier export to Hevy: the bodies (D34)', () => {
     expect(fingerprint(workoutDraft(workout({ _ts: 9 })))).toBe(a)
     expect(fingerprint(workoutDraft(workout({ hr: { avg: 120 } })))).not.toBe(a)
     expect(fingerprint(workoutDraft(workout({ name: 'Leg day' })))).not.toBe(a)
+  })
+})
+
+// A workout with tick times, a per-side set, a drop, a rest-pause burst and a gym with a place.
+const GS = { unit: 'kg', equipProfiles: [{ id: 'g1', name: 'Lemon Gym · Grostonas iela 1' }], hvGymPlaces: { g1: { lat: 56.9646269, lng: 24.1186412, name: 'Lemon Gym' } } }
+const ticked = () => workout({ entries: [
+  { id: squat, hvGym: 'g1', note: 'belt', sets: [
+    { phase: 'warmup', w: 60, r: 5, done: true, at: T0 + 60e3 },
+    { w: 100, r: 12, done: true, at: T0 + 180e3, type: 'restpause', clusters: [{ r: 3 }] },
+    { w: 100, r: 5, done: true, at: T0 + 300e3, type: 'dropset', drops: [{ w: 80, r: 4 }] },
+  ] },
+  { id: legCurl, hvGym: 'g1', sets: [{ w: 40, r: 18, done: true, sides: { L: { w: 40, r: 9, done: true, at: T0 + 600e3 }, R: { w: 42.5, r: 9, done: true, at: T0 + 620e3 } } }] },
+] })
+
+describe('hevier export to Hevy: set times and the gym (D143)', () => {
+  // Taken from the code before D143: a workout already sent must keep its print, and the key-only body its bytes.
+  const PRINT = '10riq8m.nr'
+  const BODY = '{"workout":{"title":"Legs","description":"good day\\nAt Lemon Gym","start_time":"2026-10-15T16:00:00.000Z","end_time":"2026-10-15T17:00:00.000Z","exercises":[{"exercise_template_id":"SQ","superset_id":null,"notes":"belt\\nTime 5 min","sets":[{"type":"warmup","weight_kg":60,"reps":5,"distance_meters":null,"duration_seconds":null},{"type":"normal","weight_kg":100,"reps":9,"distance_meters":null,"duration_seconds":null},{"type":"dropset","weight_kg":100,"reps":3,"distance_meters":null,"duration_seconds":null},{"type":"normal","weight_kg":100,"reps":5,"distance_meters":null,"duration_seconds":null},{"type":"dropset","weight_kg":80,"reps":4,"distance_meters":null,"duration_seconds":null}]},{"exercise_template_id":"LC","superset_id":null,"notes":"Time 5 min\\nSet 1: L 40 kg × 9, R 42.5 kg × 9","sets":[{"type":"normal","weight_kg":42.5,"reps":9,"distance_meters":null,"duration_seconds":null}]}]}}'
+  const tpl = ex => ({ id: ex === squat ? 'SQ' : 'LC', type: 'weight_reps' })
+
+  it('leaves the fingerprint of a workout as it was before set times and the gym went', () => {
+    expect(pending({ ...GS, workouts: [{ ...ticked(), id: 'x' }] }, { base: {}, out: { w: {} } }).workouts[0].h).toBe(PRINT)
+    const d = workoutDraft(ticked(), 'kg', GS)
+    expect(d.gym).toBeTruthy()
+    expect(fingerprint(bare(d))).toBe(PRINT)
+    // bare() takes off only what D143 added.
+    expect(JSON.stringify(bare(d))).toBe(JSON.stringify(d, (k, v) => (k === 'gym' || k === 'completed_at' ? undefined : v)))
+  })
+
+  it('gives every row of a set that set\'s tick time, and the workout its gym and place', () => {
+    const d = workoutDraft(ticked(), 'kg', GS)
+    const iso = ms => new Date(T0 + ms).toISOString()
+    expect(d.exercises[0].sets.map(s => s.completed_at)).toEqual([iso(60e3), iso(180e3), iso(180e3), iso(300e3), iso(300e3)])
+    expect(d.exercises[1].sets.map(s => s.completed_at)).toEqual([iso(620e3)])
+    expect(d.gym).toEqual({ id: 'g1', name: 'Lemon Gym', lat: 56.9646269, lng: 24.1186412 })
+    expect(workoutDraft(ticked(), 'kg', { ...GS, hvGymPlaces: {} }).gym).toEqual({ id: 'g1', name: 'Lemon Gym' })
+    expect(workoutDraft(workout(), 'kg', GS).gym).toBeUndefined()
+    expect(workoutDraft(workout(), 'kg', GS).exercises[0].sets[0].completed_at).toBeUndefined()
+  })
+
+  it('sends the key-only body byte for byte as before', async () => {
+    const S = { ...GS, workouts: [{ ...ticked(), id: 'a' }], routines: [] }
+    const st = { base: {}, out: { w: {}, r: {} }, failed: {}, tpl: { [squat]: tpl(squat), [legCurl]: tpl(legCurl) }, folders: {} }
+    const calls = []
+    await exportOnce(S, st, { call: async (m, p, b) => { calls.push([m, p, b]); return { workout: [{ id: 'H1' }] } }, pages: async () => [] })
+    expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['POST /v1/workouts'])
+    expect(JSON.stringify(calls[0][2])).toBe(BODY)
+  })
+
+  it('writes the v2 body: the note pinned, each set\'s time, the gym only when there is one, nothing shown on a gym\'s page', () => {
+    const body = finish(workoutDraft(workout({ entries: [...ticked().entries, ...workout().entries] }), 'kg', GS), tpl)
+    const now = Date.parse('2026-11-19T10:00:00Z')
+    const v = v2Workout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], workoutId: 'u-1', gymId: 'HG', now })
+    expect(v.share_to_strava).toBe(false)
+    expect(v.workout).toMatchObject({
+      workout_id: 'u-1', title: 'Legs', description: 'good day\nAt Lemon Gym', media: [], start_time: T0 / 1e3, end_time: T0 / 1e3 + 3600,
+      apple_watch: false, wearos_watch: false, is_private: false, is_biometrics_public: false, show_on_gym_profile: false,
+      gym: { type: 'commercial', gym_id: 'HG' },
+    })
+    const [sq, lc] = v.workout.exercises
+    expect(sq).toMatchObject({ title: 'Squat (Barbell)', exercise_template_id: 'SQ', rest_timer_seconds: null, notes: '', volume_doubling_enabled: false, superset_id: null })
+    expect(sq.pinned_notes).toEqual([{ id: expect.stringMatching(/^[0-9a-f-]{36}$/), content: 'belt\nTime 5 min', createdAt: '2026-11-19T10:00:00.000Z' }])
+    expect(sq.sets[0]).toEqual({ index: 0, type: 'warmup', weight_kg: 60, reps: 5, distance_meters: null, duration_seconds: null, rpe: null, completed_at: new Date(T0 + 60e3).toISOString() })
+    expect(sq.sets.map(s => s.type)).toEqual(['warmup', 'normal', 'dropset', 'normal', 'dropset'])
+    expect(lc.title).toBe('')
+    // The plain workout's superset and an exercise without a note.
+    const [, , sq2, lc2] = v.workout.exercises
+    expect([sq2.superset_id, lc2.superset_id]).toEqual([0, 0])
+    expect(lc2.pinned_notes).toEqual([])
+    expect(sq2.sets[1]).toMatchObject({ type: 'normal', rpe: 8, completed_at: null })
+    expect(sq2.sets[2].type).toBe('failure')
+    expect('gym' in v2Workout(body, { workoutId: 'u-1' }).workout).toBe(false)
+  })
+
+  it('makes the edit\'s body the v2 body less its id', () => {
+    const v = v2Workout(finish(workoutDraft(ticked(), 'kg', GS), tpl), { workoutId: 'u-1' })
+    const { workout_id, ...rest } = v.workout
+    expect(v2Update(v)).toEqual({ workoutUpdate: rest })
+    expect('gym' in v2Update(v).workoutUpdate).toBe(false)
   })
 })
 
@@ -445,7 +524,7 @@ describe('hevier export to Hevy: the private web API and the repair (D138)', () 
     expect(HEVY_ID_MAP[f(squat)?.id]).toBe(squat)
   })
 
-  it('writes the private API\'s body: camelCase, seconds, every measure, the type as indicator', () => {
+  it('writes the old PUT /workout body an edit still makes: camelCase, seconds, every measure, the type as indicator', () => {
     const body = finish(workoutDraft(workout()), ex => ({ id: ex === squat ? 'SQ' : 'LC', type: 'weight_reps' }))
     const w = webWorkout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], clientId: 'c-1' })
     expect(w.emptyResponse).toBe(false)
@@ -484,5 +563,158 @@ describe('hevier export to Hevy: the private web API and the repair (D138)', () 
     const S = { unit: 'kg', workouts: [workout({ id: 'sq', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] })] }
     const st = { out: { w: { sq: { id: 'H1', h: 'x' } } }, tpl: { [squat]: { id: other } } }
     expect(repairMarks(S, st, f)).toEqual({ tpl: {}, workouts: [] })
+  })
+})
+
+describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
+  const tpl = { [squat]: { id: 'SQ', type: 'weight_reps' }, [legCurl]: { id: 'LC', type: 'weight_reps' } }
+  const setup = (w = ticked()) => {
+    const S = { ...GS, workouts: [{ ...w, id: 'a' }], routines: [] }
+    const st = { base: {}, out: { w: {}, r: {} }, failed: {}, tpl: { ...tpl }, folders: {} }
+    const calls = []
+    const replies = {}
+    const web = async (m, p, b) => {
+      calls.push([m, p, b])
+      const r = replies[m + ' ' + p]
+      if (r instanceof Error) throw r
+      if (r !== undefined) return r
+      if (m === 'POST' && p === '/v2/workout') return { id: b.workout.workout_id }
+      if (p === '/custom_exercise_templates') return []
+      return null
+    }
+    return { S, st, calls, replies, web, keys: () => calls.map(c => c[0] + ' ' + c[1]).filter(k => !k.includes('custom_exercise')) }
+  }
+  const lemon = { id: 77, name: 'Lemon Gym', full_address: 'Grostonas iela 1', city: 'Riga', latitude: 56.9645, longitude: 24.1180 }
+  const pla = { id: 78, name: 'Lemon Gym Pļavnieki', latitude: 56.9455, longitude: 24.2094 }
+
+  it('creates with a uuid it makes, at the Hevy gym near the gym\'s place, and asks for gyms no more once found', async () => {
+    const { S, st, calls, replies, web, keys } = setup()
+    replies['GET /gyms/visited'] = [pla, lemon]
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    expect(keys()).toEqual(['GET /gyms/visited', 'POST /v2/workout'])
+    const sent = calls.find(c => c[1] === '/v2/workout')[2]
+    expect(sent.workout.gym).toEqual({ type: 'commercial', gym_id: 77 })
+    expect(sent.workout.workout_id).toMatch(/^[0-9a-f-]{36}$/)
+    expect(st.out.w.a.id).toBe(sent.workout.workout_id)
+    expect(st.gyms).toEqual({ g1: 77 })
+    S.workouts.push({ ...ticked(), id: 'b', start: T0 + 86400e3, end: T0 + 90000e3 })
+    calls.length = 0
+    await exportOnce(S, st, { web })
+    expect(keys()).toEqual(['POST /v2/workout'])
+    expect(calls.at(-1)[2].workout.gym.gym_id).toBe(77)
+  })
+
+  it('looks among the gyms near the place when the account has none there, once a pass for each gym', async () => {
+    const { S, st, calls, replies, web, keys } = setup()
+    S.workouts.push({ ...ticked(), id: 'b', start: T0 + 86400e3, end: T0 + 90000e3 })
+    replies['GET /gyms/visited'] = { gyms: [pla] }
+    replies['GET /gyms/popular?latitude=56.9646269&longitude=24.1186412'] = []
+    await exportOnce(S, st, { web })
+    expect(keys()).toEqual(['GET /gyms/visited', 'GET /gyms/popular?latitude=56.9646269&longitude=24.1186412', 'POST /v2/workout', 'POST /v2/workout'])
+    expect(calls.filter(c => c[1] === '/v2/workout').every(c => !('gym' in c[2].workout))).toBe(true)
+    expect(st.gyms).toBeUndefined()
+    // A miss is not kept: the next pass asks again, and finds it.
+    S.workouts[0].name = 'Renamed'
+    replies['GET /gyms/popular?latitude=56.9646269&longitude=24.1186412'] = [lemon]
+    calls.length = 0
+    await exportOnce(S, st, { web })
+    expect(st.gyms).toEqual({ g1: 77 })
+  })
+
+  it('a gym without a place goes only by a single name among the visited gyms', async () => {
+    const { S, st, calls, replies, web, keys } = setup()
+    S.hvGymPlaces = {}
+    replies['GET /gyms/visited'] = [lemon, pla]       // "Lemon Gym" is in both names: not clear
+    await exportOnce(S, st, { web })
+    expect(keys()).toEqual(['GET /gyms/visited', 'POST /v2/workout'])
+    expect('gym' in calls.at(-1)[2].workout).toBe(false)
+  })
+
+  it('a gym list answering 500 still sends the workout, with no gym', async () => {
+    const { S, st, calls, replies, web, keys } = setup()
+    replies['GET /gyms/visited'] = new HevyApiError(500, 'http 500')
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    expect(keys()).toEqual(['GET /gyms/visited', 'POST /v2/workout'])
+    expect('gym' in calls.at(-1)[2].workout).toBe(false)
+  })
+
+  it('a failed gym lookup sends the workout without a gym; one that stops the pass stops it', async () => {
+    const { S, st, calls, replies, web } = setup()
+    replies['GET /gyms/visited'] = new HevyApiError(403, 'http 403')
+    replies['GET /gyms/popular?latitude=56.9646269&longitude=24.1186412'] = new HevyApiError(404, 'http 404')
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    expect('gym' in calls.at(-1)[2].workout).toBe(false)
+    const b = setup()
+    b.replies['GET /gyms/visited'] = new HevyApiError(429, 'rate-limit')
+    expect(await exportOnce(b.S, b.st, { web: b.web })).toEqual({ sent: 0, refused: 0, error: 'rate' })
+    expect(b.st.failed).toEqual({})
+  })
+
+  it('a create with no answer goes again with the same uuid, and a 409 then means it landed', async () => {
+    const { S, st, calls, replies, web, keys } = setup(workout({ entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v2/workout'] = new HevyApiError(0, 'offline')
+    expect((await exportOnce(S, st, { web })).error).toBe('offline')
+    const wid = calls.at(-1)[2].workout.workout_id
+    expect(st.unsure).toEqual({ a: wid })
+    replies['POST /v2/workout'] = new HevyApiError(409, 'http 409')
+    calls.length = 0
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    // Then edited to what the workout is now, as an edit is.
+    expect(keys()).toEqual(['POST /v2/workout', 'PUT /workout', 'PUT /v2/workout/' + wid])
+    expect(calls.find(c => c[1] === '/v2/workout')[2].workout.workout_id).toBe(wid)
+    expect(st.out.w.a.id).toBe(wid)
+    expect(st.unsure).toEqual({})
+  })
+
+  it('a 409 on a fresh uuid is refused, not taken as sent', async () => {
+    const { S, st, replies, web } = setup(workout({ entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    replies['POST /v2/workout'] = new HevyApiError(409, 'http 409')
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 0, refused: 1, error: null })
+    expect(st.out.w.a).toBeUndefined()
+  })
+
+  it('an edit makes the old PUT (start and end) then the v2 one (set times), and leaves the gym alone when none matches', async () => {
+    const { S, st, calls, replies, web, keys } = setup()
+    st.out.w.a = { id: 'HW', h: 'old' }
+    replies['GET /gyms/visited'] = []
+    replies['GET /gyms/popular?latitude=56.9646269&longitude=24.1186412'] = []
+    await exportOnce(S, st, { web })
+    expect(keys()).toEqual(['GET /gyms/visited', 'GET /gyms/popular?latitude=56.9646269&longitude=24.1186412', 'PUT /workout', 'PUT /v2/workout/HW'])
+    const [old, v2] = calls.filter(c => c[0] === 'PUT').map(c => c[2])
+    expect(old.workout_id).toBe('HW')
+    expect(old.workout.startTime).toBe(T0 / 1e3)
+    expect(Object.keys(v2)).toEqual(['workoutUpdate'])
+    expect('gym' in v2.workoutUpdate).toBe(false)
+    expect('workout_id' in v2.workoutUpdate).toBe(false)
+    expect(v2.workoutUpdate.exercises[0].sets[0].completed_at).toBe(new Date(T0 + 60e3).toISOString())
+    expect(st.out.w.a.h).not.toBe('old')
+  })
+
+  it('an edit is kept as sent only once both calls went', async () => {
+    const { S, st, replies, web } = setup()
+    st.out.w.a = { id: 'HW', h: 'old' }
+    st.gyms = { g1: 77 }
+    replies['PUT /v2/workout/HW'] = new HevyApiError(500, 'http 500')
+    expect((await exportOnce(S, st, { web })).error).toBe('failed')
+    expect(st.out.w.a.h).toBe('old')
+  })
+
+  it('a timed-out send from before D143 is still looked for by its start, in seconds', async () => {
+    const { S, st, replies, web, keys } = setup(workout({ start: T0 + 897, entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
+    st.unsure = { a: 1 }
+    replies['GET /account'] = { username: 'me' }
+    replies['GET /user_workouts_paged?username=me&limit=5&offset=0'] = { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] }
+    await exportOnce(S, st, { web })
+    expect(keys()).toEqual(['GET /account', 'GET /user_workouts_paged?username=me&limit=5&offset=0', 'PUT /workout', 'PUT /v2/workout/TW'])
+    expect(st.out.w.a.id).toBe('TW')
+  })
+
+  it('the repair rewrites a workout through both calls', async () => {
+    const { S, st, web, keys } = setup()
+    st.out.w.a = { id: 'HW', h: 'repair' }
+    st.gyms = { g1: 77 }
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    expect(keys()).toEqual(['PUT /workout', 'PUT /v2/workout/HW'])
+    expect(st.out.w.a).toEqual({ id: 'HW', h: pending(S, { base: {}, out: { w: {} } }).workouts[0].h })
   })
 })

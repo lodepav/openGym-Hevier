@@ -6,7 +6,8 @@
 import { MOBILE, readJsonFile, writeJsonFile } from '../../lib/mobile.js'
 import { HEVY_API, HevyApiError, fetchHevyPages } from '../../lib/import-hevy.js'
 import { allExercises } from '../../lib/exercises.js'
-import { baseline, pending, finish, exercisesOf, brandsOf, brandKey, setsOf, templateFinder, newTemplate, builtinTemplates, webWorkout, repairMarks } from './hevy-export.js'
+import { baseline, pending, finish, bare, exercisesOf, brandsOf, brandKey, setsOf, templateFinder, newTemplate, builtinTemplates, webWorkout, v2Workout, v2Update, uuid, repairMarks } from './hevy-export.js'
+import { hevyGymFor, gymList } from './hevy-gyms.js'
 import { webClient } from './hevy-web.js'
 import { hevyLogin } from './hevy-login.js'
 import { nativeFetch } from '../../lib/capacitor-fetch.js'
@@ -19,7 +20,7 @@ import { t } from '../../lib/i18n.js'
 export const EXPORT_FILE = 'hevier-hevy-export.json'
 export const KEY_NAME = 'hevy-api-key'
 export const SESSION_NAME = 'hevy-web-session'
-const OFF = { on: false, since: 0, base: { workouts: [], routines: {} }, out: { w: {}, r: {} }, failed: {}, unsure: {}, tpl: {}, folders: {}, last: null }
+const OFF = { on: false, since: 0, base: { workouts: [], routines: {} }, out: { w: {}, r: {} }, failed: {}, unsure: {}, tpl: {}, folders: {}, gyms: {}, last: null }
 const SOON_MS = 10e3            // after a change: one send for a burst of edits
 const RETRY_MS = 60e3           // after an error, not again before this
 const CALL_MS = 20e3            // one call that has not answered by then is taken as offline
@@ -52,21 +53,21 @@ const idOf = (res, k) => { const v = Array.isArray(res?.[k]) ? res[k][0] : res?.
 // it, rather than a later change quietly creating a second copy Hevy's API cannot delete.
 const createdId = (res, k) => { const id = idOf(res, k); if (!id) throw new HevyApiError(422, 'no id'); return id }
 // A workout whose POST got no answer (a timeout, the network gone) may still be in Hevy, which
-// cannot delete a copy: the next pass looks for it among Hevy's newest workouts by its start.
+// cannot delete a copy: with the key, the next pass looks for it among Hevy's newest workouts by
+// its start. With the login it goes again under the same id (D143).
 const RECENT = '/v1/workouts?page=1&pageSize=10'
 // To the second: Hevy drops the milliseconds the phone sends.
 const sameStart = (a, b) => a != null && b != null && Math.floor(Date.parse(a) / 1e3) === Math.floor(Date.parse(b) / 1e3)
 
 // The most the private API's workout list gives at once: 6 and more are refused with a 400.
 const PAGE = 5
-// The private API's workouts, newest first, for the same twin check (D138).
+// The private API's workouts, newest first, for the same twin check of a send left unsure before D143.
 const webRecent = async (web, st) => {
   if (!st.user) st.user = (await web('GET', '/account'))?.username || null
   if (!st.user) return []
   const res = await web('GET', `/user_workouts_paged?username=${encodeURIComponent(st.user)}&limit=${PAGE}&offset=0`)
   return (Array.isArray(res?.workouts) ? res.workouts : []).map(w => ({ id: w.id, start: w.start_time }))
 }
-const uuid = () => globalThis.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16))
 
 /** The account's own templates on the private API, the archived (deleted) ones left out. */
 const webCustoms = async web => {
@@ -124,30 +125,71 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
     const tplOf = (ex, brand, cable, side) => (brand && st.tpl[brandKey(ex, brand, cable, side)]) || st.tpl[ex]
     const ready = item => exercisesOf(item.draft).every(ex => !bad.has(ex) && st.tpl[ex])
 
+    // The Hevy gym of a workout's gym (D143): kept once found, so later passes ask nothing. Hevy's
+    // lists are read once a pass (the gyms near a place once per gym); a miss is asked again next pass.
+    let visited = null
+    const tried = new Map()
+    const hevyGym = async g => {
+      if (!g) return null
+      if (st.gyms?.[g.id] != null) return st.gyms[g.id]
+      if (tried.has(g.id)) return tried.get(g.id)
+      let id = null
+      try {
+        visited ??= gymList(await web('GET', '/gyms/visited'))
+        id = hevyGymFor(g, visited)
+        // Only near a place: a name alone is never matched among gyms the account has not been to.
+        if (id == null && g.lat != null) id = hevyGymFor(g, gymList(await web('GET', `/gyms/popular?latitude=${g.lat}&longitude=${g.lng}`)))
+      } catch (e) {
+        // Only the login, the rate and the network stop the pass: a gym route Hevy breaks (a 5xx) sends no gym, not no workout.
+        if (!(e instanceof HevyApiError) || [0, 401, 429].includes(e.status)) throw e
+        visited ??= []
+      }
+      tried.set(g.id, id)
+      if (id != null) (st.gyms ||= {})[g.id] = id
+      return id
+    }
+
     for (const item of web ? todo.workouts : []) {
       if (off()) break
       if (!ready(item)) { await refuse(item); continue }
-      const body = webWorkout(finish(item.draft, ex => st.tpl[ex]), { titleOf: id => titles.get(String(id)), clientId: uuid() })
       try {
-        let id = item.hevyId
-        if (!id && st.unsure?.[item.id]) {
-          const twin = (await webRecent(web, st)).find(w => w.start === body.workout.startTime)
-          if (twin?.id != null) id = String(twin.id)
+        const gymId = await hevyGym(item.draft.gym)
+        const body = finish(item.draft, ex => st.tpl[ex])
+        const titleOf = id => titles.get(String(id))
+        const v2 = wid => v2Workout(body, { titleOf, workoutId: wid, gymId })
+        // A create that got no answer keeps its uuid in `unsure`: sent again with it, a 409 means it landed.
+        const post = async wid => {
+          try { return createdId(await web('POST', '/v2/workout', v2(wid)), 'workout') } catch (e) {
+            if (e instanceof HevyApiError && e.status === 0) { (st.unsure ||= {})[item.id] = wid; await save(st) }
+            throw e
+          }
         }
-        if (id) {
-          try { await web('PUT', '/workout', { ...body, workout_id: id }) } catch (e) {
+        let id = item.hevyId
+        let edit = !!id
+        const was = st.unsure?.[item.id]
+        if (!id && was === 1) {
+          // Unsure from before D143 (no uuid kept): looked for among Hevy's newest by its start.
+          const start = Math.floor(Date.parse(item.draft.start_time) / 1e3)
+          const twin = (await webRecent(web, st)).find(w => Number(w.start) === start)
+          if (twin?.id != null) { id = String(twin.id); edit = true }
+        }
+        if (!id && typeof was === 'string') {
+          try { id = await post(was) } catch (e) {
+            if (!(e instanceof HevyApiError) || e.status !== 409) throw e
+            id = was; edit = true      // it landed then; edited below, in case the workout changed since
+          }
+        }
+        if (edit) {
+          // The old route moves the start and end, which v2 never does, but drops the set times: v2 puts them back.
+          try { await web('PUT', '/workout', { ...webWorkout(body, { titleOf, clientId: uuid() }), workout_id: id }) } catch (e) {
             if (!(e instanceof HevyApiError) || e.status !== 404) throw e
             // Deleted in Hevy: a repair leaves it deleted; an edit here sends it again as a new one.
             if (st.out.w[item.id]?.h === 'repair') { st.out.w[item.id].h = item.h; await save(st); continue }
             id = null
           }
+          if (id) await web('PUT', `/v2/workout/${encodeURIComponent(id)}`, v2Update(v2(id)))
         }
-        if (!id) {
-          try { id = createdId(await web('POST', '/workout', body), 'workout') } catch (e) {
-            if (e instanceof HevyApiError && e.status === 0) { (st.unsure ||= {})[item.id] = 1; await save(st) }
-            throw e
-          }
-        }
+        if (!id) id = await post(uuid())
         st.out.w[item.id] = { id, h: item.h }
         delete st.failed[item.id]
         if (st.unsure) delete st.unsure[item.id]
@@ -159,7 +201,8 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
     for (const item of web ? [] : todo.workouts) {
       if (off()) break
       if (!ready(item)) { await refuse(item); continue }
-      const body = { workout: finish(item.draft, tplOf) }
+      // The official API takes no set times or gym: its body is as before D143.
+      const body = { workout: finish(bare(item.draft), tplOf) }
       try {
         let id = item.hevyId
         if (!id && st.unsure?.[item.id]) {
@@ -243,7 +286,7 @@ export async function loadExport() {
   const f = await readJsonFile(EXPORT_FILE)
   const map = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
   cached = f && typeof f === 'object'
-    ? { ...OFF, ...f, out: { w: map(f.out?.w), r: map(f.out?.r) }, failed: map(f.failed), unsure: map(f.unsure), tpl: map(f.tpl), folders: map(f.folders) }
+    ? { ...OFF, ...f, out: { w: map(f.out?.w), r: map(f.out?.r) }, failed: map(f.failed), unsure: map(f.unsure), tpl: map(f.tpl), folders: map(f.folders), gyms: map(f.gyms) }
     : JSON.parse(JSON.stringify(OFF))
   return cached
 }
