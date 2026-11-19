@@ -102,7 +102,7 @@ function items(S, today, nav) {
     tile: { title: t('Training time'), value: hours, sub: t('this week'), spoken: t('Training time, {0} this week', hours),
       scroll: 'weekly' },
   }
-  out.weekly = { card: () => <div className="card hv-weekchart"><WeeklyChart /></div> }
+  out.weekly = { card: () => <div className="card hv-scard"><WeeklyChart /></div> }
   const month = workoutsThisMonth(S.workouts, today)
   out.month = { tile: { title: t('Workouts this month'), value: month, sub: t('workouts'), spoken: t('Workouts this month, {0}', month),
     onClick: partOn(S, 'hvStats', 'calendar') ? () => nav('/calendar') : null } }

@@ -143,18 +143,10 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
   })
 
-  // happy-dom applies no stylesheet, so hevier.css's rule is run against the tiles as drawn.
-  it('with an odd number of tiles the last spans both columns', () => {
+  // The owner's choice after the third critique: an odd last tile keeps its half, not a mostly empty full row.
+  it('no tile spans both columns, an odd last one included', () => {
     const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
-    const sel = css.match(/:root\[data-ui="hevier"\] (\.hv-stiles[^{]*:last-child:nth-child\(odd\))\{grid-column:1 \/ -1\}/)?.[1]
-    expect(sel).toBeTruthy()
-    render(['/stats'], { workouts: [workout(todayISO())] })
-    expect(tiles()).toHaveLength(2)
-    expect(container.querySelector(sel)).toBeNull()
-    act(() => root.unmount()); container.remove()
-    render(['/stats'], { workouts: [workout(todayISO())], bodyweight: [{ d: daysAgo(1), w: 82.4 }] })
-    expect(tiles()).toEqual(['weight', 'sets', 'hours'])
-    expect([...container.querySelectorAll(sel)].map(x => x.dataset.tile)).toEqual(['hours'])
+    expect(css).not.toMatch(/\.hv-stile[^{]*\{[^}]*grid-column:1 \/ -1/)
   })
 
   it('upstream’s ?focus= links land on upstream’s statistics', () => {

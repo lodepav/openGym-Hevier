@@ -538,7 +538,6 @@
 :root[data-ui="hevier"] .hv-linkrow-t .hv-sub{line-height:1.35}
 /* D142 Statistics: tiles two to a row, then the cards; nothing of fixed height, for 200 % text */
 :root[data-ui="hevier"] .hv-stiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-:root[data-ui="hevier"] .hv-stiles>.hv-stile:last-child:nth-child(odd){grid-column:1 / -1}
 :root[data-ui="hevier"] .hv-stile{display:flex;flex-direction:column;gap:2px;min-width:0;min-height:48px;padding:12px;border-radius:var(--r);background:var(--surface);color:var(--label-2);font:inherit;font-size:12px;text-align:start}
 :root[data-ui="hevier"] .hv-stile-t{font-weight:700;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-stile b{font-size:24px;font-weight:800;color:var(--label);overflow-wrap:anywhere}
@@ -546,8 +545,8 @@
 :root[data-ui="hevier"] .hv-ssec{scroll-margin-top:64px}
 :root[data-ui="hevier"] .hv-scard-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px}
 /* A card head's link keeps its text height, so the title sits where a plain card title does; its 48 dp is an invisible area centred on it. */
-:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link{min-height:0;position:relative}
-:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link::after{content:"";position:absolute;inset-inline:0;top:50%;height:48px;transform:translateY(-50%)}
+:root[data-ui="hevier"] :is(.hv-scard > .hv-scard-h:first-child, .hv-scard > .hv-chart > .hv-scard-h:first-child) .hv-link{min-height:0;position:relative}
+:root[data-ui="hevier"] :is(.hv-scard > .hv-scard-h:first-child, .hv-scard > .hv-chart > .hv-scard-h:first-child) .hv-link::after{content:"";position:absolute;inset-inline:0;top:50%;height:48px;transform:translateY(-50%)}
 :root[data-ui="hevier"] .hv-scard-h h2{margin:0}
 :root[data-ui="hevier"] .hv-scard-h .hv-link{display:inline-flex;align-items:center;min-height:48px;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
@@ -1025,6 +1024,7 @@
 :root[data-ui="hevier"] .hv-lift-hd{display:flex;align-items:flex-start;gap:8px}
 :root[data-ui="hevier"] .hv-lift-nm{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:6px}
 :root[data-ui="hevier"] .hv-lift .ss{font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-lift-nm .ss{flex-basis:100%} /* muscle and when always under the name */
 :root[data-ui="hevier"] .hv-lift-ch{flex:none;white-space:nowrap;font-size:13px;font-weight:800;color:var(--label-2);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-lift-ch.rising{color:var(--hv-acc-ink)}
 :root[data-ui="hevier"] .hv-lift-ch.falling{color:var(--hv-fail,var(--red))}

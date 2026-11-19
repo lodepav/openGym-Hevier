@@ -169,6 +169,8 @@ describe('hevier: Lifts (D135)', () => {
     const a = container.querySelectorAll('.hv-lift')[0]
     expect(a.querySelector('.hv-lift-ch').textContent).toMatch(/^↓ −\d+%$/)
     expect(a.querySelector('.hv-lift-ch').classList.contains('falling')).toBe(true)
+    // The change sits beside the chart, between it and the last set.
+    expect([...a.querySelector('.hv-lift-mid').children].map(c => c.classList[0])).toEqual(['hv-lift-scale', 'hv-lift-chart', 'hv-lift-ch', 'hv-lift-r'])
     expect(a.querySelector('svg.hv-lift-chart').getAttribute('aria-hidden')).toBe('true')
     const [hi, lo] = [...a.querySelectorAll('.hv-lift-scale span')].map(s => Number(s.textContent))
     expect(hi).toBeGreaterThan(lo)
