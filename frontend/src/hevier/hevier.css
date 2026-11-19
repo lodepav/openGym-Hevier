@@ -442,6 +442,7 @@
 :root[data-ui="hevier"] .hv-pagebar .iconbtn{background:none;color:var(--label);min-width:44px;min-height:44px}
 :root[data-ui="hevier"] .hv-pb-back .icn{font-size:22px;--icon-stroke:2.2}
 :root[data-ui="hevier"] .hv-pagebar .hv-link{flex:0 1 auto;min-width:0;min-height:44px;padding:0 8px;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-arrange .hv-pagebar{grid-template-columns:minmax(max-content,1fr) minmax(0,max-content) minmax(max-content,1fr)} /* at large text the long title shortens, not Reset */
 :root[data-ui="hevier"] .hv-pk-hd .hv-link{min-height:44px;padding:0 8px;font-size:16px}
 :root[data-ui="hevier"] .hv-pk .empty .hv-pk-create{display:block;width:auto;max-width:100%;margin:14px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* the empty Workout tab's and feed's way to the Hevy import */
