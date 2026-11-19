@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, isImported } from './hevy-export.js'
+import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, isImported, EXPORT_FIXES, builtinTemplates, webWorkout, repairMarks } from './hevy-export.js'
 import { exportOnce } from './hevy-export-sync.js'
 import { HevyApiError, HEVY_ID_MAP } from '../../lib/import-hevy.js'
 import { HEVY_TITLE_MAP } from '../../lib/hevy-id-map.js'
@@ -432,5 +432,57 @@ describe('hevier export to Hevy: one pass (D34)', () => {
     await exportOnce(S, st, { call, pages })
     expect(calls.map(c => c[0] + ' ' + c[1])).toEqual(['PUT /v1/workouts/GONE', 'POST /v1/workouts'])
     expect(st.out.w.a.id).toBe('HW1')
+  })
+})
+
+describe('hevier export to Hevy: the private web API and the repair (D138)', () => {
+  const find = S => templateFinder(builtinTemplates(), S)
+
+  it('sends an exercise the import never gives as the Hevy exercise of the export table', () => {
+    const f = find({})
+    for (const [ex, hevy] of Object.entries(EXPORT_FIXES)) expect(f(ex)?.id).toBe(hevy)
+    // the reverse import mapping still comes first: the built-ins carry every mapped template
+    expect(HEVY_ID_MAP[f(squat)?.id]).toBe(squat)
+  })
+
+  it('writes the private API\'s body: camelCase, seconds, every measure, the type as indicator', () => {
+    const body = finish(workoutDraft(workout()), ex => ({ id: ex === squat ? 'SQ' : 'LC', type: 'weight_reps' }))
+    const w = webWorkout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], clientId: 'c-1' })
+    expect(w.emptyResponse).toBe(false)
+    expect(w.workout).toMatchObject({ clientId: 'c-1', name: 'Legs', isPrivate: false, startTime: T0 / 1e3, endTime: T0 / 1e3 + 3600, imageUrls: [] })
+    const [sq, lc] = w.workout.exercises
+    expect(sq).toMatchObject({ id: 'SQ', title: 'Squat (Barbell)', supersetId: 0, notes: 'belt' })
+    expect(lc).toMatchObject({ id: 'LC', title: '', supersetId: 0 })
+    expect(sq.sets[0]).toEqual({ index: 0, completed: true, indicator: 'warmup', weight: 60, reps: 5, distance: null, duration: null, rpe: null })
+    expect(sq.sets[1]).toMatchObject({ index: 1, indicator: 'normal', weight: 100, reps: 5, rpe: 8 })
+    expect(sq.sets[2]).toMatchObject({ indicator: 'failure', rpe: 10 })
+    expect(lc.sets.map(s => [s.indicator, s.weight, s.reps])).toEqual([['normal', 40, 12], ['dropset', 30, 8]])
+    for (const s of [...sq.sets, ...lc.sets]) expect(Object.keys(s).sort()).toEqual(['completed', 'distance', 'duration', 'index', 'indicator', 'reps', 'rpe', 'weight'])
+  })
+
+  it('marks for rewriting the sent workouts with a branded template or a template that changed', () => {
+    const S = { unit: 'kg', workouts: [
+      workout({ id: 'plain', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }),
+      workout({ id: 'brand', entries: [{ id: squat, hvBrand: 'Eleiko', sets: [{ w: 100, r: 5, done: true }] }] }),
+      workout({ id: 'table', entries: [{ id: '2950', sets: [{ w: 80, r: 8, done: true }] }] }),
+      workout({ id: 'unsent', entries: [{ id: '2950', sets: [{ w: 80, r: 8, done: true }] }] }),
+    ] }
+    const st = {
+      out: { w: { plain: { id: 'H1', h: 'x' }, brand: { id: 'H2', h: 'x' }, table: { id: 'H3', h: 'x' } } },
+      tpl: { [squat]: { id: find(S)(squat).id }, [squat + '|eleiko']: { id: 'B1' }, 2950: { id: 'CUSTOM' } },
+    }
+    const marks = repairMarks(S, st, find(S))
+    expect(marks.tpl).toEqual({ 2950: expect.objectContaining({ id: EXPORT_FIXES[2950] }) })
+    expect(marks.workouts.sort()).toEqual(['brand', 'table'])
+  })
+
+  it('leaves a workout on the Hevy exercise it went as, when Hevy has several for one exercise', () => {
+    const f = find({})
+    const now = f(squat).id
+    const other = Object.keys(HEVY_ID_MAP).find(k => HEVY_ID_MAP[k] === squat && k !== now && builtinTemplates().some(t => t.id === k))
+    expect(other).toBeTruthy()
+    const S = { unit: 'kg', workouts: [workout({ id: 'sq', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] })] }
+    const st = { out: { w: { sq: { id: 'H1', h: 'x' } } }, tpl: { [squat]: { id: other } } }
+    expect(repairMarks(S, st, f)).toEqual({ tpl: {}, workouts: [] })
   })
 })

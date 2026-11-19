@@ -126,6 +126,12 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
         <receiver android:name=".GymReminderBootReceiver" tools:node="remove" />
+        <!-- D138: hevy.com's login page for the export to Hevy, opened only by HevierHevyLoginPlugin. -->
+        <activity
+            android:name=".HevierHevyLoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <provider
             android:name=".HevierStrengthProvider"
             android:authorities="${applicationId}.strength"

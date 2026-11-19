@@ -29,5 +29,7 @@ final class HevierPlugins {
         activity.registerFlavorPlugin(HevierTextZoomPlugin.class);
         // The launcher icon follows the accent, switched when the app goes to the background (D123).
         activity.registerFlavorPlugin(HevierIconPlugin.class);
+        // Hevy's login screen, the session the export to Hevy sends workouts with (D138).
+        activity.registerFlavorPlugin(HevierHevyLoginPlugin.class);
     }
 }

@@ -12,7 +12,8 @@ vi.mock('../../lib/mobile.js', async orig => ({
 }))
 const toast = vi.hoisted(() => vi.fn())
 vi.mock('../../store/useUI.js', () => ({ useUI: { getState: () => ({ toast }) } }))
-vi.mock('./secret.js', () => ({ getSecret: async () => 'k1', putSecret: async () => true, removeSecret: async () => {} }))
+const secrets = vi.hoisted(() => ({ 'hevy-api-key': 'k1' }))
+vi.mock('./secret.js', () => ({ getSecret: async n => secrets[n] ?? null, putSecret: async (n, v) => { secrets[n] = v; return true }, removeSecret: async n => { delete secrets[n] } }))
 
 const T0 = Date.parse('2026-10-15T16:00:00Z')
 const squat = '0043'
@@ -118,5 +119,118 @@ describe('sendToHevy: telling that it has stopped', () => {
     await mod.sendToHevy(getState, { now: T0 + 4300e3 })
     S.workouts.pop()
     await vi.waitFor(() => expect(toast).toHaveBeenCalledTimes(2))
+  })
+})
+
+describe('sendToHevy over the private web API (D138)', () => {
+  const session = { access_token: 'a1', refresh_token: 'r1', expires_at: null }
+  let web
+  beforeEach(() => {
+    secrets['hevy-web-session'] = JSON.stringify(session)
+    delete secrets['hevy-api-key']
+    file.tpl = {}
+    web = []
+    vi.stubGlobal('fetch', async (url, init) => {
+      const path = String(url).replace('https://api.hevyapp.com', '')
+      web.push({ key: init.method + ' ' + path, auth: init.headers.authorization, body: init.body && JSON.parse(init.body) })
+      const body = path === '/custom_exercise_templates' ? [{ id: 'OLD', title: 'Squat (Barbell) (brand: Eleiko)', is_archived: false }]
+        : path === '/workout' && init.method === 'POST' ? { id: 'PW1' } : null
+      return { ok: true, status: 200, text: async () => (body ? JSON.stringify(body) : '') }
+    })
+  })
+  afterEach(() => { delete secrets['hevy-web-session']; secrets['hevy-api-key'] = 'k1' })
+
+  it('posts the workout to the private API with the login, a branded set as Hevy\'s own exercise', async () => {
+    S.workouts[0].entries[0].hvBrand = 'Eleiko'
+    try {
+      const st = await mod.sendToHevy(getState, { force: true })
+      expect(st.last).toMatchObject({ sent: 1, error: null })
+      expect(web.map(c => c.key)).toEqual(['GET /custom_exercise_templates', 'POST /workout'])
+      expect(web[1].auth).toBe('Bearer a1')
+      const ex = web[1].body.workout.exercises[0]
+      expect(ex.id).toBe('D04AC939')            // Squat (Barbell), not the Eleiko custom
+      expect(ex.title).toBe('Squat (Barbell)')
+      expect(ex.notes).toMatch(/^Eleiko/)
+      expect(st.out.w.a.id).toBe('PW1')
+    } finally { delete S.workouts[0].entries[0].hvBrand }
+  })
+
+  it('lists as unused only the customs no workout, routine or export template uses, reading every page', async () => {
+    const asked = []
+    const w = id => ({ exercises: [{ exercise_template_id: id }] })
+    vi.stubGlobal('fetch', async (url, init) => {
+      const path = String(url).replace('https://api.hevyapp.com', '')
+      asked.push(init.method + ' ' + path + (init.body ? ' ' + init.body : ''))
+      const off = Number(/offset=(\d+)/.exec(path)?.[1])
+      const body = path === '/account' ? { username: 'me' }
+        : path.startsWith('/user_workouts_paged') ? { workouts: off === 0 ? [w('C1'), w('B'), w('B'), w('B'), w('B')] : off === 5 ? [w('C2')] : [] }
+        : path === '/routines_sync_batch' ? (init.body === '{}' ? { updated: [{ id: 'R1', updated_at: 't1', exercises: [{ exercise_template_id: 'C3' }] }], deleted: [], isMore: true }
+          : { updated: [{ id: 'R2', updated_at: 't2', exercises: [{ exercise_template_id: 'C4' }] }], deleted: [], isMore: false })
+        : path === '/custom_exercise_templates' ? ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'GONE'].map(id => ({ id, title: 'T ' + id, is_archived: id === 'GONE' }))
+        : null
+      return { ok: true, status: 200, text: async () => (body ? JSON.stringify(body) : '') }
+    })
+    file.tpl = { 2950: { id: 'C5' } }
+    delete file.user
+    expect(await mod.unusedCustoms()).toEqual([{ id: 'C6', title: 'T C6' }])
+    expect(asked.filter(a => a.includes('offset=')).map(a => /limit=(\d+)&offset=(\d+)/.exec(a).slice(1).join('/'))).toEqual(['5/0', '5/5'])
+    expect(asked.filter(a => a.includes('routines_sync_batch'))).toEqual(['POST /routines_sync_batch {}', 'POST /routines_sync_batch {"R1":"t1"}'])
+  })
+
+  it('lists nothing when it cannot tell whose workouts to read', async () => {
+    vi.stubGlobal('fetch', async () => ({ ok: true, status: 200, text: async () => '{}' }))
+    delete file.user
+    await expect(mod.unusedCustoms()).rejects.toThrow()
+  })
+
+  it('without a key, routines wait and nothing goes to the official API', async () => {
+    S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
+    try {
+      const st = await mod.sendToHevy(getState, { force: true })
+      expect(st.last).toMatchObject({ sent: 1, error: null })
+      expect(web.every(c => !c.key.includes('/v1/'))).toBe(true)
+      expect(web.filter(c => c.key.includes('routine'))).toEqual([])
+    } finally { S.routines.length = 0 }
+  })
+
+  // A fake Hevy for one test: `routes` answers by "METHOD path", the official API's calls by path.
+  const hevy = routes => vi.stubGlobal('fetch', async (url, init) => {
+    const path = String(url).replace('https://api.hevyapp.com', '')
+    web.push({ key: init.method + ' ' + path, body: init.body && JSON.parse(init.body) })
+    const r = routes[init.method + ' ' + path] ?? (path === '/custom_exercise_templates' ? [] : null)
+    const code = typeof r === 'number' ? r : 200
+    return { ok: code < 300, status: code, json: async () => (typeof r === 'object' ? r : {}), text: async () => (typeof r === 'object' && r ? JSON.stringify(r) : '') }
+  })
+
+  it('finds a workout whose send timed out among Hevy\'s workouts by its start, and updates it', async () => {
+    hevy({ 'GET /account': { username: 'me' }, 'GET /user_workouts_paged?username=me&limit=5&offset=0': { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] } })
+    file.unsure = { a: 1 }
+    const st = await mod.sendToHevy(getState, { force: true })
+    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(web.find(c => c.key === 'PUT /workout').body.workout_id).toBe('TW')
+    expect(st.out.w.a.id).toBe('TW')
+  })
+
+  it('leaves a workout deleted in Hevy deleted when the repair rewrites it', async () => {
+    hevy({ 'PUT /workout': 404 })
+    file.out.w.a = { id: 'OLD', h: 'repair' }
+    const st = await mod.sendToHevy(getState, { force: true })
+    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(st.out.w.a.id).toBe('OLD')
+    expect(st.out.w.a.h).not.toBe('repair')
+    expect(st.last.error).toBeNull()
+  })
+
+  it('a refused routine key stops only the routines, and is not told as a logout', async () => {
+    secrets['hevy-api-key'] = 'k1'
+    hevy({ 'POST /workout': { id: 'PW1' }, 'GET /v1/routine_folders?page=1&pageSize=10': 401, 'POST /v1/routines': 401, 'GET /v1/exercise_templates?page=1&pageSize=100': 401 })
+    S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
+    try {
+      const st = await mod.sendToHevy(getState, { force: false })
+      expect(st.out.w.a.id).toBe('PW1')
+      expect(st.last.error).toBe('key')
+      await new Promise(r => setTimeout(r, 0))
+      expect(toast).not.toHaveBeenCalled()
+    } finally { S.routines.length = 0 }
   })
 })

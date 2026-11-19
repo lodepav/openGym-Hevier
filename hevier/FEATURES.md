@@ -164,6 +164,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Earlier Hevy imports' notes get their line breaks back (new imports keep them upstream since 1.4.3, #690) | D54 | Fork |
 | Send new workouts and changed routines to Hevy | D34 | Fork |
 | Heart rate, gym, phase, brand and cable setup, exercise time, holds and uneven sides go into the notes of a workout sent to Hevy | D137 | Fork |
+| Workouts go to Hevy with a Hevy login (into the feed, no Pro key), Hevy's own exercise for a brand or a table match, and a repair of the ones sent before | D138 | Fork |
 | Import from Hevy link in the empty Workout tab and feed; a toast when Send to Hevy has stopped on its key | D118 | Fork |
 
 ## Android and phone

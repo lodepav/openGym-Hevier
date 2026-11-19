@@ -17,6 +17,7 @@ import { routineRows } from './routine-table.js'
 import { folderOf } from './routine-folders.js'
 import { FIXES, titleName, titleLabel, outcomeOf, matchTitle, readKey, brandNorm, choicesFor } from './hevy-import.js'
 import { pickFor } from '../../lib/import-choices.js'
+import { HEVY_BUILTINS } from './hevy-builtins.js'
 
 const LB_TO_KG = 0.45359237
 const NOTE_MAX = 280
@@ -290,6 +291,22 @@ const norm = s => String(s || '').toLowerCase().replace(/\(brand:[^)]*\)/g, ' ')
  * the user's own pick, one of the exercise's other names (D103), D29's fix table, an imported custom exercise's own template,
  * upstream's map read backwards, then a template of the same title. Returns exId → { id, type } | null.
  */
+/**
+ * openGym exercises the import never gives (picked from the catalogue here), sent as the Hevy
+ * built-in the user chose for each (D138) rather than as a new custom exercise.
+ */
+export const EXPORT_FIXES = {
+  1178: '5DA40761',   // dumbbell standing single leg calf raise → Single Leg Standing Calf Raise (Dumbbell)
+  2950: '3D1CDC75',   // lever belt squat → Belt Squat (Machine)
+  2146: '68CE0B9B',   // lever hip thrust → Hip Thrust (Machine)
+  5178: '629AE73D',   // lever single leg extension (plate loaded) → Single Leg Extensions
+  9868: '9264ADA1',   // cable 45 degrees single arm reverse fly → Reverse Fly Single Arm (Cable)
+  5033: '552AB030',   // cable single arm triceps pushdown (rope attachment) → Single Arm Triceps Pushdown (Cable)
+}
+
+/** Hevy's built-in templates (hevy-builtins.js) in the shape of the official API's template list. */
+export const builtinTemplates = () => HEVY_BUILTINS.map(([id, title, type]) => ({ id, title, type, is_custom: false }))
+
 export function templateFinder(templates, S) {
   const all = (templates || []).filter(t => t?.id != null)
   const found = new Map()
@@ -311,6 +328,8 @@ export function templateFinder(templates, S) {
     return false
   })
   for (const t of list) { const v = pickFor(own.aliases, titleName(t.title, 'Hevy', own), own.customEx); if (v) put(canonicalExId(v), t) }
+  const byId = new Map(list.map(t => [String(t.id), t]))
+  for (const [exId, hevyId] of Object.entries(EXPORT_FIXES)) if (byId.has(hevyId)) put(exId, byId.get(hevyId))
   for (const t of list) {
     // The fix table, else upstream's Hevy title map (since 1.4.3 it holds what the table had); a
     // custom template named like a built-in is left to the id pass below, built-ins first.
@@ -408,6 +427,69 @@ export function finish(draft, tplOf) {
     return { exercise_template_id: tpl.id, ...e, sets }
   })
   return body
+}
+
+/**
+ * What the repair of D138 changes, given the template finder of now: `tpl`, the exercises whose
+ * template is now another (the export table, a better match), and `workouts`, the ids of the sent
+ * workouts that went with one of those or with a brand's own template, to be rewritten.
+ */
+export function repairMarks(S, st, find) {
+  const tpl = {}
+  const builtin = new Set(HEVY_BUILTINS.map(b => b[0]))
+  for (const [ex, old] of Object.entries(st?.tpl || {})) {
+    if (ex.includes('|')) continue                 // a brand's key: workouts no longer use it
+    // Hevy has several exercises for some of ours: one it already went as keeps its history there.
+    if (builtin.has(String(old?.id))) continue
+    const now = find(ex)
+    if (now && String(now.id) !== String(old?.id)) tpl[ex] = now
+  }
+  const byId = new Map((S?.workouts || []).map(w => [w.id, w]))
+  const workouts = []
+  for (const id of Object.keys(st?.out?.w || {})) {
+    const w = byId.get(id)
+    const draft = w && workoutDraft(w, S.unit, S)
+    if (draft?.exercises.some(e => tpl[e.ex] || (e.brand && st.tpl?.[tplKey(e)]))) workouts.push(id)
+  }
+  return { tpl, workouts }
+}
+
+const nul = v => (v == null ? null : v)
+/**
+ * A finished workout body (`finish`) as the body of Hevy's private web API (D138): camelCase,
+ * times in seconds, each set with every measure present. `titleOf(templateId)` names each
+ * exercise; `clientId` is the phone's id for this workout.
+ */
+export function webWorkout(body, { titleOf = () => '', clientId, isPrivate = false } = {}) {
+  return {
+    workout: {
+      clientId: String(clientId),
+      name: body.title,
+      description: body.description || '',
+      imageUrls: [],
+      isPrivate: !!isPrivate,
+      startTime: Math.floor(Date.parse(body.start_time) / 1e3),
+      endTime: Math.floor(Date.parse(body.end_time) / 1e3),
+      useAutoDurationTimer: false,
+      trackWorkoutAsRoutine: false,
+      appleWatch: false,
+      exercises: body.exercises.map(e => ({
+        id: e.exercise_template_id,
+        title: titleOf(e.exercise_template_id) || '',
+        notes: e.notes || '',
+        routineNotes: '',
+        autoRestTimerSeconds: 0,
+        supersetId: nul(e.superset_id),
+        sets: e.sets.map((s, index) => ({
+          index, completed: true, indicator: s.type || 'normal',
+          weight: nul(s.weight_kg), reps: nul(s.reps), distance: nul(s.distance_meters), duration: nul(s.duration_seconds),
+          rpe: nul(s.rpe),
+        })),
+      })),
+    },
+    emptyResponse: false,
+    updateRoutineValues: false,
+  }
 }
 
 /** The key a draft's exercise keeps its template under: the exercise, and its brand and setup when it has one. */
