@@ -87,6 +87,15 @@ export function liftProgress(S, { from = null } = {}) {
   // against the whole log: the first session in the window is still held against the one before it.
   const R = { ...counted, setTrend: true }
   const log = sorted(counted.workouts)
+  // Last time reads only the exercise's own sessions (previous-sets.js), so each is held against a
+  // log of just those: the whole log for every entry grew with its square (All, a long phase).
+  const own = new Map()
+  for (const w of counted.workouts || []) {
+    for (const id of new Set((w?.entries || []).map(e => e?.id))) {
+      if (!own.has(id)) own.set(id, { ...R, workouts: [] })
+      own.get(id).workouts.push(w)
+    }
+  }
   const inside = log.filter(w => from == null || w.d >= from)
 
   // Per exercise, per label in the order of last use: the sessions' verdicts.
@@ -103,7 +112,7 @@ export function liftProgress(S, { from = null } = {}) {
       labels.set(key, l)
       // A deload routine's entries are counted (counted-log.js) but are no worse session.
       if (!compared(e.id) || entryExcluded(w, e)) return
-      const verdict = sessionVerdict(arrows(R, w, i))
+      const verdict = sessionVerdict(arrows(own.get(e.id), w, i))
       if (verdict != null) l.sessions.push({ day, verdict })
     })
   }
