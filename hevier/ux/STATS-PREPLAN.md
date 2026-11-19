@@ -143,7 +143,9 @@ Agreed 2026-11-19: four parts, one at a time, each with its own decision row and
    card on All statistics are hidden too (one seam); sets per muscle stays as a plain count by
    period, without ranges.
 2. **Lift progress on the cards.** Bigger cards, 12-week chart, rising/falling mark, brands as
-   lines, the phase filter; replaces Trends. Questions 3 and 6.
+   lines, the phase filter; replaces Trends. Answers (2026-11-19): the window is a switch (12 weeks,
+   the phase, All, remembered); Strength levels keeps its page, one link at the end of Lifts;
+   mockups through `/ux-rework` first. Approved as D140 (version B2: totals that filter, rows with a 32 px chart).
 3. **Muscle-group progress** in By muscle, on part 2's per-lift metric. Questions 4 and 5.
 4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Question 7.
 
