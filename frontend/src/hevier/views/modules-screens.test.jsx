@@ -37,13 +37,14 @@ describe('hevier: Modules in the fork’s screens (D97)', () => {
     expect(text()).not.toContain('week streak')
   })
 
-  it('History: Body weight goes with Body (D135)', () => {
-    const chips = () => [...container.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)
-    render('/history-tab')
-    expect(chips()).toContain('Body weight')
+  it('Statistics: Body weight goes with Body (D142)', () => {
+    const tiles = () => [...container.querySelectorAll('[data-tile]')].map(x => x.dataset.tile)
+    const bodyweight = [{ d: todayISO(), w: 80 }]
+    render('/stats', { bodyweight })
+    expect(tiles()).toContain('weight')
     act(() => root.unmount()); container.remove()
-    render('/history-tab', { modules: { body: false } })
-    expect(chips()).not.toContain('Body weight')
-    expect(chips()).toContain('Statistics')
+    render('/stats', { bodyweight, modules: { body: false } })
+    expect(tiles()).not.toContain('weight')
+    expect(container.querySelector('[data-card="weight"]')).toBeNull()
   })
 })

@@ -44,7 +44,8 @@ function render(at, workouts = log) {
     <Bridge />
   </MemoryRouter>))
 }
-const link = () => [...container.querySelectorAll('.hv-linkrow')].find(b => b.textContent.includes('Exercise time'))
+// Statistics' Exercise time card and its All link (D142).
+const link = () => container.querySelector('[data-card="time"] .hv-scard-h button')
 const chip = text => [...container.querySelectorAll('.hv-chip')].find(b => b.textContent === text)
 const names = () => [...container.querySelectorAll('.hv-report-row b:first-child')].map(b => b.textContent)
 
@@ -54,7 +55,17 @@ afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 describe('hevier: exercise time page', () => {
   it('Statistics offers it only once a workout has set times', () => {
     render('/stats', [log[1]])
-    expect(link()).toBeUndefined()
+    expect(link()).toBeNull()
+    expect(container.querySelector('[data-tile="time"]')).toBeNull()
+  })
+
+  it('Statistics: a workout’s exercise time on its tile, the longest exercises on its card', () => {
+    render('/stats')
+    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25min a workout')
+    expect([...container.querySelectorAll('[data-card="time"] .hv-scard-row')].map(r => r.textContent)).toEqual([
+      expect.stringMatching(/squat.*15min$/i), expect.stringMatching(/bench.*10min$/i)])
+    act(() => container.querySelector('[data-tile="time"]').click())
+    expect(path).toBe('/exercise-time')
   })
 
   it('lists the exercises longest first, turns round, and groups by gym or muscle', () => {

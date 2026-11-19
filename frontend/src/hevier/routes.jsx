@@ -19,7 +19,7 @@ import Lifts from './views/Lifts.jsx'
 import History, { HISTORY_PATH } from './views/History.jsx'
 import WorkoutTab from './views/WorkoutTab.jsx'
 import Statistics from './views/Statistics.jsx'
-import MuscleSets from './views/MuscleSets.jsx'
+import ArrangeStats from './views/ArrangeStats.jsx'
 import Measures from './views/Measures.jsx'
 import RoutineEditHevy from './views/RoutineEditHevy.jsx'
 import RoutinePreview from './views/RoutinePreview.jsx'
@@ -121,7 +121,9 @@ export const hevierRoutes = [
   // D126: Profile's place is the History tab.
   <Route key="hv-profile" path="/profile" element={<Navigate to={HISTORY_PATH} replace />} />,
   <Route key="hv-stats" path="/stats" element={<StatsEntry />} />,
-  <Route key="hv-muscle-sets" path="/muscle-sets" element={<MuscleSets />} />,
+  // D142: Sets per muscle is a card on Statistics now; an old link to its page lands there.
+  <Route key="hv-muscle-sets" path="/muscle-sets" element={<Navigate to="/stats" replace />} />,
+  <Route key="hv-stats-arrange" path="/stats/arrange" element={<ArrangeStats />} />,
   // D102: a module's parts unfold on Modules now; an old link to a module's own page lands there.
   <Route key="hv-module-parts" path="/settings/modules/:mod" element={<Navigate to="/settings/modules" replace />} />,
   <Route key="hv-stats-all" path="/stats/all" element={<WithBack label="Statistics" to="/stats" title="All statistics"><PhaseFilter /><Stats /></WithBack>} />,

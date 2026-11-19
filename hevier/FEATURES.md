@@ -135,11 +135,10 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels and Exercise time as links at the end | D135 | Fork |
 | Lifts shows where each lift is going: a chart of estimated 1RM with its change, a line per brand, over 12 weeks, the diet phase or all; rising, holding and falling totals that filter | D140 | Fork |
 | Lifts' By muscle shows each muscle group's change and how many of its lifts are rising; isolation lifts count half | D141 | Fork |
-| History: this week in three numbers, chips in two rows (Look back: Calendar, Month report; Numbers: Statistics, Sets per muscle, Body weight, All statistics), the phase filter and the workout feed | D135 | Fork |
+| History: this week in three numbers, one row of chips (Calendar, Monthly report, Statistics), the phase filter and the workout feed | D135 | Fork |
 | All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
-| The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
-| Sets per muscle as a page of its own: the counts by week, month or year; History's chip and a row on Statistics open it | D14, D135 | Fork |
+| Statistics as one page: number tiles, then cards (Exercise time, Body weight, Sets per muscle by week, month or year, the weekly chart), all under the phase filter; Arrange Statistics orders them and switches each on or off | D14, D135, D142 | Fork |
 | Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
 | Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |
 | Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |

@@ -1,5 +1,5 @@
-// Hevy's monthly report (hevier/DECISIONS.md D23; reference/SCREENS.md §6), Profile → Statistics →
-// Monthly report: the month's totals against the month before, its records, its calendar, sets per
+// Hevy's monthly report (hevier/DECISIONS.md D23; reference/SCREENS.md §6), History → Monthly report
+// (D142): the month's totals against the month before, its records, its calendar, sets per
 // muscle and top exercises, all read from the log by hevier/lib/month-report.js.
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
@@ -17,6 +17,7 @@ import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../li
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
+import { HISTORY_PATH } from './History.jsx'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
@@ -59,7 +60,7 @@ export default function MonthReport() {
   const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + year
 
   return <div className="narrow hv-report">
-    <BackTo label={t('Statistics')} to="/stats" title={t('Monthly report')}>
+    <BackTo label={t('History')} to={HISTORY_PATH} title={t('Monthly report')}>
       {trained && partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
         y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
         before: t(MONTHS_LONG[(at.mo + 11) % 12]),

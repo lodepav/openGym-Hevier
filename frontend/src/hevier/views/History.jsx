@@ -1,5 +1,5 @@
-// The History tab (hevier/DECISIONS.md D126, D135): this week in three numbers, the ways into the
-// statistics, then the phase filter and every workout as a feed card (D14's feed, unchanged).
+// The History tab (hevier/DECISIONS.md D126, D135, D142): this week in three numbers, one row of ways
+// into the statistics, then the phase filter and every workout as a feed card (D14's feed, unchanged).
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -13,7 +13,7 @@ import WorkoutCard from '../components/WorkoutCard.jsx'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { SettingsGear } from './Today.jsx'
 import { usePhasedS } from '../lib/shared-phase-run.js'
-import { anyPartOn, partOn } from '../lib/module-parts.js'
+import { partOn } from '../lib/module-parts.js'
 import { weekNumbers } from '../lib/history-week.js'
 import { roundOf } from '../lib/today.js'
 import { durationWords } from '../lib/elapsed.js'
@@ -42,20 +42,12 @@ export default function History() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const n = weekNumbers(S, todayISO())
-  // Each chip goes with the module part its page goes with, as Profile's tiles and Statistics' rows did;
-  // two labelled rows (D135, 2026-11-17), a row with no chip left is not drawn.
-  const groups = [
-    ['Look back', [
-      partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
-      partOn(S, 'hvStats', 'report') && ['Monthly report', () => nav('/report')],
-    ]],
-    ['Numbers', [
-      ['Statistics', () => nav('/stats')],
-      ['Sets per muscle', () => nav('/muscle-sets')],
-      anyPartOn(S, 'body') && ['Body weight', () => nav('/measures')],
-      ['All statistics', () => nav('/stats/all')],
-    ]],
-  ].map(([cap, chips]) => [cap, chips.filter(Boolean)]).filter(([, chips]) => chips.length)
+  // Each chip goes with the module part its page goes with; one row (D142), the rest is on Statistics.
+  const chips = [
+    partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
+    partOn(S, 'hvStats', 'report') && ['Monthly report', () => nav('/report')],
+    ['Statistics', () => nav('/stats')],
+  ].filter(Boolean)
   return <div className="narrow hv-history">
     <PageBar title={t('History')}><SettingsGear /></PageBar>
     <div className="hv-htiles">
@@ -64,10 +56,10 @@ export default function History() {
       <Tile label={t('Sets')} value={n.sets} className={n.records ? 'hv-pr' : ''}
         sub={n.records ? <><Icon name="trophy" />{n.records === 1 ? t('1 record') : t('{0} records', n.records)}</> : t('this week')} />
     </div>
-    {groups.map(([cap, chips]) => <div key={cap} className="hv-hgroup">
-      <span className="hv-cap">{t(cap)}</span>
-      <div className={'hv-chips hv-hlinks' + (cap === 'Numbers' ? ' hv-hscroll' : '')}>{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>
-    </div>)}
+    <div className="hv-hgroup">
+      <span className="hv-cap">{t('Look back')}</span>
+      <div className="hv-chips hv-hlinks">{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>
+    </div>
     <WorkoutFeed S={S} />
   </div>
 }

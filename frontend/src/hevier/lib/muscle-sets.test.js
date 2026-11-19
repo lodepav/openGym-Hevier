@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts, lastDays, WEEK_HEAT } from './muscle-sets.js'
-import { levelsOf } from '../../lib/muscles.js'
+import { periodOf, muscleSetCounts } from './muscle-sets.js'
 import { loadOfWorkouts, MUSCLE_NAME } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -40,30 +39,5 @@ describe('hevier muscle set counts', () => {
     expect(rows[0].sets).toBeGreaterThanOrEqual(rows.at(-1).sets)
     const r = muscleSetCounts([W('2026-10-06', [set()])], 'week', { today: '2026-10-16', weekStart: 1 }).rows
     expect(r).toEqual([{ muscle: 'Chest', sets: 0, prev: 1 }])
-  })
-
-  it('marks the trained days of the last week and maps their load', () => {
-    const r = lastDays([W('2026-10-16', [set()]), W('2026-10-10', [set()]), W('2026-10-09', [set()])], '2026-10-16')
-    expect(r.days.map(d => d.d)).toEqual(['2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16'])
-    expect(r.days.filter(d => d.trained).map(d => d.d)).toEqual(['2026-10-10', '2026-10-16'])
-    expect(r.workouts).toHaveLength(2)
-    expect(r.load.chest).toBeGreaterThan(0)
-  })
-
-  it('lights the body map as Settings → Muscle sets says (D42)', () => {
-    const ws = [W('2026-10-16', [set(), set()])]
-    const main = lastDays(ws, '2026-10-16', 7, 'main').load
-    expect(main.chest).toBe(2)
-    expect(main.triceps || 0).toBe(0)
-    expect(Object.keys(main).filter(k => main[k] > 0)).toEqual(['chest'])
-    const share = lastDays(ws, '2026-10-16', 7, 'share').load
-    expect(share).toEqual(loadOfWorkouts(ws))
-    expect(share.triceps).toBeGreaterThan(0)
-  })
-
-  it('shades the week in fixed steps, not against the busiest muscle (review T2)', () => {
-    const lv = levelsOf({ chest: 14, 'upper-back': 12, triceps: 9, biceps: 5, calves: 2, abs: 0 }, WEEK_HEAT)
-    expect([lv.chest, lv['upper-back'], lv.triceps, lv.biceps, lv.calves, lv.abs]).toEqual([4, 4, 3, 2, 1, 0])
-    expect(levelsOf({ chest: 0.5 }, WEEK_HEAT).chest).toBe(1)
   })
 })

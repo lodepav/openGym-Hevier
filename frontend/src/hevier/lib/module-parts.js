@@ -61,11 +61,11 @@ export const PARTS = {
     { id: 'backups', title: 'Backups per gym', desc: 'A routine started at a gym swaps in the backups that gym takes.' },
   ],
   hvStats: [
-    { id: 'report', title: 'Monthly report', desc: 'Your month in numbers, on Statistics.' },
+    { id: 'report', title: 'Monthly report', desc: 'Your month in numbers, from History.' },
     { id: 'time', title: 'Exercise time', desc: 'How long each exercise takes, on a workout and on a page of its own.' },
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
     // D117
-    { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
+    { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on History, with planned days as dots.' },
   ],
 }
 

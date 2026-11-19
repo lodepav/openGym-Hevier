@@ -92,12 +92,12 @@ describe('hevier: Lifts (D135)', () => {
     expect(container.querySelector('h2.sec').textContent).not.toBe('Recently trained')
   })
 
-  it('an empty log says so; links at the end lead on, and the chips are gone (D140)', () => {
+  it('an empty log says so; links at the end lead on, Exercise time is on Statistics (D140, D142)', () => {
     render()
     expect(container.querySelector('.empty')).toBeTruthy()
     expect(container.querySelector('.hv-chips')).toBeNull()
     expect(container.querySelector('.hv-lifts-win')).toBeNull()
-    expect([...container.querySelectorAll('.hv-lifts-link')].map(b => b.textContent)).toEqual(['Strength levels', 'Exercise time', 'All exercises · Create'])
+    expect([...container.querySelectorAll('.hv-lifts-link')].map(b => b.textContent)).toEqual(['Strength levels', 'All exercises · Create'])
     act(() => container.querySelector('.hv-lifts-all').click())
     expect(path).toBe('/library')
   })

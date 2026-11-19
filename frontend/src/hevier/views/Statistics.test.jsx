@@ -37,6 +37,9 @@ function render(entries, patch = {}) {
   </MemoryRouter>))
 }
 const byText = (sel, text) => [...container.querySelectorAll(sel)].find(b => b.textContent.includes(text))
+const tiles = () => [...container.querySelectorAll('[data-tile]')].map(x => x.dataset.tile)
+const cards = () => [...container.querySelectorAll('[data-card]')].map(x => x.dataset.card)
+const daysAgo = n => isoOf(new Date(Date.now() - n * 86400000))
 const workout = d => ({ id: 'w' + d, d, name: 'Push', start: 1, end: 3600001, vol: 960,
   entries: [{ id: BENCH, sets: [{ w: 60, r: 8, done: true }, { w: 60, r: 8, done: true }] }] })
 
@@ -44,16 +47,50 @@ beforeEach(() => { localStorage.clear(); useUI.setState({ sheets: [], toastMsg: 
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: Statistics and Measures (M6)', () => {
-  it('Statistics: the last 7 days, and upstream’s statistics behind a row; the sets per muscle are not here', () => {
+  it('Statistics: the tiles two to a row, then the cards, then the links (D142)', () => {
     render(['/history-tab', '/stats'], { workouts: [workout(todayISO())] })
-    expect(container.querySelectorAll('.hv-day')).toHaveLength(7)
-    expect(container.querySelector('.hv-day.today.on')).toBeTruthy()
-    expect(container.querySelector('.bodymap, svg')).toBeTruthy()
-    expect(container.querySelector('.hv-mset, .hv-wsets')).toBeFalsy()
+    expect(container.querySelector('.hv-day')).toBeNull()
+    expect(tiles()).toEqual(['sets', 'hours'])
+    expect(cards()).toEqual(['sets', 'weekly'])
+    expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
+    expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
+    expect(container.querySelectorAll('.hv-linkrow')).toHaveLength(2)
     act(() => byText('.hv-linkrow', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
+  })
+
+  it('a weigh-in brings the Body weight tile and card; the tile says its change and opens Measures', () => {
+    const bw = [{ d: daysAgo(40), w: 83 }, { d: daysAgo(1), w: 82.4 }]
+    render(['/stats'], { workouts: [workout(todayISO())], bodyweight: bw })
+    expect(tiles()).toEqual(['weight', 'sets', 'hours'])
+    expect(cards()).toEqual(['weight', 'sets', 'weekly'])
+    const tile = container.querySelector('[data-tile="weight"]')
+    expect(tile.getAttribute('aria-label')).toBe('Body weight, 82.4 kg, down 0.6 kg in 4 weeks')
+    act(() => tile.click())
+    expect(path).toBe('/measures')
+  })
+
+  it('… and not with the body module off', () => {
+    render(['/stats'], { bodyweight: [{ d: daysAgo(1), w: 82.4 }], hvModuleParts: { 'body.weight': false } })
+    expect(tiles()).not.toContain('weight')
+    expect(cards()).not.toContain('weight')
+  })
+
+  it('draws the tiles and cards in the saved order, a hidden one not at all', () => {
+    render(['/stats'], { workouts: [workout(todayISO())],
+      hvStatsLayout: { tiles: { order: ['month', 'sets', 'hours'], hidden: ['hours'] }, cards: { order: ['weekly', 'sets'], hidden: ['sets'] } } })
+    expect(tiles()).toEqual(['month', 'sets'])
+    expect(cards()).toEqual(['weekly'])
+    expect(container.querySelector('[data-tile="month"] b').textContent).toBe('1')
+    // Its card switched off, the Sets tile opens nothing.
+    expect(container.querySelector('[data-tile="sets"]').tagName).toBe('DIV')
+  })
+
+  it('/muscle-sets opens Statistics', () => {
+    render(['/muscle-sets'])
+    expect(path).toBe('/stats')
   })
 
   // D135 (2026-11-17): hevier.css hides upstream's week streak card on All statistics; happy-dom
@@ -68,16 +105,11 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector(sel)).toBe(card)
   })
 
-  it('Sets per muscle is a page of its own, a row on Statistics: the counts by period, back to Statistics', () => {
+  it('the Sets per muscle card counts by week, month or year', () => {
     render(['/stats'], { workouts: [workout(todayISO())] })
-    act(() => byText('.hv-linkrow', 'Sets per muscle').click())
-    expect(path).toBe('/muscle-sets')
-    expect(container.querySelector('.hv-title').textContent).toBe('Sets per muscle')
-    expect(byText('.hv-mset', 'Chest').querySelector('b').textContent).not.toBe('0')
     act(() => byText('.hv-chip', 'Year').click())
     expect(byText('.hv-chip', 'Year').getAttribute('aria-pressed')).toBe('true')
     expect(byText('.hv-mset', 'Chest')).toBeTruthy()
-    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
   })
 
   it('All statistics: the Muscles card keeps its bars without target ranges (D139)', () => {
@@ -93,10 +125,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     } finally { hooks.statsOff = was }
   })
 
-  it('an empty history says so instead of an empty map', () => {
+  it('an empty history says so on the sets card', () => {
     render(['/stats'])
-    expect(container.textContent).toContain('No workouts in the last 7 days.')
-    act(() => byText('.hv-linkrow', 'Sets per muscle').click())
     expect(container.textContent).toContain('No sets in this period yet.')
   })
 

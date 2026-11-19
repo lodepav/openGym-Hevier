@@ -1,6 +1,7 @@
 // Hevy's Profile chart (reference/SCREENS.md §5): the last 12 weeks as bars, switched between
 // Duration · Volume · Reps. In sets mode (hevier/DECISIONS.md D18) Volume is Sets, and a tap on a
 // week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
+// On Statistics it follows the page's phase filter (D142).
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -16,6 +17,7 @@ import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { sessionVolume } from '../../lib/history.js'
+import { usePhasedS } from '../lib/shared-phase-run.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
@@ -36,7 +38,7 @@ function weekSheet(S, week) {
 }
 
 export default function WeeklyChart() {
-  const S = useStore(s => s.S)
+  const S = usePhasedS(useStore(s => s.S))
   const [pick, setKind] = useState('duration')
   const [weeks, setWeeks] = useState(12)
   const [sel, setSel] = useState(null)

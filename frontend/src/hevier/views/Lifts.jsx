@@ -197,7 +197,6 @@ export default function Lifts() {
   const sections = liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
-    partOn(S, 'hvStats', 'time') && ['Exercise time', '/exercise-time'],
   ].filter(Boolean)
   return <div className="narrow hv-lifts">
     <PageBar title={t('Lifts')}><SettingsGear /></PageBar>

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// The History tab (hevier/DECISIONS.md D126, D135): this week's numbers, the chips, the feed.
+// The History tab (hevier/DECISIONS.md D126, D135, D142): this week's numbers, the chips, the feed.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useParams } from 'react-router-dom'
@@ -55,24 +55,17 @@ describe('hevier: History (D135)', () => {
     expect(container.querySelectorAll('.hv-wcard')).toHaveLength(2)
   })
 
-  it('the chips in two labelled rows open the statistics; Sets per muscle opens its own page', () => {
+  it('one row of chips: Calendar, Monthly report and Statistics (D142)', () => {
     render()
-    const rows = () => [...container.querySelectorAll('.hv-hgroup')].map(g =>
-      [g.querySelector('.hv-cap').textContent, [...g.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)])
-    expect(rows()).toEqual([['Look back', ['Calendar', 'Monthly report']],
-      ['Numbers', ['Statistics', 'Sets per muscle', 'Body weight', 'All statistics']]])
-    expect(container.querySelector('.hv-hscroll').closest('.hv-hgroup').querySelector('.hv-cap').textContent).toBe('Numbers')
-    act(() => chip('Sets per muscle').click())
-    expect(path).toBe('/muscle-sets')
-    act(() => root.unmount()); container.remove()
-    render()
-    act(() => chip('All statistics').click())
-    expect(path).toBe('/stats/all')
+    const rows = () => [...container.querySelectorAll('.hv-hgroup')].map(g => [...g.querySelectorAll('.hv-hlinks button')].map(b => b.textContent))
+    expect(rows()).toEqual([['Calendar', 'Monthly report', 'Statistics']])
+    act(() => chip('Statistics').click())
+    expect(path).toBe('/stats')
   })
 
-  it('a row with Calendar and Monthly report both off is not drawn, label and all', () => {
+  it('a chip whose part is off is not drawn; Statistics always is', () => {
     render({ hvModuleParts: { 'hvStats.calendar': false, 'hvStats.report': false } })
-    expect([...container.querySelectorAll('.hv-hgroup .hv-cap')].map(c => c.textContent)).toEqual(['Numbers'])
+    expect([...container.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)).toEqual(['Statistics'])
   })
 
   it('an empty feed points to the Hevy import on Settings → Integrations', () => {

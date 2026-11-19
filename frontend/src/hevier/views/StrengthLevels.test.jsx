@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// Profile → Statistics → Strength levels: the exercises with levels (D19), by the level reached.
+// Lifts → Strength levels: the exercises with levels (D19), by the level reached.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
@@ -34,20 +34,18 @@ function render(at, extra = {}) {
     <Bridge />
   </MemoryRouter>))
 }
-const link = () => [...container.querySelectorAll('.hv-linkrow')].find(b => b.textContent.includes('Strength levels'))
+// Lifts' end link (D140); Statistics has no row for it since D142.
+const link = () => [...container.querySelectorAll('.hv-lifts-link')].find(b => b.textContent.includes('Strength levels'))
 
 beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }) })
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: strength levels list', () => {
-  it('Statistics offers it only once a level is filled', () => {
-    render('/stats')
-    expect(link()).toBeUndefined()
-  })
   it('lists each exercise under the level it reaches, unlogged ones last', () => {
-    render('/stats', { hvStrength: { [BENCH]: LV, [SQUAT]: LV } })
+    render('/lifts', { hvStrength: { [BENCH]: LV, [SQUAT]: LV } })
     act(() => link().click())
     expect(path).toBe('/strength')
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Lifts')
     const secs = [...container.querySelectorAll('h2.sec')].map(h => h.textContent)
     expect(secs).toEqual(['Intermediate · 1', 'No 1RM logged yet · 1'])
     expect(container.textContent).toContain('15 kg to Advanced')
@@ -61,5 +59,8 @@ describe('hevier: strength levels list', () => {
     expect(rows.map(r => r.textContent.toLowerCase())).toEqual(['barbell bench press'])
     act(() => rows[0].click())
     expect(useUI.getState().sheets.length).toBe(1)
+    // Opened directly, back goes up to Lifts (D142).
+    act(() => container.querySelector('.hv-pb-back').click())
+    expect(path).toBe('/lifts')
   })
 })
