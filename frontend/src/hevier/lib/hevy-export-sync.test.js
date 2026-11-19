@@ -186,9 +186,51 @@ describe('sendToHevy over the private web API (D138)', () => {
   it('without a key, routines wait and nothing goes to the official API', async () => {
     S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
     try {
-      await mod.sendToHevy(getState, { force: true })
+      const st = await mod.sendToHevy(getState, { force: true })
+      expect(st.last).toMatchObject({ sent: 1, error: null })
       expect(web.every(c => !c.key.includes('/v1/'))).toBe(true)
       expect(web.filter(c => c.key.includes('routine'))).toEqual([])
+    } finally { S.routines.length = 0 }
+  })
+
+  // A fake Hevy for one test: `routes` answers by "METHOD path", the official API's calls by path.
+  const hevy = routes => vi.stubGlobal('fetch', async (url, init) => {
+    const path = String(url).replace('https://api.hevyapp.com', '')
+    web.push({ key: init.method + ' ' + path, body: init.body && JSON.parse(init.body) })
+    const r = routes[init.method + ' ' + path] ?? (path === '/custom_exercise_templates' ? [] : null)
+    const code = typeof r === 'number' ? r : 200
+    return { ok: code < 300, status: code, json: async () => (typeof r === 'object' ? r : {}), text: async () => (typeof r === 'object' && r ? JSON.stringify(r) : '') }
+  })
+
+  it('finds a workout whose send timed out among Hevy\'s workouts by its start, and updates it', async () => {
+    hevy({ 'GET /account': { username: 'me' }, 'GET /user_workouts_paged?username=me&limit=5&offset=0': { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] } })
+    file.unsure = { a: 1 }
+    const st = await mod.sendToHevy(getState, { force: true })
+    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(web.find(c => c.key === 'PUT /workout').body.workout_id).toBe('TW')
+    expect(st.out.w.a.id).toBe('TW')
+  })
+
+  it('leaves a workout deleted in Hevy deleted when the repair rewrites it', async () => {
+    hevy({ 'PUT /workout': 404 })
+    file.out.w.a = { id: 'OLD', h: 'repair' }
+    const st = await mod.sendToHevy(getState, { force: true })
+    expect(web.map(c => c.key)).not.toContain('POST /workout')
+    expect(st.out.w.a.id).toBe('OLD')
+    expect(st.out.w.a.h).not.toBe('repair')
+    expect(st.last.error).toBeNull()
+  })
+
+  it('a refused routine key stops only the routines, and is not told as a logout', async () => {
+    secrets['hevy-api-key'] = 'k1'
+    hevy({ 'POST /workout': { id: 'PW1' }, 'GET /v1/routine_folders?page=1&pageSize=10': 401, 'POST /v1/routines': 401, 'GET /v1/exercise_templates?page=1&pageSize=100': 401 })
+    S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
+    try {
+      const st = await mod.sendToHevy(getState, { force: false })
+      expect(st.out.w.a.id).toBe('PW1')
+      expect(st.last.error).toBe('key')
+      await new Promise(r => setTimeout(r, 0))
+      expect(toast).not.toHaveBeenCalled()
     } finally { S.routines.length = 0 }
   })
 })

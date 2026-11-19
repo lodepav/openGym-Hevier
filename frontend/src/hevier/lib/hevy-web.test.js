@@ -110,4 +110,21 @@ describe('webClient', () => {
     await expect(call('GET', '/account')).rejects.toMatchObject({ status: 0, message: 'offline' })
     expect(st.box.s).toEqual(S1)
   })
+
+  it('takes the pair another pass saved when its own refresh token was already used', async () => {
+    const S3 = { access_token: 'a3', refresh_token: 'r3', expires_at: '2026-11-19T09:00:00.000Z' }
+    const { get, calls } = fake({
+      'POST /auth/refresh_token': res(401),
+      'GET /account': auth => (auth === 'a1' || auth === 'a3' ? res(200, { username: 'u' }) : res(401)),
+    })
+    const st = store(S1)
+    let clock = T
+    const call = webClient({ ...st, get, now: () => clock })
+    await call('GET', '/account')       // this client now holds S1
+    st.box.s = S3                       // another pass refreshed and saved meanwhile
+    clock = Date.parse('2026-11-19T08:30:00Z')
+    expect(await call('GET', '/account')).toEqual({ username: 'u' })
+    expect(calls.map(c => c.key + ' ' + c.auth)).toEqual(['GET /account a1', 'POST /auth/refresh_token a1', 'GET /account a3'])
+    expect(st.box.saved).toEqual([])    // the good pair is not removed
+  })
 })

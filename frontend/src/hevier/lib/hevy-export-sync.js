@@ -46,7 +46,7 @@ export async function hevyCall(key, method, path, body, get = fetch) {
 // An error that stops the whole pass (the key, the rate, the network, Hevy itself) rather than
 // one item Hevy refused (a 400, a 403 at a limit, a 404).
 const stops = e => !(e instanceof HevyApiError) || e.status === 0 || e.status === 401 || e.status === 429 || e.status >= 500
-const kindOf = e => (!(e instanceof HevyApiError) ? 'failed' : e.status === 401 ? 'auth' : e.status === 429 ? 'rate' : e.status === 0 ? 'offline' : 'failed')
+const kindOf = e => (!(e instanceof HevyApiError) ? 'failed' : e.status === 401 ? (e.message === 'key' ? 'key' : 'auth') : e.status === 429 ? 'rate' : e.status === 0 ? 'offline' : 'failed')
 const idOf = (res, k) => { const v = Array.isArray(res?.[k]) ? res[k][0] : res?.[k] || res; return v?.id != null ? String(v.id) : null }
 // A create Hevy answered without an id is refused, not kept as sent with no id: the row then shows
 // it, rather than a later change quietly creating a second copy Hevy's API cannot delete.
@@ -137,7 +137,9 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
         if (id) {
           try { await web('PUT', '/workout', { ...body, workout_id: id }) } catch (e) {
             if (!(e instanceof HevyApiError) || e.status !== 404) throw e
-            id = null                       // gone from Hevy: sent again as a new one
+            // Deleted in Hevy: a repair leaves it deleted; an edit here sends it again as a new one.
+            if (st.out.w[item.id]?.h === 'repair') { st.out.w[item.id].h = item.h; await save(st); continue }
+            id = null
           }
         }
         if (!id) {
@@ -258,7 +260,11 @@ let lastError = 0
 /** The private API's caller with the session kept on this phone; `interactive` may open the login screen. */
 const webOf = ({ interactive = false } = {}) => webClient({
   load: () => getSecret(SESSION_NAME).then(v => (v ? JSON.parse(v) : null)).catch(() => null),
-  save: v => (v ? putSecret(SESSION_NAME, JSON.stringify(v)) : removeSecret(SESSION_NAME)),
+  // A rotated pair that is not kept would leave only a dead refresh token: the pass stops.
+  save: async v => {
+    if (!v) return removeSecret(SESSION_NAME)
+    if (!(await putSecret(SESSION_NAME, JSON.stringify(v)))) throw new HevyApiError(507, 'unsupported')
+  },
   login: interactive ? hevyLogin : null,
   get: nativeFetch,
 })
@@ -284,6 +290,9 @@ export async function enableExport(getState, { apply = null, now = Date.now() } 
 export async function relogin(getState, { apply = null } = {}) {
   await removeSecret(SESSION_NAME)
   try { await webOf({ interactive: true })('GET', '/account') } catch (e) { return { ok: false, reason: kindOf(e) } }
+  const st = await loadExport()
+  // The logged-out line goes now, even when the pass below has nothing to send.
+  if (st.last?.error === 'auth' || st.last?.error === 'nokey') { st.last = { ...st.last, error: null }; await saveExport(st); told(st) }
   lastError = 0
   await sendToHevy(getState, { force: true, apply }).catch(() => {})
   return { ok: true, reason: null }
@@ -355,7 +364,7 @@ async function sendOnce(getState, apply, now, force) {
   const todo = pending(getState(), st)
   // Nothing new to send (the usual pass): no Keystore read and no file write (battery).
   // Send now still goes the whole way, so a lost key shows.
-  if (!force && st.last && !todo.workouts.length && !todo.routines.length) return st
+  if (!force && st.last && !todo.workouts.length && (!todo.routines.length || !(await getSecret(KEY_NAME)))) return st
   const key = await getSecret(KEY_NAME)
   const web = (await getSecret(SESSION_NAME)) ? webOf({ interactive: force }) : null
   if (!key && !web) {
@@ -364,7 +373,8 @@ async function sendOnce(getState, apply, now, force) {
     return st
   }
   const res = await exportOnce(getState(), st, {
-    call: key ? (m, p, b) => hevyCall(key, m, p, b) : null,
+    // With a login, a refused key is the routines' key only, not a logout.
+    call: key ? (m, p, b) => hevyCall(key, m, p, b).catch(e => { throw web && e?.status === 401 ? new HevyApiError(401, 'key') : e }) : null,
     pages: key ? (p, resultKey, pageSize) => fetchHevyPages(p, key, { resultKey, pageSize }) : null,
     web,
     apply,
@@ -383,8 +393,9 @@ async function sendOnce(getState, apply, now, force) {
 
 /**
  * Marks the workouts sent before D138 whose exercises now go as another Hevy exercise (a brand's
- * own, or one the export table gives), so the next pass rewrites them in place. Resolves with how
- * many will be rewritten, or null without a login.
+ * own, or one the export table gives), so the next pass rewrites them in place. Resolves with
+ * their ids, or null without a login. The brand templates are forgotten: workouts no longer use
+ * them, and routines find them again by title, so they can be offered for deletion when unused.
  */
 export async function planRepair(getState) {
   const st = await loadExport()
@@ -394,8 +405,9 @@ export async function planRepair(getState) {
   const marks = repairMarks(getState(), st, find)
   Object.assign(st.tpl, marks.tpl)
   for (const id of marks.workouts) st.out.w[id].h = 'repair'
+  for (const k of Object.keys(st.tpl)) if (k.includes('|')) delete st.tpl[k]
   await saveExport(st)
-  return marks.workouts.length
+  return marks.workouts
 }
 
 // Every template id a list of Hevy workouts or routines uses.

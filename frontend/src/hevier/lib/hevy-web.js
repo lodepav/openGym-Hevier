@@ -76,6 +76,13 @@ export function webClient({ load, save, login = null, get = fetch, now = Date.no
   const refresh = async () => {
     const res = await send(get, s.access_token, 'POST', '/auth/refresh_token', { refresh_token: s.refresh_token })
     if (res.status === 400 || res.status === 401 || res.status === 403) {
+      // Another pass may have refreshed first, which kills this refresh token: take its pair.
+      const kept = sessionOf(await load())
+      if (kept && kept.refresh_token !== s.refresh_token) {
+        s = kept
+        if (expired(s, now())) await refresh()
+        return
+      }
       s = null
       await save(null)
       s = await logIn()

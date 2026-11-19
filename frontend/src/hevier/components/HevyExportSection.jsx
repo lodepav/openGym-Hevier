@@ -69,15 +69,18 @@ export function KeySheet({ close, done = () => {} }) {
 export function RepairSheet({ close }) {
   const [step, setStep] = useState('ask')       // ask → fixing → unused → done
   const [count, setCount] = useState(0)
+  const [left, setLeft] = useState(0)
   const [unused, setUnused] = useState([])
   const fix = async () => {
     setStep('fixing')
     try {
-      const n = await planRepair(getState)
-      if (n == null) { toast(reasonOf('auth')); close(); return }
+      const ids = await planRepair(getState)
+      if (ids == null) { toast(reasonOf('auth')); close(); return }
       const st = await sendToHevy(getState, { force: true, apply })
       if (st?.last?.error) { toast(statusOf(st)); close(); return }
-      setCount(n)
+      const waiting = ids.filter(id => st.out?.w?.[id]?.h === 'repair').length
+      setCount(ids.length - waiting)
+      setLeft(waiting)
       setUnused(await unusedCustoms())
       setStep('unused')
     } catch { toast(t('Could not reach Hevy')); close() }
@@ -99,6 +102,7 @@ export function RepairSheet({ close }) {
   </div>
   return <div className="hv-namesheet">
     <h3>{t('Rewritten in Hevy: {0}', count)}</h3>
+    {left > 0 && <div className="muted small" style={text}>{t('Still to rewrite: {0}. They go with the next sends.', left)}</div>}
     {unused.length ? <>
       <div className="muted small" style={text}>{t('These custom exercises are in no workout or routine in Hevy now. Delete them there?')}</div>
       <ul className="small" style={{ margin: '0 0 16px', paddingLeft: 18, lineHeight: 1.5 }}>{unused.map(c => <li key={c.id}>{c.title}</li>)}</ul>
@@ -123,6 +127,7 @@ export function statusOf(st) {
   if (!l) return t('New workouts and changed routines go to Hevy while the app is open.')
   if (l.error === 'nokey') return t('The Hevy login is gone from this phone. Log in again')
   if (l.error === 'auth') return t('Hevy logged you out. Log in again')
+  if (l.error === 'key') return t('Hevy refused the Pro API key, so routines wait. Workouts still go')
   if (l.error) return t('Not sent: {0}. It is tried again later', l.error === 'offline' ? t('no connection') : l.error === 'rate' ? t('Hevy asked to wait') : t('Hevy had an error'))
   const parts = [t('Last sent {0}', when(l.at))]
   if (l.sent) parts.push(t('Sent: {0}', l.sent))

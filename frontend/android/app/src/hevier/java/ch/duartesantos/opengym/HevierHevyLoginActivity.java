@@ -62,10 +62,7 @@ public class HevierHevyLoginActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         CookieManager cookies = CookieManager.getInstance();
-        for (String domain : new String[] { SITE, "https://.hevy.com" }) {
-            cookies.setCookie(domain, NAME + "=; Max-Age=0; Path=/");
-        }
-        cookies.flush();
+        clearSession();
         web = new WebView(this);
         web.setBackgroundColor(Color.BLACK);
         WebSettings s = web.getSettings();
@@ -87,8 +84,17 @@ public class HevierHevyLoginActivity extends Activity {
         getOnBackInvokedDispatcher().registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::back);
     }
 
+    /** Forgets hevy.com's session cookie, a host-only one and one set for the whole domain. */
+    private static void clearSession() {
+        CookieManager cookies = CookieManager.getInstance();
+        cookies.setCookie(SITE, NAME + "=; Max-Age=0; Path=/");
+        cookies.setCookie(SITE, NAME + "=; Max-Age=0; Path=/; Domain=.hevy.com");
+        cookies.flush();
+    }
+
     private void finishWith(String value) {
         done = true;
+        clearSession();   // the app keeps it encrypted; the WebView's copy goes
         setResult(RESULT_OK, new Intent().putExtra(EXTRA_COOKIE, value));
         finish();
     }
@@ -100,6 +106,13 @@ public class HevierHevyLoginActivity extends Activity {
             setResult(RESULT_CANCELED);
             finish();
         }
+    }
+
+    // Android 13 to 15, where the app has not opted in to predictive back.
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onBackPressed() {
+        back();
     }
 
     @Override
