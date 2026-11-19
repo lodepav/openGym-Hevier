@@ -175,6 +175,15 @@ describe('hevier: Lifts (D135)', () => {
     expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 × 8, best 80 × 8`)
   })
 
+  it('a small change draws on a padded scale but speaks the lift’s own range', () => {
+    render({ workouts: [wo('2026-11-02', A.id, 100), wo('2026-11-09', A.id, 98), wo('2026-11-15', A.id, 97)] })
+    const a = container.querySelector('.hv-lift')
+    const [hi, lo] = [...a.querySelectorAll('.hv-lift-scale span')].map(s => Number(s.textContent))
+    const [, said0, said1] = a.getAttribute('aria-label').match(/estimated 1RM (\d+) to (\d+) kg/).map(Number)
+    expect(said0).toBeGreaterThan(lo)
+    expect(said1).toBeLessThan(hi)
+  })
+
   it('a flat line shows one number on its scale and speaks it once; holding, it has no percent', () => {
     render({ workouts: [wo('2026-11-02', A.id, 70), wo('2026-11-09', A.id, 70), wo('2026-11-15', A.id, 70)] })
     const a = container.querySelector('.hv-lift')
