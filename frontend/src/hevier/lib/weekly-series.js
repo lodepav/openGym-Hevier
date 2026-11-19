@@ -58,3 +58,17 @@ export function labelledWeeks(n, count = 4) {
   const step = Math.floor((n - 1) / (count - 1))
   return Array.from({ length: count }, (_, i) => n - 1 - (count - 1 - i) * step)
 }
+
+/** The most of `labelledWeeks`' dates (four down to one, the newest) that sit `labelWidth` px wide on an
+ *  `axisWidth` px axis without touching: the first is drawn from the left edge, the last to the right one,
+ *  the rest centred on their bar (hevier.css .hv-xaxis). */
+export function fittedWeeks(n, axisWidth, labelWidth, gap = 8) {
+  const pitch = axisWidth / n
+  const box = (i, k, last) => (k === 0 ? [0, labelWidth] : k === last ? [axisWidth - labelWidth, axisWidth]
+    : [(i + 0.5) * pitch - labelWidth / 2, (i + 0.5) * pitch + labelWidth / 2])
+  for (let c = Math.min(4, n); c > 1; c--) {
+    const idx = labelledWeeks(n, c)
+    if (idx.every((i, k) => k === 0 || box(idx[k - 1], k - 1, c - 1)[1] + gap <= box(i, k, c - 1)[0])) return idx
+  }
+  return n ? [n - 1] : []
+}
