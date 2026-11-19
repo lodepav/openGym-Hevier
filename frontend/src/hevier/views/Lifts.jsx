@@ -133,12 +133,14 @@ function LiftRow({ r, S, today, p, win, half }) {
           {half && <span className="hv-lift-half" aria-hidden="true">½</span>}
           {sub && <span className="ss">{sub}</span>}
         </span>
-        {change && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
+        {change && !scale && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
         {!scale && lastBest}
       </span>
       {scale && <span className="hv-lift-mid">
         <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}</span><span>{scale[0]}</span></>}</span>
         <LiftChart lines={lines} tones={tones} />
+        {/* The change sits beside the line it describes. */}
+        {change && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
         {lastBest}
       </span>}
       {lines.length > 1 && <span className="hv-lift-legend">{lines.map((l, k) => <span key={l.key}>
