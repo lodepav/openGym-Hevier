@@ -50,6 +50,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('Statistics: the tiles two to a row, then the cards, then the links (D142)', () => {
     render(['/history-tab', '/stats'], { workouts: [workout(todayISO())] })
     expect(container.querySelector('.hv-day')).toBeNull()
+    // No set times in the last 90 days: no Exercise time tile or card.
     expect(tiles()).toEqual(['sets', 'hours'])
     expect(cards()).toEqual(['sets', 'weekly'])
     expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
@@ -58,7 +59,9 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
     expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h this week')
     // Tile = now, card = more: the weekly chart does not repeat this week's time.
-    expect(container.querySelector('.hv-chart-h b').textContent).toBe('Weekly chart')
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
+    // One heading style: the chart's title is headed as the cards' heads are.
+    expect(container.querySelector('[data-card="weekly"] .hv-scard-h > h2').textContent).toBe('Weekly chart')
     // The page ends as Lifts does, with flat accent links, no icon cards and no filled button.
     expect(container.querySelector('.hv-linkrow')).toBeNull()
     expect(container.querySelector('.btn')).toBeNull()

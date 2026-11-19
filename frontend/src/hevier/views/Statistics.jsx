@@ -17,10 +17,10 @@ import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import MuscleSetsCard from '../components/MuscleSetsCard.jsx'
-import { durationWords, elapsedWords } from '../lib/elapsed.js'
+import { elapsedWords } from '../lib/elapsed.js'
 import { partOn } from '../lib/module-parts.js'
 import { TILES, CARDS, shown, moduleOn } from '../lib/stats-layout.js'
-import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from '../lib/stats-tiles.js'
+import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from '../lib/stats-tiles.js'
 import { HISTORY_PATH } from './History.jsx'
 
 /** The page bar of a fork page under a tab: ‹ back to `to` (named `label`) and the page's title. */
@@ -57,20 +57,21 @@ function CardHead({ title, link, label, onClick }) {
 function items(S, today, nav) {
   const ws = weekStartOf(S)
   const out = {}
-  const exTime = moduleOn(S, 'time') ? workoutExerciseTime(S.workouts, today) : null
-  if (exTime != null) {
-    const v = durationWords(exTime)
+  if (moduleOn(S, 'time')) {
+    const v = trainingTime(weekExerciseTime(S.workouts, today, ws))
+    const longest = longestExercises(S.workouts, today)
     out.time = {
-      // All of a workout's exercise times added up, averaged over the workouts (stats-tiles.js), not one exercise's.
-      tile: { title: t('Exercise time'), value: v, sub: t('a workout, on average'), spoken: t('Exercise time, {0} a workout on average', v), onClick: () => nav('/exercise-time') },
-      card: () => <div className="card hv-scard">
+      // This week's timed exercises added up (stats-tiles.js); the card is each exercise's average over 90 days.
+      // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
+      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v), onClick: () => nav('/exercise-time') } : null,
+      card: longest.length ? () => <div className="card hv-scard">
         <CardHead title={t('Exercise time')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
-        {longestExercises(S.workouts, today).map(r => {
+        {longest.map(r => {
           const ex = exOr(r.id)
           return <div key={r.id} className="hv-scard-row"><span className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span><b>{elapsedWords(Math.round(r.avg / 1000))}</b></div>
         })}
         <div className="small dim">{t('Average a session, last 90 days')}</div>
-      </div>,
+      </div> : null,
     }
   }
   // Weigh-ins are not workouts, so the phase filter leaves them as they are.

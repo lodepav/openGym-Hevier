@@ -22,7 +22,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy, liftSetText } from '../lib/lifts-list.js'
-import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress } from '../lib/lift-progress.js'
+import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress, chartRange } from '../lib/lift-progress.js'
 import { isCompound } from '../lib/compound.js'
 import { PHASE_LABEL } from '../lib/shared-phase.js'
 import { dayNo, muscleGroup } from '../lib/strength-signal.js'
@@ -62,12 +62,11 @@ const LINE_TONES = ['var(--acc)', 'var(--yellow)', 'var(--label-2)']
 const pctText = pct => (pct == null ? null : (signed(pct)?.text ?? '0') + '%')
 const pctSpoken = pct => (pct == null ? null : pct > 0 ? t('up {0} %', pct) : pct < 0 ? t('down {0} %', -pct) : t('no change'))
 
-// The estimated 1RM as a line per label over one date range and one scale, 32 px tall at any width:
+// The estimated 1RM as a line per label over one date range and one scale (chartRange), 32 px tall at any width:
 // the strokes and the end dots keep their size however wide the line is stretched.
 function LiftChart({ lines, tones }) {
   const all = lines.flatMap(l => l.points)
-  let lo = Math.min(...all.map(p => p.y)), hi = Math.max(...all.map(p => p.y))
-  if (hi - lo < 1e-6) { lo -= 1; hi += 1 }
+  const { lo, hi } = chartRange(all.map(p => p.y))
   const days = all.map(p => dayNo(p.d))
   const d0 = Math.min(...days), d1 = Math.max(...days)
   const X = d => (d1 > d0 ? (dayNo(d) - d0) / (d1 - d0) * 100 : 100)
@@ -101,8 +100,10 @@ function LiftRow({ r, S, today, p, win, half }) {
   const pct = shownPct(p?.state, p?.pct)
   const change = [ARROW[p?.state], pctText(pct)].filter(Boolean).join(' ')
   const ys = lines.flatMap(l => l.points.map(x => x.y))
-  const scale = ys.length ? [Math.min(...ys), Math.max(...ys)].map(v => Math.round(convert(v, S.unit, unit))) : null
-  // A flat line is drawn mid-height (LiftChart widens its range), so its one number sits there.
+  // The labels name the drawn range's edges (chartRange may pad a small change), so they sit on the outer grid lines;
+  // a flat line is drawn mid-height, so its one number sits there.
+  const span = ys.length ? (Math.min(...ys) === Math.max(...ys) ? { lo: ys[0], hi: ys[0] } : chartRange(ys)) : null
+  const scale = span ? [span.lo, span.hi].map(v => Math.round(convert(v, S.unit, unit))) : null
   const flat = scale && scale[0] === scale[1]
   const brand = l => labelText({ brand: l.key.split('|')[0], cable: l.key.split('|')[1] }, t)
   const lastBest = r.last && <span className="hv-lift-r">

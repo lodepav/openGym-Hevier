@@ -85,9 +85,9 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const chips = [...container.querySelectorAll('.hv-chip')]
     expect(chips.map(c => c.textContent)).toEqual(['Duration', 'Sets', 'Reps'])
     act(() => chips[1].click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toBe('Weekly chart')
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
     act(() => [...container.querySelectorAll('button.hv-barcol')].at(-1).click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 5 sets$/)
+    expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 5 sets$/)
     expect(sheetHost().textContent).toContain('Chest')
   })
 
@@ -99,10 +99,10 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const open = vi.spyOn(useUI.getState(), 'openSheet')
     // 10 px per week, a 6 px bar and a 4 px gap: x just past the second-to-last bar's edge is nearest to it
     act(() => container.querySelector('.hv-bars').dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: (cols.length - 2) * 10 + 7 })))
-    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 0 sets$/)
+    expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 0 sets$/)
     expect(open).toHaveBeenCalledTimes(1)
     act(() => cols.at(-1).click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 5 sets$/)
+    expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 5 sets$/)
     expect(open).toHaveBeenCalledTimes(2)
     open.mockRestore()
   })

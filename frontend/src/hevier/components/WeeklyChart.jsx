@@ -2,7 +2,7 @@
 // Duration · Volume · Reps. In sets mode (hevier/DECISIONS.md D18) Volume is Sets, and a tap on a
 // week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
 // On Statistics it follows the page's phase filter (D142); untapped its headline is a plain title, as
-// this week's figure is the Training time tile's.
+// this week's figure is the Training time tile's, headed as the page's cards are (hv-scard-h).
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -59,7 +59,7 @@ export default function WeeklyChart() {
   const tap = p => { const on = p.week === sel; setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }
   const head = picked ? weekText(picked) : t('Weekly chart')
   return <div className="hv-chart">
-    <div className="hv-chart-h"><b>{head}</b>
+    <div className="hv-chart-h hv-scard-h"><h2>{head}</h2>
       <button type="button" className="hv-link hv-range" onClick={() => menuSheet({
         title: t('Period'), items: RANGES.map(o => ({ label: t(o.label), on: o.weeks === weeks, onClick: () => setWeeks(o.weeks) })) })}>
         {t(RANGES.find(o => o.weeks === weeks).label)}<Icon name="chevronDown" /></button></div>

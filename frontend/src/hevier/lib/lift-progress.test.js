@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import { EXDB, isAssisted } from '../../lib/exercises.js'
 import { muscleGroup } from './strength-signal.js'
-import { WINDOWS, liftsWindow, currentPhase, windowFrom, medianChange, liftProgress, progressTotals, shownPct, groupProgress } from './lift-progress.js'
+import { WINDOWS, liftsWindow, currentPhase, windowFrom, medianChange, liftProgress, progressTotals, shownPct, groupProgress, chartRange } from './lift-progress.js'
 
 const TODAY = '2026-10-31'
 const NOW = Date.parse(TODAY + 'T12:00:00Z')
@@ -209,5 +209,14 @@ describe('groupProgress (D141)', () => {
       ...series(CHEST[1], [15, 8, 1], [60, 60, 60]),
     ])
     expect(groupProgress(map, [CHEST[0], CHEST[1]], { isCompound: () => true })).toEqual({ state: 'rising', pct: 10, rising: 1, falling: 0, judged: 2 })   // (20 + 0) / 2
+  })
+})
+
+describe('chartRange', () => {
+  const r = ({ lo, hi }) => [Math.round(lo * 10) / 10, Math.round(hi * 10) / 10]
+  it('pads a small change to ±5 % of its middle, keeps a big one, widens a flat line by 1', () => {
+    expect(r(chartRange([117, 113, 111]))).toEqual([108.3, 119.7])
+    expect(chartRange([100, 130])).toEqual({ lo: 100, hi: 130 })
+    expect(chartRange([70, 70])).toEqual({ lo: 69, hi: 71 })
   })
 })

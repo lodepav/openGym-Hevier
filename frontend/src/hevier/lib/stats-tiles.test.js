@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { workoutExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from './stats-tiles.js'
+import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from './stats-tiles.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const SQUAT = EXDB.find(e => /^barbell full squat$/i.test(e.n)).id
@@ -17,10 +17,13 @@ const plain = (d, sets, extra = {}) => ({ id: 'p' + d, d, start: Date.parse(d + 
   entries: [{ id: BENCH, sets }], ...extra })
 
 describe('Statistics tile numbers (D142)', () => {
-  it('exercise time a workout: the average of each timed workout, over 90 days, none without set times', () => {
-    const log = [timed('2026-11-16', 10, 20), timed('2026-11-10', 10, 10), timed('2026-01-01', 60, 60), plain('2026-11-17', [{ w: 60, r: 8, done: true }])]
-    expect(workoutExerciseTime(log, TODAY)).toBe(25 * MIN)
-    expect(workoutExerciseTime([plain('2026-11-17', [{ w: 60, r: 8, done: true }])], TODAY)).toBeNull()
+  it('exercise time this week: the timed exercises of this week added up, 0 without set times', () => {
+    const log = [timed('2026-11-16', 10, 20), timed('2026-11-17', 5, 5), timed('2026-11-10', 10, 10), timed('2026-01-01', 60, 60), plain('2026-11-17', [{ w: 60, r: 8, done: true }])]
+    expect(weekExerciseTime(log, TODAY, 1)).toBe(40 * MIN)
+    // A week starting Sunday still has Monday the 16th; starting Wednesday the 18th, it has neither.
+    expect(weekExerciseTime(log, TODAY, 0)).toBe(40 * MIN)
+    expect(weekExerciseTime(log, TODAY, 3)).toBe(0)
+    expect(weekExerciseTime([plain('2026-11-17', [{ w: 60, r: 8, done: true }])], TODAY, 1)).toBe(0)
     expect(longestExercises(log, TODAY, 1).map(r => r.id)).toEqual([SQUAT])
   })
 

@@ -130,6 +130,15 @@ export function liftProgress(S, { from = null } = {}) {
  *  disagree, and none for a holding lift, whose arrow says it is not moving (→ +6% read as rising). */
 export const shownPct = (state, pct) => (state === 'holding' || (state === 'rising' && pct < 0) || (state === 'falling' && pct > 0) ? null : pct ?? null)
 
+/** The range a row's 1RM chart draws `ys` over: `{ lo, hi }`, at least ±5 % of the middle, so a lift
+ *  that holds draws nearly flat while a real change still fills the height; a flat line ±1, mid-height. */
+export function chartRange(ys) {
+  const min = Math.min(...ys), max = Math.max(...ys)
+  if (max - min < 1e-6) return { lo: min - 1, hi: max + 1 }
+  const mid = (min + max) / 2, half = Math.max((max - min) / 2, Math.abs(mid) * 0.05)
+  return { lo: mid - half, hi: mid + half }
+}
+
 /** How many lifts are rising, holding and falling; a lift without a state is not counted. */
 export function progressTotals(map) {
   const n = { rising: 0, holding: 0, falling: 0 }

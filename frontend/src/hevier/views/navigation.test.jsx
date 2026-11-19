@@ -184,9 +184,9 @@ describe('hevier: navigation (seam S2)', () => {
     // a tap on a week puts its value in the headline, a second one puts the plain title back
     const week = [...container.querySelectorAll('button.hv-barcol')].at(-2)
     act(() => week.click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toMatch(/^Week of .+: 16 reps$/)
+    expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 16 reps$/)
     act(() => week.click())
-    expect(container.querySelector('.hv-chart-h b').textContent).toBe('Weekly chart')
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
   })
 
   it('the tab you are on, tapped again, scrolls its page to the top (D11, upstream 1.4.4)', () => {

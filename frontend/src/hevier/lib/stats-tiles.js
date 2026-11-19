@@ -1,7 +1,7 @@
 // The numbers on Statistics' tiles and cards (hevier/DECISIONS.md D142), each from the reader its
-// card uses, so a tile and its card never disagree: exercise time from exercise-time.js over the
-// Exercise time page's first period (90 days), sets and hours from the weekly chart's series for this
-// week, the month from muscle-sets.js's periods, effort from upstream's effort.js. Nothing is stored.
+// card uses, so a tile and its card never disagree: exercise time from exercise-time.js (this week on the
+// tile, the Exercise time page's first period, 90 days, on the card), sets and hours from the weekly
+// chart's series for this week, the month from muscle-sets.js's periods, effort from upstream's effort.js. Nothing is stored.
 import { workoutDay } from '../../lib/history.js'
 import { isoOf, fmtNum } from '../../lib/format.js'
 import { t } from '../../lib/i18n.js'
@@ -14,12 +14,11 @@ import { periodOf } from './muscle-sets.js'
 export const TIME_PERIOD = '90d'
 const DAY = 86400000
 
-/** Exercise time a workout over the last 90 days: the average of each timed workout's exercise
- *  times added up, in ms; null with no timed workout. */
-export function workoutExerciseTime(workouts, today) {
-  const since = periodSince(TIME_PERIOD, today)
-  const per = (workouts || []).map(w => timedSessions([w], since).reduce((n, s) => n + s.ms, 0)).filter(ms => ms > 0)
-  return per.length ? per.reduce((a, b) => a + b, 0) / per.length : null
+/** This week's exercise time: the timed exercises of this week's workouts added up, in ms (0 with none),
+ *  over the weeks the weekly chart and the other tiles use. */
+export function weekExerciseTime(workouts, today, weekStart) {
+  const week = weeklySeries([], 'duration', { today, weeks: 1, weekStart })[0].week
+  return timedSessions((workouts || []).filter(w => inWeek(w, week, weekStart))).reduce((n, s) => n + s.ms, 0)
 }
 
 /** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`. */
