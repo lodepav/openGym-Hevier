@@ -61,13 +61,13 @@ describe('hevier: a switch per part inside a module (D102)', () => {
     setPart(s, 'hvStats', 'levels', true)
     expect(partOn(s, 'hvStats', 'levels')).toBe(true)
   })
-  it('Lift trends is a part of Statistics extras, on until switched off', () => {
-    expect(partOn({}, 'hvStats', 'trends')).toBe(true)
+  it('the Calendar is a part of Statistics extras, on until switched off', () => {
+    expect(partOn({}, 'hvStats', 'calendar')).toBe(true)
     const s = {}
-    setPart(s, 'hvStats', 'trends', false)
-    expect(s.hvModuleParts).toEqual({ 'hvStats.trends': false })
-    expect(partOn(s, 'hvStats', 'trends')).toBe(false)
-    expect(partOn({ modules: { hvStats: false } }, 'hvStats', 'trends')).toBe(false)
+    setPart(s, 'hvStats', 'calendar', false)
+    expect(s.hvModuleParts).toEqual({ 'hvStats.calendar': false })
+    expect(partOn(s, 'hvStats', 'calendar')).toBe(false)
+    expect(partOn({ modules: { hvStats: false } }, 'hvStats', 'calendar')).toBe(false)
   })
   it('D114: a fork module off hides its parts, and a preset leaves it as it is', () => {
     const s = { modules: { hvGyms: false } }

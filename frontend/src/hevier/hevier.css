@@ -875,8 +875,6 @@
 :root[data-ui="hevier"] .hv-extime-sort{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
 :root[data-ui="hevier"] .hv-extime-sort .hv-chip{display:inline-flex;align-items:center;gap:4px;min-height:32px}
 :root[data-ui="hevier"] .hv-extime-sort .icn{width:14px;height:14px}
-:root[data-ui="hevier"] .hv-lift-state{white-space:nowrap}
-:root[data-ui="hevier"] .hv-lift-state .hv-trend{margin-inline:0 4px}
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
@@ -972,16 +970,44 @@
 :root[data-ui="hevier"] .hv-hlinks .hv-chip{flex:none;display:inline-flex;align-items:center;min-height:48px;padding:0 16px;font-size:14px;white-space:nowrap}
 :root[data-ui="hevier"] .hv-hlinks .hv-chip::after{content:none}
 
-/* ---------- Lifts (hevier/views/Lifts.jsx, D135) ---------- */
+/* ---------- Lifts (hevier/views/Lifts.jsx, D135, D140) ---------- */
 :root[data-ui="hevier"] .hv-lifts-by{margin-top:10px}
-:root[data-ui="hevier"] .hv-lift{display:flex;align-items:center;gap:12px;width:100%;text-align:start;color:var(--label);font:inherit}
-:root[data-ui="hevier"] .hv-lift .grow{flex:1;min-width:0;display:flex;flex-direction:column}
+:root[data-ui="hevier"] .hv-lifts-win{margin-top:8px}
+:root[data-ui="hevier"] :is(.hv-lifts-by, .hv-lifts-win) button{min-height:48px}
+:root[data-ui="hevier"] .hv-lifts-phase{margin-top:8px}
+/* The totals filter the list (D140): outlined toggles, the one on drawn in its own colour. */
+:root[data-ui="hevier"] .hv-lifts-totals{display:flex;gap:8px;margin-top:10px}
+:root[data-ui="hevier"] .hv-lifts-total{flex:1;min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:flex-start;padding:8px 12px;border-radius:var(--r,20px);background:var(--surface);box-shadow:inset 0 0 0 1px var(--sep);color:var(--label);font:inherit;text-align:start}
+:root[data-ui="hevier"] .hv-lifts-total b{font-size:22px;font-weight:800;line-height:1.1}
+:root[data-ui="hevier"] .hv-lifts-total small{font-size:12px;font-weight:700;color:var(--label-2);overflow-wrap:anywhere}
+:root[data-ui="hevier"] .hv-lifts-total.rising b{color:var(--hv-acc-ink)}
+:root[data-ui="hevier"] .hv-lifts-total.falling b{color:var(--hv-fail,var(--red))}
+:root[data-ui="hevier"] .hv-lifts-total.on{box-shadow:inset 0 0 0 2px var(--label)}
+:root[data-ui="hevier"] .hv-lifts-total.rising.on{box-shadow:inset 0 0 0 2px var(--acc)}
+:root[data-ui="hevier"] .hv-lifts-total.falling.on{box-shadow:inset 0 0 0 2px var(--hv-fail,var(--red))}
+:root[data-ui="hevier"] .hv-lifts-hint{margin-top:6px}
+:root[data-ui="hevier"] .hv-lift{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;text-align:start;color:var(--label);font:inherit}
+:root[data-ui="hevier"] .hv-lift .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+/* The muscle sits beside the name and drops to its own line when the text is large; the change stays right. */
+:root[data-ui="hevier"] .hv-lift-hd{display:flex;align-items:flex-start;gap:8px}
+:root[data-ui="hevier"] .hv-lift-nm{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:6px}
 :root[data-ui="hevier"] .hv-lift .ss{font-size:13px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-lift-ch{flex:none;white-space:nowrap;font-size:13px;font-weight:800;color:var(--label-2);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-lift-ch.rising{color:var(--hv-acc-ink)}
+:root[data-ui="hevier"] .hv-lift-ch.falling{color:var(--hv-fail,var(--red))}
+:root[data-ui="hevier"] .hv-lift-mid{display:flex;align-items:center;gap:8px}
+:root[data-ui="hevier"] .hv-lift-scale{flex:none;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;min-height:32px;font-size:11px;font-weight:700;line-height:1.1;color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-lift-chart{flex:1;min-width:64px;height:32px;overflow:visible}
+:root[data-ui="hevier"] .hv-lift-grid{stroke:var(--sep);stroke-width:1}
+:root[data-ui="hevier"] .hv-lift-mid .hv-lift-r{flex:none;max-width:45%}
+:root[data-ui="hevier"] .hv-lift-legend{display:flex;flex-wrap:wrap;column-gap:12px;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-lift-legend i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:3px;margin-inline-end:5px}
 :root[data-ui="hevier"] .hv-lift-r{white-space:pre-line;display:flex;flex-direction:column;align-items:flex-end;text-align:end;max-width:55%;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-lift-r small{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-lift-r small.hv-pr{display:inline-flex;align-items:center;gap:3px;color:var(--hv-record,var(--yellow));font-weight:800}
 :root[data-ui="hevier"] .hv-lifts-none{margin-top:12px}
-:root[data-ui="hevier"] .hv-lifts-all{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin-top:8px;font-weight:700}
+:root[data-ui="hevier"] .hv-lifts-ends{display:flex;flex-direction:column;align-items:flex-start;margin-top:8px}
+:root[data-ui="hevier"] .hv-lifts-link{display:inline-flex;align-items:center;gap:2px;min-height:48px;font-size:14px;font-weight:700}
 
 /* ---------- Settings root's groups read as breaks (D136) ---------- */
 :root[data-ui="hevier"] .narrow:has(> .sp-nav) .sect.hv-sgroup + .sect.hv-sgroup{margin-top:28px;border-top:var(--hair) solid var(--sep)}

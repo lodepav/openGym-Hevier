@@ -49,7 +49,7 @@ PROFILES.push(
   variant('bigfont', 'bigfont-ar', { lang: 'ar', note: 'bigfont, in Arabic (right to left)' }),
 )
 const SCREENS = ['/home', '/workout', '/routines', '/lifts', '/history-tab', '/stats', '/calendar', '/report', '/measures', '/library', '/settings',
-  '/strength', '/exercise-time', '/lift-trends', '/stats/all', '/settings/modules/hvStats']
+  '/strength', '/exercise-time', '/stats/all', '/settings/modules/hvStats']
 
 const args = process.argv.slice(2)
 const opt = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined }

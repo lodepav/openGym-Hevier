@@ -90,11 +90,71 @@ describe('hevier: Lifts (D135)', () => {
     expect(container.querySelector('h2.sec').textContent).not.toBe('Recently trained')
   })
 
-  it('an empty log says so; the chips and All exercises lead on', () => {
+  it('an empty log says so; links at the end lead on, and the chips are gone (D140)', () => {
     render()
     expect(container.querySelector('.empty')).toBeTruthy()
-    expect([...container.querySelectorAll('.hv-chips .hv-chip')].map(b => b.textContent)).toEqual(['Strength levels', 'Trends', 'Exercise time'])
+    expect(container.querySelector('.hv-chips')).toBeNull()
+    expect(container.querySelector('.hv-lifts-win')).toBeNull()
+    expect([...container.querySelectorAll('.hv-lifts-link')].map(b => b.textContent)).toEqual(['Strength levels', 'Exercise time', 'All exercises · Create'])
     act(() => container.querySelector('.hv-lifts-all').click())
     expect(path).toBe('/library')
+  })
+
+  it('the window is kept in S; Phase shows only while the latest workout has a phase (D140)', () => {
+    render({ workouts: log, hvLiftsWindow: 'phase' })
+    const segs = () => [...container.querySelectorAll('.hv-lifts-win button')]
+    expect(segs().map(b => b.textContent)).toEqual(['12 weeks', 'All'])
+    expect(segs()[0].getAttribute('aria-pressed')).toBe('true')   // a stored Phase reads as 12 weeks
+    expect(container.querySelector('.hv-lifts-phase')).toBeNull()
+    act(() => segs()[1].click())
+    expect(useStore.getState().S.hvLiftsWindow).toBe('all')
+    act(() => root.unmount()); container.remove()
+
+    const cut = log.map(w => ({ ...w, hvPhase: { p: 'cutting' } }))
+    render({ workouts: cut, hvLiftsWindow: 'phase' })
+    expect(segs().map(b => b.textContent)).toEqual(['12 weeks', 'Phase', 'All'])
+    expect(container.querySelector('.hv-lifts-phase').textContent).toMatch(/^Cutting since .+ · 2 weeks$/)
+    act(() => root.unmount()); container.remove()
+    render({ workouts: cut, hvLiftsWindow: 'phase', modules: { integrations: false } })
+    expect(segs().map(b => b.textContent)).toEqual(['12 weeks', 'All'])
+  })
+
+  // A falling three times lighter, B rising, each a week apart.
+  const trend = [wo('2026-11-02', A.id, 80), wo('2026-11-09', A.id, 75), wo('2026-11-15', A.id, 70),
+    wo('2026-11-01', B.id, 40), wo('2026-11-08', B.id, 45), wo('2026-11-14', B.id, 50)]
+  const totals = () => [...container.querySelectorAll('.hv-lifts-total')]
+
+  it('totals filter the list: a tap shows only those lifts, a second tap all (D140)', () => {
+    render({ workouts: trend })
+    expect(totals().map(b => b.getAttribute('aria-label'))).toEqual(['Rising, 1 lift', 'Holding, 0 lifts', 'Falling, 1 lift'])
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts')
+    act(() => totals()[2].click())
+    expect(totals()[2].getAttribute('aria-pressed')).toBe('true')
+    expect(totals()[2].getAttribute('aria-label')).toBe('Falling, 1 lift, filter on')
+    expect(names()).toEqual([exerciseNameFor(A)])
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing falling lifts · tap Falling again for all')
+    act(() => totals()[2].click())
+    expect(totals()[2].getAttribute('aria-pressed')).toBe('false')
+    expect(names()).toEqual([exerciseNameFor(A), exerciseNameFor(B)])
+  })
+
+  it('a row shows the change and a chart of the estimated 1RM, and speaks them (D140)', () => {
+    render({ workouts: trend })
+    const a = container.querySelectorAll('.hv-lift')[0]
+    expect(a.querySelector('.hv-lift-ch').textContent).toMatch(/^↓ −\d+%$/)
+    expect(a.querySelector('.hv-lift-ch').classList.contains('falling')).toBe(true)
+    expect(a.querySelector('svg.hv-lift-chart').getAttribute('aria-hidden')).toBe('true')
+    const [hi, lo] = [...a.querySelectorAll('.hv-lift-scale span')].map(s => Number(s.textContent))
+    expect(hi).toBeGreaterThan(lo)
+    expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 × 8, best 80 × 8`)
+  })
+
+  it('a lift on two brands has a line per brand, named under the chart (D140)', () => {
+    const lf = trend.slice(0, 3).map(w => ({ ...w, entries: [{ ...w.entries[0], hvBrand: 'LF' }] }))
+    const hs = [wo('2026-11-03', A.id, 50), wo('2026-11-10', A.id, 55)].map(w => ({ ...w, id: w.id + 'hs', entries: [{ ...w.entries[0], hvBrand: 'HS' }] }))
+    render({ workouts: [...lf, ...hs] })
+    const a = container.querySelector('.hv-lift')
+    expect(a.querySelectorAll('svg.hv-lift-chart g')).toHaveLength(2)
+    expect(a.querySelector('.hv-lift-legend').textContent).toBe('LF −12%HS +10%')   // 80 to 70: −12.5, rounded up
   })
 })

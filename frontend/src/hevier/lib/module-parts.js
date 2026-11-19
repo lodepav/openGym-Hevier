@@ -66,7 +66,6 @@ export const PARTS = {
     { id: 'levels', title: 'Strength levels list', desc: 'Every exercise by the level it reaches. Also needs Strength levels.', was: 'strength.list' },
     // D117
     { id: 'calendar', title: 'Calendar', desc: 'The Calendar page on Profile, with planned days as dots.' },
-    { id: 'trends', title: 'Lift trends', desc: 'Each exercise of the last 3 weeks, rising, holding or falling.' },
   ],
 }
 

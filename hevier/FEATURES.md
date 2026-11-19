@@ -122,7 +122,6 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, released in v1.4.4: the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
 | No target ranges for weekly sets: upstream's Ranges row hidden, its Muscles card without the range band | D139 | Fork |
-| Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
 | A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
 | Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374) |
 | The phone's font size zooms all text again, the fork's screens included, as before 1.4.5 | D122 | Fork |
@@ -133,7 +132,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 |---|---|---|
 | Three tabs (Today · Lifts · History, in place of Home · Workout · Profile); no Coach tab | D11, D126 | Fork |
 | Today: the next session (when, where, the first five exercises and their sets), Start, the week in seven days, the round and the streak, Routines · Calendar · Empty workout, the last workout | D134 | Fork |
-| Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels, Trends and Exercise time | D135 | Fork |
+| Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels and Exercise time as links at the end | D135 | Fork |
+| Lifts shows where each lift is going: a chart of estimated 1RM with its change, a line per brand, over 12 weeks, the diet phase or all; rising, holding and falling totals that filter | D140 | Fork |
 | History: this week in three numbers, chips in two rows (Look back: Calendar, Month report; Numbers: Statistics, Sets per muscle, Body weight, All statistics), the phase filter and the workout feed | D135 | Fork |
 | All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
