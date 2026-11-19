@@ -7,9 +7,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.webkit.CookieManager;
 import android.window.OnBackInvokedDispatcher;
 import android.webkit.WebSettings;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -30,7 +32,29 @@ public class HevierHevyLoginActivity extends Activity {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WebView web;
+    private WebView popup;         // Google's sign-in window, over the page that opened it
+    private FrameLayout frame;
     private boolean done;
+
+    // "Login with Google" opens Google in a popup that hands its answer back to hevy.com's page:
+    // without a second window Google's page replaced hevy.com's and stopped on white.
+    private final WebChromeClient chrome = new WebChromeClient() {
+        @Override
+        public boolean onCreateWindow(WebView view, boolean dialog, boolean user, Message result) {
+            closePopup();
+            popup = new WebView(HevierHevyLoginActivity.this);
+            setUp(popup, false);
+            frame.addView(popup);
+            ((WebView.WebViewTransport) result.obj).setWebView(popup);
+            result.sendToTarget();
+            return true;
+        }
+
+        @Override
+        public void onCloseWindow(WebView window) {
+            if (window == popup) closePopup();
+        }
+    };
 
     private final Runnable poll = new Runnable() {
         @Override
@@ -58,23 +82,15 @@ public class HevierHevyLoginActivity extends Activity {
         return null;
     }
 
-    @SuppressLint("SetJavaScriptEnabled")   // hevy.com's login page is a script page
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        CookieManager cookies = CookieManager.getInstance();
         clearSession();
         web = new WebView(this);
-        web.setBackgroundColor(Color.WHITE);
-        WebSettings s = web.getSettings();
-        s.setJavaScriptEnabled(true);
-        s.setDomStorageEnabled(true);
-        // The page as in a phone's browser: some sign-in checks refuse a WebView's "; wv".
-        s.setUserAgentString(s.getUserAgentString().replace("; wv", ""));
-        web.setWebViewClient(new WebViewClient());
+        setUp(web, true);
         // Below the status bar and above the navigation bar (edge to edge from Android 15). The
         // padding goes on a frame: a WebView draws under its own padding.
-        FrameLayout frame = new FrameLayout(this);
+        frame = new FrameLayout(this);
         frame.setBackgroundColor(Color.WHITE);   // hevy.com's login page is white
         frame.addView(web);
         frame.setOnApplyWindowInsetsListener((v, insets) -> {
@@ -93,6 +109,33 @@ public class HevierHevyLoginActivity extends Activity {
         getOnBackInvokedDispatcher().registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::back);
     }
 
+    /** The settings of the page and of Google's popup; only the page may open a popup. */
+    @SuppressLint("SetJavaScriptEnabled")   // hevy.com's login page and Google's are script pages
+    private void setUp(WebView v, boolean page) {
+        v.setBackgroundColor(Color.WHITE);
+        WebSettings s = v.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        // The page as in a phone's browser: some sign-in checks refuse a WebView's "; wv".
+        s.setUserAgentString(s.getUserAgentString().replace("; wv", ""));
+        s.setSupportMultipleWindows(page);
+        s.setJavaScriptCanOpenWindowsAutomatically(page);
+        v.setWebViewClient(new WebViewClient());
+        v.setWebChromeClient(page ? chrome : new WebChromeClient() {
+            @Override
+            public void onCloseWindow(WebView window) {
+                if (window == popup) closePopup();
+            }
+        });
+    }
+
+    private void closePopup() {
+        if (popup == null) return;
+        frame.removeView(popup);
+        popup.destroy();
+        popup = null;
+    }
+
     /** Forgets hevy.com's session cookie, a host-only one and one set for the whole domain. */
     private static void clearSession() {
         CookieManager cookies = CookieManager.getInstance();
@@ -109,6 +152,11 @@ public class HevierHevyLoginActivity extends Activity {
     }
 
     private void back() {
+        if (popup != null) {
+            if (popup.canGoBack()) popup.goBack();
+            else closePopup();
+            return;
+        }
         String url = web != null ? web.getUrl() : null;
         if (web != null && web.canGoBack()) web.goBack();
         // hevy.com moves between its pages without history: from any other page, back to the login.
@@ -131,6 +179,7 @@ public class HevierHevyLoginActivity extends Activity {
     protected void onDestroy() {
         done = true;
         handler.removeCallbacks(poll);
+        closePopup();
         if (web != null) web.destroy();
         super.onDestroy();
     }
