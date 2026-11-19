@@ -699,6 +699,18 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     expect(st.out.w.a.h).toBe('old')
   })
 
+  it('an edit Hevy refuses on the v2 PUT is refused, kept as before, and not sent again until the workout changes', async () => {
+    const { S, st, replies, web } = setup()
+    st.out.w.a = { id: 'HW', h: 'old' }
+    st.gyms = { g1: 77 }
+    replies['PUT /v2/workout/HW'] = new HevyApiError(400, 'http 400')
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 0, refused: 1, error: null })
+    const h = pending(S, { base: {}, out: { w: {} } }).workouts[0].h
+    expect(st.failed.a).toBe(h)
+    expect(st.out.w.a).toEqual({ id: 'HW', h: 'old' })
+    expect(pending(S, st).workouts).toEqual([])
+  })
+
   it('a timed-out send from before D143 is still looked for by its start, in seconds', async () => {
     const { S, st, replies, web, keys } = setup(workout({ start: T0 + 897, entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] }))
     st.unsure = { a: 1 }
