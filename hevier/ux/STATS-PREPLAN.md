@@ -147,9 +147,14 @@ Agreed 2026-11-19: four parts, one at a time, each with its own decision row and
    the phase, All, remembered); Strength levels keeps its page, one link at the end of Lifts;
    mockups through `/ux-rework` first. Approved as D140; built on `hevier/stats-no-ranges` (version B2: totals that filter, rows with a 32 px chart).
 3. **Muscle-group progress** in By muscle, on part 2's per-lift metric. Answers (2026-11-19):
-   compound or isolation is read from the muscle groups an exercise works: one group is isolation,
-   two or more compound (the owner's rule, in place of `isCompoundEx`; to check over the owner's
-   lifts in the mockup, with the catalogue's secondary muscles and custom exercises); D95's groups
+   compound or isolation is upstream's name guess (`isCompoundEx`) wrapped by a fork helper that
+   fixes its slips, with a test over the owner's lifts. The owner first chose "one muscle group is
+   isolation, more is compound", but the catalogue lists secondary muscles for almost every
+   exercise: run over the 2026-11-15 backup it made 133 of 134 lifts compound (leg extension: hip
+   flexors; lateral raise: traps; curls: forearms). The name guess got all but 4 of the ~90 lifts
+   done five times or more right; the slips: "lateral" in "lateral pulldown" (two lifts) and in
+   "unilateral" (a split squat) reads as isolation, and "push up" with a space is not matched.
+   D95's groups
    (Back whole, the three delt heads one Shoulders), calves and abs included.
 4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Answers
    (2026-11-19): All statistics and Structural balance as two links at the end of Statistics; sets
