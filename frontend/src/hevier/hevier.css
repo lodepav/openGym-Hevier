@@ -329,11 +329,11 @@
 :root[data-ui="hevier"] .hv-bars{display:flex;align-items:flex-end;gap:4px;height:120px;min-width:0;border-bottom:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-plot{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:6px}
 :root[data-ui="hevier"] .hv-yaxis{display:flex;flex-direction:column;justify-content:space-between;height:120px;margin-top:-7px;margin-bottom:-7px;font-size:11px;color:var(--label-2);font-variant-numeric:tabular-nums;white-space:nowrap}
-:root[data-ui="hevier"] .hv-xaxis{position:relative;height:16px;margin:4px 0 0;font-size:11px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-xaxis{position:relative;min-height:16px;margin:4px 0 0;font-size:11px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xaxis span{position:absolute;top:0;inset-inline-start:calc((var(--i) + .5) / var(--n) * 100%);transform:translateX(-50%);white-space:nowrap}
 :root[data-ui="hevier"] .hv-xaxis span:first-of-type{transform:none;inset-inline-start:0}
 :root[data-ui="hevier"] .hv-xaxis span:last-of-type{transform:none;inset-inline-start:auto;inset-inline-end:0}
-:root[data-ui="hevier"] .hv-xaxis .hv-xprobe{position:absolute;visibility:hidden;white-space:nowrap;font-weight:inherit}
+:root[data-ui="hevier"] .hv-xaxis .hv-xprobe{display:inline-block;visibility:hidden;white-space:nowrap;font-weight:inherit} /* in flow: the axis is one line of the dates tall at any text size */
 :root[data-ui="hevier"] .hv-link.hv-range{display:inline-flex;align-items:center;gap:2px;font-size:14px;min-height:32px}
 :root[data-ui="hevier"] .hv-link.hv-range .icn{font-size:14px}
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
@@ -563,6 +563,7 @@
 :root[data-ui="hevier"] .hv-arrange .sw:not(.on){box-shadow:inset 0 0 0 1px var(--label-3)}
 /* Reset in the page bar reaches 48 dp (A1); it clips its overflow, so the height itself grows. */
 :root[data-ui="hevier"] .hv-arrange .hv-pagebar .hv-link{min-height:48px}
+:root[data-ui="hevier"] .hv-arrange .hv-pagebar .hv-link:disabled{color:var(--label-3)}
 
 /* M3 Add Exercise picker (reference/SCREENS.md §8) */
 :root[data-ui="hevier"] .hv-pk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -1029,7 +1030,7 @@
 :root[data-ui="hevier"] .hv-lift-ch.rising{color:var(--hv-acc-ink)}
 :root[data-ui="hevier"] .hv-lift-ch.falling{color:var(--hv-fail,var(--red))}
 :root[data-ui="hevier"] .hv-lift-mid{display:flex;align-items:center;gap:8px}
-:root[data-ui="hevier"] .hv-lift-scale{flex:none;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;min-height:32px;font-size:11px;font-weight:700;line-height:1.1;color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-lift-scale{flex:none;align-self:center;display:flex;flex-direction:column;justify-content:space-between;min-height:32px;font-size:11px;font-weight:700;line-height:1.1;color:var(--label-2);text-align:end;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-lift-scale.flat{justify-content:center}
 :root[data-ui="hevier"] .hv-lift-chart{flex:1;min-width:64px;height:32px;overflow:visible}
 :root[data-ui="hevier"] .hv-lift-grid{stroke:var(--sep);stroke-width:1}

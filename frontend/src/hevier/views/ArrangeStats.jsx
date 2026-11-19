@@ -59,6 +59,9 @@ function ArrangeList({ which, title, ids }) {
 }
 
 export default function ArrangeStats() {
+  const S = useStore(s => s.S)
+  // Nothing to put back while both lists are as they first were.
+  const first = JSON.stringify({ tiles: arrange(TILES, S.hvStatsLayout?.tiles), cards: arrange(CARDS, S.hvStatsLayout?.cards) }) === JSON.stringify(defaults())
   const reset = () => {
     const before = useStore.getState().S.hvStatsLayout
     useStore.getState().update(s => { s.hvStatsLayout = defaults() })
@@ -67,7 +70,7 @@ export default function ArrangeStats() {
   }
   return <div className="narrow hv-arrange">
     <BackTo label={t('Statistics')} to="/stats" title={t('Arrange Statistics')}>
-      <button type="button" className="hv-link" onClick={reset}>{t('Reset')}</button>
+      <button type="button" className="hv-link" onClick={reset} disabled={first}>{t('Reset')}</button>
     </BackTo>
     <p className="small dim hv-arr-hint">{t('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')}</p>
     {LISTS.map(([which, title, ids]) => <ArrangeList key={which} which={which} title={title} ids={ids} />)}
