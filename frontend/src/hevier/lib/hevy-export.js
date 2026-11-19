@@ -489,7 +489,7 @@ export const uuid = () => globalThis.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4x
  * `workoutId` is the uuid Hevy keeps as the workout's id. The edit (`PUT /v2/workout/{id}`) takes
  * the same fields, less `workout_id`, as `{ workoutUpdate }`.
  */
-export function v2Workout(body, { titleOf = () => '', workoutId, isPrivate = false, gymId = null, now = Date.now() } = {}) {
+export function v2Workout(body, { titleOf = () => '', workoutId, gymId = null, now = Date.now() } = {}) {
   return {
     workout: {
       workout_id: String(workoutId),
@@ -515,7 +515,7 @@ export function v2Workout(body, { titleOf = () => '', workoutId, isPrivate = fal
       end_time: Math.floor(Date.parse(body.end_time) / 1e3),
       apple_watch: false,
       wearos_watch: false,
-      is_private: !!isPrivate,
+      is_private: false,
       // Never chosen by the user: no workout on a gym's page, no heart rate shown to others.
       is_biometrics_public: false,
       show_on_gym_profile: false,
