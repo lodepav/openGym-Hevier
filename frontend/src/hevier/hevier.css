@@ -545,6 +545,9 @@
 :root[data-ui="hevier"] .hv-stile-s{overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-ssec{scroll-margin-top:64px}
 :root[data-ui="hevier"] .hv-scard-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px}
+/* A card head's link keeps its text height, so the title sits where a plain card title does; its 48 dp is an invisible area centred on it. */
+:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link{min-height:0;position:relative}
+:root[data-ui="hevier"] .hv-scard > .hv-scard-h:first-child .hv-link::after{content:"";position:absolute;inset-inline:0;top:50%;height:48px;transform:translateY(-50%)}
 :root[data-ui="hevier"] .hv-scard-h h2{margin:0}
 :root[data-ui="hevier"] .hv-scard-h .hv-link{display:inline-flex;align-items:center;min-height:48px;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
