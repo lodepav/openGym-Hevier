@@ -44,25 +44,30 @@ describe('Lifts: the rows (D135)', () => {
 })
 
 describe('Lifts: recent or by muscle, and the search', () => {
-  const rows = [{ id: 'curl' }, { id: 'squat' }, { id: 'press' }, { id: 'odd' }, { id: 'fly' }]
-  const muscle = { curl: 'Biceps', squat: 'Quadriceps', press: 'Front Delts', fly: 'Chest', odd: 'Wrists' }
-  const muscleOf = id => muscle[id]
+  const rows = [{ id: 'curl' }, { id: 'squat' }, { id: 'press' }, { id: 'odd' }, { id: 'calf' }, { id: 'row' }, { id: 'fly' }, { id: 'none' }, { id: 'pull' }]
+  const group = { curl: 'Biceps', squat: 'Quadriceps', press: 'Shoulders', fly: 'Chest', odd: 'Wrists', calf: 'Calves', row: 'Back', none: '', pull: 'Back' }
+  const groupOf = id => group[id]
 
   it('recent is one section in the rows’ order', () => {
     expect(liftSections(rows)).toEqual([{ key: 'recent', label: 'Recently trained', rows }])
   })
 
-  it('by muscle groups them in the groups’ order, keeping recent first inside each', () => {
-    const two = [...rows, { id: 'fly2' }]
-    muscle.fly2 = 'Chest'
-    const s = liftSections(two, { by: 'muscle', muscleOf })
-    expect(s.map(g => g.key)).toEqual(['chest', 'shoulders', 'arms', 'legs', 'other'])
-    expect(s[0].rows.map(r => r.id)).toEqual(['fly', 'fly2'])
+  it('by muscle groups them by D95’s groups in the old groups’ order, calves included, keeping recent first inside each (D141)', () => {
+    const s = liftSections(rows, { by: 'muscle', groupOf })
+    expect(s.map(g => g.key)).toEqual(['Chest', 'Back', 'Shoulders', 'Biceps', 'Quadriceps', 'Calves', 'Wrists', 'other'])
+    expect(s.map(g => g.label).at(-1)).toBe('Other')
+    expect(s[1].rows.map(r => r.id)).toEqual(['row', 'pull'])
+  })
+
+  it('a section keeps all its group’s ids while a filter shows only some of its rows', () => {
+    const s = liftSections(rows, { by: 'muscle', keep: new Set(['pull', 'curl']), groupOf })
+    expect(s.map(g => [g.key, g.rows.map(r => r.id), g.ids])).toEqual([['Back', ['pull'], ['row', 'pull']], ['Biceps', ['curl'], ['curl']]])
   })
 
   it('a search keeps its hits, and finding none leaves no section', () => {
     expect(liftSections(rows, { keep: new Set(['press', 'curl']) })[0].rows.map(r => r.id)).toEqual(['curl', 'press'])
-    expect(liftSections(rows, { by: 'muscle', keep: new Set(), muscleOf })).toEqual([])
+    expect(liftSections(rows, { by: 'muscle', keep: new Set(), groupOf })).toEqual([])
+    expect(liftSections(rows, { keep: new Set() })).toEqual([])
   })
 
   it('remembers By muscle only when picked', () => {

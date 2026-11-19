@@ -10,6 +10,8 @@ import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { exerciseNameFor } from '../../lib/i18n.js'
 import { hevierRoutes } from '../routes.jsx'
+import { muscleGroup } from '../lib/strength-signal.js'
+import { isCompound } from '../lib/compound.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -156,5 +158,51 @@ describe('hevier: Lifts (D135)', () => {
     const a = container.querySelector('.hv-lift')
     expect(a.querySelectorAll('svg.hv-lift-chart g')).toHaveLength(2)
     expect(a.querySelector('.hv-lift-legend').textContent).toBe('LF −12%HS +10%')   // 80 to 70: −12.5, rounded up
+  })
+
+  // Two compound chest lifts rising, an isolation one holding, one calf lift falling.
+  const chest = EXDB.filter(e => e.eq === 'barbell' && muscleGroup(e) === 'Chest')
+  const [P, Q] = chest.filter(e => isCompound(e))
+  const F = EXDB.find(e => e.eq === 'dumbbell' && muscleGroup(e) === 'Chest' && !isCompound(e))
+  const C = EXDB.find(e => e.eq === 'barbell' && muscleGroup(e) === 'Calves')
+  const three = (id, ws) => ws.map((w, i) => ({ ...wo(['2026-11-01', '2026-11-08', '2026-11-15'][i], id, w), id: 'g' + i + id }))
+  const groups = [...three(P.id, [40, 45, 50]), ...three(Q.id, [50, 52.5, 55]), ...three(F.id, [20, 20, 20]), ...three(C.id, [80, 75, 70])]
+  const heads = () => [...container.querySelectorAll('h2.hv-lifts-gh')]
+  const row = ex => [...container.querySelectorAll('.hv-lift')].find(b => b.querySelector('.tt').textContent === exerciseNameFor(ex))
+
+  it('By muscle: each group’s header shows its weighted change and how many lifts rise; isolation is marked ½ (D141)', () => {
+    render({ workouts: groups, hvLiftsBy: 'muscle' })
+    const [ch, calves] = heads()
+    const pct = ex => Number(row(ex).querySelector('.hv-lift-ch').textContent.match(/[+−-]?\d+/)[0].replace('−', '-'))
+    const want = Math.round((pct(P) + pct(Q) + pct(F) / 2) / 2.5)
+    expect(want).toBeGreaterThan(0)
+    expect(ch.textContent).toBe(`Chest↑ +${want}%2 of 3 rising`)
+    expect(ch.getAttribute('aria-label')).toBe(`Chest, up ${want} %, 2 of 3 lifts rising`)
+    expect(calves.textContent).toBe('Calves1 lift · a group number needs two')
+    expect(calves.getAttribute('aria-label')).toBe('Calves, 1 lift, a group number needs two')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · ½ counts half in its group')
+    const half = row(F).querySelector('.hv-lift-half')
+    expect([half.textContent, half.getAttribute('aria-hidden')]).toEqual(['½', 'true'])
+    expect(row(P).querySelector('.hv-lift-half')).toBeNull()
+    expect(row(F).getAttribute('aria-label')).toMatch(/, isolation, counts half in its group$/)
+    expect(row(P).getAttribute('aria-label')).not.toMatch(/isolation/)
+  })
+
+  it('a filter hides rows and empty groups, but a header still speaks for its whole group (D141)', () => {
+    render({ workouts: groups, hvLiftsBy: 'muscle' })
+    const before = heads()[0].textContent
+    act(() => totals()[0].click())   // Rising
+    expect(heads()).toHaveLength(1)
+    expect(heads()[0].textContent).toBe(before)
+    expect(names().sort()).toEqual([P, Q].map(exerciseNameFor).sort())
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing rising lifts · tap Rising again for all · ½ counts half in its group')
+  })
+
+  it('Recent has no group numbers and no ½ marks (D141)', () => {
+    render({ workouts: groups })
+    expect(heads()).toHaveLength(0)
+    expect(container.querySelector('.hv-lift-half')).toBeNull()
+    expect(row(F).getAttribute('aria-label')).not.toMatch(/isolation/)
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts')
   })
 })

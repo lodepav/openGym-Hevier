@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import { EXDB, isAssisted } from '../../lib/exercises.js'
 import { muscleGroup } from './strength-signal.js'
-import { WINDOWS, liftsWindow, currentPhase, windowFrom, medianChange, liftProgress, progressTotals, shownPct } from './lift-progress.js'
+import { WINDOWS, liftsWindow, currentPhase, windowFrom, medianChange, liftProgress, progressTotals, shownPct, groupProgress } from './lift-progress.js'
 
 const TODAY = '2026-10-31'
 const NOW = Date.parse(TODAY + 'T12:00:00Z')
@@ -165,5 +165,39 @@ describe('progressTotals', () => {
     ])
     expect(progressTotals(map)).toEqual({ rising: 2, holding: 1, falling: 1 })
     expect(progressTotals(new Map())).toEqual({ rising: 0, holding: 0, falling: 0 })
+  })
+})
+
+describe('groupProgress (D141)', () => {
+  const read = (state, pct) => ({ state, pct, lines: [] })
+  const iso = new Set(['fly', 'raise'])
+  const isCompound = id => !iso.has(id)
+
+  it('a weighted mean: compound lifts count 1, isolation ½; the count is not weighted', () => {
+    const map = new Map([['press', read('rising', 9)], ['incline', read('rising', 4)], ['fly', read('rising', 7)]])
+    expect(groupProgress(map, ['press', 'incline', 'fly'], { isCompound })).toEqual({ pct: 7, rising: 3, judged: 3 })   // (9 + 4 + 3.5) / 2.5
+    const down = new Map([['a', read('falling', -5)], ['b', read('holding', -3)], ['raise', read('holding', 1)]])
+    expect(groupProgress(down, ['a', 'b', 'raise'], { isCompound })).toEqual({ pct: -3, rising: 0, judged: 3 })   // −7.5 / 2.5
+  })
+
+  it('no number while fewer than two lifts have a change', () => {
+    const map = new Map([['a', read('rising', 9)], ['b', read('falling', null)], ['c', read(null, null)]])
+    expect(groupProgress(map, ['a', 'b', 'c'], { isCompound })).toEqual({ pct: null, rising: 1, judged: 2 })
+    expect(groupProgress(map, ['a'], { isCompound }).pct).toBeNull()
+    expect(groupProgress(new Map(), ['a'], { isCompound })).toEqual({ pct: null, rising: 0, judged: 0 })
+  })
+
+  it('a lift without a state is not judged, but its change still counts; an id twice or not trained counts once or not at all', () => {
+    const map = new Map([['a', read(null, 4)], ['b', read('rising', 6)]])
+    expect(groupProgress(map, ['a', 'b', 'b', 'gone'], { isCompound })).toEqual({ pct: 5, rising: 1, judged: 1 })
+  })
+
+  it('a lift on two brands counts once, by its most recent brand (D82)', () => {
+    const map = progress([
+      ...series(CHEST[0], [15, 8, 2], [70, 65, 60], { hvBrand: 'LF' }),
+      ...series(CHEST[0], [14, 7, 1], [50, 55, 60], { hvBrand: 'HS' }),
+      ...series(CHEST[1], [15, 8, 1], [60, 60, 60]),
+    ])
+    expect(groupProgress(map, [CHEST[0], CHEST[1]], { isCompound: () => true })).toEqual({ pct: 10, rising: 1, judged: 2 })   // (20 + 0) / 2
   })
 })

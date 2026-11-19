@@ -3,7 +3,8 @@
 // S.hvLiftsWindow): the change in its estimated 1RM, a chart of it, and beside the chart its last set
 // and under it the best (a record the last session set in yellow). Totals of rising, holding and
 // falling lifts filter the list. The most recently trained first or by muscle group, a choice kept
-// in S.hvLiftsBy. A row opens the exercise's details the way the library's rows do (seam S10). The
+// in S.hvLiftsBy; under By muscle each group's header carries its change and how many of its lifts
+// are rising, an isolation lift counting half (D141). A row opens the exercise's details the way the library's rows do (seam S10). The
 // list is hevier/lib/lifts-list.js, the progress hevier/lib/lift-progress.js.
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -21,9 +22,10 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy } from '../lib/lifts-list.js'
-import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct } from '../lib/lift-progress.js'
+import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress } from '../lib/lift-progress.js'
+import { isCompound } from '../lib/compound.js'
 import { PHASE_LABEL } from '../lib/shared-phase.js'
-import { dayNo } from '../lib/strength-signal.js'
+import { dayNo, muscleGroup } from '../lib/strength-signal.js'
 import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { labelText } from '../lib/gym-labels.js'
@@ -78,7 +80,7 @@ function LiftChart({ lines, tones }) {
   </svg>
 }
 
-function LiftRow({ r, S, today, p, win }) {
+function LiftRow({ r, S, today, p, win, half }) {
   const ex = exOr(r.id)
   const muscle = mainMuscleOf(ex)
   const unit = exUnitOf(S, r.id)
@@ -110,6 +112,7 @@ function LiftRow({ r, S, today, p, win }) {
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
     r.last && t('last {0}', spoken(text(r.last))),
     r.newBest ? t('New best') : r.best && t('best {0}', spoken(text(r.best))),
+    half && t('isolation, counts half in its group'),
   ].filter(Boolean).join(', ')
   return <button type="button" className="item hv-lift" aria-label={label} onClick={() => exerciseDetailSheet(ex)}>
     <span className="hv-thumb"><Thumb ex={ex} /></span>
@@ -117,6 +120,7 @@ function LiftRow({ r, S, today, p, win }) {
       <span className="hv-lift-hd">
         <span className="hv-lift-nm">
           <span className={'tt ' + exerciseNameClass(ex)}>{name}</span>
+          {half && <span className="hv-lift-half" aria-hidden="true">½</span>}
           {sub && <span className="ss">{sub}</span>}
         </span>
         {change && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
@@ -132,6 +136,26 @@ function LiftRow({ r, S, today, p, win }) {
       </span>)}</span>}
     </span>
   </button>
+}
+
+// A muscle group's header (D141): its change in the rows' colours, by the sign alone since a
+// group has no D95 state, and how many of its lifts are rising; no number until two lifts have one.
+function GroupHead({ label, ids, progress }) {
+  const g = groupProgress(progress, ids)
+  const state = g.pct == null ? null : g.pct > 0 ? 'rising' : g.pct < 0 ? 'falling' : 'holding'
+  const count = g.judged > 0 && t('{0} of {1} rising', g.rising, g.judged)
+  const none = !state && [ids.length === 1 ? t('1 lift') : t('{0} lifts', ids.length), t('a group number needs two')]
+  const spoken = [label,
+    ...(state ? [pctSpoken(g.pct)] : none),
+    state && g.judged > 0 && (g.judged === 1 ? t('{0} of 1 lift rising', g.rising) : t('{0} of {1} lifts rising', g.rising, g.judged)),
+  ].filter(Boolean).join(', ')
+  return <h2 className="sec hv-lifts-gh" aria-label={spoken}>
+    <b>{label}</b>
+    {state ? <>
+      <span className={'hv-lift-ch ' + state}>{ARROW[state] + ' ' + pctText(g.pct)}</span>
+      {count && <small>{count}</small>}
+    </> : <small>{none.join(' · ')}</small>}
+  </h2>
 }
 
 function weeksText(days) {
@@ -161,7 +185,7 @@ export default function Lifts() {
   let keep = q.trim() ? new Set([...searchExercises(trained, q),
     ...(partOn(S, 'hvGyms', 'brands') ? brandMatches(trained, brandsByExercise(S), q, searchExercises).map(m => m.ex) : [])].map(e => e.id)) : null
   if (filter) keep = new Set(rows.filter(r => progress.get(r.id)?.state === filter && (!keep || keep.has(r.id))).map(r => r.id))
-  const sections = liftSections(rows, { by, keep, muscleOf: id => mainMuscleOf(exOr(id)) })
+  const sections = liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
     partOn(S, 'hvStats', 'time') && ['Exercise time', '/exercise-time'],
@@ -184,11 +208,12 @@ export default function Lifts() {
         aria-label={(totals[st] === 1 ? t('{0}, 1 lift', t(WORD[st])) : t('{0}, {1} lifts', t(WORD[st]), totals[st])) + (filter === st ? ', ' + t('filter on') : '')}>
         <b>{totals[st]}</b><small>{t(WORD[st])}</small>
       </button>)}</div>
-      <div className="small dim hv-lifts-hint">{filter ? t(SHOWING[filter]) : t('Tap a total to show only those lifts')}</div>
+      <div className="small dim hv-lifts-hint">{filter ? t(SHOWING[filter]) : t('Tap a total to show only those lifts')}{by === 'muscle' && ' · ' + t('½ counts half in its group')}</div>
     </>}
     {sections.map(sec => <section key={sec.key}>
-      <h2 className="sec">{t(sec.label)}</h2>
-      <div className="list hv-flat">{sec.rows.map(r => <LiftRow key={r.id} r={r} S={S} today={today} p={progress.get(r.id)} win={win} />)}</div>
+      {by === 'muscle' ? <GroupHead label={muscleText(sec.label)} ids={sec.ids} progress={progress} /> : <h2 className="sec">{t(sec.label)}</h2>}
+      <div className="list hv-flat">{sec.rows.map(r => <LiftRow key={r.id} r={r} S={S} today={today} p={progress.get(r.id)} win={win}
+        half={by === 'muscle' && !isCompound(exOr(r.id))} />)}</div>
     </section>)}
     {!rows.length && <div className="empty"><div className="ico"><Icon name="dumbbell" /></div>{t('No exercises trained yet. They show here after your first workout.')}</div>}
     {rows.length > 0 && !sections.length && q.trim() && <div className="muted small hv-lifts-none">{t('No exercise you trained matches “{0}”.', q.trim())}</div>}
