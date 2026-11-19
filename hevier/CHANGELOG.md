@@ -2,6 +2,29 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.2.0 · 2026-11-19
+
+Based on openGym 1.4.5.
+
+### Before you update
+
+- Workouts sent to Hevy now carry each set's time and the gym, when the gym matches one of Hevy's.
+- Sending to Hevy now needs a hevy.com login: Settings, Integrations, Send to Hevy, Log in. Google login does not work there yet; set a Hevy password with "Forgot Password" on hevy.com and log in with that.
+
+### New
+
+- workouts go to Hevy with set times and the gym (D143)
+- the statistics rework, lift progress, muscle groups and an arrangeable Statistics page
+- send workouts to Hevy through its web login
+
+### Fixes and changes
+
+- critique and audit rounds 4 and 5 on Lifts and Statistics
+- the D143 review's follow-ups
+- Lifts stays quick on a long log, a group counts the lifts in its window
+- a lift's change beside its chart, the weekly chart in a card
+- Lifts and Statistics audit fixes
+
 ## 3.1.0 · 2026-11-18
 
 Based on openGym 1.4.5.
