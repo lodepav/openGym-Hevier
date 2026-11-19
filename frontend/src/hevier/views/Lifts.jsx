@@ -158,7 +158,8 @@ function GroupHead({ label, ids, progress }) {
   const state = g.pct == null ? null : g.state
   const pct = g.pct == null ? null : shownPct(state, g.pct)
   const count = g.pct != null && g.judged > 0 && t('{0} of {1} rising', g.rising, g.judged)
-  const none = g.pct == null && [ids.length === 1 ? t('1 lift') : t('{0} lifts', ids.length), t('a group number needs two')]
+  // The lifts with a change in the window, not every lift the group has ever had.
+  const none = g.pct == null && [g.changed === 1 ? t('1 lift') : t('{0} lifts', g.changed), t('a group number needs two')]
   const spoken = [label,
     ...(none || [pct != null ? pctSpoken(pct) : state && t(WORD[state])]),
     count && (g.judged === 1 ? t('{0} of 1 lift rising', g.rising) : t('{0} of {1} lifts rising', g.rising, g.judged)),
@@ -191,7 +192,7 @@ export default function Lifts() {
   // A stored Phase reads as 12 weeks while there is no phase to show.
   const win = liftsWindow(S) === 'phase' && !phase ? '12w' : liftsWindow(S)
   const from = windowFrom(S, win, today)
-  const progress = useMemo(() => liftProgress(S, { from, today }), [log, fieldSig(S, 'routines'), from]) // eslint-disable-line react-hooks/exhaustive-deps
+  const progress = useMemo(() => liftProgress(S, { from }), [log, fieldSig(S, 'routines'), from]) // eslint-disable-line react-hooks/exhaustive-deps
   const totals = progressTotals(progress)
   // By name, and by the brand it was logged on (D36), as the picker searches.
   const trained = rows.map(r => exOr(r.id))
