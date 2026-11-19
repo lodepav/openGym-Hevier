@@ -107,44 +107,50 @@ td.n { font-weight:800; }
 .feed { background:var(--surface); border-radius:var(--r-card); padding:12px 14px; font-size:13px; color:var(--label-2); } .feed b { display:block; color:var(--label); font-size:15px; font-weight:800; }
 .hbars { display:flex; align-items:flex-end; gap:6px; height:70px; } .hbars i { flex:1; background:var(--acc); opacity:.75; border-radius:4px 4px 0 0; }
 .chips { display:flex; gap:8px; flex-wrap:wrap; }
-</style>
 
+/* Round 2: the fork's real History card, and the Arrange screen */
+.tile3 { display:flex; gap:8px; } .tile3 div { flex:1; background:var(--surface); border-radius:var(--r); padding:8px 10px; font-size:12px; color:var(--label-2); } .tile3 b { display:block; font-size:20px; color:var(--label); font-weight:800; }
+.capl { color:var(--label-2); font-size:13px; }
+.wc { border:1px solid var(--sep); border-radius:var(--r-card); padding:12px 14px; display:flex; flex-direction:column; gap:6px; font-size:13px; }
+.wc .h { display:flex; align-items:center; gap:10px; color:var(--label-2); } .wc .h i { width:32px; height:32px; border-radius:50%; background:var(--surface-3); } .wc .h span { flex:1; }
+.wc b.t { font-size:16px; font-weight:800; } .wc .cols { display:flex; gap:40px; color:var(--label-2); } .wc .cols b { display:block; color:var(--label); font-size:15px; font-weight:700; }
+.wc .ex { display:flex; align-items:center; gap:10px; font-size:14px; } .wc .ex i { width:30px; height:30px; border-radius:50%; background:var(--surface-3); flex:none; }
+.arr { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--sep); font-size:15px; font-weight:700; min-height:52px; }
+.arr .hd { color:var(--label-2); font-size:18px; letter-spacing:-2px; width:20px; flex:none; } .arr span { flex:1; }
+.arr.off span { color:var(--label-2); }
+.sw { width:44px; height:26px; border-radius:99px; background:var(--acc); position:relative; flex:none; } .sw::after { content:""; position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:var(--on-acc); }
+.arr.off .sw { background:var(--surface-3); box-shadow:inset 0 0 0 2px var(--sep); } .arr.off .sw::after { right:auto; left:3px; background:var(--label-2); }
+.btnl { align-self:center; color:var(--acc); font-weight:800; font-size:14px; padding:12px 16px; }
+</style>
 <h1>Statistics: one real page</h1>
-<p class="lead">Part 4 of the statistics pre-plan (F13: "the statistics open from chips on Lifts, chips on History and a Statistics page of links; they should be better organised"). Answers already given: sets per muscle by period becomes a card on Statistics (its own page and History's chip go), and All statistics and Structural balance become two links at the end of Statistics. From the interview: the calendar, the monthly report, strength levels and exercise time are looked at and stay; the weekly chart and the body graph are "rarely or never". Every number is made up.</p>
+<p class="lead">Part 4 of the statistics pre-plan (F13). Round 2, from the owner's notes on round 1: "A, but the History rows stay as they are; at the top are the numbers from B; and take OpenBite's Trends page, where items can be rearranged and switched on and off". So Statistics opens with B's number tiles, then A's cards, and an Arrange Statistics page, as OpenBite's Arrange Trends, sets the order of both and switches each on or off. History is drawn as the fork has it now. Every number is made up; pictures are grey placeholders.</p>
 <ul class="moves">
-  <li><b>Sets per muscle page and chip:</b> a card on Statistics (by week, month or year, no ranges, D139).</li>
-  <li><b>Last 7 days body graph:</b> gone (rarely looked at; the body map stays on All statistics).</li>
+  <li><b>History:</b> its three tiles and its workout cards stay as they are. The chips become one row, Calendar · Monthly report · Statistics. Sets per muscle, Body weight and All statistics move onto Statistics.</li>
+  <li><b>Sets per muscle page:</b> a card on Statistics (by week, month or year, no ranges, D139).</li>
+  <li><b>Last 7 days body graph:</b> gone from Statistics (rarely looked at; the body map stays on All statistics).</li>
   <li><b>Exercise time:</b> a card on Statistics opening its page; its link at the end of Lifts goes. Strength levels stays at the end of Lifts (D140).</li>
   <li><b>Body weight chip:</b> a card on Statistics opening Measurements.</li>
-  <li><b>All statistics chip:</b> a link at the end of Statistics.</li>
-  <li><b>History's chips:</b> one row, Calendar · Monthly report · Statistics, in place of two labelled rows of six.</li>
+  <li><b>All statistics and Structural balance:</b> links at the end of Statistics.</li>
 </ul>
 
-<h2>A · Cards in the order you look at them <span class="rec">Recommended</span></h2>
-<p class="lead">Statistics becomes a page of cards under one phase filter: Exercise time, Body weight, Sets per muscle, then the weekly chart, then the two links. Each card shows its numbers and opens its full page. History keeps one row of three chips.</p>
+<h2>A2 · Numbers, then cards, arranged your way <span class="rec">Recommended</span></h2>
+<p class="lead">One phase filter over the page. Four tiles first; then the cards. At the end, Arrange Statistics: drag or tap a handle to move, a switch to hide or bring back, Reset with Undo, as in OpenBite. Tiles that are off wait there (Workouts this month, Average RPE). The Weekly chart is on but last, since it is rarely looked at.</p>
 <div class="row" id="rowA"></div>
 
-<h2>B · Four tiles, a page each</h2>
-<p class="lead">Statistics opens with four tiles, each a headline number (time per session, body weight, sets this week, hours this week), and each tile opens its page. Sets per muscle stays a page of its own behind its tile. The shortest first view; the content is a tap away.</p>
-<div class="row" id="rowB"></div>
-
-<h2>C · No Statistics page</h2>
-<p class="lead">The cards of A move onto the History tab, under the week and the chips, with the workout feed below them. One place fewer, but the feed, where the last workout is compared with the one before (T7), drops a long scroll.</p>
-<div class="row" id="rowC"></div>
-
 <h2>Scores</h2>
-<p class="lead">Old: today's History chips and Statistics page (D135), scored from the code (the emulator is shared). F13 is the friction row this round answers. Out of 33: lines 1 to 4 count double.</p>
+<p class="lead">Old: today's History chips and Statistics page (D135), here on the emulator, 2026-11-19. Round 1's A, B and C are in git history. Out of 33: lines 1 to 4 count double.</p>
 <table>
-<tr><th>#</th><th>Line</th><th>Old</th><th>A</th><th>B</th><th>C</th><th>Evidence</th></tr>
-<tr><td>1</td><td>Main tasks' steps</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td>T7 and T9 (Calendar) keep their taps in all.</td></tr>
-<tr><td>2</td><td>Read at a glance</td><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td>Old: Statistics opens on the weekly chart and the body graph, both rarely looked at, then links. B: four numbers in one view.</td></tr>
-<tr><td>3</td><td>Nothing that must stay fast got slower</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td>C: the feed (T7) a long scroll lower.</td></tr>
-<tr><td>4</td><td>F13</td><td class="n">0</td><td class="n">3</td><td class="n">2</td><td class="n">3</td><td>A and C: one home per stat, its numbers on it. B: still a page per stat behind a tile.</td></tr>
-<tr><td>5</td><td>What is looked at is in view</td><td class="n">1</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td>A: exercise time and body weight first. C: the cards push the feed down.</td></tr>
-<tr><td>6</td><td>Found where it is expected</td><td class="n">1</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td>Old: stats from three places, sets per muscle in five. B: sets per muscle a page again. C: numbers mixed into the history.</td></tr>
-<tr><td>7</td><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td>Read off the frames; measured on the build.</td></tr>
-<tr><td></td><td><b>Total of 33</b></td><td class="n">18</td><td class="n">30</td><td class="n">29</td><td class="n">26</td><td></td></tr>
+<tr><th>#</th><th>Line</th><th>Old</th><th>A2</th><th>Evidence</th></tr>
+<tr><td>1</td><td>Main tasks' steps</td><td class="n">3</td><td class="n">3</td><td>T7 (the feed) and T9 (Calendar) keep their taps.</td></tr>
+<tr><td>2</td><td>Read at a glance</td><td class="n">1</td><td class="n">3</td><td>Four numbers before any card. Old opens on the weekly chart and the body graph.</td></tr>
+<tr><td>3</td><td>Nothing that must stay fast got slower</td><td class="n">3</td><td class="n">3</td><td>History's top and feed unchanged.</td></tr>
+<tr><td>4</td><td>F13</td><td class="n">0</td><td class="n">3</td><td>One home per stat, its numbers on it; History opens it with one chip.</td></tr>
+<tr><td>5</td><td>What is looked at is in view</td><td class="n">1</td><td class="n">3</td><td>The tiles and exercise time in the first screen; the order is yours.</td></tr>
+<tr><td>6</td><td>Found where it is expected</td><td class="n">1</td><td class="n">3</td><td>Old: stats from three places, sets per muscle in five. Arrange is where OpenBite has it.</td></tr>
+<tr><td>7</td><td>The standing rules</td><td class="n">2</td><td class="n">2</td><td>Read off the frames. The Arrange rows 52 px; a handle is also a button, as in OpenBite, so no drag is needed.</td></tr>
+<tr><td></td><td><b>Total of 33</b></td><td class="n">18</td><td class="n">32</td><td></td></tr>
 </table>
+<p class="lead" style="margin-top:12px">Line 7 is measured on the build: 200 % text, TalkBack on the handles and switches, contrast.</p>
 
 <script>
 function spark(s, w, h) {
@@ -157,23 +163,24 @@ function spark(s, w, h) {
 }
 const phone = (title, back, inner, cap, tab = 'History') => `<figure><div class="phone"><div class="top">${back ? '<span>‹</span>' : ''}<b>${title}</b><span>⚙</span></div><div class="body">${inner}</div>
   <div class="tabs">${['Today', 'Lifts', 'History'].map(x => `<div class="${x === tab ? 'on' : ''}">${x}</div>`).join('')}</div></div><figcaption>${cap}</figcaption></figure>`
-const week = '<div class="wk">' + [['M', 17], ['T', 18], ['W', 19], ['T', 20], ['F', 21], ['S', 22], ['S', 23]].map(([d, n], i) => `<div class="${i === 2 ? 'on' : ''}">${d}<b>${n}</b></div>`).join('') + '</div>'
-const chips = '<div class="chips"><span class="chip">Calendar</span><span class="chip">Monthly report</span><span class="chip">Statistics</span></div>'
-const feed = (n, d) => `<div class="feed"><b>${n}</b>${d} · 1 h 4 min · 22 sets<br>Lever Chest Press 70 × 12 ↑ · Lever Military Press 62.5 × 9 ↑ · Lever T Bar Row 55 × 7</div>`
+const tiles3 = '<div class="tile3"><div>This week<b>2 of 3</b>workouts</div><div>Time<b>2 h 9</b>this week</div><div>Sets<b>46</b>this week</div></div>'
+const wcard = (t, d, time, sets, mus, ex) => `<div class="wc"><div class="h"><i></i><span>${d}</span>⇪ ⋯</div><b class="t">${t}</b><div class="cols"><span>Time<b>${time}</b></span><span>Sets<b>${sets}</b></span></div><div class="dim">${mus}</div>${ex.map(e => `<div class="ex"><i></i>${e}</div>`).join('')}</div>`
 const phase = '<div class="ctl"><div class="seg"><span class="on">All</span><span>Cutting</span><span>Bulking</span></div></div>'
-const time = `<div class="card"><h3>Exercise time <a>All ›</a></h3><div class="kv"><span>A workout</span><b>1 h 2 min</b></div><div class="kv"><span>Sled 45° Leg Press</span><b>7 min</b></div><div class="kv"><span>Lever Chest Press</span><b>6 min</b></div><div class="kv"><span>Barbell Full Squat</span><b>9 min</b></div></div>`
-const body = `<div class="card"><h3>Body weight <a>Measurements ›</a></h3><div class="kv"><span>82.4 kg</span><b class="up">↓ 0.6 kg in 4 weeks</b></div>${spark([84.1, 83.9, 84, 83.6, 83.5, 83.6, 83.2, 83.1, 82.9, 83, 82.7, 82.4], 350, 54)}</div>`
-const sets = `<div class="card"><h3>Sets per muscle <a>Week ›</a></h3>${[['Chest', 14], ['Back', 16], ['Shoulders', 12], ['Quadriceps', 10], ['Hamstrings', 8], ['Biceps', 6]].map(([m, n]) => `<div class="bar"><span>${m}</span><i style="width:${n * 6}%"></i><span>${n}</span></div>`).join('')}<div class="sm dim">This week · Week, month or year</div></div>`
+const tiles = '<div class="tiles"><div class="tile"><small>Exercise time</small><b>1 h 2</b><span>a workout</span></div><div class="tile"><small>Body weight</small><b>82.4</b><span>kg · ↓ 0.6 in 4 weeks</span></div><div class="tile"><small>Sets per muscle</small><b>64</b><span>sets this week</span></div><div class="tile"><small>Hours a week</small><b>4.5</b><span>this week</span></div></div>'
+const time = `<div class="card"><h3>Exercise time <a>All ›</a></h3><div class="kv"><span>Sled 45° Leg Press</span><b>7 min</b></div><div class="kv"><span>Lever Chest Press</span><b>6 min</b></div><div class="kv"><span>Barbell Full Squat</span><b>9 min</b></div></div>`
+const body = `<div class="card"><h3>Body weight <a>Measurements ›</a></h3>${spark([84.1, 83.9, 84, 83.6, 83.5, 83.6, 83.2, 83.1, 82.9, 83, 82.7, 82.4], 350, 54)}</div>`
+const sets = `<div class="card"><h3>Sets per muscle <a>Week ⌄</a></h3>${[['Chest', 14], ['Back', 16], ['Shoulders', 12], ['Quadriceps', 10], ['Hamstrings', 8], ['Biceps', 6]].map(([m, n]) => `<div class="bar"><span>${m}</span><i style="width:${n * 6}%"></i><span>${n}</span></div>`).join('')}</div>`
 const hours = `<div class="card"><h3>Hours a week</h3><div class="hbars">${[3.5, 4, 4.5, 3, 4.2, 4.8, 4.1, 3.9, 4.6, 4.4, 2.1, 4.5].map(v => `<i style="height:${v * 20}%"></i>`).join('')}</div></div>`
-const links = '<div class="link">All statistics ›</div><div class="link">Structural balance ›</div>'
+const links = '<div class="link">All statistics ›</div><div class="link">Structural balance ›</div><div class="btnl">⚙ Arrange Statistics</div>'
+const arr = (name, on = true) => `<div class="arr ${on ? '' : 'off'}"><span class="hd">⋮⋮</span><span>${name}</span><i class="sw"></i></div>`
 document.getElementById('rowA').innerHTML =
-  phone('History', false, week + chips + feed('Upper A', 'Today') + feed('Lower B', 'Mon 17 Nov') + feed('Upper B', 'Sat 15 Nov'), 'History: the week, three chips, the feed.') +
-  phone('Statistics', true, phase + time + body + sets.replace('<div class="sm dim">This week · Week, month or year</div>', ''), 'Statistics: the phase filter over every card, exercise time and body weight first.') +
-  phone('Statistics', true, sets + hours + links, 'Scrolled: sets per muscle (Week, Month or Year), the weekly chart, then the two links.')
-document.getElementById('rowB').innerHTML =
-  phone('Statistics', true, phase + '<div class="tiles"><div class="tile"><small>Exercise time</small><b>1 h 2</b><span>a workout ›</span></div><div class="tile"><small>Body weight</small><b>82.4</b><span>kg · ↓ 0.6 in 4 weeks ›</span></div><div class="tile"><small>Sets per muscle</small><b>64</b><span>sets this week ›</span></div><div class="tile"><small>Hours a week</small><b>4.5</b><span>this week ›</span></div></div>' + links, 'Four tiles, each opening its page; the two links under them.') +
-  phone('Sets per muscle', true, '<div class="ctl"><div class="seg"><span class="on">Week</span><span>Month</span><span>Year</span></div></div>' + sets.replace(/<h3>.*?<\/h3>/, '').replace('<div class="sm dim">This week · Week, month or year</div>', ''), 'The Sets per muscle tile opens its page, as today without the ranges.')
-document.getElementById('rowC').innerHTML =
-  phone('History', false, week + '<div class="chips"><span class="chip">Calendar</span><span class="chip">Monthly report</span></div>' + phase + time + body, 'History holds the cards under the week; there is no Statistics page.') +
-  phone('History', false, sets + hours + links + feed('Upper A', 'Today'), 'The feed starts after the cards and the links.')
+  phone('History', false, tiles3 + '<span class="capl">Look back</span><div class="chips"><span class="chip">Calendar</span><span class="chip">Monthly report</span><span class="chip">Statistics</span></div>' +
+    wcard('Upper A', 'Thu, 19 Nov · 17:40', '1 h 4 min', '22', 'Chest 8 · Back 7 · Shoulders 4', ['4 sets Lever Chest Press', '4 sets Lever T Bar Row', '3 sets Lever Military Press']),
+    'History as the fork has it: its tiles and workout cards stay; one row of chips.') +
+  phone('Statistics', true, phase + tiles + time + body, 'Statistics: B\'s four numbers on top, then A\'s cards, all under one phase filter.') +
+  phone('Statistics', true, sets + hours + links, 'Scrolled: sets per muscle (Week, Month or Year), the weekly chart, the two links, then Arrange Statistics.') +
+  phone('Arrange Statistics', true, '<div class="row" style="padding:0;display:block"><div class="dim sm">Drag or tap the handle to move. Switch one off to hide it, on to add it back.</div></div><span class="cap" style="margin-top:6px">Tiles</span><div>' +
+    arr('Exercise time') + arr('Body weight') + arr('Sets per muscle') + arr('Hours a week') + arr('Workouts this month', false) + arr('Average RPE', false) +
+    '</div><span class="cap" style="margin-top:6px">Cards</span><div>' + arr('Exercise time') + arr('Body weight') + arr('Sets per muscle') + arr('Weekly chart') + '</div>',
+    'Arrange Statistics, as OpenBite\'s Arrange Trends: a handle to move, a switch to hide, Reset (top right in OpenBite) with Undo.')
 </script>

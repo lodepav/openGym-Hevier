@@ -636,7 +636,13 @@ Part 4 of `ux/STATS-PREPLAN.md`. Old: History's chips and the Statistics page (D
 | | Total of 33 | 18 | 30 | 29 | 26 | |
 
 A "cards in the order you look at them" (recommended), B "four tiles, a page each", C "no
-Statistics page". Status: mockup, with the owner.
+Statistics page".
+
+Round 2, 2026-11-19, the owner: "A, but the History rows stay as they are; at the top are the
+numbers from B; take OpenBite's Trends page, where items can be rearranged and switched on and
+off". A2: B's tiles, A's cards, an Arrange Statistics page as OpenBite's Arrange Trends; History
+drawn as the fork has it. Scored 18 → 32/33 (6·6·6·6 | 3·3·2), the old screen on the emulator.
+Status: mockup, with the owner.
 
 ### Settings, gyms, strap, library, Measurements
 
