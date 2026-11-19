@@ -101,4 +101,12 @@ describe('hevier: Arrange Statistics (D142)', () => {
     expect(layout()).toEqual(mine)
     expect(names(1)[0]).toBe('Weekly chart')
   })
+
+  it('Reset is off while the layout is already the first one', () => {
+    const resetBtn = () => [...container.querySelectorAll('.hv-pagebar button')].find(b => b.textContent === 'Reset')
+    render(['/stats/arrange'], {})
+    expect(resetBtn().disabled).toBe(true)
+    act(() => row(1, 'Sets per muscle').querySelector('.hv-grip').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })))
+    expect(resetBtn().disabled).toBe(false)
+  })
 })
