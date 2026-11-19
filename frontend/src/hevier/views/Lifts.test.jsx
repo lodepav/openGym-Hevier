@@ -238,6 +238,13 @@ describe('hevier: Lifts (D135)', () => {
     expect(row(P).getAttribute('aria-label')).not.toMatch(/isolation/)
   })
 
+  it('By muscle: a group without its number counts only the lifts with a change in the window (D141)', () => {
+    // Q was last trained a year ago, outside 12 weeks: Chest has one lift with a change, not two.
+    const old = three(Q.id, [50, 52.5, 55]).map((w, i) => ({ ...w, d: ['2025-11-01', '2025-11-08', '2025-11-15'][i] }))
+    render({ workouts: [...three(P.id, [40, 45, 50]), ...old], hvLiftsBy: 'muscle' })
+    expect(heads()[0].textContent).toBe('Chest1 lift · a group number needs two')
+  })
+
   it('the header’s arrow follows its lifts’ states, not the sign of its change (D141)', () => {
     render({ workouts: [...three(P.id, [40, 45, 50]), ...three(Q.id, [80, 75, 70])] })
     act(() => [...container.querySelectorAll('.hv-lifts-by button')].find(b => b.textContent === 'By muscle').click())

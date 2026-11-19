@@ -87,6 +87,15 @@ export function liftProgress(S, { from = null } = {}) {
   // against the whole log: the first session in the window is still held against the one before it.
   const R = { ...counted, setTrend: true }
   const log = sorted(counted.workouts)
+  // Last time reads only the exercise's own sessions (previous-sets.js), so each is held against a
+  // log of just those: the whole log for every entry grew with its square (All, a long phase).
+  const own = new Map()
+  for (const w of counted.workouts || []) {
+    for (const id of new Set((w?.entries || []).map(e => e?.id))) {
+      if (!own.has(id)) own.set(id, { ...R, workouts: [] })
+      own.get(id).workouts.push(w)
+    }
+  }
   const inside = log.filter(w => from == null || w.d >= from)
 
   // Per exercise, per label in the order of last use: the sessions' verdicts.
@@ -103,7 +112,7 @@ export function liftProgress(S, { from = null } = {}) {
       labels.set(key, l)
       // A deload routine's entries are counted (counted-log.js) but are no worse session.
       if (!compared(e.id) || entryExcluded(w, e)) return
-      const verdict = sessionVerdict(arrows(R, w, i))
+      const verdict = sessionVerdict(arrows(own.get(e.id), w, i))
       if (verdict != null) l.sessions.push({ day, verdict })
     })
   }
@@ -148,7 +157,7 @@ export function progressTotals(map) {
 
 /**
  * A muscle group's progress (D141) from its lifts' reads in `map` (liftProgress), for the group's
- * exercise `ids`: `{ state, pct, rising, falling, judged }`. `state` follows the lifts' own: 'rising'
+ * exercise `ids`: `{ state, pct, changed, rising, falling, judged }` (changed: the lifts with a percent). `state` follows the lifts' own: 'rising'
  * when more judged lifts rise than fall, 'falling' the other way round, else 'holding'; null with
  * none judged. `pct` is the whole-percent mean of the lifts' changes,
  * a compound lift (`isCompound(id)`, compound.js's by default) counting 1 and an isolation lift ½, or
@@ -167,5 +176,5 @@ export function groupProgress(map, ids, { isCompound = compoundEx } = {}) {
   }
   // The arrow is the lifts' states, so a header never points against its rows; the percent is weighted.
   const state = !judged ? null : rising > falling ? 'rising' : falling > rising ? 'falling' : 'holding'
-  return { state, pct: changed >= 2 ? Math.round(sum / weight) || 0 : null, rising, falling, judged }   // never -0
+  return { state, pct: changed >= 2 ? Math.round(sum / weight) || 0 : null, changed, rising, falling, judged }   // never -0
 }

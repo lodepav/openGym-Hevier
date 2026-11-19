@@ -48,7 +48,6 @@ export function move(layout, from, to) {
 /** `layout` with the item at `from` among `ids` (the ones listed, a subset of its order) moved to
  *  where the one at `to` is, the items not listed staying where they are. */
 export function moveAmong(layout, ids, from, to) {
-  if (!ids[from] || !ids[to]) return layout
   return move(layout, layout.order.indexOf(ids[from]), layout.order.indexOf(ids[to]))
 }
 
