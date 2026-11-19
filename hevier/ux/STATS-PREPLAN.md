@@ -145,9 +145,15 @@ Agreed 2026-11-19: four parts, one at a time, each with its own decision row and
 2. **Lift progress on the cards.** Bigger cards, 12-week chart, rising/falling mark, brands as
    lines, the phase filter; replaces Trends. Answers (2026-11-19): the window is a switch (12 weeks,
    the phase, All, remembered); Strength levels keeps its page, one link at the end of Lifts;
-   mockups through `/ux-rework` first. Approved as D140 (version B2: totals that filter, rows with a 32 px chart).
-3. **Muscle-group progress** in By muscle, on part 2's per-lift metric. Questions 4 and 5.
-4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Question 7.
+   mockups through `/ux-rework` first. Approved as D140; built on `hevier/stats-no-ranges` (version B2: totals that filter, rows with a 32 px chart).
+3. **Muscle-group progress** in By muscle, on part 2's per-lift metric. Answers (2026-11-19):
+   compound or isolation is read from the muscle groups an exercise works: one group is isolation,
+   two or more compound (the owner's rule, in place of `isCompoundEx`; to check over the owner's
+   lifts in the mockup, with the catalogue's secondary muscles and custom exercises); D95's groups
+   (Back whole, the three delt heads one Shoulders), calves and abs included.
+4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Answers
+   (2026-11-19): All statistics and Structural balance as two links at the end of Statistics; sets
+   per muscle by period becomes a card on Statistics, its own page and History's chip go.
 
 ## How it runs
 
