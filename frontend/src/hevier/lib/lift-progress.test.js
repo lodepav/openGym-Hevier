@@ -22,7 +22,7 @@ const workout = (ago, lifts, entry = {}, w = {}) => ({
 /** One session per day in `days` with one set of `weights[i]` × 8 for `id`. */
 const series = (id, days, weights, entry) => days.map((ago, i) => workout(ago, { [id]: [[weights[i], 8]] }, entry))
 const state = (workouts, over = {}) => ({ ...structuredClone(DEF), workouts, ...over })
-const progress = (workouts, from = null, over = {}) => liftProgress(state(workouts, over), { from, today: TODAY })
+const progress = (workouts, from = null, over = {}) => liftProgress(state(workouts, over), { from })
 const pts = (...ys) => ys.map((y, i) => ({ d: dayAgo(30 - i), y }))
 
 describe('liftsWindow', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PARTS, hasParts, partOn, partSwitch, anyPartOn, setPart, needOf } from './module-parts.js'
+import { PARTS, hasParts, partOn, partSwitch, setPart, needOf } from './module-parts.js'
 import { MODULE_IDS, applyPreset } from '../../lib/modules.js'
 import { FORK_MODULES } from './fork-modules.js'
 import { mergeStates } from '../../lib/sync-merge.js'
@@ -23,7 +23,6 @@ describe('hevier: a switch per part inside a module (D102)', () => {
     expect(partOn(s, 'body', 'measurements')).toBe(true)
     s.modules = { body: false }
     expect(partOn(s, 'body', 'measurements')).toBe(false)
-    expect(anyPartOn(s, 'body')).toBe(false)
     s.modules = { body: true }
     expect(partSwitch(s, 'body', 'photos')).toBe(false)
     expect(partOn(s, 'body', 'measurements')).toBe(true)
@@ -34,13 +33,6 @@ describe('hevier: a switch per part inside a module (D102)', () => {
     expect(s.hvModuleParts).toEqual({ 'motivation.share': false })
     expect(partOn(s, 'motivation', 'share')).toBe(false)
     expect(partOn(s, 'motivation', 'streak')).toBe(true)
-  })
-  it('anyPartOn is false only when every part is off', () => {
-    const s = {}
-    setPart(s, 'body', 'weight', false); setPart(s, 'body', 'measurements', false)
-    expect(anyPartOn(s, 'body')).toBe(true)
-    setPart(s, 'body', 'photos', false)
-    expect(anyPartOn(s, 'body')).toBe(false)
   })
   it('ignores a part it does not know', () => {
     const s = {}

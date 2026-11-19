@@ -86,9 +86,6 @@ export function partSwitch(S, mod, part) {
 /** Whether part `part` of module `mod` shows: the module on (upstream's isOn) and the part's switch. */
 export const partOn = (S, mod, part) => isOn(S, mod) && partSwitch(S, mod, part)
 
-/** Whether any part of `mod` shows (a screen that only holds its parts, like Measures). */
-export const anyPartOn = (S, mod) => isOn(S, mod) && (PARTS[mod] || []).some(p => partSwitch(S, mod, p.id))
-
 /** Sets a part's switch in a store draft `s`. */
 export function setPart(s, mod, part, on) {
   if (!partOf(mod, part)) return
