@@ -155,7 +155,8 @@ Agreed 2026-11-19: four parts, one at a time, each with its own decision row and
    done five times or more right; the slips: "lateral" in "lateral pulldown" (two lifts) and in
    "unilateral" (a split squat) reads as isolation, and "push up" with a space is not matched.
    D95's groups
-   (Back whole, the three delt heads one Shoulders), calves and abs included.
+   (Back whole, the three delt heads one Shoulders), calves and abs included. Approved as D141 (version A:
+   a header per group with its change and count, ½ on isolation lifts).
 4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Answers
    (2026-11-19): All statistics and Structural balance as two links at the end of Statistics; sets
    per muscle by period becomes a card on Statistics, its own page and History's chip go.

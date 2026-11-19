@@ -144,3 +144,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D138** Workouts go to Hevy through its private web API with a Hevy login, not the Pro API key.
 - **D139** No target ranges for weekly sets per muscle.
 - **D140** Each lift on Lifts shows where it is going: a chart of estimated 1RM, its change, and totals that filter.
+- **D141** Lifts' By muscle shows each muscle group's progress on its header.
