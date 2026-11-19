@@ -475,4 +475,14 @@ describe('hevier export to Hevy: the private web API and the repair (D138)', () 
     expect(marks.tpl).toEqual({ 2950: expect.objectContaining({ id: EXPORT_FIXES[2950] }) })
     expect(marks.workouts.sort()).toEqual(['brand', 'table'])
   })
+
+  it('leaves a workout on the Hevy exercise it went as, when Hevy has several for one exercise', () => {
+    const f = find({})
+    const now = f(squat).id
+    const other = Object.keys(HEVY_ID_MAP).find(k => HEVY_ID_MAP[k] === squat && k !== now && builtinTemplates().some(t => t.id === k))
+    expect(other).toBeTruthy()
+    const S = { unit: 'kg', workouts: [workout({ id: 'sq', entries: [{ id: squat, sets: [{ w: 100, r: 5, done: true }] }] })] }
+    const st = { out: { w: { sq: { id: 'H1', h: 'x' } } }, tpl: { [squat]: { id: other } } }
+    expect(repairMarks(S, st, f)).toEqual({ tpl: {}, workouts: [] })
+  })
 })

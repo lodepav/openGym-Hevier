@@ -436,8 +436,11 @@ export function finish(draft, tplOf) {
  */
 export function repairMarks(S, st, find) {
   const tpl = {}
+  const builtin = new Set(HEVY_BUILTINS.map(b => b[0]))
   for (const [ex, old] of Object.entries(st?.tpl || {})) {
     if (ex.includes('|')) continue                 // a brand's key: workouts no longer use it
+    // Hevy has several exercises for some of ours: one it already went as keeps its history there.
+    if (builtin.has(String(old?.id))) continue
     const now = find(ex)
     if (now && String(now.id) !== String(old?.id)) tpl[ex] = now
   }
