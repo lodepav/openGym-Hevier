@@ -546,7 +546,7 @@
 :root[data-ui="hevier"] .hv-scard-h .hv-link{display:inline-flex;align-items:center;min-height:48px;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row b{margin-inline-start:auto}
-:root[data-ui="hevier"] .btn.hv-arrange-b{width:100%;margin-top:12px;gap:8px}
+:root[data-ui="hevier"] .btn.hv-arrange-b{width:100%;margin-top:12px;gap:8px;min-height:48px}
 /* Arrange Statistics: a row 48 px at least, its handle always shown, the switch's target 48 px */
 :root[data-ui="hevier"] .hv-arr-hint{margin:4px 0 0}
 :root[data-ui="hevier"] .hv-arrlist{gap:0}
