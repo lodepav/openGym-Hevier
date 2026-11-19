@@ -135,6 +135,18 @@ Back and Shoulders whole, the rest by muscle) fits better.
 6. Strength levels: is a sort on Lifts enough, or keep its page?
 7. All statistics and Structural balance: two links at the end, or hidden completely?
 
+## Parts, in order
+
+Agreed 2026-11-19: four parts, one at a time, each with its own decision row and build.
+
+1. **Remove weekly sets against ranges (D99).** Answers: upstream's Ranges editor and its Muscles
+   card on All statistics are hidden too (one seam); sets per muscle stays as a plain count by
+   period, without ranges.
+2. **Lift progress on the cards.** Bigger cards, 12-week chart, rising/falling mark, brands as
+   lines, the phase filter; replaces Trends. Questions 3 and 6.
+3. **Muscle-group progress** in By muscle, on part 2's per-lift metric. Questions 4 and 5.
+4. **Navigation.** One real Statistics page, fewer chips on History and Lifts. Question 7.
+
 ## How it runs
 
 1. The owner answers the questions above. -> check: each answer written into this file.

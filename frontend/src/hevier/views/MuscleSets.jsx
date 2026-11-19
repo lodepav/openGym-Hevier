@@ -1,6 +1,5 @@
 // Sets per muscle, a page of its own behind History's chip and Statistics' row (D14, D135): the set
-// count per muscle group (week, month, year, against the one before) and upstream's weekly sets
-// against a range, counted the fork's way (D99).
+// count per muscle group (week, month, year, against the one before); no target ranges (D139).
 import { useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
@@ -12,8 +11,6 @@ import { muscleText } from '../lib/main-muscle.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
-import { partOn } from '../lib/module-parts.js'
-import WeeklySetsCard from '../components/WeeklySetsCard.jsx'
 import { BackTo } from './Statistics.jsx'
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
@@ -49,6 +46,5 @@ export default function MuscleSets() {
     <BackTo label={t('Statistics')} to="/stats" title={t('Sets per muscle')} />
     <PhaseFilter />
     <SetCounts S={S} today={todayISO()} />
-    {partOn(S, 'strength', 'weekly') && <WeeklySetsCard S={S} />}
   </div>
 }

@@ -66,10 +66,10 @@ describe('hevier: a module’s parts under its row (D102)', () => {
   })
   it('the module’s switch flips the module and does not unfold it', () => {
     render('/settings/modules')
-    act(() => row('Strength levels').querySelector('[role="switch"]').click())
-    expect(useStore.getState().S.modules.strength).toBe(false)
-    expect(row('Strength levels').querySelector('.hv-modrow-open').getAttribute('aria-expanded')).toBe('false')
-    expect(row('Strength levels').querySelector('.lrow-v').textContent).toBe('Off')
+    act(() => row('Motivation').querySelector('[role="switch"]').click())
+    expect(useStore.getState().S.modules.motivation).toBe(false)
+    expect(row('Motivation').querySelector('.hv-modrow-open').getAttribute('aria-expanded')).toBe('false')
+    expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('Off')
   })
   it('a module without parts has no disclosure', () => {
     render('/settings/modules')

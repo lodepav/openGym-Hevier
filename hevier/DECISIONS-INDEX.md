@@ -142,3 +142,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D136** Settings, gyms, the strap, the exercise library and Measurements stay as they are.
 - **D137** What Hevy has no field for goes into the notes of the workout sent to it.
 - **D138** Workouts go to Hevy through its private web API with a Hevy login, not the Pro API key.
+- **D139** No target ranges for weekly sets per muscle.

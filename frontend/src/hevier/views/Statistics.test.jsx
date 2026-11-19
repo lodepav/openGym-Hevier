@@ -13,6 +13,7 @@ import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO, isoOf } from '../../lib/format.js'
 import { hevierRoutes, HevyTabBar } from '../routes.jsx'
+import { hooks } from '../hooks.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -79,12 +80,17 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
   })
 
-  it('Weekly sets per muscle: how many past weeks each muscle was in range', () => {
-    const back = n => { const d = new Date(todayISO() + 'T12:00:00'); d.setDate(d.getDate() - 7 * n); return isoOf(d) }
-    render(['/muscle-sets'], { muscleTargets: { chest: [2, 4] }, workouts: [workout(back(2)), { ...workout(back(1)), id: 'w1' }] })
-    const chest = [...container.querySelectorAll('.hv-wsets .sbar-row')].find(r => r.textContent.startsWith('Chest'))
-    expect(chest.querySelector('.hv-wsets-past').textContent).toBe('2/2')
-    expect(chest.getAttribute('aria-label')).toContain('In range 2 of 2 weeks')
+  it('All statistics: the Muscles card keeps its bars without target ranges (D139)', () => {
+    const was = hooks.statsOff
+    hooks.statsOff = ['ranges']
+    try {
+      render(['/stats/all'], { muscleTargets: { chest: [2, 4] }, workouts: [workout(todayISO())] })
+      const card = container.querySelector('[data-muscles]')
+      expect(card.querySelector('.sbar-list .sbar-row')).toBeTruthy()
+      expect(card.querySelector('.sbar-of')).toBeNull()
+      expect([...card.querySelectorAll('button')].some(b => b.textContent === 'Ranges')).toBe(false)
+      expect(card.textContent).not.toContain('Target range')
+    } finally { hooks.statsOff = was }
   })
 
   it('an empty history says so instead of an empty map', () => {

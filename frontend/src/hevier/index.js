@@ -77,7 +77,7 @@ function install() {
 
   hooks.noDumbbellsRowOff = true                         // a gym's checklist says what it has (S49, D62)
   hooks.settingsAutosave = true                           // Exercise settings in a workout need no Save (S50, D92)
-  hooks.statsOff = ['j', 't', 'month', 'form', 'level']    // All statistics without the Journal, Tools, Your month, daily form and levels (S61, D109)
+  hooks.statsOff = ['j', 't', 'month', 'form', 'level', 'ranges']    // All statistics without the Journal, Tools, Your month, daily form, levels (S61, D109) and target ranges (D139)
   hooks.noMic = true                                      // the APK has no microphone permission (S60, D106)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
   hooks.backupKeep = 5                                    // auto-backup keeps the newest 5 copies, not 14 (S52, D20)

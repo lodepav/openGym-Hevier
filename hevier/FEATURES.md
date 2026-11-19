@@ -121,7 +121,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Planned days as coloured dots / routine names on the Calendar; Show next month | D68 | Fork |
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, released in v1.4.4: the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
-| Weekly sets per muscle against a target range (upstream 1.4.4's card), counted by the fork's main muscle | D99 | Fork |
+| No target ranges for weekly sets: upstream's Ranges row hidden, its Muscles card without the range band | D139 | Fork |
 | Lift trends: each exercise falling, holding or rising over 3 weeks, with the 1RM change and the days since its last record | D119 | Fork |
 | A workout against the last time the routine was done; weeks in range per muscle; a routine's usual length; left against right; time between sets | D119 | Fork |
 | Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374) |
@@ -138,7 +138,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | The weekly chart at the top of Statistics (on Profile until D135) | D14, D135 | Fork |
-| Sets per muscle as a page of its own: the counts by week, month or year and the weekly sets against a range; History's chip and a row on Statistics open it | D14, D135 | Fork |
+| Sets per muscle as a page of its own: the counts by week, month or year; History's chip and a row on Statistics open it | D14, D135 | Fork |
 | Removed by D126/D134: the configurable Home of widgets (D12, its stored layout kept), Profile's dashboard (D14), Upstream 1.4.4's cards as Home widgets (D98) | D12, D14, D98 | Removed |
 | Settings root regrouped under five titles, its groups set apart; layout-only rows hidden; opened from a tab's ⚙ | D16, D136 | Fork |
 | Dark AMOLED only (D17); OpenBite's look: Nunito, warm greys, cards, an accent you choose (green by default, Hevy's blue next), meaning colours that step aside from it, a launcher icon that follows it | D17, D123 | Fork |
@@ -148,7 +148,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Upstream's profile picture (photo or icon) where the fork shows the user, at the top of Settings since the Profile tab went; not its badges | D112 | Fork |
 | Upstream's Modules switch the fork's screens too; fork features join a module | D97 | Fork |
 | A switch per part inside a module (streak apart from challenges, measurements apart from photos …) | D102 | Offered (#1087, issue; PR #1235. Exercise settings as a module of its own: #1236, issue; PR #1237) |
-| The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks, Weekly sets per muscle) and three modules of its own | D114 | Fork |
+| The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
 | Switches that can do nothing are disabled and say which module they need | D118 | Fork |
 

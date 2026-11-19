@@ -37,6 +37,8 @@ export const HIDDEN_ROWS = {
     'Recovery counts for the streak', 'Sport counts for the streak',
     // D134: Today's layout is fixed, so Home has no body weight card to switch (S.showWeightCard stays).
     'Body weight'],
+  // No target ranges for weekly sets (D139).
+  plan: ['Weekly sets per muscle'],
   // The gym filter is the picker's (D62): no switch, no active gym here.
   equipment: ['Filter by equipment', 'Active gym'],
   // D69 decides how a routine opens; the muscle map is for upstream's layouts (#670).

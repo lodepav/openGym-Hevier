@@ -12,7 +12,7 @@ export const moduleOn = (S, id) => isOn(S, id)
 export const FORK_PARTS = {
   effort: ['D6: the workout’s effort column (through upstream’s effortOf)'],
   plates: ['D84: the plate line under a set', 'D69: automatic warm-ups where a routine progresses (through upstream’s warmupAutoOf)'],
-  strength: ['D19: the level in an exercise’s details', 'D99: weekly sets per muscle'],
+  strength: ['D19: the level in an exercise’s details'],
   body: ['D12: the body-weight Home widget', 'D14: Measures on Profile'],
   health: ['D79: the heart-rate strap, its button, live reading and Settings', 'D80: the strap’s full screen', 'D91: its workout card'],
   motivation: ['D59: the streak (Home widget, Calendar)', 'D87: sharing a workout or a month as a picture', 'D22, D51: the record marks on a set and a finished workout'],

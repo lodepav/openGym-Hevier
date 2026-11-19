@@ -907,9 +907,6 @@
 /* Upstream 1.4.4's swap suggestions under Your backups (D45): the line that says how close they are. */
 :root[data-ui="hevier"] .hv-pk-why{margin:-4px 0 8px}
 /* D99: weekly sets per muscle, upstream's bars with the fork's counts. */
-:root[data-ui="hevier"] .hv-wsets .sbar-list{margin-top:6px}
-:root[data-ui="hevier"] .hv-wsets-ft{display:flex;justify-content:flex-end;margin-top:6px}
-:root[data-ui="hevier"] .hv-wsets-past{margin-inline-start:8px;font-size:12px;color:var(--label-2);font-variant-numeric:tabular-nums}
 /* Settings' root rows keep their value beside the title on a phone (D16, D17): upstream 1.4.4 moves
    it under the title up to 430px (P10), for a 390px phone where "Plan & schedule" broke; the fork's
    root, as in 1.4.3, stacks only from 360px down, where there is no room for both. */
