@@ -12,7 +12,8 @@ vi.mock('../../lib/mobile.js', async orig => ({
 }))
 const toast = vi.hoisted(() => vi.fn())
 vi.mock('../../store/useUI.js', () => ({ useUI: { getState: () => ({ toast }) } }))
-vi.mock('./secret.js', () => ({ getSecret: async () => 'k1', putSecret: async () => true, removeSecret: async () => {} }))
+const secrets = vi.hoisted(() => ({ 'hevy-api-key': 'k1' }))
+vi.mock('./secret.js', () => ({ getSecret: async n => secrets[n] ?? null, putSecret: async (n, v) => { secrets[n] = v; return true }, removeSecret: async n => { delete secrets[n] } }))
 
 const T0 = Date.parse('2026-10-15T16:00:00Z')
 const squat = '0043'
@@ -118,5 +119,48 @@ describe('sendToHevy: telling that it has stopped', () => {
     await mod.sendToHevy(getState, { now: T0 + 4300e3 })
     S.workouts.pop()
     await vi.waitFor(() => expect(toast).toHaveBeenCalledTimes(2))
+  })
+})
+
+describe('sendToHevy over the private web API (D138)', () => {
+  const session = { access_token: 'a1', refresh_token: 'r1', expires_at: null }
+  let web
+  beforeEach(() => {
+    secrets['hevy-web-session'] = JSON.stringify(session)
+    delete secrets['hevy-api-key']
+    file.tpl = {}
+    web = []
+    vi.stubGlobal('fetch', async (url, init) => {
+      const path = String(url).replace('https://api.hevyapp.com', '')
+      web.push({ key: init.method + ' ' + path, auth: init.headers.authorization, body: init.body && JSON.parse(init.body) })
+      const body = path === '/custom_exercise_templates' ? [{ id: 'OLD', title: 'Squat (Barbell) (brand: Eleiko)', is_archived: false }]
+        : path === '/workout' && init.method === 'POST' ? { id: 'PW1' } : null
+      return { ok: true, status: 200, text: async () => (body ? JSON.stringify(body) : '') }
+    })
+  })
+  afterEach(() => { delete secrets['hevy-web-session']; secrets['hevy-api-key'] = 'k1' })
+
+  it('posts the workout to the private API with the login, a branded set as Hevy\'s own exercise', async () => {
+    S.workouts[0].entries[0].hvBrand = 'Eleiko'
+    try {
+      const st = await mod.sendToHevy(getState, { force: true })
+      expect(st.last).toMatchObject({ sent: 1, error: null })
+      expect(web.map(c => c.key)).toEqual(['GET /custom_exercise_templates', 'POST /workout'])
+      expect(web[1].auth).toBe('Bearer a1')
+      const ex = web[1].body.workout.exercises[0]
+      expect(ex.id).toBe('D04AC939')            // Squat (Barbell), not the Eleiko custom
+      expect(ex.title).toBe('Squat (Barbell)')
+      expect(ex.notes).toMatch(/^Eleiko/)
+      expect(st.out.w.a.id).toBe('PW1')
+    } finally { delete S.workouts[0].entries[0].hvBrand }
+  })
+
+  it('without a key, routines wait and nothing goes to the official API', async () => {
+    S.routines.push({ id: 'R', name: 'Push', ex: [{ id: squat, sets: 1, reps: 5, weight: 100, mode: 'reps' }] })
+    try {
+      await mod.sendToHevy(getState, { force: true })
+      expect(web.every(c => !c.key.includes('/v1/'))).toBe(true)
+      expect(web.filter(c => c.key.includes('routine'))).toEqual([])
+    } finally { S.routines.length = 0 }
   })
 })

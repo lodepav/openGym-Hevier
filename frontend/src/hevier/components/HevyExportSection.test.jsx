@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
-// The export to Hevy's key sheet and status line (hevier/DECISIONS.md D34).
+// The export to Hevy's routine key sheet and status line (hevier/DECISIONS.md D34, D138).
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const enable = vi.fn()
 vi.mock('../lib/hevy-export-sync.js', () => ({
-  enableExport: (...a) => enable(...a),
+  saveRoutineKey: (...a) => enable(...a),
   loadExport: async () => ({ on: false }), disableExport: async () => {}, sendToHevy: async () => {}, onExportChange: () => () => {},
 }))
 const { KeySheet, statusOf } = await import('./HevyExportSection.jsx')
@@ -27,7 +27,7 @@ const type = (input, v) => {
 }
 
 describe('hevier export to Hevy settings (D34)', () => {
-  it('turns the export on with the typed key and closes; a refused key keeps the sheet open', async () => {
+  it('keeps the typed routine key and closes; a refused key keeps the sheet open', async () => {
     const toasts = []
     useUI.setState({ toast: m => toasts.push(m) })
     const close = vi.fn()
@@ -44,14 +44,14 @@ describe('hevier export to Hevy settings (D34)', () => {
     enable.mockResolvedValueOnce({ ok: true })
     await act(async () => { el.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })) })
     expect(close).toHaveBeenCalled()
-    expect(toasts[1]).toBe('Sending to Hevy is on')
+    expect(toasts[1]).toBe('Routines go to Hevy too')
   })
 
   it('says what was last sent, or why not', () => {
     expect(statusOf({ last: null })).toMatch(/while the app is open/)
     expect(statusOf({ last: { at: Date.now(), sent: 2, refused: 1, error: null } })).toMatch(/^Last sent .* · Sent: 2 · Refused by Hevy: 1$/)
     expect(statusOf({ last: { at: 1, error: 'offline' } })).toBe('Not sent: no connection. It is tried again later')
-    expect(statusOf({ last: { at: 1, error: 'auth' } })).toMatch(/refused the key/)
-    expect(statusOf({ last: { at: 1, error: 'nokey' } })).toMatch(/key is gone/)
+    expect(statusOf({ last: { at: 1, error: 'auth' } })).toMatch(/logged you out/)
+    expect(statusOf({ last: { at: 1, error: 'nokey' } })).toMatch(/login is gone/)
   })
 })
