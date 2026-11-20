@@ -156,7 +156,7 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
         const gymId = await hevyGym(item.draft.gym)
         const body = finish(item.draft, ex => st.tpl[ex])
         const titleOf = id => titles.get(String(id))
-        const v2 = wid => v2Workout(body, { titleOf, workoutId: wid, gymId })
+        const v2 = wid => v2Workout(body, { titleOf, workoutId: wid, gymId, gymName: item.draft.gym?.name })
         // A create that got no answer keeps its uuid in `unsure`: sent again with it, a 409 means it landed.
         const post = async wid => {
           try { return createdId(await web('POST', '/v2/workout', v2(wid)), 'workout') } catch (e) {

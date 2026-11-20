@@ -1051,7 +1051,7 @@
 /* ---------- D127: the rest docked at the bottom of the live workout (components/RestDock.jsx) ---------- */
 /* upstream's bar steps aside for it (body.hv-docked; not .hv-dock, the panel's own class), and the page keeps room so the last set stays above it */
 :root[data-ui="hevier"] body.hv-docked #timer.rest{display:none}
-:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-dock-room #app{padding-bottom:calc(210px + var(--sab))}
+:root[data-ui="hevier"]:not([data-native-kb]) body.no-tabbar.resting.hv-dock-room #app{padding-bottom:calc(var(--hv-dock-h, calc(194px + var(--sab))) + 16px)}
 :root[data-ui="hevier"] .hv-dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--pad) calc(10px + var(--sab));background:var(--bg-el);border-top:var(--hair) solid var(--sep)}
 :root[data-ui="hevier"] .hv-dock-top{display:flex;align-items:center;gap:14px}
 :root[data-ui="hevier"] .hv-dock-clock{display:flex;flex-direction:column;align-items:flex-start;min-height:44px;background:none;border:0;padding:0;color:var(--label)}
@@ -1098,7 +1098,10 @@
 :root[data-ui="hevier"] .hv-rv-count{background:none;box-shadow:inset 0 0 0 1px var(--sep);color:var(--label-2)}
 :root[data-ui="hevier"] .hv-rv-edit{min-height:44px;padding:0 4px;font-size:15px;font-weight:700}
 :root[data-ui="hevier"] .hv-np-label{flex:none;font-weight:600}
-:root[data-ui="hevier"] .hv-np-row{display:grid;grid-template-columns:32px minmax(0,.8fr) minmax(0,1.2fr);align-items:center;column-gap:10px;min-height:44px;padding:2px 4px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-np-row{display:grid;grid-template-columns:2rem minmax(0,.8fr) minmax(0,1.2fr);align-items:center;column-gap:10px;min-height:44px;padding:2px 4px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-np-tbl{display:grid;grid-template-columns:minmax(32px,max-content) minmax(0,.8fr) minmax(0,1.2fr);column-gap:10px}
+/* One grid for the table, so the set column is as wide as its widest cell: "SET" at large text (R12-U4) */
+:root[data-ui="hevier"] .hv-np-tbl>.hv-np-row{grid-column:1/-1;grid-template-columns:subgrid}
 :root[data-ui="hevier"] .hv-np-head{min-height:0;border:0;padding-bottom:4px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-np-row .hv-set{text-align:center;font-weight:800}
 :root[data-ui="hevier"] .hv-np-last,:root[data-ui="hevier"] .hv-np-next{display:flex;flex-direction:column;min-width:0}
@@ -1118,3 +1121,5 @@
 :root[data-ui="hevier"] .hv-kp-keys button:disabled{opacity:.35}
 :root[data-ui="hevier"] .hv-kp-keys .hv-kp-word{font-size:14px}
 :root[data-ui="hevier"] .hv-kp-keys .hv-kp-next{background:var(--acc);color:var(--on-acc)}
+/* The effort sheet's Exact − and + reach 48 dp (R12-U7); upstream sizes them by their old spoken name, 26 px wide. */
+:root[data-ui="hevier"] .effpick-free .effcell-stp>button{width:48px;min-width:48px;height:48px;flex:none}

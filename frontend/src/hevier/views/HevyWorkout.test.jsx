@@ -870,3 +870,86 @@ describe('hevier: the exercise ⋮ menu', () => {
     }
   })
 })
+
+describe('hevier: D107 in the live workout', () => {
+  const settingsItems = () => {
+    act(() => [...container.querySelectorAll('.hv-foot button')].find(b => b.textContent === 'Settings').click())
+    const items = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).filter(Boolean)
+    useUI.setState({ sheets: [] })
+    return items
+  }
+
+  it('Settings pauses the workout and resumes it; the header clock stands and says Paused', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
+    const A = () => useStore.getState().S.active
+    act(() => vi.advanceTimersByTime(5000))
+    const pause = settingsItems().find(x => x.label === 'Pause workout')
+    expect(pause.icon).toBe('pause')
+    expect(pause.sub).toBe('The clock and the rest wait for you')
+    act(() => pause.onClick())
+    expect(A().pausedAt).toBeGreaterThan(0)
+    const time = () => container.querySelector('.hv-wtime').textContent
+    expect(time()).toBe('Paused 0:05')
+    act(() => vi.advanceTimersByTime(60000))
+    expect(time()).toBe('Paused 0:05')
+    const resume = settingsItems().find(x => x.label === 'Resume workout')
+    expect(resume.icon).toBe('play')
+    act(() => resume.onClick())
+    expect(A().pausedAt).toBeUndefined()
+    expect(A().pausedMs).toBe(60000)
+    expect(time()).toBe('0:05')
+  })
+
+  it('a saved workout being edited offers no pause', () => {
+    const saved = { id: 'w1', d: '2026-10-15', name: 'Leg Day', entries: [{ id: EX, sets: [reps(60, 5, { done: true })] }] }
+    render([], [saved])
+    act(() => useStore.getState().update(s => { s.active = { ...clone(saved), cur: 0, editingWorkoutId: 'w1', editBase: { name: 'Leg Day', note: '', bw: null } } }))
+    expect(settingsItems().map(x => x.label)).not.toContain('Pause workout')
+  })
+
+  it('with Record trophies off a record set has no trophy and no toast', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(70, 8), reps(70, 8)] }],
+      [{ id: 'w1', d: '2026-10-09', start: 1, end: 2, entries: [{ id: EX, sets: [{ w: 65, r: 8, done: true }] }] }])
+    const trophies = () => [...container.querySelectorAll('.hv-set')].map(b => !!b.querySelector('.hv-pr-live'))
+    act(() => useStore.getState().update(s => { s.liveRecords = false }))
+    act(() => container.querySelectorAll('.hv-chk')[0].click())
+    expect(trophies()).toEqual([false, false])
+    expect(useUI.getState().toastMsg).not.toContain('PR')
+    expect(container.querySelector('.hv-set').getAttribute('aria-label')).not.toContain('PR')
+    // switched back on, the card draws the record it holds
+    act(() => useStore.getState().update(s => { s.liveRecords = true }))
+    expect(trophies()).toEqual([true, false])
+  })
+
+  describe('Next exercise when the rest ends', () => {
+    const [B] = EXDB.filter(e => e.id !== EX && modeOfId(e.id) === 'reps').map(e => e.id)
+    let scrolled
+    beforeEach(() => {
+      scrolled = []
+      Element.prototype.scrollIntoView = function () { scrolled.push(this) }
+    })
+    afterEach(() => { delete Element.prototype.scrollIntoView })
+    const run = on => {
+      render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: B, target: { sets: 2, reps: 8 }, sets: [reps(40, 8, { done: true }), reps(40, 8)] }])
+      act(() => useStore.getState().update(s => { s.autoNextExercise = on; s.restSec = 30; s.sound = false }))
+      act(() => container.querySelector('.hv-chk').click())
+      expect(useUI.getState().timer.forIdx).toBe(0)
+      act(() => vi.advanceTimersByTime(31000))
+      expect(useUI.getState().timer?.ready).toBe(true)
+    }
+
+    it('brings the next exercise’s open set up once, after its last set’s rest', () => {
+      run(true)
+      expect(scrolled).toHaveLength(1)
+      expect(scrolled[0].closest('[data-exidx]').dataset.exidx).toBe('1')
+      expect([...scrolled[0].closest('[data-exidx]').querySelectorAll('.hv-row')].indexOf(scrolled[0])).toBe(1)
+      act(() => vi.advanceTimersByTime(5000))
+      expect(scrolled).toHaveLength(1)
+    })
+
+    it('stays put with the setting off', () => {
+      run(false)
+      expect(scrolled).toHaveLength(0)
+    })
+  })
+})

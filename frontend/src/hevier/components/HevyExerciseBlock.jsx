@@ -40,6 +40,7 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { isOpenRow } from '../lib/open-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
+import { liveRecordsOn } from '../../lib/set-records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
 import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
 import HintNumberField from './HintNumberField.jsx'
@@ -146,8 +147,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
   // D127: the opened set, large (lib/open-set.js); this exercise is the open
   // one when `open` is passed, and only then shows its buttons and "+ Set".
   const isOpenAt = i => isOpenRow(entry.sets, open, i)
-  // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.
-  const prSets = new Set(recordsAt(liveRecords(S), entryIdx).map(r => r.set))
+  // D22, D51: the sets that hold a record so far, every kind, by the label the session shows;
+  // none with upstream's Record trophies off (D107).
+  const prSets = new Set(liveRecordsOn(S) ? recordsAt(liveRecords(S), entryIdx).map(r => r.set) : [])
   const last = lastEntryFor(history, entry.id, entry.rid)
   const effortKind = effortOf(S)
   const effortCol = EFFORT[effortKind]
@@ -491,7 +493,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const had = recordsAt(liveRecords(useStore.getState().S), entryIdx, i).map(r => r.kind)
     if (side) onToggleSide(i, side); else onToggle(i)
     const st = useStore.getState().S
-    if (!st.active?.entries[entryIdx]?.sets[i]?.done) return
+    if (!st.active?.entries[entryIdx]?.sets[i]?.done || !liveRecordsOn(st)) return
     const got = recordsAt(liveRecords(st), entryIdx, i).filter(r => !had.includes(r.kind))
     if (got.length) useUI.getState().toast(t('New PR · {0}', t(KINDS[got[0].kind]) + ' ' + prText(got[0])) + (got.length > 1 ? ' +' + (got.length - 1) : ''))
   }

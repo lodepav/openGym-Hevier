@@ -135,10 +135,10 @@ describe('hevier export to Hevy: set times and the gym (D143)', () => {
   it('writes the v2 body: the note pinned, each set\'s time, the gym only when there is one, nothing shown on a gym\'s page', () => {
     const body = finish(workoutDraft(workout({ entries: [...ticked().entries, ...workout().entries] }), 'kg', GS), tpl)
     const now = Date.parse('2026-11-19T10:00:00Z')
-    const v = v2Workout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], workoutId: 'u-1', gymId: 'HG', now })
+    const v = v2Workout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], workoutId: 'u-1', gymId: 'HG', gymName: 'Lemon Gym', now })
     expect(v.share_to_strava).toBe(false)
     expect(v.workout).toMatchObject({
-      workout_id: 'u-1', title: 'Legs', description: 'good day\nAt Lemon Gym', media: [], start_time: T0 / 1e3, end_time: T0 / 1e3 + 3600,
+      workout_id: 'u-1', title: 'Legs', description: 'good day', media: [], start_time: T0 / 1e3, end_time: T0 / 1e3 + 3600,
       apple_watch: false, wearos_watch: false, is_private: false, is_biometrics_public: false, show_on_gym_profile: false,
       gym: { type: 'commercial', gym_id: 'HG' },
     })
@@ -155,6 +155,13 @@ describe('hevier export to Hevy: set times and the gym (D143)', () => {
     expect(sq2.sets[1]).toMatchObject({ type: 'normal', rpe: 8, completed_at: null })
     expect(sq2.sets[2].type).toBe('failure')
     expect('gym' in v2Workout(body, { workoutId: 'u-1' }).workout).toBe(false)
+  })
+
+  it('names the gym in the description only when Hevy\'s gym field does not carry it', () => {
+    const body = finish(workoutDraft(ticked(), 'kg', GS), tpl)
+    expect(body.description).toBe('good day\nAt Lemon Gym')
+    expect(v2Workout(body, { workoutId: 'u-1', gymId: 'HG', gymName: 'Lemon Gym' }).workout.description).toBe('good day')
+    expect(v2Workout(body, { workoutId: 'u-1', gymName: 'Lemon Gym' }).workout.description).toBe('good day\nAt Lemon Gym')
   })
 
   it('makes the edit\'s body the v2 body less its id', () => {
@@ -594,6 +601,7 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     expect(keys()).toEqual(['GET /gyms/visited', 'POST /v2/workout'])
     const sent = calls.find(c => c[1] === '/v2/workout')[2]
     expect(sent.workout.gym).toEqual({ type: 'commercial', gym_id: 77 })
+    expect(sent.workout.description).not.toMatch(/At Lemon Gym/)
     expect(sent.workout.workout_id).toMatch(/^[0-9a-f-]{36}$/)
     expect(st.out.w.a.id).toBe(sent.workout.workout_id)
     expect(st.gyms).toEqual({ g1: 77 })

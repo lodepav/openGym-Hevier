@@ -35,13 +35,21 @@ import { openSet, pickAt } from '../lib/open-set.js'
 import { scrollZone, progressOpen, resolveOpen } from '../lib/header-open.js'
 import { propsSig } from '../lib/card-state.js'
 import { weightDecimals } from '../../lib/format.js'
+import { isPaused, canPause, pauseWorkout, resumeWorkout } from '../../lib/workout-pause.js'
+import { nextAfterRest } from '../lib/next-after-rest.js'
+
+// The rest whose end last brought the next exercise up: a page shown again over a rest still at
+// its end does not scroll a second time.
+let broughtUpFor = null
 
 export default function HevyWorkout({ units, editing, blockProps, bindExRef, bindSetRef, actions }) {
   const nav = useNavigate()
   const opened = useLocation().key !== 'default'   // a page before this one to go back to
   const S = useStore(s => s.S)
   const resting = useUI(s => !!s.timer)
+  const readyRestEnds = useUI(s => (s.timer?.ready ? s.timer.endsAt : undefined))
   const A = S.active
+  const paused = isPaused(A)
   // D127: the set opened up, the next one to do until another is tapped (lib/open-set.js).
   const [pick, setPick] = useState(null)
   const open = openSet(A, pick)
@@ -86,11 +94,26 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     placeAt: atEnd => useStore.getState().update(st => { if (st.active) placeAt(st.active, atEnd) }),
   })
 
+  // Pause (D107, upstream's #976 and its togglePause): the workout clock stops, and so do the rest
+  // and a hold with their alerts; upstream's hooks keep them held after a reload.
+  const togglePause = () => {
+    const ui = useUI.getState()
+    if (isPaused(useStore.getState().S.active)) {
+      useStore.getState().update(s => { if (s.active) resumeWorkout(s.active) })
+      ui.resumeAuto()
+    } else {
+      useStore.getState().update(s => { if (s.active) pauseWorkout(s.active) })
+      ui.pauseAuto()
+    }
+  }
+
   // Hevy's footer "Settings": the session's own options, upstream's header ⋯ without Layout (D1).
   const openSettings = () => menuSheet({
     sections: [
       { items: [{ icon: 'gear', accent: true, chevron: true, label: t('Workout settings'), onClick: workoutSettingsSheet }] },
       { items: [
+        canPause(A) && { icon: paused ? 'play' : 'pause', label: paused ? t('Resume workout') : t('Pause workout'),
+          sub: paused ? undefined : t('The clock and the rest wait for you'), onClick: togglePause },
         !editing && { icon: 'clipboard', label: t('Add routine'), sub: t('Bring another routine into this session'), onClick: addRoutineToSessionSheet },
         { icon: 'pencil', label: t('Rename workout'), onClick: renameWorkoutSheet },
         noProgSwitchable && { icon: 'chartLineSlash', label: t('Don’t count for progression'), sub: t('Every exercise in this workout'), on: sessionNoProg(A), onClick: toggleSessionNoProg },
@@ -141,6 +164,23 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     live.current = props
     return <HevyExerciseBlock entryIdx={idx} live={live} sig={propsSig(props)} />
   }
+  // D107: with "Next exercise when the rest ends" on, the rest after an exercise's last set brings
+  // the next one up, its open set in the middle. Upstream's effect moves `cur` the same way.
+  useEffect(() => {
+    if (readyRestEnds === undefined || broughtUpFor === readyRestEnds) return
+    const st = useStore.getState().S
+    const live = st.active
+    if (!live || live.backfill || live.editingWorkoutId) return
+    const to = nextAfterRest(live.entries, useUI.getState().timer?.forIdx, st.autoNextExercise === true)
+    if (to == null) return
+    broughtUpFor = readyRestEnds
+    const i = live.entries[to].sets.findIndex(x => !x.done)
+    const el = rows.current.get(to)?.get(i) || document.querySelector(`[data-exidx="${to}"]`)
+    // shortcut: a sheet open as the rest ends locks the page (fixed body) and the scroll is lost; fine while sheets over a rest are rare.
+    const reduced = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    // No focus moved: a caret in a field stays where the user put it.
+    el?.scrollIntoView?.({ block: 'center', behavior: reduced ? 'auto' : 'smooth' })
+  }, [readyRestEnds])
   const bindEx = (idx, el) => {
     const entry = A.entries[idx]
     bindExRef(entry, el)
@@ -164,7 +204,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
         <button type="button" className="hv-title hv-wname" aria-expanded={details} onClick={() => setManual({ auto, open: !details })}>
           <span>{editing ? t('Edit workout') : A.name || t('Log workout')}</span>
           <Icon name={details ? 'chevronUp' : 'chevronDown'} className="hv-wname-chev" /></button>
-        <span className="hv-wtime">{live ? <Elapsed start={A.start} /> : fmtDate(A.d, true)}</span>
+        <span className="hv-wtime">{live ? <>{paused && t('Paused') + ' '}<Elapsed start={A.start} pausedAt={A.pausedAt} /></> : fmtDate(A.d, true)}</span>
         {live && partOn(S, 'health', 'strap') && <StrapBpm />}
         {live && partOn(S, 'hvWorkout', 'clock') && <button className="iconbtn hv-clockbtn" onClick={timerSheet}>
           <span className="vh">{resting ? t('Rest timer') : t('Timer')}</span><HvIcon name="alarm" /><HeaderClock session={A.id} /></button>}

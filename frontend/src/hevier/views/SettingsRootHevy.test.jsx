@@ -61,6 +61,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows).toContain('Rest timer')
     expect(rows).toContain('Effort per set')
     expect(rows).toContain('Weigh in before workouts')
+    // the fork's workout has these (D107)
+    expect(rows).toEqual(expect.arrayContaining(['Record trophies', 'Cheer on a record', 'Next exercise when the rest ends']))
     act(() => root.unmount()); container.remove()
     render('advanced')
     const adv = titles()
