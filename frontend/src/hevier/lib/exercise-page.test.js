@@ -33,6 +33,14 @@ describe('lastSessions (D131)', () => {
     expect(lines.map(l => l.best)).toEqual([false, false, false, true, false])
   })
 
+  it('names the best a line holds, the heaviest before the 1RM before the best set', () => {
+    const lines = lastSessions(sum, BENCH)
+    expect(lines[3].bestKind).toBe('weight')
+    expect(lines[0].bestKind).toBeNull()
+    const only = lastSessions({ metric: 'weight', sessions: [sess('2026-11-02', [set(30, 20)]), sess('2026-11-01', [set(60, 5)])] }, BENCH)
+    expect(only.map(l => l.bestKind)).toEqual(['setVol', 'weight'])
+  })
+
   it('reads a per-side set by its sides, and the most reps without load', () => {
     const side = (L, R) => ({ w: 0, r: L + R, done: true, sides: { L: set(0, L), R: set(0, R) } })
     const lines = lastSessions({ metric: 'reps', sessions: [sess('2026-11-02', [side(12, 10)]), sess('2026-11-01', [side(11, 11)])] }, BENCH)

@@ -72,10 +72,10 @@ describe('hevier: exercise details (seam S10)', () => {
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
     expect(lines).toHaveLength(1)
     // The only session holds every best: its sets carry the star, read out, and the line says best.
-    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best set: 60 kg × 8 · ★ Best set: 62.5 kg × 6')
+    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best 1RM, Best set: 60 kg × 8 · ★ Heaviest: 62.5 kg × 6')
     // Each set is one unit the line wraps around, the separators between them.
-    expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best set: 60 kg × 8', '★ Best set: 62.5 kg × 6'])
-    expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('best')
+    expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best 1RM, Best set: 60 kg × 8', '★ Heaviest: 62.5 kg × 6'])
+    expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('Heaviest')
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
     expect(tiles[2]).toBe('60 kg × 8')
@@ -108,6 +108,15 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
   })
 
+  it('gives a best 1RM that is the heaviest single the heaviest tile, not a second one', () => {
+    open([
+      { id: 'a', d: '2026-08-05', entries: [{ id: EX.id, sets: [{ w: 100, r: 1, done: true }] }] },
+      { id: 'b', d: '2026-04-06', entries: [{ id: EX.id, sets: [{ w: 60, r: 12, done: true }] }] },
+    ])
+    const tiles = [...container.querySelectorAll('.hv-xd-tile')].map(x => x.querySelector('small').textContent + ' ' + x.querySelector('b').textContent)
+    expect(tiles).toEqual(['Heaviest · Best 1RM 100 kg', 'Best set 60 kg × 12'])
+  })
+
   it('marks each session against the one before, with its effort', () => {
     const when = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
     open([
@@ -117,7 +126,7 @@ describe('hevier: exercise details (seam S10)', () => {
     ])
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
     expect(lines.map(l => l.querySelector('.hv-trend')?.getAttribute('aria-label') ?? l.querySelector('.hv-xd-best')?.textContent))
-      .toEqual(['Better than last time', 'Less than last time', 'best'])
+      .toEqual(['Better than last time', 'Less than last time', 'Heaviest'])
     expect(lines[0].querySelector('small').textContent).toBe(' RPE 8')
   })
 

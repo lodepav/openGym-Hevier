@@ -9,7 +9,6 @@ import { elapsedClock } from './elapsed.js'
 import { isHoldRow } from './hold-set.js'
 import { setBandsOf } from '../../lib/bands.js'
 import { mapSetWeights } from '../../lib/units.js'
-import { t } from '../../lib/i18n.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
 const TIGHT = /(\d)×(?=\d)/g
@@ -33,16 +32,15 @@ export function setFormat(text, unit = '') {
 /** A logged set in the fork's format: hevySetLabel's words, setFormat's spacing and unit. */
 export const setText = (id, s, cfg, speedUnit, unit = '') => setFormat(hevySetLabel(id, s, cfg, speedUnit), unit)
 
-/** Sets in a row, each as text, as one line: "3 sets · 60 × 8" when all are alike, else each run
- *  in turn, its count leading: "2 × 80 × 8, 80 × 7", so a count never reads as the whole exercise's. */
+/** Sets in a row, each as text, as one line: each run in turn, its count leading, "3 × 60 × 8" or
+ *  "2 × 80 × 8, 80 × 7", and a run without weight "3 × 10", not "3 × × 10" (the critique, 2026-11-20). */
 export function setRuns(texts) {
   const runs = []
   for (const v of texts) {
     if (runs.at(-1)?.v === v) runs.at(-1).n++
     else runs.push({ v, n: 1 })
   }
-  if (runs.length === 1 && runs[0].n > 1) return t('{0} sets', runs[0].n) + ' · ' + runs[0].v
-  return runs.map(x => (x.n > 1 ? x.n + ' × ' : '') + x.v).join(', ')
+  return runs.map(x => (x.n < 2 ? x.v : x.v.startsWith('× ') ? x.n + ' ' + x.v : x.n + ' × ' + x.v)).join(', ')
 }
 
 /**
@@ -70,14 +68,14 @@ export function hevySetLabel(id, s, cfg, speedUnit) {
 
 /**
  * The workout's PREVIOUS cell for last time's set `p`, or for one side of it (`side`), in setFormat's
- * form: "60 kg × 8", "+10 kg × 8" or "× 12" on body weight, "60 × 8" with `unit` '' (a table whose
+ * form: "60 kg × 8", "+10 kg × 8", or "× 12" on body weight or with no weight entered, "60 × 8" with `unit` '' (a table whose
  * header names it), '–' for none. A weight is written in the exercise's own unit (`unit`, `show`
  * converting a stored weight to it, D41). A timed, cardio, band or per-side set (without `side`)
  * reads as Workout Detail writes it, and so does a hold, for a side too.
  */
 export function previousText(p, { side, mode, bw, unit, show = w => w, id, target, speedUnit }) {
-  const weightReps = x => setFormat((bw ? (x.w > 0 ? `+${fmtNum(show(x.w))} × ` : '× ')
-    : `${fmtNum(show(x.w || 0))} × `) + (x.r || 0), unit)
+  // No weight entered reads "× 10", as Today writes it, not "0 × 10".
+  const weightReps = x => setFormat((!(x.w > 0) ? '× ' : bw ? `+${fmtNum(show(x.w))} × ` : `${fmtNum(show(x.w))} × `) + (x.r || 0), unit)
   const label = x => setText(id, mapSetWeights(x, w => show(w)), target, speedUnit, unit)
   if (side) {
     // A hold last time (D89): a per-side one is an L/R pair, its R carried on `hvPairR`.

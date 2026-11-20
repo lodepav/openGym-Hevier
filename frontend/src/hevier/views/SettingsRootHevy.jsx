@@ -53,7 +53,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
   // accent (the fork's own row, D123), so that row names the body diagram instead.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
-    : id === 'look' ? t(body === 'female' ? 'Female' : 'Male')
+    : id === 'look' ? t('Body diagram') + ' · ' + t(body === 'female' ? 'Female' : 'Male')
     // D62: the gyms, not upstream's filter switch.
     : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
     : preview[id]?.() || null)

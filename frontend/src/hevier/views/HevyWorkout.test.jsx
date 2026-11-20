@@ -178,6 +178,11 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const marks = () => [...container.querySelectorAll('.hv-set')].map(b => b.querySelector('.hv-trend')?.className || '')
     expect(marks()).toEqual(['hv-trend down', ''])
     expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
+    // A tap on the number spells the mark out under the set type sheet's title.
+    act(() => container.querySelector('.hv-set').click())
+    const host = document.createElement('div')
+    act(() => createRoot(host).render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(host.querySelector('.muted.small')?.textContent).toBe('Less than last time')
     act(() => useStore.getState().update(st => { st.setTrend = false }))
     expect(marks()).toEqual(['', ''])
   })

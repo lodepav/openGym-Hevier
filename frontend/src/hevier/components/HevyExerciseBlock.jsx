@@ -259,7 +259,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', setNumberOf(entry.sets, i)) : t('Set {0}', workNumber(i)))
   // D5: the set number opens the set-type picker (exercise-menus.js).
   const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, rest: !editing && setRest(i), setPhaseAt, setFailureAt, setHold,
-    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note: noteOf(i) })
+    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note: noteOf(i), trend: prSets.has(i) ? '' : trendWords(trendAt(s, i)) })
   // A set's note (upstream 1.4.4): on its first row, an L/R pair's L; written by upstream's sheet.
   const noteOf = i => {
     const at = setSpanAt(entry.sets, i)[0]

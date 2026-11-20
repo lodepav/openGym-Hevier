@@ -32,9 +32,11 @@ describe('the fork’s set format', () => {
     expect(setText('x', { w: 80, r: 8 }, { mode: 'reps' }, 'kmh')).toBe('80 × 8')
     expect(setText('x', { sec: 75, w: 20 }, { mode: 'time' }, 'kmh', 'lb')).toBe('1:15 · 20 lb')
   })
-  it('repeats lead their run; all alike reads as a count of sets', () => {
+  it('repeats lead their run, all alike too, and a set without weight reads "3 × 12"', () => {
     expect(setRuns(['80 × 8', '80 × 8', '80 × 7', '80 × 6'])).toBe('2 × 80 × 8, 80 × 7, 80 × 6')
-    expect(setRuns(['60 × 8', '60 × 8', '60 × 8'])).toBe('3 sets · 60 × 8')
+    expect(setRuns(['60 × 8', '60 × 8', '60 × 8'])).toBe('3 × 60 × 8')
+    expect(setRuns(['× 10', '× 10', '× 10'])).toBe('3 × 10')
+    expect(setRuns(['60 × 8', '× 10', '× 10'])).toBe('60 × 8, 2 × 10')
     expect(setRuns(['80 × 8', '55 × 13'])).toBe('80 × 8, 55 × 13')
     expect(setRuns(['× 12'])).toBe('× 12')
   })
@@ -73,6 +75,10 @@ describe('previousText', () => {
     expect(previousText({ w: 10, r: 12 }, { ...opts, bw: true })).toBe('+10 kg × 12')
     expect(previousText({ w: 0, r: 12 }, { ...opts, bw: true })).toBe('× 12')
     expect(previousText(null, opts)).toBe('–')
+  })
+  it('leaves out a weight that was never entered, as Today writes it', () => {
+    expect(previousText({ w: 0, r: 10 }, opts)).toBe('× 10')
+    expect(previousText({ r: 10 }, { ...opts, unit: '' })).toBe('× 10')
   })
   it('in the exercise’s own unit', () => {
     expect(previousText({ w: 20.41165665, r: 8 }, { ...opts, unit: 'lb', show: w => Math.round(w / 0.45359237) })).toBe('45 lb × 8')

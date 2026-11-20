@@ -126,7 +126,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     act(() => root.unmount()); container.remove()
     render(null)
     const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
-    expect(look.textContent).toBe('Look & HomeMale') // the body diagram, not the theme (review S5)
+    expect(look.textContent).toBe('Look & HomeBody diagram · Male') // the body diagram, not the theme (review S5)
   })
 
   it('Gyms & equipment: the gyms, no filter switch or active profile (D62)', () => {

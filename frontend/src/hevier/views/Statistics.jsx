@@ -65,7 +65,7 @@ function items(S, today, nav) {
       // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
       tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v), onClick: () => nav('/exercise-time') } : null,
       card: longest.length ? () => <div className="card hv-scard">
-        <CardHead title={t('Exercise time')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
+        <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
         {longest.map(r => {
           const ex = exOr(r.id)
           return <div key={r.id} className="hv-scard-row"><span className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span><b>{elapsedWords(Math.round(r.avg / 1000))}</b></div>

@@ -61,6 +61,8 @@ const dateOf = d => fmtDate(d, true, notThisYear(d))
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const TILE_LABEL = { weight: 'Heaviest', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
+// The tag a session line names its best with (exercise-page.js KINDS), the tiles' own words.
+const KIND_LABEL = { ...TILE_LABEL, e1rm: 'Best 1RM', setVol: 'Best set' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 const repsWord = n => n + ' ' + (n === 1 ? t('rep') : t('reps'))
 
@@ -104,10 +106,10 @@ function LastSessions({ ex, sum, st, onAll }) {
         <span className="hv-xd-ld">{fmtDate(l.d, false, notThisYear(l.d))}</span>
         {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
         <span className="hv-xd-lsets">{l.sets.map((x, j) => <Fragment key={j}>{j > 0 && ' · '}<span className="hv-xd-lset">{x.star
-          ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{t('Best set')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
+          ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{x.kinds.map(k => t(KIND_LABEL[k])).join(', ')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
           : shortSet(ex, x.s, l.target, st)}</span></Fragment>)}
           {effort.length > 0 && <small> {t(EFFORT[scale].hd)} {effort.map(fmtNum).join(' · ')}</small>}</span>
-        {l.best ? <span className="hv-xd-best">{t('best')}</span> : <TrendMark v={l.trend} />}
+        {l.bestKind ? <span className="hv-xd-best">{t(KIND_LABEL[l.bestKind])}</span> : <TrendMark v={l.trend} />}
       </div>
     })}
   </section>
@@ -123,9 +125,11 @@ function Bests({ ex, sum, st }) {
   const show = w => shownWeight(st, ex.id, w)
   const weight = sum.metric === 'weight'
   const r = sum.records
+  // A best 1RM that is the heaviest single itself shares its tile, not a second one with the same number.
+  const oneSet = weight && r.best && r.e1rm && r.best.d === r.e1rm.d && Math.abs(r.best.v - r.e1rm.v) < 0.01
   const tiles = [
-    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
-    r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
+    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]) + (oneSet ? ' · ' + t('Best 1RM') : ''), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
+    !oneSet && r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
     r.setVol && { k: 'setVol', label: t('Best set'), v: wholeParts(setFormat(`${fmtNum(show(r.setVol.w))}×${r.setVol.r}`, unit)), d: r.setVol.d },
   ].filter(Boolean)
   const reps = repBests(sum.reps, todayISO())

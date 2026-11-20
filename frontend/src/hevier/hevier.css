@@ -297,8 +297,7 @@
    numbers and names, 40 px thumbnails, a small grey "see more" */
 :root[data-ui="hevier"] .hv-wcard{display:flex;flex-direction:column;margin:0 0 12px;border-radius:var(--r-card);padding:14px 16px 12px;background:var(--bg);box-shadow:var(--hv-card-line)}
 :root[data-ui="hevier"] .hv-wcard:active{background:var(--surface-2)}
-:root[data-ui="hevier"] .hv-wcard-h{justify-content:flex-start;gap:10px;margin:-2px -6px 10px 0}
-:root[data-ui="hevier"] .hv-avatar{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--surface-3);color:var(--hv-acc-ink);font-size:17px;font-weight:600}
+:root[data-ui="hevier"] .hv-wcard-h{justify-content:flex-start;gap:10px;margin:-2px -6px 4px 0}
 :root[data-ui="hevier"] .hv-wcard-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
@@ -319,7 +318,8 @@
 :root[data-ui="hevier"] .hv-wcard .hv-thumb.sm img{width:40px;height:40px}
 :root[data-ui="hevier"] .hv-wcard-more{font-size:13px}
 /* Hevy's grey "Workout" heading over the exercise list, under a hairline */
-:root[data-ui="hevier"] .hv-wcard-lh{font-size:13px;color:var(--label-2);border-top:.5px solid var(--sep);margin-top:8px;padding:10px 0 4px}
+/* The exercise list starts under a line, where the "Workout" label was. */
+:root[data-ui="hevier"] .hv-wcard>:not(.hv-wcard-ex)+.hv-wcard-ex{border-top:.5px solid var(--sep);margin-top:8px;padding-top:10px}
 :root[data-ui="hevier"] .hv-moreb{width:100%;margin-bottom:12px}
 
 /* ---------- the weekly chart (components/WeeklyChart.jsx), on Statistics since D135 ---------- */
@@ -538,6 +538,8 @@
 :root[data-ui="hevier"] .hv-linkrow-t .hv-sub{line-height:1.35}
 /* D142 Statistics: tiles two to a row, then the cards; nothing of fixed height, for 200 % text */
 :root[data-ui="hevier"] .hv-stiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+/* An odd last tile takes the whole row, not half of one beside a gap (the critique, 2026-11-20). */
+:root[data-ui="hevier"] .hv-stiles>:last-child:nth-child(odd){grid-column:1/-1}
 :root[data-ui="hevier"] .hv-stile{display:flex;flex-direction:column;gap:2px;min-width:0;min-height:48px;padding:12px;border-radius:var(--r);background:var(--surface);color:var(--label-2);font:inherit;font-size:12px;text-align:start}
 :root[data-ui="hevier"] .hv-stile-t{font-weight:700;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-stile b{font-size:24px;font-weight:800;color:var(--label);overflow-wrap:anywhere}
@@ -985,10 +987,6 @@
 :root[data-ui="hevier"] .hv-tlast .hv-pr{display:inline-flex;align-items:center;gap:3px}
 
 /* ---------- History (hevier/views/History.jsx, D135) ---------- */
-:root[data-ui="hevier"] .hv-htiles{display:flex;gap:8px}
-:root[data-ui="hevier"] .hv-htile{flex:1;min-width:0;display:flex;flex-direction:column;padding:10px 12px;border-radius:var(--r);background:var(--surface);font-size:12px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-htile b{font-size:20px;font-weight:800;color:var(--label);white-space:nowrap}
-:root[data-ui="hevier"] .hv-htile .hv-pr{display:inline-flex;align-items:center;gap:3px}
 /* The chips in two labelled rows, 48 dp tall (A1) with no reach past them; the second scrolls sideways (D135, 2026-11-17). */
 :root[data-ui="hevier"] .hv-hgroup{margin-top:12px}
 :root[data-ui="hevier"] .hv-hgroup:not(:has(+ .hv-hgroup)){margin-bottom:12px}
