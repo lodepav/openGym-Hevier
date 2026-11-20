@@ -124,8 +124,8 @@ Wants to know whether they are progressing.
 
 1. History: read this week's three numbers. Open Statistics: read the weekly chart, switch it
    between duration, sets and reps, and tap a week.
-2. Statistics: read the last 7 days and the sets per muscle. Is it clear what a set counts
-   (D42's caption)?
+2. Statistics: read the tiles and the sets per muscle card. Is it clear what a set counts
+   (D42's caption)? Open Arrange Statistics, hide a card, move a tile, then Reset (D142).
 3. Open the Monthly report, go back a month, and tap a record.
 4. Lifts: open a lift's page (D131): the last sessions, the best at each rep count, the chart,
    the strength level section (do not save levels), All history.

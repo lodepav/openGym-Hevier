@@ -3,8 +3,9 @@
 Written 2026-10-17 from Hevy's published API spec (`https://api.hevyapp.com/docs`). The fork reads
 these through seam S21 (`frontend/src/hevier/lib/hevy-more.js`, D31) and deletes its copy of each
 once upstream's `lib/import-hevy.js` does the same. The routine folders (D30) are left out here:
-they need D13's folders, which upstream doesn't have. Not sent yet: the user decides when to open
-the pull request.
+they need D13's folders, which upstream doesn't have. **Status (2026-11-20):** sent in #815; 1.4.5
+took items 3 to 5 (rest times, rep ranges, notes). Items 1, 2, 6 and 7 and the routine folders,
+which upstream now has, are offered again in #1158 (open, on `release-1.4.6`).
 
 Each item is small and independent, so they can be separate pull requests.
 

@@ -273,7 +273,7 @@ taps of the screen's main tasks.
 | 6 | Save workout and the finished screen | `views/SaveWorkout.jsx` | J1 | | 18/33 (1·2·3·0 | 2·2·2); Finish, Save, a routine pop-up, then a "Nice work!" page | 28/33 (3·2·3·3 | 2·2·2); Finish, Save: 2 taps, lands on Today with "Workout saved" | built (D132, `hevier/rework`) |
 | 7 | Workout detail and edit | `views/WorkoutDetail.jsx` | J5 | | 19/27 (2·2·3 | 1·2·2); muscles shown twice before the first exercise, a row and a heart-rate line per set | 21/27 (2·2·3 | 2·2·2); L and R rows, RPE in its own column, no muscle bars | built (D133, `hevier/rework`) |
 | 8 | Home feed | `views/HevyHome.jsx` | J1, J5 | | 17/27 (1·2·3 | 1·2·2); the rotation chips fill half the first screen, no Start, the next session is not shown | 26/27 (3·3·3 | 3·3·2); the next session with its sets and Start (380 × 48) on one screen | built (D134, `hevier/rework`) |
-| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | F11, F12, F13 | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | approved (D140, F11; D141, F12; D142, F13) |
+| 9 | Profile, statistics and the pages it opens | `views/Profile.jsx`, `views/Statistics.jsx`, `views/Calendar.jsx`, `views/MonthReport.jsx`, `views/ExerciseTime.jsx`; `/stats/all`, `/structural-balance` in `routes.jsx` | J5 | F11, F12, F13 | 18/27 (2·2·3 | 1·1·2); a tall weekly chart, the feed a second time, exercises three taps away | 24/27 (3·2·3 | 3·3·2); an exercise's last sessions 2 taps from opening the app; History's round tile sits beside two calendar-week tiles | built (D140, F11; D141, F12; D142, F13; Statistics alone 18 → 32/33) |
 | 10 | Settings, gyms and the heart-rate strap | `views/SettingsRootHevy.jsx`, `components/StrapScreen.jsx` | J2, J3 | | | | kept as it is (D136) |
 | 11 | Exercise library | `/library` in `routes.jsx` | J6 | | | | kept as it is (D136) |
 | 12 | Measurements | `views/Measures.jsx` | J5 | | | | kept as it is (D136) |
@@ -602,7 +602,7 @@ B2 recommended. Round 3: B2's chart 32 px with its scale. Approved 2026-11-19 as
 
 ### Lifts: progress per muscle group (round 4, F12)
 
-Part 3 of `ux/STATS-PREPLAN.md`. Old: By muscle as built for D140, scored 2026-11-19 from the code
+Part 3 of `ux/STATS-PREPLAN.md` (deleted once built, in git history). Old: By muscle as built for D140, scored 2026-11-19 from the code
 (the emulator is shared). F12 counts on line 4. Mockup `hevier/ux/mockups/muscle-progress.html`.
 
 | # | Line | Old | A | B | C | Evidence |
@@ -621,7 +621,7 @@ A approved 2026-11-19 as D141.
 
 ### Statistics: one real page (round 5, F13)
 
-Part 4 of `ux/STATS-PREPLAN.md`. Old: History's chips and the Statistics page (D135), scored
+Part 4 of `ux/STATS-PREPLAN.md` (deleted once built). Old: History's chips and the Statistics page (D135), scored
 2026-11-19 from the code. F13 counts on line 4. Mockup `hevier/ux/mockups/stats-page.html`.
 
 | # | Line | Old | A | B | C | Evidence |
