@@ -81,16 +81,14 @@ export default function WorkoutCard({ w }) {
   const recs = useStore(s => workoutRecords(s.S, w))
   const prs = recs.length
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
-  const who = (useStore(s => s.user?.name) || '').trim()
   const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
   const gym = useStore(s => gymName(s.S, savedGym(w)))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)
   // The title is the card's button, stretched over it; Share and ⋯ sit above it (upstream 1.4.4's card pass).
   return <div className="card hv-wcard tap-host">
-    {/* Hevy's head: avatar, who and when, ⋯; then the title */}
+    {/* When, Share and ⋯; then the title. Hevy's avatar and name are left out: the log is one person's (the critique, 2026-11-20). */}
     <div className="hv-wcard-h">
-      <span className="hv-avatar" aria-hidden="true">{who ? who[0].toUpperCase() : <Icon name="person" />}</span>
-      <div className="hv-wcard-who">{who && <b>{who}</b>}<span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
+      <div className="hv-wcard-who"><span className="hv-wcard-d">{workoutWhenText(w)}</span></div>
       {shareOn && <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>}
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (w.name || t('Workout'))}
@@ -112,7 +110,6 @@ export default function WorkoutCard({ w }) {
       {hr && <div><span>{t('Heart rate')}</span><b className="hv-wcard-hr"><Icon name="heart" />{hr.avg}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} />}
-    {entries.length > 0 && <div className="hv-wcard-lh">{t('Workout')}</div>}
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
       const n = workSets([e])

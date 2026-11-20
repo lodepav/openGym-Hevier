@@ -45,13 +45,9 @@ afterEach(() => {
 })
 
 describe('hevier: History (D135)', () => {
-  it('this week in three numbers, then the workouts as feed cards', () => {
+  it('the workouts as feed cards, without the week’s numbers Statistics opens with', () => {
     render({ weekStart: 1, workouts: [wo('2026-11-09', 50), wo('2026-11-16', 60)] })
-    const tiles = [...container.querySelectorAll('.hv-htile')].map(x => x.textContent)
-    expect(tiles[0]).toContain('1')
-    expect(tiles[1]).not.toMatch(/^Time0/)
-    expect(tiles[2]).toMatch(/^Sets2/)
-    expect(container.querySelector('.hv-htile .hv-pr')).toBeTruthy()
+    expect(container.querySelector('.hv-htile')).toBeNull()
     expect(container.querySelectorAll('.hv-wcard')).toHaveLength(2)
   })
 

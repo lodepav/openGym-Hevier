@@ -18,8 +18,8 @@ function rowText(row) {
   return (w || '× ') + row.reps
 }
 
-/** A routine exercise's work sets as one line, set-text.js's setRuns: "3 sets · 60 × 8" when all
- *  are alike, else each run in turn with its count leading ("2 × 80 × 8, 80 × 7"). */
+/** A routine exercise's work sets as one line, set-text.js's setRuns: each run with its count
+ *  leading, "3 × 60 × 8", "2 × 80 × 8, 80 × 7", "3 × 10" on body weight. */
 export const setsText = rows => setRuns(rows.filter(row => row.kind === 'work').map(rowText))
 
 // One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".

@@ -136,7 +136,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels as a link at the end | D135 | Fork |
 | Lifts shows where each lift is going: a chart of estimated 1RM with its change, a line per brand, over 12 weeks, the diet phase or all; rising, holding and falling totals that filter | D140 | Fork |
 | Lifts' By muscle shows each muscle group's change and how many of its lifts are rising; isolation lifts count half | D141 | Fork |
-| History: this week in three numbers, one row of chips (Calendar, Monthly report, Statistics), the phase filter and the workout feed | D135 | Fork |
+| History: one row of chips (Calendar, Monthly report, Statistics), the phase filter and the workout feed | D135 | Fork |
 | All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | Statistics as one page: number tiles, then cards (Exercise time, Body weight, Sets per muscle by week, month or year, the weekly chart), all under the phase filter; Arrange Statistics orders them and switches each on or off | D14, D135, D142 | Fork |

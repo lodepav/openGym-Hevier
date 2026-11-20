@@ -297,3 +297,15 @@ Done on the plan page's keypad, and a discarded start using up the planned weigh
 date sits under bars 1 and 2 while its week is bar 3; "1.6 year streak" after four empty weeks
 (D59); the exercise animation is blank in the headless emulator's screenshots while the video
 reports playing (check on a phone).
+
+## Critique (2026-11-20, `/impeccable critique` of nine screens, snapshots in `.impeccable/critique/`)
+
+Scores out of 36 (Live workout out of 40): Live workout 32, Statistics 30, Settings 29, Routine
+page, Lifts and Workout detail 28, Today, History and Exercise details 26. Fixed on
+`hevier/critique-fixes`: a set without weight reads "× 10" in PREVIOUS and "3 × 10" on Today
+(every run "count × set"); Exercise details tags each best by its kind ("Heaviest", "Best set")
+and folds a best 1RM that is the heaviest single into that tile; the set type sheet spells out
+the ↑ = ↓ mark under its title; Settings' Look row reads "Body diagram · Male"; Statistics' card
+is "Time per exercise" and an odd last tile takes the whole row; History cards lose Hevy's avatar,
+name and "Workout" label (about 55 px a card), and its three week numbers go (D135, the user). Left: Settings' "Search…" hint is upstream's (a
+new seam for one placeholder); the dates without a year were all this year, as meant.

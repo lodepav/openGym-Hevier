@@ -1,10 +1,9 @@
-// The History tab (hevier/DECISIONS.md D126, D135, D142): this week in three numbers, one row of ways
-// into the statistics, then the phase filter and every workout as a feed card (D14's feed, unchanged).
+// The History tab (hevier/DECISIONS.md D126, D135, D142): one row of ways into the statistics (this
+// week's numbers are on Statistics and Today, the critique 2026-11-20), then the phase filter and every workout as a feed card (D14's feed, unchanged).
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
-import { todayISO } from '../../lib/format.js'
 import { DEMO } from '../../lib/demo.js'
 import { historyRows } from '../../views/History.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -14,9 +13,6 @@ import PhaseFilter from '../components/PhaseFilter.jsx'
 import { SettingsGear } from './Today.jsx'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import { partOn } from '../lib/module-parts.js'
-import { weekNumbers } from '../lib/history-week.js'
-import { roundOf } from '../lib/today.js'
-import { durationWords } from '../lib/elapsed.js'
 
 export const HISTORY_PATH = '/history-tab'
 export const PAGE = 10
@@ -34,14 +30,9 @@ export function WorkoutFeed({ S }) {
   </>
 }
 
-function Tile({ label, value, sub, className = '' }) {
-  return <div className="hv-htile"><span>{label}</span><b>{value}</b><span className={className}>{sub}</span></div>
-}
-
 export default function History() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
-  const n = weekNumbers(S, todayISO())
   // Each chip goes with the module part its page goes with; one row (D142), the rest is on Statistics.
   const chips = [
     partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
@@ -50,12 +41,6 @@ export default function History() {
   ].filter(Boolean)
   return <div className="narrow hv-history">
     <PageBar title={t('History')}><SettingsGear /></PageBar>
-    <div className="hv-htiles">
-      <Tile label={roundOf(S, todayISO())?.round ? t('This round') : t('This week')} value={n.planned ? t('{0} of {1}', n.done, n.planned) : n.done} sub={t('workouts')} />
-      <Tile label={t('Time')} value={n.ms ? durationWords(n.ms) : '0'} sub={t('this week')} />
-      <Tile label={t('Sets')} value={n.sets} className={n.records ? 'hv-pr' : ''}
-        sub={n.records ? <><Icon name="trophy" />{n.records === 1 ? t('1 record') : t('{0} records', n.records)}</> : t('this week')} />
-    </div>
     <div className="hv-hgroup">
       <span className="hv-cap">{t('Look back')}</span>
       <div className="hv-chips hv-hlinks">{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>

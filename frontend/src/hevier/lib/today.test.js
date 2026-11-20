@@ -26,7 +26,7 @@ afterEach(() => { hooks.pinOn = null })
 
 describe('Today: the sets the next session opens with (D134)', () => {
   it('collapses equal sets, lists different ones, leaves warm-ups out', () => {
-    expect(setsText([{ kind: 'warm', n: 0 }, ...[0, 1, 2].map(k => ({ kind: 'work', k, w: 60, reps: 8 }))])).toBe('3 sets · 60 × 8')
+    expect(setsText([{ kind: 'warm', n: 0 }, ...[0, 1, 2].map(k => ({ kind: 'work', k, w: 60, reps: 8 }))])).toBe('3 × 60 × 8')
     expect(setsText([{ kind: 'work', w: 80, reps: 8 }, { kind: 'work', w: 55, reps: 13 }])).toBe('80 × 8, 55 × 13')
     expect(setsText([8, 8, 7, 6].map(reps => ({ kind: 'work', w: 80, reps })))).toBe('2 × 80 × 8, 80 × 7, 80 × 6')
     expect(setsText([{ kind: 'work', w: 0, reps: 12 }])).toBe('× 12')
@@ -37,14 +37,14 @@ describe('Today: the sets the next session opens with (D134)', () => {
   it('reads each routine exercise in order, through the routine table', () => {
     const s = S({ routines: [{ id: 'ua', name: 'Upper A', ex: [{ id: 'x1', sets: 3, reps: 8, weight: 60 }, { id: 'x2', sets: 1, reps: 10 }] }] })
     expect(sessionSets(s, ['ua', 'gone'])).toEqual([
-      { key: 'ua:0', id: 'x1', sets: '3 sets · 60 × 8' },
+      { key: 'ua:0', id: 'x1', sets: '3 × 60 × 8' },
       { key: 'ua:1', id: 'x2', sets: '× 10' },
     ])
   })
 
   it('writes an exercise shown in lb in lb, as its page does (D41)', () => {
     const s = S({ unit: 'kg', exUnit: { x1: { unit: 'lb', _ts: 1 } }, routines: [{ id: 'ua', name: 'Upper A', ex: [{ id: 'x1', sets: 3, reps: 8, weight: 60 }] }] })
-    expect(sessionSets(s, ['ua'])[0].sets).toMatch(/^3 sets · 132(\.\d+)? × 8$/)
+    expect(sessionSets(s, ['ua'])[0].sets).toMatch(/^3 × 132(\.\d+)? × 8$/)
   })
 })
 
