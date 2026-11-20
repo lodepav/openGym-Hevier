@@ -47,9 +47,11 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const label = [brandDefault(S, x.id, gym), isCable(x.id) && cableText(cableDefault(S, x.id, gym))].filter(Boolean).join(' · ')
   const unit2 = units.find(u => u.includes(x.idx))
   const meta = unit2?.length > 1 && unit2[0] === x.idx ? supersetMeta(r.ex, unit2) : null
-  const rest = restTimerText(e?.restSec, S.restSec, t('Off'))
+  // An exercise's own rest only where it differs from the usual one, which the page names once at the top (the critique, 2026-11-20).
+  const ownRest = e?.restSec != null && e.restSec !== S.restSec ? restTimerText(e.restSec, S.restSec, t('Off')) : null
   const num = f => {
-    const text = fmtNum(shownOf(S, f))
+    // A weight of nothing reads "–", as the workout's grey KG does, not "0".
+    const text = f.field === 'w' && !(shownOf(S, f) > 0) ? '–' : fmtNum(shownOf(S, f))
     return <button type="button" className={'hv-np-num' + (f.planned ? ' chg' : '')} onClick={() => onPlan(f.id)}
       aria-label={fieldWords(f) + ' ' + text + (f.field === 'w' ? ' ' + unit : '') + (f.planned ? ', ' + t('planned') : '')}>{text}</button>
   }
@@ -78,7 +80,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
       {label && <span className="hv-chip hv-np-label">{label}</span>}
     </div>
     {e?.note && <p className="hv-notes">{e.note}</p>}
-    <div className="hv-rest hv-rv-rest"><Icon name="timer" />{t('Rest Timer: {0}', rest)}</div>
+    {ownRest && <div className="hv-rest hv-rv-rest"><Icon name="timer" />{t('Rest Timer: {0}', ownRest)}</div>}
     <div className="hv-np-tbl">
     <div className="hv-np-row hv-np-head" aria-hidden="true"><span>{t('SET')}</span><span>{t('LAST TIME')}</span><span>{t('NEXT')}</span></div>
     {x.sets.map(set => {
@@ -116,6 +118,9 @@ export default function RoutinePreview() {
   const plan = fid => useUI.getState().openSheet(close => <PlanKeypad rid={r.id} start={fid} close={close} />)
   // A session already open is resumed, as the Workout tab's own Start does (upstream's startFlow).
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))
+  const startBtn = <button type="button" className="btn primary hv-rv-start" disabled={!r.ex.length} onClick={start}>
+    {S.active ? t('Resume') : t('Start')}
+  </button>
   return <div className="hv-routine hv-rview">
     <PageBar title={r.name} onBack={back}>
       {/* D37's 1.4.4 note: upstream's Share a routine, a link a friend taps to add it. */}
@@ -125,11 +130,10 @@ export default function RoutinePreview() {
     <p className="hv-cap hv-rv-when">{[when ? t('Next') : t('Next session'), when, usual && t('about {0}', durationWords(usual))].filter(Boolean).join(' · ')}</p>
     <div className="hv-chips hv-rv-chips">
       {gym && <span className="hv-chip">{gymName(S, gym)}</span>}
+      {S.restSec > 0 && <span className="hv-chip hv-rv-usual"><Icon name="timer" />{t('{0} rest', restTimerText(S.restSec, 0, ''))}</span>}
       <span className="hv-chip hv-rv-count">{[folderOf(r), exCount(r.ex.length), r.ex.length ? t('{0} sets', sets) : null].filter(Boolean).join(' · ')}</span>
     </div>
-    <button type="button" className="btn primary hv-rv-start" disabled={!r.ex.length} onClick={start}>
-      {S.active ? t('Resume') : t('Start')}
-    </button>
+    {startBtn}
     <div className="hv-units">
       {units.map(u => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => session[i] && <PlanExercise key={i + ':' + r.ex[i].id} r={r} x={session[i]} units={units} S={S} gym={gym}
@@ -141,6 +145,8 @@ export default function RoutinePreview() {
       <BodyMap load={load} body={S.body} />
       <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
     </div>}
+    {/* Start again at the end, reached after reading the plan (the critique, 2026-11-20). */}
+    {r.ex.length > 0 && startBtn}
     <div className="workout-end-spacer" />
   </div>
 }

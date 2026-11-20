@@ -538,12 +538,13 @@
 :root[data-ui="hevier"] .hv-linkrow-t .hv-sub{line-height:1.35}
 /* D142 Statistics: tiles two to a row, then the cards; nothing of fixed height, for 200 % text */
 :root[data-ui="hevier"] .hv-stiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-/* An odd last tile takes the whole row, not half of one beside a gap (the critique, 2026-11-20). */
-:root[data-ui="hevier"] .hv-stiles>:last-child:nth-child(odd){grid-column:1/-1}
 :root[data-ui="hevier"] .hv-stile{display:flex;flex-direction:column;gap:2px;min-width:0;min-height:48px;padding:12px;border-radius:var(--r);background:var(--surface);color:var(--label-2);font:inherit;font-size:12px;text-align:start}
 :root[data-ui="hevier"] .hv-stile-t{font-weight:700;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-stile b{font-size:24px;font-weight:800;color:var(--label);overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-stile-s{overflow-wrap:anywhere}
+:root[data-ui="hevier"] .hv-stile-c{font-size:13px;overflow-wrap:anywhere}
+/* A week trained less is not a failure, so only a rise has colour. */
+:root[data-ui="hevier"] .hv-stile-c.up{color:var(--hv-acc-ink)}
 :root[data-ui="hevier"] .hv-ssec{scroll-margin-top:64px}
 :root[data-ui="hevier"] .hv-scard-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px}
 /* A card head's link keeps its text height, so the title sits where a plain card title does; its 48 dp is an invisible area centred on it. */
@@ -617,7 +618,8 @@
 :root[data-ui="hevier"] .hv-wd-ex{margin-bottom:6px}
 :root[data-ui="hevier"] .hv-wd-sets{display:flex;flex-direction:column}
 :root[data-ui="hevier"] .hv-wd-row{display:grid;grid-template-columns:3em 1fr auto auto;gap:8px;padding:7px 4px;font-size:15px;font-variant-numeric:tabular-nums}
-:root[data-ui="hevier"] .hv-wd-row:nth-child(odd):not(.hv-wd-th){background:var(--surface-2);border-radius:6px}
+/* Plain rows, a hairline between them: stripes read as highlights beside the records (the critique, 2026-11-20). */
+:root[data-ui="hevier"] .hv-wd-row+.hv-wd-row{border-top:.5px solid var(--sep)}
 :root[data-ui="hevier"] .hv-wd-row .hv-pr-kinds{grid-column:2/-1;grid-row:2;font-size:12px;font-weight:600}
 :root[data-ui="hevier"] .hv-exhd .hv-pr-kinds{font-size:12px;font-weight:600;text-align:right}
 :root[data-ui="hevier"] .hv-wd-th{font-size:12px;font-weight:600;color:var(--label-2);padding-bottom:4px}
@@ -985,6 +987,9 @@
 :root[data-ui="hevier"] .hv-tlinks .btn{flex:1;min-width:0;padding-inline:8px}
 :root[data-ui="hevier"] .hv-tlast{display:flex;flex-direction:column;gap:2px;width:100%;text-align:start;color:var(--label);font:inherit}
 :root[data-ui="hevier"] .hv-tlast .hv-pr{display:inline-flex;align-items:center;gap:3px}
+:root[data-ui="hevier"] .hv-tempty{display:block;margin:-4px auto 10px;min-height:44px;padding:0 12px;font-size:15px;font-weight:700}
+:root[data-ui="hevier"] .hv-tlast{position:relative;padding-inline-end:40px}
+:root[data-ui="hevier"] .hv-tlast-go{position:absolute;inset-inline-end:14px;top:50%;transform:translateY(-50%);color:var(--label-3)}
 
 /* ---------- History (hevier/views/History.jsx, D135) ---------- */
 /* The chips in two labelled rows, 48 dp tall (A1) with no reach past them; the second scrolls sideways (D135, 2026-11-17). */
@@ -1121,3 +1126,8 @@
 :root[data-ui="hevier"] .hv-kp-keys .hv-kp-next{background:var(--acc);color:var(--on-acc)}
 /* The effort sheet's Exact − and + reach 48 dp (R12-U7); upstream sizes them by their old spoken name, 26 px wide. */
 :root[data-ui="hevier"] .effpick-free .effcell-stp>button{width:48px;min-width:48px;height:48px;flex:none}
+
+/* History: where each month starts in the feed (the critique, 2026-11-20). */
+:root[data-ui="hevier"] .hv-hmonth{margin:18px 4px 8px;font-size:15px;font-weight:700;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-stat-ends{margin:16px 0 8px}
+:root[data-ui="hevier"] .hv-rv-usual{display:inline-flex;align-items:center;gap:4px}

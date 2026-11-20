@@ -132,8 +132,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
   it('Gyms & equipment: the gyms, no filter switch or active profile (D62)', () => {
     const equipProfiles = [{ id: 'g1', name: 'City Gym', equipment: ['dumbbell'], accV: 1 }]
     render(null, { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
-    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Gyms & equipment'))
-    expect(row.textContent).toBe('Gyms & equipmentCity Gym')
+    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Gyms'))
+    expect(row.textContent).toBe('GymsCity Gym')
     act(() => root.unmount()); container.remove()
     render('equipment', { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
     const rows = titles()

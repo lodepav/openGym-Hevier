@@ -7,7 +7,7 @@
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtNum, todayISO, weekStartOf } from '../../lib/format.js'
+import { fmtNum, todayISO, weekStartOf, isoOf } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { countedS } from '../../lib/counted-log.js'
 import Icon from '../../components/Icon.jsx'
@@ -20,7 +20,7 @@ import MuscleSetsCard from '../components/MuscleSetsCard.jsx'
 import { elapsedWords } from '../lib/elapsed.js'
 import { partOn } from '../lib/module-parts.js'
 import { TILES, CARDS, shown, moduleOn } from '../lib/stats-layout.js'
-import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from '../lib/stats-tiles.js'
+import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime, weekChange } from '../lib/stats-tiles.js'
 import { HISTORY_PATH } from './History.jsx'
 
 /** The page bar of a fork page under a tab: ‹ back to `to` (named `label`) and the page's title. */
@@ -40,11 +40,13 @@ const cardId = id => 'hv-stat-' + id
 // A tile with no page of its own scrolls to its card; happy-dom has no scrollIntoView.
 const scrollTo = id => () => document.getElementById(cardId(id))?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
 
-function Tile({ id, title, value, sub, spoken, onClick }) {
-  const inner = <><span className="hv-stile-t">{title}</span><b>{value}</b><span className="hv-stile-s">{sub}</span></>
+function Tile({ id, title, value, sub, spoken, onClick, change }) {
+  const inner = <><span className="hv-stile-t">{title}</span><b>{value}</b><span className="hv-stile-s">{sub}</span>
+    {change && <span className={'hv-stile-c' + (change.dir > 0 ? ' up' : change.dir < 0 ? ' down' : '')}>{change.text}</span>}</>
+  const said = spoken + (change ? ', ' + change.text : '')
   return onClick
-    ? <button type="button" className="hv-stile" data-tile={id} aria-label={spoken} onClick={onClick}>{inner}</button>
-    : <div className="hv-stile" data-tile={id} role="group" aria-label={spoken}>{inner}</div>
+    ? <button type="button" className="hv-stile" data-tile={id} aria-label={said} onClick={onClick}>{inner}</button>
+    : <div className="hv-stile" data-tile={id} role="group" aria-label={said}>{inner}</div>
 }
 
 function CardHead({ title, link, label, onClick }) {
@@ -56,14 +58,18 @@ function CardHead({ title, link, label, onClick }) {
  *  tile's `scroll` names the card on this page it goes to. */
 function items(S, today, nav) {
   const ws = weekStartOf(S)
+  // The same day last week, for the week tiles' change (the critique, 2026-11-20).
+  const before = isoOf(new Date(Date.parse(today + 'T12:00:00') - 7 * 86400000))
   const out = {}
   if (moduleOn(S, 'time')) {
-    const v = trainingTime(weekExerciseTime(S.workouts, today, ws))
+    const exMs = weekExerciseTime(S.workouts, today, ws)
+    const v = trainingTime(exMs)
     const longest = longestExercises(S.workouts, today)
     out.time = {
       // This week's timed exercises added up (stats-tiles.js); the card is each exercise's average over 90 days.
       // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
-      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v), onClick: () => nav('/exercise-time') } : null,
+      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v),
+        change: weekChange(exMs, weekExerciseTime(S.workouts, before, ws), trainingTime), onClick: () => nav('/exercise-time') } : null,
       card: longest.length ? () => <div className="card hv-scard">
         <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
         {longest.map(r => {
@@ -92,14 +98,17 @@ function items(S, today, nav) {
     }
   }
   const week = thisWeek(S.workouts, today, ws)
+  const lastWeek = thisWeek(S.workouts, before, ws)
   out.sets = {
     tile: { title: t('Sets per muscle'), value: fmtNum(week.sets), sub: t('sets this week'), spoken: t('Sets per muscle, {0} sets this week', week.sets),
+      change: weekChange(week.sets, lastWeek.sets),
       scroll: 'sets' },
     card: () => <MuscleSetsCard S={S} today={today} />,
   }
   const hours = trainingTime(week.ms)
   out.hours = {
     tile: { title: t('Training time'), value: hours, sub: t('this week'), spoken: t('Training time, {0} this week', hours),
+      change: weekChange(week.ms, lastWeek.ms, trainingTime),
       scroll: 'weekly' },
   }
   out.weekly = { card: () => <div className="card hv-scard"><WeeklyChart /></div> }
@@ -136,9 +145,9 @@ export default function Statistics() {
     {tiles.length > 0 && <div className="hv-stiles">{tiles.map(id => <Tile key={id} id={id} {...tileOf(all[id].tile)} />)}</div>}
     {/* Called, not mounted as <Card />: a new function each render would remount it and lose its choices. */}
     {cards.map(id => <section key={id} id={cardId(id)} className="hv-ssec" data-card={id}>{all[id].card()}</section>)}
-    {/* The page ends as Lifts does: flat accent links. */}
-    <div className="hv-lifts-ends">
-      {ends.map(([label, to]) => <button key={to} type="button" className="hv-link hv-lifts-link" onClick={() => nav(to)}>{t(label)}<Icon name="chevronRight" /></button>)}
+    {/* The page ends with one row of chips, as History's ways in are (the critique, 2026-11-20). */}
+    <div className="hv-chips hv-hlinks hv-stat-ends">
+      {ends.map(([label, to]) => <button key={to} type="button" className="hv-chip" onClick={() => nav(to)}>{t(label)}</button>)}
     </div>
   </div>
 }

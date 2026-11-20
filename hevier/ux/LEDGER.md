@@ -309,3 +309,16 @@ the ↑ = ↓ mark under its title; Settings' Look row reads "Body diagram · Ma
 is "Time per exercise" and an odd last tile takes the whole row; History cards lose Hevy's avatar,
 name and "Workout" label (about 55 px a card), and its three week numbers go (D135, the user). Left: Settings' "Search…" hint is upstream's (a
 new seam for one placeholder); the dates without a year were all this year, as meant.
+
+## Critique, second run (2026-11-20, after `hevier/critique-fixes` merged)
+
+Scores: Live workout 33 of 40, Statistics 32, Settings 30, Routine page, Lifts and Workout
+detail 28, Today, History and Exercise details 27. The user chose these from each screen's list,
+built on `hevier/critique-2`: a grey weight of nothing reads "–" in the live workout and on the
+routine page; Today's week row drops a shared last word ("Leg Day" reads "Leg", D134), Empty
+workout is a link under Start and the last workout shows a chevron; History has month headers
+(D135); Exercise details uses one short date; Statistics' week tiles compare with last week and
+its links are one chip row (D142); the routine page names the usual rest once and repeats Start
+at the end (D128); Workout detail drops its stripes for hairlines; Settings' row reads "Gyms";
+Lifts names "Est. 1RM (kg)" once and an old record reads "PR: 17 Aug" (D140). Already there:
+Today's planned weights, the last workout opening its detail, Share in Workout detail's header.

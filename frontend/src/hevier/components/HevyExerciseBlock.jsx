@@ -367,7 +367,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
     if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, modeAt(s))} {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(modeAt(s), sec)) }} />
-    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
+    // A grey weight of nothing (a lift last logged without one) reads "–", as PREVIOUS's "× 10" does, not "0".
+    const noWeight = !firm && col.f === 'w' && !(Number(src.w) > 0)
+    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={noWeight ? '–' : viewOf(col, src[col.f]) ?? ''}
       {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {

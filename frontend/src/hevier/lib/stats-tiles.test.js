@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
-import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime } from './stats-tiles.js'
+import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime, weekChange } from './stats-tiles.js'
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const SQUAT = EXDB.find(e => /^barbell full squat$/i.test(e.n)).id
@@ -58,5 +58,17 @@ describe('Statistics tile numbers (D142)', () => {
   it('training time: minutes under an hour, then hours to one decimal', () => {
     expect([0, 29000, 2 * MIN, 59 * MIN, 59.6 * MIN, 60 * MIN, 270 * MIN, 273 * MIN].map(trainingTime))
       .toEqual(['0 min', '0 min', '2 min', '59 min', '1 h', '1 h', '4.5 h', '4.6 h'])
+  })
+})
+
+describe('a week tile against last week (the critique, 2026-11-20)', () => {
+  it('writes the change with its arrow, in the tile’s own words', () => {
+    expect(weekChange(14, 11)).toEqual({ dir: 1, text: '↑ 3 vs last week' })
+    expect(weekChange(4, 9)).toEqual({ dir: -1, text: '↓ 5 vs last week' })
+    expect(weekChange(5, 5)).toEqual({ dir: 0, text: '= vs last week' })
+    expect(weekChange(120000, 0, ms => trainingTime(ms)).text).toBe('↑ 2 min vs last week')
+  })
+  it('says nothing with neither week trained', () => {
+    expect(weekChange(0, 0)).toBeNull()
   })
 })
