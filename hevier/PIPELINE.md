@@ -20,10 +20,9 @@ microphone, D106) and S61 (All statistics without the new screens, D109) came. W
 leave out is hidden: the Journal, Tools, Your month, daily form, levels, deload weeks, Numbers per
 gym, Community, the Wear OS and Zepp pages. Garmin is in the APK and Watch is a module again
 (D106). Every routine opens as before the merge (`routine-check.sh`: no difference). **Still to
-build on top, each its own branch:** D105 (the new set fields in the fork's set row), D107 (Pause,
-next exercise after the rest, the record trophy), D108 (upstream's routine folders, favourites, a
+build on top, each its own branch:** D105 (the new set fields in the fork's set row), D108 (upstream's routine folders, favourites, a
 routine from a past workout, Start picks), D111 (rest before the next exercise, text size).
-D112 (the profile picture) is built, at the top of Settings since D126 took the Profile tab away. The rows hidden until then are in `HIDDEN_ROWS` (`hevier/lib/settings.js`).
+D107 (Pause, the next exercise after the rest, the trophy switches) is built (2026-11-20). D112 (the profile picture) is built, at the top of Settings since D126 took the Profile tab away. The rows hidden until then are in `HIDDEN_ROWS` (`hevier/lib/settings.js`).
 The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
 #903) were closed 2026-11-14; #901 is still open.
 

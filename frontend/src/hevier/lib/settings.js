@@ -25,8 +25,8 @@ export const HIDDEN_ROWS = {
     // 1.4.5: the fork's routine page is the preview (D113); no daily check-in (D107, D109); leaving
     // the gym needs upstream's gym reminder, which the fork has not (D47).
     'Preview before starting', 'Daily check-in', 'End by itself when I leave the gym',
-    // Until the fork's workout has them (D107, D108): upstream's switches would steer nothing here.
-    'Record trophies', 'Cheer on a record', 'How close to a record', 'Next exercise when the rest ends', 'Start button'],
+    // The fork's workout has no record hint and no Start button (D107, D108): these would steer nothing.
+    'How close to a record', 'Start button'],
   // One look (D17): no light theme, no accent choice, no seasonal themes. No gym check-in on Home (D12).
   look: ['Theme', 'Accent color', 'Seasonal themes',
     // 1.4.4 (D100): no NFC stickers, no app icon picker (its search hit; the row goes by type), no

@@ -247,7 +247,7 @@ gave a toast with Undo; Move up and down in the ⋮ covers a long drag.
 | R11-U6 | low | H4 | Last sessions write "20 Oct" and "80×8", the tiles "Tue, 20 Oct" and "60 × 12" | **open**: the short form keeps four sets on one line |
 | R11-U7 | low | H7 | The routines list has no "Search routines" field, which the mockup draws | **fixed**: Search routines at the top, matches listed without folders |
 
-Improvements, **open**: Statistics says "0s this week" where History's tile says "0"; the chart on
+Improvements, **open** (Statistics' "0s this week" is gone since D142: it reads "1 min", checked 2026-11-20): the chart on
 Year says "No data yet" for an exercise last done over a year ago; "Rest day" in the Plan's day
 sheet has no `aria-pressed` (upstream's sheet); a drag past a tall superset needs a hold at the
 top edge (discuss). Notes: "1/5" beside a muscle has no visible legend (D119); "1s a session" on
@@ -264,10 +264,10 @@ Settings and Discard Workout are 48 dp.
 | R12-U1 | high | A6, G7 | At 200% a weight of four or more characters is cut in its field: 102.5 reads "102" | **fixed**: a number wider than its field is drawn smaller until it fits (`lib/fit-numbers.js`), the grey prefilled ones too; this also covers R8-U7's cardio time |
 | R12-U2 | high | A3, A5 | With effort on, the button that logs an unticked set is spoken "Set 4, RIR" | **fixed**: "Set 4, log it with RIR" |
 | R12-U3 | medium | A6, H6 | At 200% the exercise's chips read "Sw…", "His…", "1m…", "Re…" | **fixed**: the buttons wrap to a second line when the words do not fit |
-| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **open** |
-| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **open**: Skip clears it |
+| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **fixed 2026-11-20**: the routine page's set table is one grid, so its SET column takes the word's width; Edit already fit after the D125 rework |
+| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **fixed 2026-11-20**: the page keeps room for the panel's measured height |
 | R12-U6 | low | A6 | Today's week strip cuts routine names, "P…" twice at 200% | **fixed**: the week row wraps when a name does not fit |
-| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **open** (upstream's sheet) |
+| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **fixed 2026-11-20**: 48 dp, spoken "RIR: Decrease" (seam S70) |
 
 Improvements, **open**: at 200% the Routines and Calendar pills are 1 to 3 dp too narrow for
 their text; the delete toast says "Set 3 gone." without the exercise; at 200% Today's Start is

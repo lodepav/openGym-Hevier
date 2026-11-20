@@ -79,6 +79,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     </div>
     {e?.note && <p className="hv-notes">{e.note}</p>}
     <div className="hv-rest hv-rv-rest"><Icon name="timer" />{t('Rest Timer: {0}', rest)}</div>
+    <div className="hv-np-tbl">
     <div className="hv-np-row hv-np-head" aria-hidden="true"><span>{t('SET')}</span><span>{t('LAST TIME')}</span><span>{t('NEXT')}</span></div>
     {x.sets.map(set => {
       const ls = lines(set)
@@ -88,6 +89,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
         <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{sideMark(l.side)}{l.next}</span>)}</span>
       </div>
     })}
+    </div>
     {note && <p className="hv-np-note"><b>{t('Planned for next time.')}</b> {t('The routine is not changed. Warm-ups stay as last time until you change them.')}</p>}
   </div>
 }

@@ -489,12 +489,15 @@ export const uuid = () => globalThis.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4x
  * `workoutId` is the uuid Hevy keeps as the workout's id. The edit (`PUT /v2/workout/{id}`) takes
  * the same fields, less `workout_id`, as `{ workoutUpdate }`.
  */
-export function v2Workout(body, { titleOf = () => '', workoutId, gymId = null, now = Date.now() } = {}) {
+export function v2Workout(body, { titleOf = () => '', workoutId, gymId = null, gymName = '', now = Date.now() } = {}) {
+  // With Hevy's gym field set, the description's "At <gym>" line would say it twice.
+  const atGym = gymId != null && gymName ? 'At ' + gymName : null
+  const description = (body.description || '').split('\n').filter(l => l !== atGym).join('\n')
   return {
     workout: {
       workout_id: String(workoutId),
       title: body.title,
-      description: body.description || '',
+      description,
       media: [],
       exercises: body.exercises.map(e => ({
         title: titleOf(e.exercise_template_id) || '',

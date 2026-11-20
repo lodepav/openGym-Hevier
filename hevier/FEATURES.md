@@ -35,7 +35,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
 | Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue; PR #1361, a Timer and a Stopwatch in the header) |
-| Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
+| Live PR trophy on the set as it is ticked, with a toast; upstream's Record trophies switch turns both off | D22, D51, D107 | Fork (upstream 1.4.5 has its own trophy at the tick; the fork keeps its own, per brand label, D107) |
+| Pause the workout from the footer's Settings, and Next exercise when the rest ends (upstream's #976, #1017) in the fork's workout | D107 | Fork |
 | "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offered (#1376: removed, swapped and reordered exercises with Undo, against the routine as the workout started; no set counts) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offered (#1375: the count-up clock on a cardio set, whole minutes; holds already run by themselves upstream) |
