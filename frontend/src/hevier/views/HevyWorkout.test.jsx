@@ -171,6 +171,12 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useUI.getState().sheets).toHaveLength(open)
   })
 
+  it('a grey weight of nothing reads "–", a grey weight its number', () => {
+    render([{ id: EX, target: { sets: 2, reps: 10 }, sets: [reps(0, 10), reps(60, 8)] }])
+    const kg = [...container.querySelectorAll('input')].filter(x => /Weight/.test(x.getAttribute('aria-label') || ''))
+    expect(kg.map(x => x.value + '|' + x.placeholder)).toEqual(['|–', '|60'])
+  })
+
   it('a ticked set beside its number says how it compares with the same set last time, behind upstream’s switch (D66, #907)', () => {
     const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true }), reps(60, 10, { done: true })] }] }]
     // Below last time, so no record: a record's trophy takes the arrow's place, as in Workout Detail.

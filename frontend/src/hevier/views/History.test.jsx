@@ -48,6 +48,7 @@ describe('hevier: History (D135)', () => {
   it('the workouts as feed cards, without the week’s numbers Statistics opens with', () => {
     render({ weekStart: 1, workouts: [wo('2026-11-09', 50), wo('2026-11-16', 60)] })
     expect(container.querySelector('.hv-htile')).toBeNull()
+    expect([...container.querySelectorAll('.hv-hmonth')].map(h => h.textContent)).toEqual(['November · 2 workouts'])
     expect(container.querySelectorAll('.hv-wcard')).toHaveLength(2)
   })
 

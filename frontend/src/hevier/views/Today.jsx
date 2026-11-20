@@ -84,6 +84,7 @@ function Week({ S, today }) {
 function LastWorkout({ S, w }) {
   const recs = workoutRecords(S, w).length
   return <button type="button" className="card hv-tlast" onClick={() => workoutDetailSheet(w)}>
+    <Icon name="chevronRight" className="hv-tlast-go" />
     <span className="hv-cap">{t('Last workout')} · {fmtDate(w.d, true)}</span>
     <b>{w.name || t('Workout')}</b>
     <span className="small dim">{[hasClock(w) && workoutTimeText(w), t('{0} sets', workSets(w.entries))].filter(Boolean).join(' · ')}
@@ -107,12 +108,13 @@ export default function Today() {
         <h2 className="hv-next-n">{t('Nothing planned')}</h2>
         <p className="small dim">{t('Plan your days in the Calendar, or start one of your routines.')}</p>
       </div>}
+    {/* Starting without a plan is the rarer way, so a link under Start, not a third button (the critique, 2026-11-20). */}
+    <button type="button" className="hv-link hv-tempty" onClick={() => startFlow([])}>{t('Empty workout')}</button>
     <Week S={S} today={today} />
     {line.length > 0 && <p className="hv-tline">{line.join(' · ')}</p>}
     <div className="hv-tlinks">
       <button type="button" className="btn" onClick={() => nav('/routines')}>{t('Routines')}</button>
       {partOn(S, 'hvStats', 'calendar') && <button type="button" className="btn" onClick={() => nav('/calendar')}>{t('Calendar')}</button>}
-      <button type="button" className="btn" onClick={() => startFlow([])}>{t('Empty workout')}</button>
     </div>
     {last && <LastWorkout S={S} w={last} />}
   </div>

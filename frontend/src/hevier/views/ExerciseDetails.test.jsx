@@ -115,6 +115,8 @@ describe('hevier: exercise details (seam S10)', () => {
     ])
     const tiles = [...container.querySelectorAll('.hv-xd-tile')].map(x => x.querySelector('small').textContent + ' ' + x.querySelector('b').textContent)
     expect(tiles).toEqual(['Heaviest · Best 1RM 100 kg', 'Best set 60 kg × 12'])
+    // one date form on the page: the tiles read as the session lines do, without a weekday
+    expect([...container.querySelectorAll('.hv-xd-tile small:last-child')].map(x => x.textContent)).toEqual(['5 Aug', '6 Apr'])
   })
 
   it('marks each session against the one before, with its effort', () => {

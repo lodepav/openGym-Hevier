@@ -58,7 +58,8 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
     : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
     : preview[id]?.() || null)
   // The Workout group's first row is not called Workout too; its page keeps upstream's title.
-  const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms & equipment' : PAGES[id].title)
+  // "Gyms": with its gyms named beside it, the longer title wrapped on a phone (the critique, 2026-11-20).
+  const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms' : PAGES[id].title)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {

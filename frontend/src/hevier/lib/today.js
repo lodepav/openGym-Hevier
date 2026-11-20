@@ -44,8 +44,8 @@ export function sessionSets(S, ids) {
 }
 
 /** The names without the words that several of them start with ("Plan Upper A", "Plan Lower A", "Cardio":
- *  "Upper A", "Lower A", "Cardio"), so a narrow day cell shows what tells the days apart. A group of names
- *  is left alone when that would empty one of them. */
+ *  "Upper A", "Lower A", "Cardio") and the word they all end with ("Leg Day": "Leg"), so a narrow day cell
+ *  shows what tells the days apart. A group of names is left alone when that would empty one of them. */
 export function shortNames(names) {
   const groups = {}
   for (const n of new Set(names.filter(Boolean))) (groups[n.split(' ')[0]] ||= []).push(n.split(' '))
@@ -55,7 +55,13 @@ export function shortNames(names) {
     while (used.length > 1 && used.every(w => w.length > k + 1 && w[k] === used[0][k])) k++
     cut[first] = k
   }
-  return names.map(n => (n && cut[n.split(' ')[0]] ? n.split(' ').slice(cut[n.split(' ')[0]]).join(' ') : n))
+  const front = names.map(n => (n && cut[n.split(' ')[0]] ? n.split(' ').slice(cut[n.split(' ')[0]]).join(' ') : n))
+  // Then the word they all end with, "Leg Day" and "Push Day" as "Leg" and "Push" (the critique,
+  // 2026-11-20); a one-letter or number tag ("Upper A") tells variants apart, so it stays.
+  const words = [...new Set(front.filter(Boolean))].map(n => n.split(' '))
+  const last = words[0]?.at(-1)
+  const drop = last && last.length > 1 && !/^\d+$/.test(last) && words.every(w => w.length > 1 && w.at(-1) === last)
+  return drop ? front.map(n => (n ? n.split(' ').slice(0, -1).join(' ') : n)) : front
 }
 
 /**

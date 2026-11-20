@@ -108,9 +108,12 @@ function LiftRow({ r, S, today, p, win, half }) {
   // Spoken: what the lift itself did, not the padded edges.
   const said = ys.length ? [Math.min(...ys), Math.max(...ys)].map(v => Math.round(convert(v, S.unit, unit))) : null
   const brand = l => labelText({ brand: l.key.split('|')[0], cable: l.key.split('|')[1] }, t)
+  // A record of weeks ago says when it was set, not "New" (the critique, 2026-11-20).
+  const bestWord = r.newBest && (dayNo(today) - dayNo(r.d) <= 14 ? t('New best')
+    : t('PR: {0}', fmtDate(r.d, false, r.d.slice(0, 4) !== today.slice(0, 4))))
   const lastBest = r.last && <span className="hv-lift-r">
     <b>{text(r.last)}</b>
-    {r.newBest ? <small className="hv-pr"><Icon name="trophy" />{t('New best')}</small>
+    {r.newBest ? <small className="hv-pr"><Icon name="trophy" />{bestWord}</small>
       : r.best && <small>{t('best {0}', text(r.best))}</small>}
   </span>
   const spoken = s => s.replace(/\n/g, ', ')
@@ -121,7 +124,7 @@ function LiftRow({ r, S, today, p, win, half }) {
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
     r.last && t('last {0}', spoken(text(r.last))),
-    r.newBest ? t('New best') : r.best && t('best {0}', spoken(text(r.best))),
+    r.newBest ? bestWord : r.best && t('best {0}', spoken(text(r.best))),
     half && t('isolation, counts half in its group'),
   ].filter(Boolean).join(', ')
   return <button type="button" className="item hv-lift" aria-label={label} onClick={() => exerciseDetailSheet(ex)}>
@@ -137,7 +140,7 @@ function LiftRow({ r, S, today, p, win, half }) {
         {!scale && lastBest}
       </span>
       {scale && <span className="hv-lift-mid">
-        <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}</span><span>{scale[0]}</span></>}</span>
+        <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}{unit !== S.unit && ' ' + unit}</span><span>{scale[0]}</span></>}</span>
         <LiftChart lines={lines} tones={tones} />
         {/* The change sits beside the line it describes. */}
         {change && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
@@ -202,7 +205,9 @@ export default function Lifts() {
   const sections = liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
   // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
   const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
-    by === 'muscle' && t('½ counts half in its group')].filter(Boolean).join(' · ')
+    by === 'muscle' && t('½ counts half in its group'),
+    // The charts' numbers named once for the page; a lift shown in the other unit says so on its own scale (the critique, 2026-11-20).
+    rows.some(r => progress.get(r.id)?.lines?.length) && t('Est. 1RM') + ' (' + S.unit + ')'].filter(Boolean).join(' · ')
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
   ].filter(Boolean)

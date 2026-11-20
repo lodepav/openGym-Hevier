@@ -73,6 +73,15 @@ afterEach(() => {
 })
 
 describe('Routine page (D37, D128)', () => {
+  it('names the usual rest once, an exercise’s own only where it differs, and Start at both ends (the critique, 2026-11-20)', () => {
+    const other = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ ...PLAN[0], weight: 0 }, { id: other, mode: 'reps', sets: 1, reps: 8, weight: 40, restSec: 120 }], undefined, { restSec: 90 })
+    expect(container.querySelector('.hv-rv-usual').textContent).toBe('1:30 rest')
+    expect([...container.querySelectorAll('.hv-rv-rest')].map(x => x.textContent)).toEqual(['Rest Timer: 2:00'])
+    expect(container.querySelectorAll('.hv-rv-start')).toHaveLength(2)
+    expect(nums()[0].textContent).toBe('–')   // no planned weight reads as the workout's KG does
+  })
+
   it('opens from the routine name on Routines', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/routines')
     act(() => byText('button.hv-rname', 'Leg Day').click())

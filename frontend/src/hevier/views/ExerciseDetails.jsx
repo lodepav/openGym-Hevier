@@ -58,6 +58,8 @@ import { elapsedWords } from '../lib/elapsed.js'
 // A date of another year says its year: the history reaches back further than one (H6).
 const notThisYear = d => !!d && d.slice(0, 4) !== String(new Date().getFullYear())
 const dateOf = d => fmtDate(d, true, notThisYear(d))
+// The page's lines and tiles share one short form, "17 Jul" (the critique, 2026-11-20); a session card keeps its weekday.
+const shortDate = d => fmtDate(d, false, notThisYear(d))
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const TILE_LABEL = { weight: 'Heaviest', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
@@ -103,7 +105,7 @@ function LastSessions({ ex, sum, st, onAll }) {
       const w = byId.get(l.id)
       const effort = l.effort.map(e => effortShown(e, scale)).filter(v => v != null)
       return <div key={l.id ?? k} className="hv-xd-ls" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
-        <span className="hv-xd-ld">{fmtDate(l.d, false, notThisYear(l.d))}</span>
+        <span className="hv-xd-ld">{shortDate(l.d)}</span>
         {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
         <span className="hv-xd-lsets">{l.sets.map((x, j) => <Fragment key={j}>{j > 0 && ' · '}<span className="hv-xd-lset">{x.star
           ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{x.kinds.map(k => t(KIND_LABEL[k])).join(', ')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
@@ -137,13 +139,13 @@ function Bests({ ex, sum, st }) {
     {tiles.length > 0 && <section>
       <h4 className="sec">{t('Best sets')}</h4>
       <div className="hv-xd-tiles">{tiles.map(x => <div key={x.k} className="hv-xd-tile">
-        <small>{x.label}</small><b>{x.v}</b><small>{dateOf(x.d)}</small></div>)}</div>
-      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {dateOf(r.sessionVol.d)}</div>}
+        <small>{x.label}</small><b>{x.v}</b><small>{shortDate(x.d)}</small></div>)}</div>
+      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {shortDate(r.sessionVol.d)}</div>}
     </section>}
     {reps.length > 0 && <section>
       <h4 className="sec">{t('Best at each rep count')}</h4>
       <div className="hv-xd-reps">{reps.map(x => <div key={x.r} className={'hv-xd-rr' + (x.isNew ? ' new' : '')}>
-        <span>{repsWord(x.r)}</span><b>{fmtNum(show(x.w))} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{dateOf(x.d)}</em>
+        <span>{repsWord(x.r)}</span><b>{fmtNum(show(x.w))} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{shortDate(x.d)}</em>
       </div>)}</div>
     </section>}
   </>

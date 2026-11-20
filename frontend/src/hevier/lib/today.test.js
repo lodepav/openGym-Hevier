@@ -99,5 +99,14 @@ describe('Today: the week row drops what every planned name starts with', () => 
     expect(shortNames(['Plan A', '', 'Plan A'])).toEqual(['Plan A', '', 'Plan A'])
     expect(shortNames(['Plan', 'Plan B'])).toEqual(['Plan', 'Plan B'])
   })
+
+  it('and the word they all end with, but not a variant tag (the critique, 2026-11-20)', async () => {
+    const { shortNames } = await import('./today.js')
+    expect(shortNames(['', 'Leg Day', ''])).toEqual(['', 'Leg', ''])
+    expect(shortNames(['Push Day', 'Pull Day', 'Leg Day'])).toEqual(['Push', 'Pull', 'Leg'])
+    expect(shortNames(['Upper A', 'Lower A'])).toEqual(['Upper A', 'Lower A'])
+    expect(shortNames(['Leg Day', 'Cardio'])).toEqual(['Leg Day', 'Cardio'])
+    expect(shortNames(['Day 2', 'Day 2'])).toEqual(['Day 2', 'Day 2'])
+  })
 })
 

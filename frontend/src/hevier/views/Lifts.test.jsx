@@ -66,6 +66,14 @@ describe('hevier: Lifts (D135)', () => {
     expect(useUI.getState().sheets).toHaveLength(1)
   })
 
+  it('a record of weeks ago says when it was set, not "New best" (the critique, 2026-11-20)', () => {
+    vi.setSystemTime(new Date(2027, 0, 20, 12))
+    render({ workouts: log })
+    const b = container.querySelector('.hv-lift')
+    expect(b.querySelector('.hv-pr').textContent).toMatch(/^PR: \d+ \w+ 2026$/)
+    expect(b.getAttribute('aria-label')).toMatch(/PR: \d+ \w+ 2026/)
+  })
+
   it('an exercise pinned to lb reads in lb, a per-side set too (D41)', () => {
     const side = { w: 20.4117, r: 8, done: true }
     const w = wo('2026-11-02', A.id, 80)
@@ -129,23 +137,23 @@ describe('hevier: Lifts (D135)', () => {
   it('totals filter the list: a tap shows only those lifts, a second tap all (D140)', () => {
     render({ workouts: trend })
     expect(totals().map(b => b.getAttribute('aria-label'))).toEqual(['Rising, 1 lift', 'Holding, 0 lifts', 'Falling, 1 lift'])
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · Est. 1RM (kg)')
     act(() => totals()[2].click())
     expect(totals()[2].getAttribute('aria-pressed')).toBe('true')
     expect(totals()[2].getAttribute('aria-label')).toBe('Falling, 1 lift, filter on')
     expect(names()).toEqual([exerciseNameFor(A)])
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing falling lifts · tap Falling again for all')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing falling lifts · tap Falling again for all · Est. 1RM (kg)')
     act(() => totals()[2].click())
     expect(totals()[2].getAttribute('aria-pressed')).toBe('false')
     expect(names()).toEqual([exerciseNameFor(A), exerciseNameFor(B)])
     // The hint has done its job after the first tap, and stays gone (S.hvLiftsTapSeen).
-    expect(container.querySelector('.hv-lifts-hint')).toBeNull()
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Est. 1RM (kg)')
     expect(useStore.getState().S.hvLiftsTapSeen).toBe(true)
     act(() => root.unmount()); container.remove()
     render({ workouts: trend, hvLiftsTapSeen: true })
-    expect(container.querySelector('.hv-lifts-hint')).toBeNull()
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Est. 1RM (kg)')
     act(() => [...container.querySelectorAll('.hv-lifts-by button')].find(b => b.textContent === 'By muscle').click())
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('½ counts half in its group')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('½ counts half in its group · Est. 1RM (kg)')
   })
 
   it('Recent/By muscle and the window sit in one control row', () => {
@@ -230,7 +238,7 @@ describe('hevier: Lifts (D135)', () => {
     expect(ch.getAttribute('aria-label')).toBe(`Chest, up ${want} %, 2 of 3 lifts rising`)
     expect(calves.textContent).toBe('Calves1 lift · a group number needs two')
     expect(calves.getAttribute('aria-label')).toBe('Calves, 1 lift, a group number needs two')
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · ½ counts half in its group')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · ½ counts half in its group · Est. 1RM (kg)')
     const half = row(F).querySelector('.hv-lift-half')
     expect([half.textContent, half.getAttribute('aria-hidden')]).toEqual(['½', 'true'])
     expect(row(P).querySelector('.hv-lift-half')).toBeNull()
@@ -261,7 +269,7 @@ describe('hevier: Lifts (D135)', () => {
     expect(heads()).toHaveLength(1)
     expect(heads()[0].textContent).toBe(before)
     expect(names().sort()).toEqual([P, Q].map(exerciseNameFor).sort())
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing rising lifts · tap Rising again for all · ½ counts half in its group')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing rising lifts · tap Rising again for all · ½ counts half in its group · Est. 1RM (kg)')
   })
 
   it('Recent has no group numbers and no ½ marks (D141)', () => {
@@ -269,6 +277,6 @@ describe('hevier: Lifts (D135)', () => {
     expect(heads()).toHaveLength(0)
     expect(container.querySelector('.hv-lift-half')).toBeNull()
     expect(row(F).getAttribute('aria-label')).not.toMatch(/isolation/)
-    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts')
+    expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · Est. 1RM (kg)')
   })
 })

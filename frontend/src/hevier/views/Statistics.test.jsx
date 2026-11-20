@@ -54,10 +54,10 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(tiles()).toEqual(['sets', 'hours'])
     expect(cards()).toEqual(['sets', 'weekly'])
     expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
-    expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
+    expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week, ↑ 2 vs last week')
     const hours = container.querySelector('[data-tile="hours"]')
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
-    expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h this week')
+    expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h this week, ↑ 1 h vs last week')
     // Tile = now, card = more: the weekly chart does not repeat this week's time.
     expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
     // One heading style: the chart's title is headed as the cards' heads are.
@@ -65,9 +65,9 @@ describe('hevier: Statistics and Measures (M6)', () => {
     // The page ends as Lifts does, with flat accent links, no icon cards and no filled button.
     expect(container.querySelector('.hv-linkrow')).toBeNull()
     expect(container.querySelector('.btn')).toBeNull()
-    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => [b.tagName, b.textContent]))
+    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => [b.tagName, b.textContent]))
       .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange Statistics']])
-    act(() => byText('.hv-lifts-ends .hv-link', 'All statistics').click())
+    act(() => byText('.hv-stat-ends .hv-chip', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
@@ -140,13 +140,13 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('an empty history says so on the sets card, and links no Structural balance', () => {
     render(['/stats'])
     expect(container.textContent).toContain('No sets in this period yet.')
-    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
+    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
   })
 
   // The owner's choice after the third critique: an odd last tile keeps its half, not a mostly empty full row.
   it('no tile spans both columns, an odd last one included', () => {
     const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
-    expect(css).not.toMatch(/\.hv-stile[^{]*\{[^}]*grid-column:1 \/ -1/)
+    expect(css).not.toMatch(/\.hv-stile[^{]*\{[^}]*grid-column: *1 *\/ *-1/)
   })
 
   it('upstream’s ?focus= links land on upstream’s statistics', () => {

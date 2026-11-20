@@ -91,6 +91,7 @@ describe('hevier: Today (D134)', () => {
     hooks.workoutDetail = vi.fn()
     act(() => last.click())
     expect(hooks.workoutDetail).toHaveBeenCalledWith(expect.objectContaining({ id: 'w1' }))
+    expect(btn('Empty workout').closest('.hv-tlinks')).toBeNull()   // a link under Start, not a third button
     act(() => btn('Empty workout').click())
     expect(useStore.getState().S.active.entries).toEqual([])
   })
