@@ -211,11 +211,11 @@ finish one before the next:
    area only what is never used and what is a must keep. The rest is "nice to have" without a
    question. Ask about one feature alone only when the data and an answer disagree.
 4. The stats, in more depth: this matters to the user. Before the step, list every number and
-   chart the app shows, grouped by screen, from the view code and `routes.jsx` (FEATURES.md does
-   not name them all): Home, the live workout, Save workout and the finished screen, workout
-   detail, the routine page, exercise details, Profile, Statistics and the pages it opens
+   chart the app shows, grouped by screen, from the view code and `frontend/src/hevier/routes.jsx` (FEATURES.md does
+   not name them all): Today, the live workout, Save workout and the finished screen, workout
+   detail, the routine page, exercise details, Lifts, History, Statistics and the pages it opens
    (all statistics, structural balance, calendar, monthly report, strength levels, exercise
-   time, lift trends), Measurements. Upstream's own charts count too, one line per chart.
+   time), Measurements. Upstream's own charts count too, one line per chart.
    - First show the grouped list and ask which ones are opened at all. The rest go on the
      "Never opened" line under the Stats table.
    - Then one stat at a time, the most used first: when it is looked at (between sets, right

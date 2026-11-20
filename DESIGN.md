@@ -227,7 +227,7 @@ written in `frontend/src/hevier/lib/set-text.js`, the boot screen and the font i
 `frontend/src/hevier/build/boot-look.js`. Where this file and a decision in `hevier/DECISIONS.md`
 differ, the decision wins (D123 for the look and the accent, D17 for the dark-only black page, D83
 for the boot screen, D49 for the page bar, D126 for the tabs, D127 for the live workout, D132 for
-Finish, D134 for Today, D135 for History and Lifts).
+Finish, D134 for Today, D135 for History and Lifts, D140 for Lifts' progress, D142 for Statistics).
 
 The accent is the user's pick. Every value this file gives as `accent-green` is the default; the
 page reads it from upstream's `--acc`, `--acc-2` and `--on-acc`, which follow the pick.
@@ -368,11 +368,12 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
 - **Body** (500, 15px, 1.29): rows, list lines, buttons (700). 14px for notes and secondary lines,
   13px for captions. Upstream's own rows keep its 17px.
 - **Stat** (800, 16px, tabular): a workout's Duration, Volume and Sets under its header. Stat
-  tiles take 20px/800 on History and 18px/800 in the record colour on an exercise's page.
+  tiles take 20px/800 on History, 24px/800 on Statistics and 18px/800 in the record colour on an
+  exercise's page.
 - **Value** (600, 16px, tabular): the weight and reps in a set's wells.
 - **Section** (400, 13px, grey): the heading over a part of a page, an h2 under the page's
   title (h3 under a page's own h2), flush with the content's edge; also the small line over
-  Today's cards, History's link groups and a routine preview's Next line.
+  Today's cards and a routine preview's Next line.
 - **Label** (700, 11px, tracking 0.04em, caps): the set table's column heads (SET, PREVIOUS, KG,
   REPS) and the small caps over a saved workout's parts (12px there).
 
@@ -394,15 +395,19 @@ One layout, portrait only, a phone's width (D1, D24). The page has 16px side pad
 inside it, 12px apart. Inside an exercise card the set rows run to the card's edges, stopping
 1px short where its hairline is, so a done set is a band across the whole card. On a phone 400px
 wide or narrower the exercise card reaches to 4px from the screen's edge, so PREVIOUS keeps its
-text; at 360px or less its head shortens to PREV. Lists of exercises and routines, Settings and
-the weekly chart run flat, and Settings bleeds to the screen's edges.
+text; at 360px or less its head shortens to PREV. Lists of exercises and routines and Settings
+run flat, and Settings bleeds to the screen's edges.
 
 Three tabs, by what is opened most (D126). **Today** (D134) fits on one screen: a card with the
 next session (when and where, its name, its exercises with the sets it opens with, then a
 full-width Start), the week as seven filled days in one row, one grey line for the round and the
 streak, the links Routines, Calendar and Empty workout as three pills, and the last workout as a
-small card. **Lifts** is a flat list of exercises. **History** (D135) has filled stat tiles, two
-rows of link chips, then the finished workouts as cards.
+small card. **Lifts** is a flat list of exercises, each row with its progress (D140). **History**
+(D135) has filled stat tiles, one row of link chips (Calendar, Monthly report, Statistics), then
+the finished workouts as cards. **Statistics** (D142) is the phase filter, filled tiles two to a
+row (an odd last tile keeps its half), then cards with a 13px heading and an accent "All" link,
+and ends in flat accent links like Lifts. Arrange Statistics lists the tiles and cards as rows,
+each a move handle and a switch.
 
 Rhythm is tight. A set row is 44px tall with 6px between columns, the opened set 60px; an
 exercise card pads 12px on top and sides and 8px below (20px below when it ends on a set row, so
@@ -483,7 +488,7 @@ Round, quiet and dense.
 
 ### Chips
 - **Style:** well-grey pill, warm white 13px/700 text, 6px by 12px. History's link chips are
-  48px tall at 14px, the second row scrolling sideways.
+  48px tall at 14px, one row that wraps.
 - **State:** picked is the accent with black text, with no border. An equipment group chip shows
   a part pick with a 1.5px accent ring.
 
@@ -494,10 +499,11 @@ Round, quiet and dense.
 - **Border:** the 1px hairline drawn inside (`--hv-card-line`), never a CSS border.
 - **Internal Padding:** 12px in an exercise card, 14px by 16px in a workout card, 16px elsewhere.
 - **Use:** a card holds an exercise in a workout, a finished workout on History, Today's next
-  session and its last workout. Lists, the weekly chart, Measurements and Settings are flat on
-  the page between hairlines instead.
+  session and its last workout, and each of Statistics' cards, the weekly chart among them.
+  Lists, Measurements and Settings are flat on the page between hairlines instead.
 - **Stat tiles:** filled, not outlined. Well grey, 20px corners, 10px by 12px, a bold number
-  with 12px grey captions, two or three in a row (History, an exercise's best sets).
+  with 12px grey captions, two or three in a row (History, an exercise's best sets); on
+  Statistics two to a row, 12px padding and a 24px number.
 
 ### Flat Lists
 Exercises in Lifts, the picker, Exercise time and the month's report, and the routines list

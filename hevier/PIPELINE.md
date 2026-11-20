@@ -22,10 +22,17 @@ gym, Community, the Wear OS and Zepp pages. Garmin is in the APK and Watch is a 
 (D106). Every routine opens as before the merge (`routine-check.sh`: no difference). **Still to
 build on top, each its own branch:** D105 (the new set fields in the fork's set row), D107 (Pause,
 next exercise after the rest, the record trophy), D108 (upstream's routine folders, favourites, a
-routine from a past workout, Start picks), D111 (rest before the next exercise, text size), D112
-(the Profile picture). The rows hidden until then are in `HIDDEN_ROWS` (`hevier/lib/settings.js`).
+routine from a past workout, Start picks), D111 (rest before the next exercise, text size).
+D112 (the profile picture) is built, at the top of Settings since D126 took the Profile tab away. The rows hidden until then are in `HIDDEN_ROWS` (`hevier/lib/settings.js`).
 The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
 #903) were closed 2026-11-14; #901 is still open.
+
+**Checked 2026-11-20: no v1.4.6 tag yet.** `release-1.4.6` is at `da62470d3` (2026-11-17), 60
+commits past v1.4.5, merges included (117 files, about 2,800 lines added); `upstream/main`
+(`e4a68a94c`) has only two doc commits past the tag. No new npm dependency in `frontend`, `api` or
+`mcp`. What it brings and means for the fork is in "What release-1.4.6 brings" below. The fork's
+issue #1089 was closed 2026-11-18 with cubetes's #1201 in the branch; nothing else of the fork's
+moved (see the PR section).
 
 **v1.4.4 is merged** into the fork (#5, 2026-11-03), and the fork's PRs that came after it (#3,
 #4, #7, #11, #14) are in `hevier/main` at `5bb06f501` (2026-11-08): D97, D98, D99, D101, D102, D5's
@@ -69,7 +76,31 @@ git branch -r | grep release-                        # new release branches?
 git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}'   # since our base
 ```
 
-## What release-1.4.5 brings (2026-11-09, `e8f028cd`; rechecked 2026-11-12 at `4df89397b`, not tagged yet)
+## What release-1.4.6 brings (2026-11-20, `da62470d3`, not tagged yet)
+
+Read from its CHANGELOG (`## Unreleased`, 26 entries) and a trial merge into `hevier/main`
+(`git merge-tree`). Two files conflict: `lib/update.js` (S6) and `views/Stats.jsx` (S34, S61).
+Everything else merges by itself, though 1.4.6 changes files that hold these seams: S3, S7, S9 to
+S14, S17, S19 to S22, S24, S26, S27, S36, S43, S46, S49 to S51, S58 to S62, S65, S67 to S69.
+
+| Upstream | Fork impact |
+|---|---|
+| **Home and Stats: Customize** (#1119): show, collapse, hide and reorder each card, from the end of either page or Settings → Look & Home; synced in the profile. Stats keeps a card in its own part (Overview, Body, Lifts, Effort) | **Conflicts with S61** in `Stats.jsx`: the cards are now a list, so `hooks.statsOff`'s filter (the daily form card) has to move into it. **Meets D142**: the fork's Statistics has its own Arrange, and upstream's Stats is the fork's All statistics. **Open for the user:** keep upstream's Customize on All statistics, or hide it with its Settings row (`HIDDEN_ROWS.look`), as Today's fixed layout (D134) already hides upstream's Home cards. |
+| **A fork's build names its update repository** (#1254, `VITE_UPDATE_REPO`, `updateRepo()`) | **Conflicts with S6**, which does the same plus the `gohevier-v` tags and the debug build's no-check. Take upstream's `updateRepo()`; S6 keeps only `tagVersion` and `NO_CHECK`. |
+| **Typing a weight or reps no longer writes the whole profile** (#1089, #1201) | The fork's own issue. The fork's set row types through the same store, so check on the emulator that a typed value is still saved after a tick and on leaving the app. |
+| **No overscroll stretch, no page scrollbar on Android** (#1177) | Meets the fork's own scroll and sticky page bar (D49): check the pages that pin a bar. |
+| **Timed per-side rows use the L and R badge under 480 px** (#1239) | Upstream's workout screen; the fork draws its own (D72). Nothing to do. |
+| **Spoken cues announce the first set and each circuit member** (#1210) | Taken as is; the fork's rest panel reads the same `spoken-cues.js` (`dock-next.js`). |
+| **Stats: a rotation's planned sets follow Workouts per week** (#1249) | Upstream's Planned sets on All statistics. Nothing to do. |
+| **Body CSV import fills a day instead of skipping it** (#1206), **FitNotes inch marks** (#1106) | Taken as is; both auto-merge in `import-csv.js`. |
+| **Android: the rest's end sound plays with the app open** (`900ac8c62`, `RestAlert.java`) | **Meets S51** (the strap's line in the rest notification): auto-merges; check the rest's end on the emulator. |
+| **F-Droid build shrunk with R8**, the updater reading SHA256SUMS | The fork builds `sideload` only; the updater fix comes with the S6 merge. |
+
+**Nothing for the fork:** the Coach fixes (Coach off), API tokens and gym check-in cards, the
+calendar feed, the routines library, Garmin's 36 new watches, the Apple Watch rest screen, chart
+and body map screen-reader text (upstream's charts), Indonesian and Bengali wording.
+
+## What release-1.4.5 brings (2026-11-09, `e8f028cd`; rechecked 2026-11-12 at `4df89397b`; tagged and merged 2026-11-14)
 
 Read from its CHANGELOG (`## Unreleased (v1.4.5)`, 450 lines) and the Android build files. **No
 new npm dependency** in `frontend`, `api` or `mcp`. The upstream files the fork has seams in that
@@ -146,7 +177,7 @@ sync-app route; it can stay off), Strava, the calendar feed, the Apple Watch, We
 redesigns, Danish, Bengali, Czech, Persian, Indonesian, Lithuanian and Vietnamese (take upstream's
 locales, rule C), the website and the routines library.
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09 and 2026-11-12)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09, 2026-11-12, 2026-11-14 and 2026-11-20)
 
 **2026-11-08:** nothing moved. No comment or state change on any of the fork's PRs or issues, #988
 unchanged since 2026-11-05 (no milestone), #849 still on v1.4.5 and #638 on v1.4.8.
@@ -177,6 +208,16 @@ open PRs moved since 2026-11-12. The three small ones went out as PRs the same d
 on `release-1.4.5` with upstream's suite green: **#1213** (for #1079), **#1211** (for #1082) and
 **#1214** (for #1159), rows below. Still issues only, waiting for an answer: #1077, #1078, #1080,
 #1081, #1087, #1088 and #1093.
+
+**2026-11-20:** every open PR was rebased onto `release-1.4.6` on 2026-11-15. New since the table
+below: **#1235** and **#1237** (a switch per module part, an Exercise settings module; D102, for
+#1087 and #1236), **#1293** (a day planned in the Calendar trains what was picked; D124), **#1361**
+(a Timer and a Stopwatch in the header; D10, for #1078), **#1362** (Health Connect as the only
+source of weigh-ins; D32, for #1088), and on 2026-11-18 **#1374** (warm-ups left unrated; D120),
+**#1375** (the cardio clock; D53), **#1376** (Finish offers the routine every change; D35) and
+**#1377** (an opt-in rest between sides; D70). None has a maintainer comment, review or milestone;
+only CodeRabbit has answered. #1089 is closed (#1201 is in `release-1.4.6`). The live list is
+`node hevier/tools/upstream-status.mjs --open`.
 
 **#815 against upstream's own version** (`8a91a9c34`, 2026-11-06, "idea by @lodepav"; no comment
 or review on the PR itself): taken are the workout and exercise notes, a routine's rest timers and
