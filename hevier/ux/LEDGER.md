@@ -362,3 +362,20 @@ Run 7 (2026-11-21) re-scored the ten pages round 6 changed: nine up, Live workou
 in total. Its four findings were fixed at the owner's word: no chart section under three sessions
 on Exercise details (the line repeated the best tile); Set a level as a full-width button; "+ Brand"
 as one text line under the name in the workout; "4 sets × 8" for a set without weight on Today.
+
+## Audit (2026-11-21, `/impeccable audit` of all 19 screens, reports in `.impeccable/audit/`)
+
+Scores out of 20, worst first: Live workout, Workout detail and Statistics 14; Exercise details,
+Calendar, Exercise picker, Lifts and History 15; Settings, Measures, Routines, Routine editor,
+Routine preview and Today 16; Monthly report, Exercise time, Module parts and Strength levels 17;
+Arrange stats 18. The owner took every finding. Small text buttons get a hit margin to 48 dp (Undo,
+Also called, Set a level, Show more, Measures' Log and Goal, the strength-level buttons, the
+workout's brand line, the set number, the gym line, the search ×, Settings' back), and a switch
+row toggles from anywhere on it. TalkBack says words: warm-up, hold, left, right in Workout
+detail, the date and trained or planned on a Calendar day, "up 2 vs last week" on Statistics,
+"Goal 75 kg", and which Volume option is chosen. The RIR 0 and 0.5 pill text reaches 4.5:1. Move
+up and Move down are back in the workout's More and on the Routines tab's menus (D118, D130). A
+Calendar year month is one tap target. At 320 px and 130 % text the Sets per muscle name goes
+above its bar, the Calendar key and Workout detail's stats wrap, Lifts' right column stays inside,
+and Exercise details' name takes two lines. The picker searches once per keystroke, the routine
+title is saved after a pause or on leaving the field, and Workout detail works out trends once.

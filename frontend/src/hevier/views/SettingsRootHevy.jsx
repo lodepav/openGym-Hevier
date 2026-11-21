@@ -39,12 +39,14 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const mMode = useStore(s => muscleMode(s.S))
   const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
   // D18's volume and D42's muscle count are one question, so one row and one sheet.
+  // Upstream's menu shows the choice with a tick TalkBack does not read: the label says it (the audit, 2026-11-21).
+  const chosen = (label, on) => (on ? <>{label}<span className="hv-sr">, {t('selected')}</span></> : label)
   const pickVolume = () => menuSheet({
     title: t('Volume'),
     sections: [
-      { items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
+      { items: Object.entries(VOLUME).map(([v, label]) => ({ label: chosen(label, mode === v), on: mode === v,
         onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })) },
-      { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label, on: mMode === v,
+      { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label: chosen(label, mMode === v), on: mMode === v,
         onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
     ],
   })

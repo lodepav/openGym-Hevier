@@ -98,9 +98,11 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
         const effort = effortShown(row.effort, scale)
         return <Fragment key={i + (row.side || '')}><div className="hv-wd-row">
           {/* W for a warm-up, H for a hold (D89), else the set's number among the rep sets; once a set. */}
-          {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
+          {/* TalkBack says the word, not the letter (the audit, 2026-11-21). */}
+          {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}
+            {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : {})}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
           {/* A record says more than an arrow: the set shows only its badge (D66). */}
-          <span className="hv-wd-v">{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}
+          <span className="hv-wd-v">{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}
             {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}<Trend v={trend} /></span>
           {scale && <span className="hv-wd-rpe">{effort != null && <><span className="hv-sr">{t(EFFORT[scale].hd)} </span>{fmtNum(effort)}</>}</span>}
           {anyHr && <span className="hv-wd-hrc">{hr && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{hr.avg}</span>}</span>}
@@ -152,7 +154,9 @@ export function WorkoutDetail() {
   // D133: the effort column shows when the workout has any effort logged, in the profile's scale.
   const scale = (w.entries || []).some(e => detailRows(e.sets).some(r => r.effort)) ? effortScale(st) : null
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
-  const legendAt = units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), workoutTrends(st, w, i), workoutSideTrends(st, w, i)).some(m => m.trend != null))
+  // Each exercise's trends once, for the legend and its rows (the audit, 2026-11-21).
+  const trendsOf = (w.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) }))
+  const legendAt = units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), trendsOf[i].trends, trendsOf[i].sideTrends).some(m => m.trend != null))
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)   // D93: OpenBite's phase when it was saved
   const more = () => workoutActions(w, nav, [
@@ -182,8 +186,7 @@ export function WorkoutDetail() {
     <h3 className="sec">{t('Workout')}</h3>
     {/* The ↑ = ↓ explained once, under the first exercise that shows one; each mark is read out on its own (the critique, 2026-11-21). */}
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)}
-        sideTrends={workoutSideTrends(st, w, i)} time={times[i]} scale={scale} legend={i === legendAt} />)}
+      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} {...trendsOf[i]} time={times[i]} scale={scale} legend={i === legendAt} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

@@ -116,6 +116,9 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(row.textContent).toContain('Sets · main muscle')
     act(() => row.click())
     let host = sheetHost()
+    // The chosen options are said, not only ticked (the audit, 2026-11-21).
+    expect([...host.querySelectorAll('.menu-item')].filter(i => i.textContent.endsWith(', selected')).map(i => i.querySelector('.tt').textContent))
+      .toEqual([expect.stringMatching(/^Sets/), expect.stringMatching(/^Main muscle/)])
     act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Secondary muscles too')).click())
     expect(useStore.getState().S.hvMuscleSets).toBe('share')   // D42, in the same sheet (review S4)
     expect(row.textContent).toContain('Sets · secondary too')

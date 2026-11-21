@@ -29,7 +29,7 @@
 :root[data-ui="hevier"] .hv-bar .hv-strap{background:none;border:0;padding:0 4px;color:inherit;font:inherit;min-height:44px;min-width:44px}
 :root[data-ui="hevier"] .hv-bar .hv-strap > span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :root[data-ui="hevier"] .hv-wdetails{margin-top:6px}
-:root[data-ui="hevier"] .hv-stats{display:flex;gap:28px;margin-top:8px}
+:root[data-ui="hevier"] .hv-stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:8px}
 :root[data-ui="hevier"] .hv-stats div{display:flex;flex-direction:column;gap:2px}
 :root[data-ui="hevier"] .hv-stats > div > span{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stats b{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -454,7 +454,7 @@
 
 /* ---------- Exercise details (hevier/views/ExerciseDetails.jsx) ---------- */
 :root[data-ui="hevier"] .hv-xd-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-:root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;padding-inline-start:44px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-ui="hevier"] .hv-xd-bar h3{flex:1;margin:0;padding-inline-start:44px;color:var(--label);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
 :root[data-ui="hevier"] .hv-xd-bar .iconbtn{background:none}
 :root[data-ui="hevier"] .hv-xd-aka{display:block;width:100%;margin:-6px 0 10px;padding:0 0 0 44px;background:none;border:0;text-align:start;font:inherit;font-size:13px;color:var(--label-3)}
 :root[data-ui="hevier"] .hv-xd-aka span{color:var(--label-2)}
@@ -678,7 +678,7 @@
 :root[data-ui="hevier"] .hv-cal-d.done.k-cardio,:root[data-ui="hevier"] .hv-cal-key .k-cardio{background:var(--hv-cardio,var(--green));color:var(--hv-on-meaning)}
 :root[data-ui="hevier"] .hv-cal-d.done.k-deload,:root[data-ui="hevier"] .hv-cal-key .k-deload{background:var(--hv-deload,var(--orange));color:var(--hv-on-meaning)}
 :root[data-ui="hevier"] .hv-cal-key .k-strength{background:var(--acc)}
-:root[data-ui="hevier"] .hv-cal-key{display:flex;gap:14px;justify-content:center;margin:10px 0 2px;font-size:12px;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-cal-key{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;margin:10px 0 2px;font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-cal-key span{display:flex;align-items:center;gap:5px}
 :root[data-ui="hevier"] .hv-cal-key i{width:10px;height:10px;border-radius:50%}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-g{gap:2px}
@@ -912,7 +912,7 @@
 :root[data-ui="hevier"] .hv-statpage .hv-chip::after{inset:-10px 0}
 /* Text-sized secondary buttons (31–40 dp) reach 44 dp, up and down only, so a neighbour beside one keeps its own (A1). */
 :root[data-ui="hevier"] :is(.hv-next-plan, .hv-link.hv-range, .hv-ftoggle, .hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look){position:relative}
-:root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-4px 0}
+:root[data-ui="hevier"] :is(.hv-cal-more, .hv-pk-filters .btn, .hv-moreb, .hv-report-more, .hv-wd-edit, .hv-hrzones-set, .hv-sl-look)::after{content:"";position:absolute;inset:-6px 0}
 :root[data-ui="hevier"] .hv-next-plan::after{content:"";position:absolute;inset:-2px 0}
 :root[data-ui="hevier"] .hv-link.hv-range::after{content:"";position:absolute;inset:-6px 0}
 :root[data-ui="hevier"] .hv-ftoggle::after{content:"";position:absolute;inset:-9px 0 -4px}
@@ -1133,3 +1133,45 @@
 :root[data-ui="hevier"] .hv-hmonth{margin:18px 4px 8px;font-size:15px;font-weight:700;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-stat-ends{margin:16px 0 8px}
 :root[data-ui="hevier"] .hv-rv-usual{display:inline-flex;align-items:center;gap:4px}
+
+/* The audit, 2026-11-21: small targets reach 48 dp, and layouts hold at 320 css px and 130 % text. */
+/* Text-sized buttons get an invisible margin up and down; a neighbour beside one keeps its own. */
+:root[data-ui="hevier"] :is(.hv-noprog .hv-link, .hv-xd-aka, .hv-sl .btn, .hv-measures .btn.plain.sm){position:relative}
+/* Undo fills its 32 dp line and reaches 8 into the gap on each side, so it stops at the buttons above (the second audit). */
+:root[data-ui="hevier"] .hv-noprog{min-height:32px;margin-bottom:8px}
+:root[data-ui="hevier"] .hv-noprog .hv-link{align-self:stretch}
+:root[data-ui="hevier"] .hv-noprog .hv-link::after{content:"";position:absolute;inset:-8px -8px}
+:root[data-ui="hevier"] .hv-sl .btn::after{content:"";position:absolute;inset:-6px 0}
+:root[data-ui="hevier"] .hv-measures .btn.plain.sm::before{inset:-9px 0}
+/* "Also called": 32 dp tall plus 8 above and below, kept clear of the ⋯ column beside the title. */
+:root[data-ui="hevier"] .hv-xd-aka{width:calc(100% - 56px);padding-block:8px;margin:-14px 0 2px}
+:root[data-ui="hevier"] .hv-xd-aka::after{content:"";position:absolute;inset:-8px 0}
+:root[data-ui="hevier"] .hv-sl-add{min-height:48px}
+/* The workout's brand and cable line: 36 dp tall, the margin below; above it takes half the 2 px gap,
+   so the name keeps its own target (the second audit). */
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:36px}
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-1px -4px -11px}
+/* The set number takes the row's height, and reaches into the card's edge and half the gap. */
+:root[data-ui="hevier"] .hv-set{position:relative;align-self:stretch}
+:root[data-ui="hevier"] .hv-set::after{content:"";position:absolute;inset:0 -3px 0 -10px}
+:root[data-ui="hevier"] .hv-gym{position:relative;min-height:36px}
+:root[data-ui="hevier"] .hv-gym::after{content:"";position:absolute;inset:-6px 0}
+/* The search field's clear button (22 dp) and Settings' back (34 dp). */
+:root[data-ui="hevier"] .search .clear::before{content:"";position:absolute;inset:-13px}
+:root[data-ui="hevier"] .sp-back::before{inset:-7px}
+/* A switch row toggles from anywhere on it: the switch's own target covers the row it sits in. */
+:root[data-ui="hevier"] .lrow:has(> .sw):not(:has(:is(a, input, button:not(.sw)))){position:relative}
+:root[data-ui="hevier"] .lrow:has(> .sw):not(:has(:is(a, input, button:not(.sw)))) > .sw{position:static}
+:root[data-ui="hevier"] .lrow:has(> .sw):not(:has(:is(a, input, button:not(.sw)))) > .sw::before{inset:0}
+/* Calendar's year view: the whole month block opens the month, not only its 17 dp title. */
+:root[data-ui="hevier"] .hv-cal-m.small{position:relative}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-mt::after{content:"";position:absolute;inset:0}
+/* Sets per muscle and Muscle Split: when the row cannot keep a bar beside the name, the name goes above it. */
+:root[data-ui="hevier"] .hv-msets{container-type:inline-size;font-size:14px}
+@container (max-width: 18em){
+  :root[data-ui="hevier"] .hv-mset{grid-template-columns:1fr 2.6em 3em;row-gap:4px}
+  :root[data-ui="hevier"] .hv-wd-split{grid-template-columns:1fr 4.5em;row-gap:4px}
+  :root[data-ui="hevier"] :is(.hv-mset, .hv-wd-split) > :first-child{grid-column:1 / -1}
+}
+/* Lifts: the right column may wrap inside its share instead of pushing past the edge. */
+:root[data-ui="hevier"] .hv-lift-mid .hv-lift-r{flex:0 1 auto;min-width:0}

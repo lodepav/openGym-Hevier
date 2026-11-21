@@ -64,7 +64,8 @@ export function useSupersetTarget(target) {
 
 function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const st = useStore(s => s.S)
-  const all = allExercises(st)
+  // Memoised with the searches below: a tick or any store change redraws the sheet (the audit, 2026-11-21).
+  const all = useMemo(() => allExercises(st), [st.customEx, st.exMerged]) // eslint-disable-line react-hooks/exhaustive-deps
   // D62: the workout's gym in a workout, else the gym last chosen here.
   const [path] = useState(currentPath)
   const [gymId, setGymId] = useState(() => pickerGym(st, path))
@@ -87,7 +88,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // A gym, or a kind or a whole group of kinds (D63).
   const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
-  const base = filterPicker(all, { muscle, avail }).filter(e => e.id !== like)
+  const base = useMemo(() => filterPicker(all, { muscle, avail }).filter(e => e.id !== like), [all, muscle, eq, profile, like]) // eslint-disable-line react-hooks/exhaustive-deps
   // D129: from the log, while nothing is typed; kept to what the filters keep.
   const rid = swap ? (st.active?.entries || []).find(e => e?.id === like)?.rid : null
   const hereGym = eq === GYM ? gymId : null
@@ -101,8 +102,10 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const swapRows = histRows(hist?.swaps || [])
   const hereRows = histRows(hist?.here || []).filter(r => !swapRows.some(x => x.id === r.id)).slice(0, swap ? undefined : RECENT)
   // D67: what the gym hid from the search, counted, and listed on a tap.
-  const hidden = eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []
-  let list = searchExercises(base, q)
+  const hidden = useMemo(() => (eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []),
+    [all, muscle, eq, profile, like, q]) // eslint-disable-line react-hooks/exhaustive-deps
+  const found = useMemo(() => searchExercises(base, q), [base, q])
+  let list = found
   list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
   const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []

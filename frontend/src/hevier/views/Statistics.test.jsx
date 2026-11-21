@@ -170,6 +170,13 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(path).toBe('/measurements')
   })
 
+  // The audit, 2026-11-21: with a goal set the button shows the number and says what it is.
+  it('Measures: the Goal button says Goal with its number', () => {
+    render(['/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }], targetW: 75 })
+    const goal = [...container.querySelectorAll('button')].find(b => b.textContent === '75')
+    expect(goal.getAttribute('aria-label')).toBe('Goal 75 kg')
+  })
+
   const H = 'a'.repeat(64)
   it('Measures: the measurements row gives the last value, the photos row the count', () => {
     render(['/measures'], { measurements: [{ d: '2026-11-03', waist: 82 }],

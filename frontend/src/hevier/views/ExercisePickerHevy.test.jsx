@@ -7,13 +7,15 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { EXDB } from '../../lib/exercises.js'
+import { EXDB, searchExercises } from '../../lib/exercises.js'
 import { exercisePicker, swapActiveWorkoutExercise } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExercisePicker, Exercises } from './ExercisePickerHevy.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// Counted, to show the search runs once per keystroke (the audit, 2026-11-21).
+vi.mock('../../lib/exercises.js', async orig => { const m = await orig(); return { ...m, searchExercises: vi.fn(m.searchExercises) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -55,6 +57,15 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     const first = container.querySelector('.hv-pk-row')
     expect(first.querySelector('.tt').textContent).toBe(PRESS.n)
     expect(first.querySelector('.ss').textContent).toContain('Life Fitness')
+  })
+
+  it('searches once per keystroke, not again when a tick or the store redraws the list', () => {
+    open(() => {}, {})
+    search('bench')
+    const n = searchExercises.mock.calls.length
+    click(rowOf(BENCH))
+    act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
+    expect(searchExercises.mock.calls.length).toBe(n)
   })
 
   it('adds several exercises in the order they were ticked, with upstream’s quick add', () => {

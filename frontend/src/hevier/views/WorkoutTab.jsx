@@ -124,10 +124,12 @@ export default function WorkoutTab() {
       { icon: 'plus', label: t('New Folder'), onClick: () => newFolder(n => moveTo(r, n)) },
     ],
   })
-  const folderMore = name => menuSheet({
+  const folderMore = name => { const f = groups.slice(1).findIndex(g => g.name === name); menuSheet({
     title: name,
     items: [
       { icon: 'plus', label: t('New Routine'), sub: t('In this folder'), onClick: () => newRoutine(name) },
+      { icon: 'chevronUp', label: t('Move up'), disabled: f <= 0, onClick: () => moveFolder(f, f - 1) },
+      { icon: 'chevronDown', label: t('Move down'), disabled: f === groups.length - 2, onClick: () => moveFolder(f, f + 1) },
       { icon: 'pencil', label: t('Rename Folder'), onClick: () => nameSheet({
         title: t('Rename Folder'), value: name, saveLabel: t('Save'), max: FOLDER_MAX,
         onSave: v => {
@@ -144,16 +146,25 @@ export default function WorkoutTab() {
         useUI.getState().toast(t('“{0}” gone.', name), { action: t('Undo'), onAction: () => update(s => { restoreFolder(s, snap) }) })
       } },
     ],
-  })
-  const more = r => menuSheet({
-    title: r.name,
-    items: [
-      { icon: 'pencil', label: t('Edit routine'), onClick: () => nav('/plan/r/' + r.id) },
-      { icon: 'folder', label: t('Move to folder'), sub: folderOf(r) || t('My Routines'), onClick: () => moveSheet(r) },
-      { icon: 'copy', label: t('Duplicate'), onClick: () => duplicate(r) },
-      { icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => deleteRoutineWithUndo(r.id) },
-    ],
-  })
+  }) }
+  // Move up / Move down beside the drag, inside the routine's folder (the audit, 2026-11-21, changes D130).
+  const more = r => {
+    const g = groups.find(x => x.ids.includes(r.id))
+    const i = g.ids.indexOf(r.id)
+    const step = d => update(s => { s.routines = reorderInGroup(s.routines, g.name, i, i + d) })
+    menuSheet({
+      title: r.name,
+      items: [
+        { icon: 'pencil', label: t('Edit routine'), onClick: () => nav('/plan/r/' + r.id) },
+        // Not from search results: the move is inside a folder the search hides (the second audit, 2026-11-21).
+        !found && { icon: 'chevronUp', label: t('Move up'), disabled: i === 0, onClick: () => step(-1) },
+        !found && { icon: 'chevronDown', label: t('Move down'), disabled: i === g.ids.length - 1, onClick: () => step(1) },
+        { icon: 'folder', label: t('Move to folder'), sub: folderOf(r) || t('My Routines'), onClick: () => moveSheet(r) },
+        { icon: 'copy', label: t('Duplicate'), onClick: () => duplicate(r) },
+        { icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => deleteRoutineWithUndo(r.id) },
+      ],
+    })
+  }
   const byId = new Map(S.routines.map(r => [r.id, r]))
   const row = (id, grip) => {
     const r = byId.get(id)
@@ -171,14 +182,15 @@ export default function WorkoutTab() {
     </div>
   }
   const folders = groups.slice(1)
-  const folderReorder = useDragReorder(folders.length, (from, to) => {
+  const moveFolder = (from, to) => {
     const order = folders.map(g => g.name)
     const [held] = order.splice(from, 1)
     order.splice(to, 0, held)
     update(s => { s.routines = reorderFolders(s.routines, order) })
     // Empty folders keep their place among the others on this device.
     setEmpty(order.filter(n => empty.includes(n)))
-  })
+  }
+  const folderReorder = useDragReorder(folders.length, moveFolder)
   const head = (g, grip, press) => {
     const key = g.name ?? MINE
     const open = !closed.includes(key)

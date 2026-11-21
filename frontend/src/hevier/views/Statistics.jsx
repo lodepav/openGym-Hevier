@@ -43,7 +43,7 @@ const scrollTo = id => () => document.getElementById(cardId(id))?.scrollIntoView
 function Tile({ id, title, value, sub, spoken, onClick, change }) {
   const inner = <><span className="hv-stile-t">{title}</span><b>{value}</b><span className="hv-stile-s">{sub}</span>
     {change && <span className={'hv-stile-c' + (change.dir > 0 ? ' up' : change.dir < 0 ? ' down' : '')}>{change.text}</span>}</>
-  const said = spoken + (change ? ', ' + change.text : '')
+  const said = spoken + (change ? ', ' + change.spoken : '')
   return onClick
     ? <button type="button" className="hv-stile" data-tile={id} aria-label={said} onClick={onClick}>{inner}</button>
     : <div className="hv-stile" data-tile={id} role="group" aria-label={said}>{inner}</div>

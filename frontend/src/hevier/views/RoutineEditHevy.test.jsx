@@ -9,10 +9,13 @@ import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
+import { tableShape } from '../lib/routine-table.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// Counted, to show a title key redraws no exercise card (the second audit, 2026-11-21).
+vi.mock('../lib/routine-table.js', async orig => { const m = await orig(); return { ...m, tableShape: vi.fn(m.tableShape) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -180,10 +183,24 @@ describe('hevier: routine editor (M3)', () => {
     expect(path).toBe('/routines')  // no router index here: the fallback, the Workout tab's routines
   })
 
-  it('the title edits the routine’s name', () => {
-    render([])
-    typeInto(container.querySelector('.hv-rtitle'), 'Push Day')
-    expect(useStore.getState().S.routines[0].name).toBe('Push Day')
+  // Not per key: each write redrew every exercise card (the audit, 2026-11-21).
+  it('the title edits the routine’s name after a pause, on leaving the field, or when the page closes', () => {
+    vi.useFakeTimers()
+    try {
+      render([])
+      const title = container.querySelector('.hv-rtitle')
+      typeInto(title, 'Push')
+      expect(useStore.getState().S.routines[0].name).toBe('Leg Day')
+      act(() => vi.advanceTimersByTime(500))
+      expect(useStore.getState().S.routines[0].name).toBe('Push')
+      typeInto(title, 'Push Day')
+      act(() => title.dispatchEvent(new FocusEvent('focusout', { bubbles: true })))
+      expect(useStore.getState().S.routines[0].name).toBe('Push Day')
+      typeInto(title, 'Pull Day')
+      act(() => root.unmount())
+      root = null
+      expect(useStore.getState().S.routines[0].name).toBe('Pull Day')
+    } finally { vi.useRealTimers() }
   })
 
   it('a new routine’s default name is the placeholder; typing replaces it, emptying keeps it', () => {
@@ -191,10 +208,31 @@ describe('hevier: routine editor (M3)', () => {
     const title = container.querySelector('.hv-rtitle')
     expect(title.value).toBe('')
     expect(title.placeholder).toBe('Routine title')
+    const blur = () => act(() => title.dispatchEvent(new FocusEvent('focusout', { bubbles: true })))
     typeInto(title, 'P')
+    blur()
     expect(useStore.getState().S.routines[0].name).toBe('P')
     typeInto(title, '')
+    blur()
     expect(useStore.getState().S.routines[0].name).toBe('New routine')
+  })
+
+  // The second audit, 2026-11-21: the page stayed mounted, so the field kept the original's name.
+  it('a key in the title redraws no exercise card', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }, { id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const n = tableShape.mock.calls.length
+    typeInto(container.querySelector('.hv-rtitle'), 'Leg Day 2')
+    expect(tableShape.mock.calls.length).toBe(n)
+  })
+
+  it('⋯ → Copy routine opens the copy with its own name in the title', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    act(() => container.querySelector('[aria-label="More, Leg Day"]').click())
+    const menu = sheet()
+    act(() => byTextIn(menu, '.menu-item', 'Copy routine').click())
+    const copy = useStore.getState().S.routines.find(r => r.id !== 'r1')
+    expect(path).toBe('/plan/r/' + copy.id)
+    expect(container.querySelector('.hv-rtitle').value).toBe(copy.name)
   })
 
   it('⋯ → Delete routine leaves the page with an Undo that puts it back', () => {
