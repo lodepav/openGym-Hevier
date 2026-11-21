@@ -1185,3 +1185,6 @@
 :root[data-ui="hevier"] :is(.hv-tlinks .btn, .hv-rstart){position:relative}
 :root[data-ui="hevier"] .hv-tlinks .btn::after{content:"";position:absolute;inset:-4px 0}
 :root[data-ui="hevier"] .hv-rstart::after{content:"";position:absolute;inset:-2px 0}
+/* Workout detail's exercise name is 48 dp tall itself, the row 8 taller, so its tap reaches no neighbour (the audit leftovers). */
+:root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name{min-height:48px}
+:root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name::after{inset:0}

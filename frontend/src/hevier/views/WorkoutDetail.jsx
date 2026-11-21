@@ -78,7 +78,8 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
   const anyHr = rows.some(r => sanitizeHr(r.hr))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
-      <span className="hv-thumb">{ex && <Thumb ex={ex} />}</span>
+      {ex ? <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+        : <span className="hv-thumb" />}
       <span role="heading" aria-level="3" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button></span>

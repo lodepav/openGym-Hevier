@@ -86,6 +86,12 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('[role="heading"][aria-level="3"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps
+    // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).
+    const thumb = page.querySelector('.hv-wd-ex button.hv-thumb')
+    expect(thumb.getAttribute('aria-label')).toBe('How to do it')
+    const before = useUI.getState().sheets.length
+    act(() => thumb.click())
+    expect(useUI.getState().sheets.length).toBe(before + 1)
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
 
