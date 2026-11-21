@@ -54,6 +54,8 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
         return small
           ? <span key={iso} className={cls} />
           : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} aria-current={iso === today ? 'date' : undefined}
+            // The date and what the day holds, as Today's week strip says it: fill and dot colour alone (the audit, 2026-11-21).
+            aria-label={[fmtDate(iso, true), byDay[iso] ? t('Trained') : plan ? t('Planned') : '', title].filter(Boolean).join(', ')}
             onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
             {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{title}</span>}

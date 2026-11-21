@@ -829,7 +829,6 @@ describe('hevier: the exercise ⋮ menu', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(useUI.getState().timer.forIdx).toBe(0)
     const items = menuItems()
-    expect(items.map(x => x.label)).not.toContain('Move up')
     expect(items.map(x => x.label)).not.toContain('Reorder exercises')
     act(() => [...container.querySelectorAll('.hv-acts button')].find(b => b.textContent === 'Reorder').click())
     const host = document.createElement('div')
@@ -849,6 +848,20 @@ describe('hevier: the exercise ⋮ menu', () => {
     expect(useUI.getState().timer.forIdx).toBe(0)
     act(() => r.unmount())
     host.remove()
+  })
+
+  // The audit, 2026-11-21: Move up and Move down in More too, a way to reorder without dragging (changes D118).
+  it('More has Move up and Move down; a superset passes as one block', () => {
+    render([one(EX), { ...one(B), sg: 's' }, { ...one(C), sg: 's' }, one(D)])
+    const ids = () => useStore.getState().S.active.entries.map(e => e.id)
+    let items = menuItems()
+    const at = label => items.find(x => x.label === label)
+    expect(at('Move up').disabled).toBe(true)
+    expect(at('Move down').disabled).toBe(false)
+    act(() => at('Move down').onClick())
+    expect(ids()).toEqual([B, C, EX, D])
+    items = menuItems()
+    expect(items.map(x => x.label).indexOf('Move down')).toBeLessThan(items.map(x => x.label).indexOf('Remove exercise'))
   })
 
   it('How to do it is left to the thumbnail and the name', () => {

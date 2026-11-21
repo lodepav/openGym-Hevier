@@ -14,9 +14,12 @@ import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
 import { rowMode } from '../lib/hold-set.js'
+import { workoutTrends, workoutSideTrends } from '../lib/set-trend.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// Counted, to show each exercise's trends are worked out once a render (the audit, 2026-11-21).
+vi.mock('../lib/set-trend.js', async orig => { const m = await orig(); return { ...m, workoutTrends: vi.fn(m.workoutTrends), workoutSideTrends: vi.fn(m.workoutSideTrends) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -85,6 +88,14 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
 
+  it('works out each exercise’s trends once a render', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    const n = workoutTrends.mock.calls.length, m = workoutSideTrends.mock.calls.length
+    act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
+    expect([workoutTrends.mock.calls.length - n, workoutSideTrends.mock.calls.length - m]).toEqual([1, 1])
+  })
+
   it('lists the ticked sets, the warm-up as W', () => {
     render()
     act(() => workoutDetailSheet(W))
@@ -112,6 +123,9 @@ describe('hevier: Workout Detail (seam S14)', () => {
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')]
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['W', '1', 'H', '2'])
     expect(rows[2].firstChild.className).toBe('hv-wd-h')
+    // Spoken as words, not letters (the audit, 2026-11-21).
+    expect([rows[0], rows[2]].map(r => [r.firstChild.getAttribute('role'), r.firstChild.getAttribute('aria-label')])).toEqual([['img', 'Warm-up'], ['img', 'Hold']])
+    expect(rows[1].firstChild.getAttribute('aria-label')).toBeNull()
     expect(rows[2].textContent).toContain('0:30')
   })
 
@@ -143,6 +157,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
       ['H', 'L0:45'], ['', 'R0:40'],
       ['4', '30 kg × 5'],
     ])
+    expect([...container.querySelectorAll('.hv-lr')].slice(0, 2).map(x => x.getAttribute('aria-label'))).toEqual(['Left', 'Right'])
     // Effort in its own column, once on the first row (the scale's name read out only); heart rate the same.
     expect(container.querySelector('.hv-wd-th').textContent).toContain('RPE')
     expect(rows.map(r => r.querySelector('.hv-wd-rpe')?.textContent ?? null)).toEqual(['', '', 'RPE 8', '', '', '', '', '', 'RPE 7', '', ''])

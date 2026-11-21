@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 // History → Calendar and Lifts → All exercises (reference/SCREENS.md §8, §11).
+import { fmtDate } from '../lib/dates.js'
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
@@ -73,6 +74,8 @@ describe('hevier: Calendar', () => {
     expect(day.classList.contains('today')).toBe(true)
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('1 week streak')
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('0 rest days')
+    // Its spoken name says the date and that it was trained, then the workout (the audit, 2026-11-21).
+    expect(day.parentElement.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', ' + 'Trained, Leg Day')
   })
 
   it('a trained day opens its workout, another day upstream’s day sheet', () => {
@@ -115,6 +118,7 @@ describe('hevier: Calendar', () => {
     expect(planned[0].classList.contains('pk-strength')).toBe(true)
     expect(planned[0].parentElement.querySelector('.hv-cal-tl.pk-strength').textContent).toBe('Push')
     expect(container.querySelector('.hv-cal-d.today').classList.contains('planned')).toBe(true)
+    expect(planned[0].parentElement.getAttribute('aria-label')).toMatch(/, Planned, Push$/)
     const titles = () => [...container.querySelectorAll('.hv-cal-m .hv-cal-mt b')].map(b => b.textContent)
     const now = new Date()
     click(byText('button', 'Show next month'))

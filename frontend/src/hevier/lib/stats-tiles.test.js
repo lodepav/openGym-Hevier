@@ -63,9 +63,9 @@ describe('Statistics tile numbers (D142)', () => {
 
 describe('a week tile against last week (the critique, 2026-11-20)', () => {
   it('writes the change with its arrow, in the tile’s own words', () => {
-    expect(weekChange(14, 11)).toEqual({ dir: 1, text: '↑ 3 vs last week' })
-    expect(weekChange(4, 9)).toEqual({ dir: -1, text: '↓ 5 vs last week' })
-    expect(weekChange(5, 5)).toEqual({ dir: 0, text: '= vs last week' })
+    expect(weekChange(14, 11)).toEqual({ dir: 1, text: '↑ 3 vs last week', spoken: 'up 3 vs last week' })
+    expect(weekChange(4, 9)).toEqual({ dir: -1, text: '↓ 5 vs last week', spoken: 'down 5 vs last week' })
+    expect(weekChange(5, 5)).toEqual({ dir: 0, text: '= vs last week', spoken: 'same as last week' })
     expect(weekChange(120000, 60000, ms => trainingTime(ms)).text).toBe('↑ 1 min vs last week')
   })
   it('says nothing with neither week trained', () => {
@@ -73,6 +73,6 @@ describe('a week tile against last week (the critique, 2026-11-20)', () => {
   })
   it('nor after a week with nothing, where every number would read as a gain (the critique, 2026-11-21)', () => {
     expect(weekChange(14, 0)).toBeNull()
-    expect(weekChange(0, 9)).toEqual({ dir: -1, text: '↓ 9 vs last week' })
+    expect(weekChange(0, 9)).toEqual({ dir: -1, text: '↓ 9 vs last week', spoken: 'down 9 vs last week' })
   })
 })

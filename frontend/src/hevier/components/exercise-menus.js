@@ -163,6 +163,11 @@ export function exerciseMenu(p, x) {
             { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
           ] }] }) },
       ] },
+      // Upstream's one-step moves, beside Reorder's drag: a way without dragging (the audit, 2026-11-21, changes D118).
+      { items: [
+        p.onReorder && p.onMoveUp && { icon: 'chevronUp', label: t('Move up'), disabled: p.busy || !p.canMoveUp, onClick: p.onMoveUp },
+        p.onReorder && p.onMoveDown && { icon: 'chevronDown', label: t('Move down'), disabled: p.busy || !p.canMoveDown, onClick: p.onMoveDown },
+      ] },
       { items: [
         p.onRemoveExercise && { icon: 'xmark', label: t('Remove exercise'), danger: true, disabled: p.busy, onClick: p.onRemoveExercise },
       ] },

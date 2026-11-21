@@ -95,6 +95,22 @@ describe('hevier: routine folders and reordering', () => {
     expect(ids()).toEqual(['l1', 'p1', 'p2'])
   })
 
+  // The audit, 2026-11-21: ⋯ → Move up / Move down, a way to reorder without dragging (changes D130).
+  it('⋯ → Move up and Move down move a routine inside its folder, and a folder among the folders', () => {
+    render([R('p1', 'Push'), R('l1', 'Legs'), R('p2', 'Push')])
+    const more = label => act(() => container.querySelector(`[aria-label="More, ${label}"]`).click())
+    more('R p1')
+    let menu = sheet()
+    expect(item(menu, 'Move up').getAttribute('aria-disabled')).toBe('true')
+    act(() => item(menu, 'Move down').click())
+    expect(ids()).toEqual(['p2', 'l1', 'p1'])
+    more('Push')
+    menu = sheet()
+    expect(item(menu, 'Move up').getAttribute('aria-disabled')).toBe('true')
+    act(() => item(menu, 'Move down').click())
+    expect(heads()).toEqual(['My Routines (0)', 'Legs (1)', 'Push (2)'])
+  })
+
   it('Search routines lists the matches by name without folders, also from a folder folded shut', () => {
     render([R('a'), { ...R('b', 'Legs'), name: 'Squat day' }], { hvFoldersClosed: ['Legs'] })
     const type = v => act(() => {

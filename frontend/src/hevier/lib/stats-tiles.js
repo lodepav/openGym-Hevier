@@ -76,12 +76,15 @@ export function weekRpe(workouts, today, weekStart) {
   return { rpe: n >= MIN_RATED ? toScale('rpe', rirs.reduce((a, b) => a + b, 0) / n) : null, n }
 }
 
-/** A week tile's number against last week's, `{ dir, text }`: "↑ 3 vs last week", "= vs last week";
+/** A week tile's number against last week's, `{ dir, text, spoken }`: "↑ 3 vs last week", "= vs last week";
  *  `fmt` writes the change in the tile's own unit. null after a week with nothing: against zero every
  *  number reads as a gain. */
 export function weekChange(now, before, fmt = fmtNum) {
   const a = Number(now) || 0, b = Number(before) || 0
   if (!b) return null
   const dir = Math.sign(a - b)
-  return { dir, text: t('{0} vs last week', dir === 0 ? '=' : (dir > 0 ? '↑ ' : '↓ ') + fmt(Math.abs(a - b))) }
+  const n = fmt(Math.abs(a - b))
+  // `spoken` in words for TalkBack, which reads ↑ and = as symbol names (the audit, 2026-11-21).
+  return { dir, text: t('{0} vs last week', dir === 0 ? '=' : (dir > 0 ? '↑ ' : '↓ ') + n),
+    spoken: dir === 0 ? t('same as last week') : t('{0} vs last week', (dir > 0 ? t('up') : t('down')) + ' ' + n) }
 }

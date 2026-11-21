@@ -5,7 +5,7 @@
 // chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
 // upstream's editor has. Every change saves as it is made, as upstream's editor does.
 import { progressionOn } from '../lib/plain-routine.js'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -312,6 +312,17 @@ export default function RoutineEditHevy() {
   const r = S.routines.find(x => x.id === id)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   useEffect(() => { if (!r) nav('/routines', { replace: true }) }, [!!r])
+  // The title is written after a pause, on blur or on the way out, not per key: each write redrew
+  // every exercise card (the audit, 2026-11-21). Declared before the backup so that one has the name.
+  const typed = useRef(null)
+  const commitName = () => {
+    if (!typed.current) return
+    clearTimeout(typed.current.timer)
+    const v = typed.current.v.trim()
+    typed.current = null
+    update(s => { const x = s.routines.find(y => y.id === id); if (x) x.name = v || t('New routine') })
+  }
+  useEffect(() => () => commitName(), []) // eslint-disable-line react-hooks/exhaustive-deps
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
   // A new routine's default name shows as the placeholder, so the first key typed starts the name (D2: no select on focus).
@@ -371,7 +382,12 @@ export default function RoutineEditHevy() {
       <button type="button" className="btn primary pill hv-finish" onClick={back}>{t('Done')}</button>
     </PageBar>
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}
-      onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('New routine') }) }} />
+      onBlur={commitName}
+      onChange={ev => {
+        setName(ev.target.value)
+        clearTimeout(typed.current?.timer)
+        typed.current = { v: ev.target.value, timer: setTimeout(commitName, 400) }
+      }} />
 
     {r.ex.length ? <div ref={reorder.listRef} className={'hv-units' + (reorder.drag ? ' is-reordering' : '')}>
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}

@@ -42,6 +42,7 @@ import { isOpenRow } from '../lib/open-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
 import { liveRecordsOn } from '../../lib/set-records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
+import { effortInk } from '../lib/effort-ink.js'
 import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
@@ -411,7 +412,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
       aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
-      style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
+      style={color && v != null ? { color: effortInk(color), background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
   }

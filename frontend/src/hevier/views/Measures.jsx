@@ -39,7 +39,7 @@ export default function Measures() {
           {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <Button size="sm" icon="target" onClick={goalSheet}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
+          <Button size="sm" icon="target" onClick={goalSheet} aria-label={S.targetW ? t('Goal') + ' ' + fmtNum(S.targetW) + ' ' + S.unit : undefined}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>

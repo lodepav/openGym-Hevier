@@ -180,10 +180,24 @@ describe('hevier: routine editor (M3)', () => {
     expect(path).toBe('/routines')  // no router index here: the fallback, the Workout tab's routines
   })
 
-  it('the title edits the routine’s name', () => {
-    render([])
-    typeInto(container.querySelector('.hv-rtitle'), 'Push Day')
-    expect(useStore.getState().S.routines[0].name).toBe('Push Day')
+  // Not per key: each write redrew every exercise card (the audit, 2026-11-21).
+  it('the title edits the routine’s name after a pause, on leaving the field, or when the page closes', () => {
+    vi.useFakeTimers()
+    try {
+      render([])
+      const title = container.querySelector('.hv-rtitle')
+      typeInto(title, 'Push')
+      expect(useStore.getState().S.routines[0].name).toBe('Leg Day')
+      act(() => vi.advanceTimersByTime(500))
+      expect(useStore.getState().S.routines[0].name).toBe('Push')
+      typeInto(title, 'Push Day')
+      act(() => title.dispatchEvent(new FocusEvent('focusout', { bubbles: true })))
+      expect(useStore.getState().S.routines[0].name).toBe('Push Day')
+      typeInto(title, 'Pull Day')
+      act(() => root.unmount())
+      root = null
+      expect(useStore.getState().S.routines[0].name).toBe('Pull Day')
+    } finally { vi.useRealTimers() }
   })
 
   it('a new routine’s default name is the placeholder; typing replaces it, emptying keeps it', () => {
@@ -191,9 +205,12 @@ describe('hevier: routine editor (M3)', () => {
     const title = container.querySelector('.hv-rtitle')
     expect(title.value).toBe('')
     expect(title.placeholder).toBe('Routine title')
+    const blur = () => act(() => title.dispatchEvent(new FocusEvent('focusout', { bubbles: true })))
     typeInto(title, 'P')
+    blur()
     expect(useStore.getState().S.routines[0].name).toBe('P')
     typeInto(title, '')
+    blur()
     expect(useStore.getState().S.routines[0].name).toBe('New routine')
   })
 
