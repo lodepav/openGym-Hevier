@@ -67,6 +67,13 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
 }
 
 // D117: with the part off, the page (and the month widget's tap, which opens it) lands on History.
+/**
+ * Whether the routine names under the days fit: a month `width` px wide in text `font` px high (the
+ * phone's text size zooms it, D122; a day number's size) holds them from 16 of its em up. Below that they shrink to a
+ * fragment, so they go and the day's mark stays (the fresh audit, 2026-11-21). Unmeasured, they stay.
+ */
+export const namesFit = (width, font) => !(width > 0 && font > 0 && width / font < 16)
+
 export default function Calendar() {
   const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
   return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
@@ -96,6 +103,19 @@ function CalendarPage() {
   const mounted = useRef(false)
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
+  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
+  const page = useRef(null)
+  const [tight, setTight] = useState(false)
+  useLayoutEffect(() => {
+    const fit = () => {
+      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
+      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
+      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [view])
   useEffect(() => {
     const first = !mounted.current
     mounted.current = true
@@ -110,8 +130,8 @@ function CalendarPage() {
   }, [count])
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
-  return <div className="hv-cal">
-    {/* The bar, streak, Month/Year switch and key stay pinned while the months scroll under them. */}
+  return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
+    {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
     {/* The streak is Motivation's (D97); the rest days stay. */}
@@ -120,12 +140,6 @@ function CalendarPage() {
       {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>}
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
-    <div className="hv-cal-key">
-      <span><i className="k-strength" />{t('Strength')}</span>
-      <span><i className="k-cardio" />{t('Cardio')}</span>
-      <span><i className="k-deload" />{t('Deload')}</span>
-      <span><i className="k-plan" />{t('Planned')}</span>
-    </div>
     </div>
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
@@ -141,5 +155,13 @@ function CalendarPage() {
         {Array.from({ length: 12 }, (_, mo) => <Month key={mo} y={year} mo={mo} st={st} byDay={byDay} today={today} small onTitle={() => openMonth(mo)} />)}
       </div>
     </>}
+    {/* The key scrolls with the months, under this one where the page opens: pinned, it took a
+        large share of a short screen at a big text size (the fresh audit, 2026-11-21). */}
+    <div className="hv-cal-key">
+      <span><i className="k-strength" />{t('Strength')}</span>
+      <span><i className="k-cardio" />{t('Cardio')}</span>
+      <span><i className="k-deload" />{t('Deload')}</span>
+      <span><i className="k-plan" />{t('Planned')}</span>
+    </div>
   </div>
 }

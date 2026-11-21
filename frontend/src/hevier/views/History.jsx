@@ -34,7 +34,7 @@ export function WorkoutFeed({ S }) {
   return <>
     <PhaseFilter />
     {ws.slice(0, n).map((w, i) => <Fragment key={w.id || w.start}>
-      {heads.has(i) && <h3 className="hv-cap hv-hmonth">{monthHead(heads.get(i))}</h3>}
+      {heads.has(i) && <h3 className="hv-cap hv-hmonth" aria-level={2}>{monthHead(heads.get(i))}</h3>}
       <WorkoutCard w={w} />
     </Fragment>)}
     {ws.length > n && <button type="button" className="btn hv-moreb" onClick={() => setN(n + PAGE)}>{t('Show more')}</button>}

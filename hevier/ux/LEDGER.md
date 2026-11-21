@@ -390,3 +390,15 @@ says its error, and the picker, Exercise time and the routine editor stop recomp
 writes. Left as they are: day cells and week days (seven columns), the set number (44 dp row),
 thumbnails (clipped circles), the shared page title at 200 %, the locale words (English kept), and
 Exercise details' video autoplay with reduced motion, which needs a seam in upstream's Media.jsx.
+
+The fourth run, by a reviewer given no earlier findings, scored 308 of 380. Two of its Calendar
+points were older than the third run: the 9 px names and a grey year grid colour put in by hand.
+Fixed: the charts, set marks and the rest clock have spoken names, the previous cell says its
+unit, heading levels are right, a Statistics tile moves focus to its card, and Exercise time says
+its order. The routine editor redraws only the card being typed in, and Statistics, the weekly
+chart and the routine preview stop recomputing on every redraw. The Calendar's names go when a
+large text size leaves the month under 16 em (a 320 dp phone at 150 %; a container query can't
+see the WebView's text zoom), and its key scrolls with the months. Exercise details' range and
+brand open upstream's picker sheet, Measures' recent weigh-ins are one button, and its back says
+Statistics when you came from there. The Routines chips reach 49 dp. Left as it is: the folder
+fold state, which syncs by D13.

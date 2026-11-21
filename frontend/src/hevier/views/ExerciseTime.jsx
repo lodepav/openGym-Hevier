@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { todayISO } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
@@ -52,6 +52,9 @@ export default function ExerciseTime() {
       {[['muscle', 'Muscle'], ['gym', 'Gym']].map(([k, label]) => <button key={k} type="button"
         className={'hv-chip' + (by === k ? ' on' : '')} aria-pressed={by === k} onClick={() => group(k)}>{t(label)}</button>)}
     </div>
+    {/* A new period or order is said, not only redrawn (the fresh audit, 2026-11-21). */}
+    <span className="hv-sr" role="status">{[t(asc ? 'Shortest first' : 'Longest first'), by && t(by === 'gym' ? 'Gym' : 'Muscle'),
+      tn('{0} exercise', '{0} exercises', sections.reduce((n, sec) => n + sec.rows.length, 0))].filter(Boolean).join(', ')}</span>
     <div className="small dim">{t('Average time a session, from the times your sets were ticked: the rest before each set counts.')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {sections.map(sec => <section key={sec.key}>

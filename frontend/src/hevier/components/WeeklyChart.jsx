@@ -3,7 +3,7 @@
 // week lists its sets per muscle. A tap on any week puts its value in the headline (2026-10-25). Values come from hevier/lib/weekly-series.js.
 // On Statistics it follows the page's phase filter (D142); untapped its headline is a plain title, as
 // this week's figure is the Training time tile's, headed as the page's cards are (hv-scard-h).
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -18,7 +18,7 @@ import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { sessionVolume } from '../../lib/history.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
@@ -39,7 +39,9 @@ function weekSheet(S, week) {
 }
 
 export default function WeeklyChart() {
-  const S = usePhasedS(useStore(s => s.S))
+  const raw = useStore(s => s.S)
+  const S = usePhasedS(raw)
+  const phase = useStatsPhase(s => s.phase)
   const [pick, setKind] = useState('duration')
   const [weeks, setWeeks] = useState(12)
   const [sel, setSel] = useState(null)
@@ -48,7 +50,10 @@ export default function WeeklyChart() {
   const kinds = SERIES.map(k => (k === 'volume' && sets ? 'sets' : k))
   const kind = pick === 'volume' || pick === 'sets' ? (sets ? 'sets' : 'volume') : pick
   // Exercises kept out of progression are kept out of the chart (D57).
-  const pts = weeklySeries(countedWorkouts(S.workouts, S.routines), kind, { today: todayISO(), weeks, weekStart: weekStartOf(S), vol: w => sessionVolume(w, S) })
+  // Once per change of what the series reads, not per store write (the fresh audit, 2026-11-21).
+  const today = todayISO(), weekStart = weekStartOf(S)
+  const pts = useMemo(() => weeklySeries(countedWorkouts(S.workouts, S.routines), kind, { today, weeks, weekStart, vol: w => sessionVolume(w, S) }),
+    [raw.workouts, raw.routines, raw.bodyweight, raw.volumeBodyweight, raw.volumeWarmups, raw.modules, raw.hvModuleParts, phase, kind, weeks, today, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))

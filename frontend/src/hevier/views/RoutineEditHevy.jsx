@@ -23,6 +23,7 @@ import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
+import { sameForRoutineCard } from '../lib/card-state.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { glyphOf } from '../../lib/glyphs.js'
 import {
@@ -259,7 +260,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
   const line = row => <div className="hv-rt-row hv-rt-x" style={grid}>
     <button type="button" className="hv-set" onClick={() => openSetType(row)}
-      aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1)}>{mark(row)}</button>
+      aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1) + (row.failure ? ', ' + t('Failure set') : '')}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
     <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
       aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><HvIcon name="minusCircle" /></button>
@@ -305,8 +306,11 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
 
 // A key in the title redraws the page, not every card (the second audit, 2026-11-21). The drag
 // handlers read their state through refs, so a card needs new ones only when its place (`at`) changes.
-const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.r === b.r && a.S === b.S && a.i === b.i && a.at === b.at
-  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && !a.grip === !b.grip)
+// A key in one card's set field writes the store, which copies every routine: each card compares
+// its own part by content, so only that card redraws (the fresh audit, 2026-11-21).
+const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.i === b.i && a.at === b.at && !a.grip === !b.grip
+  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && a.r.id === b.r.id
+  && sameForRoutineCard(a.S, b.S, a.r.id, a.i, a.unitOf.get(a.i)))
 
 // Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
 // state (the title, its pending save) belongs to one routine (the second audit, 2026-11-21).
