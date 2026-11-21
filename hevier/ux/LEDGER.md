@@ -322,3 +322,22 @@ its links are one chip row (D142); the routine page names the usual rest once an
 at the end (D128); Workout detail drops its stripes for hairlines; Settings' row reads "Gyms";
 Lifts names "Est. 1RM (kg)" once and an old record reads "PR: 17 Aug" (D140). Already there:
 Today's planned weights, the last workout opening its detail, Share in Workout detail's header.
+
+## Critique, third and fourth runs (2026-11-20 and 21, all 19 pages in the fourth)
+
+Third run, after `hevier/critique-2`: Live workout 34 of 40, Statistics 33, Settings and Routine
+page 31, Lifts, Workout detail, Today and History 30, Exercise details 29. Built on
+`hevier/critique-3`: a week tile says nothing against a week with nothing; an unplanned weight on
+the routine page reads "– × 5". Left: "2min" (Hevy's style, kept); the Arrange chip wrapping (the
+three labels need about 430 px of 380).
+
+Fourth run, every fork page: Arrange Statistics 38 of 40, Modules 36, Live workout 34, Statistics
+and the exercise picker 33, Routine page and Routine editor 32, Settings, Routines and Exercise
+time 31, Today, History, Workout detail, Lifts and Monthly report 30, Exercise details, Calendar
+and Measures 29, Strength levels 22. The user chose the small ones: the Sets per muscle card
+leaves its changes out against a period with no sets; a set without weight reads "× 10" on
+Workout detail and Exercise details, as PREVIOUS and Today write it; sets are parted by a
+hairline everywhere, the stripes gone from the live workout, the routine editor and the routine
+page. Left: the lb field's 110.23 against PREVIOUS's 110.2 is upstream's exact view (lib/units.js
+EXACT_VIEW, a typed number round-trips); Strength levels' page, the Calendar's planned names in
+the done green, the Monthly report's red "-8".

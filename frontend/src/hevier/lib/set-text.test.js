@@ -30,6 +30,9 @@ describe('the fork’s set format', () => {
   it('from a logged set', () => {
     expect(setText('x', { w: 80, r: 8 }, { mode: 'reps' }, 'kmh', 'kg')).toBe('80 kg × 8')
     expect(setText('x', { w: 80, r: 8 }, { mode: 'reps' }, 'kmh')).toBe('80 × 8')
+    // No weight entered reads "× 10", as Today and PREVIOUS write it, not "0 kg × 10" (the critique, 2026-11-21).
+    expect(setText('x', { w: 0, r: 10 }, { mode: 'reps' }, 'kmh', 'kg')).toBe('× 10')
+    expect(setText('x', { r: 10 }, { mode: 'reps' }, 'kmh', 'kg')).toBe('× 10')
     expect(setText('x', { sec: 75, w: 20 }, { mode: 'time' }, 'kmh', 'lb')).toBe('1:15 · 20 lb')
   })
   it('repeats lead their run, all alike too, and a set without weight reads "3 × 12"', () => {

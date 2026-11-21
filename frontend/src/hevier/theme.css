@@ -41,7 +41,6 @@
   --hv-font: 'Nunito', Roboto, system-ui, sans-serif;   /* @font-face comes from build/boot-look.js */
   --hv-card-line: inset 0 0 0 1px var(--sep);   /* a card's edge, drawn inside so no box grows */
   /* the fork's own set-table colours (hevier.css) */
-  --hv-stripe:     #0b0a08;          /* alternate set rows */
   --hv-next-tick:  #48433b;          /* the next set's unticked box, a step above --surface-3 */
   --hv-tick:       var(--acc);       /* a ticked box and the tint of its row: done always wears the accent (D123) */
   --hv-tick-ink:   var(--on-acc);
@@ -73,7 +72,6 @@
   --surface-raised: #ffffff;   /* upstream's light values, which the dark block above now overrides */
   --raised-line:    rgba(60,60,67,.10);
   --label-dim:      var(--label-2);
-  --hv-stripe:      #f2f3f5;
 
   --label:     #111317;
   --label-2:   #6b7079;

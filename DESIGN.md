@@ -18,7 +18,6 @@ colors:
   deload-pink: "#ff7eb6"
   cardio-teal: "#40c8e0"
   amoled-black: "#000000"
-  stripe-black: "#0b0a08"
   well-grey: "#16140f"
   control-grey: "#1f1d19"
   next-tick-grey: "#48433b"
@@ -155,8 +154,6 @@ components:
     typography: "{typography.value}"
     rounded: "{rounded.none}"
     height: "44px"
-  set-row-striped:
-    backgroundColor: "{colors.stripe-black}"
   set-row-open:
     backgroundColor: "{colors.control-grey}"
     typography: "{typography.value-open}"
@@ -313,7 +310,6 @@ They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-dro
 ### Neutral
 - **AMOLED Black** (`amoled-black`): the page, the bars, the sheets, the tab bar, the docked rest,
   and the inside of every card (D17).
-- **Stripe Black** (`stripe-black`): the alternate set row, a breath above the page.
 - **Well Grey** (`well-grey`): set value wells, secondary and danger buttons, chips, the open
   exercise's action buttons, stat tiles and Today's week days, upstream's fields and grouped
   lists, the pressed state of a card or a flat row.
@@ -433,7 +429,7 @@ layout stays as dense as Hevy's. With large text, rows of buttons wrap rather th
 
 Flat. Depth is told by edge and tone, not shadow. The page, the cards, the bars and the sheets
 are all the same black; a card is told apart by its hairline, a sheet by its top hairline and
-the scrim. Inside a card, tone steps up from stripe black to well grey to control grey.
+the scrim. Inside a card, tone steps up from well grey to control grey.
 
 ### Shadow Vocabulary
 - **Card hairline** (`box-shadow: inset 0 0 0 1px var(--sep)`, the `--hv-card-line` token): the
@@ -542,7 +538,7 @@ the accent. A pressed row takes well grey.
 The screen the whole look is built around, inside the exercise's card (D127). A header line of
 11px grey caps, then one flat 44px row per set: the set number (or a W, an F, a D in their meaning
 colours), last time's set in faint grey and without its unit, the values in their wells, and a
-round 30px tick. Alternate sets are striped in stripe black. Ticking a set fills its tick with the
+round 30px tick. Sets are parted by a hairline, as in Workout detail. Ticking a set fills its tick with the
 accent (black check) and lays the accent at 14% over black across the card's width; its PREVIOUS
 and untouched values turn grey.
 

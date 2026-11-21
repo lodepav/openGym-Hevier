@@ -29,8 +29,9 @@ export function setFormat(text, unit = '') {
   return spaced.replace(WEIGHT, `$1 ${unit}$2 × `).replace(LOAD_AFTER, ` · $1 ${unit}`)
 }
 
-/** A logged set in the fork's format: hevySetLabel's words, setFormat's spacing and unit. */
-export const setText = (id, s, cfg, speedUnit, unit = '') => setFormat(hevySetLabel(id, s, cfg, speedUnit), unit)
+/** A logged set in the fork's format: hevySetLabel's words, setFormat's spacing and unit. No weight
+ *  entered reads "× 10", as previousText writes it, not "0 kg × 10". */
+export const setText = (id, s, cfg, speedUnit, unit = '') => setFormat(hevySetLabel(id, s, cfg, speedUnit).replace(/^0×(?=\d)/, '× '), unit)
 
 /** Sets in a row, each as text, as one line: each run in turn, its count leading, "3 × 60 × 8" or
  *  "2 × 80 × 8, 80 × 7", and a run without weight "3 × 10", not "3 × × 10" (the critique, 2026-11-20). */

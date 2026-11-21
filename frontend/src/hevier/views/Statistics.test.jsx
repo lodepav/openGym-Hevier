@@ -54,6 +54,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(tiles()).toEqual(['sets', 'hours'])
     expect(cards()).toEqual(['sets', 'weekly'])
     expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
+    // Last week had none: no '+2', which would read as a gain (the critique, 2026-11-21).
+    expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('.hv-mset-d').textContent).toBe('')
     expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
     const hours = container.querySelector('[data-tile="hours"]')
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
