@@ -163,8 +163,19 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector('[aria-current="page"], .on, .active')?.textContent).toContain('History')
     act(() => byText('button', 'Log').click())
     expect(useUI.getState().sheets).toHaveLength(1)
+    // Each row says what is there, with its day (the critique, 2026-11-21); no photos, no line.
+    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub')).toBeNull()
+    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub')).toBeNull()
     act(() => byText('.hv-linkrow', 'Body measurements').click())
     expect(path).toBe('/measurements')
+  })
+
+  const H = 'a'.repeat(64)
+  it('Measures: the measurements row gives the last value, the photos row the count', () => {
+    render(['/measures'], { measurements: [{ d: '2026-11-03', waist: 82 }],
+      dayPhotos: { [H]: { d: '2026-11-01', m: { hash: H, kind: 'image', mime: 'image/jpeg', size: 1000, width: 600, height: 800 } } } })
+    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub').textContent).toMatch(/^Waist 82 cm · 3 Nov/)
+    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub').textContent).toMatch(/^1 photo · 1 Nov/)
   })
 
   it('upstream’s own ‹ on a page under Measures goes back there, not to Home', () => {

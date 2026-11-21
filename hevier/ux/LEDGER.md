@@ -349,3 +349,11 @@ capital; Modules' Gyms row with Settings' icon; Arrange says Body weight waits f
 Strength levels with none set says how to add one and lists nothing; History cards carry time,
 sets and records on the date line; Exercise details puts the chart before the rep counts; the
 Statistics chip reads Arrange.
+
+Round 6 (2026-11-21), from the sixth critique, every item the owner's choice: Strength levels gets a
+Set a level button (picker, then the lift's page with its fields open); Exercise details writes one
+line for fewer than three sessions, "8 reps" after a star, and a dark box while the clip loads;
+Measures' rows give the last value and the photo count; Today's sets read "3 sets · 110.2 kg × 10";
+the routine editor puts the brand under the name and flattens + Set, + Warm-up and the rest; the
+workout says "+ Brand" in both places; Workout detail explains ↑ = ↓ once; Calendar names get two
+lines; Monthly report says what it compares against under the month; Routines' chips fit one row.

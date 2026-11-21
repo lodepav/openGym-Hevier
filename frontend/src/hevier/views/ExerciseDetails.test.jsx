@@ -14,6 +14,9 @@ import { exerciseDetailSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
 import { capWords } from '../../lib/format.js'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { useStatsPhase } from '../lib/shared-phase-run.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -89,6 +92,10 @@ describe('hevier: exercise details (seam S10)', () => {
     const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
     expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
     expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
+    // One session is no curve: the heading keeps its place over one line, no chart (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-xd-chart')).toBeNull()
+    expect(container.querySelector('.hv-xd-range')).toBeNull()
+    expect(container.querySelector('.hv-xd-few').textContent).toMatch(/^62\.5 kg · \S/)
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
     expect(rowTitles).toEqual(['How to'])
     expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place
@@ -103,13 +110,37 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
     expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
-    // The chart plots lb too: its axis reaches past 100 where the stored 50 kg would not.
-    expect([...container.querySelectorAll('.chart text')].some(x => Number(x.textContent.replace(',', '')) >= 100)).toBe(true)
+    // One session is a line, not a chart (the critique, 2026-11-21): in lb too.
+    expect(container.querySelector('.hv-xd-few').textContent).toMatch(/^110\.23? lb · /)
     // The strength level too: the kg levels and the best 1RM in lb, beside the tile above it.
     expect(container.querySelector('.hv-sl-foot').textContent).toMatch(/Best 1RM 1[45]\d(\.\d+)? lb/)
     expect(container.querySelector('.hv-sl-ticks').textContent).toMatch(/^88132\.5/)
     const all = sub('All history')
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
+  })
+
+  it('draws the chart from three sessions on', () => {
+    const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+    open([3, 2, 1].map(n => ({ id: 'w' + n, d: at(n * 7), entries: [{ id: EX.id, sets: [{ w: 60 + n, r: 8, done: true }] }] })))
+    expect(container.querySelector('.hv-xd-chart')).toBeTruthy()
+    expect(container.querySelector('.hv-xd-few')).toBeNull()
+  })
+
+  it('a reps-only set on the last sessions reads “8 reps”, not “× 8”', () => {
+    const PUSH = EXDB.find(e => /^push-?up$/i.test(e.n) && modeOf({ id: e.id }) === 'reps')
+    const S = clone(DEF)
+    S.workouts = [{ id: 'p', d: log[0].d, entries: [{ id: PUSH.id, sets: [{ r: 8, done: true }] }] }]
+    useStore.setState({ S, user: null })
+    exerciseDetailSheet(PUSH)
+    container = document.createElement('div'); document.body.appendChild(container); root = createRoot(container)
+    act(() => root.render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(container.querySelector('.hv-xd-lset').textContent).toMatch(/: 8 reps$/)
+  })
+
+  // happy-dom draws no stylesheet: the rule's selector is run against the page (the critique, 2026-11-21).
+  it('the clip’s box is dark while it loads, not white', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
+    expect(css).toMatch(/\.hv-xd-page, \.hv-xd-howto\) > \.exmedia video\.catvid\{background:var\(--surface-2\)\}/)
   })
 
   it('gives a best 1RM that is the heaviest single the heaviest tile, not a second one', () => {

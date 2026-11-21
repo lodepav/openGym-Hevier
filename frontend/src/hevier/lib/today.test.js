@@ -26,25 +26,27 @@ afterEach(() => { hooks.pinOn = null })
 
 describe('Today: the sets the next session opens with (D134)', () => {
   it('collapses equal sets, lists different ones, leaves warm-ups out', () => {
-    expect(setsText([{ kind: 'warm', n: 0 }, ...[0, 1, 2].map(k => ({ kind: 'work', k, w: 60, reps: 8 }))])).toBe('3 × 60 × 8')
-    expect(setsText([{ kind: 'work', w: 80, reps: 8 }, { kind: 'work', w: 55, reps: 13 }])).toBe('80 × 8, 55 × 13')
-    expect(setsText([8, 8, 7, 6].map(reps => ({ kind: 'work', w: 80, reps })))).toBe('2 × 80 × 8, 80 × 7, 80 × 6')
-    expect(setsText([{ kind: 'work', w: 0, reps: 12 }])).toBe('× 12')
-    expect(setsText([{ kind: 'work', w: 0, sec: 45 }])).toBe('45 s')
-    expect(setsText([{ kind: 'work', min: 20, speed: 8 }])).toBe('20 min')
+    // The count in words and the weight with its unit: "3 × 60 × 8" read as three numbers multiplied (the critique, 2026-11-21).
+    expect(setsText([{ kind: 'warm', n: 0 }, ...[0, 1, 2].map(k => ({ kind: 'work', k, w: 60, reps: 8 }))], 'kg')).toBe('3 sets · 60 kg × 8')
+    expect(setsText([{ kind: 'work', w: 80, reps: 8 }, { kind: 'work', w: 55, reps: 13 }], 'kg')).toBe('80 kg × 8, 55 kg × 13')
+    expect(setsText([8, 8, 7, 6].map(reps => ({ kind: 'work', w: 80, reps })), 'kg')).toBe('2 sets · 80 kg × 8, 80 kg × 7, 80 kg × 6')
+    expect(setsText([{ kind: 'work', w: 0, reps: 12 }], 'kg')).toBe('× 12')
+    expect(setsText([0, 1, 2, 3].map(() => ({ kind: 'work', w: 0, reps: 8 })), 'kg')).toBe('4 sets · × 8')
+    expect(setsText([{ kind: 'work', w: 0, sec: 45 }], 'kg')).toBe('45 s')
+    expect(setsText([{ kind: 'work', min: 20, speed: 8 }], 'kg')).toBe('20 min')
   })
 
   it('reads each routine exercise in order, through the routine table', () => {
     const s = S({ routines: [{ id: 'ua', name: 'Upper A', ex: [{ id: 'x1', sets: 3, reps: 8, weight: 60 }, { id: 'x2', sets: 1, reps: 10 }] }] })
     expect(sessionSets(s, ['ua', 'gone'])).toEqual([
-      { key: 'ua:0', id: 'x1', sets: '3 × 60 × 8' },
+      { key: 'ua:0', id: 'x1', sets: '3 sets · 60 kg × 8' },
       { key: 'ua:1', id: 'x2', sets: '× 10' },
     ])
   })
 
   it('writes an exercise shown in lb in lb, as its page does (D41)', () => {
     const s = S({ unit: 'kg', exUnit: { x1: { unit: 'lb', _ts: 1 } }, routines: [{ id: 'ua', name: 'Upper A', ex: [{ id: 'x1', sets: 3, reps: 8, weight: 60 }] }] })
-    expect(sessionSets(s, ['ua'])[0].sets).toMatch(/^3 × 132(\.\d+)? × 8$/)
+    expect(sessionSets(s, ['ua'])[0].sets).toMatch(/^3 sets · 132(\.\d+)? lb × 8$/)
   })
 })
 
@@ -55,10 +57,10 @@ describe('Today: the card shows what the routine’s page shows (D128)', () => {
   it('last time’s sets, a per-side set each side, holds as seconds, and a planned number', () => {
     const s = fixture()
     const card = () => Object.fromEntries(sessionSets(s, [PLAIN.id]).map(x => [x.id, x.sets]))
-    expect(card()).toMatchObject({ [BENCH]: '65 × 8, 65 × 7, 65 × 6', [CALF]: '20 × 12/9, 20 × 11/9', [PLANK]: '60 s, 50 s' })
+    expect(card()).toMatchObject({ [BENCH]: '65 kg × 8, 65 kg × 7, 65 kg × 6', [CALF]: '20 kg × 12/9, 20 kg × 11/9', [PLANK]: '60 s, 50 s' })
     setPlanned(s, PLAIN.id, BENCH, '1', null, 'r', 8)
     setPlanned(s, PLAIN.id, BENCH, '2', null, 'w', 62.5)
-    expect(card()[BENCH]).toBe('2 × 65 × 8, 62.5 × 6')
+    expect(card()[BENCH]).toBe('2 sets · 65 kg × 8, 62.5 kg × 6')
   })
 })
 

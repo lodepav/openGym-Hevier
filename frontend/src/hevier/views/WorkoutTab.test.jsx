@@ -237,14 +237,16 @@ describe('hevier: the routines list’s rows (D130)', () => {
     render([R('a')])
     at()
     expect([...container.querySelectorAll('.hv-rend button')].map(b => b.textContent))
-      .toEqual(['+ Routine', '+ Folder', 'Rotation', 'Empty workout', 'Explore'])
+      .toEqual(['+ Routine', '+ Folder', 'Rotation', 'Empty', 'Explore'])
+    // Short so the five fit one row; the name it is read by stays whole (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-rend button:nth-child(4)').getAttribute('aria-label')).toBe('Empty workout')
     act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.textContent === 'Rotation').click())
     expect(container.querySelector('#where').textContent).toBe('/plan')
   })
 
   it('Empty workout starts a session with nothing in it', () => {
     render([R('a')])
-    act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.textContent === 'Empty workout').click())
+    act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.getAttribute('aria-label') === 'Empty workout').click())
     expect(useStore.getState().S.active.entries).toEqual([])
   })
 })

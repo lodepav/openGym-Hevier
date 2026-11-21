@@ -14,6 +14,8 @@ import { BackTo, LinkRow } from './Statistics.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
 import { partOn } from '../lib/module-parts.js'
+import { measurementsLine, photosLine } from '../lib/measures-rows.js'
+import { progressPhotosOf } from '../../views/ProgressPhotos.jsx'
 
 const DAYS_SHOWN = 90
 
@@ -25,7 +27,6 @@ export default function Measures() {
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
-  const lastM = (S.measurements || []).at(-1)
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
     <BackTo label={t('History')} to={HISTORY_PATH} title={t('Measures')} />
@@ -55,8 +56,8 @@ export default function Measures() {
     </>}</>}
     {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
-      sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : undefined}
+      sub={measurementsLine(S) || undefined}
       onClick={() => nav('/measurements')} />}
-    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} onClick={() => nav('/progress-photos')} />}
+    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} sub={photosLine(progressPhotosOf(S)) || undefined} onClick={() => nav('/progress-photos')} />}
   </div>
 }

@@ -9,6 +9,9 @@ import { useUI } from '../../store/useUI.js'
 import { setNav } from '../../lib/nav.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
+import { hooks } from '../hooks.js'
+import { installExerciseDetails } from './ExerciseDetails.jsx'
+import { exerciseNameText } from '../../lib/format.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -38,9 +41,41 @@ function render(at, extra = {}) {
 const link = () => [...container.querySelectorAll('.hv-lifts-link')].find(b => b.textContent.includes('Strength levels'))
 
 beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }) })
-afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
+let subs = []
+// Renders the sheet on top, as the app's sheet host would; unmounted after each test.
+function top() {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const r = createRoot(host)
+  act(() => r.render(useUI.getState().sheets.at(-1).render(() => {})))
+  subs.push([r, host])
+  return host
+}
+afterEach(() => {
+  for (const [r, host] of subs) { act(() => r.unmount()); host.remove() }
+  subs = []
+  if (root) act(() => root.unmount()); container?.remove()
+  hooks.exerciseDetail = null
+})
 
 describe('hevier: strength levels list', () => {
+  // The owner's choice after the sixth critique (2026-11-21): one button, the picker, the lift's page with its fields open.
+  it('Set a level picks a lift and opens its page at Compare strength, its fields open', () => {
+    installExerciseDetails()
+    const SQ = EXDB.find(e => e.id === SQUAT)
+    render('/strength', { hvStrength: { [BENCH]: LV } })
+    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Set a level').click())
+    const picker = top()
+    const q = picker.querySelector('input')
+    act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(q, exerciseNameText(SQ)); q.dispatchEvent(new Event('input', { bubbles: true })) })
+    const row = [...picker.querySelectorAll('.hv-pk-row .tap-main')].find(b => b.getAttribute('aria-label').startsWith(exerciseNameText(SQ)))
+    act(() => row.click())
+    const page = top()
+    expect(page.querySelector('.hv-xd')).toBeTruthy()
+    // No 1RM logged for it: the section is there anyway, with its fields open.
+    expect(page.querySelector('.hv-sl-form')).toBeTruthy()
+  })
+
   it('lists each exercise under the level it reaches, unlogged ones last', () => {
     render('/lifts', { hvStrength: { [BENCH]: LV, [SQUAT]: LV } })
     act(() => link().click())
@@ -54,7 +89,7 @@ describe('hevier: strength levels list', () => {
   })
   it('with no levels yet, says how to add one and lists nothing (the critique, 2026-11-21)', () => {
     render('/strength')
-    expect(container.querySelector('.hv-ms-empty').textContent).toBe('No strength levels yet. On a lift’s page, tap Compare strength and type in the levels strengthlevel.com gives you.')
+    expect(container.querySelector('.hv-ms-empty').textContent).toBe('No strength levels yet.')
     expect(container.querySelector('.hv-report-row')).toBeNull()
     // Opened directly, back goes up to Lifts (D142).
     act(() => container.querySelector('.hv-pb-back').click())

@@ -8,7 +8,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
+import { t, tn, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
 import { exConverted, exUnitOf, shownWeight } from '../../lib/ex-unit.js'
 import { mapSetWeights } from '../../lib/units.js'
 import { fmtNum, fmtVol, capWords, todayISO } from '../../lib/format.js'
@@ -37,7 +37,7 @@ import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import { lastSessions, repBests, curveIn } from '../lib/exercise-page.js'
 import { detailRows, effortScale, effortShown } from '../lib/side-rows.js'
 import { sideBalance } from '../lib/side-balance.js'
-import StrengthLevel from '../components/StrengthLevel.jsx'
+import StrengthLevel, { comparePending } from '../components/StrengthLevel.jsx'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
@@ -89,7 +89,9 @@ const inUnit = (st, id, s) => (exConverted(st, id) ? mapSetWeights(s, w => shown
 // (it has its own place), a per-side set's two sides on one line.
 const shortSet = (ex, s, target, st) => {
   const text = setText(ex.id, inUnit(st, ex.id, noEffort(s)), target, speedUnitOf(st), exUnitOf(st, ex.id))
-  return isSideSet(s) ? text.replace(' · ', ' ') : text
+  if (isSideSet(s)) return text.replace(' · ', ' ')
+  // Reps alone read "8 reps", not a bare "8" or "× 8" after the star (the critique, 2026-11-21).
+  return text.replace(/^(?:0 )?(?:× )?(\d+)$/, (_, n) => tn('{0} rep', '{0} reps', Number(n)))
 }
 
 // The last sessions, one line each (D131): the date, the sets, the effort, and an arrow against the
@@ -168,7 +170,11 @@ function Chart({ ex, sum, st }) {
   const points = useMemo(() => { const p = inRange(sum.series[on], range); return lb ? curveIn(p, on, sum.metric, w => shownWeight(st, ex.id, w)) : p }, [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
+  const few = (sum.series.main || []).length < 3 ? (sum.series.main || []).reduce((a, p) => (!a || p.y > a.y ? p : a), null) : null
   return <section>
+    {/* Under three sessions a curve says nothing: the best and its day on one line (the critique, 2026-11-21). */}
+    {few ? <><h4 className="sec">{curves[0].title}</h4>
+      <div className="hv-xd-few">{fmtNum(lb && sum.metric === 'weight' ? shownWeight(st, ex.id, few.y) : few.y)} {unitOf(sum.metric, unit)} · {shortDate(few.d)}</div></> : <>
     <div className="hv-xd-cap"><h4 className="sec">{curves.find(c => c.value === on).title}</h4>
       <select className="hv-xd-range" value={range} aria-label={t('Range')} onChange={e => setRange(e.target.value)}>
         <option value="3m">{t('Last 3 months')}</option>
@@ -179,7 +185,7 @@ function Chart({ ex, sum, st }) {
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
-    </div>}
+    </div>}</>}
     {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
       : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
   </section>
@@ -310,6 +316,7 @@ function ExerciseDetails({ ex, close }) {
   const time = useMemo(() => (partOn(st, 'hvStats', 'time')
     ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [listed, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
+  const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -358,7 +365,8 @@ function ExerciseDetails({ ex, close }) {
       {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}><Chart ex={ex} sum={sum} st={st} /></Bests>}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
-        {e1rm && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={shownWeight(st, ex.id, e1rm.v)} unit={exUnitOf(st, ex.id)} st={st} />}
+        {/* Without a 1RM too when opened from Set a level, or once levels are typed in. */}
+        {(e1rm || asked || st.hvStrength?.[ex.id]) && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={e1rm ? shownWeight(st, ex.id, e1rm.v) : 0} unit={exUnitOf(st, ex.id)} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
         {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}

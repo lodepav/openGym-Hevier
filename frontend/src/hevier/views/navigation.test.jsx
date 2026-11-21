@@ -89,7 +89,7 @@ describe('hevier: navigation (seam S2)', () => {
 
   it('Routines: Empty workout opens a session through upstream’s startFlow', () => {
     render('/routines')
-    act(() => byText('button', 'Empty workout').click())
+    act(() => container.querySelector('button[aria-label="Empty workout"]').click())
     const A = useStore.getState().S.active
     expect(A).toBeTruthy()
     expect(A.entries).toEqual([])

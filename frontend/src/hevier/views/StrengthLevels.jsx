@@ -7,6 +7,8 @@ import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
+import { exercisePickerSheet } from './ExercisePickerHevy.jsx'
+import { openCompareFor } from '../components/StrengthLevel.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedS } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
@@ -23,11 +25,15 @@ export default function StrengthLevels() {
   const groups = useMemo(() => {
     return levelGroups(st.hvStrength, unit, id => exerciseSummary(counted, id).records.e1rm?.v)
   }, [st.hvStrength, counted, st.dbLoad, unit]) // eslint-disable-line react-hooks/exhaustive-deps
+  const setLevel = () => {
+    const picker = exercisePickerSheet(ex => { picker.close(); openCompareFor(ex.id); exerciseDetailSheet(ex) }, { title: t('Set a level') })
+  }
   return <div className="narrow hv-statpage">
     <BackTo label={t('Lifts')} to="/lifts" title={t('Strength levels')} />
     <PhaseFilter />
-    {/* With none set, how to add one, not a list of every lift (the critique, 2026-11-21). */}
-    {!groups.length && <div className="hv-ms-empty">{t('No strength levels yet. On a lift’s page, tap Compare strength and type in the levels strengthlevel.com gives you.')}</div>}
+    {/* With none set, a line, not a list of every lift; Set a level picks one (the critique, 2026-11-21). */}
+    {!groups.length && <div className="hv-ms-empty">{t('No strength levels yet.')}</div>}
+    <button type="button" className="hv-chip hv-sl-add" onClick={setLevel}>{t('Set a level')}</button>
     {groups.map(g => <section key={String(g.level)}>
       <h2 className="sec">{title(g.level)} <span className="dim">· {g.items.length}</span></h2>
       <div className="list">{g.items.map(x => {
