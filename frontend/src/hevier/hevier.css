@@ -1146,7 +1146,7 @@
 :root[data-ui="hevier"] .hv-sl-add{min-height:48px}
 /* The workout's brand and cable line: 32 dp tall, the margin mostly below, where the name's is not. */
 :root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:32px}
-:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-6px 0 -10px}
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-6px -4px -10px}
 /* The set number takes the row's height, and reaches into the card's edge and half the gap. */
 :root[data-ui="hevier"] .hv-set{position:relative;align-self:stretch}
 :root[data-ui="hevier"] .hv-set::after{content:"";position:absolute;inset:0 -3px 0 -10px}
