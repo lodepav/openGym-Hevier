@@ -402,3 +402,17 @@ see the WebView's text zoom), and its key scrolls with the months. Exercise deta
 brand open upstream's picker sheet, Measures' recent weigh-ins are one button, and its back says
 Statistics when you came from there. The Routines chips reach 49 dp. Left as it is: the folder
 fold state, which syncs by D13.
+
+The fifth run, again without earlier findings, scored 313 of 380. It caught a slip of the fourth:
+the Routines chips' 49 dp reach overlapped when they wrapped, so wrapped rows now sit 20 px apart.
+The Sets per muscle container query had the Calendar's problem (no text zoom), so Sets per muscle,
+Muscle Split and the week sheet measure themselves: on a 320 dp phone the name goes above the bar
+from 150 %, on 412 dp at 200 %. Calendar names are 11 px. Fixed for TalkBack: year months say
+their workouts, the preview's cells name their column, thumbnails name their exercise, the
+editor's rep range names its set, brand chips say which is on, Lifts says how many a filter
+leaves, a plain Statistics tile is read once, a rest is announced when it starts, and Exercise
+details' last sessions have short names. Settings' back names the tab it came from, Measures'
+back goes to Statistics on a cold open. Today's links and week days, the preview's numbers, the
+editor's set rows and folder heads reach 48 dp; colours are tokens; eight screens stop
+recomputing on every write. Left as they are: Today's next plan and week strip (they read most
+of the plan), the set row's own tap (its fields reach it), and the editor's 44 dp remove button.
