@@ -49,6 +49,17 @@ def named(path):
     return any(fnmatch.fnmatch(path, p) for p in paths)
 
 
+# A row without a marker stands on its paths: one of them must still be a file here (a bare file
+# name, as rows often give it, matches by name).
+tracked = git('ls-files').splitlines()
+for row, seam in zip(rows, row_ids):
+    if seam in marked:
+        continue
+    row_paths = re.findall(r'`([\w./*-]+)`', row)
+    if not any(fnmatch.fnmatch(f, p) or f.rsplit('/', 1)[-1] == p for p in row_paths for f in tracked):
+        findings.append(f'{seam}: row has no marker and names no file that exists')
+
+
 upstream = next((r for r in ('upstream/main',)
                  if git('rev-parse', '-q', '--verify', r)), None)
 if upstream is None:

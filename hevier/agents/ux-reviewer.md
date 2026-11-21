@@ -42,6 +42,8 @@ The app is a web page inside Android's WebView, driven over the Chrome DevTools 
 
 ```bash
 cd /home/pavel/IdeaProjects/openGym-Hevier
+# Nothing carries over between Bash calls: put the serial you were given before every call.
+export ANDROID_SERIAL=emulator-5556             # cdp.mjs refuses without it
 node hevier/tools/cdp.mjs text                  # the visible text of the page
 node hevier/tools/cdp.mjs click "Start Routine" # the smallest visible element whose text matches
 node hevier/tools/cdp.mjs eval "<js>"           # anything else: measure, read, type
@@ -52,12 +54,12 @@ node hevier/tools/cdp.mjs nav "/workout"
 - **Typing:** set a field's value through `eval` the way React sees it (the native value setter,
   then an `input` event), or use `Input.insertText` over CDP. Say which one you used if a field
   misbehaves.
-- **System back and Home:** `~/Android/Sdk/platform-tools/adb shell input keyevent 4` and `3`.
+- **System back and Home:** `ANDROID_SERIAL=<serial> ~/Android/Sdk/platform-tools/adb shell input keyevent 4` and `3`.
   The app is `ch.duartesantos.opengym.hevier.test`.
 - **Measuring:** see "How to measure in a WebView" in the standards. CSS px are dp.
 - **Screenshots:** look at every screenshot you take with Read. Keep each Bash call short: a
   few actions and a screenshot.
-- **Tabs:** Home (`/`), Workout (`/routines`), Profile; the live workout is `/workout`.
+- **Tabs:** Today (`/home`), Lifts (`/lifts`), History (`/history-tab`); the live workout is `/workout`.
 
 ## What to cover
 

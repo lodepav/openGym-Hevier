@@ -22,7 +22,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { connect, evaluate, screenshot } from './cdp.mjs'
+import { connect, device, evaluate, screenshot, withStore } from './cdp.mjs'
 import { compareMarkdown, diffFindings, diffLedgers, fixtureActive, ledgerJs } from './screens-lib.mjs'
 
 const ADB = process.env.ADB || homedir() + '/Android/Sdk/platform-tools/adb'
@@ -87,30 +87,12 @@ const profiles = only ? PROFILES.filter(p => only.includes(p.name)) : PROFILES
 const screens = opt('--screens')?.split(',') || SCREENS
 const withWorkout = !args.includes('--no-workout')
 if (!profiles.length) { console.error('no such profile; --list shows them'); process.exit(2) }
+// Before the first adb call: the display it resizes is the emulator ANDROID_SERIAL names.
+device()
 
 const adb = (...a) => execFileSync(ADB, ['shell', ...a]).toString().trim()
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-// The app's store, as App.jsx's useStore() holds it: found through React's fibers from #root, since
-// the bundle exposes nothing. Its actions (update, setUnit) are the app's own, so a change goes
-// through the same stamps and saves as a tap. `body` runs with it as `st`.
-const withStore = body => `(() => {
-  const root = document.getElementById('root')
-  const key = root && Object.keys(root).find(k => k.startsWith('__reactContainer$'))
-  const stack = key ? [root[key].stateNode?.current || root[key]] : []
-  let st = null
-  while (stack.length && !st) {
-    const f = stack.pop()
-    for (let h = f.memoizedState; h && typeof h === 'object' && 'next' in h && !st; h = h.next) {
-      const v = h.memoizedState
-      if (v && typeof v === 'object' && v.S && typeof v.update === 'function' && typeof v.setUnit === 'function') st = v
-    }
-    if (f.sibling) stack.push(f.sibling)
-    if (f.child) stack.push(f.child)
-  }
-  if (!st) throw new Error('the app store was not found')
-  ${body}
-})()`
 const until = async (cdp, js, tries = 20) => { for (let i = 0; i < tries; i++) { if (await evaluate(cdp, js)) return true; await sleep(250) } return false }
 // The first element on the page matching `sel`, clicked. Classes, not words, so it works in Arabic.
 const clickSel = (sel, n = 0) => `(() => {
@@ -316,6 +298,8 @@ async function liveWorkout(cdp, dir, results, run) {
 }
 
 const report = []
+// finally does not run on a signal: a stopped run must not leave the emulator resized.
+for (const [sig, code] of [['SIGINT', 130], ['SIGTERM', 143]]) process.on(sig, () => { resetDisplay(); process.exit(code) })
 try {
   for (const p of profiles) {
     console.log(`${p.name}: ${p.size} @ ${p.dpi} dpi${p.font ? ', font ' + p.font : ''} (${p.note})`)

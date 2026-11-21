@@ -15,7 +15,7 @@ their order, the trade-offs under Context) and the friction list. Read it before
 
 1. Take it from the app as it is on `hevier/main` (in another worktree, check that
    `git diff hevier/main -- frontend` is empty). If the emulator runs that build, capture it
-   with `emulator-check` and `node hevier/tools/cdp.mjs shot`, with the owner's own data loaded
+   with `emulator-check` and `ANDROID_SERIAL=<serial> node hevier/tools/cdp.mjs shot`, with the owner's own data loaded
    (memory "User test data" says how), in the state the main task starts from. Snapshot the app
    before loading it and restore the snapshot after ("Before and after a round" in
    `hevier/ux/JOURNEYS.md`). If the emulator is in use or runs another build, score from the

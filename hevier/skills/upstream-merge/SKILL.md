@@ -22,7 +22,7 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    DECISIONS.md. Never decide one yourself; an open item keeps the merge off `hevier/main`.
 3a. **Note how every routine opens, before the merge.** Build and install `hevier/main` as it
    is (`emulator-check` skill), restore the test profile (`hevier/ux/JOURNEYS.md`, "The test
-   profile"), then `node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-before.json`.
+   profile"), then `ANDROID_SERIAL=<serial> node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-before.json`.
    It starts every routine, saves what each opens with (gym, brands, cable setups, per side, side
    order, every set, the settings and fork fields), types a new weight into a first work set to
    see what the warm-ups do, and discards. Its last lines must show a warm-up probe for a routine
@@ -42,15 +42,16 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
    minimise, resume, finish, see it in history, start it again, see each set open at what was done last time (D69).
    **Compare with before the merge:** restore the test profile again on the merged build and run
-   `node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-after.json --diff <scratchpad>/routines-before.json`.
+   `ANDROID_SERIAL=<serial> node hevier/tools/routine-snapshot.mjs <scratchpad>/routines-after.json --diff <scratchpad>/routines-before.json`.
    Any line it prints (a brand or per-side setting gone, a set opening at other numbers, a
    warm-up that moves, a setting or module part reset) is a regression unless a decision of
    step 3 explains it: show the user the lines, never land over them. `routine-open.test.js`
    (in `verify`) checks the same on a fixture profile; a failure there after a merge is the same
    question, and its snapshot is rewritten only for a change a decision explains.
    D128: check that upstream's start, start-from-last included (seam S40), still runs before the fork lays a routine's plan over it (`hevier/lib/next-plan.js` builds through `buildCombinedEntries`; `RoutinePreview.test.jsx` starts a planned routine for real and compares it with the page).
-   Once the merge has landed, `hevier/tools/routine-check.sh --accept` keeps the merged build's
-   snapshot as the baseline the next release is checked against.
+   Once the merge has landed (step 8), `ANDROID_SERIAL=<serial> hevier/tools/routine-check.sh --build --accept`
+   on the emulator already booted keeps the merged build's snapshot as the baseline the next release
+   is checked against; without the serial it boots a second one.
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
    rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed

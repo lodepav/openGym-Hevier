@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # OpenBite and Go Hevier share a machine: their copies of heavy.sh must hold the same lock, or
-# a build and a suite overlap unseen, and their emulator launchers the same -gpu flag, or each
-# switch drops the shared AVD's snapshot. Skipped where the other repo isn't checked out (CI).
+# a build and a suite overlap unseen, and both emulator launchers must boot through
+# ~/.claude/bin/emu, or one drops the shared AVDs' snapshots or drives the other's emulator.
+# Skipped where the other repo isn't checked out (CI).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -19,11 +20,8 @@ same() {  # what, its line in ours, its line in theirs
   return 1
 }
 lock() { grep -E '^lock=' "$1/heavy.sh" || true; }
-# A launcher that boots through the shared ~/.claude/bin/emu takes its flag.
-gpu() {
-  local f="$1/emulator.sh"
-  grep -q '\.claude/bin/emu' "$f" && f="$HOME/.claude/bin/emu"
-  grep -v '^[[:space:]]*#' "$f" | grep -oE -- '-gpu [a-z_]+' || true
-}
+# Both launchers must boot through the shared ~/.claude/bin/emu, which owns the
+# flags (an AVD booted with other ones drops its snapshot) and who owns which emulator.
+emu() { grep -v '^[[:space:]]*#' "$1/emulator.sh" | grep -q '\.claude/bin/emu' && echo "boots through emu" || true; }
 same "heavy.sh's lock" "$(lock "$ours")" "$(lock "$theirs")"
-same "the emulator's -gpu flag" "$(gpu "$ours")" "$(gpu "$theirs")"
+same "the emulator launcher" "$(emu "$ours")" "$(emu "$theirs")"

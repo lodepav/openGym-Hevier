@@ -15,8 +15,9 @@ tools asks the session that started it instead. `adb` is not on PATH: every snip
 export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
 ~/.claude/bin/emu list                 # what runs, whose it is, memory left
 hevier/tools/emulator.sh               # vite build + cap sync + gradle + boot + install + launch
-ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh --no-build   # reinstall on your emulator
-(cd frontend/android && ./gradlew --stop -q)   # after every build: the idle daemon holds 1.5 GB
+ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh             # rebuild onto your emulator, not a new one
+ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh --no-build  # reinstall without building
+(cd frontend/android && ../../hevier/tools/heavy.sh ./gradlew --stop -q)   # after every build: the idle daemon holds 1.5 GB
 ```
 Run it in the background (a few minutes) and wait for the notification. It boots a free 2 GB
 light AVD through `~/.claude/bin/emu` (headless, 1080×2340, 420 dpi; `AVD=xperia1vi_api36` for
@@ -32,7 +33,7 @@ The app id is `ch.duartesantos.opengym.hevier.test`.
 - `text`: the visible text of the page. Check this first; it costs fewer tokens than a screenshot.
 - `shot <scratchpad>/name.png`, then Read the png to look at it. Save every screenshot to the
   session scratchpad, never in the repo.
-- `nav "#/workout"`, `reload`, `click "Finish"` (the first visible element with that text).
+- `nav "#/workout"`, `reload`, `click "Finish"` (a visible button with that text first, else the smallest element).
 - `eval "(() => { … })()"`: always wrap the code in an IIFE, because a top-level `const` collides
   with names already on the page.
 
@@ -60,7 +61,8 @@ A light AVD keeps whatever the last session left, so restore the test profile be
 
 ```bash
 export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
-S=emulator-5558 APP=ch.duartesantos.opengym.hevier.test
+S=emulator-5558 APP=ch.duartesantos.opengym.hevier.test   # S: your serial
+~/.claude/bin/emu mine $S || exit   # this wipes app storage: only on an emulator this repo booted
 ANDROID_SERIAL=$S adb shell am force-stop $APP
 ANDROID_SERIAL=$S adb shell "run-as $APP sh -c 'rm -rf app_webview shared_prefs files/opengym-state*.json'"
 ANDROID_SERIAL=$S adb exec-in run-as $APP tar -xf - < ~/.cache/hevier/ux-profile.tar
