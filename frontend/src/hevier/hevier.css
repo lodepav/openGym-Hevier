@@ -1147,10 +1147,10 @@
 :root[data-ui="hevier"] .hv-xd-aka{width:calc(100% - 56px);padding-block:8px;margin:-14px 0 2px}
 :root[data-ui="hevier"] .hv-xd-aka::after{content:"";position:absolute;inset:-8px 0}
 :root[data-ui="hevier"] .hv-sl-add{min-height:48px}
-/* The workout's brand and cable line: 36 dp tall, the margin below; above it takes half the 2 px gap,
-   so the name keeps its own target (the second audit). */
-:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:36px}
-:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-1px -4px -11px}
+/* The workout's brand and cable line: 42 dp tall; above it takes half the 2 px gap, so the name keeps
+   its target, and below 6, the header's gap, so the buttons and the note keep theirs (the audits). */
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:42px}
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-1px -4px -6px}
 /* The set number takes the row's height, and reaches into the card's edge and half the gap. */
 :root[data-ui="hevier"] .hv-set{position:relative;align-self:stretch}
 :root[data-ui="hevier"] .hv-set::after{content:"";position:absolute;inset:0 -3px 0 -10px}

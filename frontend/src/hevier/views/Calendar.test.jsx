@@ -107,8 +107,8 @@ describe('hevier: Calendar', () => {
     expect(titles()[6]).toBe(first)
   })
 
-  // The second audit, 2026-11-21: these two marks were seen and not said.
-  it('a day with only a note says Note, and a past planned day says Planned', () => {
+  // The second audit, 2026-11-21: a note was seen and not said. The third: a past plan is not drawn, so not said.
+  it('a day with only a note says Note; a past planned day, drawn with no mark (D68), says nothing more', () => {
     const d = new Date(); d.setDate(d.getDate() - 20)
     const iso = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
     render('/calendar')
@@ -119,7 +119,7 @@ describe('hevier: Calendar', () => {
     const routines = [{ id: 'r', name: 'Push', ex: [] }], week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
     act(() => useStore.setState({ S: { ...useStore.getState().S, routines, week, dayNotes: {} } }))
     expect(cell().querySelector('.hv-cal-d').className).toMatch(/\bplan\b/)
-    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true) + ', Planned')
+    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true))
   })
 
   it('a planned day from today on has its dot, a past one none; Show next month adds months below (D68)', () => {
