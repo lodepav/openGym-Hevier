@@ -131,11 +131,13 @@ took checks
 # this app already, ROUTINE_CHECK=0 leaves it out). An emulator this started is stopped again,
 # so the release build has the memory.
 if [[ "${ROUTINE_CHECK:-1}" != 0 ]]; then
-  WAS_UP="$("$ANDROID_HOME/platform-tools/adb" get-state 2>/dev/null || true)"
+  # ANDROID_SERIAL names an emulator already up; otherwise one is booted here and stopped after.
+  WAS_UP="${ANDROID_SERIAL:-}"
+  [[ -n "$WAS_UP" ]] || { ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up)"; export ANDROID_SERIAL; }
   DEBUG_APK=frontend/android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk STARTED=$(date +%s)
   RSTAMP="$(git rev-parse --path-format=absolute --git-common-dir)/hevier-routines-checked"
   hevier/tools/routine-check.sh --build --once || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
-  [[ -n "$WAS_UP" ]] || "$ANDROID_HOME/platform-tools/adb" emu kill >/dev/null 2>&1 || true
+  [[ -n "$WAS_UP" ]] || "$HOME/.claude/bin/emu" down "$ANDROID_SERIAL" >/dev/null 2>&1 || true
   (cd frontend/android && ./gradlew --stop -q) >/dev/null 2>&1 || true
   # Its debug APK asks for what the release will: a permission, library or exported component
   # missing from hevier/security stops here, before the version is committed. Only when the check

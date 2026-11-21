@@ -14,8 +14,8 @@ found most of the real bugs. Here, round 1 (J1 and J2) took 17 minutes and 154 t
 ## Before and after a round (the session that starts the reviewer)
 
 **One heavy job at a time.** The emulator together with Gradle or a test suite has run this
-machine out of memory. Start the reviewer only with the emulator up (`HEADLESS=1
-hevier/tools/emulator.sh`, never a window) and nothing else building.
+machine out of memory. Start the reviewer only with the emulator up (`hevier/tools/emulator.sh`,
+headless, its serial as `ANDROID_SERIAL` on every call) and nothing else building.
 
 **Snapshot the app first, and restore it after.** Journeys log workouts and change settings. The
 debug build is debuggable, so its whole data folder can be saved and put back. (checked 2026-10-25 for a round trip; the app has no `databases` folder, and naming one corrupts the archive.)

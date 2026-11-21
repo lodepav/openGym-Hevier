@@ -13,16 +13,15 @@
 #   JDK 21          ~/.local/opt/jdk21       (or JAVA_HOME; a JRE is not enough)
 #   Android SDK     ~/Android/Sdk with platform-tools, emulator, platforms;android-35,
 #                   build-tools;35.0.0, system-images;android-36;google_apis;x86_64
-#   AVD             xperia1vi_api36 (1080x2340, 420 dpi, like the Xperia 1 VI; hw.ramSize 3072),
-#                   shared with OpenBite; keep the -gpu flag the same in its launcher, or each
-#                   switch drops the snapshot
+#   Emulator        booted by the machine-wide ~/.claude/bin/emu, shared with OpenBite: a free
+#                   2 GB light AVD by default (1080x2340, 420 dpi), AVD=xperia1vi_api36 for the
+#                   3 GB one. ANDROID_SERIAL picks one already running; adb and cdp.mjs follow it.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export JAVA_HOME="${JAVA_HOME:-$HOME/.local/opt/jdk21}"
 export PATH="$HOME/.local/opt/node/bin:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
-AVD="${AVD:-xperia1vi_api36}"
 APP_ID="${APP_ID:-ch.duartesantos.opengym.hevier.test}"   # hevier.gradle id + debug .test suffix
 # The sideload flavour (upstream 1.4.2): the APK with the updater; "play" is Google Play's.
 APK="$ROOT/frontend/android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk"
@@ -45,14 +44,10 @@ if [[ "${1:-}" != "--no-build" ]]; then
   (cd android && ../../hevier/tools/heavy.sh ./gradlew assembleSideloadDebug -q)
 fi
 
-if ! adb get-state >/dev/null 2>&1; then
-  echo "booting $AVD..."
-  nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD" -no-audio -no-boot-anim \
-    ${HEADLESS:+-no-window} -gpu host >/tmp/hevier-emulator.log 2>&1 &
-  adb wait-for-device
-fi
+[[ -n ${ANDROID_SERIAL:-} ]] || ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up ${AVD:-})"
+export ANDROID_SERIAL
 adb shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
 
 adb install -r "$APK"
 adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 >/dev/null
-echo "launched $APP_ID — drive it with: node hevier/tools/cdp.mjs text"
+echo "launched $APP_ID on $ANDROID_SERIAL — drive it with: ANDROID_SERIAL=$ANDROID_SERIAL node hevier/tools/cdp.mjs text"

@@ -19,6 +19,11 @@ same() {  # what, its line in ours, its line in theirs
   return 1
 }
 lock() { grep -E '^lock=' "$1/heavy.sh" || true; }
-gpu() { grep -oE -- '-gpu [a-z_]+' "$1/emulator.sh" || true; }
+# A launcher that boots through the shared ~/.claude/bin/emu takes its flag.
+gpu() {
+  local f="$1/emulator.sh"
+  grep -q '\.claude/bin/emu' "$f" && f="$HOME/.claude/bin/emu"
+  grep -v '^[[:space:]]*#' "$f" | grep -oE -- '-gpu [a-z_]+' || true
+}
 same "heavy.sh's lock" "$(lock "$ours")" "$(lock "$theirs")"
 same "the emulator's -gpu flag" "$(gpu "$ours")" "$(gpu "$theirs")"

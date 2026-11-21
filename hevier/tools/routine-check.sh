@@ -55,8 +55,10 @@ if [[ -n "$ONCE" ]] && already_checked; then
   exit 0
 fi
 
+# The shared emulators (~/.claude/bin/emu): --build boots a free one unless ANDROID_SERIAL names one.
+if [[ -n "$BUILD" && -z ${ANDROID_SERIAL:-} ]]; then ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up)"; export ANDROID_SERIAL; fi
 if [[ -n "$BUILD" ]]; then
-  HEADLESS=1 hevier/tools/emulator.sh >/tmp/hevier-routine-check-build.log 2>&1 \
+  hevier/tools/emulator.sh >/tmp/hevier-routine-check-build.log 2>&1 \
     || { echo "routine check: the debug build failed, see /tmp/hevier-routine-check-build.log" >&2; exit 2; }
   # cap sync rewrites these in place; the tree stays as committed.
   git checkout -- frontend/android/app/capacitor.build.gradle frontend/android/capacitor.settings.gradle frontend/ios/App/Podfile 2>/dev/null || true

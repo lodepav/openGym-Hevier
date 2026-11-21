@@ -9,11 +9,16 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 
 ```bash
 export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
-HEADLESS=1 hevier/tools/emulator.sh            # vite build + cap sync + gradle + install + launch
-HEADLESS=1 hevier/tools/emulator.sh --no-build # reinstall the last APK
+hevier/tools/emulator.sh            # vite build + cap sync + gradle + boot + install + launch
+hevier/tools/emulator.sh --no-build # reinstall the last APK
 ```
-Run it in the background (it takes a few minutes) and wait for the notification. The app id is
-`ch.duartesantos.opengym.hevier.test`, and the AVD is `xperia1vi_api36` (1080×2340, 420 dpi).
+Emulators are shared with OpenBite: tell its session before booting or stopping one. The launcher
+boots a free 2 GB light AVD through `~/.claude/bin/emu` (headless, 1080×2340, 420 dpi; `AVD=xperia1vi_api36`
+for the 3 GB one) and prints its serial. Set `ANDROID_SERIAL` to that serial on every later call
+(`emulator.sh`, `cdp.mjs`, `adb`); never touch an emulator another session booted, and stop yours
+with `~/.claude/bin/emu down <serial>` when done. Run it in the background (it takes a few minutes)
+and wait for the notification. The app id is `ch.duartesantos.opengym.hevier.test`. A new AVD
+has no profile: load the test profile first (`hevier/ux/JOURNEYS.md`).
 
 ## Drive the WebView: `node hevier/tools/cdp.mjs …`
 

@@ -22,7 +22,8 @@ screen is reviewed against.
 ## 0. Set up
 
 1. Builds and suites take turns (`hevier/tools/heavy.sh`), but start none beside a review: no
-   second emulator either (the machine has run out of memory). Boot and install: `HEADLESS=1 hevier/tools/emulator.sh`, in the background.
+   second emulator either (the machine has run out of memory). Boot and install: `hevier/tools/emulator.sh`, in the background; it prints the
+   emulator's serial, which every later `cdp.mjs` and `adb` call gets as `ANDROID_SERIAL`.
 2. Take the snapshot ("Before and after a round" in `hevier/ux/JOURNEYS.md`). Set up the test
    profile if the snapshot lacks it.
 3. Read `hevier/ux/LEDGER.md`.
