@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
+import { bindUI } from '../../components/ui.jsx'
 import { EXIDX } from '../../lib/exercises.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { hevierRoutes } from '../routes.jsx'
@@ -76,6 +77,7 @@ afterEach(() => {
   hooks.finish = hooks.done = null
 })
 
+bindUI(useUI)   // the app binds it at boot; the menu buttons' picker sheet needs it
 // Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
 function pickMenu(btn, label) {
   act(() => btn.click())

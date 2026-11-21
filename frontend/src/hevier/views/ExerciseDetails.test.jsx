@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { withExUnit } from '../../lib/ex-unit.js'
 import { useUI } from '../../store/useUI.js'
+import { bindUI } from '../../components/ui.jsx'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
@@ -40,6 +41,7 @@ function open(workouts, edit) {
   const sheet = useUI.getState().sheets.at(-1)
   act(() => root.render(sheet.render(() => {})))
 }
+bindUI(useUI)   // the app binds it at boot; the menu buttons' picker sheet needs it
 // Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
 function pickMenu(btn, label) {
   act(() => btn.click())
