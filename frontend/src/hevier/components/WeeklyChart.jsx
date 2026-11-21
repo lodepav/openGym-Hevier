@@ -53,7 +53,7 @@ export default function WeeklyChart() {
   // Once per change of what the series reads, not per store write (the fresh audit, 2026-11-21).
   const today = todayISO(), weekStart = weekStartOf(S)
   const pts = useMemo(() => weeklySeries(countedWorkouts(S.workouts, S.routines), kind, { today, weeks, weekStart, vol: w => sessionVolume(w, S) }),
-    [raw.workouts, raw.routines, raw.bodyweight, raw.volumeBodyweight, raw.volumeWarmups, phase, kind, weeks, today, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps
+    [raw.workouts, raw.routines, raw.bodyweight, raw.volumeBodyweight, raw.volumeWarmups, raw.modules, raw.hvModuleParts, phase, kind, weeks, today, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
   const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))

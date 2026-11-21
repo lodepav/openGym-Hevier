@@ -1189,7 +1189,7 @@
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name{min-height:48px}
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name::after{inset:0}
 :root[data-ui="hevier"] .hv-ssec:focus{outline:none}
-/* The Routines tab's + Routine, + Folder and Rotation reach 48 dp up and down: 14 dp free above them (measured). */
+/* The Routines tab's + Routine, + Folder and Rotation reach 48 dp up and down; the gap above them is to be measured on the emulator. */
 :root[data-ui="hevier"] .hv-rend .hv-chip::after{inset:-10px 0}
 /* At a large text size the routine names under the days shrink to a fragment: they go, the day's mark
    stays, and TalkBack still says the routine (the fresh audit, 2026-11-21). At 100 % the month is
@@ -1199,5 +1199,5 @@
 :root[data-ui="hevier"] .hv-cal > .hv-cal-key{margin:16px 0 8px}
 /* Exercise details' range and brand are upstream's menu buttons now: its chevron, not the select's drawn one. */
 :root[data-ui="hevier"] .menu-btn.hv-xd-range{background-image:none;padding:6px 4px}
-:root[data-ui="hevier"] .menu-btn.hv-xd-label{justify-content:space-between}
+:root[data-ui="hevier"] .menu-btn.hv-xd-label{display:inline-flex;align-items:center;gap:4px;justify-content:space-between}
 :root[data-ui="hevier"] button.hv-ms-list{width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start}

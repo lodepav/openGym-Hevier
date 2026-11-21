@@ -149,7 +149,7 @@ export default function Statistics() {
   const phase = useStatsPhase(s => s.phase)
   const today = todayISO()
   // The counted, phased log is a new copy on each write: key on what it is made from instead.
-  const n = useMemo(() => numbers(S, today), [raw.workouts, raw.routines, raw.bodyweight, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
+  const n = useMemo(() => numbers(S, today), [raw.workouts, raw.routines, raw.bodyweight, raw.modules, raw.hvModuleParts, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   const layout = S.hvStatsLayout || {}

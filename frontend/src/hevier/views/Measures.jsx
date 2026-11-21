@@ -52,7 +52,8 @@ export default function Measures() {
     {recent.length > 0 && <>
       <h2 className="sec">{t('History')}</h2>
       {/* One button, not five that all open the same list (the fresh audit, 2026-11-21). */}
-      <button type="button" className="hv-ms-list" onClick={weighInsSheet}>{recent.map(b => <span key={b.d + (b.t || '')} className="hv-ms-row">
+      <button type="button" className="hv-ms-list" onClick={weighInsSheet}
+        aria-label={recent.map(b => fmtDate(b.d, true) + ' ' + fmtNum(b.w) + ' ' + S.unit).join(', ') + '. ' + t('All weigh-ins')}>{recent.map(b => <span key={b.d + (b.t || '')} className="hv-ms-row">
         <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
       </span>)}</button>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}

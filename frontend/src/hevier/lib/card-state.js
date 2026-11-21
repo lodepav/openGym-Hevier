@@ -63,7 +63,8 @@ export function propsSig(p) {
  * Whether the routine editor's card for exercise `i` of routine `id` (in superset `unit`, its
  * exercises' indexes) draws the same from copies `a` and `b` of S: every other top-level field
  * equal, the other routines and this routine's own fields equal by content, and this exercise and
- * its partners too. A key in one card's set field then redraws that card only (the fresh audit,
+ * its partners and the one before it (the link button) too, and every exercise's superset (the move
+ * menu reads the whole list's layout). A key in one card's set field then redraws that card only (the fresh audit,
  * 2026-11-21). Anything unknown counts as a change, so a card is never stale.
  */
 export function sameForRoutineCard(a, b, id, i, unit) {
@@ -78,7 +79,8 @@ export function sameForRoutineCard(a, b, id, i, unit) {
     if (x.id !== id) { if (!sameField(x, y)) return false; continue }
     for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) if (k !== 'ex' && !equal(x[k], y[k])) return false
     if (x.ex?.length !== y.ex?.length) return false
-    for (const n of new Set([i, ...(unit || [])])) if (!equal(x.ex[n], y.ex[n])) return false
+    for (let n = 0; n < x.ex.length; n++) if (x.ex[n]?.sg !== y.ex[n]?.sg) return false
+    for (const n of new Set([i, i - 1, ...(unit || [])])) if (n >= 0 && !equal(x.ex[n], y.ex[n])) return false
   }
   return true
 }

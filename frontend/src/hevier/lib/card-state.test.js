@@ -74,11 +74,16 @@ describe('propsSig', () => {
 describe('the routine editor cards a change redraws (sameForRoutineCard)', () => {
   const ex = (id, reps) => ({ id, sets: 3, reps })
   const S = () => ({ unit: 'kg', routines: [{ id: 'r', name: 'Push', ex: [ex('a', 8), ex('b', 10), ex('c', 12)] }, { id: 'q', name: 'Pull', ex: [ex('d', 5)] }] })
-  it('a key in one exercise redraws that card and its superset partners, not the others', () => {
+  it('a key in one exercise redraws that card, its superset partners and the card after it, not the others', () => {
     const a = S(), b = S(); b.routines[0].ex[1].reps = 11
     expect(sameForRoutineCard(a, b, 'r', 0)).toBe(true)
     expect(sameForRoutineCard(a, b, 'r', 1)).toBe(false)
     expect(sameForRoutineCard(a, b, 'r', 0, [0, 1])).toBe(false)
+    expect(sameForRoutineCard(a, b, 'r', 2)).toBe(false)   // its link button reads the one before
+  })
+  it('a superset made anywhere redraws every card: the move menu reads the layout', () => {
+    const a = S(), b = S(); b.routines[0].ex[1].sg = 'g'; b.routines[0].ex[2].sg = 'g'
+    expect(sameForRoutineCard(a, b, 'r', 0)).toBe(false)
   })
   it('the routine’s own fields, another routine or another field of S redraw every card', () => {
     for (const change of [b => { b.routines[0].prog = 'linear' }, b => { b.routines[1].ex[0].reps = 6 }, b => { b.unit = 'lb' }, b => { b.routines[0].ex.push(ex('e', 1)) }]) {
