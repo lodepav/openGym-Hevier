@@ -7,18 +7,23 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 
 ## Build, install, launch
 
+Emulators are shared with OpenBite. Message its session (ListAgents, then SendMessage) and wait
+for its OK before booting or stopping one; use only the one you booted.
+
 ```bash
-export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
-hevier/tools/emulator.sh            # vite build + cap sync + gradle + boot + install + launch
-hevier/tools/emulator.sh --no-build # reinstall the last APK
+~/.claude/bin/emu list                 # what runs, whose it is, memory left
+hevier/tools/emulator.sh               # vite build + cap sync + gradle + boot + install + launch
+ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh --no-build   # reinstall on your emulator
+(cd frontend/android && ./gradlew --stop -q)   # after every build: the idle daemon holds 1.5 GB
 ```
-Emulators are shared with OpenBite: tell its session before booting or stopping one. The launcher
-boots a free 2 GB light AVD through `~/.claude/bin/emu` (headless, 1080×2340, 420 dpi; `AVD=xperia1vi_api36`
-for the 3 GB one) and prints its serial. Set `ANDROID_SERIAL` to that serial on every later call
-(`emulator.sh`, `cdp.mjs`, `adb`); never touch an emulator another session booted, and stop yours
-with `~/.claude/bin/emu down <serial>` when done. Run it in the background (it takes a few minutes)
-and wait for the notification. The app id is `ch.duartesantos.opengym.hevier.test`. A new AVD
-has no profile: load the test profile first (`hevier/ux/JOURNEYS.md`).
+Run it in the background (a few minutes) and wait for the notification. It boots a free 2 GB
+light AVD through `~/.claude/bin/emu` (headless, 1080×2340, 420 dpi; `AVD=xperia1vi_api36` for
+the 3 GB one); `emu up` fails when all are busy or under 3.5 GB is free. Its last line names the
+serial ("launched … on emulator-5558"). Nothing carries over between Bash calls, so write
+`ANDROID_SERIAL=<serial>` in front of every later `adb`, `cdp.mjs` and `screens.mjs` call (cdp.mjs
+runs adb, which reads it). When done: `~/.claude/bin/emu down <serial>`, and tell OpenBite. The
+build rewrites capacitor.build.gradle, capacitor.settings.gradle and the Podfile: never `git add -A`.
+The app id is `ch.duartesantos.opengym.hevier.test`.
 
 ## Drive the WebView: `node hevier/tools/cdp.mjs …`
 
@@ -48,19 +53,23 @@ an empty workout is started, checked and discarded.
 
 ## Test data
 
-The state is in `localStorage.gym_state_v1`. The emulator's data has the routines Push
-`mvb4ura0xf0oq`, Pull `mvb4ura0bo1ca` and Leg `mvb4ura0uvo91`, and one workout (Leg Day,
-2026-10-16).
-- Before a flow that writes data (finishing a workout, deleting something), save a copy:
-  `eval "localStorage.gym_state_v1"`, written to the scratchpad.
-- To inject or restore state, the app's own save must not overwrite it during reload. Run, in
-  one eval: `localStorage.setItem('gym_state_v1', DATA); Storage.prototype.setItem = () => {};
-  location.reload()`. The reload restores the real `setItem`.
-- Afterwards, restore the saved copy so the next check starts from the same data.
-- The APK also keeps the state in a native file (`lib/mobile.js` nativeSave) and reloads from
-  it, so the localStorage trick above may not stick: check `localStorage.gym_state_v1` after the
-  reload. Undo through the app where you can instead: **Discard Workout** for a started workout,
-  Remove / Delete for something added.
+A light AVD keeps whatever the last session left, so restore the test profile before every check
+(`~/.cache/hevier/ux-profile.tar`, described in `hevier/ux/JOURNEYS.md`; the app must be installed):
+
+```bash
+S=emulator-5558 APP=ch.duartesantos.opengym.hevier.test
+ANDROID_SERIAL=$S adb shell am force-stop $APP
+ANDROID_SERIAL=$S adb shell "run-as $APP sh -c 'rm -rf app_webview shared_prefs files/opengym-state*.json'"
+ANDROID_SERIAL=$S adb exec-in run-as $APP tar -xf - < ~/.cache/hevier/ux-profile.tar
+ANDROID_SERIAL=$S adb shell monkey -p $APP -c android.intent.category.LAUNCHER 1
+```
+- An edit of `localStorage` alone is lost at the next start: the app reads
+  `files/opengym-state.json` first. Change data through the store over CDP (`useStore`'s
+  `getState().update(S => …)`), or through the app.
+- Undo through the app where you can: **Discard Workout** for a started workout, Remove / Delete
+  for something added. Or restore the profile again.
+- Some pages sit behind a module part (D102, D117): /calendar opens History while Statistics'
+  Calendar part is off (Settings → the module's parts).
 
 ## Report
 
