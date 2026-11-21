@@ -111,7 +111,7 @@ function CalendarPage() {
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
   return <div className="hv-cal">
-    {/* The bar, streak, Month/Year switch and key stay pinned while the months scroll under them. */}
+    {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
     {/* The streak is Motivation's (D97); the rest days stay. */}
@@ -120,12 +120,6 @@ function CalendarPage() {
       {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>}
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
-    <div className="hv-cal-key">
-      <span><i className="k-strength" />{t('Strength')}</span>
-      <span><i className="k-cardio" />{t('Cardio')}</span>
-      <span><i className="k-deload" />{t('Deload')}</span>
-      <span><i className="k-plan" />{t('Planned')}</span>
-    </div>
     </div>
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
@@ -141,5 +135,13 @@ function CalendarPage() {
         {Array.from({ length: 12 }, (_, mo) => <Month key={mo} y={year} mo={mo} st={st} byDay={byDay} today={today} small onTitle={() => openMonth(mo)} />)}
       </div>
     </>}
+    {/* The key scrolls with the months, under this one where the page opens: pinned, it took a
+        large share of a short screen at a big text size (the fresh audit, 2026-11-21). */}
+    <div className="hv-cal-key">
+      <span><i className="k-strength" />{t('Strength')}</span>
+      <span><i className="k-cardio" />{t('Cardio')}</span>
+      <span><i className="k-deload" />{t('Deload')}</span>
+      <span><i className="k-plan" />{t('Planned')}</span>
+    </div>
   </div>
 }

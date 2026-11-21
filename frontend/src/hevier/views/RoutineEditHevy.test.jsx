@@ -254,6 +254,19 @@ describe('hevier: routine editor (M3)', () => {
     expect(loadOfRoutine.mock.calls.length).toBe(n)
   })
 
+  // The fresh audit, 2026-11-21: each key in a set field redrew every exercise card.
+  it('a key in one card’s set field redraws that card only', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }, { id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const n = tableShape.mock.calls.length
+    const field = container.querySelectorAll('.hv-ex')[1].querySelector('input.hv-num')
+    typeInto(field, '9')
+    act(() => field.dispatchEvent(new Event('change', { bubbles: true })))
+    // The first render drew both cards; the key redraws one card's worth or less, not two.
+    const drawn = tableShape.mock.calls.length - n
+    expect(drawn).toBeGreaterThan(0)
+    expect(drawn).toBeLessThanOrEqual(n / 2)
+  })
+
   it('⋯ → Copy routine opens the copy with its own name in the title', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
     act(() => container.querySelector('[aria-label="More, Leg Day"]').click())

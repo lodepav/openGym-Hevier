@@ -801,7 +801,9 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(useUI.getState().timer.left).toBe(left + 60)
     // A paused rest says so to TalkBack too, not only on screen (the audit leftovers, 2026-11-21).
     act(() => useUI.setState({ timer: { ...useUI.getState().timer, paused: true } }))
-    expect(dock().querySelector('.hv-dock-clock').getAttribute('aria-label')).toMatch(/^Paused, /)
+    expect(dock().querySelector('.hv-dock-clock').getAttribute('aria-label')).toBe('Paused. Change the time left')
+    // The seconds are the description, so a focused clock is not read again each tick (the fresh audit).
+    expect(document.getElementById(dock().querySelector('.hv-dock-clock').getAttribute('aria-describedby')).textContent).toMatch(/^\d+:\d\d$/)
     act(() => useUI.setState({ timer: { ...useUI.getState().timer, paused: false } }))
     // Run out by itself, the panel goes and the page gives its room back, upstream's bar still aside.
     expect(document.body.classList.contains('hv-dock-room')).toBe(true)

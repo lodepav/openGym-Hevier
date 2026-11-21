@@ -1,7 +1,7 @@
 // Hevy's Measures (hevier/DECISIONS.md D14; reference/SCREENS.md §11), opened from History: body
 // weight with upstream's own log, goal and weigh-in list, then upstream's body measurements and
 // progress photos pages.
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum } from '../../lib/format.js'
@@ -21,6 +21,7 @@ const DAYS_SHOWN = 90
 
 export default function Measures() {
   const nav = useNavigate()
+  const from = useLocation().state?.back
   const S = useStore(s => s.S)
   const weightOn = partOn(S, 'body', 'weight'), measOn = partOn(S, 'body', 'measurements'), photosOn = partOn(S, 'body', 'photos')
   const hc = useHcOnly(S)
@@ -29,7 +30,8 @@ export default function Measures() {
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
-    <BackTo label={t('History')} to={HISTORY_PATH} title={t('Measures')} />
+    {/* Back names the page it returns to: Statistics links here too (the fresh audit, 2026-11-21). */}
+    <BackTo label={t(from === 'Statistics' ? 'Statistics' : 'History')} to={HISTORY_PATH} title={t('Measures')} />
     {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
     {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
@@ -43,15 +45,16 @@ export default function Measures() {
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
-      {pts.length > 0 ? <div className="chart"><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
+      {pts.length > 0 ? <div className="chart" role="img" aria-label={t('Body weight chart')}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
         : <div className="hv-ms-empty">{S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN) : t('No weigh-ins yet. Log your weight to start the curve.')}</div>}
     </div>
     {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
     {recent.length > 0 && <>
       <h2 className="sec">{t('History')}</h2>
-      <div className="hv-ms-list">{recent.map(b => <button key={b.d + (b.t || '')} type="button" className="hv-ms-row" onClick={weighInsSheet}>
+      {/* One button, not five that all open the same list (the fresh audit, 2026-11-21). */}
+      <button type="button" className="hv-ms-list" onClick={weighInsSheet}>{recent.map(b => <span key={b.d + (b.t || '')} className="hv-ms-row">
         <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
-      </button>)}</div>
+      </span>)}</button>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
     {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}

@@ -76,6 +76,20 @@ afterEach(() => {
   hooks.finish = hooks.done = null
 })
 
+// Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
+function pickMenu(btn, label) {
+  act(() => btn.click())
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const r = createRoot(host)
+  const top = useUI.getState().sheets.at(-1)
+  act(() => r.render(top.render(() => useUI.setState({ sheets: useUI.getState().sheets.filter(x => x !== top) }))))
+  const offered = [...host.querySelectorAll('button.lrow .lrow-t')].map(x => x.textContent)
+  if (label) act(() => [...host.querySelectorAll('button.lrow')].find(b => b.querySelector('.lrow-t').textContent === label).click())
+  act(() => r.unmount()); host.remove()
+  return offered
+}
+
 describe('hevier gyms and machine labels on screen (D28)', () => {
   it('the workout shows the active profile as its gym, and the gym can be changed', () => {
     render(<Workout />, { entries: [{ id: DB, target: { sets: 1, reps: 8 }, sets: [{ w: 20, r: 8, done: false }] }] })
@@ -207,9 +221,8 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
     const sel = host.querySelector('.hv-xd-label')
-    expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
     expect(host.querySelector('.hv-xd-tile b').textContent).toBe('45 kg')
-    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    expect(pickMenu(sel, 'Matrix (1)')).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
     expect(host.querySelector('.hv-xd-tile b').textContent).toBe('25 kg')
   })
 
@@ -223,8 +236,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     // D131: the page's strength level is the one the picked brand's best 1RM reaches.
     const level = () => host.querySelector('.hv-sl-head').textContent.split(' · ')[0]
     expect(level()).toBe('Intermediate')   // 45 × 10, 1RM 60
-    const sel = host.querySelector('.hv-xd-label')
-    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    pickMenu(host.querySelector('.hv-xd-label'), 'Matrix (1)')
     expect(level()).toBe('Beginner')       // 25 × 10, 1RM 33
   })
 })

@@ -508,7 +508,10 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const p = prev[i]
     const sideTag = side || s.side
     // A half of a hold pair reads its own side of a per-side set last time.
-    const prevText = previousCell(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
+    const prevSide = side || (s.side && isSideSet(p) ? s.side : undefined)
+    const prevText = previousCell(p, { ...prevOpts, side: prevSide })
+    // Said with its unit: the column header that names it is hidden from TalkBack (the fresh audit, 2026-11-21).
+    const prevSaid = previousCell(p, { ...prevOpts, unit: exUnit, side: prevSide })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
     const effTick = effOn && effAt(s) && !goOn && !src.done
@@ -518,7 +521,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (isOpenAt(i) ? ' hv-open' : '')}>
       {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
-        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevText : undefined}>
+        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevSaid : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
@@ -575,7 +578,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
-        <h3 className="hv-name-h"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
+        <h3 className="hv-name-h" aria-level={2}><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
         <BrandLine idx={entryIdx} />
         {/* A line under the name, as a machine's BrandLine draws it: one form for both (the critique, 2026-11-21). */}
         {addBrand && <button type="button" className="hv-brand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}

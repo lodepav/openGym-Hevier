@@ -40,6 +40,19 @@ function open(workouts, edit) {
   const sheet = useUI.getState().sheets.at(-1)
   act(() => root.render(sheet.render(() => {})))
 }
+// Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
+function pickMenu(btn, label) {
+  act(() => btn.click())
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const r = createRoot(host)
+  const top = useUI.getState().sheets.at(-1)
+  act(() => r.render(top.render(() => useUI.setState({ sheets: useUI.getState().sheets.filter(x => x !== top) }))))
+  const offered = [...host.querySelectorAll('button.lrow .lrow-t')].map(x => x.textContent)
+  if (label) act(() => [...host.querySelectorAll('button.lrow')].find(b => b.querySelector('.lrow-t').textContent === label).click())
+  act(() => r.unmount()); host.remove()
+  return offered
+}
 // Opens a row or link of the page and renders the sheet it opens; `subs` are unmounted after each test.
 let subs = []
 function sub(label) {
@@ -316,11 +329,9 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
   })
   it('narrows the page to the brand picked, and All history with it', () => {
     open(log)
-    const select = container.querySelector('.hv-xd-labels select')
-    act(() => {
-      Object.getOwnPropertyDescriptor(select.constructor.prototype, 'value').set.call(select, 'k:Technogym')
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    // Upstream's picker sheet, not a native select (the fresh audit, 2026-11-21).
+    expect(container.querySelector('.hv-xd-labels select')).toBeNull()
+    pickMenu(container.querySelector('.hv-xd-labels .menu-btn'), 'Technogym (2)')
     expect(lastShown()).toBe(2)
     expect(shown(sub('All history'))).toEqual(['s1', 's3'])
   })
@@ -329,7 +340,7 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s2']])
-    expect(cols().map(c => c.querySelector('select').value)).toEqual(['k:Technogym', 'k:Hammer'])
+    expect(cols().map(c => c.querySelector('.menu-btn').getAttribute('aria-label'))).toEqual(['Brand: Technogym', 'Brand: Hammer'])
     chip('Cutting')
     expect(cols().map(shown)).toEqual([['s1'], []])
   })
@@ -339,21 +350,16 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1'], ['s4']])
-    expect([...cols()[1].querySelectorAll('option')].map(o => o.textContent)).toEqual(['No brand'])
+    expect(pickMenu(cols()[1].querySelector('.menu-btn'))).toEqual(['No brand'])
   })
   it('lets a column pick No brand among other brands', () => {
     open([...log, session('s4', 9, undefined, 40)])
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s2']])
-    const select = cols()[1].querySelector('select')
-    expect([...select.querySelectorAll('option')].map(o => o.textContent)).toEqual(['Hammer', 'No brand'])
-    act(() => {
-      Object.getOwnPropertyDescriptor(select.constructor.prototype, 'value').set.call(select, 'k:')
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    expect(pickMenu(cols()[1].querySelector('.menu-btn'), 'No brand')).toEqual(['Hammer', 'No brand'])
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s4']])
-    expect(cols()[1].querySelector('select').value).toBe('k:')
+    expect(cols()[1].querySelector('.menu-btn').getAttribute('aria-label')).toBe('Brand: No brand')
   })
   it('does not offer Compare brands with one brand', () => {
     open(log.filter(w => w.id !== 's2'))

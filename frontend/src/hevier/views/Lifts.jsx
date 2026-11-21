@@ -190,14 +190,16 @@ export default function Lifts() {
   const [filter, setFilter] = useState(null)
   const today = todayISO()
   const by = liftsBy(S)
-  const log = fieldSig(S, 'workouts')
+  // The log by identity, not as JSON per copy of S: a write that only reads it may copy it, which
+  // recomputes once more, but no change goes unseen (the fresh audit, 2026-11-21).
+  const log = S.workouts
   // Records are part of a row, so the list follows the log and what decides a record (records.js's key).
   const rows = useMemo(() => liftRows(S), [log, fieldSig(S, 'hvModuleParts'), fieldSig(S, 'modules')]) // eslint-disable-line react-hooks/exhaustive-deps
   const phase = useMemo(() => (partOn(S, 'integrations', 'openbite') ? currentPhase(S) : null), [log, fieldSig(S, 'hvModuleParts'), fieldSig(S, 'modules')]) // eslint-disable-line react-hooks/exhaustive-deps
   // A stored Phase reads as 12 weeks while there is no phase to show.
   const win = liftsWindow(S) === 'phase' && !phase ? '12w' : liftsWindow(S)
   const from = windowFrom(S, win, today)
-  const progress = useMemo(() => liftProgress(S, { from }), [log, fieldSig(S, 'routines'), from]) // eslint-disable-line react-hooks/exhaustive-deps
+  const progress = useMemo(() => liftProgress(S, { from }), [log, S.routines, from]) // eslint-disable-line react-hooks/exhaustive-deps
   const totals = progressTotals(progress)
   // By name, and by the brand it was logged on (D36), as the picker searches.
   const trained = rows.map(r => exOr(r.id))

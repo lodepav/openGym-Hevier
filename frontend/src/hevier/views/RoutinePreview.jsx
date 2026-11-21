@@ -2,7 +2,7 @@
 // last time on the left and beside it what the workout will open with, warm-ups included, built by
 // upstream's own start (hevier/lib/next-plan.js). A tap on a weight or reps plans it for the next
 // session only (components/PlanKeypad.jsx); the routine itself changes in the editor, one tap away.
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -69,7 +69,9 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
       return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show, unit }), next: <span className="hv-np-ro">{setText(x.id, mapSetWeights(s, show), cfg, speedUnit, unit)}</span> }
     })
   }
-  const mark = set => (set.kind === 'warm' ? <span className="hv-w">W</span> : set.rows[0].failure ? <span className="hv-f">F</span> : set.n + 1)
+  // W and F said as words, as Workout detail does (the fresh audit, 2026-11-21).
+  const mark = set => (set.kind === 'warm' ? <span className="hv-w" role="img" aria-label={t('Warm-up')}>W</span>
+    : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span> : set.n + 1)
   const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
@@ -102,13 +104,14 @@ export default function RoutinePreview() {
   const S = useStore(s => s.S)
   const r = S.routines.find(x => x.id === id)
   useEffect(() => { if (!r) nav('/routines', { replace: true }) }, [!!r])
+  // Upstream's start plan, once per copy of S, not on every redraw (the fresh audit, 2026-11-21).
+  const session = useMemo(() => (r ? nextSession(S, r.id) : null), [S, id]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!r) return null
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   const units = supersetUnits(r.ex)
   const load = r.ex.length ? loadOfRoutine(r) : null
   const sets = r.ex.reduce((n, e) => n + workCount(e), 0)
   const usual = usualLength(S, r)
-  const session = nextSession(S, r.id)
   const fields = new Map(planFields(session).map(f => [f.id, f]))
   // The note that the routine is not changed, under the first exercise with a plan.
   const noted = session.find(x => x.sets.some(s => s.plan))?.key

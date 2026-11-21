@@ -143,6 +143,15 @@ describe('hevier: Calendar', () => {
     expect(container.querySelectorAll('.hv-cal-m').item(6).querySelectorAll('.hv-cal-d.planned').length).toBe(new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())
   })
 
+  // The fresh audit, 2026-11-21: pinned, the key took a large share of a short screen at a big text size.
+  it('the key sits under the months, out of the pinned top', () => {
+    render('/calendar', [w])
+    const key = container.querySelector('.hv-cal-key')
+    expect(key.closest('.hv-cal-top')).toBeNull()
+    expect([...key.parentElement.children].at(-1)).toBe(key)
+    expect([...key.querySelectorAll('span')].map(x => x.textContent)).toEqual(['Strength', 'Cardio', 'Deload', 'Planned'])
+  })
+
   it('History’s Calendar chip opens it', () => {
     render('/history-tab')
     click([...container.querySelectorAll('.hv-hlinks button')].find(b => b.textContent.includes('Calendar')))

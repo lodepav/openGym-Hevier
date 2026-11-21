@@ -26,7 +26,7 @@ import {
   menuSheet, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
-import { Button } from '../../components/ui.jsx'
+import { Button, MenuButton } from '../../components/ui.jsx'
 import { youtubeSearchUrl } from '../../lib/youtube.js'
 import { openExternal } from '../../components/CustomMedia.jsx'
 import Media from '../../components/Media.jsx'
@@ -172,12 +172,10 @@ function Chart({ ex, sum, st }) {
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   return <section>
     <div className="hv-xd-cap"><h4 className="sec">{curves.find(c => c.value === on).title}</h4>
-      <select className="hv-xd-range" value={range} aria-label={t('Range')} onChange={e => setRange(e.target.value)}>
-        <option value="3m">{t('Last 3 months')}</option>
-        <option value="1y">{t('Year')}</option>
-        <option value="all">{t('All time')}</option>
-      </select></div>
-    <div className="chart hv-xd-chart"><LineChart points={points} h={150} unit={cu} /></div>
+      {/* Upstream's picker sheet, not a native select's white system list (the fresh audit, 2026-11-21). */}
+      <MenuButton className="hv-xd-range" title={t('Range')} value={range} onChange={setRange}
+        options={[{ value: '3m', label: t('Last 3 months') }, { value: '1y', label: t('Year') }, { value: 'all', label: t('All time') }]} /></div>
+    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', curves.find(c => c.value === on).title)}><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
@@ -197,13 +195,14 @@ function History({ ex, sum, st }) {
     const rows = historyRows(workoutAs(w, ex.id, currentDbLoad(st, ex.id)), ex.id, s)
     const sets = rows.map(y => y.s)
     return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
-      <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
+      <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />{t('PR')}</span>}</div>
       <div className="hv-xd-sd">{dateOf(s.d)}</div>
       {/* The holds of a reps session too (D89), marked H as a warm-up is W. */}
       {detailRows(sets).map(row => {
         const mark = row.head ? setMark(sets, row.i) : ''
-        return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>
-          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : setText(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st), exUnitOf(st, ex.id))}</span>
+        return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}
+          {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : {})}>{mark === 'H' ? t('H') : mark}</span>
+          <span>{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : setText(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st), exUnitOf(st, ex.id))}</span>
           {/* A set's note (upstream 1.4.4, D5). */}
           {row.last && setNoteOf(sets[row.i]) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(sets[row.i])}</span>}</div>
       })}
@@ -234,9 +233,8 @@ function AllHistory({ ex, label }) {
 function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
   const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id), [base, st.dbLoad, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="hv-xd-cmpcol">
-    <select className="hv-xd-label" value={'k:' + value} aria-label={t('Brand')} onChange={e => onPick(e.target.value.slice(2))}>
-      {labels.filter(l => l.key !== other).map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)}</option>)}
-    </select>
+    <MenuButton className="hv-xd-label" title={t('Brand')} value={value} onChange={onPick}
+      options={labels.filter(l => l.key !== other).map(l => ({ value: l.key, label: labelText(l, t) }))} />
     <History ex={ex} sum={sum} st={st} />
   </div>
 }
@@ -349,11 +347,10 @@ function ExerciseDetails({ ex, close }) {
       <Media ex={ex} />
       <ExerciseFacts ex={ex} />
       {brands && <div className="hv-xd-labels">
-        <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
-          onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
-          <option value="">{t('All sets')}</option>
-          {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
-        </select>
+        {/* 'k:' keeps No brand's own key ('') apart from All sets. */}
+        <MenuButton className="hv-xd-label" title={t('Brand')} value={on == null ? '' : 'k:' + on}
+          onChange={v => pickLabel(v ? v.slice(2) : null)}
+          options={[{ value: '', label: t('All sets') }, ...labels.map(l => ({ value: 'k:' + l.key, label: labelText(l, t) + ' (' + l.n + ')' }))]} />
       </div>}
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>

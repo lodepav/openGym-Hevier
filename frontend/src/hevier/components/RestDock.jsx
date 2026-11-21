@@ -40,9 +40,11 @@ export default function RestDock() {
   return <div className="hv-dock" ref={box} role="region" aria-label={t('Rest')}>
     <div className="hv-dock-top">
       <button type="button" className="hv-dock-clock" onClick={adjustRestSheet}
-        aria-label={(timer.kind === 'switch' ? t('Switch sides') + ', ' : timer.paused ? t('Paused') + ', ' : '') + clock(timer.left) + '. ' + t('Change the time left')}>
+        // The seconds are its description, read on focus but not again each tick (the fresh audit, 2026-11-21).
+        aria-label={(timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')) + '. ' + t('Change the time left')}
+        aria-describedby="hv-dock-left">
         <span className="hv-dock-cap">{timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')}</span>
-        <b role="timer">{clock(timer.left)}</b>
+        <b id="hv-dock-left" role="timer">{clock(timer.left)}</b>
       </button>
       {next && <div className="hv-dock-next"><span className="hv-dock-cap">{t('Next') + ' · ' + next.cap}</span>{next.what && <b>{next.what}</b>}</div>}
     </div>

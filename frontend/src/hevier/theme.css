@@ -41,6 +41,7 @@
   --hv-font: 'Nunito', Roboto, system-ui, sans-serif;   /* @font-face comes from build/boot-look.js */
   --hv-card-line: inset 0 0 0 1px var(--sep);   /* a card's edge, drawn inside so no box grows */
   /* the fork's own set-table colours (hevier.css) */
+  --hv-cal-off:    #585550;          /* an untrained day in the year grid: 2.8:1 on black, 3.1:1 to a trained day's green */
   --hv-next-tick:  #48433b;          /* the next set's unticked box, a step above --surface-3 */
   --hv-tick:       var(--acc);       /* a ticked box and the tint of its row: done always wears the accent (D123) */
   --hv-tick-ink:   var(--on-acc);

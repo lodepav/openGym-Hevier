@@ -4,6 +4,7 @@
 // then links to upstream's own statistics, structural balance and Arrange. A tile is the number now, its
 // card the more behind it, never the same number again. A tile opens what its card opens; a tile or
 // card whose module or data is missing is not drawn.
+import { useMemo } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -13,7 +14,7 @@ import { countedS } from '../../lib/counted-log.js'
 import Icon from '../../components/Icon.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import MuscleSetsCard from '../components/MuscleSetsCard.jsx'
@@ -39,8 +40,12 @@ export function LinkRow({ icon, title, sub, onClick }) {
 const cardId = id => 'hv-stat-' + id
 // A tile with no page of its own scrolls to its card; happy-dom has no scrollIntoView.
 // A jump, not a glide, when the phone asks for less motion (the audit leftovers, 2026-11-21).
-const scrollTo = id => () => document.getElementById(cardId(id))?.scrollIntoView?.({
-  behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+// Focus goes with it, so TalkBack reads on from the card, not the tile (the fresh audit, 2026-11-21).
+const scrollTo = id => () => {
+  const card = document.getElementById(cardId(id))
+  card?.scrollIntoView?.({ behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+  card?.focus({ preventScroll: true })
+}
 
 function Tile({ id, title, value, sub, spoken, onClick, change }) {
   const inner = <><span className="hv-stile-t">{title}</span><b>{value}</b><span className="hv-stile-s">{sub}</span>
@@ -56,22 +61,33 @@ function CardHead({ title, link, label, onClick }) {
     <button type="button" className="hv-link" aria-label={label} onClick={onClick}>{link}<Icon name="chevronRight" /></button></div>
 }
 
-/** Every tile and card the data allows, by id: `{ tile, card }` (either missing when not drawn). A
- *  tile's `scroll` names the card on this page it goes to. */
-function items(S, today, nav) {
+/** The series that walk the whole log, worked out once per change of what they read (the fresh
+ *  audit, 2026-11-21: they ran on every store write while the page was open). */
+function numbers(S, today) {
   const ws = weekStartOf(S)
   // The same day last week, for the week tiles' change (the critique, 2026-11-20).
   const before = isoOf(new Date(Date.parse(today + 'T12:00:00') - 7 * 86400000))
+  return {
+    exMs: weekExerciseTime(S.workouts, today, ws), exMsBefore: weekExerciseTime(S.workouts, before, ws),
+    longest: longestExercises(S.workouts, today),
+    bw: bodyWeightNow(S.bodyweight), pts: bodyWeightPoints(S.bodyweight, today),
+    week: thisWeek(S.workouts, today, ws), lastWeek: thisWeek(S.workouts, before, ws),
+    month: workoutsThisMonth(S.workouts, today), rpe: weekRpe(S.workouts, today, ws).rpe,
+  }
+}
+
+/** Every tile and card the data allows, by id: `{ tile, card }` (either missing when not drawn). A
+ *  tile's `scroll` names the card on this page it goes to. */
+function items(S, today, nav, n) {
   const out = {}
   if (moduleOn(S, 'time')) {
-    const exMs = weekExerciseTime(S.workouts, today, ws)
+    const { exMs, longest } = n
     const v = trainingTime(exMs)
-    const longest = longestExercises(S.workouts, today)
     out.time = {
       // This week's timed exercises added up (stats-tiles.js); the card is each exercise's average over 90 days.
       // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
       tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v),
-        change: weekChange(exMs, weekExerciseTime(S.workouts, before, ws), trainingTime), onClick: () => nav('/exercise-time') } : null,
+        change: weekChange(exMs, n.exMsBefore, trainingTime), onClick: () => nav('/exercise-time') } : null,
       card: longest.length ? () => <div className="card hv-scard">
         <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
         {longest.map(r => {
@@ -83,24 +99,23 @@ function items(S, today, nav) {
     }
   }
   // Weigh-ins are not workouts, so the phase filter leaves them as they are.
-  const bw = moduleOn(S, 'weight') ? bodyWeightNow(S.bodyweight) : null
+  const bw = moduleOn(S, 'weight') ? n.bw : null
   if (bw) {
     const u = S.unit, ch = bw.change, by = ch == null ? '' : fmtNum(Math.abs(ch)) + ' ' + u
     const way = ch == null ? '' : ch < 0 ? t('down {0} in 4 weeks', by) : ch > 0 ? t('up {0} in 4 weeks', by) : t('no change in 4 weeks')
-    const pts = bodyWeightPoints(S.bodyweight, today)
+    const { pts } = n
     out.weight = {
       tile: { title: t('Body weight'), value: fmtNum(bw.w),
         sub: ch == null ? u : u + ' · ' + (ch < 0 ? '↓ ' : ch > 0 ? '↑ ' : '') + t('{0} in 4 weeks', fmtNum(Math.abs(ch))),
-        spoken: t('Body weight, {0}', fmtNum(bw.w) + ' ' + u) + (way ? ', ' + way : ''), onClick: () => nav('/measures') },
+        spoken: t('Body weight, {0}', fmtNum(bw.w) + ' ' + u) + (way ? ', ' + way : ''), onClick: () => nav('/measures', { state: { back: 'Statistics' } }) },
       card: () => <div className="card hv-scard">
-        <CardHead title={t('Body weight')} link={t('Measurements')} label={t('Measurements')} onClick={() => nav('/measures')} />
+        <CardHead title={t('Body weight')} link={t('Measurements')} label={t('Measurements')} onClick={() => nav('/measures', { state: { back: 'Statistics' } })} />
         {pts.length ? <div className="chart" role="img" aria-label={t('Body weight chart')}><LineChart points={pts} h={90} unit={u} goal={S.targetW} /></div>
           : <div className="muted small">{t('No weigh-ins in the last {0} weeks', 12)}</div>}
       </div>,
     }
   }
-  const week = thisWeek(S.workouts, today, ws)
-  const lastWeek = thisWeek(S.workouts, before, ws)
+  const { week, lastWeek } = n
   out.sets = {
     tile: { title: t('Sets per muscle'), value: fmtNum(week.sets), sub: t('sets this week'), spoken: t('Sets per muscle, {0} sets this week', week.sets),
       change: weekChange(week.sets, lastWeek.sets),
@@ -114,11 +129,11 @@ function items(S, today, nav) {
       scroll: 'weekly' },
   }
   out.weekly = { card: () => <div className="card hv-scard"><WeeklyChart /></div> }
-  const month = workoutsThisMonth(S.workouts, today)
+  const { month } = n
   out.month = { tile: { title: t('Workouts this month'), value: month, sub: t('workouts'), spoken: t('Workouts this month, {0}', month),
     onClick: partOn(S, 'hvStats', 'calendar') ? () => nav('/calendar') : null } }
   if (moduleOn(S, 'rpe')) {
-    const { rpe } = weekRpe(S.workouts, today, ws)
+    const { rpe } = n
     out.rpe = { tile: { title: t('Average RPE'), value: rpe == null ? '–' : fmtNum(rpe), sub: rpe == null ? t('too few rated sets this week') : t('this week'),
       spoken: rpe == null ? t('Average RPE, too few rated sets this week') : t('Average RPE, {0} this week', fmtNum(rpe)), onClick: () => nav('/stats/all') } }
   }
@@ -129,12 +144,16 @@ export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
-  const S = usePhasedS(countedS(useStore(s => s.S)))
+  const raw = useStore(s => s.S)
+  const S = usePhasedS(countedS(raw))
+  const phase = useStatsPhase(s => s.phase)
   const today = todayISO()
+  // The counted, phased log is a new copy on each write: key on what it is made from instead.
+  const n = useMemo(() => numbers(S, today), [raw.workouts, raw.routines, raw.bodyweight, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   const layout = S.hvStatsLayout || {}
-  const all = items(S, today, nav)
+  const all = items(S, today, nav, n)
   const cards = shown(CARDS, layout.cards).filter(id => all[id]?.card)
   const tiles = shown(TILES, layout.tiles).filter(id => all[id]?.tile)
   // A tile whose card is on the page scrolls to it; with its card switched off it opens nothing.
@@ -147,7 +166,7 @@ export default function Statistics() {
     <PhaseFilter />
     {tiles.length > 0 && <div className="hv-stiles">{tiles.map(id => <Tile key={id} id={id} {...tileOf(all[id].tile)} />)}</div>}
     {/* Called, not mounted as <Card />: a new function each render would remount it and lose its choices. */}
-    {cards.map(id => <section key={id} id={cardId(id)} className="hv-ssec" data-card={id}>{all[id].card()}</section>)}
+    {cards.map(id => <section key={id} id={cardId(id)} className="hv-ssec" data-card={id} tabIndex={-1}>{all[id].card()}</section>)}
     {/* The page ends with one row of chips, as History's ways in are (the critique, 2026-11-20). */}
     <div className="hv-chips hv-hlinks hv-stat-ends">
       {ends.map(([label, to]) => <button key={to} type="button" className="hv-chip" onClick={() => nav(to)}>{t(label)}</button>)}

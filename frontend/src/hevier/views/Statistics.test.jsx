@@ -84,6 +84,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(tile.getAttribute('aria-label')).toBe('Body weight, 82.4 kg, down 0.6 kg in 4 weeks')
     act(() => tile.click())
     expect(path).toBe('/measures')
+    // Its ‹ says where it goes back to (the fresh audit, 2026-11-21).
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
   })
 
   it('… and not with the body module off', () => {
@@ -161,8 +163,15 @@ describe('hevier: Statistics and Measures (M6)', () => {
     render(['/history-tab', '/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }] })
     expect(container.querySelector('.big').textContent).toContain('80')
     expect(container.querySelector('[aria-current="page"], .on, .active')?.textContent).toContain('History')
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')
     act(() => byText('button', 'Log').click())
     expect(useUI.getState().sheets).toHaveLength(1)
+    // The recent weigh-ins are one button to the whole log (the fresh audit, 2026-11-21).
+    const list = container.querySelector('.hv-ms-list')
+    expect(list.tagName).toBe('BUTTON')
+    expect(list.querySelectorAll('button')).toHaveLength(0)
+    act(() => list.click())
+    expect(useUI.getState().sheets).toHaveLength(2)
     // Each row says what is there, with its day (the critique, 2026-11-21); no photos, no line.
     expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub')).toBeNull()
     expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub')).toBeNull()
