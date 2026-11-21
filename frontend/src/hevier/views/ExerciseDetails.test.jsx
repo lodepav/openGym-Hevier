@@ -90,12 +90,11 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(rows.map(r => r.querySelector('.hv-xd-new')?.textContent)).toEqual(['new', 'new'])
     // The chart comes before the long list of rep counts (the critique, 2026-11-21).
     const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
-    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
-    expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
-    // One session is no curve: the heading keeps its place over one line, no chart (the critique, 2026-11-21).
+    expect(heads).not.toContain('Heaviest Weight')
+    // Under three sessions there is no curve, and a line would repeat the Heaviest tile: no chart section (the critiques, 2026-11-21).
     expect(container.querySelector('.hv-xd-chart')).toBeNull()
     expect(container.querySelector('.hv-xd-range')).toBeNull()
-    expect(container.querySelector('.hv-xd-few').textContent).toMatch(/^62\.5 kg · \S/)
+    expect(container.querySelector('.hv-xd-few')).toBeNull()
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
     expect(rowTitles).toEqual(['How to'])
     expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place
@@ -110,8 +109,6 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
     expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
-    // One session is a line, not a chart (the critique, 2026-11-21): in lb too.
-    expect(container.querySelector('.hv-xd-few').textContent).toMatch(/^110\.23? lb · /)
     // The strength level too: the kg levels and the best 1RM in lb, beside the tile above it.
     expect(container.querySelector('.hv-sl-foot').textContent).toMatch(/Best 1RM 1[45]\d(\.\d+)? lb/)
     expect(container.querySelector('.hv-sl-ticks').textContent).toMatch(/^88132\.5/)
@@ -123,7 +120,10 @@ describe('hevier: exercise details (seam S10)', () => {
     const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
     open([3, 2, 1].map(n => ({ id: 'w' + n, d: at(n * 7), entries: [{ id: EX.id, sets: [{ w: 60 + n, r: 8, done: true }] }] })))
     expect(container.querySelector('.hv-xd-chart')).toBeTruthy()
-    expect(container.querySelector('.hv-xd-few')).toBeNull()
+    // The chart comes before the long list of rep counts (the critique, 2026-11-21).
+    const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
+    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
+    expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
   })
 
   it('a reps-only set on the last sessions reads “8 reps”, not “× 8”', () => {

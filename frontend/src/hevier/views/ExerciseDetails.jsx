@@ -170,11 +170,7 @@ function Chart({ ex, sum, st }) {
   const points = useMemo(() => { const p = inRange(sum.series[on], range); return lb ? curveIn(p, on, sum.metric, w => shownWeight(st, ex.id, w)) : p }, [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
-  const few = (sum.series.main || []).length < 3 ? (sum.series.main || []).reduce((a, p) => (!a || p.y > a.y ? p : a), null) : null
   return <section>
-    {/* Under three sessions a curve says nothing: the best and its day on one line (the critique, 2026-11-21). */}
-    {few ? <><h4 className="sec">{curves[0].title}</h4>
-      <div className="hv-xd-few">{fmtNum(lb && sum.metric === 'weight' ? shownWeight(st, ex.id, few.y) : few.y)} {unitOf(sum.metric, unit)} · {shortDate(few.d)}</div></> : <>
     <div className="hv-xd-cap"><h4 className="sec">{curves.find(c => c.value === on).title}</h4>
       <select className="hv-xd-range" value={range} aria-label={t('Range')} onChange={e => setRange(e.target.value)}>
         <option value="3m">{t('Last 3 months')}</option>
@@ -185,7 +181,7 @@ function Chart({ ex, sum, st }) {
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
-    </div>}</>}
+    </div>}
     {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
       : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
   </section>
@@ -362,7 +358,8 @@ function ExerciseDetails({ ex, close }) {
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
         : <LastSessions ex={ex} sum={hist} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
-      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}><Chart ex={ex} sum={sum} st={st} /></Bests>}
+      {/* Under three sessions a curve says nothing and the best tile already gives its number: no chart (the critiques, 2026-11-21). */}
+      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}>{(sum.series.main || []).length >= 3 && <Chart ex={ex} sum={sum} st={st} />}</Bests>}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
         {/* Without a 1RM too when opened from Set a level, or once levels are typed in. */}

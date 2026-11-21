@@ -31,7 +31,7 @@ describe('Today: the sets the next session opens with (D134)', () => {
     expect(setsText([{ kind: 'work', w: 80, reps: 8 }, { kind: 'work', w: 55, reps: 13 }], 'kg')).toBe('80 kg × 8, 55 kg × 13')
     expect(setsText([8, 8, 7, 6].map(reps => ({ kind: 'work', w: 80, reps })), 'kg')).toBe('2 sets · 80 kg × 8, 80 kg × 7, 80 kg × 6')
     expect(setsText([{ kind: 'work', w: 0, reps: 12 }], 'kg')).toBe('× 12')
-    expect(setsText([0, 1, 2, 3].map(() => ({ kind: 'work', w: 0, reps: 8 })), 'kg')).toBe('4 sets · × 8')
+    expect(setsText([0, 1, 2, 3].map(() => ({ kind: 'work', w: 0, reps: 8 })), 'kg')).toBe('4 sets × 8')
     expect(setsText([{ kind: 'work', w: 0, sec: 45 }], 'kg')).toBe('45 s')
     expect(setsText([{ kind: 'work', min: 20, speed: 8 }], 'kg')).toBe('20 min')
   })

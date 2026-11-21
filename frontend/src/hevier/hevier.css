@@ -418,6 +418,7 @@
 :root[data-ui="hevier"] .hv-rrow .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
 :root[data-ui="hevier"] .hv-rend{flex-wrap:wrap;gap:6px;margin:14px 0}
 :root[data-ui="hevier"] .hv-rend .hv-chip{padding-inline:10px}
+:root[data-ui="hevier"] .hv-sl-add{width:100%;margin-top:12px}
 :root[data-ui="hevier"] .hv-folder{margin-bottom:10px}
 :root[data-ui="hevier"] .hv-fhead{display:flex;align-items:center;gap:4px;min-height:40px}
 :root[data-ui="hevier"] .hv-ftoggle{flex:1;display:flex;align-items:center;gap:6px;background:none;padding:6px 0;font-size:15px;font-weight:600;color:var(--label-2);text-align:start}
@@ -471,7 +472,6 @@
 :root[data-ui="hevier"] .hv-xd-page > .exmedia{margin-top:6px}
 /* The clip's own box is white until its first frame; dark like the frame around it (the critique, 2026-11-21). */
 :root[data-ui="hevier"] :is(.hv-xd-page, .hv-xd-howto) > .exmedia video.catvid{background:var(--surface-2)}
-:root[data-ui="hevier"] .hv-xd-few{padding:4px 2px 8px;font-size:15px;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-tabs{margin-bottom:14px}
 /* Hevy's tabs (the clock sheet's): plain words over a hairline, the open one in the accent with an accent underline */
 :root[data-ui="hevier"] .seg.hv-xd-tabs{background:none;border-radius:0;padding:0;border-bottom:var(--hair) solid var(--sep)}

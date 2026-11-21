@@ -357,3 +357,8 @@ Measures' rows give the last value and the photo count; Today's sets read "3 set
 the routine editor puts the brand under the name and flattens + Set, + Warm-up and the rest; the
 workout says "+ Brand" in both places; Workout detail explains ↑ = ↓ once; Calendar names get two
 lines; Monthly report says what it compares against under the month; Routines' chips fit one row.
+
+Run 7 (2026-11-21) re-scored the ten pages round 6 changed: nine up, Live workout level, 13 points
+in total. Its four findings were fixed at the owner's word: no chart section under three sessions
+on Exercise details (the line repeated the best tile); Set a level as a full-width button; "+ Brand"
+as one text line under the name in the workout; "4 sets × 8" for a set without weight on Today.

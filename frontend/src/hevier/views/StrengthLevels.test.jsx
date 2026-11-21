@@ -84,6 +84,7 @@ describe('hevier: strength levels list', () => {
     const secs = [...container.querySelectorAll('h2.sec')].map(h => h.textContent)
     expect(secs).toEqual(['Intermediate · 1', 'No 1RM logged yet · 1'])
     expect(container.textContent).toContain('15 kg to Advanced')
+    expect(container.querySelector('.hv-sl-add').className).toBe('btn hv-sl-add')   // with a list, quieter
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
   })
@@ -91,6 +92,8 @@ describe('hevier: strength levels list', () => {
     render('/strength')
     expect(container.querySelector('.hv-ms-empty').textContent).toBe('No strength levels yet.')
     expect(container.querySelector('.hv-report-row')).toBeNull()
+    // The page's one action is a full-width button, not a chip (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-sl-add').className).toBe('btn primary hv-sl-add')
     // Opened directly, back goes up to Lifts (D142).
     act(() => container.querySelector('.hv-pb-back').click())
     expect(path).toBe('/lifts')

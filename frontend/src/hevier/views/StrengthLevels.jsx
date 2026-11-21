@@ -33,7 +33,8 @@ export default function StrengthLevels() {
     <PhaseFilter />
     {/* With none set, a line, not a list of every lift; Set a level picks one (the critique, 2026-11-21). */}
     {!groups.length && <div className="hv-ms-empty">{t('No strength levels yet.')}</div>}
-    <button type="button" className="hv-chip hv-sl-add" onClick={setLevel}>{t('Set a level')}</button>
+    {/* The page's one action: full width, filled while the page is empty (the critique, 2026-11-21). */}
+    <button type="button" className={'btn' + (groups.length ? '' : ' primary') + ' hv-sl-add'} onClick={setLevel}>{t('Set a level')}</button>
     {groups.map(g => <section key={String(g.level)}>
       <h2 className="sec">{title(g.level)} <span className="dim">· {g.items.length}</span></h2>
       <div className="list">{g.items.map(x => {

@@ -23,7 +23,7 @@ function rowText(row, unit) {
  *  words, "3 sets · 60 kg × 8", "2 sets · 80 kg × 8, 80 kg × 7", "3 sets · × 10" on body weight;
  *  "3 × 60 × 8" read as three numbers multiplied (the critique, 2026-11-21). */
 export const setsText = (rows, unit) => setRuns(rows.filter(row => row.kind === 'work').map(row => rowText(row, unit)),
-  (n, v) => tn('{0} set', '{0} sets', n) + ' · ' + v)
+  (n, v) => tn('{0} set', '{0} sets', n) + (v.startsWith('× ') ? ' ' : ' · ') + v)   // "4 sets × 8", not "4 sets · × 8"
 
 // One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".
 function openedRow(set, show, unit) {
