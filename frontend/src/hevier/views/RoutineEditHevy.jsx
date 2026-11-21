@@ -5,7 +5,7 @@
 // chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
 // upstream's editor has. Every change saves as it is made, as upstream's editor does.
 import { progressionOn } from '../lib/plain-routine.js'
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -101,7 +101,7 @@ function BrandSheet({ exId, close }) {
   </form>
 }
 
-function RoutineExercise({ r, i, unitOf, S, grip, press }) {
+function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -303,9 +303,20 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   </div>
 }
 
+// A key in the title redraws the page, not every card (the second audit, 2026-11-21). The drag
+// handlers read their state through refs, so a card needs new ones only when its place (`at`) changes.
+const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.r === b.r && a.S === b.S && a.i === b.i && a.at === b.at
+  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && !a.grip === !b.grip)
+
+// Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
+// state (the title, its pending save) belongs to one routine (the second audit, 2026-11-21).
 export default function RoutineEditHevy() {
-  const nav = useNavigate()
   const { id } = useParams()
+  return <RoutineEditor key={id} id={id} />
+}
+
+function RoutineEditor({ id }) {
+  const nav = useNavigate()
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
@@ -393,7 +404,7 @@ export default function RoutineEditHevy() {
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
         className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S}
-          grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
+          at={n + '/' + units.length} grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
       </section>)}
     </div> : <div className="hv-empty">
       <Icon name="dumbbell" />

@@ -123,6 +123,9 @@ describe('hevier: routine folders and reordering', () => {
     expect(names()).toEqual(['Squat day'])
     expect(heads()).toEqual([])
     expect(container.querySelector('.hv-grip')).toBeFalsy()
+    // The second audit, 2026-11-21: a move inside a folder the search hides would show nothing.
+    act(() => container.querySelector('.hv-rrow [aria-label^="More"]').click())
+    expect([...sheet().querySelectorAll('.menu-item')].map(m => m.textContent)).not.toContain('Move up')
     type('zzz')
     expect(names()).toEqual([])
     expect(container.textContent).toContain('No routine matches')

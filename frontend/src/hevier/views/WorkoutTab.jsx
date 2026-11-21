@@ -156,8 +156,9 @@ export default function WorkoutTab() {
       title: r.name,
       items: [
         { icon: 'pencil', label: t('Edit routine'), onClick: () => nav('/plan/r/' + r.id) },
-        { icon: 'chevronUp', label: t('Move up'), disabled: i === 0, onClick: () => step(-1) },
-        { icon: 'chevronDown', label: t('Move down'), disabled: i === g.ids.length - 1, onClick: () => step(1) },
+        // Not from search results: the move is inside a folder the search hides (the second audit, 2026-11-21).
+        !found && { icon: 'chevronUp', label: t('Move up'), disabled: i === 0, onClick: () => step(-1) },
+        !found && { icon: 'chevronDown', label: t('Move down'), disabled: i === g.ids.length - 1, onClick: () => step(1) },
         { icon: 'folder', label: t('Move to folder'), sub: folderOf(r) || t('My Routines'), onClick: () => moveSheet(r) },
         { icon: 'copy', label: t('Duplicate'), onClick: () => duplicate(r) },
         { icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => deleteRoutineWithUndo(r.id) },

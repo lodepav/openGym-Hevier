@@ -1137,16 +1137,20 @@
 /* The audit, 2026-11-21: small targets reach 48 dp, and layouts hold at 320 css px and 130 % text. */
 /* Text-sized buttons get an invisible margin up and down; a neighbour beside one keeps its own. */
 :root[data-ui="hevier"] :is(.hv-noprog .hv-link, .hv-xd-aka, .hv-sl .btn, .hv-measures .btn.plain.sm){position:relative}
-:root[data-ui="hevier"] .hv-noprog .hv-link::after{content:"";position:absolute;inset:-16px -8px}
+/* Undo fills its 32 dp line and reaches 8 into the gap on each side, so it stops at the buttons above (the second audit). */
+:root[data-ui="hevier"] .hv-noprog{min-height:32px;margin-bottom:8px}
+:root[data-ui="hevier"] .hv-noprog .hv-link{align-self:stretch}
+:root[data-ui="hevier"] .hv-noprog .hv-link::after{content:"";position:absolute;inset:-8px -8px}
 :root[data-ui="hevier"] .hv-sl .btn::after{content:"";position:absolute;inset:-6px 0}
 :root[data-ui="hevier"] .hv-measures .btn.plain.sm::before{inset:-9px 0}
 /* "Also called": 32 dp tall plus 8 above and below, kept clear of the ⋯ column beside the title. */
 :root[data-ui="hevier"] .hv-xd-aka{width:calc(100% - 56px);padding-block:8px;margin:-14px 0 2px}
 :root[data-ui="hevier"] .hv-xd-aka::after{content:"";position:absolute;inset:-8px 0}
 :root[data-ui="hevier"] .hv-sl-add{min-height:48px}
-/* The workout's brand and cable line: 32 dp tall, the margin mostly below, where the name's is not. */
-:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:32px}
-:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-6px -4px -10px}
+/* The workout's brand and cable line: 36 dp tall, the margin below; above it takes half the 2 px gap,
+   so the name keeps its own target (the second audit). */
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable){position:relative;min-height:36px}
+:root[data-ui="hevier"] .hv-ex .hv-nameline :is(.hv-brand, .hv-cable)::after{content:"";position:absolute;inset:-1px -4px -11px}
 /* The set number takes the row's height, and reaches into the card's edge and half the gap. */
 :root[data-ui="hevier"] .hv-set{position:relative;align-self:stretch}
 :root[data-ui="hevier"] .hv-set::after{content:"";position:absolute;inset:0 -3px 0 -10px}
@@ -1162,11 +1166,12 @@
 /* Calendar's year view: the whole month block opens the month, not only its 17 dp title. */
 :root[data-ui="hevier"] .hv-cal-m.small{position:relative}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-mt::after{content:"";position:absolute;inset:0}
-/* Sets per muscle: when the row cannot keep a bar beside the name, the name goes above it. */
+/* Sets per muscle and Muscle Split: when the row cannot keep a bar beside the name, the name goes above it. */
 :root[data-ui="hevier"] .hv-msets{container-type:inline-size;font-size:14px}
 @container (max-width: 18em){
   :root[data-ui="hevier"] .hv-mset{grid-template-columns:1fr 2.6em 3em;row-gap:4px}
-  :root[data-ui="hevier"] .hv-mset > :first-child{grid-column:1 / -1}
+  :root[data-ui="hevier"] .hv-wd-split{grid-template-columns:1fr 4.5em;row-gap:4px}
+  :root[data-ui="hevier"] :is(.hv-mset, .hv-wd-split) > :first-child{grid-column:1 / -1}
 }
 /* Lifts: the right column may wrap inside its share instead of pushing past the edge. */
 :root[data-ui="hevier"] .hv-lift-mid .hv-lift-r{flex:0 1 auto;min-width:0}

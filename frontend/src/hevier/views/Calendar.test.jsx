@@ -107,6 +107,21 @@ describe('hevier: Calendar', () => {
     expect(titles()[6]).toBe(first)
   })
 
+  // The second audit, 2026-11-21: these two marks were seen and not said.
+  it('a day with only a note says Note, and a past planned day says Planned', () => {
+    const d = new Date(); d.setDate(d.getDate() - 20)
+    const iso = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+    render('/calendar')
+    act(() => useStore.setState({ S: { ...useStore.getState().S, dayNotes: { [iso]: { tag: 'sick' } } } }))
+    const cell = () => [...container.querySelectorAll('.hv-cal-c')].find(c => c.getAttribute('aria-label').startsWith(fmtDate(iso, true)))
+    expect(cell().querySelector('.hv-cal-d').classList.contains('noted')).toBe(true)
+    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true) + ', Note')
+    const routines = [{ id: 'r', name: 'Push', ex: [] }], week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
+    act(() => useStore.setState({ S: { ...useStore.getState().S, routines, week, dayNotes: {} } }))
+    expect(cell().querySelector('.hv-cal-d').className).toMatch(/\bplan\b/)
+    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true) + ', Planned')
+  })
+
   it('a planned day from today on has its dot, a past one none; Show next month adds months below (D68)', () => {
     const S = structuredClone(DEF)
     S.routines = [{ id: 'r', name: 'Push', ex: [] }]
