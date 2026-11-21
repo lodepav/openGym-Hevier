@@ -333,7 +333,7 @@
 :root[data-ui="hevier"] .hv-barcol{flex:1;height:100%;display:flex;align-items:flex-end;padding:0;background:none;border:0}
 :root[data-ui="hevier"] .hv-barcol i{display:block;width:100%;background:var(--acc);border-radius:6px 6px 0 0;min-height:2px}
 :root[data-ui="hevier"] .hv-barcol i.zero{background:var(--surface-3)}
-:root[data-ui="hevier"] .hv-bars:has(.on) .hv-barcol:not(.on) i{opacity:.45}
+:root[data-ui="hevier"] .hv-bars:has(.on) .hv-barcol:not(.on) i{opacity:.7}   /* 3:1 on black in every accent, blue lowest (3.18) */
 :root[data-ui="hevier"] .hv-chips{display:flex;gap:8px;margin-top:10px}
 :root[data-ui="hevier"] .hv-chip{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-chip.on{background:var(--acc);color:var(--on-acc)}
@@ -682,7 +682,7 @@
 :root[data-ui="hevier"] .hv-cal-key span{display:flex;align-items:center;gap:5px}
 :root[data-ui="hevier"] .hv-cal-key i{width:10px;height:10px;border-radius:50%}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-g{gap:2px}
-:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d{width:8px;height:8px;background:var(--surface-2)}
+:root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d{width:8px;height:8px;background:#585550}   /* about 3:1 to black and to a trained day's green */
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d.done{background:var(--acc)}
 :root[data-ui="hevier"] .hv-cal-m.small .hv-cal-d::after{display:none}
 
@@ -720,7 +720,7 @@
 :root[data-ui="hevier"] .hv-report-stats em.down{color:var(--label-2)}
 :root[data-ui="hevier"] .hv-report-row{width:100%;text-align:start;font:inherit;color:var(--label);gap:10px}
 :root[data-ui="hevier"] .hv-report-row .grow{display:flex;flex-direction:column;gap:2px}
-:root[data-ui="hevier"] .hv-report .hv-cal-mt{display:none}
+:root[data-ui="hevier"] .hv-report .hv-cal-mh{display:none}
 :root[data-ui="hevier"] .hv-report h3.sec{display:flex;align-items:center;gap:6px}
 :root[data-ui="hevier"] .hv-report h3.sec .icn{color:var(--hv-record,var(--yellow))}
 /* D28: the workout's gym and a machine's brand label */
@@ -1175,3 +1175,8 @@
 }
 /* Lifts: the right column may wrap inside its share instead of pushing past the edge. */
 :root[data-ui="hevier"] .hv-lift-mid .hv-lift-r{flex:0 1 auto;min-width:0}
+
+/* The audit leftovers, 2026-11-21. An exercise name is a heading for TalkBack's heading jumps; the
+   wrapper takes no box, so the layout is the button's as before. */
+:root[data-ui="hevier"] .hv-namehd{display:contents}
+:root[data-ui="hevier"] .lrow.sp-root-row{min-height:48px}

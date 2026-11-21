@@ -10,12 +10,14 @@ import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
 import { tableShape } from '../lib/routine-table.js'
+import { loadOfRoutine } from '../../lib/muscles.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 // Counted, to show a title key redraws no exercise card (the second audit, 2026-11-21).
 vi.mock('../lib/routine-table.js', async orig => { const m = await orig(); return { ...m, tableShape: vi.fn(m.tableShape) } })
+vi.mock('../../lib/muscles.js', async orig => { const m = await orig(); return { ...m, loadOfRoutine: vi.fn(m.loadOfRoutine) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -223,6 +225,33 @@ describe('hevier: routine editor (M3)', () => {
     const n = tableShape.mock.calls.length
     typeInto(container.querySelector('.hv-rtitle'), 'Leg Day 2')
     expect(tableShape.mock.calls.length).toBe(n)
+  })
+
+  // The audit leftovers, 2026-11-21: Android may kill the app in the background before the pause ends.
+  it('a title typed is written when the app goes to the background', () => {
+    vi.useFakeTimers()
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    typeInto(container.querySelector('.hv-rtitle'), 'Leg Day 2')
+    const vis = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState') || {}
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' })
+    act(() => document.dispatchEvent(new Event('visibilitychange')))
+    delete document.visibilityState
+    if (vis.get) Object.defineProperty(Document.prototype, 'visibilityState', vis)
+    expect(useStore.getState().S.routines[0].name).toBe('Leg Day 2')
+    vi.useRealTimers()
+  })
+
+  // The audit leftovers, 2026-11-21: the body map was worked out again on every name written.
+  it('a new title, once written, does not work out the body map again', () => {
+    vi.useFakeTimers()
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const n = loadOfRoutine.mock.calls.length
+    expect(n).toBeGreaterThan(0)
+    typeInto(container.querySelector('.hv-rtitle'), 'Leg Day 2')
+    act(() => vi.advanceTimersByTime(500))
+    vi.useRealTimers()
+    expect(useStore.getState().S.routines[0].name).toBe('Leg Day 2')
+    expect(loadOfRoutine.mock.calls.length).toBe(n)
   })
 
   it('⋯ → Copy routine opens the copy with its own name in the title', () => {

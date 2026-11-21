@@ -38,7 +38,9 @@ export function LinkRow({ icon, title, sub, onClick }) {
 
 const cardId = id => 'hv-stat-' + id
 // A tile with no page of its own scrolls to its card; happy-dom has no scrollIntoView.
-const scrollTo = id => () => document.getElementById(cardId(id))?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+// A jump, not a glide, when the phone asks for less motion (the audit leftovers, 2026-11-21).
+const scrollTo = id => () => document.getElementById(cardId(id))?.scrollIntoView?.({
+  behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
 
 function Tile({ id, title, value, sub, spoken, onClick, change }) {
   const inner = <><span className="hv-stile-t">{title}</span><b>{value}</b><span className="hv-stile-s">{sub}</span>
@@ -92,7 +94,7 @@ function items(S, today, nav) {
         spoken: t('Body weight, {0}', fmtNum(bw.w) + ' ' + u) + (way ? ', ' + way : ''), onClick: () => nav('/measures') },
       card: () => <div className="card hv-scard">
         <CardHead title={t('Body weight')} link={t('Measurements')} label={t('Measurements')} onClick={() => nav('/measures')} />
-        {pts.length ? <div className="chart"><LineChart points={pts} h={90} unit={u} goal={S.targetW} /></div>
+        {pts.length ? <div className="chart" role="img" aria-label={t('Body weight chart')}><LineChart points={pts} h={90} unit={u} goal={S.targetW} /></div>
           : <div className="muted small">{t('No weigh-ins in the last {0} weeks', 12)}</div>}
       </div>,
     }

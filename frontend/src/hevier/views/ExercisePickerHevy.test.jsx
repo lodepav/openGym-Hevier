@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB, searchExercises } from '../../lib/exercises.js'
+import { usageOf } from '../../lib/favourites.js'
 import { exercisePicker, swapActiveWorkoutExercise } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExercisePicker, Exercises } from './ExercisePickerHevy.jsx'
@@ -16,6 +17,7 @@ vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 // Counted, to show the search runs once per keystroke (the audit, 2026-11-21).
 vi.mock('../../lib/exercises.js', async orig => { const m = await orig(); return { ...m, searchExercises: vi.fn(m.searchExercises) } })
+vi.mock('../../lib/favourites.js', async orig => { const m = await orig(); return { ...m, usageOf: vi.fn(m.usageOf) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -66,6 +68,16 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     click(rowOf(BENCH))
     act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
     expect(searchExercises.mock.calls.length).toBe(n)
+  })
+
+  it('counts how often each exercise is used once per search, not again on a tick or a store write (the audit leftovers)', () => {
+    open(() => {}, {})
+    search('bench')
+    const n = usageOf.mock.calls.length
+    expect(n).toBeGreaterThan(0)
+    click(rowOf(BENCH))
+    act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
+    expect(usageOf.mock.calls.length).toBe(n)
   })
 
   it('adds several exercises in the order they were ticked, with upstream’s quick add', () => {
