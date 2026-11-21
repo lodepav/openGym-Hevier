@@ -44,7 +44,13 @@ if [[ "${1:-}" != "--no-build" ]]; then
   (cd android && ../../hevier/tools/heavy.sh ./gradlew assembleSideloadDebug -q)
 fi
 
-[[ -n ${ANDROID_SERIAL:-} ]] || ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up ${AVD:-})"
+# Every adb call below goes to this one device, never another session's emulator.
+cd "$ROOT"  # emu names the owner after the repo it runs in
+if [[ -z "${ANDROID_SERIAL:-}" ]]; then
+  ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up ${AVD:-})"
+elif ! "$HOME/.claude/bin/emu" mine "$ANDROID_SERIAL"; then
+  echo "emulator.sh: $ANDROID_SERIAL was not booted from this repo (emu list)" >&2; exit 1
+fi
 export ANDROID_SERIAL
 adb shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
 
