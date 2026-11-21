@@ -1189,13 +1189,10 @@
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name{min-height:48px}
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name::after{inset:0}
 :root[data-ui="hevier"] .hv-ssec:focus{outline:none}
-/* The Routines tab's + Routine, + Folder and Rotation reach 48 dp up and down; the gap above them is to be measured on the emulator. */
+/* The Routines tab's + Routine, + Folder and Rotation reach 49 dp up and down, nothing under the reach (measured, 2026-11-21). */
 :root[data-ui="hevier"] .hv-rend .hv-chip::after{inset:-10px 0}
-/* At a large text size the routine names under the days shrink to a fragment: they go, the day's mark
-   stays, and TalkBack still says the routine (the fresh audit, 2026-11-21). At 100 % the month is
-   about 21 em wide at 320 px and 23 at 360; at 130 % about 18. */
-:root[data-ui="hevier"] .hv-cal-m:not(.small) .hv-cal-g{container-type:inline-size;font-size:14px}
-@container (max-width: 19em){:root[data-ui="hevier"] .hv-cal-tl{display:none}}
+/* At a large text size on a narrow phone the routine names go; TalkBack still says them (Calendar.jsx namesFit). */
+:root[data-ui="hevier"] .hv-cal-tight .hv-cal-tl{display:none}
 :root[data-ui="hevier"] .hv-cal > .hv-cal-key{margin:16px 0 8px}
 /* Exercise details' range and brand are upstream's menu buttons now: its chevron, not the select's drawn one. */
 :root[data-ui="hevier"] .menu-btn.hv-xd-range{background-image:none;padding:6px 4px}
