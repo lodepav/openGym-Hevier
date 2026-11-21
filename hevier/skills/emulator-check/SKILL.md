@@ -8,9 +8,11 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 ## Build, install, launch
 
 Emulators are shared with OpenBite. Message its session (ListAgents, then SendMessage) and wait
-for its OK before booting or stopping one; use only the one you booted.
+for its OK before booting or stopping one; use only the one you booted. A subagent without those
+tools asks the session that started it instead. `adb` is not on PATH: every snippet here exports it.
 
 ```bash
+export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
 ~/.claude/bin/emu list                 # what runs, whose it is, memory left
 hevier/tools/emulator.sh               # vite build + cap sync + gradle + boot + install + launch
 ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh --no-build   # reinstall on your emulator
@@ -35,7 +37,7 @@ The app id is `ch.duartesantos.opengym.hevier.test`.
   with names already on the page.
 
 **Prefer real taps** for anything gesture-like (swipes, drags, long presses, sheet buttons
-that listen for pointer events): `adb shell input tap X Y` and `adb shell input swipe x1 y1 x2 y2
+that listen for pointer events): `ANDROID_SERIAL=<serial> ~/Android/Sdk/platform-tools/adb shell input tap X Y` and `adb shell input swipe x1 y1 x2 y2
 300`. Device px = CSS px × 2.625. Get the CSS coordinates from
 `eval "(() => { const r = document.querySelector('…').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2] })()"`.
 
@@ -57,6 +59,7 @@ A light AVD keeps whatever the last session left, so restore the test profile be
 (`~/.cache/hevier/ux-profile.tar`, described in `hevier/ux/JOURNEYS.md`; the app must be installed):
 
 ```bash
+export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
 S=emulator-5558 APP=ch.duartesantos.opengym.hevier.test
 ANDROID_SERIAL=$S adb shell am force-stop $APP
 ANDROID_SERIAL=$S adb shell "run-as $APP sh -c 'rm -rf app_webview shared_prefs files/opengym-state*.json'"
