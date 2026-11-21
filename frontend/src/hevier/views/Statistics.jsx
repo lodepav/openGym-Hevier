@@ -138,7 +138,8 @@ export default function Statistics() {
   // A tile whose card is on the page scrolls to it; with its card switched off it opens nothing.
   const tileOf = ({ scroll, ...tile }) => (scroll ? { ...tile, onClick: cards.includes(scroll) ? scrollTo(scroll) : null } : tile)
   const ends = [['All statistics', '/stats/all'], S.workouts.length > 0 && ['Structural balance', '/structural-balance'],
-    ['Arrange Statistics', '/stats/arrange']].filter(Boolean)
+    // The page it opens keeps its full title; the chip is short so the three fit on one row (the critique, 2026-11-21).
+    ['Arrange', '/stats/arrange']].filter(Boolean)
   return <div className="narrow hv-statpage">
     <BackTo label={t('History')} to={HISTORY_PATH} title={t('Statistics')} />
     <PhaseFilter />

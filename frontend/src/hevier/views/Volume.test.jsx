@@ -15,6 +15,7 @@ import { installSettings } from './SettingsRootHevy.jsx'
 import { WorkoutDetail } from './WorkoutDetail.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
+import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { muscleOf } from '../lib/exercise-picker.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -38,7 +39,7 @@ function render(el, extra = {}, at = '/') {
   root = createRoot(container)
   act(() => root.render(<MemoryRouter initialEntries={[at]}><Routes><Route path="*" element={el} /></Routes></MemoryRouter>))
 }
-const stats = () => [...container.querySelectorAll('.hv-stats span, .hv-wcard-stats span')].map(s => s.textContent)
+const stats = () => [...container.querySelectorAll('.hv-stats span')].map(s => s.textContent)
 const line = () => container.querySelector('.hv-mline')?.textContent
 const sheetHost = () => {
   const host = document.createElement('div')
@@ -67,17 +68,18 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(line()).toBeUndefined()
   })
 
-  it('the feed card shows Sets and the line instead of Volume', () => {
+  it('the feed card shows Sets and the line instead of Volume, on the date line (the critique, 2026-11-21)', () => {
     render(<WorkoutCard w={W} />)
-    expect(stats()).toEqual(['Time', 'Sets'])
-    expect(container.querySelector('.hv-wcard-stats').textContent).toContain('5')
+    expect(container.querySelector('.hv-wcard-d').textContent).toBe(`${workoutWhenText(W)} · ${workoutTimeText(W)} · 5 sets`)
+    expect(container.querySelector('.hv-wcard-stats')).toBeNull()
     expect(line()).toBe('Chest 3 · Triceps 2')
   })
 
   it('the feed card shows the workout’s average heart rate when a watch saved one (D27)', () => {
     render(<WorkoutCard w={{ ...W, hr: { avg: 128, max: 161, src: 'hc', n: 300 } }} />)
-    expect(stats()).toEqual(['Time', 'Sets', 'Heart rate'])
-    expect(container.querySelector('.hv-wcard-hr').textContent).toBe('128')
+    const hr = container.querySelector('.hv-wcard-d .hv-wcard-hr')
+    expect(hr.textContent).toBe('128')
+    expect(hr.getAttribute('aria-label')).toBe('Heart rate 128')
   })
 
   it('the weekly chart’s Volume is Sets, and a week lists its muscles', () => {

@@ -7,26 +7,29 @@ import { planTitle, workoutsByDay } from './calendar.js'
 import { nextPlanned } from './next-planned.js'
 import { queueView, weekTally } from '../../lib/queue.js'
 import { fmtNum, isoOf, startOfWeek, weekStartOf } from '../../lib/format.js'
-import { shownWeight } from '../../lib/ex-unit.js'
+import { shownWeight, exUnitOf } from '../../lib/ex-unit.js'
+import { tn } from '../../lib/i18n.js'
 
-// One work row as text: "60 × 8", "× 12" on body weight, "45 s", "20 min".
-function rowText(row) {
+// One work row as text: "60 kg × 8", "× 12" on body weight, "45 s", "20 min".
+function rowText(row, unit) {
   if (row.text) return row.text
   if (row.min != null) return row.min + ' min'
-  const w = row.w > 0 ? fmtNum(row.w) + ' × ' : ''
+  const w = row.w > 0 ? fmtNum(row.w) + ' ' + unit + ' × ' : ''
   if (row.sec != null) return w + row.sec + ' s'
   return (w || '× ') + row.reps
 }
 
-/** A routine exercise's work sets as one line, set-text.js's setRuns: each run with its count
- *  leading, "3 × 60 × 8", "2 × 80 × 8, 80 × 7", "3 × 10" on body weight. */
-export const setsText = rows => setRuns(rows.filter(row => row.kind === 'work').map(rowText))
+/** A routine exercise's work sets as one line, set-text.js's setRuns: each run with its count in
+ *  words, "3 sets · 60 kg × 8", "2 sets · 80 kg × 8, 80 kg × 7", "3 sets · × 10" on body weight;
+ *  "3 × 60 × 8" read as three numbers multiplied (the critique, 2026-11-21). */
+export const setsText = (rows, unit) => setRuns(rows.filter(row => row.kind === 'work').map(row => rowText(row, unit)),
+  (n, v) => tn('{0} set', '{0} sets', n) + (v.startsWith('× ') ? ' ' : ' · ') + v)   // "4 sets × 8", not "4 sets · × 8"
 
 // One set as it opens, as setsText reads it, weights through `show` (the exercise's own unit, D41): a per-side set "40 × 8/7", a hold on each side "45/40 s".
-function openedRow(set, show) {
+function openedRow(set, show, unit) {
   const [row, R] = set.rows
   const kind = set.kind === 'work' ? 'work' : 'warm'
-  const w = x => (x.w > 0 ? fmtNum(show(x.w)) + ' × ' : '')
+  const w = x => (x.w > 0 ? fmtNum(show(x.w)) + ' ' + unit + ' × ' : '')
   const two = (a, b) => (a === b ? String(a) : a + '/' + b)
   if (isSideSet(row)) {
     const { L, R: r } = row.sides
@@ -40,7 +43,7 @@ function openedRow(set, show) {
  *  included (D128, the routine's page shows the same): [{ key, id, sets }]. */
 export function sessionSets(S, ids) {
   return (ids || []).flatMap(rid => nextSession(S, rid).map(x =>
-    ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(set => openedRow(set, w => shownWeight(S, x.id, w)))) })))
+    ({ key: rid + ':' + x.idx, id: x.id, sets: setsText(x.sets.map(set => openedRow(set, w => shownWeight(S, x.id, w), exUnitOf(S, x.id))), exUnitOf(S, x.id)) })))
 }
 
 /** The names without the words that several of them start with ("Plan Upper A", "Plan Lower A", "Cardio":

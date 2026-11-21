@@ -35,13 +35,13 @@ export const setText = (id, s, cfg, speedUnit, unit = '') => setFormat(hevySetLa
 
 /** Sets in a row, each as text, as one line: each run in turn, its count leading, "3 × 60 × 8" or
  *  "2 × 80 × 8, 80 × 7", and a run without weight "3 × 10", not "3 × × 10" (the critique, 2026-11-20). */
-export function setRuns(texts) {
+export function setRuns(texts, lead = (n, v) => (v.startsWith('× ') ? n + ' ' + v : n + ' × ' + v)) {
   const runs = []
   for (const v of texts) {
     if (runs.at(-1)?.v === v) runs.at(-1).n++
     else runs.push({ v, n: 1 })
   }
-  return runs.map(x => (x.n < 2 ? x.v : x.v.startsWith('× ') ? x.n + ' ' + x.v : x.n + ' × ' + x.v)).join(', ')
+  return runs.map(x => (x.n < 2 ? x.v : lead(x.n, x.v))).join(', ')
 }
 
 /**

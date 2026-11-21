@@ -341,3 +341,24 @@ hairline everywhere, the stripes gone from the live workout, the routine editor 
 page. Left: the lb field's 110.23 against PREVIOUS's 110.2 is upstream's exact view (lib/units.js
 EXACT_VIEW, a typed number round-trips); Strength levels' page, the Calendar's planned names in
 the done green, the Monthly report's red "-8".
+
+Then the user chose the rest (2026-11-21, `hevier/critique-4`): the Calendar's planned names grey
+as the key's Planned dot (D68); a drop on the Monthly report grey, its minus already U+2212;
+Lifts' groups say how many lifts changed, every scale in the profile's unit; "Upper chest" with a
+capital; Modules' Gyms row with Settings' icon; Arrange says Body weight waits for a weigh-in;
+Strength levels with none set says how to add one and lists nothing; History cards carry time,
+sets and records on the date line; Exercise details puts the chart before the rep counts; the
+Statistics chip reads Arrange.
+
+Round 6 (2026-11-21), from the sixth critique, every item the owner's choice: Strength levels gets a
+Set a level button (picker, then the lift's page with its fields open); Exercise details writes one
+line for fewer than three sessions, "8 reps" after a star, and a dark box while the clip loads;
+Measures' rows give the last value and the photo count; Today's sets read "3 sets · 110.2 kg × 10";
+the routine editor puts the brand under the name and flattens + Set, + Warm-up and the rest; the
+workout says "+ Brand" in both places; Workout detail explains ↑ = ↓ once; Calendar names get two
+lines; Monthly report says what it compares against under the month; Routines' chips fit one row.
+
+Run 7 (2026-11-21) re-scored the ten pages round 6 changed: nine up, Live workout level, 13 points
+in total. Its four findings were fixed at the owner's word: no chart section under three sessions
+on Exercise details (the line repeated the best tile); Set a level as a full-width button; "+ Brand"
+as one text line under the name in the workout; "4 sets × 8" for a set without weight on Today.

@@ -52,6 +52,9 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.querySelector('.hv-report-bar h2').textContent).toBe(MONTHS_LONG[last.mo] + (last.y !== new Date().getFullYear() ? ' ' + last.y : ''))
     expect(stat('Workouts').textContent).toBe('Workouts2+1')
     expect(stat('Sets').textContent).toBe('Sets5+4')
+    // What the changes are against says so under the month, above the numbers it explains (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-report-bar .hv-sub').textContent).toBe('against ' + MONTHS_LONG[(last.mo + 11) % 12])
+    expect(container.querySelector('.hv-report-vs')).toBeNull()
     expect([...container.querySelectorAll('h3.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')
     // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')

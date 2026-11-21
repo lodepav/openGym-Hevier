@@ -150,9 +150,19 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(lines[0].textContent).toContain('Life Fitness')
   })
 
+  // The seventh critique (2026-11-21): one form, a text line under the name, on a dumbbell as on a cable.
+  it('a free weight’s + Brand is the same line under the name as a machine’s', () => {
+    render(<Workout />, { entries: [{ id: DB, sets: [{ w: 10, r: 8 }] }] })
+    const line = [...container.querySelectorAll('.hv-nameline button')].find(b => b.textContent === '+ Brand')
+    expect(line.className).toBe('hv-brand')
+    expect(container.querySelector('.hv-addbrand')).toBeNull()
+  })
+
   it('the brand sheet changes the label and what this gym has from now on', () => {
     render(<Workout />, { entries: [{ id: CABLE, sets: [] }], extra: { hvMachines: { [CABLE]: { '': 'Matrix' } } } })
-    expect(container.querySelector('.hv-brand').textContent).toContain('Add brand')
+    // The same words as on other exercises (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-brand').textContent).toBe('+ Brand')
+    expect(container.querySelector('.hv-brand svg')).toBeNull()
     act(() => container.querySelector('.hv-brand').click())
     const host = sheet()
     expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')

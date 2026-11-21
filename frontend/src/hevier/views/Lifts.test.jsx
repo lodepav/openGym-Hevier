@@ -194,6 +194,17 @@ describe('hevier: Lifts (D135)', () => {
     expect(said1).toBeLessThan(hi)
   })
 
+  it('a lift shown in lb keeps the page’s one scale unit, which the hint names (the critique, 2026-11-21)', () => {
+    const log2 = [wo('2026-11-02', A.id, 100), wo('2026-11-09', A.id, 90), wo('2026-11-15', A.id, 80)]
+    render({ workouts: log2 })
+    const kg = [...container.querySelector('.hv-lift .hv-lift-scale').querySelectorAll('span')].map(s => s.textContent)
+    act(() => root.unmount()); container.remove()
+    render({ workouts: log2, exUnit: withExUnit({}, A.id, 'lb') })
+    const a = container.querySelector('.hv-lift')
+    expect([...a.querySelectorAll('.hv-lift-scale span')].map(s => s.textContent)).toEqual(kg)
+    expect(a.getAttribute('aria-label')).toMatch(/estimated 1RM \d+ to \d+ kg/)
+  })
+
   it('a flat line shows one number on its scale and speaks it once; holding, it has no percent', () => {
     render({ workouts: [wo('2026-11-02', A.id, 70), wo('2026-11-09', A.id, 70), wo('2026-11-15', A.id, 70)] })
     const a = container.querySelector('.hv-lift')
@@ -236,8 +247,8 @@ describe('hevier: Lifts (D135)', () => {
     expect(want).toBeGreaterThan(0)
     expect(ch.textContent).toBe(`Chest↑ +${want}%2 of 3 rising`)
     expect(ch.getAttribute('aria-label')).toBe(`Chest, up ${want} %, 2 of 3 lifts rising`)
-    expect(calves.textContent).toBe('Calves1 lift · a group number needs two')
-    expect(calves.getAttribute('aria-label')).toBe('Calves, 1 lift, a group number needs two')
+    expect(calves.textContent).toBe('Calves1 lift changed')
+    expect(calves.getAttribute('aria-label')).toBe('Calves, 1 lift changed')
     expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · ½ counts half in its group · Est. 1RM (kg)')
     const half = row(F).querySelector('.hv-lift-half')
     expect([half.textContent, half.getAttribute('aria-hidden')]).toEqual(['½', 'true'])
@@ -250,7 +261,7 @@ describe('hevier: Lifts (D135)', () => {
     // Q was last trained a year ago, outside 12 weeks: Chest has one lift with a change, not two.
     const old = three(Q.id, [50, 52.5, 55]).map((w, i) => ({ ...w, d: ['2025-11-01', '2025-11-08', '2025-11-15'][i] }))
     render({ workouts: [...three(P.id, [40, 45, 50]), ...old], hvLiftsBy: 'muscle' })
-    expect(heads()[0].textContent).toBe('Chest1 lift · a group number needs two')
+    expect(heads()[0].textContent).toBe('Chest1 lift changed')
   })
 
   it('the header’s arrow follows its lifts’ states, not the sign of its change (D141)', () => {

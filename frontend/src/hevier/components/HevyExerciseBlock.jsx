@@ -576,7 +576,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
       <div className="hv-nameline">
         <h3 className="hv-name-h"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
         <BrandLine idx={entryIdx} />
-        {addBrand && <button type="button" className="hv-addbrand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
+        {/* A line under the name, as a machine's BrandLine draws it: one form for both (the critique, 2026-11-21). */}
+        {addBrand && <button type="button" className="hv-brand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
       </div>
       {!isOpen && onOpen && <button type="button" className="iconbtn hv-openex" aria-label={t('Open') + ', ' + exerciseNameFor(ex)} onClick={() => onOpen(null)}><Icon name="chevronDown" /></button>}
     </div>

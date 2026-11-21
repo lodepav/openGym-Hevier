@@ -50,7 +50,9 @@ function ArrangeList({ which, title, ids }) {
             // A drag ends with a click on the handle too; only a tap (or Enter) opens the menu.
             onClick={e => { e.stopPropagation(); if (!press.current.moved) menu(i, id); press.current.moved = false }}>
             <Icon name="grip" /></button>
-          <span className="grow hv-arr-n">{name(id)}</span>
+          <span className="grow"><span className="hv-arr-n">{name(id)}</span>
+            {/* Statistics leaves Body weight out with no weigh-in; say so here, where it is switched on (the critique, 2026-11-21). */}
+            {id === 'weight' && !S.bodyweight?.length && <small className="hv-arr-h dim">{t('Shows once you log a weigh-in')}</small>}</span>
           <Switch aria-label={name(id)} checked={!layout.hidden.includes(id)} onChange={() => save(which, toggle(now(), id))} />
         </div>
       })}

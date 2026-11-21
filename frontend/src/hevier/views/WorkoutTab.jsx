@@ -218,7 +218,8 @@ export default function WorkoutTab() {
       <button type="button" className="hv-chip" onClick={() => newRoutine()}>{t('+ Routine')}</button>
       <button type="button" className="hv-chip" onClick={() => newFolder()}>{t('+ Folder')}</button>
       <button type="button" className="hv-chip" onClick={() => nav('/plan')}>{t('Rotation')}</button>
-      <button type="button" className="hv-chip" onClick={() => startFlow([])}>{t('Empty workout')}</button>
+      {/* "Empty" so the five fit one row on a 412 dp phone; read out whole (the critique, 2026-11-21). */}
+      <button type="button" className="hv-chip" aria-label={t('Empty workout')} onClick={() => startFlow([])}>{t('Empty')}</button>
       <button type="button" className="hv-chip" onClick={starterPlanSheet}>{t('Explore')}</button>
     </div>
     {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}

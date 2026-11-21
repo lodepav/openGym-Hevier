@@ -52,7 +52,7 @@ describe('hevier: Today (D134)', () => {
     expect(card.querySelector('.hv-cap').textContent).toMatch(/^Next · tomorrow, /)
     expect(card.querySelector('.hv-next-n').textContent).toBe('Upper A')
     expect(card.querySelectorAll('.hv-next-ex')).toHaveLength(5)
-    expect(card.querySelector('.hv-next-sets').textContent).toBe('3 × 60 × 8')
+    expect(card.querySelector('.hv-next-sets').textContent).toBe('3 sets · 60 kg × 8')
     act(() => btn('2 more · open the plan').click())
     expect(path).toBe('/plan/r/r1/view')
   })
