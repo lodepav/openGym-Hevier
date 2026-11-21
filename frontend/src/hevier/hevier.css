@@ -1180,3 +1180,8 @@
    wrapper takes no box, so the layout is the button's as before. */
 :root[data-ui="hevier"] .hv-namehd{display:contents}
 :root[data-ui="hevier"] .lrow.sp-root-row{min-height:48px}
+/* Today's Routines / Calendar links (40 dp) and a routine's Start (44 dp) reach 48 up and down, into
+   the free room measured beside them (the audit leftovers). */
+:root[data-ui="hevier"] :is(.hv-tlinks .btn, .hv-rstart){position:relative}
+:root[data-ui="hevier"] .hv-tlinks .btn::after{content:"";position:absolute;inset:-4px 0}
+:root[data-ui="hevier"] .hv-rstart::after{content:"";position:absolute;inset:-2px 0}
