@@ -52,13 +52,10 @@ describe('hevier: strength levels list', () => {
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
   })
-  it('with no levels yet, lists the lifts trained to open and set one on', () => {
+  it('with no levels yet, says how to add one and lists nothing (the critique, 2026-11-21)', () => {
     render('/strength')
-    expect(container.textContent).toContain('No strength levels yet. Open a lift and set its strength level.')
-    const rows = [...container.querySelectorAll('.list.hv-flat .hv-report-row')]
-    expect(rows.map(r => r.textContent.toLowerCase())).toEqual(['barbell bench press'])
-    act(() => rows[0].click())
-    expect(useUI.getState().sheets.length).toBe(1)
+    expect(container.querySelector('.hv-ms-empty').textContent).toBe('No strength levels yet. On a lift’s page, tap Compare strength and type in the levels strengthlevel.com gives you.')
+    expect(container.querySelector('.hv-report-row')).toBeNull()
     // Opened directly, back goes up to Lifts (D142).
     act(() => container.querySelector('.hv-pb-back').click())
     expect(path).toBe('/lifts')

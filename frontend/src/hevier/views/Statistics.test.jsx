@@ -68,7 +68,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector('.hv-linkrow')).toBeNull()
     expect(container.querySelector('.btn')).toBeNull()
     expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => [b.tagName, b.textContent]))
-      .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange Statistics']])
+      .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange']])
     act(() => byText('.hv-stat-ends .hv-chip', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
@@ -142,7 +142,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('an empty history says so on the sets card, and links no Structural balance', () => {
     render(['/stats'])
     expect(container.textContent).toContain('No sets in this period yet.')
-    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
+    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange'])
   })
 
   // The owner's choice after the third critique: an odd last tile keeps its half, not a mostly empty full row.

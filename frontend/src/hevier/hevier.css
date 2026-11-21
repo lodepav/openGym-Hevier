@@ -284,10 +284,6 @@
 :root[data-ui="hevier"] .hv-wcard-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-6px -6px 0 0}
 :root[data-ui="hevier"] .hv-wcard-t{font-size:17px;font-weight:700;min-width:0}
 :root[data-ui="hevier"] .hv-wcard-d{font-size:13px;color:var(--label-2);margin-bottom:8px}
-:root[data-ui="hevier"] .hv-wcard-stats{display:flex;gap:28px;margin-bottom:10px}
-:root[data-ui="hevier"] .hv-wcard-stats div{display:flex;flex-direction:column;gap:2px}
-:root[data-ui="hevier"] .hv-wcard-stats span{font-size:12px;color:var(--label-2)}
-:root[data-ui="hevier"] .hv-wcard-stats b{font-size:15px;font-weight:600}
 :root[data-ui="hevier"] .hv-pr{display:inline-flex;align-items:center;gap:4px;color:var(--hv-record,var(--yellow))}
 :root[data-ui="hevier"] .hv-wcard-ex{display:flex;align-items:center;gap:10px;font-size:14px;padding:3px 0}
 :root[data-ui="hevier"] .hv-wcard-ex .grow{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -300,7 +296,8 @@
 :root[data-ui="hevier"] .hv-wcard-h{justify-content:flex-start;gap:10px;margin:-2px -6px 4px 0}
 :root[data-ui="hevier"] .hv-wcard-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:12px;margin:0}
+:root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:13px;margin:0}
+:root[data-ui="hevier"] .hv-wcard-d .hv-pr .icn,:root[data-ui="hevier"] .hv-wcard-d .hv-wcard-hr .icn{font-size:12px}
 :root[data-ui="hevier"] .hv-wcard-t{margin-bottom:8px}
 /* The title is the card's stretched button (upstream 1.4.4's tap-host pattern): it reads as the title did. */
 :root[data-ui="hevier"] button.hv-wcard-t{display:block;width:100%;background:none;border:0;color:inherit;font-family:inherit;line-height:inherit}
@@ -308,9 +305,6 @@
 :root[data-ui="hevier"] .hv-wcard-tags{display:flex;flex-wrap:wrap;gap:4px 12px;margin:-4px 0 8px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wcard-note{margin:-4px 0 8px;font-size:14px;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* Hevy spreads the stats over the card's width: equal columns, not packed to the left */
-:root[data-ui="hevier"] .hv-wcard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-:root[data-ui="hevier"] .hv-wcard-stats span{font-size:11px}
-:root[data-ui="hevier"] .hv-wcard-stats b{font-weight:400}
 :root[data-ui="hevier"] .hv-wcard .hv-mline b{font-weight:500}
 :root[data-ui="hevier"] .hv-wcard-ex{font-size:15px;gap:12px;padding:4px 0}
 :root[data-ui="hevier"] .hv-wcard-ex b{font-weight:400}
@@ -558,7 +552,9 @@
 :root[data-ui="hevier"] .hv-arr-hint{margin:4px 0 0}
 :root[data-ui="hevier"] .hv-arrlist{gap:0}
 :root[data-ui="hevier"] .item.hv-arr{display:flex;align-items:center;gap:8px;min-height:48px;padding-block:0}
-:root[data-ui="hevier"] .hv-arr-n{min-width:0;overflow-wrap:anywhere;padding-block:8px}
+:root[data-ui="hevier"] .hv-arr-n{display:block;min-width:0;overflow-wrap:anywhere;padding-block:8px}
+:root[data-ui="hevier"] .hv-arr-n:has(+ .hv-arr-h){padding-bottom:0}
+:root[data-ui="hevier"] .hv-arr-h{display:block;padding-bottom:8px;font-size:13px}
 :root[data-ui="hevier"] .hv-arr .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-arr .hv-grip{min-width:48px;min-height:48px;padding:0;align-items:center;justify-content:center;margin-inline-start:-12px}
 :root[data-ui="hevier"] .hv-arr .sw::before{inset:-9px -4px}
@@ -657,9 +653,7 @@
 :root[data-ui="hevier"] .hv-cal-d.planned.today::after{bottom:5px}
 /* the month view names a planned day's routine in its colour, in place of the dot (D68) */
 :root[data-ui="hevier"] .hv-cal-c .hv-cal-d.planned::after{display:none}
-:root[data-ui="hevier"] .hv-cal-tl.pk-strength{color:var(--hv-acc-ink)}
-:root[data-ui="hevier"] .hv-cal-tl.pk-cardio{color:var(--hv-cardio,var(--green))}
-:root[data-ui="hevier"] .hv-cal-tl.pk-deload{color:var(--hv-deload,var(--orange))}
+/* A planned day's routine name is grey, as the key's Planned dot, not a done day's colour (D68, the critique, 2026-11-21). */
 :root[data-ui="hevier"] .hv-cal-more{width:100%;margin:6px 0 18px}
 :root[data-ui="hevier"] .hv-cal-more.next{margin:18px 0 6px}
 /* The Calendar keeps its place itself when earlier months go in above (Calendar.jsx). */
@@ -713,7 +707,8 @@
 :root[data-ui="hevier"] .hv-report-bar h2{font-size:22px;margin:0}
 :root[data-ui="hevier"] .hv-report-stats em{font-style:normal;font-size:12px;font-weight:500}
 :root[data-ui="hevier"] .hv-report-stats em.up{color:var(--hv-acc-ink)}
-:root[data-ui="hevier"] .hv-report-stats em.down{color:var(--hv-fail,var(--red))}
+/* fewer than last month is grey, not an alarm: a lighter month is often meant (the critique, 2026-11-21) */
+:root[data-ui="hevier"] .hv-report-stats em.down{color:var(--label-2)}
 :root[data-ui="hevier"] .hv-report-vs{margin:4px 0 6px}
 :root[data-ui="hevier"] .hv-report-row{width:100%;text-align:start;font:inherit;color:var(--label);gap:10px}
 :root[data-ui="hevier"] .hv-report-row .grow{display:flex;flex-direction:column;gap:2px}

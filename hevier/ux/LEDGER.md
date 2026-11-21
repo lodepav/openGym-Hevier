@@ -341,3 +341,11 @@ hairline everywhere, the stripes gone from the live workout, the routine editor 
 page. Left: the lb field's 110.23 against PREVIOUS's 110.2 is upstream's exact view (lib/units.js
 EXACT_VIEW, a typed number round-trips); Strength levels' page, the Calendar's planned names in
 the done green, the Monthly report's red "-8".
+
+Then the user chose the rest (2026-11-21, `hevier/critique-4`): the Calendar's planned names grey
+as the key's Planned dot (D68); a drop on the Monthly report grey, its minus already U+2212;
+Lifts' groups say how many lifts changed, every scale in the profile's unit; "Upper chest" with a
+capital; Modules' Gyms row with Settings' icon; Arrange says Body weight waits for a weigh-in;
+Strength levels with none set says how to add one and lists nothing; History cards carry time,
+sets and records on the date line; Exercise details puts the chart before the rep counts; the
+Statistics chip reads Arrange.

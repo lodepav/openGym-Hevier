@@ -85,6 +85,10 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['6 reps', '8 reps'])
     // Twenty days ago is within the last month: new, in words.
     expect(rows.map(r => r.querySelector('.hv-xd-new')?.textContent)).toEqual(['new', 'new'])
+    // The chart comes before the long list of rep counts (the critique, 2026-11-21).
+    const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
+    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
+    expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
     expect(rowTitles).toEqual(['How to'])
     expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place

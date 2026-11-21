@@ -122,7 +122,8 @@ const wholeParts = text => text.split(/ (?=× )/).map((p, i) => <Fragment key={i
 
 // The best sets (D131): three tiles, the best session's volume under them, then the best at each
 // rep count, the ones from the last month in yellow with "new".
-function Bests({ ex, sum, st }) {
+// `children` (the chart) goes between the best sets and the rep counts: the long list comes last (the critique, 2026-11-21).
+function Bests({ ex, sum, st, children }) {
   const unit = exUnitOf(st, ex.id)
   const show = w => shownWeight(st, ex.id, w)
   const weight = sum.metric === 'weight'
@@ -142,6 +143,7 @@ function Bests({ ex, sum, st }) {
         <small>{x.label}</small><b>{x.v}</b><small>{shortDate(x.d)}</small></div>)}</div>
       {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {shortDate(r.sessionVol.d)}</div>}
     </section>}
+    {children}
     {reps.length > 0 && <section>
       <h4 className="sec">{t('Best at each rep count')}</h4>
       <div className="hv-xd-reps">{reps.map(x => <div key={x.r} className={'hv-xd-rr' + (x.isNew ? ' new' : '')}>
@@ -353,8 +355,7 @@ function ExerciseDetails({ ex, close }) {
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
         : <LastSessions ex={ex} sum={hist} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
-      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st} />}
-      {sum.total > 0 && <Chart ex={ex} sum={sum} st={st} />}
+      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}><Chart ex={ex} sum={sum} st={st} /></Bests>}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
         {e1rm && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={shownWeight(st, ex.id, e1rm.v)} unit={exUnitOf(st, ex.id)} st={st} />}

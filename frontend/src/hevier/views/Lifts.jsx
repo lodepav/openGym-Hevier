@@ -29,7 +29,7 @@ import { dayNo, muscleGroup } from '../lib/strength-signal.js'
 import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { brandsByExercise, brandMatches } from '../lib/exercise-picker.js'
 import { labelText } from '../lib/gym-labels.js'
-import { exUnitOf, shown, convert } from '../lib/ex-unit.js'
+import { exUnitOf, shown } from '../lib/ex-unit.js'
 import { signed } from '../lib/delta.js'
 import { mapSetWeights } from '../../lib/units.js'
 import { partOn } from '../lib/module-parts.js'
@@ -103,10 +103,11 @@ function LiftRow({ r, S, today, p, win, half }) {
   // The labels name the drawn range's edges (chartRange may pad a small change), so they sit on the outer grid lines;
   // a flat line is drawn mid-height, so its one number sits there.
   const span = ys.length ? (Math.min(...ys) === Math.max(...ys) ? { lo: ys[0], hi: ys[0] } : chartRange(ys)) : null
-  const scale = span ? [span.lo, span.hi].map(v => Math.round(convert(v, S.unit, unit))) : null
+  // The scale stays in the profile's unit, which the page's hint names once, whatever the lift is shown in (the critique, 2026-11-21).
+  const scale = span ? [span.lo, span.hi].map(Math.round) : null
   const flat = scale && scale[0] === scale[1]
   // Spoken: what the lift itself did, not the padded edges.
-  const said = ys.length ? [Math.min(...ys), Math.max(...ys)].map(v => Math.round(convert(v, S.unit, unit))) : null
+  const said = ys.length ? [Math.min(...ys), Math.max(...ys)].map(Math.round) : null
   const brand = l => labelText({ brand: l.key.split('|')[0], cable: l.key.split('|')[1] }, t)
   // A record of weeks ago says when it was set, not "New" (the critique, 2026-11-20).
   const bestWord = r.newBest && (dayNo(today) - dayNo(r.d) <= 14 ? t('New best')
@@ -119,7 +120,7 @@ function LiftRow({ r, S, today, p, win, half }) {
   const spoken = s => s.replace(/\n/g, ', ')
   const label = [
     name, sub,
-    said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], unit) : t(SPAN[win], said[0], said[1], unit)),
+    said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], S.unit) : t(SPAN[win], said[0], said[1], S.unit)),
     p?.state && t(WORD[p.state]),
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
@@ -140,7 +141,7 @@ function LiftRow({ r, S, today, p, win, half }) {
         {!scale && lastBest}
       </span>
       {scale && <span className="hv-lift-mid">
-        <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}{unit !== S.unit && ' ' + unit}</span><span>{scale[0]}</span></>}</span>
+        <span className={'hv-lift-scale' + (flat ? ' flat' : '')}>{flat ? <span>{scale[0]}</span> : <><span>{scale[1]}</span><span>{scale[0]}</span></>}</span>
         <LiftChart lines={lines} tones={tones} />
         {/* The change sits beside the line it describes. */}
         {change && <span className={'hv-lift-ch ' + (p.state || '')}>{change}</span>}
@@ -161,8 +162,9 @@ function GroupHead({ label, ids, progress }) {
   const state = g.pct == null ? null : g.state
   const pct = g.pct == null ? null : shownPct(state, g.pct)
   const count = g.pct != null && g.judged > 0 && t('{0} of {1} rising', g.rising, g.judged)
-  // The lifts with a change in the window, not every lift the group has ever had.
-  const none = g.pct == null && [g.changed === 1 ? t('1 lift') : t('{0} lifts', g.changed), t('a group number needs two')]
+  // The lifts with a change in the window, not every lift the group has ever had; the group's own
+  // number waits for two (the critique, 2026-11-21: plain words, not the rule).
+  const none = g.pct == null && [g.changed === 1 ? t('1 lift changed') : g.changed ? t('{0} lifts changed', g.changed) : t('No lift changed')]
   const spoken = [label,
     ...(none || [pct != null ? pctSpoken(pct) : state && t(WORD[state])]),
     count && (g.judged === 1 ? t('{0} of 1 lift rising', g.rising) : t('{0} of {1} lifts rising', g.rising, g.judged)),
@@ -206,7 +208,7 @@ export default function Lifts() {
   // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
   const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
     by === 'muscle' && t('½ counts half in its group'),
-    // The charts' numbers named once for the page; a lift shown in the other unit says so on its own scale (the critique, 2026-11-20).
+    // The charts' numbers named once for the page, in its unit for every lift (the critique, 2026-11-21).
     rows.some(r => progress.get(r.id)?.lines?.length) && t('Est. 1RM') + ' (' + S.unit + ')'].filter(Boolean).join(' · ')
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
