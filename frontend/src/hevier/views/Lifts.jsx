@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
-import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { getVersion } from '../../lib/i18n-core.js'
 import { exOr, searchExercises } from '../../lib/exercises.js'
 import { isBw } from '../../lib/history.js'
@@ -243,7 +243,7 @@ export default function Lifts() {
       </button>)}</div>
       {hint && <div className="small dim hv-lifts-hint">{hint}</div>}
       {/* What a filter or a search leaves is said, not only redrawn (the fifth audit, 2026-11-21). */}
-      <span className="hv-sr" role="status">{q.trim() || filter ? tn('{0} lift', '{0} lifts', count) : ''}</span>
+      <span className="hv-sr" role="status">{q.trim() || filter ? (count === 1 ? t('1 lift') : t('{0} lifts', count)) : ''}</span>
     </>}
     {sections.map(sec => <section key={sec.key}>
       {by === 'muscle' ? <GroupHead label={muscleText(sec.label)} ids={sec.ids} progress={progress} /> : <h2 className="sec">{t(sec.label)}</h2>}
