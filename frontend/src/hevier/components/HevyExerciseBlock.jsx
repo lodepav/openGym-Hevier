@@ -407,7 +407,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const open = () => (asTick
       ? useUI.getState().openSheet(close => <>
         <EffortPicker kind={effortKind} value={v} onPick={onPick} close={close} />
-        <Button icon="check" style={{ width: '100%', minHeight: 48, marginTop: 8, background: 'var(--surface-2)' }} onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
+        <Button icon="check" className="hv-eff-plain" onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
       </>)
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
@@ -576,7 +576,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
   const addBrand = isOpen && !hasLabel(S, A, entryIdx) && partOn(S, 'hvGyms', 'brands')
   return <div ref={card} className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
     <div className="hv-exhd">
-      <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameFor(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
         <h3 className="hv-name-h" aria-level={2}><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
         <BrandLine idx={entryIdx} />

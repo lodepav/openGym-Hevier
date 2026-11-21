@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { EXDB } from '../../lib/exercises.js'
+import { EXDB, EXIDX } from '../../lib/exercises.js'
+import { exerciseNameFor } from '../../lib/i18n.js'
 import { modeOf } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { isPlain } from '../lib/plain-routine.js'
@@ -796,9 +797,14 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(dock()).toBeTruthy()
     expect(document.body.classList.contains('hv-docked')).toBe(true)
     expect(document.body.classList.contains('hv-dock')).toBe(false)   // the panel's own class, position: fixed
+    // The start is said once, its length, and not again as it changes (the fifth audit, 2026-11-21).
+    const status = () => container.querySelector('.hv-sr[role="status"]')
+    const total = useUI.getState().timer.total
+    expect(status().textContent).toBe('Rest, ' + Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0'))
     const left = useUI.getState().timer.left
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === '+1 min').click())
     expect(useUI.getState().timer.left).toBe(left + 60)
+    expect(status().textContent).toBe('Rest, ' + Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0'))
     // A paused rest says so to TalkBack too, not only on screen (the audit leftovers, 2026-11-21).
     act(() => useUI.setState({ timer: { ...useUI.getState().timer, paused: true } }))
     expect(dock().querySelector('.hv-dock-clock').getAttribute('aria-label')).toBe('Paused. Change the time left')
@@ -815,6 +821,7 @@ describe('hevier: the open set and its exercise (D127)', () => {
     act(() => useUI.setState({ timer: running }))
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === 'Skip').click())
     expect(dock()).toBeNull()
+    expect(status().textContent).toBe('')
     expect(document.body.classList.contains('hv-docked')).toBe(false)
   })
 })
@@ -873,7 +880,7 @@ describe('hevier: the exercise ⋮ menu', () => {
   it('How to do it is left to the thumbnail and the name', () => {
     render([one(EX)])
     expect(menuItems().map(x => x.label)).not.toContain('How to do it')
-    expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it')
+    expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameFor(EXIDX[EX]))   // the fifth audit, 2026-11-21
   })
 
   it('More holds Per side, Superset, Weight unit, Exercise settings and Remove exercise, each with an icon (D127)', () => {

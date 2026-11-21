@@ -96,7 +96,7 @@ function BrandSheet({ exId, close }) {
     <input className="input" autoFocus value={v} maxLength={BRAND_MAX} placeholder={t('Brand or machine, e.g. Life Fitness')}
       aria-label={t('Brand')} onChange={ev => setV(ev.target.value)} />
     {brands.length > 0 && <div className="hv-xd-chips">{brands.map(b =>
-      <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} onClick={() => save(b)}>{b}</button>)}</div>}
+      <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} aria-pressed={b === v} onClick={() => save(b)}>{b}</button>)}</div>}
     <button type="submit" className="btn primary">{t('Save')}</button>
     {had && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove brand')}</button>}
   </form>
@@ -244,10 +244,12 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   const cell = (row, c) => {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
-    if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range"
+    // Named as the plain fields are, its value after (the fifth audit, 2026-11-21).
+    const said = v => t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd) + ', ' + v
+    if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(row.repsMin + '–' + row.reps)}
       onClick={() => useUI.getState().openSheet(close => <RangeSheet from={row.repsMin} to={row.reps} close={close}
         onDone={(a, b) => edit(cfg => setRange(cfg, a, b))} />)}>{row.repsMin}–{row.reps}</button>
-    if (c.f === 'r' && row.max) return <button key={c.f} type="button" className="hv-rt-range" onClick={() => openSetType(row)}>{t('Max')}</button>
+    if (c.f === 'r' && row.max) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(t('Max'))} onClick={() => openSetType(row)}>{t('Max')}</button>
     const key = c.f === 'r' ? 'reps' : c.f
     const v = row[key]
     // Hevy's grey dash for a weight not set yet (0); typing one fills it
@@ -277,7 +279,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
     </button>}
     <div className="hv-exhd" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
-      <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
         <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
         {brandsOn && (brand

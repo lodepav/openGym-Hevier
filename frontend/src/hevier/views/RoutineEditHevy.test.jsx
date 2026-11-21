@@ -121,6 +121,8 @@ describe('hevier: routine editor (M3)', () => {
     expect(brand.getAttribute('aria-label')).toBe('Brand: Rogue')
     act(() => brand.click())
     const again = sheet()
+    // The current brand's quick pick says it is the one (the fifth audit, 2026-11-21).
+    expect(byTextIn(again, '.hv-xd-chips button', 'Rogue').getAttribute('aria-pressed')).toBe('true')
     act(() => byTextIn(again, 'button', 'Remove brand').click())
     expect(useStore.getState().S.hvMachines[EX]).toBeUndefined()
   })
@@ -129,6 +131,7 @@ describe('hevier: routine editor (M3)', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 12, repsMin: 8, weight: 40, prog: 'double' }])
     expect(container.querySelector('.hv-rt-head').textContent).toContain('REP RANGE')
     expect(container.querySelector('.hv-rt-range').textContent).toBe('8–12')
+    expect(container.querySelector('.hv-rt-range').getAttribute('aria-label')).toBe('Set 1, Reps, 8–12')   // the fifth audit, 2026-11-21
   })
 
   it('set type W turns a work set into a warm-up', () => {

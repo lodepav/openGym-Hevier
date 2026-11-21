@@ -31,13 +31,14 @@ export default function Measures() {
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
     {/* Back names the page it returns to: Statistics links here too (the fresh audit, 2026-11-21). */}
-    <BackTo label={t(from === 'Statistics' ? 'Statistics' : 'History')} to={HISTORY_PATH} title={t('Measures')} />
+    {/* A cold open goes up to the page back names (the fifth audit, 2026-11-21). */}
+    <BackTo label={t(from === 'Statistics' ? 'Statistics' : 'History')} to={from === 'Statistics' ? '/stats' : HISTORY_PATH} title={t('Measures')} />
     {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
     {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
         <div>
           <div className="muted small">{t('Body weight')}</div>
-          {last && <div className="big">{fmtNum(last.w)} <span className="muted" style={{ fontSize: '1rem' }}>{S.unit}</span></div>}
+          {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
           {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
         </div>
         <div className="row" style={{ gap: 8 }}>

@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
-import { exCount, fmtNum, todayISO } from '../../lib/format.js'
+import { exCount, fmtNum, todayISO, exerciseNameText } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, isBw } from '../../lib/history.js'
@@ -77,7 +77,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
       {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(meta.rest, 0, ''))}</span>}</div>}
     <div className="hv-exhd">
-      <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
       {label && <span className="hv-chip hv-np-label">{label}</span>}
     </div>
@@ -89,8 +89,9 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
       const ls = lines(set)
       return <div key={set.key} className="hv-np-row">
         <span className="hv-set">{mark(set)}</span>
-        <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{sideMark(l.side)}{l.last}</span>)}</span>
-        <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{sideMark(l.side)}{l.next}</span>)}</span>
+        {/* The column head is hidden, so each cell names its column (the fifth audit, 2026-11-21). */}
+        <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Last time')}: </span>}{sideMark(l.side)}{l.last}</span>)}</span>
+        <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Next')}: </span>}{sideMark(l.side)}{l.next}</span>)}</span>
       </div>
     })}
     </div>

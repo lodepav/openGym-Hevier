@@ -6,7 +6,7 @@
 // exercise was done at, D28). A tap opens exercise details.
 import { useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { todayISO } from '../../lib/format.js'
@@ -31,13 +31,18 @@ export default function ExerciseTime() {
   const [by, setBy] = useState(null)
   const [asc, setAsc] = useState(false)
   const log = usePhasedS(st).workouts   // D93
+  // A picked phase makes the log a new copy on each write: key on what it is made from (the fifth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const made = [st.workouts, phase, st.modules, st.hvModuleParts]
   const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO())),
-    [log, period])
+    [...made, period]) // eslint-disable-line react-hooks/exhaustive-deps
   // Per exercise over the whole period, the same number in whichever section its row shows.
   // setGaps reads only the rest settings from S, so another write leaves the gaps alone (the audit leftovers).
   const gaps = useMemo(() => setGaps(log, periodSince(period, todayISO()), { restSec: st.restSec, warmupRestSec: st.warmupRestSec }),
-    [log, period, st.restSec, st.warmupRestSec])
-  const sections = timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) })
+    [...made, period, st.restSec, st.warmupRestSec]) // eslint-disable-line react-hooks/exhaustive-deps
+  // The main muscle is the user's choice (S.hvMainMuscle) or the exercise's, a custom one's from S.customEx.
+  const sections = useMemo(() => timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) }),
+    [sessions, by, asc, st.hvMainMuscle, st.customEx]) // eslint-disable-line react-hooks/exhaustive-deps
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
     : key ? muscleText(key) : t('Other'))
   const group = k => setBy(by === k ? null : k)

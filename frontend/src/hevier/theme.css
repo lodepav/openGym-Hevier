@@ -47,6 +47,9 @@
   --hv-tick-ink:   var(--on-acc);
   --hv-acc-ink:    var(--acc-ink);   /* the accent as text, until lib/meaning-colours-run.js sets it for our surfaces */
   --hv-on-meaning: #000000;          /* text on a meaning colour's fill: the superset pill, a cardio or deload day */
+  --hv-thumb-bg:   #ffffff;          /* the white disc behind an exercise thumbnail */
+  --hv-ring-track: rgba(127,127,127,.16);   /* a progress ring's empty track */
+  --hv-share-edge: rgba(255,255,255,.14);   /* the share card's edge on the black sheet */
   /* heart-rate zones 1 to 5 on the strap's full screen (StrapScreen.jsx), grey to red */
   --hv-zone-1:     #8e9aaf;
   --hv-zone-2:     #0a84ff;

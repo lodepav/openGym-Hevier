@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts } from './muscle-sets.js'
+import { periodOf, muscleSetCounts, namesAbove } from './muscle-sets.js'
 import { loadOfWorkouts, MUSCLE_NAME } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -39,5 +39,16 @@ describe('hevier muscle set counts', () => {
     expect(rows[0].sets).toBeGreaterThanOrEqual(rows.at(-1).sets)
     const r = muscleSetCounts([W('2026-10-06', [set()])], 'week', { today: '2026-10-16', weekStart: 1 }).rows
     expect(r).toEqual([{ muscle: 'Chest', sets: 0, prev: 1 }])
+  })
+})
+
+describe('the names above the bars (namesAbove)', () => {
+  it('stacks at 18 em of the list or less, as the container query did, and not unmeasured', () => {
+    expect(namesAbove(328, 14)).toBe(false)   // 360 dp phone at 100 %
+    expect(namesAbove(252, 14)).toBe(true)    // 18 em exactly
+    expect(namesAbove(328, 21)).toBe(true)    // 360 dp phone at 150 %
+    expect(namesAbove(380, 21)).toBe(false)   // 412 dp phone at 150 %
+    expect(namesAbove(0, 14)).toBe(false)
+    expect(namesAbove(300, NaN)).toBe(false)
   })
 })

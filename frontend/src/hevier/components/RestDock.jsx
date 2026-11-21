@@ -3,7 +3,7 @@
 // and Skip. It is upstream's rest timer (store/useUI.js) drawn another way: upstream's bar steps
 // aside on this screen while there is a rest (hevier.css, body.hv-docked), and both go when it ends.
 // A timed set's countdown and a hold's count-in keep upstream's bar.
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -34,10 +34,16 @@ export default function RestDock() {
     ro.observe(el)
     return () => { ro.disconnect(); document.body.style.removeProperty('--hv-dock-h') }
   }, [shown])
-  if (!shown) return null
+  // Said once when a rest starts, not each tick; the region stays mounted so the change is heard (the fifth audit, 2026-11-21).
+  const [said, setSaid] = useState('')
+  useEffect(() => {
+    setSaid(shown ? (timer.kind === 'switch' ? t('Switch sides') : t('Rest')) + ', ' + clock(timer.total) : '')
+  }, [shown, timer?.forIdx, timer?.forSet, timer?.kind]) // eslint-disable-line react-hooks/exhaustive-deps
+  const status = <span className="hv-sr" role="status">{said}</span>
+  if (!shown) return <>{status}</>
   const { addRest, skipRest } = useUI.getState()
   const pct = timer.total > 0 ? Math.max(0, Math.min(1, timer.left / timer.total)) : 0
-  return <div className="hv-dock" ref={box} role="region" aria-label={t('Rest')}>
+  return <>{status}<div className="hv-dock" ref={box} role="region" aria-label={t('Rest')}>
     <div className="hv-dock-top">
       <button type="button" className="hv-dock-clock" onClick={adjustRestSheet}
         // The seconds are its description, read on focus but not again each tick (the fresh audit, 2026-11-21).
@@ -54,5 +60,5 @@ export default function RestDock() {
       <button type="button" className="btn" onClick={() => addRest(120)}>{t('+2 min')}</button>
       <button type="button" className="btn primary" onClick={() => skipRest()}>{t('Skip')}</button>
     </div>
-  </div>
+  </div></>
 }

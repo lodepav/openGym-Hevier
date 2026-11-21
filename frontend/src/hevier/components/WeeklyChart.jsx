@@ -19,10 +19,21 @@ import { volumeMode, muscleMode, muscleSets } from '../lib/volume.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { sessionVolume } from '../../lib/history.js'
 import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
+import { useNamesAbove } from './MuscleSetsCard.jsx'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
 const RANGES = [{ weeks: 12, label: 'Last 12 weeks' }, { weeks: 26, label: 'Last 6 months' }, { weeks: 52, label: 'Last year' }]
+
+// The list as its own component, so it can measure whether the names go above the bars (the fifth audit, 2026-11-21).
+function WeekSplit({ list }) {
+  const [ref, above] = useNamesAbove()
+  return <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={ref}>{list.map(m => <div key={m.muscle} className="hv-wd-split">
+    <span>{muscleText(m.muscle)}</span>
+    <span className="hv-mset-bar"><i style={{ width: (m.sets / list[0].sets) * 100 + '%' }} /></span>
+    <b>{tn('{0} set', '{0} sets', m.sets)}</b>
+  </div>)}</div>
+}
 
 /** A week's sets per muscle, from a tap on its bar. */
 function weekSheet(S, week) {
@@ -30,11 +41,7 @@ function weekSheet(S, week) {
   const list = muscleSets(ws.flatMap(w => w.entries || []), muscleMode(S))
   useUI.getState().openSheet(() => <>
     <h3>{t('Week of {0}', fmtDate(week, true))}</h3>
-    {list.length ? <div className="hv-msets">{list.map(m => <div key={m.muscle} className="hv-wd-split">
-      <span>{muscleText(m.muscle)}</span>
-      <span className="hv-mset-bar"><i style={{ width: (m.sets / list[0].sets) * 100 + '%' }} /></span>
-      <b>{tn('{0} set', '{0} sets', m.sets)}</b>
-    </div>)}</div> : <div className="muted small">{t('No sets in this period yet.')}</div>}
+    {list.length ? <WeekSplit list={list} /> : <div className="muted small">{t('No sets in this period yet.')}</div>}
   </>)
 }
 

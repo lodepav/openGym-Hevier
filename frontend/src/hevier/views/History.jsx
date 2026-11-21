@@ -1,6 +1,6 @@
 // The History tab (hevier/DECISIONS.md D126, D135, D142): one row of ways into the statistics (this
 // week's numbers are on Statistics and Today, the critique 2026-11-20), then the phase filter and every workout as a feed card (D14's feed, unchanged).
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, tn } from '../../lib/i18n.js'
@@ -14,7 +14,7 @@ import PageBar from '../components/PageBar.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { SettingsGear } from './Today.jsx'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import { partOn } from '../lib/module-parts.js'
 
 // "November · 3 workouts", the year too when it is not this one.
@@ -27,8 +27,11 @@ export const PAGE = 10
 export function WorkoutFeed({ S }) {
   const nav = useNavigate()
   const [n, setN] = useState(PAGE)
-  const ws = historyRows(usePhasedS(S)).filter(r => r.w).map(r => r.w)   // D93
-  const heads = monthHeads(ws)
+  const P = usePhasedS(S)   // D93
+  const phase = useStatsPhase(s => s.phase)
+  // Only the workouts are kept, so the log, the phase and its switch decide; not each copy of S (the fifth audit, 2026-11-21).
+  const ws = useMemo(() => historyRows(P).filter(r => r.w).map(r => r.w), [S.workouts, phase, S.modules, S.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
+  const heads = useMemo(() => monthHeads(ws), [ws])
   if (!ws.length) return <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No workouts yet. Your first one will land here.')}
     {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>
   return <>
@@ -51,7 +54,7 @@ export default function History() {
     ['Statistics', () => nav('/stats')],
   ].filter(Boolean)
   return <div className="narrow hv-history">
-    <PageBar title={t('History')}><SettingsGear /></PageBar>
+    <PageBar title={t('History')}><SettingsGear back="History" /></PageBar>
     <div className="hv-hgroup">
       <span className="hv-cap">{t('Look back')}</span>
       <div className="hv-chips hv-hlinks">{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>

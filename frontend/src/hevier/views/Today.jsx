@@ -2,6 +2,7 @@
 // next session is, its first five exercises with their sets (three on a short screen), Start, the week in one row, the round
 // and the streak in one line, the ways into planning, and the last workout. Settings is the gear.
 // The next day is next-planned.js's (D124), the rest is hevier/lib/today.js.
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -28,11 +29,11 @@ const SHOWN = 5
 // Three on a screen as short as 320×568 dp, so Start stays above the fold. Read once per render, not on a resize.
 const shown = () => { try { return globalThis.matchMedia?.('(max-height: 600px)').matches ? 3 : SHOWN } catch { return SHOWN } }
 
-/** The gear in a tab's page bar, with the connection-trouble dot Home's had. */
-export function SettingsGear() {
+/** The gear in a tab's page bar, with the connection-trouble dot Home's had. `back` names the tab, for Settings' back. */
+export function SettingsGear({ back = 'Today' }) {
   const nav = useNavigate()
   const trouble = useConnectionTrouble()
-  return <button type="button" className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
+  return <button type="button" className="iconbtn" onClick={() => nav('/settings', { state: { back } })} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
     <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
 }
 
@@ -82,7 +83,8 @@ function Week({ S, today }) {
 }
 
 function LastWorkout({ S, w }) {
-  const recs = workoutRecords(S, w).length
+  // What records.js keys its walk on, not each copy of S (the fifth audit, 2026-11-21).
+  const recs = useMemo(() => workoutRecords(S, w).length, [w, S.workouts, S.dbLoad, S.oneRmFormula, S.customEx, S.modules, S.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
   return <button type="button" className="card hv-tlast" onClick={() => workoutDetailSheet(w)}>
     <Icon name="chevronRight" className="hv-tlast-go" />
     <span className="hv-cap">{t('Last workout')} · {fmtDate(w.d, true)}</span>
@@ -100,7 +102,8 @@ export default function Today() {
   const round = roundOf(S, today)
   const streak = partOn(S, 'motivation', 'streak') && S.workouts.length > 0 && streakLabel(S, today)
   const line = [round && t(round.round ? '{0} of {1} done this round' : '{0} of {1} done this week', round.done, round.of), streak].filter(Boolean)
-  const last = historyRows(S).find(r => r.w)?.w
+  // The newest workout depends on the log alone (the fifth audit, 2026-11-21).
+  const last = useMemo(() => historyRows(S).find(r => r.w)?.w, [S.workouts]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="narrow hv-today-page">
     <PageBar title={t('Today')}><SettingsGear /></PageBar>
     {next ? <NextCard S={S} next={next} today={today} />

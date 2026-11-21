@@ -12,7 +12,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, fmtNum } from '../../lib/format.js'
+import { fmtVol, fmtNum, exerciseNameText } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { sessionSections, sessionVolume, EFFORT } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
@@ -78,9 +78,10 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
   const anyHr = rows.some(r => sanitizeHr(r.hr))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
-      {ex ? <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      {ex ? <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
         : <span className="hv-thumb" />}
-      <span role="heading" aria-level="3" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
+      {/* Under the "Workout" h3, so a level below it (the fifth audit, 2026-11-21). */}
+      <span role="heading" aria-level="4" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
       </button></span>
     </div>

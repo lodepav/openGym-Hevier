@@ -3,7 +3,7 @@
 // page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -38,9 +38,11 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
     {!small && n > 0 && <span>{tn('{0} workout', '{0} workouts', n)}</span>}
   </>
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
-    <h2 className="hv-cal-mh">{onTitle ? <button type="button" className="hv-cal-mt" onClick={onTitle}>{heading}</button>
+    <h2 className="hv-cal-mh">{onTitle ? <button type="button" className="hv-cal-mt" onClick={onTitle}
+      // A small month said only its name; its count is drawn as dots alone (the fifth audit, 2026-11-21).
+      aria-label={small ? t(MONTHS_LONG[mo]) + ', ' + tn('{0} workout', '{0} workouts', n) : undefined}>{heading}</button>
       : <span className="hv-cal-mt">{heading}</span>}</h2>
-    <div className="hv-cal-g">
+    <div className="hv-cal-g" aria-hidden={small || undefined}>
       {!small && weekOrder(ws).map(d => <span key={d} className="hv-cal-h">{t(DAYS[d])}</span>)}
       {cells.map((iso, i) => {
         if (!iso) return <span key={'b' + i} />
@@ -89,8 +91,8 @@ function CalendarPage() {
   const [count, setCount] = useState(MORE)
   const [ahead, setAhead] = useState(0)
   const [year, setYear] = useState(now.getFullYear())
-  const byDay = workoutsByDay(st.workouts)
-  const rest = restDays(st.workouts, today)
+  const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
+  const rest = useMemo(() => restDays(st.workouts, today), [st.workouts, today])
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }

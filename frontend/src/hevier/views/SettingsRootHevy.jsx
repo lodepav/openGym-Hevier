@@ -116,10 +116,14 @@ const TYPE_PROPS = new Map([[ForgottenRows, { mobile: false }]])
 export function installSettings() {
   hooks.settings = {
     root: props => <SettingsRootHevy {...props} />,
-    // Settings opens from a tab's ⚙ (D136): back the way you came, else up to Today.
-    back: () => <button className="sp-back" aria-label={t('Today')}
-      onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/home', { replace: true }))}>
-      <Icon name="chevronLeft" /><span>{t('Today')}</span></button>,
+    // Back the way you came, named by the tab whose ⚙ opened it (D136; the fifth audit, 2026-11-21), else up to Today.
+    back: () => {
+      const came = (window.history.state?.idx || 0) > 0, from = came && window.history.state?.usr?.back
+      const label = from === 'History' ? t('History') : from === 'Lifts' ? t('Lifts') : t('Today')
+      return <button className="sp-back" aria-label={label}
+        onClick={() => (came ? nav(-1) : nav('/home', { replace: true }))}>
+        <Icon name="chevronLeft" /><span>{label}</span></button>
+    },
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)

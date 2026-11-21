@@ -94,6 +94,8 @@ describe('hevier: exercise details (seam S10)', () => {
     // Each set is one unit the line wraps around, the separators between them.
     expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best 1RM, Best set: 60 kg × 8', '★ Heaviest: 62.5 kg × 6'])
     expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('Heaviest')
+    // Its button name is short: date, first set, count, best (the fifth audit, 2026-11-21).
+    expect(lines[0].getAttribute('aria-label')).toMatch(/., 60 kg × 8, 2 sets, Heaviest$/)
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
     expect(tiles[2]).toBe('60 kg × 8')

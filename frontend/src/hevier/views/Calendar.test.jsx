@@ -91,6 +91,10 @@ describe('hevier: Calendar', () => {
     render('/calendar', [w])
     click(byText('.seg button', 'Year'))
     expect(container.querySelectorAll('.hv-cal-m.small')).toHaveLength(12)
+    // The fifth audit, 2026-11-21: a small month says its count; its dots are hidden.
+    const mo = new Date(start).getMonth()
+    expect(container.querySelectorAll('.hv-cal-m.small .hv-cal-mt')[mo].getAttribute('aria-label')).toMatch(/, 1 workout$/)
+    expect(container.querySelector('.hv-cal-m.small .hv-cal-g').getAttribute('aria-hidden')).toBe('true')
     click(container.querySelectorAll('.hv-cal-mt')[0])
     expect([...container.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-mt b')].at(-1).textContent).toMatch(/^January /)
   })

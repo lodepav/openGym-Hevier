@@ -54,6 +54,17 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.sp-back').textContent).toBe('Today')
   })
 
+  // The fifth audit, 2026-11-21: back names the tab whose gear opened Settings, Today on a cold open.
+  it('back is named by the tab it returns to', () => {
+    const was = window.history.state
+    window.history.replaceState({ idx: 1, usr: { back: 'Lifts' } }, '')
+    try {
+      render(null)
+      expect(container.querySelector('.sp-back').getAttribute('aria-label')).toBe('Lifts')
+      expect(container.querySelector('.sp-back').textContent).toBe('Lifts')
+    } finally { window.history.replaceState(was, '') }
+  })
+
   it('leaves the layout rows out of Workout and Fine-tuning, keeping the rest', () => {
     render('workout')
     const rows = titles()

@@ -22,6 +22,7 @@ import { countedWorkouts } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
+import { useNamesAbove } from '../components/MuscleSetsCard.jsx'
 import { sessionVolume } from '../../lib/history.js'
 import { partOn } from '../lib/module-parts.js'
 
@@ -37,6 +38,7 @@ export default function MonthReport() {
   const today = todayISO()
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const [allPrs, setAllPrs] = useState(false)
+  const [splitList, above] = useNamesAbove()
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
@@ -98,7 +100,7 @@ export default function MonthReport() {
 
       {r.muscles.length > 0 && <>
         <h3 className="sec">{t('Muscle Split')}</h3>
-        <div className="hv-msets">{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
+        <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
           <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
           <b>{tn('{0} set', '{0} sets', m.sets)}</b>

@@ -9,7 +9,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { getVersion } from '../../lib/i18n-core.js'
 import { exOr, searchExercises } from '../../lib/exercises.js'
 import { isBw } from '../../lib/history.js'
 import { todayISO } from '../../lib/format.js'
@@ -201,12 +202,15 @@ export default function Lifts() {
   const from = windowFrom(S, win, today)
   const progress = useMemo(() => liftProgress(S, { from }), [log, S.routines, from]) // eslint-disable-line react-hooks/exhaustive-deps
   const totals = progressTotals(progress)
-  // By name, and by the brand it was logged on (D36), as the picker searches.
-  const trained = rows.map(r => exOr(r.id))
-  let keep = q.trim() ? new Set([...searchExercises(trained, q),
-    ...(partOn(S, 'hvGyms', 'brands') ? brandMatches(trained, brandsByExercise(S), q, searchExercises).map(m => m.ex) : [])].map(e => e.id)) : null
-  if (filter) keep = new Set(rows.filter(r => progress.get(r.id)?.state === filter && (!keep || keep.has(r.id))).map(r => r.id))
-  const sections = liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
+  // By name and by brand (D36), as the picker searches; kept per what it reads, not per copy of S (the fifth audit, 2026-11-21).
+  const sections = useMemo(() => {
+    const trained = rows.map(r => exOr(r.id))
+    let keep = q.trim() ? new Set([...searchExercises(trained, q),
+      ...(partOn(S, 'hvGyms', 'brands') ? brandMatches(trained, brandsByExercise(S), q, searchExercises).map(m => m.ex) : [])].map(e => e.id)) : null
+    if (filter) keep = new Set(rows.filter(r => progress.get(r.id)?.state === filter && (!keep || keep.has(r.id))).map(r => r.id))
+    return liftSections(rows, { by, keep, groupOf: id => muscleGroup(exOr(id)) })
+  }, [rows, progress, q, filter, by, log, S.hvMachines, S.modules, S.hvModuleParts, S.hvMainMuscle, S.customEx, S.exAliases, S.exShownName, getVersion()]) // eslint-disable-line react-hooks/exhaustive-deps
+  const count = sections.reduce((n, sec) => n + sec.rows.length, 0)
   // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
   const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
     by === 'muscle' && t('½ counts half in its group'),
@@ -216,7 +220,7 @@ export default function Lifts() {
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
   ].filter(Boolean)
   return <div className="narrow hv-lifts">
-    <PageBar title={t('Lifts')}><SettingsGear /></PageBar>
+    <PageBar title={t('Lifts')}><SettingsGear back="Lifts" /></PageBar>
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
@@ -233,10 +237,13 @@ export default function Lifts() {
       </div>}
       <div className="hv-lifts-totals">{STATES.map(st => <button key={st} type="button" className={'hv-lifts-total ' + st + (filter === st ? ' on' : '')}
         aria-pressed={filter === st} onClick={() => { setFilter(f => (f === st ? null : st)); if (!S.hvLiftsTapSeen) update(s => { s.hvLiftsTapSeen = true }) }}
-        aria-label={(totals[st] === 1 ? t('{0}, 1 lift', t(WORD[st])) : t('{0}, {1} lifts', t(WORD[st]), totals[st])) + (filter === st ? ', ' + t('filter on') : '')}>
+        // aria-pressed says the filter is on; the label said it again (the fifth audit, 2026-11-21).
+        aria-label={totals[st] === 1 ? t('{0}, 1 lift', t(WORD[st])) : t('{0}, {1} lifts', t(WORD[st]), totals[st])}>
         <b>{totals[st]}</b><small>{t(WORD[st])}</small>
       </button>)}</div>
       {hint && <div className="small dim hv-lifts-hint">{hint}</div>}
+      {/* What a filter or a search leaves is said, not only redrawn (the fifth audit, 2026-11-21). */}
+      <span className="hv-sr" role="status">{q.trim() || filter ? tn('{0} lift', '{0} lifts', count) : ''}</span>
     </>}
     {sections.map(sec => <section key={sec.key}>
       {by === 'muscle' ? <GroupHead label={muscleText(sec.label)} ids={sec.ids} progress={progress} /> : <h2 className="sec">{t(sec.label)}</h2>}

@@ -49,3 +49,10 @@ export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main
   rows.sort((a, b) => b.sets - a.sets || b.prev - a.prev || a.muscle.localeCompare(b.muscle))
   return { ...now, rows }
 }
+
+/**
+ * Whether Sets per muscle's and Muscle Split's names go above their bars: a list `width` px wide in
+ * text `font` px high (the phone's text size zooms it, D122) holds name, bar and numbers on one line
+ * above 18 of its em, 252 px at 14 px. Unmeasured, they stay beside (the fifth audit, 2026-11-21).
+ */
+export const namesAbove = (width, font) => width > 0 && font > 0 && width / font <= 18

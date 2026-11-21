@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
+import { exerciseNameText } from '../../lib/format.js'
 import { setNav } from '../../lib/nav.js'
 import { workoutDetailSheet } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
@@ -85,10 +86,10 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.textContent).not.toContain('Muscle Split')
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
-    expect(page.querySelector('[role="heading"][aria-level="3"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps
+    expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
     // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).
     const thumb = page.querySelector('.hv-wd-ex button.hv-thumb')
-    expect(thumb.getAttribute('aria-label')).toBe('How to do it')
+    expect(thumb.getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameText(BENCH))   // the fifth audit, 2026-11-21
     const before = useUI.getState().sheets.length
     act(() => thumb.click())
     expect(useUI.getState().sheets.length).toBe(before + 1)

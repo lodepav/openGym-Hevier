@@ -11,7 +11,7 @@ import { exercisePickerSheet } from './ExercisePickerHevy.jsx'
 import { openCompareFor } from '../components/StrengthLevel.jsx'
 import { BackTo } from './Statistics.jsx'
 import { countedS } from '../../lib/counted-log.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { exerciseSummary } from '../lib/exercise-summary.js'
 import { LEVELS, levelGroups } from '../lib/strength-level.js'
@@ -22,9 +22,11 @@ export default function StrengthLevels() {
   const st = useStore(s => s.S)
   const unit = st.unit
   const counted = usePhasedS(countedS(st))
+  const phase = useStatsPhase(s => s.phase)
+  // counted is a new copy on each write: key on what it is made from and what the summary reads (the fifth audit, 2026-11-21).
   const groups = useMemo(() => {
     return levelGroups(st.hvStrength, unit, id => exerciseSummary(counted, id).records.e1rm?.v)
-  }, [st.hvStrength, counted, st.dbLoad, unit]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st.hvStrength, st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, unit]) // eslint-disable-line react-hooks/exhaustive-deps
   const setLevel = () => {
     const picker = exercisePickerSheet(ex => { picker.close(); openCompareFor(ex.id); exerciseDetailSheet(ex) }, { title: t('Set a level') })
   }

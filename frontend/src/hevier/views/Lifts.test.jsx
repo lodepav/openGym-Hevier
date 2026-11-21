@@ -140,12 +140,15 @@ describe('hevier: Lifts (D135)', () => {
     expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Tap a total to show only those lifts · Est. 1RM (kg)')
     act(() => totals()[2].click())
     expect(totals()[2].getAttribute('aria-pressed')).toBe('true')
-    expect(totals()[2].getAttribute('aria-label')).toBe('Falling, 1 lift, filter on')
+    // The fifth audit, 2026-11-21: aria-pressed says it is on, the label does not repeat it; what is left is said.
+    expect(totals()[2].getAttribute('aria-label')).toBe('Falling, 1 lift')
     expect(names()).toEqual([exerciseNameFor(A)])
+    expect(container.querySelector('.hv-lifts [role="status"]').textContent).toBe('1 lift')
     expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Showing falling lifts · tap Falling again for all · Est. 1RM (kg)')
     act(() => totals()[2].click())
     expect(totals()[2].getAttribute('aria-pressed')).toBe('false')
     expect(names()).toEqual([exerciseNameFor(A), exerciseNameFor(B)])
+    expect(container.querySelector('.hv-lifts [role="status"]').textContent).toBe('')
     // The hint has done its job after the first tap, and stays gone (S.hvLiftsTapSeen).
     expect(container.querySelector('.hv-lifts-hint').textContent).toBe('Est. 1RM (kg)')
     expect(useStore.getState().S.hvLiftsTapSeen).toBe(true)

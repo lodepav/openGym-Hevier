@@ -40,9 +40,9 @@ import { sideBalance } from '../lib/side-balance.js'
 import StrengthLevel, { comparePending } from '../components/StrengthLevel.jsx'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../../lib/counted-log.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
-import TrendMark from '../components/TrendMark.jsx'
+import TrendMark, { trendWords } from '../components/TrendMark.jsx'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
 import { musclesShown, mainMuscleOf, muscleText } from '../lib/main-muscle.js'
@@ -106,7 +106,10 @@ function LastSessions({ ex, sum, st, onAll }) {
     {lines.map((l, k) => {
       const w = byId.get(l.id)
       const effort = l.effort.map(e => effortShown(e, scale)).filter(v => v != null)
-      return <div key={l.id ?? k} className="hv-xd-ls" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
+      // Its date, first set, count and best or trend; the whole line was one long button name (the fifth audit, 2026-11-21).
+      const said = w && [shortDate(l.d), l.sets[0] && shortSet(ex, l.sets[0].s, l.target, st), l.sets.length > 1 && tn('{0} set', '{0} sets', l.sets.length),
+        l.bestKind ? t(KIND_LABEL[l.bestKind]) : trendWords(l.trend)].filter(Boolean).join(', ')
+      return <div key={l.id ?? k} className="hv-xd-ls" aria-label={said || undefined} {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
         <span className="hv-xd-ld">{shortDate(l.d)}</span>
         {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
         <span className="hv-xd-lsets">{l.sets.map((x, j) => <Fragment key={j}>{j > 0 && ' · '}<span className="hv-xd-lset">{x.star
@@ -294,21 +297,24 @@ function ExerciseDetails({ ex, close }) {
   // every one. The filter by OpenBite's phase (D93) narrows both.
   const counted = usePhasedS(countedS(st))
   const listed = usePhasedS(st)
-  const all = useMemo(() => exerciseSummary(counted, ex.id), [counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Both are new copies on each write: the summaries key on what they are made from and read (the fifth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const made = [st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx]
+  const all = useMemo(() => exerciseSummary(counted, ex.id), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // With nothing kept out (the usual case), both are the same copy of S: one summary serves both.
   const same = counted === listed
-  const logged = useMemo(() => (same ? all : exerciseSummary(listed, ex.id)), [all, same, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const logged = useMemo(() => (same ? all : exerciseSummary(listed, ex.id)), [all, same, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
   // the page follows the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
   const brands = labels.length > 0 && partOn(st, 'hvGyms', 'brands')
   const on = brands && labels.some(l => l.key === label) ? label : null
-  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D88: this exercise's time a session, from its sets' tick times, as Exercise time reads it.
   const time = useMemo(() => (partOn(st, 'hvStats', 'time')
-    ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [listed, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+    ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
   const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
   const fav = isFav(st, ex.id)

@@ -53,7 +53,8 @@ function Tile({ id, title, value, sub, spoken, onClick, change }) {
   const said = spoken + (change ? ', ' + change.spoken : '')
   return onClick
     ? <button type="button" className="hv-stile" data-tile={id} aria-label={said} onClick={onClick}>{inner}</button>
-    : <div className="hv-stile" data-tile={id} role="group" aria-label={said}>{inner}</div>
+    // One name, read once: a labelled group was read by its label and then its text (the fifth audit, 2026-11-21).
+    : <div className="hv-stile" data-tile={id} role="img" aria-label={said}>{inner}</div>
 }
 
 function CardHead({ title, link, label, onClick }) {
