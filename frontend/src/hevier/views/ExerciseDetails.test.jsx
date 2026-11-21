@@ -232,16 +232,21 @@ describe('hevier: exercise details (seam S10)', () => {
     }
     const inputs = [...sl().querySelectorAll('input')]
     expect(inputs).toHaveLength(5)
+    // A wrong order is said as it shows; a closed form hands focus to what opens it again (the audit leftovers).
+    act(() => ['40', '55', '50', '90', '110'].forEach((v, i) => set(inputs[i], v)))
+    expect(sl().querySelector('.hv-sl-err').getAttribute('role')).toBe('alert')
     act(() => ['40', '55', '70', '90', '110'].forEach((v, i) => set(inputs[i], v)))
     act(() => sl().querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
     expect(useStore.getState().S.hvStrength[EX.id]).toMatchObject({ lv: [40, 55, 70, 90, 110], u: 'kg' })
     expect(sl().querySelector('form')).toBeNull()
+    expect(document.activeElement?.textContent).toBe('Edit')
     const best = Number(host.textContent.match(/Best 1RM ([\d.]+)/)[1])
     expect(best).toBeGreaterThan(70); expect(best).toBeLessThan(90)
     expect(sl().querySelector('.hv-sl-head').textContent).toMatch(/^Intermediate · [\d.]+ kg to Advanced$/)
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Edit').click())
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Remove levels').click())
     expect(useStore.getState().S.hvStrength?.[EX.id]).toBeUndefined()
+    expect(document.activeElement?.textContent).toBe('Compare strength')
   })
 
   it('other names: the switched-on one is the title, the rest and the own name are “Also called” (D73)', () => {

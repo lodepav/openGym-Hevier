@@ -105,10 +105,13 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const hidden = useMemo(() => (eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []),
     [all, muscle, eq, profile, like, q]) // eslint-disable-line react-hooks/exhaustive-deps
   const found = useMemo(() => searchExercises(base, q), [base, q])
+  // Both scan every workout: once per change of what they read, not per redraw (the audit leftovers).
+  const usage = useMemo(() => usageOf({ routines: st.routines, workouts: st.workouts }), [st.routines, st.workouts])
+  const brands = useMemo(() => brandsByExercise({ hvMachines: st.hvMachines, workouts: st.workouts }), [st.hvMachines, st.workouts])
   let list = found
-  list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
+  list = q.trim() ? sortYoursFirst(list, st, usage) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
-  const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []
+  const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brands, q, searchExercises) : []
   const brandOf = new Map(byBrand.map(m => [m.ex.id, m.brand]))
   if (byBrand.length) list = [...byBrand.map(m => m.ex), ...list.filter(e => !brandOf.has(e.id))]
   // Same equipment first on a swap: a taken machine is usually swapped for the same kind of kit.
@@ -216,8 +219,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <h3>{swap ? (likeEx ? named(t('Swap {0}', '\u0001'), likeEx) : t('Swap exercise')) : title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>
     </div>}
-    <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-      <input ref={searchRef} className="input" placeholder={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
+    <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+      <input ref={searchRef} className="input" placeholder={t('Search exercise')} aria-label={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
       {q && <button className="clear" onClick={() => reset(setQ)('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
     <div className="hv-pk-filters">
       {/* A chevron says each opens a list to pick from. */}

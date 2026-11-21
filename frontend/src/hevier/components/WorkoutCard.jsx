@@ -113,7 +113,7 @@ export default function WorkoutCard({ w }) {
       return <div key={i} className="hv-wcard-ex">
         <span className="hv-thumb sm">{ex && <Thumb ex={ex} />}</span>
         <span className="grow"><b>{warm ? tn('{0} set', '{0} sets', warm) + ' (' + t('Warm-up') + ')' : tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
-        {prOf(e) > 0 && <span className="hv-pr" aria-label={t('Records')}><Icon name="trophy" />{prOf(e)}</span>}
+        {prOf(e) > 0 && <span className="hv-pr" role="img" aria-label={t('Records') + ' ' + prOf(e)}><Icon name="trophy" />{prOf(e)}</span>}
       </div>
     })}
     {entries.length > SHOWN && <div className="hv-wcard-more">{t('See more: {0}', exCount(entries.length - SHOWN))}</div>}

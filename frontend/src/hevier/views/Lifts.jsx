@@ -218,10 +218,11 @@ export default function Lifts() {
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
+    {rows.length > 0 && <span id="hv-lifts-win-l" className="hv-sr">{t('Time window')}</span>}
     <div className="hv-lifts-ctl">
       <Segmented className="hv-lifts-by" value={by} onChange={v => update(s => { s.hvLiftsBy = v })}
         options={[{ value: 'recent', label: t('Recent') }, { value: 'muscle', label: t('By muscle') }]} />
-      {rows.length > 0 && <Segmented className="hv-lifts-win" value={win} onChange={v => update(s => { s.hvLiftsWindow = v })}
+      {rows.length > 0 && <Segmented className="hv-lifts-win" ariaLabelledby="hv-lifts-win-l" value={win} onChange={v => update(s => { s.hvLiftsWindow = v })}
         options={[{ value: '12w', label: t('12 weeks') }, phase && { value: 'phase', label: t('Phase') }, { value: 'all', label: t('All') }].filter(Boolean)} />}
     </div>
     {rows.length > 0 && <>

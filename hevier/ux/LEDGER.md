@@ -379,3 +379,14 @@ Calendar year month is one tap target. At 320 px and 130 % text the Sets per mus
 above its bar, the Calendar key and Workout detail's stats wrap, Lifts' right column stays inside,
 and Exercise details' name takes two lines. The picker searches once per keystroke, the routine
 title is saved after a pause or on leaving the field, and Workout detail works out trends once.
+
+The third run (312 of 380, the routine editor up to 17) found two slips from the second round,
+both fixed: a past planned day no longer says Planned, and the brand line's tap stops above the
+action buttons. Then every small finding left: exercise names are headings, today is the current
+date on Today, the rest dock says Paused or Switch sides, the dimmed weekly bars reach 3:1, the
+year grid's untrained days are visible, Settings rows, Today's links and Start reach 48 dp, Workout
+detail's thumb opens the exercise and its name is 48 dp, the strength-level form keeps focus and
+says its error, and the picker, Exercise time and the routine editor stop recomputing on unrelated
+writes. Left as they are: day cells and week days (seven columns), the set number (44 dp row),
+thumbnails (clipped circles), the shared page title at 200 %, the locale words (English kept), and
+Exercise details' video autoplay with reduced motion, which needs a seam in upstream's Media.jsx.

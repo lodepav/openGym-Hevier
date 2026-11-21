@@ -70,13 +70,13 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     })
   }
   const mark = set => (set.kind === 'warm' ? <span className="hv-w">W</span> : set.rows[0].failure ? <span className="hv-f">F</span> : set.n + 1)
-  const sideMark = side => side && <span className="hv-np-side" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
+  const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
       {meta.rest > 0 && <span className="hv-sub">{t('{0} rest', restTimerText(meta.rest, 0, ''))}</span>}</div>}
     <div className="hv-exhd">
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
-      <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+      <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
       {label && <span className="hv-chip hv-np-label">{label}</span>}
     </div>
     {e?.note && <p className="hv-notes">{e.note}</p>}

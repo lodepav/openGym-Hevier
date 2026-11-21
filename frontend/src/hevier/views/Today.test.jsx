@@ -77,7 +77,8 @@ describe('hevier: Today (D134)', () => {
     const days = container.querySelectorAll('.hv-tday')
     expect(days).toHaveLength(7)
     expect(container.querySelector('.hv-tday.next').getAttribute('aria-label')).toContain('Upper A')
-    expect(container.querySelector('.hv-tday.today')).toBeTruthy()
+    expect(container.querySelector('.hv-tday.today').getAttribute('aria-current')).toBe('date')
+    expect(container.querySelectorAll('.hv-tday[aria-current]')).toHaveLength(1)
   })
 
   it('with nothing planned says so; the links and the last workout still show', () => {

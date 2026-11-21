@@ -34,7 +34,9 @@ export default function ExerciseTime() {
   const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO())),
     [log, period])
   // Per exercise over the whole period, the same number in whichever section its row shows.
-  const gaps = useMemo(() => setGaps(log, periodSince(period, todayISO()), st), [log, period, st])
+  // setGaps reads only the rest settings from S, so another write leaves the gaps alone (the audit leftovers).
+  const gaps = useMemo(() => setGaps(log, periodSince(period, todayISO()), { restSec: st.restSec, warmupRestSec: st.warmupRestSec }),
+    [log, period, st.restSec, st.warmupRestSec])
   const sections = timeSections(sessions, { by, asc, muscleOf: id => mainMuscleOf(exOr(id)) })
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
     : key ? muscleText(key) : t('Other'))

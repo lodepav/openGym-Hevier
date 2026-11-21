@@ -25,7 +25,7 @@ function LevelsForm({ exId, unit, close }) {
         onChange={e => setV(v.map((x, k) => (k === i ? e.target.value : x)))} />
       <span className="dim">{unit}</span>
     </label>)}
-    {!lv && v.every(Boolean) && <p className="small hv-sl-err">{t('Each level must be heavier than the one before.')}</p>}
+    {!lv && v.every(Boolean) && <p className="small hv-sl-err" role="alert">{t('Each level must be heavier than the one before.')}</p>}
     <div className="hv-sl-btns">
       <button type="button" className="btn" onClick={close}>{t('Cancel')}</button>
       <button type="submit" className="btn primary" disabled={!lv}>{t('Save')}</button>
@@ -48,7 +48,14 @@ export default function StrengthLevel({ exId, oneRm, st, unit = st.unit }) {
   const [open, setOpen] = useState(asked)
   const box = useRef(null)
   useEffect(() => { if (asked) box.current?.scrollIntoView?.({ block: 'center' }) }, [asked])
-  const form = open && <LevelsForm exId={exId} unit={unit} close={() => setOpen(false)} />
+  // A closed form hands focus to the button that opens it again, not to the page (the audit leftovers).
+  const refocus = useRef(false)
+  useEffect(() => {
+    if (open || !refocus.current) return
+    refocus.current = false
+    box.current?.querySelector('[aria-expanded="false"]')?.focus()
+  }, [open])
+  const form = open && <LevelsForm exId={exId} unit={unit} close={() => { refocus.current = true; setOpen(false) }} />
   if (!lv) return <div className="hv-sl" ref={box}>
     <h4 className="sec">{t('Strength level')}</h4>
     {form || <>
@@ -56,7 +63,7 @@ export default function StrengthLevel({ exId, oneRm, st, unit = st.unit }) {
       <div className="hv-sl-btns"><button type="button" className="btn primary" aria-expanded={false} onClick={() => setOpen(true)}>{t('Compare strength')}</button></div>
     </>}
   </div>
-  if (!(oneRm > 0)) return <div className="hv-sl">
+  if (!(oneRm > 0)) return <div className="hv-sl" ref={box}>
     <h4 className="sec">{t('Strength level')}</h4>
     <div className="hv-sl-head"><b>{t('No 1RM logged yet')}</b></div>
     <div className="hv-sl-ticks">{lv.map((x, i) => <span key={i}>{fmtNum(x)}</span>)}</div>
@@ -65,7 +72,7 @@ export default function StrengthLevel({ exId, oneRm, st, unit = st.unit }) {
   </div>
   const { level, next, toNext, pos } = strengthLevel(oneRm, lv)
   const head = level < 0 ? t('Below Beginner') : t(LEVELS[level])
-  return <div className="hv-sl">
+  return <div className="hv-sl" ref={box}>
     <h4 className="sec">{t('Strength level')}</h4>
     <div className="hv-sl-head"><b>{head}</b>{next != null && <span className="dim"> · {fmtNum(toNext)} {unit} {t('to')} {t(LEVELS[next])}</span>}</div>
     <div className="hv-sl-bar" role="img" aria-label={head}>

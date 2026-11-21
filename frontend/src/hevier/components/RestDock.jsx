@@ -40,7 +40,7 @@ export default function RestDock() {
   return <div className="hv-dock" ref={box} role="region" aria-label={t('Rest')}>
     <div className="hv-dock-top">
       <button type="button" className="hv-dock-clock" onClick={adjustRestSheet}
-        aria-label={clock(timer.left) + '. ' + t('Change the time left')}>
+        aria-label={(timer.kind === 'switch' ? t('Switch sides') + ', ' : timer.paused ? t('Paused') + ', ' : '') + clock(timer.left) + '. ' + t('Change the time left')}>
         <span className="hv-dock-cap">{timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')}</span>
         <b role="timer">{clock(timer.left)}</b>
       </button>

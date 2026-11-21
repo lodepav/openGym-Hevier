@@ -278,7 +278,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
       <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
-        <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+        <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
         {brandsOn && (brand
           ? <button type="button" className="hv-brand has" aria-label={t('Brand') + ': ' + brand} onClick={openBrand}><Icon name="machine" />{brand}</button>
           : <button type="button" className="hv-addbrand" onClick={openBrand}>{t('+ Brand')}</button>)}
@@ -310,6 +310,17 @@ const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.r === b.r && a.S =
 
 // Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
 // state (the title, its pending save) belongs to one routine (the second audit, 2026-11-21).
+// The body map from the exercises alone: a title written copies them but keeps what they say,
+// so the map is not worked out again (the audit leftovers, 2026-11-21).
+const RoutineMap = memo(function RoutineMap({ ex, body }) {
+  const load = loadOfRoutine({ ex })
+  return <div className="card hv-rmap">
+    <h2>{t('What this session hits')}</h2>
+    <BodyMap load={load} body={body} />
+    <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
+  </div>
+}, (a, b) => a.body === b.body && JSON.stringify(a.ex) === JSON.stringify(b.ex))
+
 export default function RoutineEditHevy() {
   const { id } = useParams()
   return <RoutineEditor key={id} id={id} />
@@ -333,7 +344,12 @@ function RoutineEditor({ id }) {
     typed.current = null
     update(s => { const x = s.routines.find(y => y.id === id); if (x) x.name = v || t('New routine') })
   }
-  useEffect(() => () => commitName(), []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Android may kill the app in the background before the pause ends (the audit leftovers, 2026-11-21).
+    const away = () => { if (document.visibilityState === 'hidden') commitName() }
+    document.addEventListener('visibilitychange', away)
+    return () => { document.removeEventListener('visibilitychange', away); commitName() }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
   // A new routine's default name shows as the placeholder, so the first key typed starts the name (D2: no select on focus).
@@ -384,7 +400,6 @@ function RoutineEditor({ id }) {
 
   const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
-  const load = r.ex.length ? loadOfRoutine(r) : null
   // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
   const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
@@ -441,11 +456,7 @@ function RoutineEditor({ id }) {
         : progressionOn(r) ? t(POLICY_DESC[r.prog || profileRule(S)] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
         : t('A set never done opens at the numbers set here.')}
     </div>
-    {load && <div className="card hv-rmap">
-      <h2>{t('What this session hits')}</h2>
-      <BodyMap load={load} body={S.body} />
-      <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
-    </div>}
+    {r.ex.length > 0 && <RoutineMap ex={r.ex} body={S.body} />}
     <div className="workout-end-spacer" />
   </div>
 }
