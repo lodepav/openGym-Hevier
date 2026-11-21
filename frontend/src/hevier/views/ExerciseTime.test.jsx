@@ -61,7 +61,7 @@ describe('hevier: exercise time page', () => {
 
   it('Statistics: this week’s exercise time on its tile, the longest exercises on its card', () => {
     render('/stats')
-    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min this week, ↑ 25 min vs last week')
+    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min this week')
     expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('this week')
     expect([...container.querySelectorAll('[data-card="time"] .hv-scard-row')].map(r => r.textContent)).toEqual([
       expect.stringMatching(/squat.*15min$/i), expect.stringMatching(/bench.*10min$/i)])

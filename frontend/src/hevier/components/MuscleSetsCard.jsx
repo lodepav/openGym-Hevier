@@ -16,6 +16,8 @@ export default function MuscleSetsCard({ S, today }) {
   const [kind, setKind] = useState('week')
   const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S), mode: muscleMode(S) })
   const max = Math.max(1, ...rows.map(r => r.sets))
+  // Against a period with no sets at all every row would read as a gain, so the changes are left out.
+  const before = rows.some(r => r.prev > 0)
   return <div className="card hv-setcounts hv-scard">
     <h2>{t('Sets per muscle')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
@@ -23,7 +25,7 @@ export default function MuscleSetsCard({ S, today }) {
     {/* What the numbers count, under the chips where it is read first. */}
     <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
     {rows.length ? <div className="hv-msets">{rows.map(r => {
-      const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
+      const d = before ? signed(Math.round((r.sets - r.prev) * 10) / 10) : null
       return <div key={r.muscle} className="hv-mset">
         <span className="hv-mset-n">{muscleText(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>

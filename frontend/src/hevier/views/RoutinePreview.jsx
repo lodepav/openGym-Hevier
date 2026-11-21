@@ -61,7 +61,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     const [row] = set.rows
     if (set.plannable) return (isSideSet(row) ? ['L', 'R'] : [null]).map(side => ({
       side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit }),
-      next: <>{isBw(cfg) && '+'}{num(field(set, side, 'w'))} {unit} × {num(field(set, side, 'r'))}</>,
+      next: <>{isBw(cfg) && '+'}{num(field(set, side, 'w'))}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
     }))
     const pair = set.rows.length > 1
     return set.rows.map((s, i) => {

@@ -77,10 +77,11 @@ export function weekRpe(workouts, today, weekStart) {
 }
 
 /** A week tile's number against last week's, `{ dir, text }`: "↑ 3 vs last week", "= vs last week";
- *  `fmt` writes the change in the tile's own unit. null with neither week trained. */
+ *  `fmt` writes the change in the tile's own unit. null after a week with nothing: against zero every
+ *  number reads as a gain. */
 export function weekChange(now, before, fmt = fmtNum) {
   const a = Number(now) || 0, b = Number(before) || 0
-  if (!a && !b) return null
+  if (!b) return null
   const dir = Math.sign(a - b)
   return { dir, text: t('{0} vs last week', dir === 0 ? '=' : (dir > 0 ? '↑ ' : '↓ ') + fmt(Math.abs(a - b))) }
 }

@@ -80,6 +80,7 @@ describe('Routine page (D37, D128)', () => {
     expect([...container.querySelectorAll('.hv-rv-rest')].map(x => x.textContent)).toEqual(['Rest Timer: 2:00'])
     expect(container.querySelectorAll('.hv-rv-start')).toHaveLength(2)
     expect(nums()[0].textContent).toBe('–')   // no planned weight reads as the workout's KG does
+    expect(nums()[0].parentElement.textContent).toMatch(/^– × \d+$/)   // and no unit after the dash (the critique, 2026-11-21)
   })
 
   it('opens from the routine name on Routines', () => {

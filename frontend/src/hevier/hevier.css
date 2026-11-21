@@ -179,9 +179,9 @@
   :root[data-ui="hevier"] .hv-head .hv-prev-short{display:inline}
   :root[data-ui="hevier"] .hv-row .hv-prev{padding-inline-end:2px}
 }
-/* and alternate sets are striped, in the log and in the routine editor (each set is one unclassed
-   wrapper in .hv-ex, so the stripe counts sets, not the drop and burst lines under them) */
-:root[data-ui="hevier"] .hv-ex > :nth-child(even of div:not([class])) :is(.hv-row, .hv-rt-row):not(.done){background:var(--hv-stripe)}
+/* and sets are parted by a hairline, in the log and in the routine editor, as Workout detail's (the
+   critique, 2026-11-21; each set is one unclassed wrapper in .hv-ex, so the line counts sets) */
+:root[data-ui="hevier"] .hv-ex > :nth-child(n+2 of div:not([class])) > :is(.hv-row, .hv-rt-row):first-child{border-top:.5px solid var(--sep)}
 /* a done set: the accent at 14 % on the black page, its tick filled (the next set's is outlined) */
 :root[data-ui="hevier"] .hv-row.done{background:color-mix(in srgb,var(--hv-tick) 14%,var(--bg))}
 :root[data-ui="hevier"] .hv-row.done :is(.hv-prev, .hv-num.hv-hint){color:var(--label-2)}
@@ -779,8 +779,6 @@
 :root[data-ui="hevier"] .hv-wd h3.sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-wd-edit{width:100%;margin:18px 0 8px}
 
-/* The routine page's rows striped as the editor's. */
-:root[data-ui="hevier"] .hv-rview .hv-ex > .hv-rt-row:nth-child(even of .hv-rt-row:not(.hv-rt-head)){background:var(--hv-stripe)}
 
 /* The report's month arrows: round grey buttons, faint when there is no month that way. */
 :root[data-ui="hevier"] .hv-report-bar .iconbtn{background:var(--surface-2);color:var(--label);width:36px;height:36px;border-radius:50%}
