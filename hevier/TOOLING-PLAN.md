@@ -52,6 +52,11 @@ a hook. Found while measuring:
 | 7 | CodeRabbit wait: `gh api` loop under Monitor, wakes only on a new review (check pr-triage first) | On an open PR: no model turns while waiting, wakes within 2 min of a review | Model turns while waiting on a PR go to 0 |
 | 6 | Upstream offers: one script joining SEAMS, FEATURES, upstream branches and PRs (Hevier `upstream-status.mjs`, OB `upstream_status.py`); skill drafts posts, posts after OK | Its list matches a hand check of 5 seams and 5 features | "what can we offer upstream" answered in one run instead of about 25 asks |
 
+Phase 1 item 1 done 2026-11-22: a "Main chat" section in ~/.claude/CLAUDE.md (backup
+CLAUDE.md.bak-mainchat), dry-run by a fresh agent and fixed. Measure it with usage-report.py
+(main context per turn, 165,741 before) after a week. Item 7 dropped: pr-triage already waits
+through Monitor. Next: item 5 (emulator lock), 4 (critique round runner), 6, 12.
+
 ## Phase 3: cheaper models, only with proof
 
 14 run 2026-11-22 (`.claude/hillclimb/reviewer/sonnet-2026-11-22/results.md`): Sonnet found 4 of
