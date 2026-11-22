@@ -147,3 +147,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D141** Lifts' By muscle shows each muscle group's progress on its header.
 - **D142** Statistics is one real page: number tiles, then cards, arranged and switched on or off by the user.
 - **D143** Workouts go to Hevy with each set's time and the gym, through the routes Hevy's own app uses.
+- **D144** The sixth audit's visible changes.
