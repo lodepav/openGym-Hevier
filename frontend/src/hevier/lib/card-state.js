@@ -7,6 +7,8 @@ import { liveRecords, recordsAt } from './records.js'
 const SKIP = new Set(['active', 'deleted', 'edited', '_ts'])
 // `cur` only closes an open swipe, which the row reads itself (HevyExerciseBlock SwipeRowLive).
 const ACTIVE_SKIP = new Set(['entries', 'cur'])
+// A routine's own sync stamps (upstream's ENTRY_META, sync-merge.js): an edit restamps them, they draw nothing.
+const ROUTINE_SKIP = new Set(['ex', '_ts', '_f', '_u'])
 
 /** Structural equality of two JSON-like values. */
 export function equal(a, b) {
@@ -77,7 +79,7 @@ export function sameForRoutineCard(a, b, id, i, unit) {
     const x = ra[j], y = rb[j]
     if (x?.id !== y?.id) return false
     if (x.id !== id) { if (!sameField(x, y)) return false; continue }
-    for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) if (k !== 'ex' && !equal(x[k], y[k])) return false
+    for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) if (!ROUTINE_SKIP.has(k) && !equal(x[k], y[k])) return false
     if (x.ex?.length !== y.ex?.length) return false
     for (let n = 0; n < x.ex.length; n++) if (x.ex[n]?.sg !== y.ex[n]?.sg) return false
     for (const n of new Set([i, i - 1, ...(unit || [])])) if (n >= 0 && !equal(x.ex[n], y.ex[n])) return false

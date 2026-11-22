@@ -13,12 +13,14 @@ import { periodOf } from './muscle-sets.js'
 
 export const TIME_PERIOD = '90d'
 const DAY = 86400000
+// A past `today` counts its week only up to that day, so last week's tile compares the same days (D142).
+const upTo = (workouts, today) => (workouts || []).filter(w => workoutDay(w) <= today)
 
 /** This week's exercise time: the timed exercises of this week's workouts added up, in ms (0 with none),
  *  over the weeks the weekly chart and the other tiles use. */
 export function weekExerciseTime(workouts, today, weekStart) {
   const week = weeklySeries([], 'duration', { today, weeks: 1, weekStart })[0].week
-  return timedSessions((workouts || []).filter(w => inWeek(w, week, weekStart))).reduce((n, s) => n + s.ms, 0)
+  return timedSessions(upTo(workouts, today).filter(w => inWeek(w, week, weekStart))).reduce((n, s) => n + s.ms, 0)
 }
 
 /** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`; one
@@ -49,7 +51,7 @@ export const bodyWeightPoints = (bodyweight, today) => {
 
 /** This week's work sets and time trained (ms), as the weekly chart's last bar counts them. */
 export function thisWeek(workouts, today, weekStart) {
-  const one = kind => weeklySeries(workouts, kind, { today, weeks: 1, weekStart })[0].value
+  const one = kind => weeklySeries(upTo(workouts, today), kind, { today, weeks: 1, weekStart })[0].value
   return { sets: one('sets'), ms: one('duration') }
 }
 

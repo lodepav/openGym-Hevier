@@ -76,6 +76,8 @@ describe('the routine editor cards a change redraws (sameForRoutineCard)', () =>
   const S = () => ({ unit: 'kg', routines: [{ id: 'r', name: 'Push', ex: [ex('a', 8), ex('b', 10), ex('c', 12)] }, { id: 'q', name: 'Pull', ex: [ex('d', 5)] }] })
   it('a key in one exercise redraws that card, its superset partners and the card after it, not the others', () => {
     const a = S(), b = S(); b.routines[0].ex[1].reps = 11
+    // An edit restamps the routine; the stamps draw nothing.
+    a.routines[0]._f = { ex: 1 }; b.routines[0]._f = { ex: 2 }; b.routines[0]._ts = 2
     expect(sameForRoutineCard(a, b, 'r', 0)).toBe(true)
     expect(sameForRoutineCard(a, b, 'r', 1)).toBe(false)
     expect(sameForRoutineCard(a, b, 'r', 0, [0, 1])).toBe(false)

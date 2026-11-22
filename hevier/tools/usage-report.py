@@ -80,6 +80,7 @@ def scan(dirs, since, until, session):
                     k = 'other:?'
             counted_agent = False
             pending = {}
+            seen = set()
             for line in open(f, errors='replace'):
                 try:
                     r = json.loads(line)
@@ -95,7 +96,11 @@ def scan(dirs, since, until, session):
                     if model == '<synthetic>':
                         continue
                     targets = [R['sub' if sub else 'main'][model]] + ([R['sub_kinds'][k]] if sub else [])
-                    for t in targets:
+                    # One record per content block, each with the whole message's usage: count it once.
+                    mid = m.get('id')
+                    first = not mid or mid not in seen
+                    seen.add(mid)
+                    for t in targets if first else []:
                         t['cache_read'] += u.get('cache_read_input_tokens', 0)
                         t['cache_write'] += u.get('cache_creation_input_tokens', 0)
                         t['input'] += u.get('input_tokens', 0)
