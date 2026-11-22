@@ -32,7 +32,7 @@ import { spokenSet, spoken1rm } from '../lib/set-spoken.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
-import { volumeMode, muscleMode, workSets } from '../lib/volume.js'
+import { volumeMode, muscleMode, muscleSets, workSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
@@ -155,7 +155,8 @@ export function WorkoutDetail() {
   const { state } = useLocation()
   const st = useStore(s => s.S)
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
-  const prs = w ? workoutRecords(st, w) : null
+  // Keyed on what records.js walks, as Today's last workout is, so legendAt below holds too (the tenth audit, 2026-11-22).
+  const prs = useMemo(() => (w ? workoutRecords(st, w) : null), [w, st.workouts, st.dbLoad, st.oneRmFormula, st.customEx, st.modules, st.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
   const units = sessionSections(w?.entries || []).flatMap(g => g.units)
   // Trends and the legend's row once per change of what they read, above the return (the sixth audit, 2026-11-21).
   const trendsOf = useMemo(() => (w?.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) })),
@@ -190,6 +191,8 @@ export function WorkoutDetail() {
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} mode={muscleMode(st)} />}
+    {/* How the line counts (D42), in the monthly report's words (the tenth critique, 2026-11-22). */}
+    {mode === 'sets' && muscleSets(w.entries, muscleMode(st)).length > 0 && <p className="small dim hv-wd-mcount">{t(muscleMode(st) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')}</p>}
     <VsLast st={st} w={w} mode={mode} />
     {sanitizeHr(w.hr) && <div className="hv-wd-hrline"><Icon name="heart" />
       {t('Heart rate {0} avg · {1} max', sanitizeHr(w.hr).avg, sanitizeHr(w.hr).max)}</div>}

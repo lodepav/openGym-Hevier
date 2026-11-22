@@ -41,7 +41,7 @@ beforeEach(() => {
 afterEach(() => {
   if (root) act(() => root.unmount())
   container?.remove()
-  hooks.pinOn = hooks.workoutDetail = null
+  hooks.pinOn = hooks.workoutDetail = hooks.exerciseDetail = null
   vi.useRealTimers()
 })
 
@@ -53,7 +53,7 @@ describe('hevier: Today (D134)', () => {
     expect(card.querySelector('.hv-next-n').textContent).toBe('Upper A')
     expect(card.querySelectorAll('.hv-next-ex')).toHaveLength(5)
     expect(card.querySelector('.hv-next-sets').textContent).toBe('3 sets · 60 kg × 8')
-    act(() => btn('2 more · open the plan').click())
+    act(() => btn('2 more exercises · open the plan').click())
     expect(path).toBe('/plan/r/r1/view')
   })
 
@@ -62,8 +62,22 @@ describe('hevier: Today (D134)', () => {
     try {
       render({ dayPlan: { '2026-11-17': 'r1' } })
       expect(container.querySelectorAll('.hv-next .hv-next-ex')).toHaveLength(3)
-      expect(btn('4 more · open the plan')).toBeTruthy()
+      expect(btn('4 more exercises · open the plan')).toBeTruthy()
     } finally { vi.unstubAllGlobals() }
+  })
+
+  it('a row of the card opens that exercise’s page (the tenth critique)', () => {
+    render({ dayPlan: { '2026-11-17': 'r1' } })
+    hooks.exerciseDetail = vi.fn()
+    act(() => container.querySelectorAll('.hv-next-ex')[1].click())
+    expect(hooks.exerciseDetail).toHaveBeenCalledWith(expect.objectContaining({ id: EXS[1] }))
+  })
+
+  it('a routine with no exercises: Start is off and says why', () => {
+    render({ routines: [{ ...R1, ex: [] }], dayPlan: { '2026-11-17': 'r1' } })
+    const start = btn('Start Upper A')
+    expect(start.disabled).toBe(true)
+    expect(container.querySelector('#' + start.getAttribute('aria-describedby')).textContent).toBe('This routine has no exercises yet')
   })
 
   it('Start opens the next routine', () => {
@@ -81,6 +95,16 @@ describe('hevier: Today (D134)', () => {
     expect(container.querySelectorAll('.hv-tday[aria-current]')).toHaveLength(1)
   })
 
+  it("on the week's last day the strip rolls on to tomorrow and says so", () => {
+    vi.setSystemTime(new Date(2026, 10, 22, 12))   // Sunday 22 Nov, a Monday-start week's last day
+    render({ dayPlan: { '2026-11-23': 'r1' } })
+    expect(container.querySelector('.hv-tweek').getAttribute('aria-label')).toBe('This week and tomorrow')
+    const days = container.querySelectorAll('.hv-tday')
+    expect(days).toHaveLength(7)
+    expect(days[6].classList.contains('next')).toBe(true)
+    expect(days[5].getAttribute('aria-label')).toMatch(/, Rest$/)
+  })
+
   it('says the days can be tapped until the first tap on one, then remembers it', () => {
     render()
     const hint = () => container.querySelector('.hv-tweek-hint')?.textContent
@@ -88,6 +112,15 @@ describe('hevier: Today (D134)', () => {
     act(() => container.querySelector('.hv-tday').click())
     expect(useStore.getState().S.hvDayTapSeen).toBe(true)
     expect(hint()).toBeUndefined()
+  })
+
+  it('the hint also says what a struck-through day is, when one shows', () => {
+    render({ week: { 1: 'r1' } })   // Monday's routine, today Monday: not missed yet
+    expect(container.querySelector('.hv-tweek-hint').textContent).toBe('Tap a day to plan or rest it')
+    act(() => root.unmount()); container.remove()
+    vi.setSystemTime(new Date(2026, 10, 18, 12))   // Wednesday: Monday's went untrained
+    render({ week: { 1: 'r1' } })
+    expect(container.querySelector('.hv-tweek-hint').textContent).toBe('Tap a day to plan or rest it · struck through: planned, not done')
   })
 
   it('with nothing planned says so; the links and the last workout still show', () => {

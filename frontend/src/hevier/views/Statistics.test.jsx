@@ -144,6 +144,20 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(byText('.hv-mset', 'Chest')).toBeTruthy()
   })
 
+  it('the Sets per muscle tile opens its card on Week, the tile’s period (the tenth critique, 2026-11-22)', () => {
+    render(['/stats'], { workouts: [workout(daysAgo(40))] })
+    const on = () => container.querySelector('[data-card="sets"] .hv-chip[aria-pressed="true"]').textContent
+    // The card still opens on the shortest period with a set (D144).
+    expect(on()).toBe('Year')
+    const tile = container.querySelector('[data-tile="sets"]')
+    expect(tile.tagName).toBe('BUTTON')
+    act(() => tile.click())
+    expect(on()).toBe('Week')
+    act(() => byText('.hv-chip', 'Month').click())
+    act(() => tile.click())
+    expect(on()).toBe('Week')
+  })
+
   it('All statistics: the Muscles card keeps its bars without target ranges (D139)', () => {
     const was = hooks.statsOff
     hooks.statsOff = ['ranges']
@@ -200,7 +214,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
     const ago = days => isoOf(new Date(Date.now() - days * 86400000))
     render(['/measures'], { bodyweight: [{ d: ago(30), w: 82 }, { d: todayISO(), w: 80.5 }] })
     expect([...container.querySelectorAll('h2')].map(h => h.textContent)).toEqual(['Body weight', 'Recent weigh-ins', 'Measurements and photos'])
-    expect(container.querySelector('.chart').getAttribute('aria-label')).toBe('Body weight chart, 80.5 kg, down 1.5 kg in 90 days')
+    expect(container.querySelector('.chart').getAttribute('aria-label')).toBe('Body weight chart, 80.5 kg, down 1.5 kg in 30 days')
     act(() => root.unmount()); container.remove()
     render(['/measures'])
     const well = container.querySelector('.hv-ms-empty')

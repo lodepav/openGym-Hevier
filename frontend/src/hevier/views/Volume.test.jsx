@@ -123,7 +123,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     installSettings()
     render(<Settings page={null} />)
     const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Volume'))
-    expect(row.textContent).toContain('Sets · main muscle')
+    expect(row.textContent).toContain('Sets per muscle\u00a0· main only')   // the sheet's words (the tenth critique, 2026-11-22)
     act(() => row.click())
     let host = sheetHost()
     // The chosen options are said, not only ticked (the audit, 2026-11-21).
@@ -131,7 +131,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
       .toEqual([expect.stringMatching(/^Sets/), expect.stringMatching(/^Main muscle/)])
     act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Secondary muscles too')).click())
     expect(useStore.getState().S.hvMuscleSets).toBe('share')   // D42, in the same sheet (review S4)
-    expect(row.textContent).toContain('Sets · secondary too')
+    expect(row.textContent).toContain('Sets per muscle\u00a0· secondary too')
     act(() => row.click())
     host = sheetHost()
     act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Total weight')).click())

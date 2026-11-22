@@ -138,6 +138,8 @@ import { DAY_NOTE_TAGS, DAY_NOTE_LABEL, DAY_NOTE_ICON, dayNoteOf, dayNoteLine, c
 // [hevier] S9: the fork's Save Workout page and summary hook into the finish
 import { hooks } from './hevier/hooks.js'
 // [/hevier]
+import { weighInAsk } from './hevier/lib/weigh-in-check.js' // [hevier] S72
+import { effortBlank } from './hevier/lib/effort-blank.js' // [hevier] S73
 import { isOn } from './lib/modules.js'
 import { checkinMode, withForm, readForm, goLighter, canGoLighter, LIGHTER_KINDS } from './lib/daily-form.js'
 import { sleepHoursOn } from './lib/vitals.js'
@@ -415,11 +417,13 @@ function BwSheet({ required, onDone, close, initial, edit }) {
   const [time, setTime] = useState(editing ? (editing.at || DEFAULT_TIME) : timeOf(Date.now()))
   const [timeSet, setTimeSet] = useState(!!editing)
   const pickDate = d => { setDate(d); if (!timeSet) setTime(defaultTimeFor(st, d, todayISO())) }
-  const save = () => {
+  const save = (_, sure) => { // [hevier] S72: `sure`
     const n = Math.round((v || 0) * 10) / 10
     if (!n || n <= 0) { toast(t('Enter a valid weight')); return }
     if (bwTooHeavy(n, unit)) return
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > todayISO()) { toast(t('Choose a valid date')); return }
+    const odd = !sure && !editing && weighInAsk(n, bw?.w, unit, () => save(null, true)) // [hevier] S72: far off the last asks first
+    if (odd) { confirmSheet(odd); return } // [hevier] S72
     // The check-in before a workout is now; a weigh-in at the same time of a day corrects it.
     const at = required ? timeOf(Date.now()) : cleanTime(time) || (date === todayISO() ? timeOf(Date.now()) : DEFAULT_TIME)
     update(s => {
@@ -3327,7 +3331,7 @@ export function EffortPicker({ kind, value, onPick, close, cardio = false }) {
           style={curColor ? { color: curColor, background: `color-mix(in srgb, ${curColor} 20%, var(--surface-2))` } : undefined}>
           {/* [hevier] S70: the steppers say what they change, "RIR, Decrease" (R12-U7) */}
           <button aria-label={hooks.namedSteps ? nameIn(hd, t('Decrease')) : t('Decrease')} onClick={() => set(stepEffort(kind, v, -1))}><Icon name="minus" /></button>
-          <span className="val"><NumberField decimal nullable value={v ?? ''} placeholder="–"
+          <span className="val"><NumberField decimal nullable value={v ?? ''} placeholder={effortBlank() /* [hevier] S73 */}
             onChange={nv => set(capEffort(kind, nv))} /></span>
           <button aria-label={hooks.namedSteps ? nameIn(hd, t('Increase')) : t('Increase')} onClick={() => set(stepEffort(kind, v, 1))}><Icon name="plus" /></button>
           {/* [/hevier] */}

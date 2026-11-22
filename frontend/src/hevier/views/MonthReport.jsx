@@ -26,6 +26,8 @@ import { shareMonthSheet } from '../components/ShareSheet.jsx'
 import { useNamesAbove } from '../components/MuscleSetsCard.jsx'
 import { sessionVolume } from '../../lib/history.js'
 import { partOn } from '../lib/module-parts.js'
+import { spoken1rm } from '../lib/set-spoken.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 const PR_ROWS = 5
 
@@ -88,8 +90,10 @@ export default function MonthReport() {
   const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + year
   // Calendar's month, so Calendar's rule: at a large text size on a narrow phone the names under the days go (the sixth audit, 2026-11-21).
   const [page, tight] = useNamesFit(ym + trained)
+  // With large text a top exercise's count goes under its name (hevier.css .hv-big.hv-report).
+  const big = useLargeText()
 
-  return <div className={'narrow hv-report' + (tight ? ' hv-cal-tight' : '')} ref={page}>
+  return <div className={'narrow hv-report' + (tight ? ' hv-cal-tight' : '') + (big ? ' hv-big' : '')} ref={page}>
     <BackTo label={t('History')} to={HISTORY_PATH} title={t('Monthly report')}>
       {trained && partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
         y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
@@ -121,7 +125,12 @@ export default function MonthReport() {
             N times, so the rows add up to the count above. The first five, then all on a tap. */}
         <div className="list hv-flat">{(allPrs ? prRows : prRows.slice(0, PR_ROWS)).map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className="grow"><span className={exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-            {x.recs.map(rec => <span key={rec.kind} className="hv-sub">{t(KINDS[rec.kind])} · {recordValue(rec, unit, t)}{rec.times > 1 && ' · ' + t('{0} times', rec.times)} · {fmtDate(rec.d)}</span>)}</span>
+            {x.recs.map(rec => {
+              const line = t(KINDS[rec.kind]) + ' · ' + recordValue(rec, unit, t) + (rec.times > 1 ? ' · ' + t('{0} times', rec.times) : '') + ' · ' + fmtDate(rec.d)
+              // "Best 1RM" said "best one rep max", not "one R M" (the tenth audit, 2026-11-22).
+              return spoken1rm(line) === line ? <span key={rec.kind} className="hv-sub">{line}</span>
+                : <span key={rec.kind} className="hv-sub" role="img" aria-label={spoken1rm(line)}>{line}</span>
+            })}</span>
         </button>)}</div>
         {!allPrs && prRows.length > PR_ROWS && <button type="button" className="btn hv-report-more" onClick={() => setAllPrs(true)}>{t('Show all ({0})', prRows.length)}</button>}
       </>}

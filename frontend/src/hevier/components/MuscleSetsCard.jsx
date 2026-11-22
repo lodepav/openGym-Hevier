@@ -30,10 +30,12 @@ export function useNamesAbove() {
   return [setEl, above]
 }
 
-/** `S` is the page's: counted (D57) and phased (D93). */
-export default function MuscleSetsCard({ S, today }) {
+/** `S` is the page's: counted (D57) and phased (D93). Each new `weekAt` (the Sets per muscle tile's
+ *  taps) puts the card on Week, the tile's period; it opens on openPeriod's (D144). */
+export default function MuscleSetsCard({ S, today, weekAt = 0 }) {
   const ws = weekStartOf(S), mode = muscleMode(S)
   const [kind, setKind] = useState(() => openPeriod(S.workouts, { today, weekStart: ws, mode }))
+  useLayoutEffect(() => { if (weekAt) setKind('week') }, [weekAt])
   const [list, above] = useNamesAbove()
   // Said after a chip is tapped, not on opening (the ninth critique, 2026-11-22).
   const [tapped, setTapped] = useState(false)

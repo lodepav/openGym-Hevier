@@ -15,7 +15,7 @@ import { TILES, CARDS, arrange, moveAmong, toggle, defaults, moduleOn } from '..
 import { BackTo } from './Statistics.jsx'
 
 const NAMES = {
-  tiles: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', hours: 'Training time', month: 'Workouts this month', rpe: 'Average RPE' },
+  tiles: { time: 'Timed sets', weight: 'Body weight', sets: 'Sets per muscle', hours: 'Training time', month: 'Workouts this month', rpe: 'Average RPE' },
   // The card is headed "Time per exercise" on Statistics, so listed by that name (the eighth critique, 2026-11-22).
   cards: { time: 'Time per exercise', weight: 'Body weight', sets: 'Sets per muscle', weekly: 'Weekly chart' },
 }
@@ -57,7 +57,8 @@ function ArrangeList({ which, title, ids }) {
             // A drag ends with a click on the handle too; only a tap (or Enter) opens the menu.
             onClick={e => { e.stopPropagation(); if (!press.current.moved) menu(i, id); press.current.moved = false }}>
             <Icon name="grip" /></button>
-          <span className="grow"><span className="hv-arr-n">{name(id)}</span>
+          {/* A tap on the name flips the switch, as a label does; the switch stays what TalkBack and a keyboard use (the tenth critique, 2026-11-22). */}
+          <span className="grow" onClick={() => save(which, toggle(now(), id))}><span className="hv-arr-n">{name(id)}</span>
             {/* Statistics leaves Body weight out with no weigh-in; say so here, where it is switched on (the critique, 2026-11-21). */}
             {id === 'weight' && !S.bodyweight?.length && <small className="hv-arr-h dim">{t('Shows once you log a weigh-in')}</small>}</span>
           <Switch aria-label={said(id)} checked={!layout.hidden.includes(id)} onChange={() => save(which, toggle(now(), id))} />

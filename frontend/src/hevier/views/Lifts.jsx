@@ -14,7 +14,8 @@ import { getVersion } from '../../lib/i18n-core.js'
 import { exOr, searchExercises } from '../../lib/exercises.js'
 import { isBw } from '../../lib/history.js'
 import { todayISO } from '../../lib/format.js'
-import { fmtDate, fmtDaysAgo } from '../lib/dates.js'
+import { fmtDate } from '../lib/dates.js'
+import { daysAgo } from '../lib/days-ago.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import { Segmented } from '../../components/ui.jsx'
@@ -23,7 +24,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy, liftSetText } from '../lib/lifts-list.js'
-import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress, chartRange } from '../lib/lift-progress.js'
+import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress, chartRange, HOLDING_PCT } from '../lib/lift-progress.js'
 import { isCompound } from '../lib/compound.js'
 import { PHASE_LABEL } from '../lib/shared-phase.js'
 import { dayNo, muscleGroup } from '../lib/strength-signal.js'
@@ -37,6 +38,7 @@ import { partOn } from '../lib/module-parts.js'
 import { spokenSet } from '../lib/set-spoken.js'
 import { isOn } from '../../lib/modules.js'
 import { fieldSig } from '../lib/store-watch.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 const STATES = ['rising', 'holding', 'falling']
 const WORD = { rising: 'Rising', holding: 'Holding', falling: 'Falling' }
@@ -95,7 +97,8 @@ const LiftRow = memo(function LiftRow({ r, ex, name, muscle, unit, profileUnit, 
   // The set is converted whole, so a per-side set, a hold and a carry follow the unit too. No weight reads "12 reps".
   const text = (set, u = unit !== profileUnit ? unit : '') => liftSetText(mapSetWeights(set, w => shown(w, profileUnit, unit)),
     { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target, speedUnit })
-  const sub = [muscle && muscleText(muscle), r.d && fmtDaysAgo(r.d, today)].filter(Boolean).join(' · ')
+  // One scale for how long ago, weeks up to 8 (the tenth critique, 2026-11-22).
+  const sub = [muscle && muscleText(muscle), r.d && daysAgo(r.d, today)].filter(Boolean).join(' · ')
   const lines = (p?.lines || []).slice(0, LINE_TONES.length)
   const tones = lines.length > 1 ? LINE_TONES : [p?.state === 'rising' ? 'var(--acc)' : p?.state === 'falling' ? 'var(--hv-fail,var(--red))' : 'var(--label-2)']
   const pct = shownPct(p?.state, p?.pct)
@@ -113,10 +116,12 @@ const LiftRow = memo(function LiftRow({ r, ex, name, muscle, unit, profileUnit, 
   // A record of weeks ago says when it was set, not "New" (the critique, 2026-11-20).
   const bestWord = r.newBest && (dayNo(today) - dayNo(r.d) <= 14 ? t('New best')
     : t('PR: {0}', fmtDate(r.d, false, r.d.slice(0, 4) !== today.slice(0, 4))))
+  // A best that reads as the last set is not said twice, "8 reps / best 8 reps" (the tenth critique, 2026-11-22).
+  const best = !r.newBest && r.best && !(r.last && text(r.best) === text(r.last)) ? r.best : null
   const lastBest = r.last && <span className="hv-lift-r">
     <b>{text(r.last)}</b>
     {r.newBest ? <small className="hv-pr"><Icon name="trophy" />{bestWord}</small>
-      : r.best && <small>{t('best {0}', text(r.best))}</small>}
+      : best && <small>{t('best {0}', text(best))}</small>}
   </span>
   // Spoken always with its unit: TalkBack has no column head to lean on (the round-8 critique, 2026-11-22), in words (the ninth audit).
   const spoken = set => spokenSet(text(set, unit))
@@ -127,7 +132,7 @@ const LiftRow = memo(function LiftRow({ r, ex, name, muscle, unit, profileUnit, 
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
     r.last && t('last {0}', spoken(r.last)),
-    r.newBest ? bestWord : r.best && t('best {0}', spoken(r.best)),
+    r.newBest ? bestWord : best && t('best {0}', spoken(best)),
     half && t('isolation, counts half in its group'),
   ].filter(Boolean).join(', ')
   return <button type="button" className="item hv-lift" aria-label={label} onClick={() => exerciseDetailSheet(ex)}>
@@ -214,16 +219,21 @@ export default function Lifts() {
   const count = sections.reduce((n, sec) => n + sec.rows.length, 0)
   // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
   const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
+    // How small a change still holds, said once (the tenth critique, 2026-11-22).
+    t('Holding: a change under {0}%', HOLDING_PCT),
     by === 'muscle' && t('½ counts half in its group'),
     // The charts' numbers named once for the page, in its unit for every lift (the critique, 2026-11-21).
     rows.some(r => progress.get(r.id)?.lines?.length) && t('Est. 1RM') + ' (' + S.unit + ')'].filter(Boolean).join(' · ')
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
   ].filter(Boolean)
-  return <div className="narrow hv-lifts">
+  // With large text the totals and a row's sets wrap rather than break their words (hevier.css, the tenth audit).
+  const big = useLargeText()
+  return <div className={'narrow hv-lifts' + (big ? ' hv-big' : '')}>
     <PageBar title={t('Lifts')}><SettingsGear back="Lifts" /></PageBar>
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-      <input className="input" placeholder={t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
+      {/* The short placeholder at large text, where the long one is cut; the field's name stays whole. */}
+      <input className="input" placeholder={big ? t('Search') : t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
     <span id="hv-lifts-by-l" className="hv-sr">{t('Order')}</span>
     {rows.length > 0 && <span id="hv-lifts-win-l" className="hv-sr">{t('Time window')}</span>}

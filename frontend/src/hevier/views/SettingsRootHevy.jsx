@@ -13,6 +13,7 @@ import { useUI } from '../../store/useUI.js'
 import { loadHealth, onHealthChange } from '../../lib/health-sync.js'
 import { loadConfig as webdavConfig } from '../../lib/webdav.js'
 import { restTimerText } from '../lib/elapsed.js'
+import { timeSpoken } from '../lib/exercise-time.js'
 import { useStore } from '../../store/useStore.js'
 import { nav } from '../../lib/nav.js'
 import { PAGES, pageVisible } from '../../views/settings-pages.js'
@@ -37,7 +38,7 @@ import { DeloadRows } from '../../components/DeloadCard.jsx'
 import { isOn } from '../../lib/modules.js'
 import { loadExport, onExportChange } from '../lib/hevy-export-sync.js'
 import { loadStrap, onStrapChange } from '../lib/hr-strap-run.js'
-import { connectedLine, backupLine } from '../lib/settings-values.js'
+import { connectedLine, backupLine, SEP } from '../lib/settings-values.js'
 import ForgottenRows from '../../components/ForgottenRows.jsx'
 
 // What the phone has connected, read from each one's file and followed as it changes; each named
@@ -88,24 +89,26 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
         onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
     ],
   })
-  const volumeValue = mode === 'weight' ? VOLUME.weight : t('Sets') + ' · ' + (mMode === 'share' ? t('secondary too') : t('main muscle'))
+  // The sheet's own words, so the value says what "main" refers to (the tenth critique, 2026-11-22).
+  const volumeValue = mode === 'weight' ? VOLUME.weight : VOLUME.sets + SEP + (mMode === 'share' ? t('secondary too') : t('main only'))
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
   // accent (the fork's own row, D123), so that row names the fork's accent and the body diagram instead.
   // About's version is in the footer under the groups (D52), so not beside it too (the eighth critique, 2026-11-22).
-  // Data & backup: when the last backup was made (S.hvBackupAt, BackupWatch below), nothing before one;
+  // Data & backup: when the last backup was made (S.hvBackupAt, BackupWatch below), "Not backed up yet" before one;
   // Integrations: what is connected (the ninth critique, 2026-11-22).
-  const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
+  // The rest's clock is spoken as a duration, not "one thirty" (the tenth audit, 2026-11-22); parts join with SEP so "· Mon" never starts a line.
+  const value = id => (id === 'workout' ? (restSec > 0 ? <span role="img" aria-label={t('{0} rest', timeSpoken(restSec))}>{t('{0} rest', restTimerText(restSec, 0, ''))}</span> : t('No rest timer'))
     // A kept upstream preset is none of the fork's accents nor the user's own colour, so goes unnamed.
     : id === 'look' ? [accent ? t(HV_ACCENTS.find(a => a.id === accent).label) : ownAccent ? t('Your own') : null,
-      t(body === 'female' ? 'Female body' : 'Male body')].filter(Boolean).join(' · ')
+      t(body === 'female' ? 'Female body' : 'Male body')].filter(Boolean).join(SEP)
     : id === 'about' ? null
     : id === 'data' ? backup
     : id === 'integrations' ? connected
     // Upstream's "Fixed Week · Mon" capitalises Week mid-label (C1); its other languages are left as they are.
-    : id === 'plan' ? preview.plan?.()?.replace(/^Fixed Week\b/, 'Fixed week') || null
+    : id === 'plan' ? preview.plan?.()?.replace(/^Fixed Week\b/, 'Fixed week').replaceAll(' · ', SEP) || null
     // D62: the gyms, not upstream's filter switch.
-    : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
+    : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(SEP) || t('No gyms')
     : preview[id]?.() || null)
   // The Workout group's first row is not called Workout too; its page keeps upstream's title.
   // "Gyms": with its gyms named beside it, the longer title wrapped on a phone (the critique, 2026-11-20).

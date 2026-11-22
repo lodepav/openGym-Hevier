@@ -93,9 +93,12 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best 1RM, Best set: 60 kg × 8 · ★ Heaviest: 62.5 kg × 6')
     // Each set is one unit the line wraps around, the separators between them.
     expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best 1RM, Best set: 60 kg × 8', '★ Heaviest: 62.5 kg × 6'])
-    expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('Heaviest')
-    // Its button name is short: date, first set, count, best (the fifth audit, 2026-11-21).
-    expect(lines[0].getAttribute('aria-label')).toMatch(/., 60 kg × 8, 2 sets, Heaviest$/)
+    // The star names the best; no second label at the line's end (the tenth critique, 2026-11-22).
+    expect(lines[0].querySelector('.hv-xd-best')).toBeNull()
+    // Its button name is short: date, first set, count, best (the fifth audit, 2026-11-21), the set in words (the tenth).
+    expect(lines[0].getAttribute('aria-label')).toMatch(/., 60 kilograms, 8 reps, 2 sets, Heaviest$/)
+    expect(container.querySelector('.hv-xd-cap .hv-link').textContent).toBe('All history (1)')
+    expect(container.querySelector('.hv-xd-last .hv-wd-legend')).toBeNull()   // no arrow, no legend
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
     expect(tiles[2]).toBe('60 kg × 8')
@@ -143,6 +146,23 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(heads).toContain('Heaviest Weight (kg)')   // the unit in the title (the critique, 2026-11-22)
     expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight (kg)'))
     expect(heads.indexOf('Heaviest Weight (kg)')).toBeLessThan(heads.indexOf('Best at each rep count'))
+  })
+
+  it('the chart’s chip says Est. 1RM; a second tap on the same point opens that session (the tenth critique)', () => {
+    const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+    open([3, 2, 1].map(n => ({ id: 'w' + n, d: at(n * 7), start: day(at(n * 7)), entries: [{ id: EX.id, sets: [{ w: 60 + n, r: 8, done: true }] }] })))
+    const chip = [...container.querySelectorAll('.hv-xd-chips .chip')].find(c => c.textContent === 'Est. 1RM')
+    expect(chip.getAttribute('aria-label')).toBe('Estimated one rep max')
+    hooks.workoutDetail = vi.fn()
+    const chart = container.querySelector('.hv-xd-chart')
+    // LineChart's own readout: a press at the chart's left edge picks the first point (the oldest session, w3).
+    act(() => chart.querySelector('.chart-i').dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 0 })))
+    expect(chart.querySelector('.cvl')).toBeTruthy()
+    act(() => chart.click())
+    expect(hooks.workoutDetail).not.toHaveBeenCalled()   // the first tap reads
+    act(() => chart.click())
+    expect(hooks.workoutDetail).toHaveBeenCalledWith(expect.objectContaining({ id: 'w3' }))
+    hooks.workoutDetail = null
   })
 
   it('a reps-only set on the last sessions reads “8 reps”, not “× 8”', () => {
@@ -194,8 +214,13 @@ describe('hevier: exercise details (seam S10)', () => {
       { id: 'q', d: when(10), entries: [{ id: EX.id, sets: [{ w: 60, r: 9, done: true, rpe: 8 }] }] },
     ])
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
-    expect(lines.map(l => l.querySelector('.hv-trend')?.getAttribute('aria-label') ?? l.querySelector('.hv-xd-best')?.textContent))
-      .toEqual(['Better than last time', 'Less than last time', 'Heaviest'])
+    expect(lines.map(l => l.querySelector('.hv-trend')?.getAttribute('aria-label') ?? null))
+      .toEqual(['Better than last time', 'Less than last time', null])
+    expect(lines[2].querySelector('.hv-xd-star')).toBeTruthy()
+    expect(lines[2].getAttribute('aria-label')).toMatch(/Heaviest$/)
+    expect(lines[1].getAttribute('aria-label')).toMatch(/Less than last time$/)
+    // The arrows explained once under the lines (the tenth critique, 2026-11-22).
+    expect(container.querySelector('.hv-xd-last .hv-wd-legend').textContent).toBe('↑ = ↓ against the session before')
     expect(lines[0].querySelector('small').textContent).toBe(' RPE 8')
   })
 

@@ -139,10 +139,14 @@ describe('hevier: Calendar', () => {
     const cell = () => [...container.querySelectorAll('.hv-cal-c')].find(c => c.getAttribute('aria-label').startsWith(fmtDate(iso, true)))
     expect(cell().querySelector('.hv-cal-d').classList.contains('noted')).toBe(true)
     expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true) + ', Note')
+    // The key lists Note while a note's dot is in view (the tenth critique, 2026-11-22).
+    const keyNames = () => [...container.querySelectorAll('.hv-cal-key span')].map(x => x.textContent)
+    expect(keyNames()).toEqual(['Strength', 'Cardio', 'Deload', 'Planned', 'Note'])
     const routines = [{ id: 'r', name: 'Push', ex: [] }], week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
     act(() => useStore.setState({ S: { ...useStore.getState().S, routines, week, dayNotes: {} } }))
     expect(cell().querySelector('.hv-cal-d').className).toMatch(/\bplan\b/)
     expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true))
+    expect(keyNames()).not.toContain('Note')
   })
 
   it('a planned day from today on has its dot, a past one none; Show next month adds months below (D68)', () => {

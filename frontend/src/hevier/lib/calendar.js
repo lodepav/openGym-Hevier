@@ -106,3 +106,16 @@ export const openScroll = ({ page, view, head, bar }) => Math.max(0, Math.min(pa
 /** A day's kind word ("Cardio", "Deload") as its spoken name says it: '' when its title already says
  *  it, so "Cardio" is not read "Cardio, Cardio" (the ninth critique, 2026-11-22). */
 export const kindSaid = (word, title) => (word && !String(title || '').toLowerCase().includes(word.toLowerCase()) ? word : '')
+
+/** Whether the months `months` ([{ y, mo }]) draw a note's dot, so the key lists Note: a noted day not
+ *  trained, nor planned from `today` on, whose dot the name or the planned dot takes (the tenth critique, 2026-11-22). */
+export function notesIn(S, months, byDay, today) {
+  return months.some(({ y, mo }) => {
+    for (let d = 1, n = new Date(y, mo + 1, 0).getDate(); d <= n; d++) {
+      const iso = `${y}-${pad(mo + 1)}-${pad(d)}`
+      // The note first: the plan is looked up only for a noted day.
+      if (!byDay[iso] && dayNoteOf(S, iso) && !planKind(S, iso, byDay, today)) return true
+    }
+    return false
+  })
+}

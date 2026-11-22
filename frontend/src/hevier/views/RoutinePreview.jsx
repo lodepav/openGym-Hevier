@@ -2,7 +2,7 @@
 // last time on the left and beside it what the workout will open with, warm-ups included, built by
 // upstream's own start (hevier/lib/next-plan.js). A tap on a weight or reps plans it for the next
 // session only (components/PlanKeypad.jsx); the routine itself changes in the editor, one tap away.
-import { useEffect, useMemo } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -35,6 +35,7 @@ import { workNumberOf } from '../lib/routine-holds.js'
 import { gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
 import { startGym } from '../lib/routine-brand.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
+import { progressionOn } from '../lib/plain-routine.js'
 
 export const previewPath = id => '/plan/r/' + id + '/view'
 
@@ -85,6 +86,9 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     : workNumberOf(x.sets, set))
   // No weight last time reads "× 8" and is said "8 reps" (the ninth audit, 2026-11-22).
   const repsSaid = text => (m => (m ? <><span aria-hidden="true">{text}</span><span className="hv-sr">{tn('{0} rep', '{0} reps', Number(m[1]))}</span></> : text))(/^× (\d+)$/.exec(text))
+  // With auto warm-ups on (D69) the warm-ups ramp to the work weight, not last time's (the tenth critique, 2026-11-22).
+  const ramps = progressionOn(r)
+  const lastWarm = ramps ? x.sets.findLastIndex(set => set.kind === 'warm') : -1
   const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
@@ -98,17 +102,17 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     {ownRest && <div className="hv-rest hv-rv-rest"><Icon name="timer" />{t('Rest Timer: {0}', ownRest)}</div>}
     <div className="hv-np-tbl">
     <div className="hv-np-row hv-np-head" aria-hidden="true"><span>{t('SET')}</span><span>{t('LAST TIME')}</span><span>{t('NEXT')}</span></div>
-    {x.sets.map(set => {
+    {x.sets.map((set, n) => {
       const ls = lines(set)
-      return <div key={set.key} className="hv-np-row">
+      return <Fragment key={set.key}><div className="hv-np-row">
         <span className="hv-set">{mark(set)}</span>
         {/* The column head is hidden, so each cell names its column (the fifth audit, 2026-11-21). */}
         <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Last time')}: </span>}{sideMark(l.side)}{repsSaid(l.last)}</span>)}</span>
         <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Next')}: </span>}{sideMark(l.side)}{l.next}</span>)}</span>
-      </div>
+      </div>{n === lastWarm && <p className="hv-cap hv-np-warmcap">{t('Auto warm-up, ramps to the work weight')}</p>}</Fragment>
     })}
     </div>
-    {note && <p className="hv-np-note"><b>{t('Planned for next time.')}</b> {t('The routine is not changed. Warm-ups stay as last time until you change them.')}</p>}
+    {note && <p className="hv-np-note"><b>{t('Planned for next time.')}</b> {ramps ? t('The routine is not changed.') : t('The routine is not changed. Warm-ups stay as last time until you change them.')}</p>}
   </div>
 }
 

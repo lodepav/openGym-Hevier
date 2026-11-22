@@ -152,3 +152,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D146** A routine can plan a timed hold on one set.
 - **D147** The eighth critique's and audit's visible changes.
 - **D148** The ninth critique's and audit's visible changes.
+- **D149** The tenth critique's and audit's visible changes.
