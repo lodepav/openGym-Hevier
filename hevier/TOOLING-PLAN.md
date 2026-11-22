@@ -63,9 +63,11 @@ through Monitor. Next: item 5 (emulator lock), 4 (critique round runner), 6, 12.
 
 Item 4 done 2026-11-22 as `tools/critique-rounds.mjs`: impeccable already saves every score
 (109 reports here, 59 in OpenBite), so no scores.tsv, and `screens.mjs --screens` already
-captures. Over the 87 rounds before 2026-11-21 the stop rule would have skipped 30 (34 %). The
-2026-11-21 round (a fresh critic) scored every page 4 to 9 points lower: scores from a critic
-that saw the page before creep up, so a drop between critics is not a regression.
+captures. Corrected the same day: rounds compare only when both had a fresh critic and the
+same maximum. Critics that had seen a page scored it higher, and on 6 of 20 pages heuristic 9
+was n/a in one round and scored in the next (/36 against /40). Compared that way the stop rule
+would have skipped 10 of 108 rounds (9 %), not the 30 of 87 first counted. Since 2026-11-21 every
+round has a fresh critic; the open fix is heuristic 9: keep a page's n/a set from its last run.
 
 Item 5 done 2026-11-22: `emu up` waits (EMU_WAIT, default 1800 s) for a free light AVD and the
 memory, letting the boot lock go while it waits; tested with a fake adb (gives up after the
