@@ -37,7 +37,7 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
 6. **Silent drift.** Even after a clean merge, work through every item of CONFLICTS.md's
    "Silent drift" list (eight checks), in order. Also diff the screens the fork copies or
    wraps: `git diff <old>..$TARGET -- frontend/src/views/Home.jsx frontend/src/views/Settings.jsx frontend/src/sheets.jsx
-   frontend/src/components/ExerciseBlock*` and list what the fork's screens should pick up.
+   frontend/src/views/Workout.jsx` (its `ExerciseBlock`) and list what the fork's screens should pick up.
 7. **Verify.** Run the `verify` skill at its "before a merge" level, then the `seam-check`
    skill, then the `emulator-check` skill with the smoke walk: start a routine, log two sets,
    minimise, resume, finish, see it in history, start it again, see each set open at what was done last time (D69).

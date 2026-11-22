@@ -26,12 +26,15 @@ D107 (Pause, the next exercise after the rest, the trophy switches) is built (20
 The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
 #903) were closed 2026-11-14; #901 is still open.
 
-**Checked 2026-11-20: no v1.4.6 tag yet.** `release-1.4.6` is at `da62470d3` (2026-11-17), 60
-commits past v1.4.5, merges included (117 files, about 2,800 lines added); `upstream/main`
-(`e4a68a94c`) has only two doc commits past the tag. No new npm dependency in `frontend`, `api` or
-`mcp`. What it brings and means for the fork is in "What release-1.4.6 brings" below. The fork's
-issue #1089 was closed 2026-11-18 with cubetes's #1201 in the branch; nothing else of the fork's
-moved (see the PR section).
+**Checked 2026-11-22: no v1.4.6 tag yet.** `release-1.4.6` is at `a087aaf33` (2026-11-22), 63
+commits past v1.4.5, merges included. No new npm dependency in `frontend`, `api` or `mcp`. The
+three since `da62470d3` touch no seam: Health Connect's file stays out of Android's backups (`backup_rules.xml`,
+`data_extraction_rules.xml`), Garmin's Connect IQ 3.0 and 3.1 watches, and the NixOS module. A
+trial merge into `hevier/main` still conflicts only in `lib/update.js` and `views/Stats.jsx`.
+`upstream/main` (`e4a68a94c`) has only two doc commits past the tag. What it brings and means for
+the fork is in "What release-1.4.6 brings" below. The fork's issue #1089 was closed 2026-11-18 with
+cubetes's #1201 in the branch; none of the fork's PRs or issues changed since 2026-11-20 (see the
+PR section).
 
 **v1.4.4 is merged** into the fork (#5, 2026-11-03), and the fork's PRs that came after it (#3,
 #4, #7, #11, #14) are in `hevier/main` at `5bb06f501` (2026-11-08): D97, D98, D99, D101, D102, D5's
@@ -75,12 +78,12 @@ git branch -r | grep release-                        # new release branches?
 git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}'   # since our base
 ```
 
-## What release-1.4.6 brings (2026-11-20, `da62470d3`, not tagged yet)
+## What release-1.4.6 brings (2026-11-20, `da62470d3`; rechecked 2026-11-22 at `a087aaf33`, not tagged yet)
 
-Read from its CHANGELOG (`## Unreleased`, 26 entries) and a trial merge into `hevier/main`
+Read from its CHANGELOG (`## Unreleased`, 26 entries; 29 at `a087aaf33`) and a trial merge into `hevier/main`
 (`git merge-tree`). Two files conflict: `lib/update.js` (S6) and `views/Stats.jsx` (S34, S61).
 Everything else merges by itself, though 1.4.6 changes files that hold these seams: S3, S7, S9 to
-S14, S17, S19 to S22, S24, S26, S27, S36, S43, S46, S49 to S51, S58 to S62, S65, S67 to S69.
+S14, S17, S19 to S22, S24, S26, S27, S36, S43, S46, S49 to S51, S58 to S62, S65, S67 to S70.
 
 | Upstream | Fork impact |
 |---|---|
@@ -96,7 +99,7 @@ S14, S17, S19 to S22, S24, S26, S27, S36, S43, S46, S49 to S51, S58 to S62, S65,
 | **F-Droid build shrunk with R8**, the updater reading SHA256SUMS | The fork builds `sideload` only; the updater fix comes with the S6 merge. |
 
 **Nothing for the fork:** the Coach fixes (Coach off), API tokens and gym check-in cards, the
-calendar feed, the routines library, Garmin's 36 new watches, the Apple Watch rest screen, chart
+calendar feed, the routines library, Garmin's 36 new watches and 12 older ones, the Apple Watch rest screen, chart
 and body map screen-reader text (upstream's charts), Indonesian and Bengali wording.
 
 ## What release-1.4.5 brings (2026-11-09, `e8f028cd`; rechecked 2026-11-12 at `4df89397b`; tagged and merged 2026-11-14)
@@ -176,7 +179,7 @@ sync-app route; it can stay off), Strava, the calendar feed, the Apple Watch, We
 redesigns, Danish, Bengali, Czech, Persian, Indonesian, Lithuanian and Vietnamese (take upstream's
 locales, rule C), the website and the routines library.
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09, 2026-11-12, 2026-11-14 and 2026-11-20)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09, 2026-11-12, 2026-11-14, 2026-11-20 and 2026-11-22)
 
 **2026-11-08:** nothing moved. No comment or state change on any of the fork's PRs or issues, #988
 unchanged since 2026-11-05 (no milestone), #849 still on v1.4.5 and #638 on v1.4.8.
