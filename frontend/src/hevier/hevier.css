@@ -88,8 +88,6 @@
 :root[data-ui="hevier"] .hv-mline{margin-top:8px;font-size:13px;color:var(--label-2);line-height:1.5}
 :root[data-ui="hevier"] .hv-mline b{color:var(--label);font-weight:600;font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-wd .hv-mline{margin:-6px 0 14px}
-:root[data-ui="hevier"] .hv-wd .hv-mline:has(+ .hv-wd-mcount){margin-bottom:2px}
-:root[data-ui="hevier"] .hv-wd-mcount{margin:0 0 14px}
 :root[data-ui="hevier"] .hv-sub{font-size:13px;color:var(--label-2)}
 /* The fork's section headings are h2 under the page's h1 (h3 under a page's own h2) for TalkBack,
    drawn as upstream's h4.sec with theme.css's padding */
@@ -1203,19 +1201,16 @@
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg{flex:1 1 0;min-width:fit-content}
 :root[data-ui="hevier"] :is(.hv-lifts-by, .hv-lifts-win) button{min-height:48px}
 /* Material 3 segmented buttons in the fork's tokens (the round-8 audit, 2026-11-22): outlined segments, the picked one
-   tinted as the open tab's pill is, with a check; the label alone names it, the check is drawn, not text. */
+   tinted as the open tab's pill is; no check, which crowded the labels (the owner, 2026-11-22). */
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg{background:none;padding:0;border:1px solid var(--sep);border-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg .seg-sel{display:none}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button{border-radius:0;color:var(--label);font-weight:600}
-/* "✓ 12 weeks" on one line at 411 dp, as the others are; the row wraps whole toggles (the ninth critique, 2026-11-22). */
+/* "12 weeks" on one line at 411 dp, as the others are; the row wraps whole toggles (the ninth critique, 2026-11-22). */
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button{white-space:nowrap;padding-inline:6px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:first-of-type{border-start-start-radius:99px;border-end-start-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:last-of-type{border-start-end-radius:99px;border-end-end-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button+button{border-inline-start:1px solid var(--sep)}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button.on{background:var(--surface-3);background:color-mix(in srgb,var(--acc) 20%,var(--bg-el))}
-:root[data-ui="hevier"] .hv-lifts-ctl>.seg button.on>span::before{content:'';display:inline-block;width:14px;height:14px;margin-inline-end:4px;vertical-align:-2px;background:currentColor;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
 :root[data-ui="hevier"] .hv-lifts-phase{margin-top:8px}
 /* The totals filter the list (D140): filled like stat tiles; the one on a step lighter, ringed in its own colour. */
 :root[data-ui="hevier"] .hv-lifts-totals{display:flex;gap:8px;margin-top:10px}
@@ -1265,7 +1260,7 @@
 :root[data-ui="hevier"] .hv-lift-r small{font-size:12px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-lift-r small.hv-pr{display:inline-flex;align-items:center;gap:3px;color:var(--hv-record,var(--yellow));font-weight:800}
 :root[data-ui="hevier"] .hv-lifts-none{margin-top:12px}
-:root[data-ui="hevier"] .hv-lifts-ends{display:flex;flex-direction:column;align-items:flex-start;margin-top:8px}
+:root[data-ui="hevier"] .hv-lifts-ends{display:flex;flex-wrap:wrap;column-gap:16px}
 :root[data-ui="hevier"] .hv-lifts-link{display:inline-flex;align-items:center;gap:2px;min-height:48px;font-size:14px;font-weight:700}
 
 /* ---------- Settings root's groups read as breaks (D136) ---------- */

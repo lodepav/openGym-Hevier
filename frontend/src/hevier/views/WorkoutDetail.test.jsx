@@ -84,10 +84,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     // D133: the bars went; the line under the stats has the counts (sets mode, D18).
     expect(page.textContent).not.toMatch(/Muscle split/i)
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
-    // ...and says how it counts (D42; the tenth critique, 2026-11-22).
-    expect(page.querySelector('.hv-wd-mcount').textContent).toBe('Work sets, each for its main muscle')
-    act(() => useStore.getState().update(s => { s.hvMuscleSets = 'share' }))
-    expect(page.querySelector('.hv-wd-mcount').textContent).toBe('Work sets, a secondary muscle counted in part')
+    expect(page.querySelector('.hv-wd-mcount')).toBeNull()   // no line on how it counts (the owner, 2026-11-22)
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
     // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).

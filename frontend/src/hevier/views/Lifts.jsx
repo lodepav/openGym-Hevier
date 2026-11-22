@@ -24,7 +24,7 @@ import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import { SettingsGear } from './Today.jsx'
 import { liftRows, liftSections, liftsBy, liftSetText } from '../lib/lifts-list.js'
-import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress, chartRange, HOLDING_PCT } from '../lib/lift-progress.js'
+import { liftsWindow, currentPhase, windowFrom, liftProgress, progressTotals, shownPct, groupProgress, chartRange } from '../lib/lift-progress.js'
 import { isCompound } from '../lib/compound.js'
 import { PHASE_LABEL } from '../lib/shared-phase.js'
 import { dayNo, muscleGroup } from '../lib/strength-signal.js'
@@ -219,11 +219,7 @@ export default function Lifts() {
   const count = sections.reduce((n, sec) => n + sec.rows.length, 0)
   // How to filter shows until the first tap on a total (S.hvLiftsTapSeen); what ½ means always shows under By muscle.
   const hint = [filter ? t(SHOWING[filter]) : !S.hvLiftsTapSeen && t('Tap a total to show only those lifts'),
-    // How small a change still holds, said once (the tenth critique, 2026-11-22).
-    t('Holding: a change under {0}%', HOLDING_PCT),
-    by === 'muscle' && t('½ counts half in its group'),
-    // The charts' numbers named once for the page, in its unit for every lift (the critique, 2026-11-21).
-    rows.some(r => progress.get(r.id)?.lines?.length) && t('Est. 1RM') + ' (' + S.unit + ')'].filter(Boolean).join(' · ')
+    by === 'muscle' && t('½ counts half in its group')].filter(Boolean).join(' · ')
   const ends = [
     partOn(S, 'hvStats', 'levels') && isOn(S, 'strength') && ['Strength levels', '/strength'],
   ].filter(Boolean)
@@ -235,6 +231,11 @@ export default function Lifts() {
       {/* The short placeholder at large text, where the long one is cut; the field's name stays whole. */}
       <input className="input" placeholder={big ? t('Search') : t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
+    {/* The page's links under the search, not under a long list (the owner, 2026-11-22). */}
+    <div className="hv-lifts-ends">
+      {ends.map(([label, to]) => <button key={to} type="button" className="hv-link hv-lifts-link" onClick={() => nav(to)}>{t(label)}<Icon name="chevronRight" /></button>)}
+      <button type="button" className="hv-link hv-lifts-link hv-lifts-all" onClick={() => nav('/library')}>{t('All exercises · Create')}<Icon name="chevronRight" /></button>
+    </div>
     <span id="hv-lifts-by-l" className="hv-sr">{t('Order')}</span>
     {rows.length > 0 && <span id="hv-lifts-win-l" className="hv-sr">{t('Time window')}</span>}
     <div className="hv-lifts-ctl">
@@ -267,9 +268,5 @@ export default function Lifts() {
     </section>)}
     {!rows.length && <div className="empty"><div className="ico"><Icon name="dumbbell" /></div>{t('No exercises trained yet. They show here after your first workout.')}</div>}
     {rows.length > 0 && !sections.length && q.trim() && <div className="muted small hv-lifts-none">{t('No exercise you trained matches “{0}”.', q.trim())}</div>}
-    <div className="hv-lifts-ends">
-      {ends.map(([label, to]) => <button key={to} type="button" className="hv-link hv-lifts-link" onClick={() => nav(to)}>{t(label)}<Icon name="chevronRight" /></button>)}
-      <button type="button" className="hv-link hv-lifts-link hv-lifts-all" onClick={() => nav('/library')}>{t('All exercises · Create')}<Icon name="chevronRight" /></button>
-    </div>
   </div>
 }

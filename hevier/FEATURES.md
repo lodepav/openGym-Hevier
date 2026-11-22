@@ -208,4 +208,4 @@ These work through upstream's own features and are listed only because a fork us
 - **Keep the screen on** (D25): upstream's Keep screen awake switch.
 - **Rest before the next exercise, text size and WebDAV backups** (D111): upstream's settings, taken as they are.
 
-Decisions without a row: D105 (1.4.5's set fields, agreed and not built yet), D113 (the routine page and effort column stay as they are), D125 (the rework's north star), D144, D145, D147, D148 and D149 (the sixth to tenth audit rounds' fixes). `tools/features-check.mjs` fails on a decision named nowhere in this file.
+Decisions without a row: D105 (1.4.5's set fields, agreed and not built yet), D113 (the routine page and effort column stay as they are), D125 (the rework's north star), D144, D145, D147, D148 and D149 (the sixth to tenth audit rounds' fixes), D150 (the owner's corrections to them). `tools/features-check.mjs` fails on a decision named nowhere in this file.
