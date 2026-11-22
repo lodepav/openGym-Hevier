@@ -213,10 +213,8 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => useStore.setState(({ S }) => ({ S: { ...S, workouts: S.workouts.map((w, k) => (k ? w : { ...w, entries: [{ ...w.entries[0], sets: [...w.entries[0].sets, { w: 60, r: 9, done: true }] }] })) } })))
     expect(trend('2').className).toContain('down')
     expect(trend('2').getAttribute('aria-label')).toBe('Less than last time')
-    // One line says what the marks mean, under the first exercise that has one, and only there (the critique, 2026-11-21).
-    const legends = [...container.querySelectorAll('.hv-wd-legend')]
-    expect(legends.map(l => l.textContent)).toEqual(['↑ = ↓ against the same set last time'])
-    expect(legends[0].closest('.hv-wd-ex').querySelector('.hv-trend')).toBeTruthy()
+    // No legend line under the marks (the owner, 2026-11-22).
+    expect(container.querySelector('.hv-wd-legend')).toBeNull()
   })
 
   it('⋯ → All details opens upstream’s sheet', () => {

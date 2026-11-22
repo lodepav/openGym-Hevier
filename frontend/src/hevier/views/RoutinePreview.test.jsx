@@ -137,13 +137,13 @@ describe('Routine page (D37, D128)', () => {
     expect(container.querySelector('.hv-rv-count').textContent).toContain('2 sets')
   })
 
-  it('with auto warm-ups on, the warm-ups say they ramp and the planned note no longer says they stay (the tenth critique)', () => {
+  it('with auto warm-ups on, the warm-ups are captioned and the planned note no longer says they stay (the tenth critique)', () => {
     render(PLAN, undefined, { workouts: [last], hvPlan: { r1: { ex: { [EX]: { 0: { w: 102.5 } } } } } })
     const cap = () => container.querySelector('.hv-np-warmcap')
     expect(cap()).toBeNull()
     expect(container.querySelector('.hv-np-note').textContent).toContain('Warm-ups stay as last time')
     act(() => useStore.getState().update(s => { s.routines[0].hvProg = true }))
-    expect(cap().textContent).toBe('Auto warm-up, ramps to the work weight')
+    expect(cap().textContent).toBe('Auto warm-up')
     // Under the last warm-up row, before the first work set.
     expect(cap().previousElementSibling.querySelector('.hv-set').textContent).toBe('W')
     expect(container.querySelector('.hv-np-note').textContent).toBe('Planned for next time. The routine is not changed.')
@@ -186,7 +186,7 @@ describe('Routine page (D37, D128)', () => {
   it('says a NEXT number can be tapped until the first tap, and then no more (S.hvPlanTapSeen, the sixth audit, 2026-11-22)', () => {
     render(PLAN, undefined, { workouts: [last] })
     const hint = () => container.querySelector('.hv-rv-hint')?.textContent
-    expect(hint()).toBe('Tap a number under NEXT to change it for the next session only.')
+    expect(hint()).toBe('Changes under NEXT are for the next session only.')
     act(() => nums()[0].click())
     expect(useStore.getState().S.hvPlanTapSeen).toBe(true)
     expect(hint()).toBeUndefined()

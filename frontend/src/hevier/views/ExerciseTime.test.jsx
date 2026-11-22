@@ -81,7 +81,7 @@ describe('hevier: exercise time page', () => {
     // One session: its total would repeat its average (the ninth critique, 2026-11-22).
     expect(container.textContent).toContain('1 session')
     expect(container.textContent).not.toContain('10 min total')
-    expect(container.querySelector('.hv-extime-cap').textContent).toMatch(/^2 exercises · Average time per session/)
+    expect(container.querySelector('.hv-extime-cap').textContent).toBe('2 exercises · average per session, rest included')
     act(() => order().click())
     expect(names()[0]).toMatch(/bench/i)
     act(() => chip('Gym').click())
@@ -111,11 +111,10 @@ describe('hevier: exercise time page', () => {
     const w = { id: 'w2', d: todayISO(), start, end: start + 40 * MIN, entries: [
       { id: BENCH, sets: [set(5), set(10)] }, { id: SQUAT, sets: [set(11)] }] }
     render('/exercise-time', [w])
-    // Folded under one heading after the timed rows, what it means said there (the tenth critique, 2026-11-22).
+    // Folded under one heading after the timed rows (the tenth critique), with no caption (the owner, 2026-11-22).
     expect(container.querySelectorAll('.hv-report-row')).toHaveLength(1)
     expect(fold().textContent).toBe('No time (1)')
     expect(fold().getAttribute('aria-expanded')).toBe('false')
-    expect(container.textContent).not.toContain('one set a session, give no time')
     act(() => fold().click())
     expect(fold().getAttribute('aria-expanded')).toBe('true')
     const rows = [...container.querySelectorAll('.hv-report-row')]
@@ -124,7 +123,7 @@ describe('hevier: exercise time page', () => {
     expect(rows[1].textContent).toContain('Too few sets')
     expect(rows[1].textContent).not.toContain('total')
     expect(rows[0].textContent).not.toContain('Too few sets')
-    expect(document.getElementById('hv-extime-none').textContent).toContain('one set a session, give no time')
+    expect(document.getElementById('hv-extime-none').querySelector('.hv-extime-cap')).toBeNull()
   })
 
   it('sets ticked seconds apart give no time; a time is marked avg and said in words (the eighth round, 2026-11-22)', () => {

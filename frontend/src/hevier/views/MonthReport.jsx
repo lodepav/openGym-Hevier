@@ -140,8 +140,7 @@ export default function MonthReport() {
 
       {r.muscles.length > 0 && <>
         <h3 className="sec">{t('Muscle split')}</h3>
-        {/* What it counts, and the counts drawn as Statistics' Sets per muscle card draws them (the ninth critique, 2026-11-22). */}
-        <div className="small dim hv-msets-cap">{t(mm === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')}</div>
+        {/* The counts drawn as Statistics' Sets per muscle card draws them (the ninth critique, 2026-11-22). */}
         <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split"
           role="img" aria-label={muscleText(m.muscle) + ', ' + tn('{0} set', '{0} sets', m.sets)}>
           <span>{muscleText(m.muscle)}</span>

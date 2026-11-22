@@ -114,13 +114,13 @@ describe('hevier: Today (D134)', () => {
     expect(hint()).toBeUndefined()
   })
 
-  it('the hint also says what a struck-through day is, when one shows', () => {
+  it('the hint stays the same when a struck-through day shows (the owner, 2026-11-22)', () => {
     render({ week: { 1: 'r1' } })   // Monday's routine, today Monday: not missed yet
     expect(container.querySelector('.hv-tweek-hint').textContent).toBe('Tap a day to plan or rest it')
     act(() => root.unmount()); container.remove()
     vi.setSystemTime(new Date(2026, 10, 18, 12))   // Wednesday: Monday's went untrained
     render({ week: { 1: 'r1' } })
-    expect(container.querySelector('.hv-tweek-hint').textContent).toBe('Tap a day to plan or rest it · struck through: planned, not done')
+    expect(container.querySelector('.hv-tweek-hint').textContent).toBe('Tap a day to plan or rest it')   // no strike-through key (the owner, 2026-11-22)
   })
 
   it('with nothing planned says so; the links and the last workout still show', () => {

@@ -219,8 +219,8 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(lines[2].querySelector('.hv-xd-star')).toBeTruthy()
     expect(lines[2].getAttribute('aria-label')).toMatch(/Heaviest$/)
     expect(lines[1].getAttribute('aria-label')).toMatch(/Less than last time$/)
-    // The arrows explained once under the lines (the tenth critique, 2026-11-22).
-    expect(container.querySelector('.hv-xd-last .hv-wd-legend').textContent).toBe('↑ = ↓ against the session before')
+    // No legend under the lines; each arrow keeps its spoken name (the owner, 2026-11-22).
+    expect(container.querySelector('.hv-xd-last .hv-wd-legend')).toBeNull()
     expect(lines[0].querySelector('small').textContent).toBe(' RPE 8')
   })
 

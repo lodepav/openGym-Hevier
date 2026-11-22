@@ -169,14 +169,14 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rest.textContent).toMatch(/^\d+:\d\d rest$/)
   })
 
-  it('the Volume sheet says what Secondary muscles too changes (the eighth critique, 2026-11-22)', () => {
+  it('the Volume sheet lists Secondary muscles too with no line under it (the owner, 2026-11-22)', () => {
     render(null)
     act(() => [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Volume')).click())
     const host = document.createElement('div')
     const sheet = createRoot(host)
     act(() => sheet.render(useUI.getState().sheets.at(-1).render(() => {})))
     const share = [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Secondary muscles too'))
-    expect(share.querySelector('.ss').textContent).toBe('A set also counts in part for each muscle that helps.')
+    expect(share.querySelector('.ss')).toBeNull()
     act(() => sheet.unmount())
   })
 

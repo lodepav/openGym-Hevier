@@ -43,7 +43,7 @@ export default function Measures() {
     : ch < 0 ? t('Down {0} {1}', by, span) : ch > 0 ? t('Up {0} {1}', by, span) : t('No change {0}', span)
   // With weigh-ins from Health Connect there is no Log: the empty well names the source, else it opens the weigh-in (the eighth critique).
   const none = S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN)
-    : hc ? t('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.') : t('No weigh-ins yet')
+    : hc ? t('No weigh-ins yet from Health Connect. Check its weight permission.') : t('No weigh-ins yet')
   // How far the last weigh-in is from the goal (the ninth critique, 2026-11-22).
   const gap = last && goalGap(last.w, S.targetW)
   const goalText = S.targetW ? fmtNum(S.targetW) + ' ' + S.unit : null
@@ -63,8 +63,6 @@ export default function Measures() {
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
-      {/* What a goal does, before one is set (the tenth critique, 2026-11-22). */}
-      {!S.targetW && <div className="small dim hv-ms-nogoal">{t('A goal draws a line on the chart and says how far you are.')}</div>}
       {hc && <div className="small dim">{t('From Health Connect')}</div>}
       {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
       {last && <div className="small dim">{fmtDate(last.d, true)}</div>}

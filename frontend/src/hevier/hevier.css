@@ -639,7 +639,6 @@
 :root[data-ui="hevier"] .hv-scard-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 0;font-size:15px}
 :root[data-ui="hevier"] .hv-scard-row b{margin-inline-start:auto}
 /* Arrange Statistics: a row 48 px at least, its handle always shown, the switch's target 48 px */
-:root[data-ui="hevier"] .hv-arr-hint{margin:4px 0 0}
 /* One 20 px group with inset hairlines, as the sheets' menus, not notched slabs (the seventh critique, 2026-11-22). */
 :root[data-ui="hevier"] .hv-arrlist{gap:0;background:var(--surface);border-radius:var(--r);overflow:hidden}
 :root[data-ui="hevier"] .item.hv-arr{display:flex;align-items:center;gap:8px;min-height:48px;padding-block:0;position:relative;border-radius:0}
@@ -928,7 +927,6 @@
    tap; the change and what a goal does, grey lines. */
 :root[data-ui="hevier"] .hv-ms-top,:root[data-ui="hevier"] .hv-ms-top>.row{flex-wrap:wrap}
 :root[data-ui="hevier"] .hv-ms-empty-go{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;color:var(--hv-acc-ink);font-weight:600}
-:root[data-ui="hevier"] .hv-ms-nogoal{margin-top:4px}
 :root[data-ui="hevier"] .hv-measures .card .big{margin-top:6px;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}/* The effort dialog's Log without rating (HevyExerciseBlock.jsx), a class, not inline (the fifth audit, 2026-11-21). */
 :root[data-ui="hevier"] .btn.hv-eff-plain{width:100%;min-height:48px;margin-top:8px;background:var(--surface-2)}
 
@@ -1092,7 +1090,7 @@
 /* Its reach takes the 6 dp under it; the set row above is right against it (the sixth audit, 2026-11-21). */
 :root[data-ui="hevier"] .hv-setnote{position:relative}
 :root[data-ui="hevier"] .hv-setnote::after{content:"";position:absolute;inset:0 0 -6px}
-:root[data-ui="hevier"] .hv-setnote .icn,:root[data-ui="hevier"] .hv-wd-legend{margin:6px 0 0;padding-inline:4px}
+:root[data-ui="hevier"] .hv-setnote .icn{margin:6px 0 0;padding-inline:4px}
 :root[data-ui="hevier"] .hv-wd-setnote .icn,:root[data-ui="hevier"] .hv-xd-note .icn{color:var(--hv-note,var(--yellow));font-size:12px;flex:none}
 :root[data-ui="hevier"] .hv-wd-setnote{display:flex;align-items:center;gap:6px;margin:-4px 0 8px;padding-inline-start:44px;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-note{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;font-size:13px;color:var(--label-2)}

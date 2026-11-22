@@ -47,7 +47,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     render(['/stats'])
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange').click())
     expect(path).toBe('/stats/arrange')
-    expect(container.textContent).toContain('Drag a row by its handle, or tap the handle to move it up or down; switch a row off to hide it. A tile is one number now; a card shows more.')
+    expect(container.textContent).not.toContain('Drag a row by its handle')   // no hint paragraph (the owner, 2026-11-22)
     expect(names(0)).toEqual(['Timed sets', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(names(1)).toEqual(['Time per exercise', 'Body weight', 'Sets per muscle', 'Weekly chart'])
     const sw = row(0, 'Average RPE').querySelector('[role="switch"]')

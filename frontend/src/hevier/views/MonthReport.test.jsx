@@ -67,8 +67,8 @@ describe('hevier: monthly report (D23)', () => {
     expect([...container.querySelectorAll('.hv-report-row .hv-sub')].find(x => x.textContent.startsWith('Heaviest')).getAttribute('aria-label')).toBeNull()
     // Sentence case, and the top exercise's weight named (the seventh critique, 2026-11-22).
     expect([...container.querySelectorAll('h3.sec')].map(h => h.textContent)).toContain('Muscle split')
-    // Its caption and bare counts, as Statistics' card; each row said in one name (the ninth critique, 2026-11-22).
-    expect(container.querySelector('.hv-report .hv-msets-cap').textContent).toBe('Work sets, each for its main muscle')
+    // Bare counts with no caption, as Statistics' card; each row said in one name (the ninth critique; the owner, 2026-11-22).
+    expect(container.querySelector('.hv-report .hv-msets-cap')).toBeNull()
     const split = container.querySelector('.hv-report .hv-wd-split')
     expect(split.querySelector('b').textContent).toBe('5')
     expect(split.getAttribute('aria-label')).toBe(split.firstChild.textContent + ', 5 sets')

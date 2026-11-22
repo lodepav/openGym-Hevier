@@ -125,8 +125,6 @@ function LastSessions({ ex, sum, st, onAll }) {
         <TrendMark v={l.trend} />
       </div>
     })}
-    {/* The ↑ = ↓ explained once, as Workout detail does (the tenth critique, 2026-11-22). */}
-    {lines.some(l => l.trend != null) && <p className="hv-wd-legend small dim" aria-hidden="true">{t('↑ = ↓ against the session before')}</p>}
   </section>
 }
 

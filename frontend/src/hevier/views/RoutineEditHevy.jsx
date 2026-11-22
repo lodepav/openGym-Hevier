@@ -189,7 +189,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown
   const openRest = () => durationSheet({
     title: t('Rest for this exercise'), value: e.restSec > 0 ? e.restSec : 0, max: REST_MAX,
     off: t('Settings ({0})', restTimerText(S.restSec, 0, t('Off'))),
-    footer: t('Rest after each set of this exercise. 0:00 means your rest from Settings.'),
+    footer: t('0:00 uses your rest from Settings.'),
     onDone: v => edit(c => { const next = { ...c }; if (v > 0) next.restSec = v; else delete next.restSec; return next }),
   })
   const saveNote = text => edit(c => {
@@ -329,7 +329,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown
     </div>
     {e.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + e.note} onClick={openNote}>{e.note}</button>}
     {tipDrawn && <p className="small dim hv-rt-tip">{progressionOn(r) && (r.prog || profileRule(S)) !== 'off' && !r.excludeFromProgression
-      ? t('A weight of – lets the rule pick it. Auto warm-ups ramp up to it.') : t('A weight of – opens at last time’s.')}</p>}
+      ? t('A weight of – lets the rule pick it.') : t('A weight of – opens at last time’s.')}</p>}
     <div className="hv-rt-row hv-rt-x hv-rt-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}<span />
     </div>
@@ -489,7 +489,7 @@ function RoutineEditor({ id }) {
       {/* Upstream's SelectRow with the rule's description as its subtitle, not a note under the list (the ninth critique, 2026-11-22). */}
       {progressionOn(r) && <Row icon="chartLine" title={t('Progression')} accessory="chevron" className="hv-rrule"
         value={ruleOptions.find(o => o.value === rule)?.label ?? rule}
-        subtitle={t(POLICY_DESC[rule] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
+        subtitle={t(POLICY_DESC[rule] || POLICY_DESC.linear)}
         onClick={() => openSelectSheet({ title: t('Progression'), value: rule, options: ruleOptions, onChange: v => setR(x => { x.prog = v }) })} />}
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>

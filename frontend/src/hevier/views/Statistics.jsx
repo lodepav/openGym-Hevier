@@ -138,7 +138,7 @@ function items(S, today, nav, n, setsWeek) {
   }
   const hours = trainingTime(week.ms)
   out.hours = {
-    tile: { title: t('Training time'), value: hours, sub: t('in workouts this week'), spoken: t('Training time, {0} in workouts this week', hours),
+    tile: { title: t('Training time'), value: hours, sub: t('this week'), spoken: t('Training time, {0} in workouts this week', hours),
       change: weekChange(week.ms, lastWeek.ms, trainingTime),
       scroll: 'weekly' },
   }
