@@ -57,6 +57,18 @@ CLAUDE.md.bak-mainchat), dry-run by a fresh agent and fixed. Measure it with usa
 (main context per turn, 165,741 before) after a week. Item 7 dropped: pr-triage already waits
 through Monitor. Next: item 5 (emulator lock), 4 (critique round runner), 6, 12.
 
+Item 4 done 2026-11-22 as `tools/critique-rounds.mjs`: impeccable already saves every score
+(109 reports here, 59 in OpenBite), so no scores.tsv, and `screens.mjs --screens` already
+captures. Over the 87 rounds before 2026-11-21 the stop rule would have skipped 30 (34 %). The
+2026-11-21 round (a fresh critic) scored every page 4 to 9 points lower: scores from a critic
+that saw the page before creep up, so a drop between critics is not a regression.
+
+Item 5 done 2026-11-22: `emu up` waits (EMU_WAIT, default 1800 s) for a free light AVD and the
+memory, letting the boot lock go while it waits; tested with a fake adb (gives up after the
+wait; boots once one frees). The flock already frees when a holder dies, so no stale timeout.
+530 of 942 cross-session messages were emulator handoffs. The "message before boot or stop"
+rule stays until the owner says otherwise: it also carries "the other session has priority".
+
 ## Phase 3: cheaper models, only with proof
 
 14 run 2026-11-22 (`.claude/hillclimb/reviewer/sonnet-2026-11-22/results.md`): Sonnet found 4 of
