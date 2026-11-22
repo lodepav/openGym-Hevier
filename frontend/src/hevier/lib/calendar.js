@@ -83,3 +83,9 @@ export function dayTitle(ws) {
   const first = [...(ws || [])].sort((a, b) => (a.start || 0) - (b.start || 0))[0]
   return first?.name || ''
 }
+
+/** Where the month view opens, in px from the page's top: its bottom, as before, unless that puts
+ *  the newest month's heading (`head` px from the top) above the pinned bar (`bar` px tall): then
+ *  the heading sits just under the bar (the sixth audit, 2026-11-22). `page` and `view` are the
+ *  page's and the window's heights. */
+export const openScroll = ({ page, view, head, bar }) => Math.max(0, Math.min(page - view, head - bar - 8))

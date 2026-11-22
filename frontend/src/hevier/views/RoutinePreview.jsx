@@ -119,7 +119,10 @@ export default function RoutinePreview() {
   const next = nextPlanned(S, todayISO())
   const when = next?.ids.includes(r.id) ? fmtDate(next.iso, true) : null
   const gym = startGym(S)
-  const plan = fid => useUI.getState().openSheet(close => <PlanKeypad rid={r.id} start={fid} close={close} />)
+  const plan = fid => {
+    if (!useStore.getState().S.hvPlanTapSeen) useStore.getState().update(s => { s.hvPlanTapSeen = true })
+    useUI.getState().openSheet(close => <PlanKeypad rid={r.id} start={fid} close={close} />)
+  }
   // A session already open is resumed, as the Workout tab's own Start does (upstream's startFlow).
   const start = () => (S.active ? nav('/workout') : startFlow([r.id]))
   const startBtn = <button type="button" className="btn primary hv-rv-start" disabled={!r.ex.length} onClick={start}>
@@ -138,6 +141,8 @@ export default function RoutinePreview() {
       <span className="hv-chip hv-rv-count">{[folderOf(r), exCount(r.ex.length), r.ex.length ? t('{0} sets', sets) : null].filter(Boolean).join(' · ')}</span>
     </div>
     {startBtn}
+    {/* D128's tap, said until it is first used, as Lifts' totals hint is (S.hvPlanTapSeen; the sixth audit, 2026-11-22). */}
+    {!S.hvPlanTapSeen && fields.size > 0 && <p className="small dim hv-rv-hint">{t('Tap a number under NEXT to change it for the next session only.')}</p>}
     <div className="hv-units">
       {units.map(u => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => session[i] && <PlanExercise key={i + ':' + r.ex[i].id} r={r} x={session[i]} units={units} S={S} gym={gym}

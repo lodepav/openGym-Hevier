@@ -81,6 +81,15 @@ describe('hevier: routine folders and reordering', () => {
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
   })
 
+  it('a folder’s only routine has no handle but keeps its room, lined up with the others (the sixth audit, 2026-11-22)', () => {
+    render([R('p1', 'Push'), R('a'), R('p2', 'Push')])
+    const rows = [...container.querySelectorAll('.hv-rrow')]
+    const solo = rows.find(r => r.querySelector('.hv-grip-gap'))
+    expect(solo.querySelector('.hv-grip')).toBeNull()
+    expect(solo.querySelector('.hv-grip-gap').getAttribute('aria-hidden')).toBe('true')
+    expect(rows.filter(r => r.querySelector('.hv-grip'))).toHaveLength(2)
+  })
+
   it('a routine’s handle reorders it inside its folder', () => {
     render([R('p1', 'Push'), R('a'), R('p2', 'Push')])
     const pushGrips = container.querySelectorAll('.hv-folders .hv-rrow .hv-grip')
@@ -126,6 +135,7 @@ describe('hevier: routine folders and reordering', () => {
     expect(said()).toBe('1 routine')   // the sixth audit, 2026-11-21
     expect(heads()).toEqual([])
     expect(container.querySelector('.hv-grip')).toBeFalsy()
+    expect(container.querySelector('.hv-grip-gap')).toBeFalsy()   // a search hit is in no folder
     // The second audit, 2026-11-21: a move inside a folder the search hides would show nothing.
     act(() => container.querySelector('.hv-rrow [aria-label^="More"]').click())
     expect([...sheet().querySelectorAll('.menu-item')].map(m => m.textContent)).not.toContain('Move up')

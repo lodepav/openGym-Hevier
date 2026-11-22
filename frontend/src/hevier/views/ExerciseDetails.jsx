@@ -375,7 +375,8 @@ function ExerciseDetails({ ex, close }) {
         {(e1rm || asked || st.hvStrength?.[ex.id]) && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={e1rm ? shownWeight(st, ex.id, e1rm.v) : 0} unit={exUnitOf(st, ex.id)} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
-        {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
+        {/* No line for one set a session: too few sets for a time (the sixth audit, 2026-11-22). */}
+      {time?.avg != null && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
         <LinkRow icon="info" title={t('How to')} onClick={() => openSub(<HowTo ex={ex} />)} />
       </section>
     </div>

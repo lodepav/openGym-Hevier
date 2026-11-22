@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { periodOf, muscleSetCounts, namesAbove } from './muscle-sets.js'
+import { periodOf, muscleSetCounts, namesAbove, openPeriod } from './muscle-sets.js'
 import { loadOfWorkouts, MUSCLE_NAME } from '../../lib/muscles.js'
 import { EXDB } from '../../lib/exercises.js'
 
@@ -50,5 +50,14 @@ describe('the names above the bars (namesAbove)', () => {
     expect(namesAbove(380, 21)).toBe(false)   // 412 dp phone at 150 %
     expect(namesAbove(0, 14)).toBe(false)
     expect(namesAbove(300, NaN)).toBe(false)
+  })
+
+  it('opens on the shortest period with a set: the month in a week without training (the sixth audit, 2026-11-22)', () => {
+    const opts = { today: '2026-10-16', weekStart: 1 }
+    expect(openPeriod([W('2026-10-14', [set()])], opts)).toBe('week')
+    expect(openPeriod([W('2026-10-05', [set()])], opts)).toBe('month')   // last week only: this week's bars are zero
+    expect(openPeriod([W('2026-03-02', [set()])], opts)).toBe('year')
+    expect(openPeriod([W('2026-10-14', [set(false)])], opts)).toBe('week')   // nothing ticked anywhere
+    expect(openPeriod([], opts)).toBe('week')
   })
 })

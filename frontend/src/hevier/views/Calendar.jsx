@@ -17,7 +17,7 @@ import PageBar from '../components/PageBar.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle, openScroll } from '../lib/calendar.js'
 import { partOn } from '../lib/module-parts.js'
 
 const MORE = 6
@@ -114,7 +114,7 @@ function CalendarPage() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
-  // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's
+  // The month view opens on its newest month, scrolled to the bottom (its heading kept in view), a frame later, after upstream's
   // App has put a new page at the top; coming back keeps the place App restores (a popstate:
   // inside upstream's <Routes location> every navigation reads as POP, came-back.js). Earlier
   // months go in above: the page is moved down by what they add, so what was in view stays. Later
@@ -124,11 +124,21 @@ function CalendarPage() {
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
   const [page, tight] = useNamesFit(view)
+  const aheadWas = useRef(ahead)
   useEffect(() => {
     const first = !mounted.current
     mounted.current = true
+    const later = ahead > aheadWas.current
+    aheadWas.current = ahead
     if (view !== 'month' || (first && back0)) return
-    const f = requestAnimationFrame(() => window.scrollTo(0, pageH()))
+    // A month taller than the screen opens on its heading, not its end; a later month still goes to the bottom.
+    const at = () => {
+      const heads = page.current?.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-mh')
+      const head = heads?.[heads.length - 1], bar = page.current?.querySelector('.hv-cal-top')
+      if (later || !head || !bar) return pageH()
+      return openScroll({ page: pageH(), view: window.innerHeight, head: head.getBoundingClientRect().top + window.scrollY, bar: bar.getBoundingClientRect().height })
+    }
+    const f = requestAnimationFrame(() => window.scrollTo(0, at()))
     return () => cancelAnimationFrame(f)
   }, [view, from, ahead])   // eslint-disable-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {

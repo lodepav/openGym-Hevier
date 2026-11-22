@@ -37,6 +37,10 @@ describe('hevier: Settings → Modules (S54)', () => {
     Object.assign(hooks, { hiddenModules: HIDDEN_MODULES, forkModules: FORK_MODULES, forkModuleCopy, setModule: setAnyModule })
     render()
     expect(container.textContent).toContain('Machine brands per gym, gyms nearby and backups per gym.')
+    // Upstream's Health and Motivation in the fork's words: no Apple Health, badges or your year (the sixth audit, 2026-11-22).
+    expect(container.textContent).toContain('Health Connect and a heart-rate strap.')
+    expect(container.textContent).toContain('The week streak, record marks and sharing as a picture.')
+    expect(container.textContent).not.toMatch(/Apple Health|badges|your year/)
     expect(rows()).toEqual(['Effort', 'Plates and warm-ups', 'Strength levels', 'Exercise settings', 'Workout extras', 'Gyms', 'Body', 'Health', 'Motivation', 'Integrations', 'Statistics extras'])
     const sw = [...container.querySelectorAll('.module-row')].find(r => r.textContent.includes('Gyms')).querySelector('[role="switch"]')
     act(() => sw.click())

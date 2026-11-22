@@ -9,8 +9,9 @@ const TODAY = '2026-11-18'   // a Wednesday
 const timed = (d, benchMin, squatMin) => {
   const start = Date.parse(d + 'T08:00:00')
   return { id: 'w' + d, d, start, end: start + (benchMin + squatMin) * MIN, entries: [
-    { id: BENCH, sets: [{ w: 60, r: 8, done: true, at: start + benchMin * MIN }] },
-    { id: SQUAT, sets: [{ w: 80, r: 5, done: true, at: start + (benchMin + squatMin) * MIN }] },
+    // Two sets each: a session of one set has no average (the sixth audit, 2026-11-22).
+    { id: BENCH, sets: [{ w: 60, r: 8, done: true, at: start + benchMin / 2 * MIN }, { w: 60, r: 8, done: true, at: start + benchMin * MIN }] },
+    { id: SQUAT, sets: [{ w: 80, r: 5, done: true, at: start + (benchMin + squatMin / 2) * MIN }, { w: 80, r: 5, done: true, at: start + (benchMin + squatMin) * MIN }] },
   ] }
 }
 const plain = (d, sets, extra = {}) => ({ id: 'p' + d, d, start: Date.parse(d + 'T10:00:00'), end: Date.parse(d + 'T11:00:00'),

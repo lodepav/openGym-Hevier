@@ -50,7 +50,7 @@ function FolderList({ name, ids, row }) {
   const update = useStore(s => s.update)
   const reorder = useDragReorder(ids.length, (from, to) => update(s => { s.routines = reorderInGroup(s.routines, name, from, to) }))
   return <div ref={reorder.listRef} className={'hv-rlist' + (reorder.drag ? ' is-reordering' : '')}>
-    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{row(id, ids.length > 1 ? reorder.handle(i) : null)}</div>)}
+    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{row(id, ids.length > 1 ? reorder.handle(i) : null, true)}</div>)}
   </div>
 }
 
@@ -175,11 +175,13 @@ export default function WorkoutTab() {
     })
   }
   const byId = new Map(S.routines.map(r => [r.id, r]))
-  const row = (id, grip) => {
+  const row = (id, grip, inFolder) => {
     const r = byId.get(id)
     const isNext = next.includes(id)
     return <div className={'hv-rrow' + (isNext ? ' next' : '')} {...hold(() => more(r))}>
-      {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
+      {grip ? <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>
+        // A folder's only routine has nothing to move past, but keeps the handle's room so it lines up inside the folder (the sixth audit, 2026-11-22).
+        : inFolder && <span className="hv-grip-gap" aria-hidden="true" />}
       <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>
         <span className="hv-rname-n">{r.name}</span>
         <span className="hv-rname-s">{isNext && <><b className="hv-rnext">{t('Next')}</b>{' · '}</>}

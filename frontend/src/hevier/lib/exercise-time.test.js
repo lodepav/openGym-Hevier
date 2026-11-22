@@ -39,7 +39,7 @@ describe('hevier: exercise time (D88)', () => {
       { id: 'x', noProg: true, sets: [tick(8)] },
       { id: 'a', hvGym: 'g1', sets: [tick(10)] },
     ])
-    expect(timedSessions([w])).toEqual([{ id: 'a', gym: 'g1', ms: 7 * MIN }])
+    expect(timedSessions([w])).toEqual([{ id: 'a', gym: 'g1', ms: 7 * MIN, sets: 2 }])
     expect(timedSessions([w], '2026-10-21')).toEqual([])
   })
 
@@ -55,6 +55,18 @@ describe('hevier: exercise time (D88)', () => {
     expect(gyms.map(g => [g.key, g.rows.map(r => r.id)])).toEqual([['g1', ['b', 'a']], ['g2', ['c']], ['', ['a']]])
     const muscles = timeSections(s, { by: 'muscle', muscleOf: id => ({ a: 'Chest', b: 'Lats' })[id] })
     expect(muscles.map(g => g.key)).toEqual(['Chest', 'Lats', ''])
+  })
+
+  it('a session of one set is counted but gives no average: too few sets (the sixth audit, 2026-11-22)', () => {
+    const one = wo([{ id: 'a', sets: [tick(1)] }, { id: 'b', sets: [tick(3), tick(6)] }])
+    expect(timedSessions([one]).map(x => [x.id, x.sets])).toEqual([['a', 1], ['b', 2]])
+    const s = [{ id: 'a', gym: '', ms: MIN / 60, sets: 1 }, { id: 'b', gym: '', ms: 2 * MIN, sets: 3 },
+      { id: 'c', gym: '', ms: 9 * MIN, sets: 1 }, { id: 'c', gym: '', ms: 4 * MIN, sets: 4 }]
+    const [flat] = timeSections(s)
+    expect(flat.rows.map(r => [r.id, r.sessions, r.avg == null ? null : r.avg / MIN, r.total / MIN])).toEqual([['c', 2, 4, 4], ['b', 1, 2, 2], ['a', 1, null, 0]])
+    // Last whichever way round, and out of a section's total.
+    expect(timeSections(s, { asc: true })[0].rows.map(r => r.id)).toEqual(['b', 'c', 'a'])
+    expect(timeSections(s, { by: 'gym' })[0].total).toBe(6 * MIN)
   })
 
   it('periods count back from today', () => {

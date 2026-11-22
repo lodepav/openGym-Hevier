@@ -75,6 +75,8 @@ export default function ArrangeStats() {
       <button type="button" className="hv-link" onClick={reset} disabled={first}>{t('Reset')}</button>
     </BackTo>
     <p className="small dim hv-arr-hint">{t('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')}</p>
+    {/* D142's "tile = now, card = more", said where both lists are (the sixth audit, 2026-11-22). */}
+    <p className="small dim hv-arr-hint">{t('A tile shows one number as it is now; a card shows more.')}</p>
     {LISTS.map(([which, title, ids]) => <ArrangeList key={which} which={which} title={title} ids={ids} />)}
   </div>
 }

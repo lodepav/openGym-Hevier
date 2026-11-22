@@ -142,6 +142,15 @@ describe('Routine page (D37, D128)', () => {
     expect(document.querySelector('.hv-kp')).toBeNull()
   })
 
+  it('says a NEXT number can be tapped until the first tap, and then no more (S.hvPlanTapSeen, the sixth audit, 2026-11-22)', () => {
+    render(PLAN, undefined, { workouts: [last] })
+    const hint = () => container.querySelector('.hv-rv-hint')?.textContent
+    expect(hint()).toBe('Tap a number under NEXT to change it for the next session only.')
+    act(() => nums()[0].click())
+    expect(useStore.getState().S.hvPlanTapSeen).toBe(true)
+    expect(hint()).toBeUndefined()
+  })
+
   it('a number deleted to nothing is last time’s again, not its first digit', () => {
     render(PLAN, undefined, { workouts: [last] })
     act(() => nums()[2].click())

@@ -294,6 +294,14 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(row.closest('button')).toBeNull()
   })
 
+  it('Time on this exercise is left out with one set a session (the sixth audit, 2026-11-22)', () => {
+    const one = clone(log)
+    one[0].entries[0].sets = one[0].entries[0].sets.slice(0, 1)
+    one[0].entries[0].sets[0].at = day('2026-09-26') + 4 * 60000
+    open(one)
+    expect(container.querySelector('.hv-xd-time')).toBeNull()
+  })
+
   it('names the main muscle, the others and the equipment under the picture, on one line', () => {
     open(log)
     const lines = [...container.querySelectorAll('.hv-xd-facts span')].map(s => s.textContent)

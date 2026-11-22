@@ -4,6 +4,7 @@
 // for screen readers, dec: takes decimals, dur: a clock (D53), opt: may stay empty, view / store:
 // the shown value from the stored one and back }.
 import { t } from '../../lib/i18n.js'
+import { weightDecimals } from '../../lib/format.js'
 import { toSpeed, fromSpeed } from '../../lib/speed.js'
 import { clampIncline, hasIncline, inclineFits } from '../../lib/incline.js'
 import { shown, convert } from './ex-unit.js'
@@ -31,3 +32,16 @@ export function setColumns({ mode, bw, perStack, unit, exUnit = unit, speedUnit,
 
 /** A column's number as it is shown: cardio speed is stored in km/h and shown in the profile's unit. */
 export const viewOf = (col, v) => (col.view && v != null && v !== '' ? col.view(v) : v)
+
+/** A column's number in its box. A weight shown in the exercise's other unit (D41) goes to the
+ *  places PREVIOUS shows (fmtNum's), so 50 kg reads 110.2 lb in both, not 110.23 (the sixth audit,
+ *  2026-11-22). A weight typed in that unit keeps its places: `typed` this visit, or stored past the
+ *  hundredth, as a typed one is (to four, upstream's storedWeight). Display only. */
+// shortcut: a two-place lb weight typed on another visit whose kg lands on the hundredth reads rounded; mark typed weights if that is seen.
+export function boxOf(col, v, typed, places = weightDecimals()) {
+  const x = viewOf(col, v)
+  if (col.f !== 'w' || !col.view || typed || x == null || x === '' || !Number.isFinite(Number(v))) return x
+  if (Math.abs(Number(v) * 100 - Math.round(Number(v) * 100)) > 1e-6) return x
+  const p = 10 ** places
+  return Math.round(Number(x) * p) / p
+}

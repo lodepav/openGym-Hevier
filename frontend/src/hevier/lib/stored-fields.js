@@ -25,6 +25,7 @@ export const STORED_FIELDS = [
   { field: 'hvMuscleSets', at: 'S', sample: 'share' },
   { field: 'hvOneLimb', at: 'S', sample: 1 },
   { field: 'hvPlan', at: 'S', sample: { r1: { ex: { '0043': { w0: { r: 5 }, '0': { w: 102.5 } }, '1178': { '0': { L: { r: 12 } } } }, used: 'a1' } } },
+  { field: 'hvPlanTapSeen', at: 'S', sample: true },
   { field: 'hvPlateLine', at: 'S', sample: true },
   { field: 'hvSideOrder', at: 'S', sample: { '0043': 'RL' } },
   { field: 'hvStatsLayout', at: 'S', sample: { tiles: { order: ['hours', 'time'], hidden: ['time'] }, cards: { order: ['weekly'], hidden: [] } } },

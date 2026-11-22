@@ -21,9 +21,10 @@ export function weekExerciseTime(workouts, today, weekStart) {
   return timedSessions((workouts || []).filter(w => inWeek(w, week, weekStart))).reduce((n, s) => n + s.ms, 0)
 }
 
-/** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`. */
+/** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`; one
+ *  with too few sets for an average is left out. */
 export const longestExercises = (workouts, today, n = 3) =>
-  (timeSections(timedSessions(workouts, periodSince(TIME_PERIOD, today)))[0]?.rows || []).slice(0, n)
+  (timeSections(timedSessions(workouts, periodSince(TIME_PERIOD, today)))[0]?.rows || []).filter(r => r.avg != null).slice(0, n)
 
 const back = (iso, days) => isoOf(new Date(Date.parse(iso + 'T12:00:00') - days * DAY))
 

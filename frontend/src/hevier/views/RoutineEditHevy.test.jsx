@@ -84,6 +84,24 @@ describe('hevier: routine editor (M3)', () => {
     expect(slot().sets).toBe(3)
   })
 
+  it('a lb exercise in a kg profile reads and types lb, stored in kg (the sixth audit, 2026-11-22)', () => {
+    render([{ id: EX, mode: 'reps', sets: 1, reps: 8, weight: 20.4117 }])
+    act(() => useStore.setState(st => ({ S: { ...st.S, exUnit: { [EX]: { unit: 'lb', _ts: 1 } } } })))
+    expect(container.querySelector('.hv-rt-head').textContent).toBe('SETLBREPS')
+    const w = container.querySelector('.hv-num')
+    expect(w.getAttribute('aria-label')).toBe('Set 1, Weight (lb)')
+    expect(w.value).toBe('45')
+    // Key by key: each step reads as typed, none snaps back through the kg it is stored as.
+    for (const typed of ['4', '47', '47.', '47.5']) {
+      typeInto(w, typed)
+      expect(container.querySelector('.hv-num').value).toBe(typed)
+    }
+    expect(slot().weight).toBe(21.5456)
+    // A kg weight reads to the routine page's places: 50 kg is 110.2 lb, not 110.23.
+    act(() => useStore.getState().update(s => { s.routines[0].ex[0].weight = 50 }))
+    expect(container.querySelector('.hv-num').value).toBe('110.2')
+  })
+
   it('+ Warm-up adds a warm-up beside + Set; each set row has a remove mark (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
     act(() => container.querySelector('.hv-addrow .hv-addwarm').click())

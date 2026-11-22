@@ -75,6 +75,15 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     expect(line()).toBe('Chest 3 · Triceps 2')
   })
 
+  it('the feed card names an exercise done only as warm-ups first, a muted warm-up after (the sixth audit, 2026-11-22)', () => {
+    const warm = { w: 20, r: 10, done: true, warmup: true }
+    render(<WorkoutCard w={{ ...W, entries: [...W.entries, { id: TRI, sets: [warm, warm, warm] }] }} />)
+    const row = [...container.querySelectorAll('.hv-wcard-ex')].at(-1)
+    expect(row.querySelector('b').textContent).toBe('3 sets')
+    expect(row.querySelector('.dim').textContent).toBe(' · warm-up')
+    expect(row.textContent).not.toContain('(Warm-up)')
+  })
+
   it('the feed card shows the workout’s average heart rate when a watch saved one (D27)', () => {
     render(<WorkoutCard w={{ ...W, hr: { avg: 128, max: 161, src: 'hc', n: 300 } }} />)
     const hr = container.querySelector('.hv-wcard-d .hv-wcard-hr')
