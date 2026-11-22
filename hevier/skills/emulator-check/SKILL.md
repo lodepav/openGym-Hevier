@@ -7,9 +7,9 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 
 ## Build, install, launch
 
-Emulators are shared with OpenBite. Message its session (ListAgents, then SendMessage) and wait
-for its OK before booting or stopping one; use only the one you booted. A subagent without those
-tools asks the session that started it instead. `adb` is not on PATH: every snippet here exports it.
+Emulators are shared with OpenBite; use only the one you booted. Booting or stopping needs no
+message: `emu up` waits for a free AVD, the memory and any build under `heavy.sh`. Every snippet
+exports adb's PATH: a session only gets the profile's after a new login.
 
 ```bash
 export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
@@ -21,10 +21,10 @@ ANDROID_SERIAL=emulator-5558 hevier/tools/emulator.sh --no-build  # reinstall wi
 ```
 Run it in the background (a few minutes) and wait for the notification. It boots a free 2 GB
 light AVD through `~/.claude/bin/emu` (headless, 1080×2340, 420 dpi; `AVD=xperia1vi_api36` for
-the 3 GB one); `emu up` fails when all are busy or under 3.5 GB is free. Its last line names the
+the 3 GB one); it waits up to 30 min (`EMU_WAIT`) for a free one and exits 1 after. Its last line names the
 serial ("launched … on emulator-5558"). Nothing carries over between Bash calls, so write
 `ANDROID_SERIAL=<serial>` in front of every later `adb`, `cdp.mjs` and `screens.mjs` call (cdp.mjs
-runs adb, which reads it). When done: `~/.claude/bin/emu down <serial>`, and tell OpenBite. The
+runs adb, which reads it). When done: `~/.claude/bin/emu down <serial>`. The
 build rewrites capacitor.build.gradle, capacitor.settings.gradle and the Podfile: never `git add -A`.
 The app id is `ch.duartesantos.opengym.hevier.test`.
 

@@ -38,7 +38,8 @@ a hook. Found while measuring:
 
 Item 3 done 2026-11-22: the owner approved the `~/.profile` edit (flutter and platform-tools
 added; backup `~/.profile.bak-path`). A fresh login shell finds node, adb and flutter; the
-emulator-check skill's PATH line is gone. Sessions started before the edit still need it.
+emulator-check skill's PATH line was put back the same day: Claude Code's shell takes PATH from
+the desktop login, so ~/.profile reaches sessions only after the next login.
 
 ## Phase 1: main chat lean (biggest lever)
 
