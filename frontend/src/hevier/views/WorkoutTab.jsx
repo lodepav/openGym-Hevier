@@ -50,7 +50,7 @@ function FolderList({ name, ids, row }) {
   const update = useStore(s => s.update)
   const reorder = useDragReorder(ids.length, (from, to) => update(s => { s.routines = reorderInGroup(s.routines, name, from, to) }))
   return <div ref={reorder.listRef} className={'hv-rlist' + (reorder.drag ? ' is-reordering' : '')}>
-    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{row(id, ids.length > 1 ? reorder.handle(i) : null)}</div>)}
+    {ids.map((id, i) => <div key={id} data-reorder-row style={reorder.rowStyle(i)}>{row(id, ids.length > 1 ? reorder.handle(i) : null, true)}</div>)}
   </div>
 }
 
@@ -84,6 +84,14 @@ export default function WorkoutTab() {
   const { next, text: when } = routineWhen(S, todayISO())
   const [q, setQ] = useState('')
   const found = q.trim() && S.routines.filter(r => r.name.toLowerCase().includes(q.trim().toLowerCase()))
+  // A delete from ⋯ takes the row, and the focus with it, away: the page's heading gets it, not the body (the sixth audit, 2026-11-21).
+  const page = useRef(null)
+  const focusHeading = () => {
+    const h = page.current?.querySelector('.hv-title')
+    if (!h) return
+    h.tabIndex = -1
+    h.focus({ preventScroll: true })
+  }
 
   // The same new routine Plan makes, opened straight in the editor.
   const newRoutine = folder => {
@@ -144,6 +152,7 @@ export default function WorkoutTab() {
         let snap = null
         update(s => { snap = deleteFolder(s, name) })
         useUI.getState().toast(t('“{0}” gone.', name), { action: t('Undo'), onAction: () => update(s => { restoreFolder(s, snap) }) })
+        focusHeading()
       } },
     ],
   }) }
@@ -161,16 +170,18 @@ export default function WorkoutTab() {
         !found && { icon: 'chevronDown', label: t('Move down'), disabled: i === g.ids.length - 1, onClick: () => step(1) },
         { icon: 'folder', label: t('Move to folder'), sub: folderOf(r) || t('My Routines'), onClick: () => moveSheet(r) },
         { icon: 'copy', label: t('Duplicate'), onClick: () => duplicate(r) },
-        { icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => deleteRoutineWithUndo(r.id) },
+        { icon: 'trash', label: t('Delete routine'), danger: true, onClick: () => { if (deleteRoutineWithUndo(r.id)) focusHeading() } },
       ],
     })
   }
   const byId = new Map(S.routines.map(r => [r.id, r]))
-  const row = (id, grip) => {
+  const row = (id, grip, inFolder) => {
     const r = byId.get(id)
     const isNext = next.includes(id)
     return <div className={'hv-rrow' + (isNext ? ' next' : '')} {...hold(() => more(r))}>
-      {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
+      {grip ? <button type="button" className="hv-grip" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>
+        // A folder's only routine has nothing to move past, but keeps the handle's room so it lines up inside the folder (the sixth audit, 2026-11-22).
+        : inFolder && <span className="hv-grip-gap" aria-hidden="true" />}
       <button type="button" className="hv-rname" onClick={() => nav(previewPath(r.id))}>
         <span className="hv-rname-n">{r.name}</span>
         <span className="hv-rname-s">{isNext && <><b className="hv-rnext">{t('Next')}</b>{' · '}</>}
@@ -208,12 +219,14 @@ export default function WorkoutTab() {
       : <div className="hv-fempty">{g.name ? t('Empty folder. Add a routine with its ⋯ → New Routine, or a routine’s ⋯ → Move to folder.') : t('No routines outside a folder.')}</div>)
 
   const back = useBack('/home')
-  return <div className="narrow hv-wtab">
+  return <div ref={page} className="narrow hv-wtab">
     <PageBar title={t('Routines')} onBack={back} backLabel={t('Today')} />
 
     {S.routines.length > 0 && <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search routines')} aria-label={t('Search routines')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>}
+    {/* What a search leaves is said, not only redrawn (the sixth audit, 2026-11-21). */}
+    <span className="hv-sr" role="status">{!found ? '' : !found.length ? t('No routine matches.') : found.length === 1 ? t('1 routine') : t('{0} routines', found.length)}</span>
     {/* A search lists the matches alone: no folders, so none is folded shut, and no handles. */}
     {found && (found.length ? <div className="hv-rlist">{found.map(r => <div key={r.id}>{row(r.id, null)}</div>)}</div>
       : <div className="hv-fempty">{t('No routine matches.')}</div>)}

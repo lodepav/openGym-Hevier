@@ -60,9 +60,10 @@ export default function Measures() {
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
     {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}
+    {/* Empty, each says so, not a bare title (the seventh critique, 2026-11-22). */}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
-      sub={measurementsLine(S) || undefined}
+      sub={measurementsLine(S) || t('None yet')}
       onClick={() => nav('/measurements')} />}
-    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} sub={photosLine(progressPhotosOf(S)) || undefined} onClick={() => nav('/progress-photos')} />}
+    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} sub={photosLine(progressPhotosOf(S)) || t('None yet')} onClick={() => nav('/progress-photos')} />}
   </div>
 }

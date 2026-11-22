@@ -1,8 +1,9 @@
 // Where each lift on Lifts is going (hevier/DECISIONS.md D140): over a window (12 weeks, the current
 // OpenBite phase, or all), the estimated 1RM of each machine label as exercise details reads it
 // (exercise-summary.js), its change as the median of the first sessions against the median of the
-// last, and rising, holding or falling as D95 reads it (strength-signal.js), here for every lift,
-// calves and abs too. Entries kept out of progression stay out (counted-log.js, D57).
+// last, and rising, holding or falling by that change, or as D95 reads it (strength-signal.js) for a
+// lift without one or that ends falling, here for every lift, calves and abs too. Entries kept out
+// of progression stay out (counted-log.js, D57).
 import { countedS } from '../../lib/counted-log.js'
 import { entryExcluded, metricRowsForEntry } from '../../lib/history.js'
 import { entryLastKey } from './gym-labels.js'
@@ -66,11 +67,17 @@ const chainS = (S, workouts, id, key) => ({
     ? { ...w, entries: w.entries.filter(e => e?.id !== id || entryLastKey(e) === key) } : w)),
 })
 
-const stateOf = sessions => {
+// A change under this many percent, either way, is holding.
+export const HOLDING_PCT = 2
+
+const stateOf = (sessions, pct) => {
   const read = readExercise(sessions)
   if (!read.judged) return null
   // A label that ends falling is falling, however many better sessions came before it.
-  return read.falling ? 'falling' : read.rising ? 'rising' : 'holding'
+  if (read.falling) return 'falling'
+  // With a chart, D140's median change decides, so a climb reads up (the seventh critique, 2026-11-22); without, D95's sessions.
+  if (pct != null) return pct >= HOLDING_PCT ? 'rising' : pct <= -HOLDING_PCT ? 'falling' : 'holding'
+  return read.rising ? 'rising' : 'holding'
 }
 
 /**
@@ -78,7 +85,7 @@ const stateOf = sessions => {
  * ISO date, or all of the log for null; it ends with the log). `lines` holds one
  * `{ key, points, state, pct }` per machine label with an estimated 1RM in the window, the most
  * recently used first; `points` are `{ d, y }` oldest first. The exercise's `state` and `pct` are its most recently used label's: `state`
- * 'rising' | 'holding' | 'falling', or null with fewer than two sessions to compare; `pct` the
+ * 'rising' | 'holding' | 'falling' (stateOf), or null with fewer than two sessions to compare; `pct` the
  * median change (medianChange), null without two estimates. A bodyweight or assisted lift has none.
  */
 export function liftProgress(S, { from = null } = {}) {
@@ -126,7 +133,8 @@ export function liftProgress(S, { from = null } = {}) {
     const lines = keys.map(key => {
       const s = keys.length > 1 ? chainS(windowS, inside, id, key) : windowS
       const points = (exerciseSummary(s, id).series.e1rm || []).map(p => ({ d: p.d, y: p.y }))
-      return { key, points, state: stateOf(labels.get(key).sessions), pct: medianChange(points) }
+      const pct = medianChange(points)
+      return { key, points, state: stateOf(labels.get(key).sessions, pct), pct }
     })
     // The lift's read is its most recent label's, with an estimate or not (sets over 12 reps have none).
     const head = lines[0]

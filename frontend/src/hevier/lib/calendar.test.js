@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, planTitle } from './calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, planTitle, openScroll } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -77,5 +77,16 @@ describe('hevier: calendar kinds and titles', () => {
     expect(planKind(S, '2026-10-19', { '2026-10-19': [{}] }, today)).toBe('')   // trained
     expect(planTitle(S, '2026-10-21', {}, today)).toBe('Run')                  // the first routine's name
     expect(planTitle(S, '2026-10-12', {}, today)).toBe('')
+  })
+})
+
+describe('hevier: where the month view opens (the sixth audit, 2026-11-22)', () => {
+  it('at the bottom while the newest month’s heading stays under the bar, else on that heading', () => {
+    // A short month: the page's end, the heading well under the 150 px bar.
+    expect(openScroll({ page: 2000, view: 800, head: 1500, bar: 150 })).toBe(1200)
+    // A month taller than the screen: its heading 8 px under the bar.
+    expect(openScroll({ page: 2000, view: 800, head: 1000, bar: 150 })).toBe(842)
+    // A page shorter than the screen stays at the top.
+    expect(openScroll({ page: 600, view: 800, head: 200, bar: 150 })).toBe(0)
   })
 })

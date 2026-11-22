@@ -100,4 +100,16 @@ describe('hevier: exercise time page', () => {
     act(() => chip('Gym').click())
     expect(row('bench').textContent).toContain('Between sets 2:30')
   })
+
+  it('an exercise done one set a session says too few sets, not a time (the sixth audit, 2026-11-22)', () => {
+    const w = { id: 'w2', d: todayISO(), start, end: start + 40 * MIN, entries: [
+      { id: BENCH, sets: [set(5), set(10)] }, { id: SQUAT, sets: [set(11)] }] }
+    render('/exercise-time', [w])
+    const rows = [...container.querySelectorAll('.hv-report-row')]
+    expect(rows).toHaveLength(2)
+    expect(rows[1].textContent).toMatch(/squat/i)   // last: it has no average
+    expect(rows[1].textContent).toContain('Too few sets')
+    expect(rows[1].textContent).not.toContain('total')
+    expect(rows[0].textContent).not.toContain('Too few sets')
+  })
 })

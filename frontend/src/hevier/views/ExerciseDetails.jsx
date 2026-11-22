@@ -5,7 +5,7 @@
 // opens an exercise gets the same page. The numbers are upstream's read-back of the log
 // (lib/exercise-history.js) through hevier/lib/exercise-summary.js and exercise-page.js; upstream's
 // own details sheet (plate loading, "weight means", the 1RM calculator) is ⋯ → All details.
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
@@ -218,7 +218,10 @@ function History({ ex, sum, st }) {
 function useListed(ex, label) {
   const st = useStore(s => s.S)
   const listed = usePhasedS(st)
-  return useMemo(() => exerciseSummary(label != null ? withLabelFilter(listed, ex.id, label) : listed, ex.id), [listed, st.dbLoad, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
+  // A filtered log is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  return useMemo(() => exerciseSummary(label != null ? withLabelFilter(listed, ex.id, label) : listed, ex.id),
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 function AllHistory({ ex, label }) {
@@ -234,7 +237,10 @@ function AllHistory({ ex, label }) {
 // D96: two labels' histories side by side, each column its own sessions, newest first. `base` is
 // the log the History reads, so the phase filter (D93) narrows both.
 function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
-  const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id), [base, st.dbLoad, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
+  // `base` is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id),
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="hv-xd-cmpcol">
     <MenuButton className="hv-xd-label" title={t('Brand')} value={value} onChange={onPick}
       options={labels.filter(l => l.key !== other).map(l => ({ value: l.key, label: labelText(l, t) }))} />
@@ -258,6 +264,22 @@ function CompareHistory({ ex }) {
   </div>
 }
 
+// A catalogue picture or clip is marked once drawn; its "tap to pause" waits for it (hevier.css, the seventh critique, 2026-11-22).
+const DRAWN = 'data-hv-drawn'
+function useMediaDrawn() {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const mark = e => { if (e.target?.matches?.('.exmedia > :is(img, video)')) e.target.setAttribute(DRAWN, '') }
+    el.querySelectorAll('.exmedia > img').forEach(img => { if (img.complete && img.naturalWidth > 0) img.setAttribute(DRAWN, '') })
+    el.addEventListener('load', mark, true)
+    el.addEventListener('loadeddata', mark, true)
+    return () => { el.removeEventListener('load', mark, true); el.removeEventListener('loadeddata', mark, true) }
+  }, [])
+  return ref
+}
+
 function HowTo({ ex }) {
   const st = useStore(s => s.S)
   const steps = instrFor(ex)
@@ -265,7 +287,8 @@ function HowTo({ ex }) {
   // the pin never showed here before 2026-11-03).
   const note = pinnedNoteFor(st, ex.id)?.note || ''
   const demos = partOn(st, 'hvWorkout', 'demos') // D117: off leaves the text and pictures
-  return <div className="hv-xd-howto hv-xd-sub">
+  const media = useMediaDrawn()
+  return <div className={'hv-xd-howto hv-xd-sub' + (isCustomEx(ex) ? '' : ' hv-xd-cat')} ref={media}>
     <div className="hv-xd-bar"><h3>{t('How to')}</h3></div>
     {/* D101: a YouTube link in the pinned note plays here too, as upstream's Media plays a routine note's. */}
     <Media ex={ex} notes={(demos && note) || undefined} />
@@ -317,6 +340,7 @@ function ExerciseDetails({ ex, close }) {
     ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
   const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
+  const media = useMediaDrawn()
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -349,7 +373,7 @@ function ExerciseDetails({ ex, close }) {
     </div>
     {aka.length > 0 && partOn(st, 'hvExercise', 'names') && <button type="button" className="hv-xd-aka" onClick={() => aliasSheet(ex)}>
       {t('Also called')} <span>{aka.join(' · ')}</span></button>}
-    <div className="hv-xd-page">
+    <div className={'hv-xd-page' + (isCustomEx(ex) ? '' : ' hv-xd-cat')} ref={media}>
       <Media ex={ex} />
       <ExerciseFacts ex={ex} />
       {brands && <div className="hv-xd-labels">
@@ -369,7 +393,8 @@ function ExerciseDetails({ ex, close }) {
         {(e1rm || asked || st.hvStrength?.[ex.id]) && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={e1rm ? shownWeight(st, ex.id, e1rm.v) : 0} unit={exUnitOf(st, ex.id)} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
-        {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
+        {/* No line for one set a session: too few sets for a time (the sixth audit, 2026-11-22). */}
+      {time?.avg != null && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
         <LinkRow icon="info" title={t('How to')} onClick={() => openSub(<HowTo ex={ex} />)} />
       </section>
     </div>

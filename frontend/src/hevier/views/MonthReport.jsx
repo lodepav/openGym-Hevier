@@ -15,11 +15,11 @@ import { workoutsByDay } from '../lib/calendar.js'
 import { durationWords } from '../lib/elapsed.js'
 import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
-import { Month } from './Calendar.jsx'
+import { Month, useNamesFit } from './Calendar.jsx'
 import { BackTo } from './Statistics.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { countedWorkouts } from '../../lib/counted-log.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
 import { useNamesAbove } from '../components/MuscleSetsCard.jsx'
@@ -42,9 +42,13 @@ export default function MonthReport() {
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
-  const log = usePhasedS(st).workouts   // D93
+  // With a phase picked the filtered log is a new copy on each write: kept by what it is made from (the sixth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const phased = usePhasedS(st).workouts   // D93
+  const log = useMemo(() => phased, [st.workouts, phase, st.modules, st.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
   const counted = useMemo(() => countedWorkouts(log, st.routines), [log, st.routines])
-  const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w), w => sessionVolume(w, st)), [counted, st.dbLoad, at, ws, mm, st.volumeWarmups]) // eslint-disable-line react-hooks/exhaustive-deps
+  const r = useMemo(() => monthReport(counted, at.y, at.mo, ws, mm, w => workoutRecords(st, w), w => sessionVolume(w, st)),
+    [counted, st.dbLoad, at, ws, mm, st.volumeWarmups, st.volumeBodyweight, st.bodyweight, st.oneRmFormula, st.modules, st.hvModuleParts, st.customEx, st.hvMainMuscle]) // eslint-disable-line react-hooks/exhaustive-deps
   const byDay = useMemo(() => workoutsByDay(log), [log])
   const first = firstMonth(st.workouts)
   const ym = `${at.y}-${String(at.mo + 1).padStart(2, '0')}-`
@@ -60,8 +64,10 @@ export default function MonthReport() {
   const year = at.y !== Number(today.slice(0, 4)) ? ' ' + at.y : ''
   const month = t(MONTHS_LONG[at.mo]) + year
   const title = t('{0} Report', t(MONTHS_LONG[at.mo])) + year
+  // Calendar's month, so Calendar's rule: at a large text size on a narrow phone the names under the days go (the sixth audit, 2026-11-21).
+  const [page, tight] = useNamesFit(ym + trained)
 
-  return <div className="narrow hv-report">
+  return <div className={'narrow hv-report' + (tight ? ' hv-cal-tight' : '')} ref={page}>
     <BackTo label={t('History')} to={HISTORY_PATH} title={t('Monthly report')}>
       {trained && partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
         y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
@@ -99,7 +105,7 @@ export default function MonthReport() {
       <Month y={at.y} mo={at.mo} st={st} byDay={byDay} today={today} />
 
       {r.muscles.length > 0 && <>
-        <h3 className="sec">{t('Muscle Split')}</h3>
+        <h3 className="sec">{t('Muscle split')}</h3>
         <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
           <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
@@ -111,7 +117,8 @@ export default function MonthReport() {
         <h3 className="sec">{t('Top exercises')}</h3>
         <div className="list hv-flat">{r.top.map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className={'grow ' + exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-          <span className="dim">{tn('{0} set', '{0} sets', x.sets)}{x.best > 0 && ' · ' + fmtNum(x.best) + ' ' + unit}</span>
+          {/* The month's best weight, named, as "5 sets · 97.5 kg" left it open (the seventh critique, 2026-11-22). */}
+          <span className="dim">{tn('{0} set', '{0} sets', x.sets)}{x.best > 0 && ' · ' + t('best {0}', fmtNum(x.best) + ' ' + unit)}</span>
         </button>)}</div>
       </>}
     </>}

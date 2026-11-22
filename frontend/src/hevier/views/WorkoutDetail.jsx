@@ -46,7 +46,7 @@ import { workoutTimeText, workoutWhenText } from '../lib/workout-when.js'
 import { setMark } from '../lib/history-rows.js'
 import { partOn } from '../lib/module-parts.js'
 import { setNoteOf } from '../../lib/set-notes.js'
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 import { workoutCompare } from '../lib/workout-compare.js'
 import { signed } from '../lib/delta.js'
 
@@ -146,19 +146,21 @@ export function WorkoutDetail() {
   const { state } = useLocation()
   const st = useStore(s => s.S)
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
+  const prs = w ? workoutRecords(st, w) : null
+  const units = sessionSections(w?.entries || []).flatMap(g => g.units)
+  // Trends and the legend's row once per change of what they read, above the return (the sixth audit, 2026-11-21).
+  const trendsOf = useMemo(() => (w?.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) })),
+    [w, st.workouts, st.setTrend, st.lastFrom, st.oneRmFormula, st.customEx]) // eslint-disable-line react-hooks/exhaustive-deps
+  const legendAt = useMemo(() => w && units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), trendsOf[i].trends, trendsOf[i].sideTrends).some(m => m.trend != null)),
+    [w, prs, trendsOf]) // eslint-disable-line react-hooks/exhaustive-deps
   // Deleted (here or in All details) or opened without a workout: back to where it came from.
   if (!w) return <Gone />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
   const setN = workSets(w.entries)
-  const prs = workoutRecords(st, w)
   const times = partOn(st, 'hvStats', 'time') ? entryTimes(w) : [] // D114
   const mode = volumeMode(st)
   // D133: the effort column shows when the workout has any effort logged, in the profile's scale.
   const scale = (w.entries || []).some(e => detailRows(e.sets).some(r => r.effort)) ? effortScale(st) : null
-  const units = sessionSections(w.entries || []).flatMap(g => g.units)
-  // Each exercise's trends once, for the legend and its rows (the audit, 2026-11-21).
-  const trendsOf = (w.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) }))
-  const legendAt = units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), trendsOf[i].trends, trendsOf[i].sideTrends).some(m => m.trend != null))
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)   // D93: OpenBite's phase when it was saved
   const more = () => workoutActions(w, nav, [

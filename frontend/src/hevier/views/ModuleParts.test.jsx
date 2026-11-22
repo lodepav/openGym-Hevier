@@ -41,6 +41,7 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(open.tagName).toBe('BUTTON')
     expect(open.getAttribute('aria-expanded')).toBe('false')
     expect(row('Body').querySelector('.lrow-v').textContent).toBe('2 of 3')
+    expect(open.getAttribute('aria-label')).toBe('Parts of Body, 2 of 3')   // the sixth audit, 2026-11-21
     expect(partsOf('Body').hidden).toBe(true)
     expect(partsOf('Body').querySelectorAll('[role="switch"]')).toHaveLength(0)
     act(() => open.click())
@@ -48,6 +49,7 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(partsOf('Body').hidden).toBe(false)
     expect(titles(partsOf('Body'))).toEqual(['Body weight', 'Body measurements', 'Progress photos'])
     expect(row('Body').querySelector('.lrow-v')).toBeNull()
+    expect(open.getAttribute('aria-label')).toBe('Parts of Body')
     act(() => open.click())
     expect(open.getAttribute('aria-expanded')).toBe('false')
     expect(partsOf('Body').hidden).toBe(true)
@@ -70,6 +72,8 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(useStore.getState().S.modules.motivation).toBe(false)
     expect(row('Motivation').querySelector('.hv-modrow-open').getAttribute('aria-expanded')).toBe('false')
     expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('Off')
+    act(() => row('Motivation').querySelector('[role="switch"]').click())
+    expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('All on')   // the seventh critique, 2026-11-22
   })
   it('a module without parts has no disclosure', () => {
     render('/settings/modules')

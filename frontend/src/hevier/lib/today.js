@@ -5,7 +5,7 @@ import { setRuns } from './set-text.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { planTitle, workoutsByDay } from './calendar.js'
 import { nextPlanned } from './next-planned.js'
-import { queueView, weekTally } from '../../lib/queue.js'
+import { queueOf, queueView, weekTally } from '../../lib/queue.js'
 import { fmtNum, isoOf, startOfWeek, weekStartOf } from '../../lib/format.js'
 import { shownWeight, exUnitOf } from '../../lib/ex-unit.js'
 import { tn } from '../../lib/i18n.js'
@@ -67,10 +67,20 @@ export function shortNames(names) {
   return drop ? front.map(n => (n ? n.split(' ').slice(0, -1).join(' ') : n)) : front
 }
 
+// A past untrained day weekTally counts as planned (a rotation's session moves on instead; the seventh critique, 2026-11-22).
+function missedName(S, iso, wd, today) {
+  if (S.dayPlan?.[iso] === 'rest') return ''
+  const q = queueOf(S)
+  const queued = id => !!(q && today >= q.startsOn && S.queue.ids.includes(id))
+  const id = [].concat(S.week?.[wd] || []).find(x => !queued(x) && S.routines.some(r => r.id === x))
+  return id ? S.routines.find(r => r.id === id).name || '' : ''
+}
+
 /**
  * This week as seven days from the profile's first weekday: [{ iso, day, kind, name, next }].
  * `kind` is 'done' (trained), 'plan' (a routine planned from today on, `name` its first),
- * 'rest' (today with nothing) or ''. `next` marks the day the next session is on.
+ * 'missed' (a past day the weekly plan gave `name`, not trained), 'rest' (today with nothing)
+ * or ''. `next` marks the day the next session is on.
  */
 export function weekStrip(S, today) {
   const byDay = workoutsByDay(S.workouts)
@@ -80,8 +90,10 @@ export function weekStrip(S, today) {
     const d = new Date(start)
     d.setDate(start.getDate() + k)
     const iso = isoOf(d)
-    const name = byDay[iso] ? '' : planTitle(S, iso, byDay, today)
-    return { iso, day: d.getDay(), kind: byDay[iso] ? 'done' : name ? 'plan' : iso === today ? 'rest' : '', name, next: iso === next }
+    const missed = !byDay[iso] && iso < today ? missedName(S, iso, d.getDay(), today) : ''
+    const name = byDay[iso] ? '' : missed || planTitle(S, iso, byDay, today)
+    const kind = byDay[iso] ? 'done' : missed ? 'missed' : name ? 'plan' : iso === today ? 'rest' : ''
+    return { iso, day: d.getDay(), kind, name, next: iso === next }
   })
   const short = shortNames(days.map(d => d.name))
   return days.map((d, i) => ({ ...d, short: short[i] }))

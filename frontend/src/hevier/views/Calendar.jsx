@@ -17,7 +17,7 @@ import PageBar from '../components/PageBar.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle, openScroll } from '../lib/calendar.js'
 import { partOn } from '../lib/module-parts.js'
 
 const MORE = 6
@@ -76,6 +76,24 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
  */
 export const namesFit = (width, font) => !(width > 0 && font > 0 && width / font < 16)
 
+/** namesFit on the page: `[ref, tight]`, `ref` on what holds the month, measured again when `key` changes. */
+export function useNamesFit(key) {
+  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
+  const page = useRef(null)
+  const [tight, setTight] = useState(false)
+  useLayoutEffect(() => {
+    const fit = () => {
+      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
+      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
+      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [key])
+  return [page, tight]
+}
+
 export default function Calendar() {
   const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
   return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
@@ -96,7 +114,7 @@ function CalendarPage() {
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
-  // The month view opens on its newest month, scrolled to the bottom, a frame later, after upstream's
+  // The month view opens on its newest month, scrolled to the bottom (its heading kept in view), a frame later, after upstream's
   // App has put a new page at the top; coming back keeps the place App restores (a popstate:
   // inside upstream's <Routes location> every navigation reads as POP, came-back.js). Earlier
   // months go in above: the page is moved down by what they add, so what was in view stays. Later
@@ -105,24 +123,22 @@ function CalendarPage() {
   const mounted = useRef(false)
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
-  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
-  const page = useRef(null)
-  const [tight, setTight] = useState(false)
-  useLayoutEffect(() => {
-    const fit = () => {
-      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
-      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
-      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
-    }
-    fit()
-    window.addEventListener('resize', fit)
-    return () => window.removeEventListener('resize', fit)
-  }, [view])
+  const [page, tight] = useNamesFit(view)
+  const aheadWas = useRef(ahead)
   useEffect(() => {
     const first = !mounted.current
     mounted.current = true
+    const later = ahead > aheadWas.current
+    aheadWas.current = ahead
     if (view !== 'month' || (first && back0)) return
-    const f = requestAnimationFrame(() => window.scrollTo(0, pageH()))
+    // A month taller than the screen opens on its heading, not its end; a later month still goes to the bottom.
+    const at = () => {
+      const heads = page.current?.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-mh')
+      const head = heads?.[heads.length - 1], bar = page.current?.querySelector('.hv-cal-top')
+      if (later || !head || !bar) return pageH()
+      return openScroll({ page: pageH(), view: window.innerHeight, head: head.getBoundingClientRect().top + window.scrollY, bar: bar.getBoundingClientRect().height })
+    }
+    const f = requestAnimationFrame(() => window.scrollTo(0, at()))
     return () => cancelAnimationFrame(f)
   }, [view, from, ahead])   // eslint-disable-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
@@ -132,6 +148,15 @@ function CalendarPage() {
   }, [count])
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
+  // The key scrolls with the months, under this one where the page opens: pinned, it took a large
+  // share of a short screen at a big text size (the fresh audit, 2026-11-21).
+  // Right under the last month, above Show next month (the seventh critique, 2026-11-22).
+  const key = <div className="hv-cal-key">
+    <span><i className="k-strength" />{t('Strength')}</span>
+    <span><i className="k-cardio" />{t('Cardio')}</span>
+    <span><i className="k-deload" />{t('Deload')}</span>
+    <span><i className="k-plan" />{t('Planned')}</span>
+  </div>
   return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
     {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
@@ -146,6 +171,7 @@ function CalendarPage() {
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
       {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      {key}
       <button type="button" className="btn hv-cal-more next" onClick={() => setAhead(a => a + 1)}>{t('Show next month')}</button>
     </> : <>
       <div className="hv-cal-yr">
@@ -156,14 +182,7 @@ function CalendarPage() {
       <div className="hv-cal-year">
         {Array.from({ length: 12 }, (_, mo) => <Month key={mo} y={year} mo={mo} st={st} byDay={byDay} today={today} small onTitle={() => openMonth(mo)} />)}
       </div>
+      {key}
     </>}
-    {/* The key scrolls with the months, under this one where the page opens: pinned, it took a
-        large share of a short screen at a big text size (the fresh audit, 2026-11-21). */}
-    <div className="hv-cal-key">
-      <span><i className="k-strength" />{t('Strength')}</span>
-      <span><i className="k-cardio" />{t('Cardio')}</span>
-      <span><i className="k-deload" />{t('Deload')}</span>
-      <span><i className="k-plan" />{t('Planned')}</span>
-    </div>
   </div>
 }

@@ -21,6 +21,8 @@ import { copyRoutineHere } from '../lib/routine-copy.js'
 import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
 import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
+import { exUnitOf, shownWeight, storedWeight } from '../../lib/ex-unit.js'
+import { boxOf, pastHundredth } from '../lib/set-columns.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { sameForRoutineCard } from '../lib/card-state.js'
@@ -235,15 +237,18 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   }
 
   // The value columns, as the session will log them.
+  const wUnit = exUnitOf(S, e.id)
   const cols = shape.mode === 'cardio'
     ? [{ f: 'min', hd: t('MIN'), dec: false }, { f: 'speed', hd: speedUnit === 'mph' ? t('MPH') : t('KM/H'), dec: true,
       view: v => toSpeed(v, speedUnit), store: v => fromSpeed(v, speedUnit) }]
-    : [{ f: 'w', hd: (bw ? '+' : '') + S.unit.toUpperCase(), say: t('Weight ({0})', S.unit), dec: true },
+    // In the exercise's own unit, as its page and the workout show it; stored in the profile's (the sixth audit, 2026-11-22).
+    : [{ f: 'w', hd: (bw ? '+' : '') + wUnit.toUpperCase(), say: t('Weight ({0})', wUnit), dec: true,
+      view: v => shownWeight(S, e.id, v), store: (v, old) => storedWeight(S, e.id, v, old) },
       shape.mode === 'time' ? { f: 'sec', hd: t('SEC'), say: t('Time'), dec: false } : { f: 'r', hd: shape.ranged ? t('REP RANGE') : t('REPS'), say: t('Reps'), dec: false }]
   const grid = { '--nc': cols.length }
   const cell = (row, c) => {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
-    if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
+    if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(shownWeight(S, e.id, row.w))}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
     // Named as the plain fields are, its value after (the fifth audit, 2026-11-21).
     const said = v => t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd) + ', ' + v
     if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(row.repsMin + '–' + row.reps)}
@@ -253,10 +258,11 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
     const key = c.f === 'r' ? 'reps' : c.f
     const v = row[key]
     // Hevy's grey dash for a weight not set yet (0); typing one fills it
-    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : c.view && v != null ? c.view(v) : v ?? ''}
+    // A converted weight to the routine page's places, 110.2 not 110.23 (set-columns.js boxOf; the sixth audit, 2026-11-22).
+    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : boxOf(c, v, pastHundredth(v)) ?? ''}
       placeholder={c.f === 'w' ? '–' : undefined}
       aria-label={t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd)}
-      onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv) : nv))} />
+      onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv, v) : nv))} />
   }
   const swipe = workoutControls(S).swipeSets
   const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
@@ -284,7 +290,8 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
         <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
         {brandsOn && (brand
           ? <button type="button" className="hv-brand has" aria-label={t('Brand') + ': ' + brand} onClick={openBrand}><Icon name="machine" />{brand}</button>
-          : <button type="button" className="hv-addbrand" onClick={openBrand}>{t('+ Brand')}</button>)}
+          // A text line under the name, as the live workout draws it (the seventh critique, 2026-11-22).
+          : <button type="button" className="hv-brand" onClick={openBrand}>{t('+ Brand')}</button>)}
       </div>
       {noEquip && (why => <button type="button" className="iconbtn hv-warn" aria-label={why} title={why} onClick={() => toast(why)}><Icon name="warning" /></button>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
@@ -368,6 +375,10 @@ function RoutineEditor({ id }) {
     end: () => exOf().length - 1,
     pair: (i, j) => setR(x => { x.ex = pairAdjacent(x.ex, i, j) }),
   })
+  const units = supersetUnits(r?.ex || [])
+  // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
+  // Above the return: a routine deleted while open (a sync, ⋯ → Delete) redraws once first (the sixth audit, 2026-11-21).
+  const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   if (!r) return null
 
   // Several picks at once are called one by one in the same tick: one toast names them all.
@@ -404,10 +415,7 @@ function RoutineEditor({ id }) {
     ],
   })
 
-  const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
-  // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
-  const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
     <PageBar title={t('Edit Routine')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (r.name || t('Routine'))} onClick={openMore}><Icon name="more" /></button>

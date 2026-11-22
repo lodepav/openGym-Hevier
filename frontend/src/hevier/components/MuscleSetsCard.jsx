@@ -5,7 +5,7 @@ import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, weekStartOf } from '../../lib/format.js'
 import { signed } from '../lib/delta.js'
-import { muscleSetCounts, namesAbove, PERIODS } from '../lib/muscle-sets.js'
+import { muscleSetCounts, namesAbove, openPeriod, PERIODS } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 import { muscleText } from '../lib/main-muscle.js'
 import { useStatsPhase } from '../lib/shared-phase-run.js'
@@ -29,12 +29,12 @@ export function useNamesAbove() {
 
 /** `S` is the page's: counted (D57) and phased (D93). */
 export default function MuscleSetsCard({ S, today }) {
-  const [kind, setKind] = useState('week')
+  const ws = weekStartOf(S), mode = muscleMode(S)
+  const [kind, setKind] = useState(() => openPeriod(S.workouts, { today, weekStart: ws, mode }))
   const [list, above] = useNamesAbove()
   // The page's S is a new copy on each write: key on what it is made from and reads (the fifth audit, 2026-11-21).
   const raw = useStore(s => s.S)
   const phase = useStatsPhase(s => s.phase)
-  const ws = weekStartOf(S), mode = muscleMode(S)
   const { rows } = useMemo(() => muscleSetCounts(S.workouts, kind, { today, weekStart: ws, mode }),
     [raw.workouts, raw.routines, raw.modules, raw.hvModuleParts, raw.hvMainMuscle, raw.customEx, phase, kind, today, ws, mode]) // eslint-disable-line react-hooks/exhaustive-deps
   const max = Math.max(1, ...rows.map(r => r.sets))

@@ -112,7 +112,9 @@ export default function WorkoutCard({ w }) {
       const warm = n ? 0 : e.sets.filter(s => hasCompletedWork(s) && isWarmupRow(s)).length
       return <div key={i} className="hv-wcard-ex">
         <span className="hv-thumb sm">{ex && <Thumb ex={ex} />}</span>
-        <span className="grow"><b>{warm ? tn('{0} set', '{0} sets', warm) + ' (' + t('Warm-up') + ')' : tn('{0} set', '{0} sets', n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span></span>
+        {/* The count, the name, then a muted "warm-up": "(Warm-up)" between them split the two (the sixth audit, 2026-11-22). */}
+        <span className="grow"><b>{tn('{0} set', '{0} sets', warm || n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span>
+          {warm > 0 && <span className="dim"> · {t('warm-up')}</span>}</span>
         {prOf(e) > 0 && <span className="hv-pr" role="img" aria-label={t('Records') + ' ' + prOf(e)}><Icon name="trophy" />{prOf(e)}</span>}
       </div>
     })}

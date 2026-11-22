@@ -10,10 +10,13 @@ import { setNav } from '../../lib/nav.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO, MONTHS_LONG } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
-import { byExercise } from '../lib/month-report.js'
+import { byExercise, monthReport } from '../lib/month-report.js'
+import { useStatsPhase } from '../lib/shared-phase-run.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// Counted, to show a write that leaves the log alone works nothing out again (the sixth audit, 2026-11-21).
+vi.mock('../lib/month-report.js', async orig => { const m = await orig(); return { ...m, monthReport: vi.fn(m.monthReport) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
@@ -58,6 +61,9 @@ describe('hevier: monthly report (D23)', () => {
     expect([...container.querySelectorAll('h3.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')
     // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')
+    // Sentence case, and the top exercise's weight named (the seventh critique, 2026-11-22).
+    expect([...container.querySelectorAll('h3.sec')].map(h => h.textContent)).toContain('Muscle split')
+    expect([...container.querySelectorAll('.hv-report-row .dim')].at(-1).textContent).toBe('5 sets · best 75 kg')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
     // Back goes to History, where it opens from (D142).
     expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')
@@ -67,6 +73,26 @@ describe('hevier: monthly report (D23)', () => {
     render('/report', log)
     act(() => container.querySelector('.hv-pb-back').click())
     expect(path).toBe('/history-tab')
+  })
+
+  it('with a phase picked, a write that leaves the log alone works the report out no more', () => {
+    render('/report', log.map(w => ({ ...w, hvPhase: { p: 'bulking' } })))
+    expect(container.querySelector('.hv-phase-filter')).toBeTruthy()   // the filter applies
+    act(() => useStatsPhase.getState().pick('bulking'))
+    const n = monthReport.mock.calls.length
+    act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
+    expect(monthReport.mock.calls.length).toBe(n)
+    act(() => useStore.getState().update(s => { s.workouts = s.workouts.slice(1) }))
+    expect(monthReport.mock.calls.length).toBeGreaterThan(n)
+    act(() => useStatsPhase.getState().pick(null))
+  })
+
+  it('at a large text size on a narrow phone its month drops the names under the days, as Calendar does', () => {
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ width: 300, height: 300, top: 0, left: 0, right: 300, bottom: 300 })
+    const style = vi.spyOn(window, 'getComputedStyle').mockReturnValue({ fontSize: '28px' })   // 300 / 28 < 16 em
+    render('/report', log)
+    expect(container.querySelector('.hv-report').classList.contains('hv-cal-tight')).toBe(true)   // the sixth audit, 2026-11-21
+    rect.mockRestore(); style.mockRestore()
   })
 
   it('weight mode shows Volume in place of Sets', () => {

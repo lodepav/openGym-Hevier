@@ -416,3 +416,23 @@ back goes to Statistics on a cold open. Today's links and week days, the preview
 editor's set rows and folder heads reach 48 dp; colours are tokens; eight screens stop
 recomputing on every write. Left as they are: Today's next plan and week strip (they read most
 of the plan), the set row's own tap (its fields reach it), and the editor's 44 dp remove button.
+
+The sixth audit (2026-11-21) scored 306 of 380 and the critique of every screen 507 of 704;
+both reviewers were stricter than the fifth round's, and most of the drop is platform
+conformance (the WebView and the Hevy page bar) and help text. The invisible fixes: the routine
+editor no longer crashes when a routine is deleted under it, records are cached on the
+workouts themselves, five screens stop recomputing, TalkBack hears the picker's and Routines'
+counts and each module's part count, focus goes to the title after a delete, the thumbnail,
+superset line, set note and swipe hint reach further, the phase chips wrap and the page bar
+keeps its title centred. The visible ones the user chose are D144: the editor in each
+exercise's unit, the live box's decimals (a pre-filled lb weight is stored as 49.9999 kg and
+first read as typed; the emulator caught it), Exercise time's "Too few sets", History's warm-up
+line, four help lines, Settings' bar that stays, Calendar opening on the current month, a
+folder's only routine lined up, and Sets per muscle opening on a period with sets.
+
+The seventh audit and critique (2026-11-22) scored 343 of 380 and 563 of 728. The critique
+caught a slip of the sixth round: Settings' title, made a second sticky layer, rendered tiny and
+blurred; it is now drawn inside the one sticky bar. The visible fixes the user chose are D145,
+three of them past D68, D117 and D140. Left for later: the text-size and TalkBack findings of
+the audit (clipping at 130 to 200 % on small phones, folder headings, spoken set rows, the
+picker's growing list, scroll padding under sticky bars).

@@ -384,6 +384,31 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].w).toBeCloseTo(kg45, 3)
   })
 
+  it('a lb box reads 50 kg as PREVIOUS does, 110.2, and keeps a typed 110.25 (the sixth audit, 2026-11-22)', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(50, 8)] }],
+      [{ id: 'w0', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [{ w: 50, r: 8, done: true }] }] }])
+    act(() => useStore.getState().update(s => { s.exUnit = { [EX]: { unit: 'lb', _ts: 1 } } }))
+    const box = () => container.querySelector('.hv-row .hv-num')
+    expect(box().placeholder).toBe('110.2')
+    expect(container.querySelector('.hv-prev').textContent).toContain('110.2 × 8')
+    // Ticking the untouched box logs what is stored, not the rounded number.
+    act(() => container.querySelector('.hv-chk').click())
+    expect(sets()[0]).toMatchObject({ w: 50, done: true })
+    for (const typed of ['1', '11', '110', '110.', '110.2', '110.25']) {
+      typeInto(box(), typed)
+      expect(box().value).toBe(typed)
+    }
+    expect(sets()[0].w).toBeCloseTo(110.25 * 0.45359237, 4)
+  })
+
+  it('a lb box rounds a weight pre-filled through lb (49.9999 kg) and keeps one typed on an earlier visit (the sixth audit, 2026-11-22)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(49.9999, 8), { ...reps(50.0089, 8), weightOrigin: 'manual' }] }])
+    act(() => useStore.getState().update(s => { s.exUnit = { [EX]: { unit: 'lb', _ts: 1 } } }))
+    const [pre, typed] = [...container.querySelectorAll('.hv-row')].map(r => r.querySelector('.hv-num'))
+    expect(pre.placeholder || pre.value).toBe('110.2')
+    expect(typed.value).toBe('110.25')
+  })
+
   it('a timed hold gets KG · TIME, typed as a clock, with the big clock counting it down (M1, D53, D89)', () => {
     vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])

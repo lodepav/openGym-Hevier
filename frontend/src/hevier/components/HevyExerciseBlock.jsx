@@ -59,7 +59,7 @@ import { shownWeight } from '../../lib/ex-unit.js'
 import { setTrend, trendsOn } from '../lib/set-trend.js'
 import { formulaOf } from '../../lib/onerm.js'
 import TrendMark, { trendWords } from './TrendMark.jsx'
-import { setColumns, viewOf } from '../lib/set-columns.js'
+import { setColumns, boxOf } from '../lib/set-columns.js'
 import { filledFromLast } from '../lib/plain-routine.js'
 import { moveOrder, movedTo, relaySuggestions } from '../lib/phase-relay.js'
 import { sideOrderOf } from '../lib/side-order.js'
@@ -351,7 +351,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const key = (side || '') + col.f
     // A weight filled from last time (D69, `hvLast`) is marked manual only so edits above it do not
     // cascade onto it: it stays grey until it is touched.
-    const firm = src.done || isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !filledFromLast(s, side))
+    // Typed this visit or on an earlier one (a pre-filled weight is not manual): its box keeps its places.
+    const typed = isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !filledFromLast(s, side))
+    const firm = src.done || typed
     if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
     // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
     const hintProps = {
@@ -370,7 +372,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(modeAt(s), sec)) }} />
     // A grey weight of nothing (a lift last logged without one) reads "–", as PREVIOUS's "× 10" does, not "0".
     const noWeight = !firm && col.f === 'w' && !(Number(src.w) > 0)
-    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={noWeight ? '–' : viewOf(col, src[col.f]) ?? ''}
+    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={noWeight ? '–' : boxOf(col, src[col.f], typed) ?? ''}
       {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {

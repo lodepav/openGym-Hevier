@@ -83,7 +83,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-wd-t').textContent).toBe('Push Day')
     expect(page.textContent).toContain('Felt strong')
     // D133: the bars went; the line under the stats has the counts (sets mode, D18).
-    expect(page.textContent).not.toContain('Muscle Split')
+    expect(page.textContent).not.toMatch(/Muscle split/i)
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
@@ -96,12 +96,15 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
 
-  it('works out each exercise’s trends once a render', () => {
+  it('works out each exercise’s trends once per change of the log, not on an unrelated write', () => {
     render()
     act(() => workoutDetailSheet(W))
-    const n = workoutTrends.mock.calls.length, m = workoutSideTrends.mock.calls.length
+    const calls = () => [workoutTrends.mock.calls.length, workoutSideTrends.mock.calls.length]
+    const [n, m] = calls()
     act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
-    expect([workoutTrends.mock.calls.length - n, workoutSideTrends.mock.calls.length - m]).toEqual([1, 1])
+    expect(calls()).toEqual([n, m])   // the sixth audit, 2026-11-21
+    act(() => useStore.getState().update(s => { s.workouts = [...s.workouts] }))
+    expect(calls()).toEqual([n + 1, m + 1])
   })
 
   it('lists the ticked sets, the warm-up as W', () => {

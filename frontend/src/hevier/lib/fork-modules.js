@@ -43,6 +43,9 @@ export const forkModuleCopy = () => ({
   hvWorkout: [t('Workout extras'), t('The Timer and Stopwatch, and exercise demos.')],
   hvGyms: [t('Gyms'), t('Machine brands per gym, gyms nearby and backups per gym.')],
   hvStats: [t('Statistics extras'), t('The monthly report, exercise time, the strength levels list and the calendar.')],
+  // Upstream's words name Apple Health, badges and Home cards the Android fork does not draw (the sixth audit, 2026-11-22).
+  health: [t('Health'), t('Health Connect and a heart-rate strap.')],
+  motivation: [t('Motivation'), t('The week streak, record marks and sharing as a picture.')],
 })
 
 /** Upstream's setModule for its own modules, and the same write for the fork's. */

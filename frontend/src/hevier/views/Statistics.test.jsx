@@ -172,9 +172,10 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(list.querySelectorAll('button')).toHaveLength(0)
     act(() => list.click())
     expect(useUI.getState().sheets).toHaveLength(2)
-    // Each row says what is there, with its day (the critique, 2026-11-21); no photos, no line.
-    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub')).toBeNull()
-    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub')).toBeNull()
+    // Each row says what is there, with its day (the critique, 2026-11-21).
+    // Empty, each row says so (the seventh critique, 2026-11-22).
+    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub').textContent).toBe('None yet')
+    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub').textContent).toBe('None yet')
     act(() => byText('.hv-linkrow', 'Body measurements').click())
     expect(path).toBe('/measurements')
   })

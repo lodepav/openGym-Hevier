@@ -110,7 +110,12 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
   it('with nothing found, Create “…” opens the new exercise named as typed', () => {
     open(vi.fn())
     expect(container.querySelector('.hv-pk-create')).toBeNull()
+    const said = () => container.querySelector('.hv-sr[role="status"]').textContent
+    expect(said()).toBe('')
+    search('bench press')
+    expect(said()).toMatch(/^\d+ exercises$/)   // the count is said, not only drawn (the sixth audit, 2026-11-21)
     search('Qqzxj curl')
+    expect(said()).toBe('No exercises found')
     const create = container.querySelector('.hv-pk-create')
     expect(create.textContent).toBe('Create “Qqzxj curl”')
     const before = useUI.getState().sheets.length
@@ -233,6 +238,16 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
       expect(S.active.entries[1].rid).toBe('r1')
       expect(S.routines).toEqual(before)
       expect(useUI.getState().sheets).toHaveLength(0)
+    })
+
+    // The seventh critique, 2026-11-22: as Lifts and the exercise's page write it.
+    it('a last set without weight reads "8 reps", not "× 8"', () => {
+      live()
+      useStore.getState().update(s => { s.workouts[2].entries[0].sets[0].w = 0 })
+      swapActiveWorkoutExercise(1)
+      render()
+      const fly = [...container.querySelectorAll('section[aria-label="You have done these"] .hv-pk-row')].find(r => r.querySelector('.tt').textContent === FLY.n)
+      expect(fly.querySelector('.ss').textContent).toMatch(/^once · .+ · 8 reps$/)
     })
 
     it('Add is the same sheet without your swaps, still picking several', () => {

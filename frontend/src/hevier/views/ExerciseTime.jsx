@@ -63,16 +63,18 @@ export default function ExerciseTime() {
     <div className="small dim">{t('Average time a session, from the times your sets were ticked: the rest before each set counts.')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {sections.map(sec => <section key={sec.key}>
-      {by && <h2 className="sec">{title(sec.key)} <span className="dim">· {secs(sec.total)} {t('total')}</span></h2>}
+      {by && <h2 className="sec">{title(sec.key)} {sec.total > 0 && <span className="dim">· {secs(sec.total)} {t('total')}</span>}</h2>}
       <div className="list hv-flat">{sec.rows.map(r => {
         const ex = exOr(r.id)
         const g = gaps.get(r.id)
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
           <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
-            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')} · {secs(r.total)} {t('total')}</span>
+            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')}{r.avg != null && <> · {secs(r.total)} {t('total')}</>}</span>
             {g && <span className="small dim">{g.rest > 0 ? t('Between sets {0} · rest set to {1}', clock(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', clock(g.gap))}</span>}
           </span>
-          <b><span className="hv-sr">{t('Average')}: </span>{secs(r.avg)}</b>
+          {/* One set a session is one gap, not a time (the sixth audit, 2026-11-22). */}
+          {r.avg == null ? <span className="small dim">{t('Too few sets')}</span>
+            : <b><span className="hv-sr">{t('Average')}: </span>{secs(r.avg)}</b>}
         </button>
       })}</div>
     </section>)}

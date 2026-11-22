@@ -16,7 +16,8 @@ const climbsRange = p => p === 'double' || p === 'triple'
 const warmupsOf = cfg => Math.max(0, Math.min(MAX_PLANNED_WARMUPS, Math.round(cfg.warmupSets) || 0))
 const stride = cfg => (isPerSide(cfg) ? 2 : 1)
 const even = (v, s) => Math.max(s, Math.ceil((Math.round(Number(v)) || 0) / s) * s)
-const round2 = v => Math.round(Math.max(0, Number(v) || 0) * 100) / 100
+// Four places, upstream's EXACT_STORE: a weight typed in an exercise's other unit comes back as typed (the sixth audit, 2026-11-22).
+const round4 = v => Math.round(Math.max(0, Number(v) || 0) * 10000) / 10000
 
 /** What kind of table an exercise gets: its mode, whether its reps are a range (double or triple
  *  progression), whether it is a pyramid. `routine` decides the inherited progression. */
@@ -96,8 +97,9 @@ const withSets = (cfg, sets) => {
 export function setWorkField(cfg, routine, k, f, v) {
   const shape = tableShape(cfg, routine)
   if (f === 'w') {
-    const w = round2(v)
+    const w = round4(v)
     if (shape.pyramid) {
+      // shortcut: upstream's normalizePyramidWeight keeps two places, so a pyramid typed in its other unit can read 0.01 off; widen it if that is seen.
       const { list, weights, rest } = listsOf(cfg)
       weights[k] = w
       return withPyramid(cfg, list, weights, rest)

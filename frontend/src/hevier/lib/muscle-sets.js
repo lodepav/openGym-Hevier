@@ -50,6 +50,11 @@ export function muscleSetCounts(workouts, kind, { today, weekStart, mode = 'main
   return { ...now, rows }
 }
 
+/** The period Sets per muscle opens on: the shortest with a set in it, so a week without training
+ *  opens on the month, not on bars of nothing (the sixth audit, 2026-11-22); the week with none at all. */
+export const openPeriod = (workouts, opts) =>
+  PERIODS.find(k => muscleSetCounts(workouts, k, opts).rows.some(r => r.sets > 0)) || 'week'
+
 /**
  * Whether Sets per muscle's and Muscle Split's names go above their bars: a list `width` px wide in
  * text `font` px high (the phone's text size zooms it, D122) holds name, bar and numbers on one line

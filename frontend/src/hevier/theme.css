@@ -182,13 +182,16 @@
    Profile put their title on the line below instead; pull it up into the bar. The title lets taps
    through to the back link it overlaps. Only a header that is a bare title moves (not one with a
    subtitle or its own buttons). */
-:root[data-ui="hevier"] .sp-nav + .sp-root-title{
-  margin:-54px 0 10px;min-height:44px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;font-weight:700;line-height:1.2;letter-spacing:0;pointer-events:none;
+/* Settings' bar stays at the top while its list scrolls, as PageBar does, on the PageBar's line and
+   ending in its hairline; its row is 44px under the status bar (the sixth audit, 2026-11-22). */
+:root[data-ui="hevier"] .narrow > .sp-nav{
+  position:sticky;top:0;z-index:20;min-height:calc(var(--sat) + var(--conn) + 52px + var(--hair));
+  margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 12px;
+  padding:calc(var(--sat) + var(--conn) + 4px) calc(var(--pad) - 8px) 4px;
+  background:var(--bg);border-bottom:var(--hair) solid var(--sep);
 }
-/* The Settings root's bar sits on the PageBar's line and ends in its hairline. */
-:root[data-ui="hevier"] .sp-nav:has(+ .sp-root-title){margin-top:-8px}
-:root[data-ui="hevier"] .sp-nav + .sp-root-title{margin-inline:calc(-1 * var(--pad));margin-bottom:12px;border-bottom:var(--hair) solid var(--sep)}
+/* The root's title is in the bar (SettingsRootHevy's back hook): a sticky h1 of its own drew blurred (the seventh critique, 2026-11-22). */
+:root[data-ui="hevier"] .sp-nav + .sp-root-title{display:none}
 :root[data-ui="hevier"] .hv-back{min-height:44px;padding:0;font-size:17px}
 :root[data-ui="hevier"] .hv-back .icn{font-size:22px;--icon-stroke:2.2}
 /* Hevy's ‹ is a bare white chevron, never "‹ Profile": the word stays for screen readers only */

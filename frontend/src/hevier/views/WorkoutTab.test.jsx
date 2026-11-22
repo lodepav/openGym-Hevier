@@ -81,6 +81,15 @@ describe('hevier: routine folders and reordering', () => {
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
   })
 
+  it('a folder’s only routine has no handle but keeps its room, lined up with the others (the sixth audit, 2026-11-22)', () => {
+    render([R('p1', 'Push'), R('a'), R('p2', 'Push')])
+    const rows = [...container.querySelectorAll('.hv-rrow')]
+    const solo = rows.find(r => r.querySelector('.hv-grip-gap'))
+    expect(solo.querySelector('.hv-grip')).toBeNull()
+    expect(solo.querySelector('.hv-grip-gap').getAttribute('aria-hidden')).toBe('true')
+    expect(rows.filter(r => r.querySelector('.hv-grip'))).toHaveLength(2)
+  })
+
   it('a routine’s handle reorders it inside its folder', () => {
     render([R('p1', 'Push'), R('a'), R('p2', 'Push')])
     const pushGrips = container.querySelectorAll('.hv-folders .hv-rrow .hv-grip')
@@ -119,17 +128,25 @@ describe('hevier: routine folders and reordering', () => {
       el.dispatchEvent(new Event('input', { bubbles: true }))
     })
     const names = () => [...container.querySelectorAll('.hv-rname-n')].map(x => x.textContent)
+    const said = () => container.querySelector('.hv-sr[role="status"]').textContent
+    expect(said()).toBe('')
     type('squ')
     expect(names()).toEqual(['Squat day'])
+    expect(said()).toBe('1 routine')   // the sixth audit, 2026-11-21
     expect(heads()).toEqual([])
     expect(container.querySelector('.hv-grip')).toBeFalsy()
+    expect(container.querySelector('.hv-grip-gap')).toBeFalsy()   // a search hit is in no folder
     // The second audit, 2026-11-21: a move inside a folder the search hides would show nothing.
     act(() => container.querySelector('.hv-rrow [aria-label^="More"]').click())
     expect([...sheet().querySelectorAll('.menu-item')].map(m => m.textContent)).not.toContain('Move up')
     type('zzz')
     expect(names()).toEqual([])
     expect(container.textContent).toContain('No routine matches')
+    expect(said()).toBe('No routine matches.')
+    type('a')
+    expect(said()).toBe('2 routines')
     type('')
+    expect(said()).toBe('')
     expect(heads().length).toBe(2)
   })
 
@@ -147,6 +164,16 @@ describe('hevier: routine folders and reordering', () => {
     act(() => item(menu, 'Delete Folder').click())
     expect(useStore.getState().S.routines[0]).not.toHaveProperty('folder')
     expect(ids()).toEqual(['p1'])
+    expect(document.activeElement).toBe(container.querySelector('h1.hv-title'))   // not the body (the sixth audit, 2026-11-21)
+  })
+
+  it('deleting a routine from its ⋯ hands the focus to the page’s heading', () => {
+    render([R('a'), R('b')])
+    act(() => container.querySelector('.hv-rrow [aria-label="More, R a"]').click())
+    const menu = sheet()
+    act(() => item(menu, 'Delete routine').click())
+    expect(ids()).toEqual(['b'])
+    expect(document.activeElement).toBe(container.querySelector('h1.hv-title'))
   })
 
   it('deleting a folder offers an Undo that puts back its routines, its place and its fold', () => {

@@ -84,6 +84,24 @@ describe('hevier: routine editor (M3)', () => {
     expect(slot().sets).toBe(3)
   })
 
+  it('a lb exercise in a kg profile reads and types lb, stored in kg (the sixth audit, 2026-11-22)', () => {
+    render([{ id: EX, mode: 'reps', sets: 1, reps: 8, weight: 20.4117 }])
+    act(() => useStore.setState(st => ({ S: { ...st.S, exUnit: { [EX]: { unit: 'lb', _ts: 1 } } } })))
+    expect(container.querySelector('.hv-rt-head').textContent).toBe('SETLBREPS')
+    const w = container.querySelector('.hv-num')
+    expect(w.getAttribute('aria-label')).toBe('Set 1, Weight (lb)')
+    expect(w.value).toBe('45')
+    // Key by key: each step reads as typed, none snaps back through the kg it is stored as.
+    for (const typed of ['4', '47', '47.', '47.5']) {
+      typeInto(w, typed)
+      expect(container.querySelector('.hv-num').value).toBe(typed)
+    }
+    expect(slot().weight).toBe(21.5456)
+    // A kg weight reads to the routine page's places: 50 kg is 110.2 lb, not 110.23.
+    act(() => useStore.getState().update(s => { s.routines[0].ex[0].weight = 50 }))
+    expect(container.querySelector('.hv-num').value).toBe('110.2')
+  })
+
   it('+ Warm-up adds a warm-up beside + Set; each set row has a remove mark (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
     act(() => container.querySelector('.hv-addrow .hv-addwarm').click())
@@ -111,7 +129,7 @@ describe('hevier: routine editor (M3)', () => {
   it('the brand sits on the name line: + Brand adds one at the active gym, a tap on it changes it (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
     act(() => useStore.getState().update(s => { s.equipProfiles = [{ id: 'g1', name: 'City Gym', items: [] }]; s.activeEquipId = 'g1' }))
-    act(() => container.querySelector('.hv-nameline .hv-addbrand').click())
+    act(() => container.querySelector('.hv-nameline .hv-brand:not(.has)').click())
     const host = sheet()
     expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')
     typeInto(host.querySelector('input'), 'Rogue')
@@ -290,6 +308,16 @@ describe('hevier: routine editor (M3)', () => {
     expect(useUI.getState().toastMsg).toBe('“Leg Day” gone.')
     act(() => useUI.getState().runToastAction())
     expect(useStore.getState().S.routines.map(r => r.name)).toEqual(['Leg Day'])
+  })
+
+  it('a routine deleted elsewhere while the editor is open leaves the page without a crash', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // A sync (or another tab) takes the routine out: the editor redraws once before it navigates.
+    act(() => useStore.getState().update(s => { s.routines = [] }))
+    expect(errors).not.toHaveBeenCalled()
+    errors.mockRestore()
+    expect(path).toBe('/routines')
   })
 
   it('the warning sign of an exercise the gym lacks says why on a tap', () => {
