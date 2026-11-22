@@ -88,7 +88,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // A gym, or a kind or a whole group of kinds (D63).
   const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
-  const base = useMemo(() => filterPicker(all, { muscle, avail }).filter(e => e.id !== like), [all, muscle, eq, profile, like]) // eslint-disable-line react-hooks/exhaustive-deps
+  const base = useMemo(() => filterPicker(all, { muscle, avail }).filter(e => e.id !== like), [all, muscle, eq, profile, like, st.hvMainMuscle]) // eslint-disable-line react-hooks/exhaustive-deps
   // D129: from the log, while nothing is typed; kept to what the filters keep.
   const rid = swap ? (st.active?.entries || []).find(e => e?.id === like)?.rid : null
   const hereGym = eq === GYM ? gymId : null
@@ -103,13 +103,12 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const hereRows = histRows(hist?.here || []).filter(r => !swapRows.some(x => x.id === r.id)).slice(0, swap ? undefined : RECENT)
   // D67: what the gym hid from the search, counted, and listed on a tap.
   const hidden = useMemo(() => (eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []),
-    [all, muscle, eq, profile, like, q]) // eslint-disable-line react-hooks/exhaustive-deps
-  const found = useMemo(() => searchExercises(base, q), [base, q])
+    [all, muscle, eq, profile, like, q, st.hvMainMuscle, st.exAliases, st.exShownName]) // eslint-disable-line react-hooks/exhaustive-deps
+  const found = useMemo(() => searchExercises(base, q), [base, q, st.exAliases, st.exShownName]) // eslint-disable-line react-hooks/exhaustive-deps
   // Both scan every workout: once per change of what they read, not per redraw (the audit leftovers).
   const usage = useMemo(() => usageOf({ routines: st.routines, workouts: st.workouts }), [st.routines, st.workouts])
   const brands = useMemo(() => brandsByExercise({ hvMachines: st.hvMachines, workouts: st.workouts }), [st.hvMachines, st.workouts])
-  let list = found
-  list = q.trim() ? sortYoursFirst(list, st, usage) : sortFavouritesFirst(list, st)
+  let list = q.trim() ? sortYoursFirst(found, st, usage) : sortFavouritesFirst(found, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
   const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brands, q, searchExercises) : []
   const brandOf = new Map(byBrand.map(m => [m.ex.id, m.brand]))

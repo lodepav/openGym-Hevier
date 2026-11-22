@@ -44,6 +44,13 @@ describe('Statistics tile numbers (D142)', () => {
     expect(thisWeek(log, TODAY, 1)).toEqual({ sets: 2, ms: 3600000 })
   })
 
+  it('a past day counts its week only up to that day, for the same days last week', () => {
+    const log = [plain('2026-11-09', [{ w: 60, r: 8, done: true }]), plain('2026-11-13', [{ w: 60, r: 8, done: true }]),
+      timed('2026-11-10', 10, 10), timed('2026-11-14', 30, 30)]
+    expect(thisWeek(log, '2026-11-11', 1).sets).toBe(5)
+    expect(weekExerciseTime(log, '2026-11-11', 1)).toBe(20 * MIN)
+  })
+
   it('workouts this month', () => {
     expect(workoutsThisMonth([plain('2026-11-01', []), plain('2026-11-18', []), plain('2026-10-31', [])], TODAY)).toBe(2)
   })

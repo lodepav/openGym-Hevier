@@ -33,7 +33,7 @@ export function pages(files) {
   return [...by].map(([slug, runs]) => {
     runs.sort((a, b) => a.at < b.at ? -1 : 1)
     const [a, b] = runs.slice(-2), scores = runs.map(r => r.score)
-    const comparable = !a || (a.fresh && b.fresh && a.max === b.max)
+    const comparable = !b || (a.fresh && b.fresh && a.max === b.max)
     return { slug, scores, comparable, verdict: verdict(scores, comparable) }
   })
 }

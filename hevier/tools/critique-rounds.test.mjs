@@ -23,4 +23,5 @@ test('two rounds compare only with fresh critics on both and the same maximum', 
   assert.equal(one(['1', 32, 40, false], ['2', 28, 40, true]).verdict, 'go')
   assert.equal(one(['1', 30, 36, true], ['2', 29, 40, true]).verdict, 'go')
   assert.equal(one(['1', 28, 40, true], ['2', 28.2, 40, true]).verdict, 'flat')
+  assert.equal(one(['1', 30, 40, true]).verdict, 'go')
 })
