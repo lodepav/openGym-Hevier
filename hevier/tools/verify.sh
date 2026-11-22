@@ -49,6 +49,7 @@ diff <(hevier/tools/decision-index.sh) hevier/DECISIONS-INDEX.md || {
   echo "verify: run hevier/tools/decision-index.sh > hevier/DECISIONS-INDEX.md" >&2
   exit 1
 }
+node hevier/tools/features-check.mjs
 node --test hevier/tools/*.test.mjs >/dev/null
 
 # What changed since the last pass, working tree included; without one, the last commit (a

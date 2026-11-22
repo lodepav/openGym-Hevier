@@ -34,7 +34,6 @@ file's setup (the 1.1 MB catalogue, happy-dom), not its tests. With the emulator
 ## Every commit
 
 ```bash
-export PATH="$HOME/.local/opt/node/bin:$PATH"
 FAST='--config src/hevier/build/vitest-fast.config.js --maxWorkers=4'
 cd frontend
 npx vitest run $FAST src/hevier src/lib/i18n-plural.test.js   # fork tests and the plural keys, ~25 s
