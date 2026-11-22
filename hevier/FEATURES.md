@@ -123,6 +123,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | How long each exercise took, from the set ticks: on Workout Detail, and an Exercise time page sorted by time, by muscle or by gym | D88 | Offered (#812, released in v1.4.4: the Workout Detail line and a Stats card, no gym or muscle grouping) |
 | Share a workout as Hevy's cards (Summary, Exercises, Muscles, Records), on black or over your photo, to the gallery or the share sheet; the monthly report too (Summary, Calendar, Muscles, Records, Top exercises) | D87 | Fork |
 | No target ranges for weekly sets: upstream's Ranges row hidden, its Muscles card without the range band | D139 | Fork |
+| Weekly sets per muscle against a target range, counted the fork's way | D99 | Removed (D139) |
 | A workout against the last time the routine was done; a routine's usual length; left against right; time between sets | D119 | Fork |
 | Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374) |
 | The phone's font size zooms all text again, the fork's screens included, as before 1.4.5 | D122 | Fork |
@@ -204,3 +205,6 @@ These work through upstream's own features and are listed only because a fork us
 
 - **Backup to Google Drive** (D20): upstream's auto-backup folder, mirrored by a sync app.
 - **Keep the screen on** (D25): upstream's Keep screen awake switch.
+- **Rest before the next exercise, text size and WebDAV backups** (D111): upstream's settings, taken as they are.
+
+Decisions without a row: D105 (1.4.5's set fields, agreed and not built yet), D113 (the routine page and effort column stay as they are), D125 (the rework's north star). `tools/features-check.mjs` fails on a decision named nowhere in this file.
