@@ -30,6 +30,8 @@ import { folderOf } from '../lib/routine-folders.js'
 import { nextPlanned } from '../lib/next-planned.js'
 import { nextSession, planFields, lastText } from '../lib/next-plan.js'
 import { setText } from '../lib/set-text.js'
+import { isHoldRow } from '../lib/hold-set.js'
+import { workNumberOf } from '../lib/routine-holds.js'
 import { gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
 import { startGym } from '../lib/routine-brand.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
@@ -69,9 +71,13 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
       return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show, unit }), next: <span className="hv-np-ro">{setText(x.id, mapSetWeights(s, show), cfg, speedUnit, unit)}</span> }
     })
   }
-  // W and F said as words, as Workout detail does (the fresh audit, 2026-11-21).
+  // W and F said as words, as Workout detail does (the fresh audit, 2026-11-21). A timed hold,
+  // planned or carried over from last time, reads H and the other sets count on (D5, D146).
+  const held = set => set.kind === 'work' && isHoldRow(set.rows[0])
   const mark = set => (set.kind === 'warm' ? <span className="hv-w" role="img" aria-label={t('Warm-up')}>W</span>
-    : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span> : set.n + 1)
+    : held(set) ? <span className="hv-h" role="img" aria-label={t('Hold')}>{t('H')}</span>
+    : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span>
+    : workNumberOf(x.sets, set))
   const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>

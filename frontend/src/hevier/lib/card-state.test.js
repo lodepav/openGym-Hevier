@@ -83,6 +83,11 @@ describe('the routine editor cards a change redraws (sameForRoutineCard)', () =>
     expect(sameForRoutineCard(a, b, 'r', 0, [0, 1])).toBe(false)
     expect(sameForRoutineCard(a, b, 'r', 2)).toBe(false)   // its link button reads the one before
   })
+  it('a planned timed hold redraws its card (D146)', () => {
+    const a = S(), b = S(); b.routines[0].ex[1].hvHolds = { 1: 40 }
+    expect(sameForRoutineCard(a, b, 'r', 1)).toBe(false)
+    expect(sameForRoutineCard(a, b, 'r', 0)).toBe(true)
+  })
   it('a superset made anywhere redraws every card: the move menu reads the layout', () => {
     const a = S(), b = S(); b.routines[0].ex[1].sg = 'g'; b.routines[0].ex[2].sg = 'g'
     expect(sameForRoutineCard(a, b, 'r', 0)).toBe(false)

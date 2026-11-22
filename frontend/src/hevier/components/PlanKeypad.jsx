@@ -10,12 +10,14 @@ import { shownWeight, storedWeight, exUnitOf } from '../../lib/ex-unit.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import Icon from '../../components/Icon.jsx'
 import { nextSession, planFields, setPlanned, stepped, weightStep, lastText } from '../lib/next-plan.js'
+import { workNumberOf } from '../lib/routine-holds.js'
 
 const MAX_LEN = 6
 
 /** Field `f` (planFields') in words: "Bench Press, set 2, left, weight". */
+// A set is named by the number the page shows, holds read H (D146).
 export function fieldWords(f) {
-  return [exerciseNameFor(exOr(f.x.id)), f.set.kind === 'warm' ? t('Warm-up {0}', f.set.n + 1) : t('Set {0}', f.set.n + 1),
+  return [exerciseNameFor(exOr(f.x.id)), f.set.kind === 'warm' ? t('Warm-up {0}', f.set.n + 1) : t('Set {0}', workNumberOf(f.x.sets, f.set)),
     f.side && (f.side === 'L' ? t('Left') : t('Right')), f.field === 'w' ? t('Weight') : t('Reps')].filter(Boolean).join(', ')
 }
 

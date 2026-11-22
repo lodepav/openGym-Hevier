@@ -10,6 +10,7 @@ import { startLabelKey } from './gym-labels.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { dbLoadFor, historyAs } from '../../lib/dumbbells.js'
 import { isHoldRow, toHold, toReps, toSideHold, isPairHead, isPairTail } from './hold-set.js'
+import { openHold } from './routine-holds.js'
 
 /** Whether a routine keeps upstream's progression and warm-up ramp. Off unless switched on. */
 export const progressionOn = routine => routine?.hvProg === true
@@ -72,18 +73,21 @@ export function plainRows(H, S, cfg, routine, rows) {
   // D82: last time on the machine the session starts with (its brand, its cable setup).
   const prev = previousSetsFor(H, { id: cfg.id, rid: routine?.id, sets: rows }, previousMode(S), { label: startLabelKey(S, cfg.id) })
   const mode = modeOf(cfg)
+  let k = -1
   return rows.flatMap((row, i) => {
     const p = prev[i]
-    if (!p || row.done) return [row]
+    const work = !isWarmupRow(row)
+    if (work) k++
     // A warm-up keeps its own phase mark, and a work set never takes a warm-up's numbers.
-    if (isWarmupRow(row) !== isWarmupRow(p)) return [row]
-    return fill(row, p, mode)
+    const out = !p || row.done || isWarmupRow(row) !== isWarmupRow(p) ? row : fill(row, p, mode)
+    // The routine's planned hold on this set wins over last time's kind (D146).
+    return work ? openHold(cfg, k, row, out) : [out].flat()
   })
 }
 
 // The numbers a row is filled with, for refillRows: what plainRows and upstream's build write.
 // `mode` too: a hold from last time (D89) is no hold on a label whose last time was reps.
-const NUMS = ['w', 'r', 'sec', 'min', 'speed', 'incline', 'sides', 'mode', 'weightOrigin', 'hvLast']
+const NUMS = ['w', 'r', 'sec', 'min', 'speed', 'incline', 'sides', 'mode', 'weightOrigin', 'hvLast', 'hvHeld']
 const VALS = ['w', 'r', 'sec', 'min', 'speed', 'incline']
 const sameVals = (a, b) => VALS.every(k => (a?.[k] ?? null) === (b?.[k] ?? null))
 const sameRow = (a, b) => sameVals(a, b) && ['L', 'R'].every(k => sameVals(a?.sides?.[k], b?.sides?.[k]))
@@ -112,9 +116,10 @@ export function refillRows(H, S, e, routine, label, was) {
   // build is its set number. A pair keeps what it has: it was made a hold in the session, or
   // opened as one from last time.
   const rows = e.sets || []
-  let unit = -1
+  let unit = -1, k = -1
   return rows.flatMap((row, i) => {
     if (!isPairTail(rows, i)) unit++
+    if (!isPairTail(rows, i) && !isWarmupRow(row)) k++
     if (isPairHead(rows, i) || isPairTail(rows, i)) return [row]
     const b = base[unit]
     // A per-side set with one side ticked is not done, but its ticked side is logged work.
@@ -124,8 +129,10 @@ export function refillRows(H, S, e, routine, label, was) {
       if (b[k] !== undefined) start[k] = b[k]
       else delete start[k]
     }
-    const before = filled(start, old[i])
-    if (!sameRow(row, start) && (Array.isArray(before) || !sameRow(row, before))) return [row]
-    return [filled(start, prev[i])].flat()
+    // The routine's planned hold on this set (D146), as the start lays it.
+    const lay = out => (isWarmupRow(start) ? [out].flat() : openHold(cfg, k, start, out))
+    const before = lay(filled(start, old[i]))
+    if (!sameRow(row, start) && (before.length > 1 || !sameRow(row, before[0]))) return [row]
+    return lay(filled(start, prev[i]))
   })
 }

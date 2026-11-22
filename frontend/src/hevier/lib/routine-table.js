@@ -11,6 +11,7 @@ import {
 import { isBackoff, backoffAt, backoffStepOf } from '../../lib/backoff.js'
 import { normalizeRepRange } from '../../lib/rep-range.js'
 import { policyFor } from '../../lib/progression.js'
+import { shiftHolds, pruneHolds } from './routine-holds.js'
 
 const climbsRange = p => p === 'double' || p === 'triple'
 const warmupsOf = cfg => Math.max(0, Math.min(MAX_PLANNED_WARMUPS, Math.round(cfg.warmupSets) || 0))
@@ -89,7 +90,7 @@ const listsOf = cfg => {
 const withSets = (cfg, sets) => {
   const next = { ...cfg, sets }
   if (next.setsMax != null && !(next.setsMax > sets)) delete next.setsMax
-  return next
+  return next.hvHolds ? pruneHolds(next) : next
 }
 
 /** A typed value in work row `k`. `f` is w, r, sec, min or speed. A flat plan has one value per
@@ -152,7 +153,8 @@ export function removeRow(cfg, row) {
     list.splice(row.k, 1); weights.splice(row.k, 1); rest.splice(row.k, 1)
     return withPyramid(cfg, list, weights, rest)
   }
-  return withSets(cfg, count - 1)
+  // A planned hold stays on its set (D146).
+  return withSets(shiftHolds(cfg, row.k), count - 1)
 }
 
 /** Whether row `row` may become a warm-up: the plan keeps a work set, and stays under the cap. */

@@ -1,11 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeAll, afterAll } from 'vitest'
 import { EXDB } from '../../lib/exercises.js'
 import { buildCombinedEntries } from '../../lib/session-merge.js'
 import { swapActiveExercise } from '../../lib/active-exercise-swap.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { routineUpdates, applyRoutineUpdates, summaryParts, setDelta } from './routine-update.js'
 import { makeSideSet } from '../../lib/workout-model.js'
-import { toSideHold } from './hold-set.js'
+import { toSideHold, toHold, toReps } from './hold-set.js'
+import { hooks } from '../hooks.js'
+import { isPlain, plainRows } from './plain-routine.js'
 
 const id = re => EXDB.find(e => re.test(e.n)).id
 const SQUAT = id(/^barbell full squat$/i)
@@ -265,6 +267,53 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     const A = start(S)
     A.entries.splice(2, 1)
     A.editingWorkoutId = 'w1'
+    expect(routineUpdates(S, A)).toEqual([])
+  })
+})
+
+describe('hevier: D35 carries the planned timed holds (D146)', () => {
+  beforeAll(() => { hooks.plainRoutine = { is: isPlain, rows: plainRows } })
+  afterAll(() => { hooks.plainRoutine = null })
+  const planned = () => { const r = routine(); r.ex[1] = { ...r.ex[1], hvHolds: { 2: 40 } }; return r }
+
+  it('a planned hold opens as one and, held longer, is no change', () => {
+    const S = state(planned())
+    const A = start(S)
+    expect(A.entries[1].sets[2]).toMatchObject({ mode: 'time', sec: 40, hvHeld: 3 })
+    A.entries.forEach(tick)
+    A.entries[1].sets[2].sec = 55
+    expect(routineUpdates(S, A)).toEqual([])
+  })
+
+  it('a set made a hold in the workout is planned; a planned one turned back goes', () => {
+    const S = state()
+    const A = start(S)
+    A.entries.forEach(tick)
+    A.entries[2].sets[0] = toHold(A.entries[2].sets[0], 30)
+    const u = one(S, A)
+    expect(u.ex[2].hvHolds).toEqual({ 0: 30 })
+    expect(u.summary.changed).toBe(1)
+    const P = state(planned())
+    const B = start(P)
+    B.entries.forEach(tick)
+    B.entries[1].sets[2] = toReps(B.entries[1].sets[2], 8)
+    expect(one(P, B).ex[1].hvHolds).toBeUndefined()
+  })
+
+  it('a set taken out above a planned hold moves the hold up with its set', () => {
+    const S = state(planned())
+    const A = start(S)
+    A.entries.forEach(tick)
+    A.entries[1].sets.splice(0, 1)
+    const u = one(S, A)
+    expect(u.ex[1]).toMatchObject({ sets: 2, hvHolds: { 1: 40 } })
+  })
+
+  it('with progression on, holds are left alone', () => {
+    const S = state({ ...routine(), hvProg: true })
+    const A = start(S)
+    A.entries.forEach(tick)
+    A.entries[2].sets[0] = toHold(A.entries[2].sets[0], 30)
     expect(routineUpdates(S, A)).toEqual([])
   })
 })

@@ -23,6 +23,7 @@ const AT = {
   entry: { of: s => s.workouts[0].entries[0], other: s => { s.workouts[0].name = 'Leg day' } },
   set: { of: s => s.workouts[0].entries[0].sets[0], other: s => { s.workouts[0].name = 'Leg day' } },
   routine: { of: s => s.routines[0], other: s => { s.routines[0].name = 'Legs A' } },
+  rex: { of: s => s.routines[0].ex[0], other: s => { s.routines[0].name = 'Legs A' } },
 }
 // A save as the store makes it: a changed workout stamped by its editor (stampWorkout), the rest
 // by the store's stampChange.

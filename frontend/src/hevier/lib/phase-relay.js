@@ -25,7 +25,7 @@ export function movedTo(rows, i) {
 }
 
 // The numbers a suggestion is: what plainRows and upstream's build write on a row, a hold's (D89) too.
-const KEYS = ['w', 'r', 'weightOrigin', 'hvLast', 'mode', 'sec']
+const KEYS = ['w', 'r', 'weightOrigin', 'hvLast', 'mode', 'sec', 'hvHeld']
 function take(row, from) {
   const out = { ...row }
   for (const k of KEYS) {

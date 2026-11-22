@@ -5,7 +5,8 @@
 // Device-only localStorage keys are left out. NOT_STORED and LEGACY below name the other hv
 // fields fork code uses that are not stored state.
 
-/** `at`: 'S' (top level), 'gym' (an S.equipProfiles item), 'workout', 'entry', 'set', 'routine'. */
+/** `at`: 'S' (top level), 'gym' (an S.equipProfiles item), 'workout', 'entry', 'set', 'routine',
+ *  'rex' (a routine's exercise). */
 export const STORED_FIELDS = [
   { field: 'hvCables', at: 'S', sample: { '8878': { g1: '2:1' } } },
   { field: 'hvFolders', at: 'S', sample: ['Push'] },
@@ -45,8 +46,10 @@ export const STORED_FIELDS = [
   { field: 'hvRun', at: 'set', sample: 1760716800000 },
   { field: 'hvGoal', at: 'set', sample: 60 },
   { field: 'hvFrom', at: 'set', sample: 300 },
+  { field: 'hvHeld', at: 'set', sample: 2 },
   { field: 'hvProg', at: 'routine', sample: true },
   { field: 'hvHevyFolder', at: 'routine', sample: 'PPL' },
+  { field: 'hvHolds', at: 'rex', sample: { '1': 40, '2': 0 } },
 ]
 
 /**

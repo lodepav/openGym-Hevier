@@ -51,6 +51,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Per-side exercises can be done right side first, remembered per exercise | D72 | Offered (#1085) |
 | Add Exercise asks where: Insert after the current exercise, or Add to end | D78 | Fork |
 | A timed hold as a set type of a reps exercise (a per-side set too, a hold on each side), shown as a time in history; a big countdown clock for every hold | D89 | Offered (#1093, issue: the hold set) |
+| A routine plans a timed hold on one set: Timed hold in the editor's set type sheet, H and its time in the editor and on the routine page, Update routine carries a hold made or undone in the workout | D146 | Fork |
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, released in v1.4.4 on 2026-11-03: the weight and rep checks, too high and too low; the cardio timer is the fork’s, as upstream has no count-up timer to forget, D53) |
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
 | A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offered (#1079, issue; PR #1213) |
