@@ -224,7 +224,8 @@ written in `frontend/src/hevier/lib/set-text.js`, the boot screen and the font i
 `frontend/src/hevier/build/boot-look.js`. Where this file and a decision in `hevier/DECISIONS.md`
 differ, the decision wins (D123 for the look and the accent, D17 for the dark-only black page, D83
 for the boot screen, D49 for the page bar, D126 for the tabs, D127 for the live workout, D132 for
-Finish, D134 for Today, D135 for History and Lifts, D140 for Lifts' progress, D142 for Statistics).
+Finish, D134 for Today, D135 for History and Lifts, D140 for Lifts' progress, D142 for Statistics, D148
+and D149 for the large-text layouts).
 
 The accent is the user's pick. Every value this file gives as `accent-green` is the default; the
 page reads it from upstream's `--acc`, `--acc-2` and `--on-acc`, which follow the pick.
@@ -258,6 +259,8 @@ no hero numbers for show. Control sizes are Hevy's; D123 changed the skin, not t
 - Warm greys and warm white text, never cool blue-greys.
 - Tabular numbers everywhere, so a column of sets lines up, and one way of writing a set.
 - One page bar on every screen: a bare chevron, a small centred title, plain actions.
+- Large text wraps, it does not cut: from 1.5 times the system text size, rows stack their parts
+  so every word stays whole.
 
 ## Colors
 
@@ -270,6 +273,10 @@ The other hues are meanings, each with one job.
   chart bars, a done set's tick and band, the opened set's edge and ring, the running rest clock
   and its bar, a trained day, "better than last time". On it the ink is black (`on-accent`) for
   every offered accent.
+- **Accent as text** (`--hv-acc-ink`): the accent where it is words (links, an exercise's name,
+  the workout's running time, an accent stat). It is the pick itself when that reads at 4.5:1 on
+  control grey, else the same hue lifted just enough (`lib/accent-ink.js`); fills, ticks and bars
+  keep the pick.
 - **Accent, pressed** (`accent-green-pressed`): the accent mixed 25% toward black, computed by
   upstream's `customAccentVars` for any pick.
 - **The other offered accents**, in the picker's order after green: Hevy's blue (`hevy-blue`),
@@ -285,7 +292,9 @@ Warm-up, failure, drop set, superset, cardio and deload never share a colour: ea
 when free, else its backup, else teal, pink or lime (the extra accents' colours), else the text
 colour. Record and note always wear the warm-up's colour.
 They are set on the root as `--hv-cardio`, `--hv-warmup`, `--hv-fail`, `--hv-drop`,
-`--hv-superset`, `--hv-deload`, `--hv-record` and `--hv-note`.
+`--hv-superset`, `--hv-deload`, `--hv-record` and `--hv-note`. Text on a meaning colour's fill (the
+superset pill, a cardio or deload day, a swipe's red Delete) is black (`--hv-on-meaning`), which
+reads better than white on each of them.
 - **Warm-up Yellow** (`warmup-yellow`): the W of a warm-up set, a record's trophy and number, a
   note's mark. Next in line: teal (under an orange accent).
 - **Failure Red** (`failure-red`): the F of a failure set, "less than last time" and a falling
@@ -357,10 +366,10 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
 - **Value, opened** (700, 26px, tabular): the opened set's weight and reps; 20px on a phone 400px
   wide or narrower, and for a time.
 - **Headline** (700, 22px, 1.2): a routine's name on its page and in its editor, a saved
-  workout's title, the next set on the docked rest and Today's next session (800). Upstream's page titles are brought down
-  to this size.
+  workout's title, the next set on the docked rest, Today's next session and the latest weight on
+  Measures (800, tabular). Upstream's page titles are brought down to this size.
 - **Title** (700, 17px, 1.2): the page bar's title, an exercise's name, a card's title, a
-  sheet's title (centred).
+  sheet's title (centred), the exercise picker's title among them.
 - **Body** (500, 15px, 1.29): rows, list lines, buttons (700). 14px for notes and secondary lines,
   13px for captions. Upstream's own rows keep its 17px.
 - **Stat** (800, 16px, tabular): a workout's Duration, Volume and Sets under its header. Stat
@@ -371,7 +380,8 @@ labels and buttons 700, big numbers 800. Grey steps a line back. Numbers are tab
   title (h3 under a page's own h2), flush with the content's edge; also the small line over
   Today's cards and a routine preview's Next line.
 - **Label** (700, 11px, tracking 0.04em, caps): the set table's column heads (SET, PREVIOUS, KG,
-  REPS) and the small caps over a saved workout's parts (12px there).
+  REPS) and the small caps over a saved workout's parts (12px there). With large text the set
+  table's heads shrink to 8px so each fits its column.
 
 ### Named Rules
 **The No Large Title Rule.** A page names itself in the 17px bar. Nothing on a page is set above
@@ -398,7 +408,8 @@ Three tabs, by what is opened most (D126). **Today** (D134) fits on one screen: 
 next session (when and where, its name, its exercises with the sets it opens with, then a
 full-width Start), the week as seven filled days in one row, one grey line for the round and the
 streak, the links Routines, Calendar and Empty workout as three pills, and the last workout as a
-small card. **Lifts** is a flat list of exercises, each row with its progress (D140). **History**
+small card. A missed day's name is struck through; on the week's last day the row rolls on one
+day so tomorrow shows. **Lifts** is a flat list of exercises, each row with its progress (D140). **History**
 (D135) has filled stat tiles, one row of link chips (Calendar, Monthly report, Statistics), then
 the finished workouts as cards. **Statistics** (D142) is the phase filter, filled tiles two to a
 row (an odd last tile keeps its half), then cards with a 13px heading and an accent "All" link,
@@ -421,9 +432,28 @@ the docked rest, the tab bar and a sheet's sticky footer pad the navigation bar'
 workout keeps room at its end (148px, 210px while the rest is docked) so the last set and the
 toast's Undo stay above them.
 
-Every hit target is 44px or more. Where the visible control is smaller (the tick, chips, the
-resume bar's buttons, 36px icon buttons) an invisible `::before` or `::after` extends it, so the
-layout stays as dense as Hevy's. With large text, rows of buttons wrap rather than cut their words.
+Every hit target reaches 48 dp, with 8 dp clear between two targets (hevier/ux/STANDARDS.md A1);
+the routine page's NEXT values and its exercise rows still reach 44px. Where the visible
+control is smaller (the tick, chips, the resume bar's buttons, 36px icon buttons) an invisible
+`::before` or `::after` extends it, so the layout stays as dense as Hevy's.
+
+### Large text
+The phone's font size zooms the WebView's text. From 1.5 times the default (`lib/large-text.js`,
+measured by `useLargeText`, which puts `hv-big` on the screen's root) a few layouts change, because
+at that size they no longer fit; below it nothing moves (D148, D149).
+- The page bar's title wraps at its spaces, balanced over its lines; a single word longer than
+  the line ends in an ellipsis rather than splitting.
+- The live workout's bar keeps the name (two lines at most) and Finish on its row; the time, the
+  strap and the clock go on a line under them. The gym and note do not open by themselves.
+- Today's week wraps to a second row, a day never wider than a quarter of the row; Routines puts
+  Start under the name with ⋯ beside it.
+- The picker's title and Create stack, and its two filters take a row each. Exercise details'
+  tiles go one to a row, the monthly report's stats two to a row.
+- In lists a row's side values (Lifts' last and best, Exercise time's average, the report's
+  counts) go on their own line under the name, so the name keeps the width.
+- Rows of buttons and chips wrap whole buttons rather than break a label ("+ Set" and
+  "+ Warm-up", a card's chips), and wrapped rows sit far enough apart that their reaches do not
+  touch.
 
 ## Elevation & Depth
 
@@ -435,9 +465,11 @@ the scrim. Inside a card, tone steps up from well grey to control grey.
 - **Card hairline** (`box-shadow: inset 0 0 0 1px var(--sep)`, the `--hv-card-line` token): the
   edge of every card, the toast and a row being dragged. Drawn inside, so no box grows.
 - **Sheet edge** (`box-shadow: inset 0 1px 0 var(--sep)`): a sheet's top over the black page.
-- **Inset rings** (`box-shadow: inset 0 0 0 2px var(--acc)`): today's date, the opened set's tick
-  or effort button, a focused field. 1.5px for the next day in Today's week and an equipment group
-  partly picked. A ring marks state; it never lifts.
+- **Inset rings** (`box-shadow: inset 0 0 0 2px var(--acc)`): today's date, in the calendar and
+  in Today's week, the opened set's tick or effort button, a focused field. 1.5px for the next day
+  in Today's week and an equipment group partly picked. A ring marks state; it never lifts. Today's
+  tile in the week also takes a tint (the accent at 22% over well grey), so it reads apart from the
+  next session's thinner ring when the two are different days.
 - **Opened-set edge** (`box-shadow: inset 4px 0 0 var(--acc)`): the accent bar down the left of
   the set to do now (D127).
 - **Sticky fade** (`box-shadow: 0 -8px 16px var(--bg-el)`): the picker's Add bar fading the list
@@ -518,13 +550,15 @@ the accent. A pressed row takes well grey.
 ### Navigation
 - **Page bar:** sticky, black, 44px under the status bar, ending in a hairline. A bare warm-white
   chevron on the left (none on a tab root), the title centred on the screen at 17px/700 whatever
-  the sides hold, plain icons or one text action on the right.
+  the sides hold, plain icons or one text action on the right. One line at normal sizes, cut with
+  an ellipsis; with large text it wraps (see Layout).
 - **Tab bar:** three tabs, Today, Lifts, History (D126). Opaque black with a hairline on top, no
   blur. Labels 700, grey at rest; the open tab is the accent, its icon on a soft pill (the accent
   at 20% over black).
 - **Workout in progress:** a slim bar riding on top of the tab bar: the title and running time,
   Resume in the accent, Discard in red.
-- **Sheets:** black, 32px top corners, a top hairline, a centred 17px/700 title. Rows are grouped
+- **Sheets:** black, 32px top corners, a top hairline, a centred 17px/700 title; an action that
+  belongs to the title (the picker's Create) sits at the end of that line. Rows are grouped
   into one 20px well-grey group with hairlines inset 48px past the leading glyph, each row at
   least 50px.
 - **In-page tabs:** plain words over a hairline; the open one is the accent with a 2px accent
@@ -592,7 +626,10 @@ draws in it.
   `--label`, `--label-2`, `--label-3`, `--sep`, `--r-sm`, `--r`, `--r-card`, `--r-xl`),
   scoped under `:root[data-ui="hevier"]`.
 - **Do** head a part of a page with a 13px grey section heading (h2, or h3 under an h2).
-- **Do** keep every target at 44px by extending it invisibly, not by making the control bigger.
+- **Do** give every target a 48 dp reach by extending it invisibly, not by making the control
+  bigger, and keep 8 dp between two reaches.
+- **Do** let a layout that no longer fits at large text wrap its parts under `hv-big`
+  (`useLargeText`), keeping every word whole; leave normal sizes as they are.
 - **Do** set every changing number in tabular figures.
 - **Do** keep the faint grey (`--label-3`) at 4.5:1 on the opened set's row.
 
@@ -613,3 +650,6 @@ draws in it.
 - **Don't** outline a card, a chip or a field with a CSS border; a card's edge is the inset
   hairline, a title field's the hairline under it.
 - **Don't** write a set as "80kg x 8" or "80×8", or repeat the unit under a KG or LB head.
+- **Don't** draw something that does nothing on a tap as a chip; a routine's muscles are plain
+  grey text.
+- **Don't** break a word across lines or cut a label at large text; wrap the row instead.

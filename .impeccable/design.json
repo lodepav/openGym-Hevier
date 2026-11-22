@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-17T20:01:27+00:00",
+  "generatedAt": "2026-11-22T19:10:37+00:00",
   "title": "Design System: Go Hevier",
   "extensions": {
     "colorMeta": {
@@ -265,7 +265,7 @@
       {
         "name": "inset-ring",
         "value": "inset 0 0 0 2px var(--acc)",
-        "purpose": "Today's date, the opened set's tick or effort button, a focused field; 1.5px for the next day in Today's week."
+        "purpose": "Today's date in the calendar and in Today's week, the opened set's tick or effort button, a focused field; 1.5px for the next day in Today's week and a partly picked equipment group. Today's week tile adds the accent at 22% over well grey."
       },
       {
         "name": "opened-set-edge",
@@ -308,6 +308,11 @@
       {
         "name": "smallest",
         "value": "360px"
+      },
+      {
+        "name": "large-text",
+        "value": "text zoom >= 1.5",
+        "purpose": "lib/large-text.js via useLargeText: the screen's root gets hv-big and its rows wrap instead of cutting (D148, D149)."
       }
     ]
   },
@@ -340,9 +345,9 @@
       "name": "Page Bar",
       "kind": "nav",
       "refersTo": "page-bar",
-      "description": "The one bar on every page: bare chevron, centred title, plain actions, a hairline.",
+      "description": "The one bar on every page: bare chevron, centred title, plain actions, a hairline. The title is one line, cut with an ellipsis; with large text (hv-pb-big) it wraps, balanced.",
       "html": "<div class=\"ds-pagebar\"><button class=\"ds-pagebar-back\" aria-label=\"Back\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 5l-7 7 7 7\"/></svg></button><div class=\"ds-pagebar-title\">Log Workout</div><div class=\"ds-pagebar-end\"><button class=\"ds-pagebar-finish\">Finish</button></div></div>",
-      "css": ".ds-pagebar{font-family:Nunito,Roboto,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);align-items:center;column-gap:6px;min-height:44px;padding:4px 8px;background:#000;color:#ece8e1;border-bottom:.5px solid #38352f}.ds-pagebar-back{background:none;border:0;color:#ece8e1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}.ds-pagebar-title{text-align:center;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-pagebar-end{display:flex;justify-content:flex-end}.ds-pagebar-finish{font-family:Nunito,Roboto,system-ui,sans-serif;background:var(--acc,#34d08a);color:var(--on-acc,#000);border:0;border-radius:999px;min-height:32px;padding:0 14px;font-size:14px;font-weight:700}.ds-pagebar-finish:hover{background:var(--acc-2,#279c68)}.ds-pagebar-back:focus-visible,.ds-pagebar-finish:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}"
+      "css": ".ds-pagebar{font-family:Nunito,Roboto,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);align-items:center;column-gap:6px;min-height:44px;padding:4px 8px;background:#000;color:#ece8e1;border-bottom:.5px solid #38352f}.ds-pagebar-back{background:none;border:0;color:#ece8e1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}.ds-pagebar-title{text-align:center;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-pagebar-end{display:flex;justify-content:flex-end}.ds-pagebar-finish{font-family:Nunito,Roboto,system-ui,sans-serif;background:var(--acc,#34d08a);color:var(--on-acc,#000);border:0;border-radius:999px;min-height:32px;padding:0 14px;font-size:14px;font-weight:700}.ds-pagebar-finish:hover{background:var(--acc-2,#279c68)}.ds-pagebar-back:focus-visible,.ds-pagebar-finish:focus-visible{outline:2.5px solid var(--acc,#34d08a);outline-offset:2px}.ds-pagebar.ds-big .ds-pagebar-title{white-space:normal;text-wrap:balance;line-height:1.2}"
     },
     {
       "name": "Tab Bar",
@@ -418,7 +423,8 @@
       "The other colours carry meanings (warm-up, failure, drop set, superset, cardio, deload, record, note), and each steps aside when the accent or another meaning comes too close.",
       "Warm greys and warm white text, never cool blue-greys.",
       "Tabular numbers everywhere, so a column of sets lines up, and one way of writing a set.",
-      "One page bar on every screen: a bare chevron, a small centred title, plain actions."
+      "One page bar on every screen: a bare chevron, a small centred title, plain actions.",
+      "Large text wraps, it does not cut: from 1.5 times the system text size, rows stack their parts so every word stays whole."
     ],
     "rules": [
       {
@@ -471,7 +477,8 @@
       "**Do** read a meaning colour from its `--hv-*` variable (`var(--hv-warmup, var(--yellow))`), so it steps aside from the accent.",
       "**Do** draw with the tokens in `theme.css` (`--bg`, `--surface`, `--surface-2`, `--surface-3`, `--label`, `--label-2`, `--label-3`, `--sep`, `--r-sm`, `--r`, `--r-card`, `--r-xl`), scoped under `:root[data-ui=\"hevier\"]`.",
       "**Do** head a part of a page with a 13px grey section heading (h2, or h3 under an h2).",
-      "**Do** keep every target at 44px by extending it invisibly, not by making the control bigger.",
+      "**Do** give every target a 48 dp reach by extending it invisibly, not by making the control bigger, and keep 8 dp between two reaches.",
+      "**Do** let a layout that no longer fits at large text wrap its parts under `hv-big` (`useLargeText`), keeping every word whole; leave normal sizes as they are.",
       "**Do** set every changing number in tabular figures.",
       "**Do** keep the faint grey (`--label-3`) at 4.5:1 on the opened set's row."
     ],
@@ -486,7 +493,9 @@
       "**Don't** use cool blue-greys; the greys are warm.",
       "**Don't** add a second typeface, or set anything above 22px that is not a number you act on now.",
       "**Don't** outline a card, a chip or a field with a CSS border; a card's edge is the inset hairline, a title field's the hairline under it.",
-      "**Don't** write a set as \"80kg x 8\" or \"80×8\", or repeat the unit under a KG or LB head."
+      "**Don't** write a set as \"80kg x 8\" or \"80×8\", or repeat the unit under a KG or LB head.",
+      "**Don't** draw something that does nothing on a tap as a chip; a routine's muscles are plain grey text.",
+      "**Don't** break a word across lines or cut a label at large text; wrap the row instead."
     ]
   }
 }
