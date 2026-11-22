@@ -31,6 +31,7 @@ import { nextPlanned } from '../lib/next-planned.js'
 import { nextSession, planFields, lastText } from '../lib/next-plan.js'
 import { setText } from '../lib/set-text.js'
 import { isHoldRow } from '../lib/hold-set.js'
+import { workNumberOf } from '../lib/routine-holds.js'
 import { gymName, brandDefault, isCable, cableDefault, cableText } from '../lib/gym-labels.js'
 import { startGym } from '../lib/routine-brand.js'
 import { shareRoutineSheet } from '../../components/RoutineShare.jsx'
@@ -76,7 +77,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const mark = set => (set.kind === 'warm' ? <span className="hv-w" role="img" aria-label={t('Warm-up')}>W</span>
     : held(set) ? <span className="hv-h" role="img" aria-label={t('Hold')}>{t('H')}</span>
     : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span>
-    : x.sets.filter(y => y.kind === 'work' && y.n <= set.n && !held(y)).length)
+    : workNumberOf(x.sets, set))
   const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>

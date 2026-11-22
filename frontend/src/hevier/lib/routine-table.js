@@ -11,7 +11,7 @@ import {
 import { isBackoff, backoffAt, backoffStepOf } from '../../lib/backoff.js'
 import { normalizeRepRange } from '../../lib/rep-range.js'
 import { policyFor } from '../../lib/progression.js'
-import { plannedHold, shiftHolds, pruneHolds } from './routine-holds.js'
+import { shiftHolds, pruneHolds } from './routine-holds.js'
 
 const climbsRange = p => p === 'double' || p === 'triple'
 const warmupsOf = cfg => Math.max(0, Math.min(MAX_PLANNED_WARMUPS, Math.round(cfg.warmupSets) || 0))
@@ -35,8 +35,7 @@ export const workCount = cfg => (tableShape(cfg).pyramid ? cfg.pyramid.length : 
 /**
  * The table's rows, warm-ups first: `{ kind: 'warm', n }` (its weight is worked out at session
  * start, so it has none here) and `{ kind: 'work', k, w, fixed, reps, repsMin, max, sec, min,
- * speed, failure, hold }`. `fixed` is a back-off set's derived weight, which follows the top set;
- * `hold` a planned timed hold (D146), its seconds in `sec` too.
+ * speed, failure }`. `fixed` is a back-off set's derived weight, which follows the top set.
  */
 export function routineRows(cfg, routine, unit) {
   const shape = tableShape(cfg, routine)
@@ -58,8 +57,6 @@ export function routineRows(cfg, routine, unit) {
       } else {
         row.reps = cfg.reps || 10
         if (shape.ranged) Object.assign(row, normalizeRepRange(cfg.reps, cfg.repsMin, stride(cfg)))
-        const hold = plannedHold(cfg, k)
-        if (hold > 0) Object.assign(row, { hold: true, sec: hold })
       }
       row.failure = !shape.pyramid && cfg.lastToFailure === true && k === count - 1
     }

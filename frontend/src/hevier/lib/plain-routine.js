@@ -129,9 +129,10 @@ export function refillRows(H, S, e, routine, label, was) {
       if (b[k] !== undefined) start[k] = b[k]
       else delete start[k]
     }
-    const before = filled(start, old[i])
-    if (!sameRow(row, start) && (Array.isArray(before) || !sameRow(row, before))) return [row]
     // The routine's planned hold on this set (D146), as the start lays it.
-    return isWarmupRow(start) ? [filled(start, prev[i])].flat() : openHold(cfg, k, start, filled(start, prev[i]))
+    const lay = out => (isWarmupRow(start) ? [out].flat() : openHold(cfg, k, start, out))
+    const before = lay(filled(start, old[i]))
+    if (!sameRow(row, start) && (before.length > 1 || !sameRow(row, before[0]))) return [row]
+    return lay(filled(start, prev[i]))
   })
 }

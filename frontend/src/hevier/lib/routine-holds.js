@@ -126,3 +126,7 @@ export function openedHolds(session) {
   const secOf = s => (isHoldRow(s) && s.sec > 0 ? s.sec : 0)
   return (session || []).map(x => x.sets.filter(s => s.kind === 'work').map(s => ({ open: secOf(s.rows[0]), last: secOf(s.last[0]) })))
 }
+
+/** Set `set`'s number among `sets` (nextSession's, one exercise's) as the routine page shows it: a
+ *  hold reads H, as a warm-up reads W, so the other work sets count on (D5). */
+export const workNumberOf = (sets, set) => (sets || []).filter(y => y.kind === 'work' && y.n <= set.n && !isHoldRow(y.rows?.[0])).length

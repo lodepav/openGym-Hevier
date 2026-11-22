@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { openedHolds, holdsOf, plannedHold, setHold, shiftHolds, pruneHolds, openHold, holdsAfter, canPlanHolds, HOLD_MAX } from './routine-holds.js'
+import { workNumberOf, openedHolds, holdsOf, plannedHold, setHold, shiftHolds, pruneHolds, openHold, holdsAfter, canPlanHolds, HOLD_MAX } from './routine-holds.js'
 import { isPlain, plainRows, refillRows } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
 import { makeSideSet } from '../../lib/workout-model.js'
@@ -72,11 +72,27 @@ describe('hevier routine holds (D146)', () => {
     expect(kinds(buildPlannedEntry(S0([]), planned, { ...arms, hvProg: true }).sets)).toEqual(['S10', 'S10', 'S10'])
   })
 
-  it('keeps the planned hold when the brand changes (D82)', () => {
+  it('keeps the planned hold when the brand changes, at last time’s weight on the new brand (D82)', () => {
     const planned = setHold(curl, 1, 40)
-    const S = S0([day('2026-11-01', [{ w: 22, r: 10, done: true }, { w: 22, r: 9, done: true }])])
+    const branded = (d, brand, w) => ({ d, routineId: arms.id, entries: [{ id: '0043', hvBrand: brand, sets: [{ w, r: 10, done: true }, { w, r: 9, done: true }] }] })
+    const S = { ...S0([branded('2026-11-01', 'Technogym', 30), branded('2026-11-08', 'Life Fitness', 22)]),
+      equipProfiles: [{ id: 'city' }], activeEquipId: 'city', hvMachines: { '0043': { city: 'Life Fitness' } } }
     const e = { id: '0043', rid: arms.id, target: planned, sets: buildPlannedEntry(S, planned, arms).sets }
-    expect(kinds(refillRows(S, S, e, arms, 'Technogym', null))).toEqual(['S10', 'H40', 'S10'])
+    expect(e.sets[1]).toMatchObject({ w: 22, mode: 'time', sec: 40 })
+    const out = refillRows(S, S, e, arms, 'Technogym', 'Life Fitness')
+    expect(kinds(out)).toEqual(['S10', 'H40', 'S10'])
+    expect(out.map(r => r.w)).toEqual([30, 30, 20])
+    // A hold typed into keeps its numbers.
+    const typed = { ...e, sets: e.sets.map((r, i) => (i === 1 ? { ...r, sec: 55 } : r)) }
+    expect(refillRows(S, S, typed, arms, 'Technogym', 'Life Fitness')[1]).toMatchObject({ w: 22, sec: 55 })
+  })
+
+  it('opens the planned hold on an exercise shown in its own unit (D41), and the target keeps the plan', () => {
+    const planned = setHold(curl, 1, 40)
+    const S = { ...S0([]), exUnit: { '0043': { unit: 'lb', _ts: 1 } } }
+    const built = buildPlannedEntry(S, planned, arms)
+    expect(built.sets[1]).toMatchObject({ mode: 'time', sec: 40 })
+    expect(built.target.hvHolds).toEqual({ 1: 40 })
   })
 
   it('D35: plans a hold made in the workout, drops one turned back, and leaves carried and timed ones', () => {
@@ -104,6 +120,12 @@ describe('hevier routine holds (D146)', () => {
     const S = { ...S0([day('2026-11-01', [{ w: 22, r: 10, done: true }, { w: 18, mode: 'time', sec: 50, done: true }, { w: 22, r: 9, done: true }])]),
       routines: [{ ...arms, ex: [{ ...curl, warmupSets: 1, hvHolds: { 2: 40 } }] }] }
     expect(openedHolds(nextSession(S, arms.id))).toEqual([[{ open: 0, last: 0 }, { open: 50, last: 50 }, { open: 40, last: 0 }]])
+  })
+
+  it('numbers the routine page’s work sets around a hold: 1, H, 2', () => {
+    const sets = [{ kind: 'warm', n: 0, rows: [{}] }, { kind: 'work', n: 0, rows: [{ r: 8 }] }, { kind: 'work', n: 1, rows: [{ mode: 'time', sec: 40 }] }, { kind: 'work', n: 2, rows: [{ r: 8 }] }]
+    expect(workNumberOf(sets, sets[1])).toBe(1)
+    expect(workNumberOf(sets, sets[3])).toBe(2)
   })
 
   it('the routine exercise’s holds come through a sync with a later change on another device', () => {
