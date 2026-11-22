@@ -22,7 +22,7 @@ import { planPrintHTML, printPlan } from '../../lib/plan-share.js'
 import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
 import { exUnitOf, shownWeight, storedWeight } from '../../lib/ex-unit.js'
-import { boxOf } from '../lib/set-columns.js'
+import { boxOf, pastHundredth } from '../lib/set-columns.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { sameForRoutineCard } from '../lib/card-state.js'
@@ -259,7 +259,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
     const v = row[key]
     // Hevy's grey dash for a weight not set yet (0); typing one fills it
     // A converted weight to the routine page's places, 110.2 not 110.23 (set-columns.js boxOf; the sixth audit, 2026-11-22).
-    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : boxOf(c, v, false) ?? ''}
+    return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : boxOf(c, v, pastHundredth(v)) ?? ''}
       placeholder={c.f === 'w' ? '–' : undefined}
       aria-label={t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd)}
       onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv, v) : nv))} />

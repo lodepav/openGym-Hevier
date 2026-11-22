@@ -401,6 +401,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].w).toBeCloseTo(110.25 * 0.45359237, 4)
   })
 
+  it('a lb box rounds a weight pre-filled through lb (49.9999 kg) and keeps one typed on an earlier visit (the sixth audit, 2026-11-22)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(49.9999, 8), { ...reps(50.0089, 8), weightOrigin: 'manual' }] }])
+    act(() => useStore.getState().update(s => { s.exUnit = { [EX]: { unit: 'lb', _ts: 1 } } }))
+    const [pre, typed] = [...container.querySelectorAll('.hv-row')].map(r => r.querySelector('.hv-num'))
+    expect(pre.placeholder || pre.value).toBe('110.2')
+    expect(typed.value).toBe('110.25')
+  })
+
   it('a timed hold gets KG · TIME, typed as a clock, with the big clock counting it down (M1, D53, D89)', () => {
     vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ sec: 30, done: false }] }])

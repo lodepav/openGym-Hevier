@@ -35,13 +35,15 @@ export const viewOf = (col, v) => (col.view && v != null && v !== '' ? col.view(
 
 /** A column's number in its box. A weight shown in the exercise's other unit (D41) goes to the
  *  places PREVIOUS shows (fmtNum's), so 50 kg reads 110.2 lb in both, not 110.23 (the sixth audit,
- *  2026-11-22). A weight typed in that unit keeps its places: `typed` this visit, or stored past the
- *  hundredth, as a typed one is (to four, upstream's storedWeight). Display only. */
-// shortcut: a two-place lb weight typed on another visit whose kg lands on the hundredth reads rounded; mark typed weights if that is seen.
+ *  2026-11-22). A `typed` weight keeps its places. Display only. */
 export function boxOf(col, v, typed, places = weightDecimals()) {
   const x = viewOf(col, v)
   if (col.f !== 'w' || !col.view || typed || x == null || x === '' || !Number.isFinite(Number(v))) return x
-  if (Math.abs(Number(v) * 100 - Math.round(Number(v) * 100)) > 1e-6) return x
   const p = 10 ** places
   return Math.round(Number(x) * p) / p
 }
+
+/** A stored weight past the hundredth, as one typed in the other unit is (to four, upstream's
+ *  storedWeight): the routine editor's sign of a typed weight, which keeps no other mark. */
+// shortcut: a two-place lb weight whose kg lands on the hundredth reads rounded in the editor; mark typed routine weights if that is seen.
+export const pastHundredth = v => Number.isFinite(Number(v)) && Math.abs(Number(v) * 100 - Math.round(Number(v) * 100)) > 1e-6

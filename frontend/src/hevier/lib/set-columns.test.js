@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { setColumns, viewOf, boxOf } from './set-columns.js'
+import { setColumns, viewOf, boxOf, pastHundredth } from './set-columns.js'
 
 const fields = cols => cols.map(c => c.f)
 
@@ -27,9 +27,11 @@ describe('hevier: the workout table’s columns', () => {
     expect(viewOf(lb, 50)).toBe(110.23)
     expect(boxOf(lb, 50, false, 1)).toBe(110.2)
     expect(boxOf(lb, 50, false, 2)).toBe(110.23)
-    // Typed this visit, or stored past the hundredth as a typed lb weight is: as it reads.
+    // A typed weight reads as typed; one pre-filled through the other unit (49.9999 kg) rounds.
     expect(boxOf(lb, 50, true, 1)).toBe(110.23)
-    expect(boxOf(lb, 50.0089, false, 1)).toBe(110.25)
+    expect(boxOf(lb, 49.9999, false, 1)).toBe(110.2)
+    expect(pastHundredth(50.0089)).toBe(true)
+    expect(pastHundredth(50.25)).toBe(false)
     expect(boxOf(lb, 20.41165665, false, 1)).toBe(45)
     // The profile's own unit and other columns are left as they are.
     expect(boxOf(setColumns({ mode: 'reps', unit: 'kg' })[0], 62.25, false, 1)).toBe(62.25)
