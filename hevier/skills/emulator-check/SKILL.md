@@ -8,7 +8,6 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 ## Build, install, launch
 
 ```bash
-export PATH="$HOME/.local/opt/node/bin:$HOME/Android/Sdk/platform-tools:$PATH"
 HEADLESS=1 hevier/tools/emulator.sh            # vite build + cap sync + gradle + install + launch
 HEADLESS=1 hevier/tools/emulator.sh --no-build # reinstall the last APK
 ```

@@ -36,6 +36,10 @@ a hook. Found while measuring:
 | 9a | `progress.md` convention for long runs (skill text in implement, ux-review, critique loop) | Dry-run; one real long run writes it | "what's left / is it hanging" questions per week, baseline about 6 |
 | 8 | `verify.sh` doc check: every D has a FEATURES row, every Offered row has a PR that exists (OB: same in its verify) | Test with a fixture that misses a row and one with a dead PR number | "docs up to date?" asks, baseline about 12/month; verify stays under +2 s |
 
+Item 3 done 2026-11-22: the owner approved the `~/.profile` edit (flutter and platform-tools
+added; backup `~/.profile.bak-path`). A fresh login shell finds node, adb and flutter; the
+emulator-check skill's PATH line is gone. Sessions started before the edit still need it.
+
 ## Phase 1: main chat lean (biggest lever)
 
 | # | Build | Test | Measure, success |
