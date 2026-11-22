@@ -28,14 +28,13 @@ afterEach(() => { act(() => root.unmount()); container.remove() })
 const ago = days => isoOf(new Date(Date.now() - days * 86400000))
 
 describe('hevier: Measures (the tenth critique)', () => {
-  it('shows the 90-day change under the weight, and what a goal does until one is set', () => {
+  it('shows the 90-day change under the weight, and no goal caption (the owner, 2026-11-22)', () => {
     render({ bodyweight: [{ d: ago(30), w: 82 }, { d: todayISO(), w: 80.5 }] })
     expect(container.querySelector('.hv-ms-change').textContent).toBe('Down 1.5 kg in 30 days')
-    expect(container.querySelector('.hv-ms-nogoal').textContent).toBe('A goal draws a line on the chart and says how far you are.')
+    expect(container.querySelector('.hv-ms-nogoal')).toBeNull()
     act(() => root.unmount()); container.remove()
     render({ bodyweight: [{ d: todayISO(), w: 80 }], targetW: 75 })
     expect(container.querySelector('.hv-ms-change')).toBeNull()   // one weigh-in has no change
-    expect(container.querySelector('.hv-ms-nogoal')).toBeNull()
   })
 
   it('names the days the weigh-ins span, seen and spoken, not the 90 the chart can show', () => {

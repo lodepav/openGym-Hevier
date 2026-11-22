@@ -92,9 +92,7 @@ function Week({ S, today }) {
         <span aria-hidden="true">{t(DAYS[d.day])}</span>
       </button>)}</div>
     {/* The days open a sheet, said until the first tap on one (S.hvDayTapSeen), as Lifts' totals hint is (the critique, 2026-11-22). */}
-    {/* A struck-through day was only spoken as missed; the hint says it once too (the tenth critique). */}
-    {!S.hvDayTapSeen && <p className="small dim hv-tweek-hint">{days.some(d => d.kind === 'missed')
-      ? t('Tap a day to plan or rest it · struck through: planned, not done') : t('Tap a day to plan or rest it')}</p>}
+    {!S.hvDayTapSeen && <p className="small dim hv-tweek-hint">{t('Tap a day to plan or rest it')}</p>}
   </>
 }
 

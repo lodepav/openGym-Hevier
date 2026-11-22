@@ -61,7 +61,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const at = { pathname: '/workout-detail', state: { ref: { id: 'w1', d: W.d, start } } }
     render(<WorkoutDetail />, {}, at)
     expect(stats()).not.toContain('Volume')
-    expect(line()).toBe('Chest 3 sets · Triceps 2 sets')
+    expect(line()).toBe('Chest 3 · Triceps 2')
     expect(container.querySelector('.hv-mline .hv-sr').textContent).toBe('Chest, 3 sets, Triceps, 2 sets')
     act(() => root.unmount()); container.remove()
     render(<WorkoutDetail />, { hvVolume: 'weight' }, at)
@@ -73,7 +73,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     render(<WorkoutCard w={W} />)
     expect(container.querySelector('.hv-wcard-d').textContent).toBe(`${workoutWhenText(W)} · ${workoutTimeText(W)} · 5 sets`)
     expect(container.querySelector('.hv-wcard-stats')).toBeNull()
-    expect(line()).toBe('Chest 3 sets · Triceps 2 sets')
+    expect(line()).toBe('Chest 3 · Triceps 2')
   })
 
   it('the feed card names an exercise done only as warm-ups first, a muted warm-up after (the sixth audit, 2026-11-22)', () => {

@@ -83,9 +83,7 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
     sections: [
       { items: Object.entries(VOLUME).map(([v, label]) => ({ label: chosen(label, mode === v), on: mode === v,
         onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })) },
-      // What the second choice changes, said under it: upstream's menu has no section footer (the eighth critique, 2026-11-22).
       { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label: chosen(label, mMode === v), on: mMode === v,
-        sub: v === 'share' ? t('A set also counts in part for each muscle that helps.') : undefined,
         onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
     ],
   })

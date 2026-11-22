@@ -32,7 +32,7 @@ import { spokenSet, spoken1rm } from '../lib/set-spoken.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
-import { volumeMode, muscleMode, muscleSets, workSets } from '../lib/volume.js'
+import { volumeMode, muscleMode, workSets } from '../lib/volume.js'
 import MuscleLine from '../components/MuscleLine.jsx'
 import { savedGym, gymName, savedCable, cableText } from '../lib/gym-labels.js'
 import { PHASE_LABEL, workoutPhase } from '../lib/shared-phase.js'
@@ -76,7 +76,7 @@ function rowMarks(e, recs, trends = [], sideTrends = []) {
   })
 }
 
-function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, legend = false }) {
+function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }) {
   const ex = EXIDX[e.id]
   // A record sits on the set that made it, as in Hevy; a session's (its volume) on the last work set,
   // the one that took the session past it (changed 2026-10-20: it was on the exercise's header).
@@ -124,7 +124,6 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
       })}
       {rows.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
-    {legend && <p className="hv-wd-legend small dim" aria-hidden="true">{t('↑ = ↓ against the same set last time')}</p>}
   </div>
 }
 
@@ -155,14 +154,12 @@ export function WorkoutDetail() {
   const { state } = useLocation()
   const st = useStore(s => s.S)
   const w = state?.ref ? (st.workouts || []).find(x => sameWorkout(x, state.ref)) : null
-  // Keyed on what records.js walks, as Today's last workout is, so legendAt below holds too (the tenth audit, 2026-11-22).
+  // Keyed on what records.js walks, as Today's last workout is (the tenth audit, 2026-11-22).
   const prs = useMemo(() => (w ? workoutRecords(st, w) : null), [w, st.workouts, st.dbLoad, st.oneRmFormula, st.customEx, st.modules, st.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
   const units = sessionSections(w?.entries || []).flatMap(g => g.units)
-  // Trends and the legend's row once per change of what they read, above the return (the sixth audit, 2026-11-21).
+  // Trends once per change of what they read, above the return (the sixth audit, 2026-11-21).
   const trendsOf = useMemo(() => (w?.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) })),
     [w, st.workouts, st.setTrend, st.lastFrom, st.oneRmFormula, st.customEx]) // eslint-disable-line react-hooks/exhaustive-deps
-  const legendAt = useMemo(() => w && units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), trendsOf[i].trends, trendsOf[i].sideTrends).some(m => m.trend != null)),
-    [w, prs, trendsOf]) // eslint-disable-line react-hooks/exhaustive-deps
   // Deleted (here or in All details) or opened without a workout: back to where it came from.
   if (!w) return <Gone />
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/home'))
@@ -191,8 +188,6 @@ export function WorkoutDetail() {
       {prs.length > 0 && <div><span>{t('Records')}</span><b className="hv-pr"><Icon name="trophy" />{prs.length}</b></div>}
     </div>
     {mode === 'sets' && <MuscleLine entries={w.entries} mode={muscleMode(st)} />}
-    {/* How the line counts (D42), in the monthly report's words (the tenth critique, 2026-11-22). */}
-    {mode === 'sets' && muscleSets(w.entries, muscleMode(st)).length > 0 && <p className="small dim hv-wd-mcount">{t(muscleMode(st) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')}</p>}
     <VsLast st={st} w={w} mode={mode} />
     {sanitizeHr(w.hr) && <div className="hv-wd-hrline"><Icon name="heart" />
       {t('Heart rate {0} avg · {1} max', sanitizeHr(w.hr).avg, sanitizeHr(w.hr).max)}</div>}
@@ -202,7 +197,7 @@ export function WorkoutDetail() {
     <h3 className="sec">{t('Workout')}</h3>
     {/* The ↑ = ↓ explained once, under the first exercise that shows one; each mark is read out on its own (the critique, 2026-11-21). */}
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} {...trendsOf[i]} time={times[i]} scale={scale} legend={i === legendAt} />)}
+      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} {...trendsOf[i]} time={times[i]} scale={scale} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit workout')}</button>
   </div>

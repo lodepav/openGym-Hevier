@@ -93,18 +93,17 @@ export default function ExerciseTime() {
     <span className="hv-sr" role="status">{[t(asc ? 'Shortest first' : 'Longest first'), by && t(by === 'gym' ? 'Gym' : 'Muscle'),
       tn('{0} exercise', '{0} exercises', count)].filter(Boolean).join(', ')}</span>
     {/* The count shown too, not only said (the ninth critique, 2026-11-22). */}
-    <div className="small dim hv-extime-cap">{count > 0 && <span aria-hidden="true">{tn('{0} exercise', '{0} exercises', count)} · </span>}{t('Average time per session, from the times your sets were ticked: the rest before each set counts.')}</div>
+    <div className="small dim hv-extime-cap">{count > 0 && <span aria-hidden="true">{tn('{0} exercise', '{0} exercises', count)} · </span>}{t('average per session, rest included')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {timed.map(sec => <section key={sec.key}>
       {by && <h2 className="sec">{title(sec.key)} {sec.total > 0 && <span className="dim">· <span role="img" aria-label={said(sec.total)}>{secs(sec.total)}</span> {t('total')}</span>}</h2>}
       <div className="list hv-flat hv-extime-list">{sec.rows.map(row)}</div>
     </section>)}
-    {/* The rows without a time after the timed ones, folded under one heading, with what they mean (the tenth critique, 2026-11-22). */}
+    {/* The rows without a time after the timed ones, folded under one heading (the tenth critique; no caption, the owner, 2026-11-22). */}
     {untimed.length > 0 && <section>
       <h2 className="sec hv-extime-none"><button type="button" className="hv-extime-fold" aria-expanded={noTimeOpen} aria-controls="hv-extime-none"
         onClick={() => setNoTimeOpen(!noTimeOpen)}>{t('No time ({0})', untimed.length)}<Icon name={noTimeOpen ? 'chevronUp' : 'chevronDown'} /></button></h2>
       <div id="hv-extime-none" hidden={!noTimeOpen}>{noTimeOpen && <>
-        <div className="small dim hv-extime-cap">{t('Sets ticked together or after the workout, or one set a session, give no time.')}</div>
         <div className="list hv-flat hv-extime-list">{untimed.map(row)}</div></>}</div>
     </section>}
   </div>

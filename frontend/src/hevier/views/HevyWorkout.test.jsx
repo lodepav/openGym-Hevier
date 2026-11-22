@@ -334,43 +334,24 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
-  it('says under the first table that PREVIOUS copies and a set swipes, until PREVIOUS is first used (S.hvSetTipSeen)', () => {
+  it('says under the first table that a set swipes, until PREVIOUS is first used (S.hvSetTipSeen)', () => {
     const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 55, r: 9, done: true }] }] }]
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }], past)
     const tip = () => container.querySelector('.hv-set-tip')
-    expect(tip().textContent).toBe('Tap PREVIOUS to copy it, swipe a set for more.')
+    expect(tip().textContent).toBe('Swipe a set for more.')
     expect(tip().previousElementSibling.className).toContain('hv-unit')
     act(() => container.querySelector('.hv-prev').click())
     expect(tip()).toBeNull()
     expect(useStore.getState().S.hvSetTipSeen).toBe(true)
-    // With swipe actions off it says only the tap.
+    // With swipe actions off there is no tip.
     act(() => useStore.getState().update(s => { delete s.hvSetTipSeen; s.wc = { swipeSets: false } }))
-    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
-    // While the RIR column shows it says the pill logs the set (the tenth critique).
-    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
-    expect(tip().textContent).toBe('Tap PREVIOUS to copy it. Tap RIR to log a set with its effort.')
-    // Not where the first table has no RIR pill in the tick's place: a timed exercise, or RPE.
-    act(() => useStore.getState().update(s => { s.active.entries[0].target.mode = 'time' }))
-    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
-    act(() => useStore.getState().update(s => { s.active.entries[0].target.mode = 'reps'; s.effort = 'rpe' }))
-    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+    expect(tip()).toBeNull()
   })
 
   it('names each swipe pane for its set, "Set 1: Delete" (the tenth audit)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     const names = [...container.querySelectorAll('.swpane button')].map(b => b.getAttribute('aria-label'))
     expect(names).toEqual(['Set 1: Copy set', 'Set 1: Delete', 'Set 2: Copy set', 'Set 2: Delete'])
-  })
-
-  it('once a set is ticked the tip also says what its mark means, while the marks are on (the ninth critique)', () => {
-    const marks = 'A ticked set’s mark compares it with last time: = the same, ↑ better, ↓ less.'
-    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
-    const tip = () => container.querySelector('.hv-set-tip').textContent
-    expect(tip()).not.toContain(marks)
-    act(() => useStore.getState().update(s => { s.active.entries[0].sets[0].done = true }))
-    expect(tip()).toBe('Tap PREVIOUS to copy it, swipe a set for more. ' + marks)
-    act(() => useStore.getState().update(s => { s.setTrend = false }))
-    expect(tip()).not.toContain(marks)
   })
 
   it('says a PREVIOUS without weight as reps, "8 reps", not "× 8" (the ninth audit)', () => {

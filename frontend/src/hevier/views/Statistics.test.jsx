@@ -230,7 +230,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
       expect(byText('button', 'Log')).toBeUndefined()
       expect(container.textContent).toContain('From Health Connect')
       expect(container.querySelector('.hv-ms-empty').tagName).toBe('DIV')
-      expect(container.querySelector('.hv-ms-empty').textContent).toBe('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.')
+      expect(container.querySelector('.hv-ms-empty').textContent).toBe('No weigh-ins yet from Health Connect. Check its weight permission.')
     } finally { await initWeighInSource(() => ({ readWeight: false }), () => {}) }
   })
 

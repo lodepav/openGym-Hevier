@@ -83,8 +83,6 @@ export default function ArrangeStats() {
     <BackTo label={t('Statistics')} to="/stats" title={t('Arrange Statistics')}>
       <button type="button" className="hv-link" onClick={reset} disabled={first}>{t('Reset')}</button>
     </BackTo>
-    {/* One hint, with D142's "tile = now, card = more" (the sixth audit; one paragraph, the eighth critique, 2026-11-22). */}
-    <p className="small dim hv-arr-hint">{t('Drag a row by its handle, or tap the handle to move it up or down; switch a row off to hide it. A tile is one number now; a card shows more.')}</p>
     {LISTS.map(([which, title, ids]) => <ArrangeList key={which} which={which} title={title} ids={ids} />)}
   </div>
 }

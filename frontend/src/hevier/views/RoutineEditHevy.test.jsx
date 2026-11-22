@@ -289,7 +289,7 @@ describe('hevier: routine editor (M3)', () => {
     // A routine with progression on opens at its rule: the tip says so, and what Auto means (the ninth critique).
     useStore.getState().update(s => { delete s.hvDashTipSeen })
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }], { hvProg: true })
-    expect(tip()).toEqual(['A weight of – lets the rule pick it. Auto warm-ups ramp up to it.'])
+    expect(tip()).toEqual(['A weight of – lets the rule pick it.'])
     // No rule to pick it, or a deload routine: the plain tip.
     act(() => useStore.getState().update(s => { s.routines[0].prog = 'off' }))
     expect(tip()).toEqual(['A weight of – opens at last time’s.'])

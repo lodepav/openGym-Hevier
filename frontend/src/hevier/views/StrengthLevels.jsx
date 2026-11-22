@@ -37,11 +37,10 @@ export default function StrengthLevels() {
     <BackTo label={t('Lifts')} to="/lifts" title={t('Strength levels')} />
     <PhaseFilter />
     {/* With none set, a line, not a list of every lift; Set a level picks one (the critique, 2026-11-21). */}
-    {/* What a level is, as the app bundles none: you type them in (D19, the sixth audit, 2026-11-22). */}
-    {/* A heading, and where the weights come from: Compare strength looks them up (the ninth critique, 2026-11-22). */}
+    {/* A heading, and where the weights come from: Compare strength looks them up (the ninth critique; only that, the owner, 2026-11-22). */}
     {/* The heading centred, the paragraph start-aligned for reading (the tenth critique, 2026-11-22). */}
     {!groups.length && <div className="hv-ms-empty"><h2 className="hv-sl-lead">{t('No strength levels yet')}</h2>
-      <div className="small dim hv-sl-why">{t('A strength level places your best estimated one-rep max among five levels, Beginner to Elite, whose weights you type in yourself. Compare strength on an exercise looks them up on strengthlevel.com.')}</div></div>}
+      <div className="small dim hv-sl-why">{t('Compare strength on an exercise looks them up on strengthlevel.com.')}</div></div>}
     {/* The page's one action: full width, filled while the page is empty (the critique, 2026-11-21). */}
     <button type="button" className={'btn' + (groups.length ? '' : ' primary') + ' hv-sl-add'} onClick={setLevel}>{t('Set a level')}</button>
     {groups.map(g => <section key={String(g.level)}>

@@ -84,10 +84,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     // D133: the bars went; the line under the stats has the counts (sets mode, D18).
     expect(page.textContent).not.toMatch(/Muscle split/i)
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
-    // ...and says how it counts (D42; the tenth critique, 2026-11-22).
-    expect(page.querySelector('.hv-wd-mcount').textContent).toBe('Work sets, each for its main muscle')
-    act(() => useStore.getState().update(s => { s.hvMuscleSets = 'share' }))
-    expect(page.querySelector('.hv-wd-mcount').textContent).toBe('Work sets, a secondary muscle counted in part')
+    expect(page.querySelector('.hv-wd-mcount')).toBeNull()   // no line on how it counts (the owner, 2026-11-22)
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
     // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).
@@ -216,10 +213,8 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => useStore.setState(({ S }) => ({ S: { ...S, workouts: S.workouts.map((w, k) => (k ? w : { ...w, entries: [{ ...w.entries[0], sets: [...w.entries[0].sets, { w: 60, r: 9, done: true }] }] })) } })))
     expect(trend('2').className).toContain('down')
     expect(trend('2').getAttribute('aria-label')).toBe('Less than last time')
-    // One line says what the marks mean, under the first exercise that has one, and only there (the critique, 2026-11-21).
-    const legends = [...container.querySelectorAll('.hv-wd-legend')]
-    expect(legends.map(l => l.textContent)).toEqual(['↑ = ↓ against the same set last time'])
-    expect(legends[0].closest('.hv-wd-ex').querySelector('.hv-trend')).toBeTruthy()
+    // No legend line under the marks (the owner, 2026-11-22).
+    expect(container.querySelector('.hv-wd-legend')).toBeNull()
   })
 
   it('⋯ → All details opens upstream’s sheet', () => {

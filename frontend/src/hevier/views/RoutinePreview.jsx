@@ -109,7 +109,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
         {/* The column head is hidden, so each cell names its column (the fifth audit, 2026-11-21). */}
         <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Last time')}: </span>}{sideMark(l.side)}{repsSaid(l.last)}</span>)}</span>
         <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Next')}: </span>}{sideMark(l.side)}{l.next}</span>)}</span>
-      </div>{n === lastWarm && <p className="hv-cap hv-np-warmcap">{t('Auto warm-up, ramps to the work weight')}</p>}</Fragment>
+      </div>{n === lastWarm && <p className="hv-cap hv-np-warmcap">{t('Auto warm-up')}</p>}</Fragment>
     })}
     </div>
     {note && <p className="hv-np-note"><b>{t('Planned for next time.')}</b> {ramps ? t('The routine is not changed.') : t('The routine is not changed. Warm-ups stay as last time until you change them.')}</p>}
@@ -159,7 +159,7 @@ export default function RoutinePreview() {
     </div>
     {startBtn}
     {/* D128's tap, said until it is first used, as Lifts' totals hint is (S.hvPlanTapSeen; the sixth audit, 2026-11-22). */}
-    {!S.hvPlanTapSeen && fields.size > 0 && <p className="small dim hv-rv-hint">{t('Tap a number under NEXT to change it for the next session only.')}</p>}
+    {!S.hvPlanTapSeen && fields.size > 0 && <p className="small dim hv-rv-hint">{t('Changes under NEXT are for the next session only.')}</p>}
     <div className="hv-units">
       {units.map(u => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => session[i] && <PlanExercise key={i + ':' + r.ex[i].id} r={r} x={session[i]} units={units} S={S} gym={gym}

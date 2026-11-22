@@ -51,8 +51,8 @@ export default function MuscleSetsCard({ S, today, weekAt = 0 }) {
     <h2>{t('Sets per muscle')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => { setKind(k); setTapped(true) }}>{t(PERIOD_LABEL[k])}</button>)}</div>
-    {/* What the numbers count, under the chips where it is read first. */}
-    <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
+    {/* The period the numbers count, under the chips; only that (the owner, 2026-11-22). */}
+    <div className="small dim hv-msets-cap">{t(SINCE[kind])}</div>
     <span className="hv-sr" role="status">{tapped ? t(PERIOD_LABEL[kind]) + ', ' + setsText(Math.round(rows.reduce((a, r) => a + r.sets, 0) * 10) / 10) : ''}</span>
     {rows.length ? <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={list}>{rows.map(r => {
       const diff = Math.round((r.sets - r.prev) * 10) / 10
