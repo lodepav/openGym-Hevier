@@ -72,6 +72,10 @@ memory, letting the boot lock go while it waits; tested with a fake adb (gives u
 wait; boots once one frees). The flock already frees when a holder dies, so no stale timeout.
 530 of 942 cross-session messages were emulator handoffs. The "message before boot or stop"
 rule stays until the owner says otherwise: it also carries "the other session has priority".
+Then, on the owner's go: a real boot through `emu up` took 4.5 s and `emu down` stopped it, so the
+rule was replaced in ~/.claude/CLAUDE.md (backup CLAUDE.md.bak-emu). `emu up` now also waits while
+the heavy.sh lock is held (not inside heavy.sh), tested by holding the lock; OpenBite's test-slot
+has its own lock and runs beside emulators by design. Two dry-runs; the second read it right.
 
 Item 6 done 2026-11-22 as `tools/seam-offers.mjs` beside `upstream-status.mjs`: 12 of 54 seams
 go once upstream takes what was offered (5 of them D124's), none is waiting on an offer not yet
