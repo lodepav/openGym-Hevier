@@ -4,8 +4,8 @@
 // (lib/routine-table.js) with a remove mark on each set, and "+ Set", "+ Warm-up" and the rest
 // chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
 // upstream's editor has. Every change saves as it is made, as upstream's editor does.
-import { progressionOn } from '../lib/plain-routine.js'
-import { memo, useEffect, useRef, useState } from 'react'
+import { progressionOn, isPlain } from '../lib/plain-routine.js'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -55,6 +55,10 @@ import {
 import { routineBrand, setRoutineBrand, startGym } from '../lib/routine-brand.js'
 import { knownBrands, gymName, BRAND_MAX } from '../lib/gym-labels.js'
 import { partOn } from '../lib/module-parts.js'
+import { canPlanHolds, setHold, pruneHolds, openedHolds } from '../lib/routine-holds.js'
+import { HOLD_SEC } from '../lib/hold-set.js'
+import { nextSession } from '../lib/next-plan.js'
+import DurationField from '../components/DurationField.jsx'
 
 // Double and triple progression's "8 to 12", Hevy's REP RANGE picker as two fields.
 function RangeSheet({ from, to, onDone, close }) {
@@ -104,7 +108,8 @@ function BrandSheet({ exId, close }) {
   </form>
 }
 
-function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
+// `held` is what each work set opens with (routine-holds.js openedHolds), in a plain routine only.
+function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -120,8 +125,10 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   const editList = fn => update(s => { const list = s.routines.find(x => x.id === r.id)?.ex; if (list) fn(list) })
 
   // Upstream's editor's own flows (views/RoutineEdit.jsx): the settings sheet, Replace, the link.
+  // Upstream's sheet knows no planned holds (D146): they are kept where the new settings allow them.
+  const keepHolds = (from, cfg) => (from.hvHolds ? pruneHolds({ ...cfg, hvHolds: from.hvHolds }) : cfg)
   const openSettings = () => exConfigSheet(ex, e, cfg => editList(x => {
-    x[i] = { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg }
+    x[i] = keepHolds(x[i], { id: x[i].id, sg: x[i].sg, ...(x[i].sg ? { sgName: x[i].sgName, sgRest: x[i].sgRest } : {}), ...cfg })
     cleanupSg(x)
   }), () => removeRoutineExercise(r.id, i), r, null, replace)
   function replace() {
@@ -140,7 +147,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
       // D75: upstream's replace drops the slot's per side; a one-limb exercise gets it back.
       if (quick) { commit(pick, current => withSide(replaceSlotExercise(current, pick.id, live, r.id), live)); return }
       const next = withSide(replaceSlotExercise(slot, pick.id, live, r.id), live)
-      exConfigSheet(pick, next, cfg => commit(pick, current => ({ id: pick.id, sg: current.sg, ...cfg })), null, r, null, null, t('Replace'))
+      exConfigSheet(pick, next, cfg => commit(pick, current => keepHolds(current, { id: pick.id, sg: current.sg, ...cfg })), null, r, null, null, t('Replace'))
     }, { title: t('Replace exercise'), like: openedOn, backups: e.subs })
   }
   const linked = i > 0 && e.sg && r.ex[i - 1].sg === e.sg
@@ -211,20 +218,39 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   }
   const work = rows.filter(x => x.kind === 'work')
   const lastK = work.length - 1
+  // D146: a plain routine plans a timed hold on a set; it shows what each set opens as, a hold
+  // carried over from last time too.
+  const canHold = !!held && canPlanHolds(e)
+  const holdAt = row => (row.kind === 'work' && canHold ? held[row.k] || { open: 0, last: 0 } : null)
+  const isHold = row => holdAt(row)?.open > 0
+  // Hevy's numbering: a hold reads H, as a warm-up reads W, and the other sets count on (D5).
+  const numOf = row => work.filter(x => x.k <= row.k && !isHold(x)).length
+  const holdNo = row => work.filter(x => x.k <= row.k && isHold(x)).length
+  const nameOf = row => (row.kind === 'warm' ? t('Warm-up') : isHold(row) ? t('Hold {0}', holdNo(row)) : t('Set {0}', numOf(row)))
   const openSetType = row => {
     const warm = row.kind === 'warm'
     const failing = !warm && row.failure
+    const h = holdAt(row)
+    const hold = isHold(row)
+    // Back to reps; over last time's hold, a planned rep set so it does not carry over.
+    const unhold = c => setHold(c, row.k, h.last ? 0 : null)
     menuSheet({
       title: t('Select set type'),
       sections: [
         { items: [
-          shape.mode !== 'cardio' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && !canWarmUp(e, row),
+          shape.mode !== 'cardio' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && (hold || !canWarmUp(e, row)),
             onClick: () => { if (!warm) edit(c => makeWarmup(c, row)) } },
-          { icon: 'dumbbell', label: t('Normal set'), on: !warm && !failing && !row.max,
-            onClick: () => { if (warm) edit(makeWork); else if (failing) edit(c => setFailure(c, false)); else if (row.max) edit(c => setMax(c, row.k, false)) } },
+          { icon: 'dumbbell', label: t('Normal set'), on: !warm && !failing && !row.max && !hold,
+            onClick: () => {
+              if (warm) edit(makeWork)
+              else if (failing || row.max || hold) edit(c => [failing && (x => setFailure(x, false)), row.max && (x => setMax(x, row.k, false)), hold && unhold].filter(Boolean).reduce((x, f) => f(x), c))
+            } },
           canFail(e) && { icon: 'gauge', label: t('Failure set'), sub: t('The last set only'), on: failing, disabled: warm || row.k !== lastK,
             onClick: () => edit(c => setFailure(c, !failing)) },
           shape.pyramid && !warm && { icon: 'bolt', label: t('As many reps as you can'), on: row.max, onClick: () => edit(c => setMax(c, row.k, !row.max)) },
+          // As the live workout's set type sheet offers it (D89).
+          canHold && { icon: 'timer', label: t('Timed hold'), sub: warm ? t('Not for a warm-up') : t('Seconds in place of reps'), on: hold, disabled: warm,
+            onClick: () => { if (!hold) edit(c => setHold(c, row.k, h.last || HOLD_SEC)) } },
         ] },
         { title: t('More'), items: [
           { icon: 'slider', label: t('Drop sets, rest-pause, back-off…'), sub: t('In this exercise’s settings'), onClick: openSettings },
@@ -250,7 +276,10 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(shownWeight(S, e.id, row.w))}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
     // Named as the plain fields are, its value after (the fifth audit, 2026-11-21).
-    const said = v => t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd) + ', ' + v
+    const said = v => nameOf(row) + ', ' + (c.say || c.hd) + ', ' + v
+    // A hold's time in place of its reps, typed as the live workout's TIME is (D53).
+    if (c.f === 'r' && isHold(row)) return <DurationField key={c.f} className="hv-num" sec={holdAt(row).open}
+      aria-label={nameOf(row) + ', ' + t('Time')} onChange={sec => { if (sec > 0) edit(cfg => setHold(cfg, row.k, sec)) }} />
     if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(row.repsMin + '–' + row.reps)}
       onClick={() => useUI.getState().openSheet(close => <RangeSheet from={row.repsMin} to={row.reps} close={close}
         onDone={(a, b) => edit(cfg => setRange(cfg, a, b))} />)}>{row.repsMin}–{row.reps}</button>
@@ -261,17 +290,18 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
     // A converted weight to the routine page's places, 110.2 not 110.23 (set-columns.js boxOf; the sixth audit, 2026-11-22).
     return <NumberField key={c.f} decimal={c.dec} className="hv-num" value={c.f === 'w' && !v ? '' : boxOf(c, v, pastHundredth(v)) ?? ''}
       placeholder={c.f === 'w' ? '–' : undefined}
-      aria-label={t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd)}
+      aria-label={nameOf(row) + ', ' + (c.say || c.hd)}
       onChange={nv => edit(cfg => setWorkField(cfg, r, row.k, c.f, c.store ? c.store(nv, v) : nv))} />
   }
   const swipe = workoutControls(S).swipeSets
-  const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
+  const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : isHold(row) ? <span className="hv-h">{t('H')}</span>
+    : row.failure ? <span className="hv-f">F</span> : numOf(row))
   const line = row => <div className="hv-rt-row hv-rt-x" style={grid}>
     <button type="button" className="hv-set" onClick={() => openSetType(row)}
-      aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1) + (row.failure ? ', ' + t('Failure set') : '')}>{mark(row)}</button>
+      aria-label={nameOf(row) + (isHold(row) ? ', ' + t('Timed hold') : '') + (row.failure ? ', ' + t('Failure set') : '')}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
     <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
-      aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><HvIcon name="minusCircle" /></button>
+      aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : isHold(row) ? t('Remove set') + ', ' + nameOf(row) : t('Remove set {0}', numOf(row))}><HvIcon name="minusCircle" /></button>
   </div>
 
   const meta = unitOf.get(i)?.length > 1 && unitOf.get(i)[0] === i ? supersetMeta(r.ex, unitOf.get(i)) : null
@@ -318,7 +348,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
 // A key in one card's set field writes the store, which copies every routine: each card compares
 // its own part by content, so only that card redraws (the fresh audit, 2026-11-21).
 const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.i === b.i && a.at === b.at && !a.grip === !b.grip
-  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && a.r.id === b.r.id
+  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && a.r.id === b.r.id && JSON.stringify(a.held) === JSON.stringify(b.held)
   && sameForRoutineCard(a.S, b.S, a.r.id, a.i, a.unitOf.get(a.i)))
 
 // Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
@@ -379,6 +409,9 @@ function RoutineEditor({ id }) {
   // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
   // Above the return: a routine deleted while open (a sync, ⋯ → Delete) redraws once first (the sixth audit, 2026-11-21).
   const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
+  // What each set opens as, once per copy of S, as the routine page builds it (D146: holds planned or carried over).
+  const plain = isPlain(r)
+  const held = useMemo(() => (plain ? openedHolds(nextSession(S, id)) : null), [S, id, plain]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!r) return null
 
   // Several picks at once are called one by one in the same tick: one toast names them all.
@@ -432,7 +465,7 @@ function RoutineEditor({ id }) {
     {r.ex.length ? <div ref={reorder.listRef} className={'hv-units' + (reorder.drag ? ' is-reordering' : '')}>
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
         className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
-        {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S}
+        {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S} held={held?.[i] || null}
           at={n + '/' + units.length} grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
       </section>)}
     </div> : <div className="hv-empty">

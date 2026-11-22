@@ -16,6 +16,7 @@ import { hooks } from '../hooks.js'
 import { isPlain, plainRows } from '../lib/plain-routine.js'
 import { storeAdapter } from '../lib/store-watch.js'
 import { initNextPlan } from '../lib/next-plan-run.js'
+import { rowMode } from '../lib/hold-set.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -234,5 +235,20 @@ describe('Routine page (D37, D128)', () => {
   it('a routine that is gone goes back to Routines', () => {
     render([], '/plan/r/nope/view')
     expect(path).toBe('/routines')
+  })
+})
+
+describe('Routine page, a timed hold (D146)', () => {
+  beforeAll(() => { hooks.setMode = rowMode })   // S48, as hevier/index.js installs it
+  afterAll(() => { hooks.setMode = null })
+  it('marks a planned hold H with its time, and one carried over from last time too', () => {
+    render([{ ...PLAN[0], sets: 3, hvHolds: { 1: 40 } }], undefined, {
+      workouts: [{ ...last, entries: [{ ...last.entries[0], sets: [...last.entries[0].sets, { w: 50, mode: 'time', sec: 30, done: true }] }] }],
+    })
+    const r = rows()
+    expect(r.map(x => x[0])).toEqual(['W', '1', 'H', 'H'])
+    expect(r[2][2]).toContain('0:40')
+    expect(r[3][2]).toContain('0:30')
+    expect(container.querySelector('.hv-np-row .hv-h').getAttribute('aria-label')).toBe('Hold')
   })
 })

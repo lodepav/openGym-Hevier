@@ -149,3 +149,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D143** Workouts go to Hevy with each set's time and the gym, through the routes Hevy's own app uses.
 - **D144** The sixth audit's visible changes.
 - **D145** The seventh critique's visible changes, three of them past earlier decisions.
+- **D146** A routine can plan a timed hold on one set.

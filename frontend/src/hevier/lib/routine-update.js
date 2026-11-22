@@ -1,7 +1,8 @@
 // The Finish sheet's "Update the routine too" (hevier/DECISIONS.md D35, D129, D132). What a
 // routine workout changed in each routine it was built from: exercises added, removed or swapped,
 // the order, the number of work sets, and what upstream's per-exercise Update routine already
-// copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry), and Per side. Weights
+// copies (warm-up sets, rest, note: lib/routines.js routineChangesFromEntry), Per side, and the
+// sets made timed holds or turned back (D146, routine-holds.js holdsAfter). Weights
 // and reps are never written back (bar the plan's reps when Per side switches): the progression
 // engine moves those from what was logged.
 //
@@ -22,6 +23,8 @@ import { isWarmupRow } from '../../lib/workout-model.js'
 import { setUnits } from './hold-set.js'
 import { isPyramid } from '../../lib/pyramid.js'
 import { sideDefault } from './one-limb.js'
+import { isPlain } from './plain-routine.js'
+import { holdsAfter, pruneHolds } from './routine-holds.js'
 
 // A pyramid's rows are its plan's, a rest-pause set builds its own rows and cardio is one block:
 // their row count says nothing about the sets planned.
@@ -84,6 +87,10 @@ export function routineUpdate(S, session, routine) {
         if (plan.reps > 0) slot.reps = plan.reps
         if (plan.repsMin > 0) slot.repsMin = plan.repsMin
       }
+      // A set made a timed hold in the workout, or one turned back (D146; only a plain routine opens them).
+      const holds = isPlain(routine) ? holdsAfter(slot, entry) : null
+      if (holds) slot = pruneHolds({ ...slot, hvHolds: holds })
+      else if (slot.hvHolds) slot = pruneHolds(slot)
       if (!same(slot, routine.ex[a])) summary.changed++
       ex.push(slot)
       return

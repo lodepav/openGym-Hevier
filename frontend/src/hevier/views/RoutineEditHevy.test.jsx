@@ -4,13 +4,15 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
 import { tableShape } from '../lib/routine-table.js'
 import { loadOfRoutine } from '../../lib/muscles.js'
+import { hooks } from '../hooks.js'
+import { isPlain, plainRows } from '../lib/plain-routine.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -381,5 +383,54 @@ describe('hevier: routine editor (M3)', () => {
     expect(ex[1].sg).toBeTruthy()
     expect(ex[2].sg).toBe(ex[1].sg)
     host.remove()
+  })
+})
+
+describe('hevier: routine editor, a planned timed hold (D146)', () => {
+  beforeAll(() => { hooks.plainRoutine = { is: isPlain, rows: plainRows } })   // D69, as hevier/index.js installs it
+  afterAll(() => { hooks.plainRoutine = null })
+  const marks = () => [...container.querySelectorAll('.hv-rt-row:not(.hv-rt-head) .hv-set')].map(b => b.textContent)
+  const setType = (n, label) => {
+    act(() => container.querySelectorAll('.hv-rt-row:not(.hv-rt-head) .hv-set')[n].click())
+    const menu = sheet()
+    const item = [...menu.querySelectorAll('.menu-item')].find(m => m.textContent.includes(label))
+    act(() => item.click())
+    return item
+  }
+
+  it('Timed hold in the set type sheet makes a set a hold with a time; Normal set turns it back', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const item = setType(1, 'Timed hold')
+    expect(item.textContent).toContain('Seconds in place of reps')
+    expect(slot().hvHolds).toEqual({ 1: 45 })
+    expect(marks()).toEqual(['1', 'H', '2'])
+    expect(container.querySelector('.hv-set .hv-h')).not.toBeNull()
+    const time = container.querySelector('input.hv-dur')
+    expect(time.value).toBe('0:45')
+    expect(time.getAttribute('aria-label')).toBe('Hold 1, Time')
+    typeInto(time, '40')
+    expect(slot().hvHolds).toEqual({ 1: 40 })
+    act(() => time.dispatchEvent(new Event('blur', { bubbles: true })))
+    setType(1, 'Normal set')
+    expect(slot().hvHolds).toBeUndefined()
+    expect(marks()).toEqual(['1', '2', '3'])
+  })
+
+  it('shows a hold carried over from last time; Normal set plans a rep set over it', () => {
+    const S = { routineId: 'r1', routineIds: ['r1'], d: '2026-11-10', start: 1, end: 2, entries: [{ id: EX, rid: 'r1',
+      sets: [{ w: 60, r: 8, done: true }, { w: 60, mode: 'time', sec: 50, done: true }, { w: 60, r: 8, done: true }] }] }
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    act(() => useStore.getState().update(s => { s.workouts = [{ id: 'w0', ...S }] }))
+    expect(marks()).toEqual(['1', 'H', '2'])
+    expect(container.querySelector('input.hv-dur').value).toBe('0:50')
+    setType(1, 'Normal set')
+    expect(slot().hvHolds).toEqual({ 1: 0 })
+    expect(marks()).toEqual(['1', '2', '3'])
+  })
+
+  it('a routine with progression on offers no timed hold', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }], { hvProg: true })
+    act(() => container.querySelectorAll('.hv-rt-row:not(.hv-rt-head) .hv-set')[1].click())
+    expect([...sheet().querySelectorAll('.menu-item')].some(m => m.textContent.includes('Timed hold'))).toBe(false)
   })
 })

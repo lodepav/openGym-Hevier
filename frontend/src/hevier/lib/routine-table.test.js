@@ -121,4 +121,14 @@ describe('hevier routine table (D15)', () => {
     expect(canAddWarmup(run)).toBe(false)
     expect(addWarmup(run)).toBe(run)
   })
+
+  it('draws a planned hold with its seconds, and keeps it on its set when a set goes (D146)', () => {
+    const cfg = flat({ sets: 4, hvHolds: { 2: 40 } })
+    expect(work(routineRows(cfg, routine, 'kg')).map(r => (r.hold ? 'H' + r.sec : r.reps))).toEqual([8, 8, 'H40', 8])
+    expect(removeRow(cfg, { kind: 'work', k: 0 }).hvHolds).toEqual({ 1: 40 })
+    expect(removeRow(cfg, { kind: 'work', k: 2 }).hvHolds).toBeUndefined()
+    expect(removeRow(cfg, { kind: 'work', k: 3 }).hvHolds).toEqual({ 2: 40 })
+    expect(makeWarmup(cfg, { kind: 'work', k: 1 }).hvHolds).toEqual({ 1: 40 })
+    expect(addRow(cfg).hvHolds).toEqual({ 2: 40 })
+  })
 })
