@@ -95,6 +95,14 @@ clean one. The full rounds keep finding mediums (71 % of round-3 runs), so no ch
 13 (Haiku as the model under test in OB's AI evals) and 15 (implementers, bug reviews, UX
 judgement, CodeRabbit triage, Fable merges stay as they are) need nothing.
 
+12 run 2026-11-22 on the four "Scope D… port to upstream" lookups of 2026-11-18 (the fifth's inputs
+were gone), fork pinned at 5eed1a414, graded by a fresh Opus agent
+(`.claude/hillclimb/reviewer/sonnet-2026-11-22/lookups-grade.md`): Sonnet led to the same decision
+on 2 of 4 (D120, D70). On D35 it called upstream's open #990 unrelated and kept a set count upstream
+refuses; on D53 it chose a set field without the copy rule it needs. Below 4 of 4 (the bar was
+5 of 5), so upstream scoping stays on Opus. Plain lookups (find a file, list callers) were not
+tested: none were in the recent history.
+
 ## Owner decision
 
 - 10: standing permission to commit, merge into the fork main and push once checks pass;
