@@ -1205,6 +1205,8 @@
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button{border-radius:0;color:var(--label);font-weight:600}
 /* "12 weeks" on one line at 411 dp, as the others are; the row wraps whole toggles (the ninth critique, 2026-11-22). */
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button{white-space:nowrap;padding-inline:6px}
+/* Each segment at least its label and padding: upstream's min-width:0 let "12 weeks" touch the pill's edge (the owner, 2026-11-23). */
+:root[data-ui="hevier"] .hv-lifts-ctl>.seg>button{min-width:auto;padding-inline:12px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:first-of-type{border-start-start-radius:99px;border-end-start-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:last-of-type{border-start-end-radius:99px;border-end-end-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button+button{border-inline-start:1px solid var(--sep)}
