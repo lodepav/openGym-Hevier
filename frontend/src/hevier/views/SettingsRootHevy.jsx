@@ -120,9 +120,11 @@ export function installSettings() {
     back: () => {
       const came = (window.history.state?.idx || 0) > 0, from = came && window.history.state?.usr?.back
       const label = from === 'History' ? t('History') : from === 'Lifts' ? t('Lifts') : t('Today')
-      return <button className="sp-back" aria-label={label}
+      // The title in the bar's middle column, as on sub-pages: one sticky layer (the seventh critique, 2026-11-22).
+      return <><button className="sp-back" aria-label={label}
         onClick={() => (came ? nav(-1) : nav('/home', { replace: true }))}>
         <Icon name="chevronLeft" /><span>{label}</span></button>
+        <h1 className="sp-title">{t('Settings')}</h1></>
     },
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />

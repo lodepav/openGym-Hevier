@@ -160,6 +160,19 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(css).toMatch(/\.hv-xd-page, \.hv-xd-howto\) > \.exmedia video\.catvid\{background:var\(--surface-2\)\}/)
   })
 
+  // The seventh critique, 2026-11-22: "tap to pause" waits for a picture or clip that has drawn.
+  it('marks the media once it has drawn, which the hint waits for', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
+    expect(css).toContain('.hv-xd-cat > .exmedia:not(:has(> :is(img, video)[data-hv-drawn])) > .gifhint{visibility:hidden}')
+    // Only a catalogue exercise's: a custom one's hint also says Loading… and has no event to wait for.
+    open([])
+    const pic = container.querySelector('.hv-xd-page.hv-xd-cat > .exmedia > :is(img, video)')
+    expect(container.querySelector('.hv-xd-page > .exmedia > .gifhint')).toBeTruthy()
+    expect(pic.hasAttribute('data-hv-drawn')).toBe(false)
+    act(() => { pic.dispatchEvent(new Event(pic.tagName === 'VIDEO' ? 'loadeddata' : 'load')) })
+    expect(pic.hasAttribute('data-hv-drawn')).toBe(true)
+  })
+
   it('gives a best 1RM that is the heaviest single the heaviest tile, not a second one', () => {
     open([
       { id: 'a', d: '2026-08-05', entries: [{ id: EX.id, sets: [{ w: 100, r: 1, done: true }] }] },

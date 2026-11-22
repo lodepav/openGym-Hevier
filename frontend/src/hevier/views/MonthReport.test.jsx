@@ -61,6 +61,9 @@ describe('hevier: monthly report (D23)', () => {
     expect([...container.querySelectorAll('h3.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')
     // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')
+    // Sentence case, and the top exercise's weight named (the seventh critique, 2026-11-22).
+    expect([...container.querySelectorAll('h3.sec')].map(h => h.textContent)).toContain('Muscle split')
+    expect([...container.querySelectorAll('.hv-report-row .dim')].at(-1).textContent).toBe('5 sets · best 75 kg')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
     // Back goes to History, where it opens from (D142).
     expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')

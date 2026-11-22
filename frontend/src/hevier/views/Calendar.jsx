@@ -148,6 +148,15 @@ function CalendarPage() {
   }, [count])
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
+  // The key scrolls with the months, under this one where the page opens: pinned, it took a large
+  // share of a short screen at a big text size (the fresh audit, 2026-11-21).
+  // Right under the last month, above Show next month (the seventh critique, 2026-11-22).
+  const key = <div className="hv-cal-key">
+    <span><i className="k-strength" />{t('Strength')}</span>
+    <span><i className="k-cardio" />{t('Cardio')}</span>
+    <span><i className="k-deload" />{t('Deload')}</span>
+    <span><i className="k-plan" />{t('Planned')}</span>
+  </div>
   return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
     {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
@@ -162,6 +171,7 @@ function CalendarPage() {
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
       {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      {key}
       <button type="button" className="btn hv-cal-more next" onClick={() => setAhead(a => a + 1)}>{t('Show next month')}</button>
     </> : <>
       <div className="hv-cal-yr">
@@ -172,14 +182,7 @@ function CalendarPage() {
       <div className="hv-cal-year">
         {Array.from({ length: 12 }, (_, mo) => <Month key={mo} y={year} mo={mo} st={st} byDay={byDay} today={today} small onTitle={() => openMonth(mo)} />)}
       </div>
+      {key}
     </>}
-    {/* The key scrolls with the months, under this one where the page opens: pinned, it took a
-        large share of a short screen at a big text size (the fresh audit, 2026-11-21). */}
-    <div className="hv-cal-key">
-      <span><i className="k-strength" />{t('Strength')}</span>
-      <span><i className="k-cardio" />{t('Cardio')}</span>
-      <span><i className="k-deload" />{t('Deload')}</span>
-      <span><i className="k-plan" />{t('Planned')}</span>
-    </div>
   </div>
 }

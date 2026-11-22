@@ -22,7 +22,8 @@ export function ModuleParts({ mod, row }) {
   const on = isOn(S, mod)
   const parts = PARTS[mod]
   const n = parts.filter(p => partSwitch(S, mod, p.id)).length
-  const count = !on ? t('Off') : n === parts.length ? t('All') : t('{0} of {1}', n, parts.length)
+  // "All on", not "All ›", which read as a link to see everything (the seventh critique, 2026-11-22).
+  const count = !on ? t('Off') : n === parts.length ? t('All on') : t('{0} of {1}', n, parts.length)
   return <>
     {/* The count shown beside it is in the button's name, so TalkBack reads it once, with the button (the sixth audit, 2026-11-21). */}
     {cloneElement(row, { className: row.props.className + ' hv-modrow' },

@@ -105,7 +105,7 @@ export default function MonthReport() {
       <Month y={at.y} mo={at.mo} st={st} byDay={byDay} today={today} />
 
       {r.muscles.length > 0 && <>
-        <h3 className="sec">{t('Muscle Split')}</h3>
+        <h3 className="sec">{t('Muscle split')}</h3>
         <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
           <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
@@ -117,7 +117,8 @@ export default function MonthReport() {
         <h3 className="sec">{t('Top exercises')}</h3>
         <div className="list hv-flat">{r.top.map(x => <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(exOr(x.id))}>
           <span className={'grow ' + exerciseNameClass(exOr(x.id))}>{exerciseNameFor(exOr(x.id))}</span>
-          <span className="dim">{tn('{0} set', '{0} sets', x.sets)}{x.best > 0 && ' · ' + fmtNum(x.best) + ' ' + unit}</span>
+          {/* The month's best weight, named, as "5 sets · 97.5 kg" left it open (the seventh critique, 2026-11-22). */}
+          <span className="dim">{tn('{0} set', '{0} sets', x.sets)}{x.best > 0 && ' · ' + t('best {0}', fmtNum(x.best) + ' ' + unit)}</span>
         </button>)}</div>
       </>}
     </>}

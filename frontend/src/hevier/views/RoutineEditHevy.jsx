@@ -290,7 +290,8 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
         <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
         {brandsOn && (brand
           ? <button type="button" className="hv-brand has" aria-label={t('Brand') + ': ' + brand} onClick={openBrand}><Icon name="machine" />{brand}</button>
-          : <button type="button" className="hv-addbrand" onClick={openBrand}>{t('+ Brand')}</button>)}
+          // A text line under the name, as the live workout draws it (the seventh critique, 2026-11-22).
+          : <button type="button" className="hv-brand" onClick={openBrand}>{t('+ Brand')}</button>)}
       </div>
       {noEquip && (why => <button type="button" className="iconbtn hv-warn" aria-label={why} title={why} onClick={() => toast(why)}><Icon name="warning" /></button>)(t('Needs {0}, which {1} doesn’t have', t(ex.eq), profile?.name))}
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>

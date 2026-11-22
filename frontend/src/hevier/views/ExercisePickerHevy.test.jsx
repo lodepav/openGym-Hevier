@@ -240,6 +240,16 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
       expect(useUI.getState().sheets).toHaveLength(0)
     })
 
+    // The seventh critique, 2026-11-22: as Lifts and the exercise's page write it.
+    it('a last set without weight reads "8 reps", not "× 8"', () => {
+      live()
+      useStore.getState().update(s => { s.workouts[2].entries[0].sets[0].w = 0 })
+      swapActiveWorkoutExercise(1)
+      render()
+      const fly = [...container.querySelectorAll('section[aria-label="You have done these"] .hv-pk-row')].find(r => r.querySelector('.tt').textContent === FLY.n)
+      expect(fly.querySelector('.ss').textContent).toMatch(/^once · .+ · 8 reps$/)
+    })
+
     it('Add is the same sheet without your swaps, still picking several', () => {
       const hash = window.location.hash
       window.location.hash = '#/workout'

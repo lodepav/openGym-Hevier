@@ -83,7 +83,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-wd-t').textContent).toBe('Push Day')
     expect(page.textContent).toContain('Felt strong')
     // D133: the bars went; the line under the stats has the counts (sets mode, D18).
-    expect(page.textContent).not.toContain('Muscle Split')
+    expect(page.textContent).not.toMatch(/Muscle split/i)
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
     expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3

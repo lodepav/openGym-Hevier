@@ -73,6 +73,19 @@ describe('Today: the week in one row', () => {
     expect(days.filter(d => d.next)).toHaveLength(1)
   })
 
+  // The seventh critique, 2026-11-22: "0 of 3 done this week" over a strip of "–".
+  it('a past day the weekly plan gave a routine, not trained, is missed; rest set on it or a rotation day is not', () => {
+    const s = S({ queue: null, rotation: null, dayPlan: { '2026-11-18': 'rest' }, workouts: [w('ua', '2026-11-19')],
+      week: { 1: 'ua', 3: 'la', 4: 'ub', 5: 'gone' } })
+    const days = weekStrip(s, '2026-11-21')
+    expect(days.slice(0, 5).map(d => [d.kind, d.name])).toEqual([['missed', 'TBJP UA'], ['', ''], ['', ''], ['done', ''], ['', '']])
+    // The rotation's own sessions move on rather than being missed; a weekday routine beside it still is.
+    const live = weekStrip(S({ week: { 1: 'ua' }, workouts: [] }), '2026-11-18')
+    expect(live[0].kind).not.toBe('missed')
+    const own = [...routines, { id: 'own', name: 'Mobility', ex: [] }]
+    expect(weekStrip(S({ routines: own, week: { 1: 'own' }, workouts: [] }), '2026-11-18')[0]).toMatchObject({ kind: 'missed', name: 'Mobility' })
+  })
+
   it('starts on Sunday when the profile does, the weekend done', () => {
     const days = weekStrip(S({ weekStart: 0 }), TODAY)
     expect(days[0].iso).toBe('2026-11-15')

@@ -44,15 +44,16 @@ export function timedSessions(workouts, since = '') {
 
 // A session of one set is counted but not timed: its total and average are of the others, and with
 // none the average is null ("too few sets"). A session without a set count (`sets` unset) is timed.
+// `sessions` counts the timed ones, or all when none is, as the total does (the seventh critique, 2026-11-22).
 const timed = s => !(s.sets < MIN_SETS)
 const rowsOf = sessions => {
   const by = new Map()
   for (const s of sessions) {
-    const r = by.get(s.id) || by.set(s.id, { id: s.id, sessions: 0, timed: 0, total: 0 }).get(s.id)
-    r.sessions++
+    const r = by.get(s.id) || by.set(s.id, { id: s.id, all: 0, timed: 0, total: 0 }).get(s.id)
+    r.all++
     if (timed(s)) { r.timed++; r.total += s.ms }
   }
-  return [...by.values()].map(r => ({ ...r, avg: r.timed ? r.total / r.timed : null }))
+  return [...by.values()].map(({ all, ...r }) => ({ ...r, sessions: r.timed || all, avg: r.timed ? r.total / r.timed : null }))
 }
 
 /**

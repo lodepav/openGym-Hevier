@@ -152,7 +152,9 @@ describe('hevier: Calendar', () => {
     render('/calendar', [w])
     const key = container.querySelector('.hv-cal-key')
     expect(key.closest('.hv-cal-top')).toBeNull()
-    expect([...key.parentElement.children].at(-1)).toBe(key)
+    // Right under the last month, above Show next month (the seventh critique, 2026-11-22).
+    expect(key.previousElementSibling.classList.contains('hv-cal-m')).toBe(true)
+    expect(key.nextElementSibling.classList.contains('next')).toBe(true)
     expect([...key.querySelectorAll('span')].map(x => x.textContent)).toEqual(['Strength', 'Cardio', 'Deload', 'Planned'])
   })
 

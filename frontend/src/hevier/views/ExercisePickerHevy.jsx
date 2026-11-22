@@ -38,7 +38,7 @@ import { suggestedSubstitutes, relatedSubstitutes } from '../../lib/exercise-sub
 import { partOn } from '../lib/module-parts.js'
 import { isBw } from '../../lib/history.js'
 import { speedUnitOf } from '../../lib/speed.js'
-import { previousText, noEffort } from '../lib/set-text.js'
+import { liftSetText } from '../lib/lifts-list.js'
 import { exUnitOf, shown as inUnit } from '../lib/ex-unit.js'
 import { pastSwaps, doneHere } from '../lib/swap-history.js'
 
@@ -198,11 +198,11 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
         : multi ? <span className={'hv-pk-check' + (isOn(e) ? ' on' : '')}>{isOn(e) && <Icon name="check" />}</span> : <Icon name="chevronRight" className="chev" />}
     </div>
   }
-  // "4 times · last 12 Oct · 27.5kg × 10", the set as the workout's PREVIOUS column writes it.
+  // "4 times · last 12 Oct · 27.5kg × 10", the set as Lifts writes it, "12 reps" alone (the seventh critique, 2026-11-22).
   const histLine = r => {
     const u = exUnitOf(st, r.id)
-    const set = r.last ? previousText(noEffort(r.last), { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target,
-      show: w => inUnit(w, st.unit, u), speedUnit: speedUnitOf(st) }) : ''
+    const set = r.last ? liftSetText(r.last, { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target,
+      show: w => inUnit(w, st.unit, u), speedUnit: speedUnitOf(st) }).replaceAll('\n', ' · ') : ''
     const when = r.d ? fmtDate(r.d) : ''
     return (r.n === 1 ? [t('once'), when] : [t('{0} times', r.n), when && t('last {0}', when)]).concat(set).filter(Boolean).join(' · ')
   }

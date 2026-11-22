@@ -135,6 +135,16 @@ describe('liftProgress', () => {
     expect(p.state).toBeNull()   // the 50 is no worse session; the 75 against the 70 is the only verdict
   })
 
+  // The seventh critique, 2026-11-22: Bent Over Row's chart climbed 94 to 104 under a holding arrow.
+  it('with a chart, its change decides: a climb that most sessions only matched rises, a change under 2% holds', () => {
+    const climb = progress(series(CHEST[0], [40, 33, 26, 19, 12, 5], [80, 80, 80, 80, 88, 88])).get(CHEST[0])
+    expect([climb.state, climb.pct]).toEqual(['rising', 10])
+    const small = progress(series(CHEST[0], [22, 15, 8, 1], [80, 80.5, 81, 81.5])).get(CHEST[0])
+    expect([small.state, small.pct]).toEqual(['holding', 1])
+    // Two worse sessions at the end still fall, whatever came before (D95).
+    expect(progress(series(CHEST[0], [40, 33, 26, 19, 12, 5], [80, 90, 100, 100, 95, 90])).get(CHEST[0]).state).toBe('falling')
+  })
+
   it('needs two sessions with a verdict to judge', () => {
     expect(progress(series(CHEST[0], [8, 1], [70, 65])).get(CHEST[0])).toMatchObject({ state: null, pct: -7 })
   })

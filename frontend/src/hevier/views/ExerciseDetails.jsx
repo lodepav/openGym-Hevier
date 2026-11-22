@@ -5,7 +5,7 @@
 // opens an exercise gets the same page. The numbers are upstream's read-back of the log
 // (lib/exercise-history.js) through hevier/lib/exercise-summary.js and exercise-page.js; upstream's
 // own details sheet (plate loading, "weight means", the 1RM calculator) is ⋯ → All details.
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t, tn, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
@@ -264,6 +264,22 @@ function CompareHistory({ ex }) {
   </div>
 }
 
+// A catalogue picture or clip is marked once drawn; its "tap to pause" waits for it (hevier.css, the seventh critique, 2026-11-22).
+const DRAWN = 'data-hv-drawn'
+function useMediaDrawn() {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const mark = e => { if (e.target?.matches?.('.exmedia > :is(img, video)')) e.target.setAttribute(DRAWN, '') }
+    el.querySelectorAll('.exmedia > img').forEach(img => { if (img.complete && img.naturalWidth > 0) img.setAttribute(DRAWN, '') })
+    el.addEventListener('load', mark, true)
+    el.addEventListener('loadeddata', mark, true)
+    return () => { el.removeEventListener('load', mark, true); el.removeEventListener('loadeddata', mark, true) }
+  }, [])
+  return ref
+}
+
 function HowTo({ ex }) {
   const st = useStore(s => s.S)
   const steps = instrFor(ex)
@@ -271,7 +287,8 @@ function HowTo({ ex }) {
   // the pin never showed here before 2026-11-03).
   const note = pinnedNoteFor(st, ex.id)?.note || ''
   const demos = partOn(st, 'hvWorkout', 'demos') // D117: off leaves the text and pictures
-  return <div className="hv-xd-howto hv-xd-sub">
+  const media = useMediaDrawn()
+  return <div className={'hv-xd-howto hv-xd-sub' + (isCustomEx(ex) ? '' : ' hv-xd-cat')} ref={media}>
     <div className="hv-xd-bar"><h3>{t('How to')}</h3></div>
     {/* D101: a YouTube link in the pinned note plays here too, as upstream's Media plays a routine note's. */}
     <Media ex={ex} notes={(demos && note) || undefined} />
@@ -323,6 +340,7 @@ function ExerciseDetails({ ex, close }) {
     ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
   const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
+  const media = useMediaDrawn()
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -355,7 +373,7 @@ function ExerciseDetails({ ex, close }) {
     </div>
     {aka.length > 0 && partOn(st, 'hvExercise', 'names') && <button type="button" className="hv-xd-aka" onClick={() => aliasSheet(ex)}>
       {t('Also called')} <span>{aka.join(' · ')}</span></button>}
-    <div className="hv-xd-page">
+    <div className={'hv-xd-page' + (isCustomEx(ex) ? '' : ' hv-xd-cat')} ref={media}>
       <Media ex={ex} />
       <ExerciseFacts ex={ex} />
       {brands && <div className="hv-xd-labels">

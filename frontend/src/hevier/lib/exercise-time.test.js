@@ -63,7 +63,9 @@ describe('hevier: exercise time (D88)', () => {
     const s = [{ id: 'a', gym: '', ms: MIN / 60, sets: 1 }, { id: 'b', gym: '', ms: 2 * MIN, sets: 3 },
       { id: 'c', gym: '', ms: 9 * MIN, sets: 1 }, { id: 'c', gym: '', ms: 4 * MIN, sets: 4 }]
     const [flat] = timeSections(s)
-    expect(flat.rows.map(r => [r.id, r.sessions, r.avg == null ? null : r.avg / MIN, r.total / MIN])).toEqual([['c', 2, 4, 4], ['b', 1, 2, 2], ['a', 1, null, 0]])
+    // The count is of the timed sessions, as the total and average are; with none timed, of all (the seventh critique, 2026-11-22).
+    expect(flat.rows.map(r => [r.id, r.sessions, r.avg == null ? null : r.avg / MIN, r.total / MIN])).toEqual([['c', 1, 4, 4], ['b', 1, 2, 2], ['a', 1, null, 0]])
+    expect(timeSections([...s, { id: 'a', gym: '', ms: MIN, sets: 1 }])[0].rows.find(r => r.id === 'a').sessions).toBe(2)
     // Last whichever way round, and out of a section's total.
     expect(timeSections(s, { asc: true })[0].rows.map(r => r.id)).toEqual(['b', 'c', 'a'])
     expect(timeSections(s, { by: 'gym' })[0].total).toBe(6 * MIN)

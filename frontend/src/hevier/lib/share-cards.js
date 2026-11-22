@@ -98,7 +98,7 @@ export function shareCards(S, w, { body = 'male' } = {}) {
   if (MUSCLES.some(m => levels[m] > 0)) {
     const top = muscles.slice(0, MAX_MUSCLES)
     cards.push({
-      kind: 'muscles', ...head, heading: t('Muscle Split'), levels, body,
+      kind: 'muscles', ...head, heading: t('Muscle split'), levels, body,
       rows: top.map(m => ({ muscle: muscleText(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
     })
   }
@@ -146,7 +146,7 @@ export function monthCards(S, { y, mo, report: r, workouts = [], byDay = {}, ws 
   if (r.muscles.length && MUSCLES.some(m => levels[m] > 0)) {
     const top = r.muscles.slice(0, MAX_MUSCLES)
     cards.push({
-      kind: 'muscles', ...head, heading: t('Muscle Split'), levels, body,
+      kind: 'muscles', ...head, heading: t('Muscle split'), levels, body,
       rows: top.map(m => ({ muscle: muscleText(m.muscle), sets: m.sets, value: fmtNum(m.sets), part: m.sets / (top[0]?.sets || 1) })),
     })
   }

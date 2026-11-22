@@ -52,6 +52,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.sp-acct')).toBeTruthy()
     expect(container.textContent).not.toContain('Cards')
     expect(container.querySelector('.sp-back').textContent).toBe('Today')
+    // The title is in the bar's own row, one sticky layer (the seventh critique, 2026-11-22).
+    expect(container.querySelector('.sp-nav > h1.sp-title').textContent).toBe('Settings')
   })
 
   // The fifth audit, 2026-11-21: back names the tab whose gear opened Settings, Today on a cold open.

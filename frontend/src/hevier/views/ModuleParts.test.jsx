@@ -72,6 +72,8 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(useStore.getState().S.modules.motivation).toBe(false)
     expect(row('Motivation').querySelector('.hv-modrow-open').getAttribute('aria-expanded')).toBe('false')
     expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('Off')
+    act(() => row('Motivation').querySelector('[role="switch"]').click())
+    expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('All on')   // the seventh critique, 2026-11-22
   })
   it('a module without parts has no disclosure', () => {
     render('/settings/modules')

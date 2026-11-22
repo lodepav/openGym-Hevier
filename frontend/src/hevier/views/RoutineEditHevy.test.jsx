@@ -129,7 +129,7 @@ describe('hevier: routine editor (M3)', () => {
   it('the brand sits on the name line: + Brand adds one at the active gym, a tap on it changes it (D130)', () => {
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60 }])
     act(() => useStore.getState().update(s => { s.equipProfiles = [{ id: 'g1', name: 'City Gym', items: [] }]; s.activeEquipId = 'g1' }))
-    act(() => container.querySelector('.hv-nameline .hv-addbrand').click())
+    act(() => container.querySelector('.hv-nameline .hv-brand:not(.has)').click())
     const host = sheet()
     expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')
     typeInto(host.querySelector('input'), 'Rogue')

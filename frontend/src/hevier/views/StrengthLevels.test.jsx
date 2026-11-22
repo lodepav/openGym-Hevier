@@ -92,7 +92,7 @@ describe('hevier: strength levels list', () => {
     render('/strength')
     const empty = container.querySelector('.hv-ms-empty')
     expect(empty.firstChild.textContent).toBe('No strength levels yet.')
-    expect(empty.querySelector('.dim').textContent).toBe('A strength level places your best estimated 1RM among five levels, Beginner to Elite, that you type in yourself.')
+    expect(empty.querySelector('.dim').textContent).toBe('A strength level places your best estimated 1RM among five levels, Beginner to Elite, whose weights you type in yourself.')
     expect(container.querySelector('.hv-report-row')).toBeNull()
     // The page's one action is a full-width button, not a chip (the critique, 2026-11-21).
     expect(container.querySelector('.hv-sl-add').className).toBe('btn primary hv-sl-add')
