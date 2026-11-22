@@ -1148,6 +1148,8 @@
 :root[data-ui="hevier"] .hv-np-last > span{display:flex;align-items:center;gap:6px;min-height:44px;color:var(--label-2);font-size:13px}
 :root[data-ui="hevier"] .hv-np-next > span{display:flex;align-items:center;gap:2px;min-height:44px;font-weight:700;white-space:nowrap}
 :root[data-ui="hevier"] .hv-np-side{font-size:11px;font-weight:800;color:var(--label-2)}
+/* Next spaces its parts 2px (the "+" and the unit); its L/R mark sits 6px off, as Last's does. */
+:root[data-ui="hevier"] .hv-np-next .hv-np-side{margin-inline-end:4px}
 :root[data-ui="hevier"] .hv-np-num{min-width:44px;min-height:44px;padding:0 4px;background:none;border:0;font:inherit;font-weight:700;color:var(--label);text-decoration:underline dotted var(--label-3);text-underline-offset:4px}
 :root[data-ui="hevier"] .hv-np-num.chg{color:var(--hv-acc-ink)}
 :root[data-ui="hevier"] .hv-np-ro{font-weight:600;color:var(--label);white-space:normal}
