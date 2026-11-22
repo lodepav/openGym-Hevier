@@ -54,6 +54,10 @@ a hook. Found while measuring:
 
 ## Phase 3: cheaper models, only with proof
 
+14 run 2026-11-22 (`.claude/hillclimb/reviewer/sonnet-2026-11-22/results.md`): Sonnet found 4 of
+15 known bugs (5 leniently) against Opus's 10 of 15, in 30 to 70 s and under 10 tool calls a case.
+Reviews stay on Opus. Simplify rounds were not measured.
+
 | # | Build | Test | Measure, success |
 |---|---|---|---|
 | 12 | Sonnet default for read-only lookups, web research, doc drafts (Opus reads the diff) and skill dry-runs | 5 past lookups answered by Sonnet vs the recorded answer | Same facts in 5 of 5; else keep Opus for that kind |
