@@ -39,8 +39,11 @@ export function addedDecisions(diff) {
 export const releaseNotesOf = body => [...String(body || '').matchAll(/^Release-note:\s*(.+)$/gm)].map(m => m[1].trim())
 
 /** Each merge as { section: 'new' | 'fix' | 'upstream', text, decisions }, plus a 'before' entry per release note. */
+// A pull of hevier/main from another clone brings nothing that its own merges do not list.
+const selfMerge = subject => /^Merge (?:remote-tracking )?branch '(?:origin\/)?hevier\/main'/.test(String(subject))
+
 export function entriesOf(merges) {
-  return merges.flatMap(({ subject, diff, body }) => {
+  return merges.filter(m => !selfMerge(m.subject)).flatMap(({ subject, diff, body }) => {
     const { fork, text } = noteOf(subject)
     const decisions = fork ? addedDecisions(diff) : []
     const own = { section: !fork ? 'upstream' : decisions.length ? 'new' : 'fix', text, decisions }

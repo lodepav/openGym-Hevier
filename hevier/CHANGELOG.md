@@ -8,20 +8,15 @@ Based on openGym 1.4.5.
 
 ### New
 
-- a routine can plan a timed hold on one set (D146)
+- a routine can plan a timed hold on one set: in Edit routine, tap the set's number and choose Timed hold (D146)
 - the sixth and seventh audit and critique rounds (D144, D145)
 
 ### Fixes and changes
 
-- fixes from the review of the merges since 2026-11-19
-- emulator-check matches the emu that waits
-- usage and critique-round reports, seam offers and the tooling plan
-- the fifth audit's fixes and the shared tools review
-- docs catch up with the statistics rework and release-1.4.6
-
-### From openGym
-
-- remote-tracking branch 'origin/hevier/main'
+- Statistics compares this week with the same days of last week, not all of it
+- typing in a routine's set field no longer redraws every exercise card
+- the exercise list follows a change of an exercise's main muscle or other names at once
+- the fifth audit's fixes
 
 ## 3.2.0 · 2026-11-19
 

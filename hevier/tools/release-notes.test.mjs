@@ -48,3 +48,12 @@ test('a fork merge’s Release-note lines come first, under Before you update, a
   assert.equal(nextVersion('1.1.0', e), '1.1.1')
   assert.equal(nextVersion('1.1.0', [{ section: 'before', text: 'x', decisions: [] }]), null)
 })
+
+test('a merge of hevier/main into itself (another clone pulled) is not a note', () => {
+  const e = entriesOf([
+    { subject: "Merge remote-tracking branch 'origin/hevier/main' into hevier/main", diff: '', body: '' },
+    { subject: "Merge branch 'hevier/main' of https://github.com/x/y into hevier/main", diff: '', body: '' },
+    { subject: "Merge tag 'v1.4.6' into hevier/main", diff: '', body: '' },
+  ])
+  assert.deepEqual(e.map(x => [x.section, x.text]), [['upstream', "tag 'v1.4.6'"]])
+})
