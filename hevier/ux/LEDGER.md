@@ -436,3 +436,15 @@ blurred; it is now drawn inside the one sticky bar. The visible fixes the user c
 three of them past D68, D117 and D140. Left for later: the text-size and TalkBack findings of
 the audit (clipping at 130 to 200 % on small phones, folder headings, spoken set rows, the
 picker's growing list, scroll padding under sticky bars).
+
+The eighth audit and critique (2026-11-22, HEAD 23601a37f, fresh reviewers in four batches each)
+scored 314 of 380 and 658 of 728; combined per page (the mean of both percentages) from Lifts'
+82 % to Arrange stats' 91 %. The auditors took the WebView and D24 as up to two locked points a
+page, and one batch also took D17. The owner took every fix on the list, live workout included
+(D147). The invisible ones: spoken names for durations, changes, day kinds, best 1RM, units,
+records, set numbers, set types, an empty weight, Explore and Rotation; folder heads as headings;
+48 dp for Statistics' All, the module switches and the chart chips; Statistics, Calendar and
+Monthly report subscribe to the fields they read (`useSlicedS`), Lifts' rows are memoised; large
+text wraps the workout bar, Today's exercise names and the Calendar streak. Left: at 200 % on
+320 dp the workout name keeps 2.5 em ("Pus…") and the workout footer wraps its words rather than
+stacking; Data & backup shows no last backup (nothing records one).

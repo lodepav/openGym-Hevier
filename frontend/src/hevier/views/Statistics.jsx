@@ -6,6 +6,7 @@
 // card whose module or data is missing is not drawn.
 import { useMemo } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, isoOf } from '../../lib/format.js'
@@ -36,6 +37,17 @@ export function LinkRow({ icon, title, sub, onClick }) {
     <Icon name="chevronRight" />
   </button>
 }
+
+/** S, drawn again only when one of the fields `keys` (a constant list) changes, not on every store
+ *  write. The helpers still get the whole S: one reads further than a page can list (the eighth audit, 2026-11-22). */
+export function useSlicedS(keys) {
+  useStore(useShallow(s => keys.map(k => s.S[k])))
+  return useStore.getState().S
+}
+
+// What this page and its helpers read; MuscleSetsCard and WeeklyChart subscribe on their own.
+const READS = ['workouts', 'routines', 'bodyweight', 'modules', 'hvModuleParts', 'checkIn', 'hvStatsLayout', 'unit', 'targetW',
+  'weekStart', 'hvMuscleSets', 'customEx', 'hvMainMuscle']
 
 const cardId = id => 'hv-stat-' + id
 // A tile with no page of its own scrolls to its card; happy-dom has no scrollIntoView.
@@ -87,7 +99,8 @@ function items(S, today, nav, n) {
     out.time = {
       // This week's timed exercises added up (stats-tiles.js); the card is each exercise's average over 90 days.
       // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
-      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('this week'), spoken: t('Exercise time, {0} this week', v),
+      // Its sub says what it counts, beside Training time's workouts (the eighth critique, 2026-11-22).
+      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('timed sets this week'), spoken: t('Exercise time, {0} of timed sets this week', v),
         change: weekChange(exMs, n.exMsBefore, trainingTime), onClick: () => nav('/exercise-time') } : null,
       card: longest.length ? () => <div className="card hv-scard">
         <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
@@ -125,7 +138,7 @@ function items(S, today, nav, n) {
   }
   const hours = trainingTime(week.ms)
   out.hours = {
-    tile: { title: t('Training time'), value: hours, sub: t('this week'), spoken: t('Training time, {0} this week', hours),
+    tile: { title: t('Training time'), value: hours, sub: t('in workouts this week'), spoken: t('Training time, {0} in workouts this week', hours),
       change: weekChange(week.ms, lastWeek.ms, trainingTime),
       scroll: 'weekly' },
   }
@@ -145,7 +158,7 @@ export default function Statistics() {
   const nav = useNavigate()
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
-  const raw = useStore(s => s.S)
+  const raw = useSlicedS(READS)
   // The counted log once per change of the log or the routines, not per copy of S (the sixth audit, 2026-11-21).
   const ws = useMemo(() => countedWorkouts(raw.workouts, raw.routines), [raw.workouts, raw.routines])
   const counted = useMemo(() => (ws === raw.workouts ? raw : { ...raw, workouts: ws }), [raw, ws])

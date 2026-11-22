@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, planKind, planTitle, openScroll } from './calendar.js'
+import { monthCells, monthsBack, monthsWith, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -57,6 +57,11 @@ describe('hevier: calendar kinds and titles', () => {
     expect(dayKind(undefined)).toBe('')
     expect(dayTitle([run, push])).toBe('Push')
     expect(dayTitle(undefined)).toBe('')
+    expect(monthsWith({ '2025-12-30': [1], '2026-02-01': [1, 2], '2026-02-14': [3], '2025-12-01': [4] }))
+      .toEqual([{ y: 2026, mo: 1, n: 3 }, { y: 2025, mo: 11, n: 2 }])
+    expect(monthsWith({})).toEqual([])
+    expect(['Afternoon workout 💪', 'Legs 🏋️‍♂️', 'Run 🇨🇭', 'Day 2', 'Push 💪🏽 ', '🔥', ''].map(drawnTitle))
+      .toEqual(['Afternoon workout', 'Legs', 'Run', 'Day 2', 'Push', '🔥', ''])
   })
 
   it('a planned day from today on, not trained, takes its routines\' kind (D68)', () => {

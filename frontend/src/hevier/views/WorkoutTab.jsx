@@ -207,10 +207,11 @@ export default function WorkoutTab() {
     const open = !closed.includes(key)
     return <div className="hv-fhead" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', g.name)} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
-      <button type="button" className="hv-ftoggle" aria-expanded={open} onClick={() => toggle(key)}>
+      {/* A heading, so TalkBack moves folder to folder (the eighth audit, 2026-11-22). */}
+      <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className="hv-ftoggle" aria-expanded={open} onClick={() => toggle(key)}>
         <Icon name={open ? 'chevronDown' : 'chevronRight'} />
         <span>{g.name ?? t('My Routines')} ({g.ids.length})</span>
-      </button>
+      </button></span>
       {g.name && <button type="button" className="iconbtn" aria-label={t('More') + ', ' + g.name} onClick={() => folderMore(g.name)}><Icon name="more" /></button>}
     </div>
   }
@@ -242,10 +243,10 @@ export default function WorkoutTab() {
     <div className="hv-chips hv-rend">
       <button type="button" className="hv-chip" onClick={() => newRoutine()}>{t('+ Routine')}</button>
       <button type="button" className="hv-chip" onClick={() => newFolder()}>{t('+ Folder')}</button>
-      <button type="button" className="hv-chip" onClick={() => nav('/plan')}>{t('Rotation')}</button>
+      <button type="button" className="hv-chip" aria-label={t('Rotation, your weekly plan')} onClick={() => nav('/plan')}>{t('Rotation')}</button>
       {/* "Empty" so the five fit one row on a 412 dp phone; read out whole (the critique, 2026-11-21). */}
       <button type="button" className="hv-chip" aria-label={t('Empty workout')} onClick={() => startFlow([])}>{t('Empty')}</button>
-      <button type="button" className="hv-chip" onClick={starterPlanSheet}>{t('Explore')}</button>
+      <button type="button" className="hv-chip" aria-label={t('Explore starter plans')} onClick={starterPlanSheet}>{t('Explore')}</button>
     </div>
     {!S.routines.length && <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}
       {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>}

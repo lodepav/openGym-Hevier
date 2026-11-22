@@ -30,6 +30,13 @@ export function workoutsByDay(workouts) {
   return by
 }
 
+/** The months that have a workout, newest first, from workoutsByDay's map: [{ y, mo, n }], `n` its workouts. */
+export function monthsWith(byDay) {
+  const by = new Map()
+  for (const [iso, ws] of Object.entries(byDay || {})) by.set(iso.slice(0, 7), (by.get(iso.slice(0, 7)) || 0) + ws.length)
+  return [...by].sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([ym, n]) => ({ y: Number(ym.slice(0, 4)), mo: Number(ym.slice(5, 7)) - 1, n }))
+}
+
 /** Days since the last workout up to `today` (0 when trained today), null with none yet. */
 export function restDays(workouts, today) {
   let last = ''
@@ -83,6 +90,12 @@ export function dayTitle(ws) {
   const first = [...(ws || [])].sort((a, b) => (a.start || 0) - (b.start || 0))[0]
   return first?.name || ''
 }
+
+// An emoji and what joins or tints it, and the flags' letters.
+const TRAILING_EMOJI = /[\s\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}]+$/u
+/** A day's title as drawn under it: a trailing emoji dropped, as two clamped lines left it a stray
+ *  mark (the eighth critique, 2026-11-22); the spoken name keeps it. A title of emoji only stays. */
+export const drawnTitle = title => String(title || '').replace(TRAILING_EMOJI, '') || String(title || '')
 
 /** Where the month view opens, in px from the page's top: its bottom, as before, unless that puts
  *  the newest month's heading (`head` px from the top) above the pinned bar (`bar` px tall): then

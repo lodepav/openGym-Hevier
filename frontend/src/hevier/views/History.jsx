@@ -22,7 +22,7 @@ const monthHead = ({ ym, n }) => (ym.slice(0, 4) === todayISO().slice(0, 4) ? mo
   + ' · ' + tn('{0} workout', '{0} workouts', n)
 
 export const HISTORY_PATH = '/history-tab'
-export const PAGE = 10
+export const PAGE = 25
 
 export function WorkoutFeed({ S }) {
   const nav = useNavigate()

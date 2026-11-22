@@ -10,6 +10,7 @@
 import { entryTimes } from '../../lib/exercise-time.js'
 import { entryExcluded } from '../../lib/history.js'
 import { hasCompletedWork } from '../../lib/workout-model.js'
+import { t } from '../../lib/i18n.js'
 
 // The per-entry times are upstream's own now; the fork adds the sessions and sections on top.
 export { entryTimes }
@@ -42,18 +43,24 @@ export function timedSessions(workouts, since = '') {
   return out
 }
 
-// A session of one set is counted but not timed: its total and average are of the others, and with
-// none the average is null ("too few sets"). A session without a set count (`sets` unset) is timed.
+// Under 10 s a set, the sets were ticked seconds apart (logged after the fact, or all at the end):
+// no set takes less, rest and setup counted (the eighth critique, 2026-11-22).
+export const MIN_SET_MS = 10000
+const tooQuick = s => s.ms < s.sets * MIN_SET_MS
+// A session of one set, or under MIN_SET_MS a set, is counted but not timed: its total and average
+// are of the others, and with none the average is null, `quick` saying it was the second ("ticked
+// all at once", else "too few sets"). A session without a set count (`sets` unset) is timed.
 // `sessions` counts the timed ones, or all when none is, as the total does (the seventh critique, 2026-11-22).
-const timed = s => !(s.sets < MIN_SETS)
+/** Whether a session counts toward times: two sets or more, ticked at least MIN_SET_MS a set apart. */
+export const timed = s => !(s.sets < MIN_SETS) && !tooQuick(s)
 const rowsOf = sessions => {
   const by = new Map()
   for (const s of sessions) {
-    const r = by.get(s.id) || by.set(s.id, { id: s.id, all: 0, timed: 0, total: 0 }).get(s.id)
+    const r = by.get(s.id) || by.set(s.id, { id: s.id, all: 0, timed: 0, total: 0, quick: false }).get(s.id)
     r.all++
-    if (timed(s)) { r.timed++; r.total += s.ms }
+    if (timed(s)) { r.timed++; r.total += s.ms } else if (!(s.sets < MIN_SETS)) r.quick = true
   }
-  return [...by.values()].map(({ all, ...r }) => ({ ...r, sessions: r.timed || all, avg: r.timed ? r.total / r.timed : null }))
+  return [...by.values()].map(({ all, ...r }) => ({ ...r, sessions: r.timed || all, avg: r.timed ? r.total / r.timed : null, quick: !r.timed && r.quick }))
 }
 
 /**
@@ -75,6 +82,17 @@ export function timeSections(sessions, { by = null, asc = false, muscleOf = () =
   const out = [...groups].map(([key, list]) => ({ key, rows: sortRows(rowsOf(list)), total: list.filter(timed).reduce((n, s) => n + s.ms, 0) }))
   // An unnamed section (no gym, no muscle) goes last.
   return out.sort((a, b) => (a.key === '') - (b.key === '') || dir * (a.total - b.total) || a.key.localeCompare(b.key))
+}
+
+/** A time as TalkBack should say it, in words where elapsedWords writes "1min 30s": "1 minute 30
+ *  seconds", "2 hours 5 minutes" (seconds dropped from an hour up, as there). */
+export function timeSpoken(sec) {
+  const n = Math.max(0, Math.round(Number(sec) || 0))
+  const h = Math.floor(n / 3600), m = Math.floor((n % 3600) / 60), s = n % 60
+  // English only, as the fork's strings are: t() with its own singular, as WorkoutCard's records count does.
+  const word = (n, one, many) => (n === 1 ? t(one) : t(many, n))
+  const parts = [h && word(h, '1 hour', '{0} hours'), m && word(m, '1 minute', '{0} minutes'), !h && (s || !m) && word(s, '1 second', '{0} seconds')]
+  return parts.filter(Boolean).join(' ')
 }
 
 /** The first day of a period ending `today` ('30d', '90d', 'year'; 'all' is ''). */

@@ -26,6 +26,7 @@ import StrapSection from '../components/StrapSection.jsx'
 import HevyExportSection from '../components/HevyExportSection.jsx'
 import { MediaSection } from '../components/MediaSection.jsx'
 import AccentRow from '../components/AccentRow.jsx'
+import { HV_ACCENTS, hvAccentId } from '../lib/accents.js'
 import { partOn, needOf } from '../lib/module-parts.js'
 import { DeloadRows } from '../../components/DeloadCard.jsx'
 import ForgottenRows from '../../components/ForgottenRows.jsx'
@@ -34,6 +35,8 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const restSec = useStore(s => s.S.restSec)
   const body = useStore(s => s.S.body)
   const gyms = useStore(s => s.S.equipProfiles)
+  const accent = useStore(s => hvAccentId(s.S))
+  const ownAccent = useStore(s => s.S.accent === 'custom')
   const mode = useStore(s => volumeMode(s.S))
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
   const mMode = useStore(s => muscleMode(s.S))
@@ -46,16 +49,25 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
     sections: [
       { items: Object.entries(VOLUME).map(([v, label]) => ({ label: chosen(label, mode === v), on: mode === v,
         onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })) },
+      // What the second choice changes, said under it: upstream's menu has no section footer (the eighth critique, 2026-11-22).
       { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label: chosen(label, mMode === v), on: mMode === v,
+        sub: v === 'share' ? t('A set also counts in part for each muscle that helps.') : undefined,
         onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
     ],
   })
   const volumeValue = mode === 'weight' ? VOLUME.weight : t('Sets') + ' · ' + (mMode === 'share' ? t('secondary too') : t('main muscle'))
   // Upstream's Workout preview also names the layout, which the fork does not offer (D1): the
   // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
-  // accent (the fork's own row, D123), so that row names the body diagram instead.
+  // accent (the fork's own row, D123), so that row names the fork's accent and the body diagram instead.
+  // About's version is in the footer under the groups (D52), so not beside it too (the eighth critique, 2026-11-22).
+  // No backup date: nothing records when the last backup was written, so Data & backup stays without a value.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
-    : id === 'look' ? t('Body diagram') + ' · ' + t(body === 'female' ? 'Female' : 'Male')
+    // A kept upstream preset is none of the fork's accents nor the user's own colour, so goes unnamed.
+    : id === 'look' ? [accent ? t(HV_ACCENTS.find(a => a.id === accent).label) : ownAccent ? t('Your own') : null,
+      t(body === 'female' ? 'Female body' : 'Male body')].filter(Boolean).join(' · ')
+    : id === 'about' ? null
+    // Upstream's "Fixed Week · Mon" capitalises Week mid-label (C1); its other languages are left as they are.
+    : id === 'plan' ? preview.plan?.()?.replace(/^Fixed Week\b/, 'Fixed week') || null
     // D62: the gyms, not upstream's filter switch.
     : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
     : preview[id]?.() || null)

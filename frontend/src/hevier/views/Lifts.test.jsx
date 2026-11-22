@@ -79,7 +79,21 @@ describe('hevier: Lifts (D135)', () => {
     const w = wo('2026-11-02', A.id, 80)
     w.entries[0].sets = [{ sides: { L: side, R: side }, done: true }]
     render({ workouts: [w], exUnit: withExUnit({}, A.id, 'lb') })
-    expect(container.querySelector('.hv-lift-r b').textContent).toBe('L 45 × 8\nR 45 × 8')
+    expect(container.querySelector('.hv-lift-r b').textContent).toBe('L 45 lb × 8\nR 45 lb × 8')
+  })
+
+  it('a lift kept in another unit than the profile’s writes it, as Today does; the others stay bare (the round-8 critique, 2026-11-22)', () => {
+    render({ workouts: [wo('2026-11-02', A.id, 50), wo('2026-11-03', B.id, 40)], exUnit: withExUnit({}, A.id, 'lb') })
+    const last = id => [...container.querySelectorAll('.hv-lift')].find(r => r.querySelector('.tt').textContent === exerciseNameFor(id)).querySelector('.hv-lift-r b').textContent
+    expect(last(A)).toMatch(/^110\.23? lb × 8$/)
+    expect(last(B)).toBe('40 × 8')
+  })
+
+  it('the Recent / By muscle toggle has a group name, as the window toggle has', () => {
+    render({ workouts: log })
+    const by = container.querySelector('.hv-lifts-by')
+    expect(by.getAttribute('role')).toBe('group')
+    expect(document.getElementById(by.getAttribute('aria-labelledby')).textContent).toBe('Order')
   })
 
   it('the search finds an exercise by the brand it was done on', () => {
@@ -185,7 +199,7 @@ describe('hevier: Lifts (D135)', () => {
     expect(a.querySelector('svg.hv-lift-chart').getAttribute('aria-hidden')).toBe('true')
     const [hi, lo] = [...a.querySelectorAll('.hv-lift-scale span')].map(s => Number(s.textContent))
     expect(hi).toBeGreaterThan(lo)
-    expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 × 8, best 80 × 8`)
+    expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 kg × 8, best 80 kg × 8`)
   })
 
   it('a small change draws on a padded scale but speaks the lift’s own range', () => {

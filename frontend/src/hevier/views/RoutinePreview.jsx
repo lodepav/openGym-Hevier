@@ -53,9 +53,13 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const ownRest = e?.restSec != null && e.restSec !== S.restSec ? restTimerText(e.restSec, S.restSec, t('Off')) : null
   const num = f => {
     // A weight of nothing reads "–", as the workout's grey KG does, not "0".
-    const text = f.field === 'w' && !(shownOf(S, f) > 0) ? '–' : fmtNum(shownOf(S, f))
-    return <button type="button" className={'hv-np-num' + (f.planned ? ' chg' : '')} onClick={() => onPlan(f.id)}
-      aria-label={fieldWords(f) + ' ' + text + (f.field === 'w' ? ' ' + unit : '') + (f.planned ? ', ' + t('planned') : '')}>{text}</button>
+    const none = f.field === 'w' && !(shownOf(S, f) > 0)
+    const text = none ? '–' : fmtNum(shownOf(S, f))
+    // Said "no weight" in the place of "Weight", not "Weight – kg" (the eighth audit, 2026-11-22).
+    const words = fieldWords(f)
+    const said = none ? words.slice(0, words.lastIndexOf(t('Weight'))) + t('no weight') : words + ' ' + text + (f.field === 'w' ? ' ' + unit : '')
+    return <button type="button" className={'hv-np-num' + (f.planned ? ' chg' : '') + (none ? ' none' : '')} onClick={() => onPlan(f.id)}
+      aria-label={said + (f.planned ? ', ' + t('planned') : '')}>{text}</button>
   }
   const field = (set, side, f) => fields.get([x.key, set.key, side || '', f].join('|'))
   // A set's lines: last time, then what opens, its weight and reps as buttons when it can be planned.
@@ -63,7 +67,8 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     const [row] = set.rows
     if (set.plannable) return (isSideSet(row) ? ['L', 'R'] : [null]).map(side => ({
       side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit }),
-      next: <>{isBw(cfg) && '+'}{num(field(set, side, 'w'))}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
+      // An added weight's "+" only once one is planned: before a "–" it read as an add button (the eighth critique, 2026-11-22).
+      next: <>{isBw(cfg) && shownOf(S, field(set, side, 'w')) > 0 && '+'}{num(field(set, side, 'w'))}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
     }))
     const pair = set.rows.length > 1
     return set.rows.map((s, i) => {
@@ -157,7 +162,8 @@ export default function RoutinePreview() {
     </div>
     {load && <div className="card hv-rmap">
       <h2>{t('What this session hits')}</h2>
-      <BodyMap load={load} body={S.body} />
+      {/* Hidden from TalkBack: the muscle names under it say what it draws (the eighth audit, 2026-11-22). */}
+      <div aria-hidden="true"><BodyMap load={load} body={S.body} /></div>
       <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
     </div>}
     {/* Start again at the end, reached after reading the plan (the critique, 2026-11-20). */}

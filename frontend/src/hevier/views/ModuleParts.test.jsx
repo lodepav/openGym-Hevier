@@ -9,7 +9,7 @@ import { hevierRoutes } from '../routes.jsx'
 import Settings from '../../views/Settings.jsx'
 import { installSettings } from './SettingsRootHevy.jsx'
 import { hooks } from '../hooks.js'
-import { moduleRow } from './ModuleParts.jsx'
+import { moduleRow, goToModule } from './ModuleParts.jsx'
 import { HIDDEN_MODULES, FORK_MODULES, forkModuleCopy, setAnyModule } from '../lib/fork-modules.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -112,6 +112,20 @@ describe('hevier: a part that also needs another module', () => {
     expect(levels.querySelector('.lrow-s').textContent).toBe('Needs Strength levels')
     expect(levels.querySelector('[role="switch"]').disabled).toBe(true)
     expect(partRow('Exercise settings', 'Progression').querySelector('[role="switch"]').disabled).toBe(false)
+    // "Needs Strength levels" goes to that module's switch (the eighth critique, 2026-11-22).
+    act(() => levels.querySelector('.lrow-s button').click())
+    expect(document.activeElement).toBe(container.querySelector('[data-tour="module-strength"] [role="switch"]'))
+  })
+  it('unfolded, a module drops its line; a part goes to a module and unfolds it (the eighth round, 2026-11-22)', () => {
+    render('/settings/modules')
+    const open = row('Body').querySelector('.hv-modrow-open')
+    expect(row('Body').querySelector('.lrow-m > .lrow-s')).not.toBeNull()
+    act(() => open.click())
+    expect(row('Body').querySelector('.lrow-m > .lrow-s')).toBeNull()
+    act(() => open.click())
+    act(() => { expect(goToModule('body')).toBe(true) })
+    expect(open.getAttribute('aria-expanded')).toBe('true')
+    expect(goToModule('nothing')).toBe(false)
   })
   it('works as before once that module is on', () => {
     render('/settings/modules')

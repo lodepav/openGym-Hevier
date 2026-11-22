@@ -316,6 +316,29 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
+  it('says under the first table that PREVIOUS copies and a set swipes, until PREVIOUS is first used (S.hvSetTipSeen)', () => {
+    const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 55, r: 9, done: true }] }] }]
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }], past)
+    const tip = () => container.querySelector('.hv-set-tip')
+    expect(tip().textContent).toBe('Tap PREVIOUS to copy it, swipe a set for more.')
+    expect(tip().previousElementSibling.className).toContain('hv-unit')
+    act(() => container.querySelector('.hv-prev').click())
+    expect(tip()).toBeNull()
+    expect(useStore.getState().S.hvSetTipSeen).toBe(true)
+    // With swipe actions off it says only the tap.
+    act(() => useStore.getState().update(s => { delete s.hvSetTipSeen; s.wc = { swipeSets: false } }))
+    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+  })
+
+  it('a ticked set with no weight reads "–" under KG; its RIR and an empty PREVIOUS are said in words', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(0, 8, { done: true, rir: 2 }), reps(60, 8)] }])
+    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
+    const done = container.querySelector('.hv-row.done')
+    expect(done.querySelector('.hv-num').value).toBe('–')
+    expect(done.querySelector('.hv-eff').getAttribute('aria-label')).toMatch(/, 2 reps in reserve$/)
+    expect(done.querySelector('.hv-prev').getAttribute('aria-label')).toBe('No previous set')
+  })
+
   it('a tap on PREVIOUS on either half of a hold pair, when last time was one rep row, makes it that per-side set (D75, D89)', () => {
     const past = [{ id: 'w1', d: '2026-10-10', start: 1, entries: [{ id: EX, sets: [reps(40, 8, { done: true }), reps(45, 6, { done: true })] }] }]
     const half = (k, extra = {}) => ({ side: k, mode: 'time', sec: 30, w: 10, done: false, ...extra })

@@ -103,7 +103,7 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
     expect(container.querySelector('h2.sec')).toBeNull()
     act(() => root.render(<MemoryRouter><Exercises /></MemoryRouter>))
     expect(container.querySelector('h1')).toBeTruthy()
-    expect([...container.querySelectorAll('h2.sec')].map(h => h.textContent)).toContain('All Exercises')
+    expect([...container.querySelectorAll('h2.sec')].map(h => h.textContent)).toContain('All exercises')
     expect(container.querySelector('h4.sec')).toBeNull()
   })
 
@@ -260,7 +260,7 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
         render()
         expect(heads()[0]).toBe('You have done these')
         expect(heads()).not.toContain('You swapped to these before')
-        expect(heads()).not.toContain('Recent Exercises')
+        expect(heads()).not.toContain('Recent exercises')
         expect(names('You have done these').slice(0, 2)).toEqual([FLY.n, SQUAT.n])
         const row = container.querySelector('section[aria-label="You have done these"] .hv-pk-row')
         expect(row.querySelector('.hv-pk-check')).toBeTruthy()
@@ -274,7 +274,7 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
 
   it('lists recent exercises first', () => {
     open(vi.fn(), {}, [{ id: 'w', d: '2026-10-01', entries: [{ id: SQUAT.id, sets: [] }] }])
-    expect(container.textContent).toContain('Recent Exercises')
+    expect(container.textContent).toContain('Recent exercises')
     expect(container.querySelector('.list .hv-pk-row .tt').textContent).toBe(SQUAT.n)
   })
 

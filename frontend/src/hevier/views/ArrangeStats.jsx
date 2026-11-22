@@ -16,7 +16,8 @@ import { BackTo } from './Statistics.jsx'
 
 const NAMES = {
   tiles: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', hours: 'Training time', month: 'Workouts this month', rpe: 'Average RPE' },
-  cards: { time: 'Exercise time', weight: 'Body weight', sets: 'Sets per muscle', weekly: 'Weekly chart' },
+  // The card is headed "Time per exercise" on Statistics, so listed by that name (the eighth critique, 2026-11-22).
+  cards: { time: 'Time per exercise', weight: 'Body weight', sets: 'Sets per muscle', weekly: 'Weekly chart' },
 }
 const LISTS = [['tiles', 'Tiles', TILES], ['cards', 'Cards', CARDS]]
 const DRAGGED = 8   // px a press on the handle moves before it is a drag, not a tap
@@ -74,9 +75,8 @@ export default function ArrangeStats() {
     <BackTo label={t('Statistics')} to="/stats" title={t('Arrange Statistics')}>
       <button type="button" className="hv-link" onClick={reset} disabled={first}>{t('Reset')}</button>
     </BackTo>
-    <p className="small dim hv-arr-hint">{t('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')}</p>
-    {/* D142's "tile = now, card = more", said where both lists are (the sixth audit, 2026-11-22). */}
-    <p className="small dim hv-arr-hint">{t('A tile shows one number as it is now; a card shows more.')}</p>
+    {/* One hint, with D142's "tile = now, card = more" (the sixth audit; one paragraph, the eighth critique, 2026-11-22). */}
+    <p className="small dim hv-arr-hint">{t('Drag or tap a handle to move it, switch one off to hide it. A tile is one number now; a card shows more.')}</p>
     {LISTS.map(([which, title, ids]) => <ArrangeList key={which} which={which} title={title} ids={ids} />)}
   </div>
 }

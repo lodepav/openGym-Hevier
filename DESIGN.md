@@ -529,7 +529,8 @@ the accent. A pressed row takes well grey.
   least 50px.
 - **In-page tabs:** plain words over a hairline; the open one is the accent with a 2px accent
   underline (the clock sheet). Upstream's segmented controls sit on a control-grey track with a
-  next-tick-grey pick.
+  next-tick-grey pick; Lifts' two toggles are outlined segments, the chosen one accent-tinted
+  with a check (D147).
 - **Toast:** control grey with the card hairline, above the tab bar, the workout's foot or the
   docked rest. A removal the user can take back (a drop, a routine set, a folder, a routine copy,
   gym swaps) says so in a toast with Undo.

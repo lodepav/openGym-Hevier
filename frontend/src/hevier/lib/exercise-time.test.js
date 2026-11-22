@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { entryTimes, timedSessions, timeSections, periodSince } from './exercise-time.js'
+import { entryTimes, timedSessions, timeSections, periodSince, timeSpoken } from './exercise-time.js'
 
 const MIN = 60000
 const T0 = Date.UTC(2026, 9, 20, 17)
@@ -69,6 +69,18 @@ describe('hevier: exercise time (D88)', () => {
     // Last whichever way round, and out of a section's total.
     expect(timeSections(s, { asc: true })[0].rows.map(r => r.id)).toEqual(['b', 'c', 'a'])
     expect(timeSections(s, { by: 'gym' })[0].total).toBe(6 * MIN)
+  })
+
+  it('a session under 10 s a set is not timed either: its sets were ticked at once (the eighth critique, 2026-11-22)', () => {
+    const s = [{ id: 'a', gym: '', ms: 5000, sets: 3 }, { id: 'b', gym: '', ms: 30000, sets: 3 },
+      { id: 'b', gym: '', ms: 3000, sets: 2 }, { id: 'c', gym: '', ms: 1000, sets: 1 }, { id: 'd', gym: '', ms: 2000 }]
+    const rows = timeSections(s)[0].rows
+    expect(rows.map(r => [r.id, r.avg, r.quick])).toEqual([['b', 30000, false], ['d', 2000, false], ['a', null, true], ['c', null, false]])
+    expect(timeSections(s, { by: 'gym' })[0].total).toBe(32000)
+  })
+
+  it('a time in words for TalkBack', () => {
+    expect([90, 45, 120, 3600 + 5 * 60 + 9, 2 * 3600, 0, 1].map(timeSpoken)).toEqual(['1 minute 30 seconds', '45 seconds', '2 minutes', '1 hour 5 minutes', '2 hours', '0 seconds', '1 second'])
   })
 
   it('periods count back from today', () => {

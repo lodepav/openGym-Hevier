@@ -61,8 +61,8 @@ describe('hevier: exercise time page', () => {
 
   it('Statistics: this week’s exercise time on its tile, the longest exercises on its card', () => {
     render('/stats')
-    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min this week')
-    expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('this week')
+    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min of timed sets this week')
+    expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('timed sets this week')
     expect([...container.querySelectorAll('[data-card="time"] .hv-scard-row')].map(r => r.textContent)).toEqual([
       expect.stringMatching(/squat.*15min$/i), expect.stringMatching(/bench.*10min$/i)])
     act(() => container.querySelector('[data-tile="time"]').click())
@@ -111,5 +111,18 @@ describe('hevier: exercise time page', () => {
     expect(rows[1].textContent).toContain('Too few sets')
     expect(rows[1].textContent).not.toContain('total')
     expect(rows[0].textContent).not.toContain('Too few sets')
+  })
+
+  it('sets ticked seconds apart give no time; a time is marked avg and said in words (the eighth round, 2026-11-22)', () => {
+    const tick = sec => ({ w: 60, r: 8, done: true, at: start + 2.5 * MIN + sec * 1000 })
+    const w = { id: 'w3', d: todayISO(), start, end: start + 40 * MIN, entries: [
+      { id: BENCH, sets: [set(1), set(2.5)] }, { id: SQUAT, sets: [tick(1), tick(2), tick(3)] }] }
+    render('/exercise-time', [w])
+    const rows = [...container.querySelectorAll('.hv-report-row')]
+    expect(rows[1].textContent).toMatch(/squat.*Ticked all at once/i)
+    const avg = rows[0].querySelector('.hv-extime-avg')
+    expect(avg.textContent).toBe('2min 30s avg')
+    expect(avg.getAttribute('aria-label')).toBe('Average: 2 minutes 30 seconds')
+    expect(chip('Longest first').getAttribute('aria-label')).toBe('Order: longest first')
   })
 })

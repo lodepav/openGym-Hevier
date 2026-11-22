@@ -2,8 +2,8 @@
 // a title, then one block per exercise — drag handle · thumbnail · name and brand · ⋮, the note
 // (written from ⋮ → Note), a SET · KG · REPS table drawn from the exercise's prescription
 // (lib/routine-table.js) with a remove mark on each set, and "+ Set", "+ Warm-up" and the rest
-// chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
-// upstream's editor has. Every change saves as it is made, as upstream's editor does.
+// chip — then + Add Exercise, and below it the routine-wide progression and deload upstream's
+// editor has (the body map is the routine page's). Every change saves as it is made, as upstream's editor does.
 import { progressionOn, isPlain } from '../lib/plain-routine.js'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -24,7 +24,6 @@ import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
 import { exUnitOf, shownWeight, storedWeight } from '../../lib/ex-unit.js'
 import { boxOf, pastHundredth } from '../lib/set-columns.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
-import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
 import { sameForRoutineCard } from '../lib/card-state.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { glyphOf } from '../../lib/glyphs.js'
@@ -40,7 +39,6 @@ import { BackupsSheet } from '../components/BackupsSheet.jsx'
 import { cleanBackups } from '../../lib/routine-backups.js'
 import { withSide } from '../lib/one-limb.js'
 import { Thumb } from '../../components/Media.jsx'
-import BodyMap from '../../components/BodyMap.jsx'
 import SwipeRow from '../../components/SwipeRow.jsx'
 import Icon from '../../components/Icon.jsx'
 import HvIcon from '../components/HvIcon.jsx'
@@ -109,7 +107,7 @@ function BrandSheet({ exId, close }) {
 }
 
 // `held` is what each work set opens with (routine-holds.js openedHolds), in a plain routine only.
-function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held }) {
+function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -298,12 +296,15 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held }) {
     : row.failure ? <span className="hv-f">F</span> : numOf(row))
   const line = row => <div className="hv-rt-row hv-rt-x" style={grid}>
     <button type="button" className="hv-set" onClick={() => openSetType(row)}
-      aria-label={nameOf(row) + (isHold(row) ? ', ' + t('Timed hold') : '') + (row.failure ? ', ' + t('Failure set') : '')}>{mark(row)}</button>
+      aria-label={nameOf(row) + (isHold(row) ? ', ' + t('Timed hold') : '') + (row.failure ? ', ' + t('Failure set') : '') + ', ' + t('Set type')}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
     <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
       aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : isHold(row) ? t('Remove set') + ', ' + nameOf(row) : t('Remove set {0}', numOf(row))}><HvIcon name="minusCircle" /></button>
   </div>
 
+  // The editor marks the tip seen on the way out only if it was drawn here.
+  const tipDrawn = !!tip && cols.some(c => c.f === 'w')
+  useEffect(() => { if (tipDrawn) tipShown.current = true })
   const meta = unitOf.get(i)?.length > 1 && unitOf.get(i)[0] === i ? supersetMeta(r.ex, unitOf.get(i)) : null
   // D62: checked against the gym last chosen in the exercise picker.
   const profile = gymById(S, rememberedGym(S))
@@ -327,6 +328,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held }) {
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     {e.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + e.note} onClick={openNote}>{e.note}</button>}
+    {tipDrawn && <p className="small dim hv-rt-tip">{t('– opens at last time’s weight.')}</p>}
     <div className="hv-rt-row hv-rt-x hv-rt-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}<span />
     </div>
@@ -347,23 +349,12 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held }) {
 // handlers read their state through refs, so a card needs new ones only when its place (`at`) changes.
 // A key in one card's set field writes the store, which copies every routine: each card compares
 // its own part by content, so only that card redraws (the fresh audit, 2026-11-21).
-const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.i === b.i && a.at === b.at && !a.grip === !b.grip
+const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.i === b.i && a.at === b.at && !a.grip === !b.grip && a.tip === b.tip
   && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && a.r.id === b.r.id && JSON.stringify(a.held) === JSON.stringify(b.held)
   && sameForRoutineCard(a.S, b.S, a.r.id, a.i, a.unitOf.get(a.i)))
 
 // Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
 // state (the title, its pending save) belongs to one routine (the second audit, 2026-11-21).
-// The body map from the exercises alone: a title written copies them but keeps what they say,
-// so the map is not worked out again (the audit leftovers, 2026-11-21).
-const RoutineMap = memo(function RoutineMap({ ex, body }) {
-  const load = loadOfRoutine({ ex })
-  return <div className="card hv-rmap">
-    <h2>{t('What this session hits')}</h2>
-    <BodyMap load={load} body={body} />
-    <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
-  </div>
-}, (a, b) => a.body === b.body && JSON.stringify(a.ex) === JSON.stringify(b.ex))
-
 export default function RoutineEditHevy() {
   const { id } = useParams()
   return <RoutineEditor key={id} id={id} />
@@ -412,6 +403,10 @@ function RoutineEditor({ id }) {
   // What each set opens as, once per copy of S, as the routine page builds it (D146: holds planned or carried over).
   const plain = isPlain(r)
   const held = useMemo(() => (plain ? openedHolds(nextSession(S, id)) : null), [S, id, plain]) // eslint-disable-line react-hooks/exhaustive-deps
+  // What "–" under the weight means, said on the first exercise once: gone after the first visit that showed it (S.hvDashTipSeen).
+  const dashTip = plain && !S.hvDashTipSeen
+  const tipShown = useRef(false)
+  useEffect(() => () => { if (tipShown.current) useStore.getState().update(s => { s.hvDashTipSeen = true }) }, [])
   if (!r) return null
 
   // Several picks at once are called one by one in the same tick: one toast names them all.
@@ -466,7 +461,7 @@ function RoutineEditor({ id }) {
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
         className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S} held={held?.[i] || null}
-          at={n + '/' + units.length} grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
+          at={n + '/' + units.length} grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} tip={dashTip && n === 0 && i === u[0]} tipShown={tipShown} />)}
       </section>)}
     </div> : <div className="hv-empty">
       <Icon name="dumbbell" />
@@ -503,7 +498,6 @@ function RoutineEditor({ id }) {
         : progressionOn(r) ? t(POLICY_DESC[r.prog || profileRule(S)] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
         : t('A set never done opens at the numbers set here.')}
     </div>
-    {r.ex.length > 0 && <RoutineMap ex={r.ex} body={S.body} />}
     <div className="workout-end-spacer" />
   </div>
 }

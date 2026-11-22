@@ -81,6 +81,15 @@ describe('hevier: Today (D134)', () => {
     expect(container.querySelectorAll('.hv-tday[aria-current]')).toHaveLength(1)
   })
 
+  it('says the days can be tapped until the first tap on one, then remembers it', () => {
+    render()
+    const hint = () => container.querySelector('.hv-tweek-hint')?.textContent
+    expect(hint()).toBe('Tap a day to plan or rest it')
+    act(() => container.querySelector('.hv-tday').click())
+    expect(useStore.getState().S.hvDayTapSeen).toBe(true)
+    expect(hint()).toBeUndefined()
+  })
+
   it('with nothing planned says so; the links and the last workout still show', () => {
     const w = { id: 'w1', d: '2026-11-14', name: 'Leg Day', start: Date.parse('2026-11-14T10:00:00'), end: Date.parse('2026-11-14T11:00:00'),
       entries: [{ id: EXS[0], sets: [{ w: 60, r: 8, done: true }] }] }

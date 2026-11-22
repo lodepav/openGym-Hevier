@@ -28,6 +28,9 @@ import { discardActive } from './HevyTabBar.jsx'
 import { afterScrollRestore } from '../../components/Modals.jsx'
 import { firstUntickedRow, showRow } from '../lib/unticked-row.js'
 
+// "1 h 15 min", spaced as the rest dock's "+1 min" and the clock write it (the eighth critique, 2026-11-22).
+const spaced = words => words.replace(/(\d)([a-z])/g, '$1 $2')
+
 // Upstream's discard (views/Workout.jsx discardWorkout), from the sheet.
 const discard = (nav, close) => confirmSheet({
   title: t('Discard workout?'), message: t('The sets you logged in this session will be lost.'), confirmText: t('Discard'), danger: true,
@@ -131,8 +134,8 @@ function FinishSheet({ nav, close }) {
             aria-label={t('Minutes')} onChange={e => setMin(hm(Math.floor(len / 60), e.target.value))} />
           <span className="muted">{t('min')}</span>
         </span>
-        : <button type="button" className="hv-fin-durbtn" aria-label={t('Duration') + ': ' + durationWords(len * 60000) + '. ' + t('Change')}
-          onClick={() => setEditMin(true)}>{durationWords(len * 60000)}</button>}
+        : <button type="button" className="hv-fin-durbtn" aria-label={t('Duration') + ': ' + spaced(durationWords(len * 60000)) + '. ' + t('Change')}
+          onClick={() => setEditMin(true)}>{spaced(durationWords(len * 60000))}</button>}
     </div>
     {left > 0 && <p className="hv-fin-warn">{facts.none
       ? t('You haven’t checked off any sets. Finish the workout anyway?')

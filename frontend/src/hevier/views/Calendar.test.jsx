@@ -12,7 +12,7 @@ import { todayISO } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
-import { Month, namesFit } from './Calendar.jsx'
+import { Month, namesFit, wrapped } from './Calendar.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -76,6 +76,18 @@ describe('hevier: Calendar', () => {
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('0 rest days')
     // Its spoken name says the date and that it was trained, then the workout (the audit, 2026-11-21).
     expect(day.parentElement.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', ' + 'Trained, Leg Day')
+  })
+
+  it('a deload day says so; its drawn title drops a trailing emoji, its spoken one keeps it (the eighth round, 2026-11-22)', () => {
+    render('/calendar', [{ ...w, name: 'Deload legs 💪' }])
+    const day = container.querySelector('.hv-cal-d.done').parentElement
+    expect(day.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', Trained, Deload, Deload legs 💪')
+    expect(day.querySelector('.hv-cal-tl').textContent).toBe('Deload legs')
+    // One line at the default size: the streak stays pinned in the top.
+    expect(container.querySelector('.hv-cal-top .hv-cal-streak')).not.toBeNull()
+    expect(wrapped(22, 16)).toBe(false)
+    expect(wrapped(44, 16)).toBe(true)
+    expect(wrapped(44, NaN)).toBe(false)
   })
 
   it('a trained day opens its workout, another day upstream’s day sheet', () => {

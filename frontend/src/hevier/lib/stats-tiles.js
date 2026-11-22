@@ -7,7 +7,7 @@ import { isoOf, fmtNum } from '../../lib/format.js'
 import { t } from '../../lib/i18n.js'
 import { isWarmupRow, hasCompletedWork } from '../../lib/workout-model.js'
 import { rirOf, toScale, MIN_RATED } from '../../lib/effort.js'
-import { timedSessions, timeSections, periodSince } from './exercise-time.js'
+import { timedSessions, timeSections, periodSince, timed } from './exercise-time.js'
 import { weeklySeries, inWeek } from './weekly-series.js'
 import { periodOf } from './muscle-sets.js'
 
@@ -20,11 +20,12 @@ const upTo = (workouts, today) => (workouts || []).filter(w => workoutDay(w) <= 
  *  over the weeks the weekly chart and the other tiles use. */
 export function weekExerciseTime(workouts, today, weekStart) {
   const week = weeklySeries([], 'duration', { today, weeks: 1, weekStart })[0].week
-  return timedSessions(upTo(workouts, today).filter(w => inWeek(w, week, weekStart))).reduce((n, s) => n + s.ms, 0)
+  // The sessions the Exercise time page times: not one set, nor sets ticked at once (the eighth review, 2026-11-22).
+  return timedSessions(upTo(workouts, today).filter(w => inWeek(w, week, weekStart))).filter(timed).reduce((n, s) => n + s.ms, 0)
 }
 
 /** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`; one
- *  with too few sets for an average is left out. */
+ *  with too few sets for an average, or with its sets ticked seconds apart, is left out. */
 export const longestExercises = (workouts, today, n = 3) =>
   (timeSections(timedSessions(workouts, periodSince(TIME_PERIOD, today)))[0]?.rows || []).filter(r => r.avg != null).slice(0, n)
 

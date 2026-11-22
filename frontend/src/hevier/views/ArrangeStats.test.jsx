@@ -47,10 +47,9 @@ describe('hevier: Arrange Statistics (D142)', () => {
     render(['/stats'])
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange').click())
     expect(path).toBe('/stats/arrange')
-    expect(container.textContent).toContain('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')
-    expect(container.textContent).toContain('A tile shows one number as it is now; a card shows more.')
+    expect(container.textContent).toContain('Drag or tap a handle to move it, switch one off to hide it. A tile is one number now; a card shows more.')
     expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
-    expect(names(1)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Weekly chart'])
+    expect(names(1)).toEqual(['Time per exercise', 'Body weight', 'Sets per muscle', 'Weekly chart'])
     const sw = row(0, 'Average RPE').querySelector('[role="switch"]')
     expect(sw.getAttribute('aria-label')).toBe('Average RPE')
     expect(sw.getAttribute('aria-checked')).toBe('false')
@@ -73,7 +72,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
   it('the handle moves with the arrow keys, or a tap and Move up', () => {
     render(['/stats/arrange'])
     act(() => row(1, 'Weekly chart').querySelector('.hv-grip').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })))
-    expect(names(1)).toEqual(['Exercise time', 'Body weight', 'Weekly chart', 'Sets per muscle'])
+    expect(names(1)).toEqual(['Time per exercise', 'Body weight', 'Weekly chart', 'Sets per muscle'])
     expect(layout().cards.order).toEqual(['time', 'weight', 'weekly', 'sets'])
     act(() => row(1, 'Weekly chart').querySelector('.hv-grip').click())
     const sheet = useUI.getState().sheets.at(-1)
@@ -85,7 +84,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     expect(host.querySelector('h3').textContent).toBe('Move Weekly chart')
     act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent === 'Move up').click())
     act(() => r.unmount())
-    expect(names(1)).toEqual(['Exercise time', 'Weekly chart', 'Body weight', 'Sets per muscle'])
+    expect(names(1)).toEqual(['Time per exercise', 'Weekly chart', 'Body weight', 'Sets per muscle'])
   })
 
   it('leaves out what has its module part off, a move stepping over it; no data yet still lists it', () => {
@@ -94,9 +93,9 @@ describe('hevier: Arrange Statistics (D142)', () => {
     expect(names(1)).toEqual(['Body weight', 'Sets per muscle', 'Weekly chart'])
     act(() => root.unmount()); container.remove()
     render(['/stats/arrange'], { hvModuleParts: { 'body.weight': false } })
-    expect(names(1)).toEqual(['Exercise time', 'Sets per muscle', 'Weekly chart'])
+    expect(names(1)).toEqual(['Time per exercise', 'Sets per muscle', 'Weekly chart'])
     act(() => row(1, 'Sets per muscle').querySelector('.hv-grip').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })))
-    expect(names(1)).toEqual(['Sets per muscle', 'Exercise time', 'Weekly chart'])
+    expect(names(1)).toEqual(['Sets per muscle', 'Time per exercise', 'Weekly chart'])
     expect(layout().cards.order).toEqual(['sets', 'time', 'weight', 'weekly'])
   })
 
