@@ -66,9 +66,9 @@ Reviews stay on Opus. Simplify rounds were not measured.
 
 16 measured 2026-11-22 over 165 reviewer runs (standing findings in each report's summary line):
 round 1: 22 high, 120 medium in 48 runs; round 2: 3 high, 65 medium in 45; round 3: 0 high, 43
-medium in 35; round 4: 0 high, 3 medium in 37. Proposal: at most three rounds, and a fourth only
-when round 3 found a high. That drops about 37 reviews a month. Needs the owner's OK (it changes
-implement-review).
+medium in 35; round 4: 0 high, 3 medium in 37. Round 4 is implement-review's simplify round, so
+its low bug count is by design, and the skill already skips the remaining full rounds after a
+clean one. The full rounds keep finding mediums (71 % of round-3 runs), so no change: rounds stay.
 
 13 (Haiku as the model under test in OB's AI evals) and 15 (implementers, bug reviews, UX
 judgement, CodeRabbit triage, Fable merges stay as they are) need nothing.
