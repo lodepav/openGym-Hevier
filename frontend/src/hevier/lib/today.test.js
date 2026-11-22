@@ -91,6 +91,21 @@ describe('Today: the week in one row', () => {
     expect(days[0].iso).toBe('2026-11-15')
     expect(days[0].kind).toBe('done')
   })
+
+  // The tenth critique, 2026-11-22: on the week's last day the strip held only past days.
+  it("on the week's last day the seven roll on by one, tomorrow in them with its ring", () => {
+    const plain = { queue: null, rotation: null, dayPlan: { '2026-11-23': 'uc' } }
+    const days = weekStrip(S(plain), '2026-11-22')
+    expect(days.map(d => d.iso)).toEqual(['2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-21', '2026-11-22', '2026-11-23'])
+    expect(days[6]).toMatchObject({ kind: 'plan', name: 'TBJP UC', next: true })
+    // A Sunday start: Saturday is the last day, Sunday comes in.
+    expect(weekStrip(S({ weekStart: 0 }), '2026-11-21').map(d => d.iso).at(-1)).toBe('2026-11-22')
+    // The day before the last does not roll.
+    expect(weekStrip(S(), '2026-11-21')[0].iso).toBe('2026-11-16')
+    // A next session after tomorrow: tomorrow shows what it holds, no ring on it.
+    const later = weekStrip(S({ ...plain, dayPlan: { '2026-11-25': 'ua' } }), '2026-11-22')
+    expect(later[6]).toMatchObject({ iso: '2026-11-23', next: false })
+  })
 })
 
 describe('Today: the round line', () => {

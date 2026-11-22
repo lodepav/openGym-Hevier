@@ -92,7 +92,7 @@ describe('hevier: strength levels list', () => {
   it('with no levels yet, says how to add one and lists nothing (the critique, 2026-11-21)', () => {
     render('/strength')
     const empty = container.querySelector('.hv-ms-empty')
-    expect(empty.firstChild.textContent).toBe('No strength levels yet.')
+    expect(empty.firstChild.textContent).toBe('No strength levels yet')
     expect(empty.firstChild.tagName).toBe('H2')
     expect(empty.querySelector('.dim').textContent).toBe('A strength level places your best estimated one-rep max among five levels, Beginner to Elite, whose weights you type in yourself. Compare strength on an exercise looks them up on strengthlevel.com.')
     expect(container.querySelector('.hv-report-row')).toBeNull()

@@ -16,6 +16,7 @@ import PhaseFilter from '../components/PhaseFilter.jsx'
 import { SettingsGear } from './Today.jsx'
 import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import { partOn } from '../lib/module-parts.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 // "November · 3 workouts", the year too when it is not this one.
 const monthHead = ({ ym, n }) => (ym.slice(0, 4) === todayISO().slice(0, 4) ? monthName(ym) : monthLabel(ym))
@@ -40,7 +41,8 @@ export function WorkoutFeed({ S }) {
       {heads.has(i) && <h3 className="hv-cap hv-hmonth" aria-level={2}>{monthHead(heads.get(i))}</h3>}
       <WorkoutCard w={w} />
     </Fragment>)}
-    {ws.length > n && <button type="button" className="btn hv-moreb" onClick={() => setN(n + PAGE)}>{t('Show more')}</button>}
+    {/* How deep the feed goes, said on the button (the tenth critique, 2026-11-22). */}
+    {ws.length > n && <button type="button" className="btn hv-moreb" onClick={() => setN(n + PAGE)}>{t('Show more ({0})', ws.length - n)}</button>}
   </>
 }
 
@@ -53,7 +55,9 @@ export default function History() {
     partOn(S, 'hvStats', 'report') && ['Monthly report', () => nav('/report')],
     ['Statistics', () => nav('/stats')],
   ].filter(Boolean)
-  return <div className="narrow hv-history">
+  // With large text a card's exercise lines are whole, not cut at two lines (hevier.css, the tenth audit).
+  const big = useLargeText()
+  return <div className={'narrow hv-history' + (big ? ' hv-big' : '')}>
     <PageBar title={t('History')}><SettingsGear back="History" /></PageBar>
     <div className="hv-hgroup">
       <h2 className="hv-cap">{t('Look back')}</h2>

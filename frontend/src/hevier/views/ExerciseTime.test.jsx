@@ -10,6 +10,7 @@ import { setNav } from '../../lib/nav.js'
 import { EXDB } from '../../lib/exercises.js'
 import { todayISO } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
+import { kept } from './ExerciseTime.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -50,7 +51,8 @@ const chip = text => [...container.querySelectorAll('.hv-chip')].find(b => b.tex
 const order = () => container.querySelector('.hv-extime-order')
 const names = () => [...container.querySelectorAll('.hv-report-row b:first-child')].map(b => b.textContent)
 
-beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }) })
+beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }); Object.assign(kept, { period: '90d', by: null, asc: false }) })
+const fold = () => container.querySelector('.hv-extime-fold')
 afterEach(() => { if (root) act(() => root.unmount()); container?.remove() })
 
 describe('hevier: exercise time page', () => {
@@ -62,8 +64,8 @@ describe('hevier: exercise time page', () => {
 
   it('Statistics: this week’s exercise time on its tile, the longest exercises on its card', () => {
     render('/stats')
-    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min of timed sets this week')
-    expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('timed sets this week')
+    expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Timed sets, 25 min this week')
+    expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('this week')
     expect([...container.querySelectorAll('[data-card="time"] .hv-scard-row')].map(r => r.textContent)).toEqual([
       expect.stringMatching(/squat.*15 min$/i), expect.stringMatching(/bench.*10 min$/i)])
     act(() => container.querySelector('[data-tile="time"]').click())
@@ -109,13 +111,20 @@ describe('hevier: exercise time page', () => {
     const w = { id: 'w2', d: todayISO(), start, end: start + 40 * MIN, entries: [
       { id: BENCH, sets: [set(5), set(10)] }, { id: SQUAT, sets: [set(11)] }] }
     render('/exercise-time', [w])
+    // Folded under one heading after the timed rows, what it means said there (the tenth critique, 2026-11-22).
+    expect(container.querySelectorAll('.hv-report-row')).toHaveLength(1)
+    expect(fold().textContent).toBe('No time (1)')
+    expect(fold().getAttribute('aria-expanded')).toBe('false')
+    expect(container.textContent).not.toContain('one set a session, give no time')
+    act(() => fold().click())
+    expect(fold().getAttribute('aria-expanded')).toBe('true')
     const rows = [...container.querySelectorAll('.hv-report-row')]
     expect(rows).toHaveLength(2)
     expect(rows[1].textContent).toMatch(/squat/i)   // last: it has no average
     expect(rows[1].textContent).toContain('Too few sets')
     expect(rows[1].textContent).not.toContain('total')
     expect(rows[0].textContent).not.toContain('Too few sets')
-    expect(container.querySelector('.hv-extime-cap').textContent).toContain('one set a session, give no time')
+    expect(document.getElementById('hv-extime-none').textContent).toContain('one set a session, give no time')
   })
 
   it('sets ticked seconds apart give no time; a time is marked avg and said in words (the eighth round, 2026-11-22)', () => {
@@ -123,11 +132,24 @@ describe('hevier: exercise time page', () => {
     const w = { id: 'w3', d: todayISO(), start, end: start + 40 * MIN, entries: [
       { id: BENCH, sets: [set(1), set(2.5)] }, { id: SQUAT, sets: [tick(1), tick(2), tick(3)] }] }
     render('/exercise-time', [w])
+    act(() => fold().click())
     const rows = [...container.querySelectorAll('.hv-report-row')]
     expect(rows[1].textContent).toMatch(/squat.*Ticked all at once/i)
     const avg = rows[0].querySelector('.hv-extime-avg')
     expect(avg.textContent).toBe('2 min 30 s avg')
     expect(avg.getAttribute('aria-label')).toBe('Average: 2 minutes 30 seconds')
     expect(order().getAttribute('aria-label')).toBe('Order: longest first')
+  })
+
+  it('keeps the period, order and grouping when the page is left and opened again (the tenth critique, 2026-11-22)', () => {
+    render('/exercise-time')
+    act(() => chip('30 days').click())
+    act(() => order().click())
+    act(() => chip('Gym').click())
+    act(() => root.unmount()); container.remove()
+    render('/exercise-time')
+    expect(chip('30 days').getAttribute('aria-pressed')).toBe('true')
+    expect(chip('Gym').getAttribute('aria-pressed')).toBe('true')
+    expect(order().getAttribute('aria-label')).toBe('Order: shortest first')
   })
 })

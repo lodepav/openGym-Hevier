@@ -4,7 +4,7 @@
 // then links to upstream's own statistics, structural balance and Arrange. A tile is the number now, its
 // card the more behind it, never the same number again. A tile opens what its card opens; a tile or
 // card whose module or data is missing is not drawn.
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../../store/useStore.js'
@@ -91,7 +91,7 @@ function numbers(S, today) {
 
 /** Every tile and card the data allows, by id: `{ tile, card }` (either missing when not drawn). A
  *  tile's `scroll` names the card on this page it goes to. */
-function items(S, today, nav, n) {
+function items(S, today, nav, n, setsWeek) {
   const out = {}
   if (moduleOn(S, 'time')) {
     const { exMs, longest } = n
@@ -99,8 +99,8 @@ function items(S, today, nav, n) {
     out.time = {
       // This week's timed exercises added up (stats-tiles.js); the card is each exercise's average over 90 days.
       // Both wait for set times in the last 90 days, so a log without them shows no empty 0 min.
-      // Its sub says what it counts, beside Training time's workouts (the eighth critique, 2026-11-22).
-      tile: longest.length ? { title: t('Exercise time'), value: v, sub: t('timed sets this week'), spoken: t('Exercise time, {0} of timed sets this week', v),
+      // Named Timed sets, apart from Training time and Time per exercise; it still opens Exercise time (the tenth critique, 2026-11-22).
+      tile: longest.length ? { title: t('Timed sets'), value: v, sub: t('this week'), spoken: t('Timed sets, {0} this week', v),
         change: weekChange(exMs, n.exMsBefore, trainingTime), onClick: () => nav('/exercise-time') } : null,
       card: longest.length ? () => <div className="card hv-scard">
         <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
@@ -134,7 +134,7 @@ function items(S, today, nav, n) {
     tile: { title: t('Sets per muscle'), value: fmtNum(week.sets), sub: t('sets this week'), spoken: t('Sets per muscle, {0} sets this week', week.sets),
       change: weekChange(week.sets, lastWeek.sets),
       scroll: 'sets' },
-    card: () => <MuscleSetsCard S={S} today={today} />,
+    card: () => <MuscleSetsCard S={S} today={today} weekAt={setsWeek} />,
   }
   const hours = trainingTime(week.ms)
   out.hours = {
@@ -164,17 +164,20 @@ export default function Statistics() {
   const counted = useMemo(() => (ws === raw.workouts ? raw : { ...raw, workouts: ws }), [raw, ws])
   const S = usePhasedS(counted)
   const phase = useStatsPhase(s => s.phase)
+  // Counts the Sets per muscle tile's taps: each opens its card on Week, the tile's period (the tenth critique, 2026-11-22).
+  const [setsWeek, setSetsWeek] = useState(0)
   const today = todayISO()
   // The counted, phased log is a new copy on each write: key on what it is made from instead.
   const n = useMemo(() => numbers(S, today), [raw.workouts, raw.routines, raw.bodyweight, raw.modules, raw.hvModuleParts, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   const layout = S.hvStatsLayout || {}
-  const all = items(S, today, nav, n)
+  const all = items(S, today, nav, n, setsWeek)
   const cards = shown(CARDS, layout.cards).filter(id => all[id]?.card)
   const tiles = shown(TILES, layout.tiles).filter(id => all[id]?.tile)
   // A tile whose card is on the page scrolls to it; with its card switched off it opens nothing.
-  const tileOf = ({ scroll, ...tile }) => (scroll ? { ...tile, onClick: cards.includes(scroll) ? scrollTo(scroll) : null } : tile)
+  const tileOf = ({ scroll, ...tile }) => (scroll ? { ...tile, onClick: cards.includes(scroll)
+    ? () => { if (scroll === 'sets') setSetsWeek(k => k + 1); scrollTo(scroll)() } : null } : tile)
   const ends = [['All statistics', '/stats/all'], S.workouts.length > 0 && ['Structural balance', '/structural-balance'],
     // The page it opens keeps its full title; the chip is short so the three fit on one row (the critique, 2026-11-21).
     ['Arrange', '/stats/arrange']].filter(Boolean)

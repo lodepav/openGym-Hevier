@@ -30,6 +30,7 @@ import { customExSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { Thumb } from '../../components/Media.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
+import { useLargeText } from '../components/useLargeText.js'
 import { hooks } from '../hooks.js'
 import { cleanBackups } from '../../lib/routine-backups.js'
 import { armSwap } from '../lib/gym-backups-run.js'
@@ -213,7 +214,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   </section>
 
   const eqLabel = eq === GYM ? profile?.name : groupIdOf(eq) ? t(EQUIP_GROUPS.find(g => g.id === groupIdOf(eq)).label) : eq ? t(eq) : t('All Equipment')
-  return <div className="hv-pk">
+  // With large text the title and Create stack and the filters take a row each, words whole (hevier.css .hv-big.hv-pk; the tenth critique, 2026-11-22).
+  const big = useLargeText()
+  return <div className={'hv-pk' + (big ? ' hv-big' : '')}>
     {browse ? browse({ create }) : <div className="hv-pk-hd">
       <h3>{swap ? (likeEx ? named(t('Swap {0}', '\u0001'), likeEx) : t('Swap exercise')) : title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>

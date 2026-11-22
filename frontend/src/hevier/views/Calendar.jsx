@@ -17,7 +17,7 @@ import PageBar from '../components/PageBar.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid, notesIn } from '../lib/calendar.js'
 import { partOn } from '../lib/module-parts.js'
 import { useSlicedS } from './Statistics.jsx'
 
@@ -179,11 +179,16 @@ function CalendarPage() {
   // The key scrolls with the months, under this one where the page opens: pinned, it took a large
   // share of a short screen at a big text size (the fresh audit, 2026-11-21).
   // Right under the last month, above Show next month (the seventh critique, 2026-11-22).
+  const months = view === 'month' ? monthsBack(from.y, from.mo + ahead, count + ahead) : []
+  // Note only when the months drawn hold a note's dot; the year's small months draw none (the tenth critique, 2026-11-22).
+  // shortcut: no Changed (orange) entry: no rule paints the rescheduled dot orange (hevier.css .hv-cal-d.ovr), add one with it.
+  const noted = notesIn(st, months, byDay, today)
   const key = <div className="hv-cal-key">
     <span><i className="k-strength" />{t('Strength')}</span>
     <span><i className="k-cardio" />{t('Cardio')}</span>
     <span><i className="k-deload" />{t('Deload')}</span>
     <span><i className="k-plan" />{t('Planned')}</span>
+    {noted && <span><i className="k-note" />{t('Note')}</span>}
   </div>
   // The streak is Motivation's (D97); the rest days stay.
   const streak = (partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak" ref={streakEl}>
@@ -205,7 +210,7 @@ function CalendarPage() {
     {wraps && streak}
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
-      {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
+      {[...months].reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
       {key}
       {/* What a tap on a day does, until the first one (the ninth critique, 2026-11-22). */}
       {!tapSeen && <p className="small dim hv-cal-hint">{t('Tap a day to plan or rest it')}</p>}

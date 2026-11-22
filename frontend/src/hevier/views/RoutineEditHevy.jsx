@@ -329,7 +329,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown
     </div>
     {e.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + e.note} onClick={openNote}>{e.note}</button>}
     {tipDrawn && <p className="small dim hv-rt-tip">{progressionOn(r) && (r.prog || profileRule(S)) !== 'off' && !r.excludeFromProgression
-      ? t('– lets the rule pick the weight. Auto warm-ups ramp up to it.') : t('– opens at last time’s weight.')}</p>}
+      ? t('A weight of – lets the rule pick it. Auto warm-ups ramp up to it.') : t('A weight of – opens at last time’s.')}</p>}
     <div className="hv-rt-row hv-rt-x hv-rt-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}<span />
     </div>
@@ -487,7 +487,7 @@ function RoutineEditor({ id }) {
         })} />
       </Row>
       {/* Upstream's SelectRow with the rule's description as its subtitle, not a note under the list (the ninth critique, 2026-11-22). */}
-      {progressionOn(r) && <Row icon="chartLine" title={t('Progression')} accessory="chevron"
+      {progressionOn(r) && <Row icon="chartLine" title={t('Progression')} accessory="chevron" className="hv-rrule"
         value={ruleOptions.find(o => o.value === rule)?.label ?? rule}
         subtitle={t(POLICY_DESC[rule] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
         onClick={() => openSelectSheet({ title: t('Progression'), value: rule, options: ruleOptions, onChange: v => setR(x => { x.prog = v }) })} />}

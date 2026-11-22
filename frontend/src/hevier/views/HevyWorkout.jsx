@@ -39,6 +39,8 @@ import { isPaused, canPause, pauseWorkout, resumeWorkout } from '../../lib/worko
 import { nextAfterRest } from '../lib/next-after-rest.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { trendsOn } from '../lib/set-trend.js'
+import { effortOf, modeOf } from '../../lib/history.js'
+import { isHoldRow } from '../lib/hold-set.js'
 import { useLargeText } from '../components/useLargeText.js'
 
 // The rest whose end last brought the next exercise up: a page shown again over a rest still at
@@ -81,9 +83,9 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     window.addEventListener('resize', soon)
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', soon); window.removeEventListener('resize', soon) }
   }, [])
-  // With large text the sticky header would fill half the screen: the details open at the top only (the ninth critique, 2026-11-22).
+  // With large text the sticky header would fill half the screen: the details open only by the chevron (the tenth critique, 2026-11-22).
   const big = useLargeText()
-  const auto = big ? edge === 'top' : !!edge || progressOpen(A, units)
+  const auto = big ? false : !!edge || progressOpen(A, units)
   const [manual, setManual] = useState(null)
   const shown = resolveOpen(auto, manual)
   if (manual && !shown.manual) setManual(null)
@@ -201,6 +203,12 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   // The ticked sets' marks, said with the tip once a set is ticked and the marks are on (the ninth critique, 2026-11-22).
   const marks = trendsOn(S) && A.entries.some(e => e.sets.some(x => x.done || x.sides?.L?.done || x.sides?.R?.done))
     ? ' ' + t('A ticked set’s mark compares it with last time: = the same, ↑ better, ↓ less.') : ''
+  // The RIR pill stands in a set's tick (a reps table with no timer column, HevyExerciseBlock effTick); said while the first table shows it (the tenth critique, 2026-11-22).
+  const rirTick = effortOf(S) === 'rir' && (units[0] || []).some(idx => {
+    const e = A.entries[idx]
+    return e && modeOf({ ...(e.target || {}), id: e.id }) === 'reps' && !(live && e.sets.some(isHoldRow))
+  })
+  const effTip = rirTick ? ' ' + t('Tap RIR to log a set with its effort.') : ''
   return <div className={'hv-workout' + (big ? ' hv-big' : '')}>
     {/* a heading TalkBack can jump to; the name on the bar is a button */}
     <h1 className="vh">{editing ? t('Edit workout') : A.name || t('Log workout')}</h1>
@@ -240,7 +248,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
     </section>
       {/* The two quick paths, said under the first table until one is first used (S.hvSetTipSeen, the eighth critique, 2026-11-22). */}
-      {n === 0 && !S.hvSetTipSeen && <p className="small dim hv-set-tip">{workoutControls(S).swipeSets ? t('Tap PREVIOUS to copy it, swipe a set for more.') : t('Tap PREVIOUS to copy it.')}{marks}</p>}
+      {n === 0 && !S.hvSetTipSeen && <p className="small dim hv-set-tip">{workoutControls(S).swipeSets ? t('Tap PREVIOUS to copy it, swipe a set for more.') : t('Tap PREVIOUS to copy it.')}{effTip}{marks}</p>}
     </Fragment>) : <div className="hv-empty">
       <Icon name="dumbbell" />
       <b>{t('Get started')}</b>

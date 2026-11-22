@@ -277,7 +277,7 @@ describe('hevier: routine editor (M3)', () => {
   it('says once on the first exercise what "–" under the weight means, gone after that visit (S.hvDashTipSeen)', () => {
     const tip = () => [...container.querySelectorAll('.hv-rt-tip')].map(p => p.textContent)
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }, { id: EX, mode: 'reps', sets: 2, reps: 8 }])
-    expect(tip()).toEqual(['– opens at last time’s weight.'])
+    expect(tip()).toEqual(['A weight of – opens at last time’s.'])
     expect(container.querySelector('.hv-ex .hv-rt-tip').closest('.hv-ex')).toBe(container.querySelector('.hv-ex'))
     expect(useStore.getState().S.hvDashTipSeen).toBeUndefined()
     act(() => root.unmount()); container.remove(); root = null
@@ -289,12 +289,12 @@ describe('hevier: routine editor (M3)', () => {
     // A routine with progression on opens at its rule: the tip says so, and what Auto means (the ninth critique).
     useStore.getState().update(s => { delete s.hvDashTipSeen })
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }], { hvProg: true })
-    expect(tip()).toEqual(['– lets the rule pick the weight. Auto warm-ups ramp up to it.'])
+    expect(tip()).toEqual(['A weight of – lets the rule pick it. Auto warm-ups ramp up to it.'])
     // No rule to pick it, or a deload routine: the plain tip.
     act(() => useStore.getState().update(s => { s.routines[0].prog = 'off' }))
-    expect(tip()).toEqual(['– opens at last time’s weight.'])
+    expect(tip()).toEqual(['A weight of – opens at last time’s.'])
     act(() => useStore.getState().update(s => { s.routines[0].prog = 'linear'; s.routines[0].excludeFromProgression = true }))
-    expect(tip()).toEqual(['– opens at last time’s weight.'])
+    expect(tip()).toEqual(['A weight of – opens at last time’s.'])
   })
 
   it('the Progression row carries its rule’s description, and the switch does not contradict "No automatic progression"', () => {

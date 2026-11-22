@@ -10,7 +10,7 @@ import { muscleText } from '../lib/main-muscle.js'
 // "4 sets", seen and spoken, not a bare 4 (the ninth critique, 2026-11-22); a share count reads "2.5 sets".
 const setsText = n => (n === 1 ? t('{0} set', fmtNum(n)) : t('{0} sets', fmtNum(n)))
 
-// `top`: show only that many, the most sets first, and "+N" for the rest; TalkBack still hears every one, "Upper back, 4 sets".
+// `top`: show only that many, the most sets first, and "+5 more muscles" for the rest; TalkBack still hears every one, "Upper back, 4 sets".
 export default function MuscleLine({ entries, mode, top }) {
   const own = useStore(s => muscleMode(s.S))
   const list = muscleSets(entries, mode || own)
@@ -21,7 +21,7 @@ export default function MuscleLine({ entries, mode, top }) {
     {i > 0 && ' · '}{muscleText(m.muscle)} <b>{fmtNum(m.sets)}</b> {m.sets === 1 ? t('set') : t('sets')}
   </span>)
   return <div className="hv-mline">
-    <span aria-hidden="true">{line}{cut && ' · +' + (list.length - top)}</span>
+    <span aria-hidden="true">{line}{cut && ' · ' + (list.length - top === 1 ? t('+1 more muscle') : t('+{0} more muscles', list.length - top))}</span>
     <span className="hv-sr">{list.map(m => muscleText(m.muscle) + ', ' + setsText(m.sets)).join(', ')}</span>
   </div>
 }

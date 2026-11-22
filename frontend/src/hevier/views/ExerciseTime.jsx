@@ -19,6 +19,8 @@ import { setGaps } from '../lib/set-gaps.js'
 import { elapsedSpaced, elapsedClock, restTimerText } from '../lib/elapsed.js'
 import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
+import { untimedApart } from '../lib/untimed-rows.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 const PERIODS = [['30d', '30 days'], ['90d', '90 days'], ['year', 'Year'], ['all', 'All']]
 // "1 min 30 s", the fork's one duration style (the ninth critique, 2026-11-22).
@@ -28,11 +30,19 @@ const clock = ms => elapsedClock(Math.round(ms / 1000))
 // Each said in words (role img, so the label is read in the row's name): TalkBack read "1min 30s" and "1:30" as letters and a clock (the eighth audit, 2026-11-22).
 const said = ms => timeSpoken(Math.round(ms / 1000))
 
+// The page's choices for the app's session, not stored: back from an exercise's page they are as left (the tenth critique, 2026-11-22).
+export const kept = { period: '90d', by: null, asc: false }
+const useKept = key => {
+  const [v, set] = useState(kept[key])
+  return [v, nv => { kept[key] = nv; set(nv) }]
+}
+
 export default function ExerciseTime() {
   const st = useStore(s => s.S)
-  const [period, setPeriod] = useState('90d')
-  const [by, setBy] = useState(null)
-  const [asc, setAsc] = useState(false)
+  const [period, setPeriod] = useKept('period')
+  const [by, setBy] = useKept('by')
+  const [asc, setAsc] = useKept('asc')
+  const [noTimeOpen, setNoTimeOpen] = useState(false)
   const log = usePhasedS(st).workouts   // D93
   // A picked phase makes the log a new copy on each write: key on what it is made from (the fifth audit, 2026-11-21).
   const phase = useStatsPhase(s => s.phase)
@@ -50,11 +60,27 @@ export default function ExerciseTime() {
     : key ? muscleText(key) : t('Other'))
   const group = k => setBy(by === k ? null : k)
   const count = sections.reduce((n, sec) => n + sec.rows.length, 0)
-  const untimed = sections.some(sec => sec.rows.some(r => r.avg == null))
-  return <div className="narrow hv-statpage">
+  const { timed, untimed } = untimedApart(sections)
+  const row = r => {
+    const ex = exOr(r.id)
+    const g = gaps.get(r.id)
+    return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
+      <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
+        <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')}{r.avg != null && r.sessions > 1 && <> · <span role="img" aria-label={said(r.total)}>{secs(r.total)}</span> {t('total')}</>}</span>
+        {g && <span className="small dim" role="img" aria-label={g.rest > 0 ? t('Between sets {0}, rest set to {1}', said(g.gap), timeSpoken(g.rest)) : t('Between sets {0}, no rest timer', said(g.gap))}>
+          {g.rest > 0 ? t('Between sets {0} · rest set to {1}', clock(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', clock(g.gap))}</span>}
+      </span>
+      {/* One set a session is one gap, not a time (the sixth audit, 2026-11-22); nor are sets ticked seconds apart (the eighth critique). */}
+      {r.avg == null ? <span className="small dim hv-extime-st">{t(r.quick ? 'Ticked all at once' : 'Too few sets')}</span>
+        : <b className="hv-extime-avg" role="img" aria-label={t('Average') + ': ' + said(r.avg)}>{secs(r.avg)} <span className="small dim">{t('avg')}</span></b>}
+    </button>
+  }
+  // With large text a row's average goes under the exercise's name (hevier.css .hv-big .hv-extime-list; the tenth critique, 2026-11-22).
+  const big = useLargeText()
+  return <div className={'narrow hv-statpage' + (big ? ' hv-big' : '')}>
     <BackTo label={t('Statistics')} to="/stats" title={t('Exercise time')} />
     <PhaseFilter />
-    <div className="hv-chips">{PERIODS.map(([k, label]) => <button key={k} type="button" className={'hv-chip' + (k === period ? ' on' : '')}
+    <div className="hv-chips hv-extime-periods">{PERIODS.map(([k, label]) => <button key={k} type="button" className={'hv-chip' + (k === period ? ' on' : '')}
       aria-pressed={k === period} onClick={() => setPeriod(k)}>{t(label)}</button>)}</div>
     <div className="hv-extime-sort">
       {/* An order, not a filter: a bare text toggle, not a chip like the two beside it (the ninth critique, 2026-11-22). */}
@@ -67,26 +93,19 @@ export default function ExerciseTime() {
     <span className="hv-sr" role="status">{[t(asc ? 'Shortest first' : 'Longest first'), by && t(by === 'gym' ? 'Gym' : 'Muscle'),
       tn('{0} exercise', '{0} exercises', count)].filter(Boolean).join(', ')}</span>
     {/* The count shown too, not only said (the ninth critique, 2026-11-22). */}
-    <div className="small dim hv-extime-cap">{count > 0 && <span aria-hidden="true">{tn('{0} exercise', '{0} exercises', count)} · </span>}{t('Average time per session, from the times your sets were ticked: the rest before each set counts.')}
-      {/* What "Ticked all at once" and "Too few sets" mean, once, while a row shows one. */}
-      {untimed && <> {t('Sets ticked together or after the workout, or one set a session, give no time.')}</>}</div>
+    <div className="small dim hv-extime-cap">{count > 0 && <span aria-hidden="true">{tn('{0} exercise', '{0} exercises', count)} · </span>}{t('Average time per session, from the times your sets were ticked: the rest before each set counts.')}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
-    {sections.map(sec => <section key={sec.key}>
+    {timed.map(sec => <section key={sec.key}>
       {by && <h2 className="sec">{title(sec.key)} {sec.total > 0 && <span className="dim">· <span role="img" aria-label={said(sec.total)}>{secs(sec.total)}</span> {t('total')}</span>}</h2>}
-      <div className="list hv-flat">{sec.rows.map(r => {
-        const ex = exOr(r.id)
-        const g = gaps.get(r.id)
-        return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
-          <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
-            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')}{r.avg != null && r.sessions > 1 && <> · <span role="img" aria-label={said(r.total)}>{secs(r.total)}</span> {t('total')}</>}</span>
-            {g && <span className="small dim" role="img" aria-label={g.rest > 0 ? t('Between sets {0}, rest set to {1}', said(g.gap), timeSpoken(g.rest)) : t('Between sets {0}, no rest timer', said(g.gap))}>
-              {g.rest > 0 ? t('Between sets {0} · rest set to {1}', clock(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', clock(g.gap))}</span>}
-          </span>
-          {/* One set a session is one gap, not a time (the sixth audit, 2026-11-22); nor are sets ticked seconds apart (the eighth critique). */}
-          {r.avg == null ? <span className="small dim hv-extime-st">{t(r.quick ? 'Ticked all at once' : 'Too few sets')}</span>
-            : <b className="hv-extime-avg" role="img" aria-label={t('Average') + ': ' + said(r.avg)}>{secs(r.avg)} <span className="small dim">{t('avg')}</span></b>}
-        </button>
-      })}</div>
+      <div className="list hv-flat hv-extime-list">{sec.rows.map(row)}</div>
     </section>)}
+    {/* The rows without a time after the timed ones, folded under one heading, with what they mean (the tenth critique, 2026-11-22). */}
+    {untimed.length > 0 && <section>
+      <h2 className="sec hv-extime-none"><button type="button" className="hv-extime-fold" aria-expanded={noTimeOpen} aria-controls="hv-extime-none"
+        onClick={() => setNoTimeOpen(!noTimeOpen)}>{t('No time ({0})', untimed.length)}<Icon name={noTimeOpen ? 'chevronUp' : 'chevronDown'} /></button></h2>
+      <div id="hv-extime-none" hidden={!noTimeOpen}>{noTimeOpen && <>
+        <div className="small dim hv-extime-cap">{t('Sets ticked together or after the workout, or one set a session, give no time.')}</div>
+        <div className="list hv-flat hv-extime-list">{untimed.map(row)}</div></>}</div>
+    </section>}
   </div>
 }

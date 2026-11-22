@@ -5,6 +5,9 @@ import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
+import { useUI } from '../../store/useUI.js'
+import { isOn } from '../../lib/modules.js'
+import { partSwitch } from '../lib/module-parts.js'
 import { hevierRoutes } from '../routes.jsx'
 import Settings from '../../views/Settings.jsx'
 import { installSettings } from './SettingsRootHevy.jsx'
@@ -13,6 +16,8 @@ import { moduleRow, goToModule } from './ModuleParts.jsx'
 import { HIDDEN_MODULES, FORK_MODULES, forkModuleCopy, setAnyModule } from '../lib/fork-modules.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
+const hevyExport = vi.hoisted(() => ({ on: true }))
+vi.mock('../lib/hevy-export-sync.js', async orig => ({ ...(await orig()), loadExport: () => Promise.resolve({ ...hevyExport }) }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 let root, container, path
@@ -40,19 +45,22 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     const open = row('Body').querySelector('.hv-modrow-open')
     expect(open.tagName).toBe('BUTTON')
     expect(open.getAttribute('aria-expanded')).toBe('false')
-    expect(row('Body').querySelector('.lrow-v').textContent).toBe('2 of 3')
+    // The count starts the line, no column of its own (the tenth critique, 2026-11-22).
+    expect(row('Body').querySelector('.lrow-s .hv-modcount').textContent).toBe('2 of 3\u00a0·')
+    expect(row('Body').querySelector('.lrow-v')).toBeNull()
     expect(open.getAttribute('aria-label')).toBe('Parts of Body, 2 of 3')   // the sixth audit, 2026-11-21
     // The name once, with the button; its line as the button's description (the ninth audit, 2026-11-22).
     expect(row('Body').querySelector('.lrow-m .lrow-t > [aria-hidden="true"]')).not.toBeNull()
-    expect(document.getElementById(open.getAttribute('aria-describedby')).textContent).toBe(row('Body').querySelector('.lrow-s').textContent)
-    expect(row('Integrations').querySelector('.lrow-s').textContent).toBe('Send your workouts to Hevy, OpenBite, Home Assistant and AI assistants.')
+    // The count is said once, in the button's name, not again in its description.
+    expect(document.getElementById(open.getAttribute('aria-describedby')).textContent).toBe(row('Body').querySelector('.lrow-s').textContent.replace('2 of 3\u00a0· ', ''))
+    expect(row('Integrations').querySelector('.lrow-s [id]').textContent).toBe('Send your workouts to Hevy, OpenBite, Home Assistant and AI assistants.')
     expect(partsOf('Body').hidden).toBe(true)
     expect(partsOf('Body').querySelectorAll('[role="switch"]')).toHaveLength(0)
     act(() => open.click())
     expect(open.getAttribute('aria-expanded')).toBe('true')
     expect(partsOf('Body').hidden).toBe(false)
     expect(titles(partsOf('Body'))).toEqual(['Body weight', 'Body measurements', 'Progress photos'])
-    expect(row('Body').querySelector('.lrow-v')).toBeNull()
+    expect(row('Body').querySelector('.hv-modcount')).toBeNull()
     expect(open.getAttribute('aria-label')).toBe('Parts of Body')
     act(() => open.click())
     expect(open.getAttribute('aria-expanded')).toBe('false')
@@ -75,9 +83,9 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     act(() => row('Motivation').querySelector('[role="switch"]').click())
     expect(useStore.getState().S.modules.motivation).toBe(false)
     expect(row('Motivation').querySelector('.hv-modrow-open').getAttribute('aria-expanded')).toBe('false')
-    expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('Off')
+    expect(row('Motivation').querySelector('.hv-modcount').textContent).toBe('Off\u00a0·')
     act(() => row('Motivation').querySelector('[role="switch"]').click())
-    expect(row('Motivation').querySelector('.lrow-v').textContent).toBe('All on')   // the seventh critique, 2026-11-22
+    expect(row('Motivation').querySelector('.hv-modcount').textContent).toBe('All on\u00a0·')   // the seventh critique, 2026-11-22
   })
   it('a module without parts has no disclosure', () => {
     render('/settings/modules')
@@ -138,5 +146,48 @@ describe('hevier: a part that also needs another module', () => {
     expect(plates.querySelector('.lrow-s').textContent).toContain('The bar, plates and weight stack')
     act(() => plates.querySelector('[role="switch"]').click())
     expect(useStore.getState().S.hvModuleParts['hvExercise.plates']).toBe(false)
+  })
+})
+
+// The tenth critique, 2026-11-22: switching off what sends workouts to Hevy says so, with Undo.
+describe('hevier: switching off the export to Hevy', () => {
+  const flush = () => act(() => new Promise(r => setTimeout(r, 0)))
+  const hevy = () => [...partsOf('Integrations').querySelectorAll('.lrow')].find(r => r.querySelector('.lrow-t').textContent === 'Send to Hevy')
+  it('the Hevy part off toasts, and Undo turns it back on', async () => {
+    useUI.setState({ toastMsg: '', toastAction: null })
+    render('/settings/modules')
+    act(() => row('Integrations').querySelector('.hv-modrow-open').click())
+    act(() => hevy().querySelector('[role="switch"]').click())
+    await flush()
+    expect(useUI.getState().toastMsg).toBe('New workouts won’t go to Hevy')
+    expect(useUI.getState().toastAction.label).toBe('Undo')
+    act(() => useUI.getState().runToastAction())
+    expect(partSwitch(useStore.getState().S, 'integrations', 'hevy')).toBe(true)
+  })
+  it('the module’s switch off toasts too, and Undo turns it back on; nothing is said without an export set up', async () => {
+    useUI.setState({ toastMsg: '', toastAction: null })
+    render('/settings/modules')
+    act(() => row('Integrations').querySelector('[role="switch"]').click())
+    await flush()
+    expect(isOn(useStore.getState().S, 'integrations')).toBe(false)
+    expect(useUI.getState().toastMsg).toBe('New workouts won’t go to Hevy')
+    act(() => useUI.getState().runToastAction())
+    expect(isOn(useStore.getState().S, 'integrations')).toBe(true)
+    useUI.setState({ toastMsg: '', toastAction: null })
+    hevyExport.on = false
+    try {
+      act(() => row('Integrations').querySelector('[role="switch"]').click())
+      await flush()
+      expect(useUI.getState().toastMsg).toBe('')
+    } finally { hevyExport.on = true }
+  })
+  // The review of round 10, 2026-11-22: a sync or a restore that turns it off is not the user's doing.
+  it('a change from the store with no tap on the page says nothing', async () => {
+    useUI.setState({ toastMsg: '', toastAction: null })
+    render('/settings/modules')
+    act(() => useStore.getState().update(s => { setAnyModule(s, 'integrations', false) }))
+    await flush()
+    expect(isOn(useStore.getState().S, 'integrations')).toBe(false)
+    expect(useUI.getState().toastMsg).toBe('')
   })
 })

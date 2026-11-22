@@ -54,7 +54,9 @@ import { setNoteOf } from '../../lib/set-notes.js'
 import { workoutAs, currentDbLoad } from '../../lib/dumbbells.js'
 import { timedSessions, timeSections } from '../lib/exercise-time.js'
 import { elapsedSpaced } from '../lib/elapsed.js'
-import { spoken1rm } from '../lib/set-spoken.js'
+import { spoken1rm, spokenSet } from '../lib/set-spoken.js'
+import { chartTapIndex } from '../lib/chart-tap.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 // A date of another year says its year: the history reaches back further than one (H6).
 const notThisYear = d => !!d && d.slice(0, 4) !== String(new Date().getFullYear())
@@ -104,13 +106,14 @@ function LastSessions({ ex, sum, st, onAll }) {
   const scale = effortScale(st)
   return <section className="hv-xd-last">
     <div className="hv-xd-cap"><h4 className="sec">{t('Last sessions')}</h4>
-      <button type="button" className="hv-link" onClick={onAll}>{t('All history')}<Icon name="chevronRight" /></button></div>
+      {/* How many it holds, all of them listed there (the tenth critique, 2026-11-22). */}
+      <button type="button" className="hv-link" onClick={onAll}>{t('All history ({0})', sum.sessions.length)}<Icon name="chevronRight" /></button></div>
     {lines.map((l, k) => {
       const w = byId.get(l.id)
       const effort = l.effort.map(e => effortShown(e, scale)).filter(v => v != null)
-      // Its date, first set, count and best or trend; the whole line was one long button name (the fifth audit, 2026-11-21).
-      const said = w && [shortDate(l.d), l.sets[0] && shortSet(ex, l.sets[0].s, l.target, st), l.sets.length > 1 && tn('{0} set', '{0} sets', l.sets.length),
-        l.bestKind ? t(KIND_LABEL[l.bestKind]) : trendWords(l.trend)].filter(Boolean).join(', ')
+      // Its date, first set, count, best and trend, in words; the whole line was one long button name (the fifth audit, 2026-11-21; the tenth critique).
+      const said = w && [shortDate(l.d), l.sets[0] && spokenSet(shortSet(ex, l.sets[0].s, l.target, st)), l.sets.length > 1 && tn('{0} set', '{0} sets', l.sets.length),
+        l.bestKind && spoken1rm(t(KIND_LABEL[l.bestKind])), trendWords(l.trend)].filter(Boolean).join(', ')
       return <div key={l.id ?? k} className="hv-xd-ls" aria-label={said || undefined} {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
         <span className="hv-xd-ld">{shortDate(l.d)}</span>
         {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
@@ -118,9 +121,12 @@ function LastSessions({ ex, sum, st, onAll }) {
           ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{x.kinds.map(k => t(KIND_LABEL[k])).join(', ')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
           : shortSet(ex, x.s, l.target, st)}</span></Fragment>)}
           {effort.length > 0 && <small> {t(EFFORT[scale].hd)} {effort.map(fmtNum).join(' · ')}</small>}</span>
-        {l.bestKind ? <span className="hv-xd-best">{t(KIND_LABEL[l.bestKind])}</span> : <TrendMark v={l.trend} />}
+        {/* The star already names the best on its set: the line's end keeps the arrow only (the tenth critique, D131). */}
+        <TrendMark v={l.trend} />
       </div>
     })}
+    {/* The ↑ = ↓ explained once, as Workout detail does (the tenth critique, 2026-11-22). */}
+    {lines.some(l => l.trend != null) && <p className="hv-wd-legend small dim" aria-hidden="true">{t('↑ = ↓ against the session before')}</p>}
   </section>
 }
 
@@ -168,7 +174,8 @@ function Chart({ ex, sum, st }) {
   const unit = exUnitOf(st, ex.id)
   const curves = [
     { value: 'main', label: t(TILE_LABEL[sum.metric]), title: t(MAIN_LABEL[sum.metric]) },
-    sum.series.e1rm && { value: 'e1rm', label: t('1RM'), title: t('One Rep Max') },
+    // Lifts' word for the same estimate (the tenth critique, 2026-11-22).
+    sum.series.e1rm && { value: 'e1rm', label: t('Est. 1RM'), spoken: t('Estimated one rep max'), title: t('One Rep Max') },
     sum.series.setVol && { value: 'setVol', label: t('Set volume'), title: t('Best Set Volume') },
   ].filter(Boolean)
   const on = sum.series[curve] ? curve : 'main'
@@ -178,15 +185,27 @@ function Chart({ ex, sum, st }) {
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   // A weight curve names its unit, the exercise's own (the critique, 2026-11-22); reps, holds and minutes say theirs in the title already.
   const title = curves.find(c => c.value === on).title + (on !== 'main' || sum.metric === 'weight' ? ' (' + unit + ')' : '')
+  // A tap shows the chart's readout; a second tap on the same point opens that session (the tenth critique, 2026-11-22).
+  const picked = useRef({ points: null, i: null })
+  const tap = e => {
+    const i = chartTapIndex(e.currentTarget)
+    const was = picked.current.points === points ? picked.current.i : null
+    picked.current = { points, i }
+    if (i == null || i !== was) return
+    const sess = sum.sessions.find(x => x.t === points[i]?.t)
+    const w = sess && (st.workouts || []).find(x => x.id != null && x.id === sess.id)
+    if (w) workoutDetailSheet(w)
+  }
   return <section>
     <div className="hv-xd-cap"><h4 className="sec">{title}</h4>
       {/* Upstream's picker sheet, not a native select's white system list (the fresh audit, 2026-11-21). */}
       <MenuButton className="hv-xd-range" title={t('Range')} value={range} onChange={setRange}
         options={[{ value: '3m', label: t('Last 3 months') }, { value: '1y', label: t('Year') }, { value: 'all', label: t('All time') }]} /></div>
-    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', title)}><LineChart points={points} h={150} unit={cu} /></div>
+    {/* Touch only: the chart is one picture to TalkBack, and Last sessions opens the same workouts. */}
+    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', title)} onClick={tap}><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
-        aria-pressed={c.value === on} aria-label={spoken1rm(c.label) === c.label ? undefined : spoken1rm(c.label)} onClick={() => setCurve(c.value)}>{c.label}</button>)}
+        aria-pressed={c.value === on} aria-label={c.spoken || (spoken1rm(c.label) === c.label ? undefined : spoken1rm(c.label))} onClick={() => setCurve(c.value)}>{c.label}</button>)}
     </div>}
     {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
       : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
@@ -346,6 +365,8 @@ function ExerciseDetails({ ex, close }) {
   const e1rm = sum.records.e1rm
   const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
   const media = useMediaDrawn()
+  // With large text the best tiles go to fewer columns and keep their numbers whole (hevier.css, the tenth critique).
+  const big = useLargeText()
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -371,7 +392,7 @@ function ExerciseDetails({ ex, close }) {
       ] },
     ].filter(Boolean),
   })
-  return <div className="hv-xd">
+  return <div className={'hv-xd' + (big ? ' hv-big' : '')}>
     <div className="hv-xd-bar">
       <h3 className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</h3>
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>

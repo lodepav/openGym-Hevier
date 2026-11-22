@@ -48,7 +48,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange').click())
     expect(path).toBe('/stats/arrange')
     expect(container.textContent).toContain('Drag a row by its handle, or tap the handle to move it up or down; switch a row off to hide it. A tile is one number now; a card shows more.')
-    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
+    expect(names(0)).toEqual(['Timed sets', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(names(1)).toEqual(['Time per exercise', 'Body weight', 'Sets per muscle', 'Weekly chart'])
     const sw = row(0, 'Average RPE').querySelector('[role="switch"]')
     // Spoken with its list, as Body weight is in both (the ninth audit, 2026-11-22).
@@ -56,6 +56,17 @@ describe('hevier: Arrange Statistics (D142)', () => {
     expect(row(1, 'Body weight').querySelector('[role="switch"]').getAttribute('aria-label')).toBe('Body weight card')
     expect(sw.getAttribute('aria-checked')).toBe('false')
     expect(row(1, 'Weekly chart').querySelector('.hv-grip').getAttribute('aria-label')).toBe('Move Weekly chart card')
+  })
+
+  it('a tap on a row’s name flips its switch (the tenth critique, 2026-11-22)', () => {
+    render(['/stats/arrange'])
+    const sw = () => row(1, 'Weekly chart').querySelector('[role="switch"]')
+    expect(sw().getAttribute('aria-checked')).toBe('true')
+    act(() => row(1, 'Weekly chart').querySelector('.hv-arr-n').click())
+    expect(layout().cards.hidden).toEqual(['weekly'])
+    expect(sw().getAttribute('aria-checked')).toBe('false')
+    act(() => row(1, 'Weekly chart').querySelector('.hv-arr-n').click())
+    expect(layout().cards.hidden).toEqual([])
   })
 
   it('a switch shows or hides its item, and Statistics follows', () => {
@@ -108,7 +119,7 @@ describe('hevier: Arrange Statistics (D142)', () => {
     render(['/stats/arrange'], { hvStatsLayout: mine })
     expect(names(0)[0]).toBe('Average RPE')
     act(() => [...container.querySelectorAll('.hv-pagebar button')].find(b => b.textContent === 'Reset').click())
-    expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
+    expect(names(0)).toEqual(['Timed sets', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(layout().tiles.hidden).toEqual(['month', 'rpe'])
     expect(useUI.getState().toastMsg).toBe('Layout reset')
     act(() => useUI.getState().toastAction.run())

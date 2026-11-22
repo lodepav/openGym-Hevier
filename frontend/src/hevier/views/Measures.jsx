@@ -10,6 +10,7 @@ import { lastBW } from '../../lib/history.js'
 import { bwSheet, goalSheet, weighInsSheet } from '../../sheets.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import { Button } from '../../components/ui.jsx'
+import Icon from '../../components/Icon.jsx'
 import { BackTo, LinkRow } from './Statistics.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
@@ -32,11 +33,17 @@ export default function Measures() {
   const recent = S.bodyweight.slice(-5).reverse()
   // The chart said only its name; now the last weight and its change over the days it shows (the eighth critique, 2026-11-22).
   const ch = pts.length > 1 ? Math.round((pts.at(-1).y - pts[0].y) * 10) / 10 : null, by = ch == null ? '' : fmtNum(Math.abs(ch)) + ' ' + S.unit
+  // The days the points span, not the window's 90: two weigh-ins 3 days apart said "in 90 days" (the tenth review, 2026-11-22).
+  const days = ch == null ? 0 : Math.max(1, Math.round((Date.parse(pts.at(-1).d + 'T12:00:00') - Date.parse(pts[0].d + 'T12:00:00')) / 86400000))
+  const span = days === 1 ? t('in 1 day') : t('in {0} days', days)
   const chartName = pts.length ? [t('Body weight chart'), fmtNum(pts.at(-1).y) + ' ' + S.unit, ch == null ? ''
-    : ch < 0 ? t('down {0} in {1} days', by, DAYS_SHOWN) : ch > 0 ? t('up {0} in {1} days', by, DAYS_SHOWN) : t('no change in {0} days', DAYS_SHOWN)].filter(Boolean).join(', ') : ''
+    : ch < 0 ? t('down {0} {1}', by, span) : ch > 0 ? t('up {0} {1}', by, span) : t('no change {0}', span)].filter(Boolean).join(', ') : ''
+  // The same change seen, not only spoken, under the weight (the tenth critique, 2026-11-22).
+  const change = ch == null ? null
+    : ch < 0 ? t('Down {0} {1}', by, span) : ch > 0 ? t('Up {0} {1}', by, span) : t('No change {0}', span)
   // With weigh-ins from Health Connect there is no Log: the empty well names the source, else it opens the weigh-in (the eighth critique).
   const none = S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN)
-    : hc ? t('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.') : t('No weigh-ins yet. Log your weight to start the curve.')
+    : hc ? t('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.') : t('No weigh-ins yet')
   // How far the last weigh-in is from the goal (the ninth critique, 2026-11-22).
   const gap = last && goalGap(last.w, S.targetW)
   const goalText = S.targetW ? fmtNum(S.targetW) + ' ' + S.unit : null
@@ -56,13 +63,18 @@ export default function Measures() {
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
+      {/* What a goal does, before one is set (the tenth critique, 2026-11-22). */}
+      {!S.targetW && <div className="small dim hv-ms-nogoal">{t('A goal draws a line on the chart and says how far you are.')}</div>}
       {hc && <div className="small dim">{t('From Health Connect')}</div>}
       {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
       {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
+      {change && <div className="small dim hv-ms-change">{change}</div>}
       {gap && <div className="small dim hv-ms-gap">{gap.reached ? t('Goal reached') : t(gap.up ? '{0} to gain' : '{0} to lose', fmtNum(gap.by) + ' ' + S.unit)}</div>}
       {pts.length > 0 ? <div className="chart" role="img" aria-label={chartName}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
         : hc ? <div className="hv-ms-empty">{none}</div>
-        : <button type="button" className="hv-ms-empty hv-ms-empty-btn" onClick={() => bwSheet()}>{none}</button>}
+        // A plus and the accent's action, so the well reads as the tap it is (the tenth critique, 2026-11-22).
+        : <button type="button" className="hv-ms-empty hv-ms-empty-btn" onClick={() => bwSheet()}>{none}
+          <span className="hv-ms-empty-go"><Icon name="plus" />{t('Log your weight')}</span></button>}
     </div>
     {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
     {recent.length > 0 && <>

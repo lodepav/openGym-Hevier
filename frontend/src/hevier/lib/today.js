@@ -80,15 +80,19 @@ function missedName(S, iso, wd, today) {
  * This week as seven days from the profile's first weekday: [{ iso, day, kind, name, next }].
  * `kind` is 'done' (trained), 'plan' (a routine planned from today on, `name` its first),
  * 'missed' (a past day the weekly plan gave `name`, not trained), 'rest' (today with nothing)
- * or ''. `next` marks the day the next session is on.
+ * or ''. `next` marks the day the next session is on. On the week's last day the seven roll on
+ * by one, so tomorrow is in them (the tenth critique, 2026-11-22: a strip of past days only).
  */
 export function weekStrip(S, today) {
   const byDay = workoutsByDay(S.workouts)
   const next = nextPlanned(S, today)?.iso
   const start = startOfWeek(today, weekStartOf(S))
+  const end = new Date(start)
+  end.setDate(start.getDate() + 6)
+  const from = isoOf(end) === today ? 1 : 0
   const days = Array.from({ length: 7 }, (_, k) => {
     const d = new Date(start)
-    d.setDate(start.getDate() + k)
+    d.setDate(start.getDate() + from + k)
     const iso = isoOf(d)
     const missed = !byDay[iso] && iso < today ? missedName(S, iso, d.getDay(), today) : ''
     const name = byDay[iso] ? '' : missed || planTitle(S, iso, byDay, today)

@@ -137,7 +137,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
       expect(shown()).toBe('true')
     })
 
-    it('with large text the gym and the note stay closed at the start mid-page, and open at the top (the ninth critique)', () => {
+    it('with large text the gym and the note stay closed, at the top too, and the name still opens them (the tenth critique)', () => {
       text.big = true
       try {
         render(two(false))
@@ -146,6 +146,8 @@ describe('hevier: Log Workout screen (seam S3)', () => {
         act(() => root.unmount()); container.remove(); root = null
         Object.defineProperty(window, 'scrollY', { configurable: true, get: () => 0 })
         render(two(false))
+        expect(shown()).toBe('false')
+        act(() => container.querySelector('.hv-wname').click())
         expect(shown()).toBe('true')
       } finally { text.big = false }
     })
@@ -344,6 +346,20 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     // With swipe actions off it says only the tap.
     act(() => useStore.getState().update(s => { delete s.hvSetTipSeen; s.wc = { swipeSets: false } }))
     expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+    // While the RIR column shows it says the pill logs the set (the tenth critique).
+    act(() => useStore.getState().update(s => { s.effort = 'rir' }))
+    expect(tip().textContent).toBe('Tap PREVIOUS to copy it. Tap RIR to log a set with its effort.')
+    // Not where the first table has no RIR pill in the tick's place: a timed exercise, or RPE.
+    act(() => useStore.getState().update(s => { s.active.entries[0].target.mode = 'time' }))
+    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+    act(() => useStore.getState().update(s => { s.active.entries[0].target.mode = 'reps'; s.effort = 'rpe' }))
+    expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+  })
+
+  it('names each swipe pane for its set, "Set 1: Delete" (the tenth audit)', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
+    const names = [...container.querySelectorAll('.swpane button')].map(b => b.getAttribute('aria-label'))
+    expect(names).toEqual(['Set 1: Copy set', 'Set 1: Delete', 'Set 2: Copy set', 'Set 2: Delete'])
   })
 
   it('once a set is ticked the tip also says what its mark means, while the marks are on (the ninth critique)', () => {
@@ -609,9 +625,9 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sides.L.done).toBe(false)
   })
 
-  it('rest reads as a clock, and a set’s rest sheet names the exercise’s rest and the picked time', () => {
+  it('rest is spoken in words, and a set’s rest sheet names the exercise’s rest and the picked time', () => {
     render([{ id: EX, target: { sets: 2, reps: 8, restSec: 120 }, sets: [reps(100, 8), reps(100, 8, { restSec: 150 })] }])
-    expect(container.querySelector('[aria-label="Rest: 2:00"]')).toBeTruthy()
+    expect(container.querySelector('[aria-label="Rest: 2 min"]')).toBeTruthy()
     const items = i => {
       act(() => container.querySelectorAll('.hv-set')[i].click())
       const rest = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).find(x => x?.label === 'Rest after this set')
@@ -631,7 +647,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
       act(() => btn().click())
       return useUI.getState().sheets.at(-1).render(() => {}).props.items
     }
-    expect(btn().getAttribute('aria-label')).toBe('Rest: 1:30')
+    expect(btn().getAttribute('aria-label')).toBe('Rest: 1 min 30 s')
     expect(rows().map(x => (x.on ? '*' : '') + x.label)).toEqual(['*Settings (1:30)', 'No timer', 'Pick a time'])
     act(() => rows()[1].onClick())
     useUI.setState({ sheets: [] })
@@ -642,7 +658,7 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     useUI.setState({ sheets: [] })
     expect(useStore.getState().S.active.entries[0].target.restSec).toBe(150)
     expect(useStore.getState().S.active.entries[0].target.restOff).toBeUndefined()
-    expect(btn().getAttribute('aria-label')).toBe('Rest: 2:30')
+    expect(btn().getAttribute('aria-label')).toBe('Rest: 2 min 30 s')
     expect(rows().map(x => (x.on ? '*' : '') + x.label)).toEqual(['Settings (1:30)', 'No timer', '*Pick a time · 2:30'])
     useUI.setState({ sheets: [] })
   })

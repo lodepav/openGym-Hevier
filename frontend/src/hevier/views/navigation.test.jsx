@@ -172,7 +172,8 @@ describe('hevier: navigation (seam S2)', () => {
     const card = container.querySelector('.hv-wcard')
     expect(card.textContent).toContain('Leg Day')
     expect(card.textContent).toContain('2 sets')
-    expect(card.querySelector('.hv-wcard-d .hv-pr').textContent).toBe('4 records')
+    // Said once: the one exercise holds them all, so the date line leaves them to its row (the tenth critique, 2026-11-22).
+    expect(card.querySelector('.hv-wcard-d .hv-pr')).toBeNull()
     expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4 records')
     act(() => byText('.hv-hlinks .hv-chip', 'Statistics').click())
     expect(path).toBe('/stats')

@@ -6,7 +6,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, exCount } from '../../lib/format.js'
+import { fmtVol } from '../../lib/format.js'
 import { hasCompletedWork, isWarmupRow } from '../../lib/workout-model.js'
 import { sessionVolume } from '../../lib/history.js'
 import { workoutDetailSheet, repeatWorkout, menuSheet, confirmSheet } from '../../sheets.jsx'
@@ -83,6 +83,8 @@ export default function WorkoutCard({ w }) {
   const recs = useStore(s => workoutRecords(s.S, w))
   const prs = recs.length
   const prOf = e => recs.filter(r => r.i === w.entries.indexOf(e)).length
+  // Records said once (the tenth critique, 2026-11-22): when one drawn row holds them all, the date line leaves them to it (D135, D51).
+  const onDateLine = prs > 0 && !entries.slice(0, SHOWN).some(e => prOf(e) === prs)
   const hr = sanitizeHr(w.hr)   // D27: the session's average, when a watch saved one
   const gym = useStore(s => gymName(s.S, savedGym(w)))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)
@@ -92,7 +94,7 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-h">
       {/* Time, sets (or volume), records and heart rate ride on the date line: two rows less a card (the critique, 2026-11-21). */}
       <div className="hv-wcard-who"><span className="hv-wcard-d">{workoutWhenText(w)} · {workoutTimeText(w)} · {mode === 'weight' ? fmtVol(volume, unit) : tn('{0} set', '{0} sets', workSets(w.entries))}
-        {prs > 0 && <> · <span className="hv-pr"><Icon name="trophy" />{recordsText(prs)}</span></>}
+        {onDateLine && <> · <span className="hv-pr"><Icon name="trophy" />{recordsText(prs)}</span></>}
         {hr && <> · <span className="hv-wcard-hr" role="img" aria-label={t('Heart rate') + ' ' + hr.avg}><Icon name="heart" />{hr.avg}</span></>}</span></div>
       {shareOn && <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><HvIcon name="shareNodes" /></button>}
@@ -120,6 +122,7 @@ export default function WorkoutCard({ w }) {
         {prOf(e) > 0 && <span className="hv-pr"><Icon name="trophy" />{recordsText(prOf(e))}</span>}
       </div>
     })}
-    {entries.length > SHOWN && <div className="hv-wcard-more">{t('See more: {0}', exCount(entries.length - SHOWN))}</div>}
+    {/* Worded as Today's card words it (the tenth critique, 2026-11-22). */}
+    {entries.length > SHOWN && <div className="hv-wcard-more">{entries.length - SHOWN === 1 ? t('1 more exercise') : t('{0} more exercises', entries.length - SHOWN)}</div>}
   </div>
 }

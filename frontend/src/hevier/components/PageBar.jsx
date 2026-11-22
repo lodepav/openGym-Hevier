@@ -3,9 +3,12 @@
 import { useNavigate } from 'react-router-dom'
 import { t } from '../../lib/i18n.js'
 import Icon from '../../components/Icon.jsx'
+import { useLargeText } from './useLargeText.js'
 
 export default function PageBar({ title, onBack, backLabel, start, children, className = '' }) {
-  return <div className={('hv-pagebar ' + className).trim()}>
+  // With large text the title wraps, not "Monthly re…" (the tenth critique, 2026-11-22; hevier.css .hv-pb-big).
+  const big = useLargeText()
+  return <div className={('hv-pagebar ' + (big ? 'hv-pb-big ' : '') + className).trim()}>
     <div className="hv-pb-side">
       {onBack && <button type="button" className="iconbtn hv-pb-back" data-back="" aria-label={backLabel || t('Back')} onClick={onBack}><Icon name="chevronLeft" /></button>}
       {start}

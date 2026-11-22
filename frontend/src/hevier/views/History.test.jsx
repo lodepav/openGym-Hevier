@@ -66,14 +66,40 @@ describe('hevier: History (D135)', () => {
     expect([...container.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)).toEqual(['Statistics'])
   })
 
-  it('a card names its top three muscles and +N for the rest; TalkBack hears them all (the critique, 2026-11-22)', () => {
+  it('a card names its top three muscles and "+N more muscles" for the rest; TalkBack hears them all (the critiques, 2026-11-22)', () => {
     const set = { w: 50, r: 8, done: true }
     const by = (muscle, n) => ({ id: EXDB.find(e => muscleOf(e) === muscle).id, sets: Array(n).fill(set) })
     const entries = [by('Chest', 4), by('Triceps', 3), by('Biceps', 2), by('Glutes', 1), by('Hamstrings', 1)]
     render({ workouts: [{ ...wo('2026-11-16', 60), entries }] })
     const line = container.querySelector('.hv-wcard .hv-mline')
-    expect(line.querySelector('[aria-hidden="true"]').textContent).toBe('Chest 4 sets · Triceps 3 sets · Biceps 2 sets · +2')
+    expect(line.querySelector('[aria-hidden="true"]').textContent).toBe('Chest 4 sets · Triceps 3 sets · Biceps 2 sets · +2 more muscles')
     expect(line.querySelector('.hv-sr').textContent).toBe('Chest, 4 sets, Triceps, 3 sets, Biceps, 2 sets, Glutes, 1 set, Hamstrings, 1 set')
+  })
+
+  // The tenth critique, 2026-11-22: the same records on the date line and the row that set them.
+  it('records said once: left to the row when one drawn row holds them all, on the date line when none drawn does', () => {
+    const others = EXDB.filter(e => e.id !== EX && /dumbbell/i.test(e.eq || '')).slice(0, 3).map(e => ({ id: e.id, sets: [{ w: 10, r: 8, done: true }] }))
+    const late = { ...wo('2026-11-17', 60), entries: [...others, wo('2026-11-17', 60).entries[0]] }
+    render({ workouts: [wo('2026-11-09', 50), wo('2026-11-16', 60)] })
+    let card = container.querySelectorAll('.hv-wcard')[0]
+    expect(card.querySelector('.hv-wcard-d .hv-pr')).toBeNull()
+    expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toMatch(/records?$/)
+    act(() => root.unmount()); container.remove()
+    render({ workouts: [wo('2026-11-09', 50), late] })
+    card = container.querySelectorAll('.hv-wcard')[0]
+    expect(card.querySelectorAll('.hv-wcard-ex')).toHaveLength(3)
+    expect(card.querySelector('.hv-wcard-d .hv-pr').textContent).toMatch(/records?$/)
+    expect(card.querySelector('.hv-wcard-more').textContent).toBe('1 more exercise')
+  })
+
+  it('Show more says how many are left', () => {
+    const many = Array.from({ length: 27 }, (_, i) => wo('2026-10-' + String(i + 1).padStart(2, '0'), 50))
+    render({ workouts: many })
+    const more = container.querySelector('.hv-moreb')
+    expect(more.textContent).toBe('Show more (2)')
+    act(() => more.click())
+    expect(container.querySelector('.hv-moreb')).toBeNull()
+    expect(container.querySelectorAll('.hv-wcard')).toHaveLength(27)
   })
 
   it('an empty feed points to the Hevy import on Settings → Integrations', () => {

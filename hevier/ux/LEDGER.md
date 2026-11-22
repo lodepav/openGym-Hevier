@@ -464,3 +464,17 @@ clip at 200 % ("110.2" of "110.2 × 12"), Today's last week day stretches across
 200 %, a backup exported from the sign-out or delete sheets or a zip with missing files is not
 recorded, and the planned dot in Calendar's tight mode takes the kind's colour while the key's
 swatch is grey.
+
+The tenth audit and critique (2026-11-22, HEAD 05fd46a77, fresh reviewers) scored 319 of 380 and
+663 of 728, combined per page from Exercise details' 80 % to Strength levels' 96 %, mean 87.5 %.
+The owner took every fix except four that add features (History search, a Repeat button, a
+preview of how tiles pair, a month comparison): D149, with seams S72 (a weigh-in far off the
+last asks first) and S73 (the RIR sheet's unset value reads "Not set"). The invisible ones: the
+rest button and the settings rest spoken in words, swipe panes named per set, the workout
+detail's records memoised, last sessions spoken through the set helpers, the Hevy toast only
+after a tap on the page. Measured on the emulator at 200 % on 320 dp: no switch, title, filter
+or stat label splits a word any more (each word's line boxes measured); the RIR field grows to
+86 px; the workout header is 171 px with Finish beside a two-line name. Left: "Edit Routine"
+ellipsises to "Edit / Rout…" at 200 % (101 px between the buttons); the Calendar key has no
+Changed entry, since no day draws that dot; the Measures change line, the weigh-in question and
+the new taps were not walked on the device (no weigh-ins in the test profile).

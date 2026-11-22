@@ -7,10 +7,10 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { exOr } from '../../lib/exercises.js'
-import { todayISO, isoOf, DAYS } from '../../lib/format.js'
+import { todayISO, isoOf, DAYS, weekStartOf } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { historyRows } from '../../views/History.jsx'
-import { workoutDetailSheet, dayOverrideSheet } from '../../sheets.jsx'
+import { workoutDetailSheet, dayOverrideSheet, exerciseDetailSheet } from '../../sheets.jsx'
 import { useConnectionTrouble } from '../../components/SyncBanner.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
@@ -58,35 +58,43 @@ function NextCard({ S, next, today }) {
     <div className="card hv-next">
       <div className="hv-cap">{[t('Next'), whenText(next.iso, today), gym].filter(Boolean).join(' · ')}</div>
       <h2 className="hv-next-n">{name}</h2>
+      {/* A row opens the exercise's page, as Lifts' rows do (D131): last time's numbers before the gym (the tenth critique, 2026-11-22). */}
       {exs.slice(0, n).map(x => {
         const ex = exOr(x.id)
-        return <div key={x.key} className="hv-next-ex">
+        return <button key={x.key} type="button" className="hv-next-ex" onClick={() => exerciseDetailSheet(ex)}>
           <span className={'grow ' + exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>
           <span className="hv-next-sets">{x.sets}</span>
-        </div>
+        </button>
       })}
       <button type="button" className="hv-link hv-next-plan" onClick={() => nav(previewPath(routines[0].id))}>
-        {more > 0 ? t('{0} more · open the plan', more) : t('Open the plan')}<Icon name="chevronRight" /></button>
+        {more > 1 ? t('{0} more exercises · open the plan', more) : more === 1 ? t('1 more exercise · open the plan') : t('Open the plan')}<Icon name="chevronRight" /></button>
     </div>
-    <button type="button" className="btn primary hv-today-start" disabled={!exs.length} onClick={() => startFlow(next.ids)}>{t('Start {0}', name)}</button>
+    <button type="button" className="btn primary hv-today-start" disabled={!exs.length} aria-describedby={exs.length ? undefined : 'hv-today-why'}
+      onClick={() => startFlow(next.ids)}>{t('Start {0}', name)}</button>
+    {/* A disabled Start says why (STANDARDS H6, the tenth critique). */}
+    {!exs.length && <p id="hv-today-why" className="small dim hv-today-why">{t('This routine has no exercises yet')}</p>}
   </>
 }
 
 function Week({ S, today }) {
   const update = useStore(s => s.update)
   const days = weekStrip(S, today)
+  // On the week's last day the strip has rolled on to tomorrow (today.js weekStrip).
+  const rolled = days[0].day !== weekStartOf(S)
   const word = d => (d.kind === 'done' ? t('Done') : d.kind === 'plan' ? d.name : d.kind === 'missed' ? t('{0}, not done', d.name)
-    : d.kind === 'rest' ? t('rest') : t('Nothing planned'))
+    : d.kind === 'rest' ? t('Rest') : t('Nothing planned'))
   const open = iso => { if (!S.hvDayTapSeen) update(s => { s.hvDayTapSeen = true }); dayOverrideSheet(iso) }
   return <>
-    <div className="hv-tweek" role="group" aria-label={t('This week')}>{days.map(d =>
+    <div className="hv-tweek" role="group" aria-label={rolled ? t('This week and tomorrow') : t('This week')}>{days.map(d =>
       <button key={d.iso} type="button" className={'hv-tday ' + d.kind + (d.next ? ' next' : '') + (d.iso === today ? ' today' : '')}
         aria-label={fmtDate(d.iso, true) + ', ' + word(d)} aria-current={d.iso === today ? 'date' : undefined} onClick={() => open(d.iso)}>
-        <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' || d.kind === 'missed' ? d.short : d.kind === 'rest' ? t('rest') : '–'}</b>
+        <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' || d.kind === 'missed' ? d.short : d.kind === 'rest' ? t('Rest') : '–'}</b>
         <span aria-hidden="true">{t(DAYS[d.day])}</span>
       </button>)}</div>
     {/* The days open a sheet, said until the first tap on one (S.hvDayTapSeen), as Lifts' totals hint is (the critique, 2026-11-22). */}
-    {!S.hvDayTapSeen && <p className="small dim hv-tweek-hint">{t('Tap a day to plan or rest it')}</p>}
+    {/* A struck-through day was only spoken as missed; the hint says it once too (the tenth critique). */}
+    {!S.hvDayTapSeen && <p className="small dim hv-tweek-hint">{days.some(d => d.kind === 'missed')
+      ? t('Tap a day to plan or rest it · struck through: planned, not done') : t('Tap a day to plan or rest it')}</p>}
   </>
 }
 

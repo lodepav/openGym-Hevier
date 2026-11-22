@@ -56,7 +56,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.sp-nav > h1.sp-title').textContent).toBe('Settings')
   })
 
-  // The ninth critique, 2026-11-22: Data & backup says when the last backup was exported, nothing before one.
+  // The ninth critique, 2026-11-22: Data & backup says when the last backup was exported; the tenth, that there is none before one.
   it('records an exported backup and names it on Data & backup', () => {
     render('data')
     expect(useStore.getState().S.hvBackupAt).toBeUndefined()
@@ -68,7 +68,7 @@ describe('hevier: Settings (seams S11, S12)', () => {
     act(() => root.unmount()); container.remove()
     const row = () => [...container.querySelectorAll('.lrow')].find(r => r.querySelector('.lrow-t')?.textContent === 'Data & backup')
     render(null)
-    expect(row().textContent).not.toContain('Last backup')
+    expect(row().textContent).toContain('Not backed up yet')
     act(() => root.unmount()); container.remove()
     render(null, { hvBackupAt: Date.now() - 3 * 86400000 })
     expect(row().textContent).toContain('Last backup 3 days ago')
@@ -158,10 +158,15 @@ describe('hevier: Settings (seams S11, S12)', () => {
     render(null, { accent: 'custom', accentCustom: '#008cff' })
     const row = name => [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes(name))
     // The fork's accent and the body diagram, not the theme (review S5; the accent, the eighth critique, 2026-11-22).
-    expect(row('Look & Home').textContent).toBe('Look & HomeBlue · Male body')
+    expect(row('Look & Home').textContent).toBe('Look & HomeBlue\u00a0· Male body')
     // The version is the footer's alone; the schedule in sentence case (the eighth critique).
     expect(row('About').querySelector('.lrow-v')).toBeNull()
-    expect(row('Plan & schedule').textContent).toMatch(/^Plan & scheduleFixed week · (Mon|Sun)$/)
+    expect(row('Plan & schedule').textContent).toMatch(/^Plan & scheduleFixed week\u00a0· (Mon|Sun)$/)
+    // The tenth critique and audit, 2026-11-22: the Volume value in the sheet's words, the rest said as a duration.
+    expect(row('Volume').textContent).toBe('VolumeSets per muscle\u00a0· main only')
+    const rest = row('During a workout').querySelector('.lrow-v [role="img"]')
+    expect(rest.getAttribute('aria-label')).toMatch(/^\d+ (minute|second)s?( \d+ seconds?)? rest$/)
+    expect(rest.textContent).toMatch(/^\d+:\d\d rest$/)
   })
 
   it('the Volume sheet says what Secondary muscles too changes (the eighth critique, 2026-11-22)', () => {

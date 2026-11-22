@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, monthsWith, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid } from './calendar.js'
+import { monthCells, monthsBack, monthsWith, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid, notesIn } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -103,5 +103,23 @@ describe('hevier: a day\'s kind word in its spoken name (the ninth critique, 202
     expect(kindSaid('Cardio', 'Morning run')).toBe('Cardio')
     expect(kindSaid('Cardio', '')).toBe('Cardio')
     expect(kindSaid('', 'Cardio')).toBe('')
+  })
+})
+
+describe('hevier: the key lists Note only when a note dot is drawn (the tenth critique, 2026-11-22)', () => {
+  const S = { ...structuredClone(DEF), dayNotes: { '2026-10-05': { tag: 'sick' } } }
+  const oct = [{ y: 2026, mo: 9 }], nov = [{ y: 2026, mo: 10 }]
+  it('a noted day in the months shown, not trained', () => {
+    expect(notesIn(S, oct, {}, '2026-11-22')).toBe(true)
+    expect(notesIn(S, [...nov, ...oct], {}, '2026-11-22')).toBe(true)
+    expect(notesIn(S, nov, {}, '2026-11-22')).toBe(false)
+    expect(notesIn(S, oct, { '2026-10-05': [{ id: 'w' }] }, '2026-11-22')).toBe(false)
+    expect(notesIn({ ...S, dayNotes: {} }, oct, {}, '2026-11-22')).toBe(false)
+  })
+  it('not a noted day planned from today on: its name or the planned dot is drawn', () => {
+    const week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
+    const planned = { ...S, routines: [{ id: 'r', name: 'Push', ex: [] }], week, dayNotes: { '2026-10-05': { tag: 'sick' } } }
+    expect(notesIn(planned, oct, {}, '2026-10-05')).toBe(false)
+    expect(notesIn(planned, oct, {}, '2026-10-06')).toBe(true)
   })
 })

@@ -61,6 +61,10 @@ describe('hevier: monthly report (D23)', () => {
     expect([...container.querySelectorAll('h3.sec')].find(h => h.textContent.includes('PRs')).textContent).toBe(' PRs 8')
     // Every record, worked out from the log (D51): the heaviest weight, best 1RM, set and session volume.
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')
+    // A 1RM line is said in words (the tenth audit, 2026-11-22); the others keep their text.
+    const e1rm = [...container.querySelectorAll('.hv-report-row .hv-sub')].find(x => x.textContent.startsWith('Best 1RM'))
+    expect(e1rm.getAttribute('aria-label')).toBe(e1rm.textContent.replace('1RM', 'one rep max'))
+    expect([...container.querySelectorAll('.hv-report-row .hv-sub')].find(x => x.textContent.startsWith('Heaviest')).getAttribute('aria-label')).toBeNull()
     // Sentence case, and the top exercise's weight named (the seventh critique, 2026-11-22).
     expect([...container.querySelectorAll('h3.sec')].map(h => h.textContent)).toContain('Muscle split')
     // Its caption and bare counts, as Statistics' card; each row said in one name (the ninth critique, 2026-11-22).

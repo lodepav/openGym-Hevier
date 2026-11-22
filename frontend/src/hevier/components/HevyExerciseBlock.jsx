@@ -17,7 +17,7 @@ import { useUI } from '../../store/useUI.js'
 import { exOr, isAssisted } from '../../lib/exercises.js'
 import { t, exerciseNameFor, exerciseNameClass, useLang } from '../../lib/i18n.js'
 import { fmtNum, fmtPlate } from '../../lib/format.js'
-import { restTimerText, elapsedClock } from '../lib/elapsed.js'
+import { restTimerText, elapsedClock, elapsedSpaced } from '../lib/elapsed.js'
 import { isCable, hasLabel, sessionLabelKey } from '../lib/gym-labels.js'
 import { partOn } from '../lib/module-parts.js'
 import {
@@ -73,6 +73,7 @@ import { defaultRestFor, setOwnRest } from '../lib/rest-extra.js'
 import { ownSetRest, ownExerciseRest } from '../../lib/supersetFlow.js'
 import SubRows from './SubRows.jsx'
 import { setNoteOf } from '../../lib/set-notes.js'
+import { nameIn } from '../../lib/a11y-name.js'
 
 const setUI = patch => useUI.setState?.(patch)
 
@@ -294,6 +295,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
 
   const ownRest = ownExerciseRest(entry.target)
   const restText = ownRest === 0 ? t('No timer') : restTimerText(ownRest, S.restSec, t('Off'))
+  // Spoken as words, "1 min 30 s", not the clock (STANDARDS A5, the tenth critique, 2026-11-22).
+  const restSaid = ownRest === 0 || !(ownRest || S.restSec) ? restText : elapsedSpaced(ownRest || S.restSec)
   const plateLoading = !editing
   // D8: the ⋮ menu (exercise-menus.js).
   const openMore = () => exerciseMenu(live.current, { S, update, ex, entry, cfg, mode, bw, perSide, first, unit, exUnit, convertsUnit,
@@ -548,7 +551,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
     if (!swipeOn) return body
     const [from, count] = setSpanAt(entry.sets, i)
     const mine = j => j != null && j >= from && j < from + count
+    // Each pane named for its set, as upstream's Workout.jsx does: "Set 1: Delete" (the tenth audit, 2026-11-22).
     return <SwipeRowLive canDelete={editing || entry.sets.length > count}
+      deleteName={nameIn(rowName(s, i), t('Delete'))} copyName={nameIn(rowName(s, i), t('Copy set'))}
       onDelete={() => onRemoveSetAt(i)} onCopy={() => onCopySetAt(i)}
       onBlocked={() => useUI.getState().toast(t('Keep at least one set, champ'))}
       onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }); tipSeen() }}
@@ -595,7 +600,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       {props.onSwap && <button type="button" disabled={props.busy} onClick={call('onSwap')}><Icon name="swap" /><span>{t('Swap')}</span></button>}
       <button type="button" className={entry.note ? 'on' : undefined} onClick={() => exerciseNoteSheet(entryIdx)}><Icon name="note" /><span>{t('Note')}</span></button>
       <button type="button" onClick={() => exerciseHistorySheet(entry.id)}><Icon name="history" /><span>{t('History')}</span></button>
-      {onRest && <button type="button" aria-label={t('Rest') + ': ' + restText} onClick={() => exerciseRestMenu(useStore.getState().S, update, entryIdx)}><Icon name="timer" /><span>{restText}</span></button>}
+      {onRest && <button type="button" aria-label={t('Rest') + ': ' + restSaid} onClick={() => exerciseRestMenu(useStore.getState().S, update, entryIdx)}><Icon name="timer" /><span>{restText}</span></button>}
       {props.onReorder && <button type="button" disabled={props.busy} onClick={() => reorderExercisesSheet(live.current.onReorder)}><Icon name="chevronsUpDown" /><span>{t('Reorder')}</span></button>}
       <button type="button" className="hv-more" aria-label={t('More') + ', ' + exerciseNameFor(ex)} onClick={openMore}><Icon name="more" /><span>{t('More')}</span></button>
     </div>}
