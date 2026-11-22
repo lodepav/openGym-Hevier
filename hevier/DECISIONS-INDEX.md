@@ -151,3 +151,4 @@ there before changing anything a line touches. After adding or rewording a decis
 - **D145** The seventh critique's visible changes, three of them past earlier decisions.
 - **D146** A routine can plan a timed hold on one set.
 - **D147** The eighth critique's and audit's visible changes.
+- **D148** The ninth critique's and audit's visible changes.

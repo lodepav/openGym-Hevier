@@ -23,7 +23,7 @@ describe('share cards (D87)', () => {
     const w = wk(2, [{ id: BENCH, sets: [s(20, 10, { phase: 'warmup' }), s(80, 5), s(85, 3)] }])
     const cards = shareCards({ unit: 'kg', workouts: [w] }, w)
     expect(cards.map(c => c.kind)).toEqual(['summary', 'exercises', 'muscles'])
-    expect(cards[0].stats.map(x => [x.label, x.value])).toEqual([['Time', '1h'], ['Sets', '2']])
+    expect(cards[0].stats.map(x => [x.label, x.value])).toEqual([['Time', '1 h'], ['Sets', '2']])
     expect(cards[0].line).toMatch(/Chest 2/)
     expect(cards[1].rows).toEqual([expect.objectContaining({ sets: '2 sets', best: '85kg × 3 reps' })])
   })
@@ -139,7 +139,7 @@ describe('share cards: a month report (D23, D87)', () => {
     const cards = monthCards(S, month)
     expect(cards.map(c => c.kind)).toEqual(['summary', 'calendar', 'muscles', 'records', 'exercises'])
     const [sum] = cards
-    expect(sum.stats.map(x => [x.label, x.value, x.delta?.text])).toEqual([['Workouts', '2', '+1'], ['Duration', '2h', '+1h'], ['Sets', '3', '+2']])
+    expect(sum.stats.map(x => [x.label, x.value, x.delta?.text])).toEqual([['Workouts', '2', '+1'], ['Duration', '2 h', '+1 h'], ['Sets', '3', '+2']])
     expect(sum.line).toBe('Against September')
     expect(cards[3].rows[0]).toMatchObject({ value: '90 kg' })
     expect(cards[4].rows[0]).toMatchObject({ sets: '3 sets', best: '90 kg' })
@@ -165,7 +165,7 @@ describe('share cards: a month report (D23, D87)', () => {
 
   it('the summary tiles carry the change, in green up and red down', () => {
     const layout = layoutShareCard(monthCards(S, month)[0], { measure })
-    expect(layout.items.filter(i => i.color === 'up').map(i => i.text)).toEqual(['+1', '+1h', '+2'])
+    expect(layout.items.filter(i => i.color === 'up').map(i => i.text)).toEqual(['+1', '+1 h', '+2'])
   })
 })
 

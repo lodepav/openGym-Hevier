@@ -3,7 +3,7 @@
 // needed) and a switch that hides it or adds it back. Saved as it changes, in S.hvStatsLayout
 // (lib/stats-layout.js). An item whose module or part is off is not listed, as its switch would do
 // nothing. Reset puts both lists back in their first order, with Undo.
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { t } from '../../lib/i18n.js'
@@ -34,18 +34,24 @@ function ArrangeList({ which, title, ids }) {
   const reorder = useDragReorder(listed.length, (from, to) => save(which, moveAmong(now(), listed, from, to)))
   const press = useRef({ y: 0, moved: false })
   const name = id => t(NAMES[which][id])
+  // Spoken with its list: Body weight and Sets per muscle are in both (the ninth audit, 2026-11-22).
+  const said = id => t(which === 'tiles' ? '{0} tile' : '{0} card', name(id))
   const last = listed.length - 1
-  const menu = (i, id) => menuSheet({ title: t('Move {0}', name(id)), items: [
-    { icon: 'arrowUp', label: t('Move up'), disabled: i === 0, onClick: () => save(which, moveAmong(now(), listed, i, i - 1)) },
-    { icon: 'arrowDown', label: t('Move down'), disabled: i === last, onClick: () => save(which, moveAmong(now(), listed, i, i + 1)) },
-  ] })
+  // Where a Move up or down put the row, for TalkBack (the ninth critique, 2026-11-22).
+  const [moved, setMoved] = useState('')
+  const move = (i, to) => { save(which, moveAmong(now(), listed, i, to)); setMoved(t('Moved to {0} of {1}', to + 1, listed.length)) }
+  // Emptied as the menu opens, so a second move to the same place is said again.
+  const menu = (i, id) => { setMoved(''); menuSheet({ title: t('Move {0}', name(id)), items: [
+    { icon: 'arrowUp', label: t('Move up'), disabled: i === 0, onClick: () => move(i, i - 1) },
+    { icon: 'arrowDown', label: t('Move down'), disabled: i === last, onClick: () => move(i, i + 1) },
+  ] }) }
   return <section>
     <h2 className="sec">{t(title)}</h2>
     <div ref={reorder.listRef} className={'list hv-arrlist' + (reorder.drag ? ' is-reordering' : '')}>
       {listed.map((id, i) => {
         const h = reorder.handle(i)
         return <div key={id} data-reorder-row className="item hv-arr" style={reorder.rowStyle(i)}>
-          <button type="button" className="hv-grip" aria-label={t('Move {0}', name(id))} {...h}
+          <button type="button" className="hv-grip" aria-label={t('Move {0}', said(id))} {...h}
             onPointerDown={e => { press.current = { y: e.clientY, moved: false }; h.onPointerDown(e) }}
             onPointerMove={e => { if (Math.abs(e.clientY - press.current.y) > DRAGGED) press.current.moved = true; h.onPointerMove(e) }}
             // A drag ends with a click on the handle too; only a tap (or Enter) opens the menu.
@@ -54,10 +60,11 @@ function ArrangeList({ which, title, ids }) {
           <span className="grow"><span className="hv-arr-n">{name(id)}</span>
             {/* Statistics leaves Body weight out with no weigh-in; say so here, where it is switched on (the critique, 2026-11-21). */}
             {id === 'weight' && !S.bodyweight?.length && <small className="hv-arr-h dim">{t('Shows once you log a weigh-in')}</small>}</span>
-          <Switch aria-label={name(id)} checked={!layout.hidden.includes(id)} onChange={() => save(which, toggle(now(), id))} />
+          <Switch aria-label={said(id)} checked={!layout.hidden.includes(id)} onChange={() => save(which, toggle(now(), id))} />
         </div>
       })}
     </div>
+    <span className="hv-sr" role="status">{moved}</span>
   </section>
 }
 
@@ -76,7 +83,7 @@ export default function ArrangeStats() {
       <button type="button" className="hv-link" onClick={reset} disabled={first}>{t('Reset')}</button>
     </BackTo>
     {/* One hint, with D142's "tile = now, card = more" (the sixth audit; one paragraph, the eighth critique, 2026-11-22). */}
-    <p className="small dim hv-arr-hint">{t('Drag or tap a handle to move it, switch one off to hide it. A tile is one number now; a card shows more.')}</p>
+    <p className="small dim hv-arr-hint">{t('Drag a row by its handle, or tap the handle to move it up or down; switch a row off to hide it. A tile is one number now; a card shows more.')}</p>
     {LISTS.map(([which, title, ids]) => <ArrangeList key={which} which={which} title={title} ids={ids} />)}
   </div>
 }

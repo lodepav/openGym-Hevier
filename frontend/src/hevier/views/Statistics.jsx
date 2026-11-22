@@ -19,7 +19,7 @@ import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import WeeklyChart from '../components/WeeklyChart.jsx'
 import MuscleSetsCard from '../components/MuscleSetsCard.jsx'
-import { elapsedWords } from '../lib/elapsed.js'
+import { elapsedSpaced } from '../lib/elapsed.js'
 import { partOn } from '../lib/module-parts.js'
 import { TILES, CARDS, shown, moduleOn } from '../lib/stats-layout.js'
 import { weekExerciseTime, longestExercises, bodyWeightNow, bodyWeightPoints, thisWeek, workoutsThisMonth, weekRpe, trainingTime, weekChange } from '../lib/stats-tiles.js'
@@ -106,7 +106,7 @@ function items(S, today, nav, n) {
         <CardHead title={t('Time per exercise')} link={t('All')} label={t('All exercise times')} onClick={() => nav('/exercise-time')} />
         {longest.map(r => {
           const ex = exOr(r.id)
-          return <div key={r.id} className="hv-scard-row"><span className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span><b>{elapsedWords(Math.round(r.avg / 1000))}</b></div>
+          return <div key={r.id} className="hv-scard-row"><span className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span><b>{elapsedSpaced(Math.round(r.avg / 1000))}</b></div>
         })}
         <div className="small dim">{t('Average a session, last 90 days')}</div>
       </div> : null,

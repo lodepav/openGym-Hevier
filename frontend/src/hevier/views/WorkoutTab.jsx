@@ -19,6 +19,7 @@ import { startFlow as upstreamStart, starterPlanSheet, menuSheet, confirmSheet }
 import { deleteRoutineWithUndo } from '../../views/Plan.jsx'
 import Icon from '../../components/Icon.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
+import { useLargeText } from '../components/useLargeText.js'
 import { useDragReorder } from '../components/useDragReorder.js'
 import { nameSheet } from '../components/NameSheet.jsx'
 import { previewPath } from './RoutinePreview.jsx'
@@ -220,7 +221,9 @@ export default function WorkoutTab() {
       : <div className="hv-fempty">{g.name ? t('Empty folder. Add a routine with its ⋯ → New Routine, or a routine’s ⋯ → Move to folder.') : t('No routines outside a folder.')}</div>)
 
   const back = useBack('/home')
-  return <div ref={page} className="narrow hv-wtab">
+  // With large text a routine's Start goes under its name (hevier.css .hv-big .hv-rrow).
+  const big = useLargeText()
+  return <div ref={page} className={'narrow hv-wtab' + (big ? ' hv-big' : '')}>
     <PageBar title={t('Routines')} onBack={back} backLabel={t('Today')} />
 
     {S.routines.length > 0 && <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>

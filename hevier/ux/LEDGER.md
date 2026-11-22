@@ -448,3 +448,19 @@ Monthly report subscribe to the fields they read (`useSlicedS`), Lifts' rows are
 text wraps the workout bar, Today's exercise names and the Calendar streak. Left: at 200 % on
 320 dp the workout name keeps 2.5 em ("Pus…") and the workout footer wraps its words rather than
 stacking; Data & backup shows no last backup (nothing records one).
+
+The ninth audit and critique (2026-11-22, HEAD b1cdf9559, fresh reviewers in four batches each)
+scored 317 of 380 and 656 of 728; combined per page from Calendar's 81 % to the Routines tab's
+and the picker's 93 %, the same mean as the eighth (87 %): each fresh reviewer finds new small
+things, and one audit batch locked two Adaptation points instead of one. The owner took every
+fix (D148). The invisible ones: spoken sets in words, one-rep max, muscle counts as sets, one
+name per muscle row, distinct names for Arrange's twin rows and its moves, module names read
+once, the Calendar day kind said once; dark ink on the swipe Delete; content-visibility on Lifts
+and All history; the Calendar months memoised; a large-text probe (`useLargeText`, `hv-big`)
+for the workout header, Today's week and the Routines rows; the exercise animation opens on its
+still under Reduce Motion (S71). Measured on the emulator at 200 % on 320 dp: the workout header
+is 44 % of the screen at the top and 24 % once scrolled past about 200 px. Left: the PREV cells
+clip at 200 % ("110.2" of "110.2 × 12"), Today's last week day stretches across the second row at
+200 %, a backup exported from the sign-out or delete sheets or a zip with missing files is not
+recorded, and the planned dot in Calendar's tight mode takes the kind's colour while the key's
+swatch is grey.

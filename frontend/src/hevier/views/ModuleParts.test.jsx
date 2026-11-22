@@ -42,6 +42,10 @@ describe('hevier: a module’s parts under its row (D102)', () => {
     expect(open.getAttribute('aria-expanded')).toBe('false')
     expect(row('Body').querySelector('.lrow-v').textContent).toBe('2 of 3')
     expect(open.getAttribute('aria-label')).toBe('Parts of Body, 2 of 3')   // the sixth audit, 2026-11-21
+    // The name once, with the button; its line as the button's description (the ninth audit, 2026-11-22).
+    expect(row('Body').querySelector('.lrow-m .lrow-t > [aria-hidden="true"]')).not.toBeNull()
+    expect(document.getElementById(open.getAttribute('aria-describedby')).textContent).toBe(row('Body').querySelector('.lrow-s').textContent)
+    expect(row('Integrations').querySelector('.lrow-s').textContent).toBe('Send your workouts to Hevy, OpenBite, Home Assistant and AI assistants.')
     expect(partsOf('Body').hidden).toBe(true)
     expect(partsOf('Body').querySelectorAll('[role="switch"]')).toHaveLength(0)
     act(() => open.click())

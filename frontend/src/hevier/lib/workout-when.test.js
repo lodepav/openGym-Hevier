@@ -7,11 +7,11 @@ describe('hevier workout day, time and length', () => {
   it('a workout with a clock shows its start time beside the day', () => {
     const w = { d: '2026-10-17', start: at(18, 5), end: at(18, 50) }
     expect(workoutWhenText(w)).toMatch(/17.*18:05$/)
-    expect(workoutTimeText(w)).toBe('45min')
+    expect(workoutTimeText(w)).toBe('45 min')
   })
 
   it('one under a minute shows its seconds, not a dash', () => {
-    expect(workoutTimeText({ d: '2026-10-17', start: at(18, 5), end: at(18, 5) + 40e3 })).toBe('40s')
+    expect(workoutTimeText({ d: '2026-10-17', start: at(18, 5), end: at(18, 5) + 40e3 })).toBe('40 s')
   })
 
   it('imported history without a clock keeps the day alone and a dash', () => {

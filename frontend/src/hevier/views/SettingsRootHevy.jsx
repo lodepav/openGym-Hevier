@@ -6,7 +6,12 @@
 // holds Muscle sets (D42): a set for its main muscle only, or a secondary muscle in part too, kept
 // in S.hvMuscleSets. Integrations gets the
 // fork's heart-rate strap (D79) after Health & devices and export to Hevy (D34) after Training apps (S57).
+import { useEffect, useState } from 'react'
 import { t } from '../../lib/i18n.js'
+import { fmtAgo } from '../../lib/format.js'
+import { useUI } from '../../store/useUI.js'
+import { loadHealth, onHealthChange } from '../../lib/health-sync.js'
+import { loadConfig as webdavConfig } from '../../lib/webdav.js'
 import { restTimerText } from '../lib/elapsed.js'
 import { useStore } from '../../store/useStore.js'
 import { nav } from '../../lib/nav.js'
@@ -29,7 +34,30 @@ import AccentRow from '../components/AccentRow.jsx'
 import { HV_ACCENTS, hvAccentId } from '../lib/accents.js'
 import { partOn, needOf } from '../lib/module-parts.js'
 import { DeloadRows } from '../../components/DeloadCard.jsx'
+import { isOn } from '../../lib/modules.js'
+import { loadExport, onExportChange } from '../lib/hevy-export-sync.js'
+import { loadStrap, onStrapChange } from '../lib/hr-strap-run.js'
+import { connectedLine, backupLine } from '../lib/settings-values.js'
 import ForgottenRows from '../../components/ForgottenRows.jsx'
+
+// What the phone has connected, read from each one's file and followed as it changes; each named
+// only while its module or part is on, as its section on Integrations is.
+function useConnected(ctx) {
+  const S = useStore(s => s.S)
+  const [c, setC] = useState({})
+  useEffect(() => {
+    if (!MOBILE) return
+    let live = true
+    const read = () => Promise.all([loadExport(), loadHealth(), loadStrap()]).then(([x, h, strap]) => {
+      if (live) setC({ hevy: !!x?.on, health: !!(h && (h.on || h.readWeight || h.readHr || h.readBody || h.readVitals || h.readSport)), strap: !!strap })
+    }).catch(() => {})
+    read()
+    const offs = [onExportChange(read), onHealthChange(read), onStrapChange(read)]
+    return () => { live = false; offs.forEach(off => off()) }
+  }, [])
+  return connectedLine({ hevy: c.hevy && partOn(S, 'integrations', 'hevy'), health: c.health && isOn(S, 'health') && (ctx?.ios ? 'Apple Health' : 'Health Connect'),
+    strap: c.strap && partOn(S, 'health', 'strap') }, t)
+}
 
 function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const restSec = useStore(s => s.S.restSec)
@@ -40,6 +68,11 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const mode = useStore(s => volumeMode(s.S))
   const VOLUME = { sets: t('Sets per muscle'), weight: t('Total weight') }
   const mMode = useStore(s => muscleMode(s.S))
+  const connected = useConnected(ctx)
+  const backupAt = useStore(s => s.S.hvBackupAt)
+  const autoBackup = useStore(s => MOBILE && !!s.S.autoBackup)
+  // WebDAV's own last backup is kept on the device (lib/webdav.js).
+  const backup = backupLine({ at: backupAt, webdavAt: webdavConfig()?.lastOk, auto: autoBackup }, t, fmtAgo)
   const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
   // D18's volume and D42's muscle count are one question, so one row and one sheet.
   // Upstream's menu shows the choice with a tick TalkBack does not read: the label says it (the audit, 2026-11-21).
@@ -60,12 +93,15 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
   // accent (the fork's own row, D123), so that row names the fork's accent and the body diagram instead.
   // About's version is in the footer under the groups (D52), so not beside it too (the eighth critique, 2026-11-22).
-  // No backup date: nothing records when the last backup was written, so Data & backup stays without a value.
+  // Data & backup: when the last backup was made (S.hvBackupAt, BackupWatch below), nothing before one;
+  // Integrations: what is connected (the ninth critique, 2026-11-22).
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
     // A kept upstream preset is none of the fork's accents nor the user's own colour, so goes unnamed.
     : id === 'look' ? [accent ? t(HV_ACCENTS.find(a => a.id === accent).label) : ownAccent ? t('Your own') : null,
       t(body === 'female' ? 'Female body' : 'Male body')].filter(Boolean).join(' · ')
     : id === 'about' ? null
+    : id === 'data' ? backup
+    : id === 'integrations' ? connected
     // Upstream's "Fixed Week · Mon" capitalises Week mid-label (C1); its other languages are left as they are.
     : id === 'plan' ? preview.plan?.()?.replace(/^Fixed Week\b/, 'Fixed week') || null
     // D62: the gyms, not upstream's filter switch.
@@ -119,6 +155,19 @@ function WarmupEffortRow() {
   </Row>
 }
 
+// Records when a backup was exported from Data & backup (S.hvBackupAt): upstream's export toasts
+// "Backup exported" once the file is saved or shared, and not when the share sheet is dismissed.
+// shortcut: reads upstream's toast, so a renamed toast, an export from another page, or a zip that toasts
+// "N files could not be included" instead goes unrecorded; a seam in
+// views/Settings.jsx doExport/doExportZip calling a hook would be exact, upgrade if the toast changes.
+export function BackupWatch() {
+  useEffect(() => useUI.subscribe((ui, before) => {
+    if (ui.toastMsg && ui.toastMsg !== before.toastMsg && ui.toastMsg === t('Backup exported'))
+      useStore.getState().update(s => { s.hvBackupAt = Date.now() })
+  }), [])
+  return null
+}
+
 /** Seams S11 and S12's hand-off. */
 // Rows upstream draws as a component of their own, left out of every page: the app icon picker (D100, D17).
 const HIDDEN_TYPES = [AppIconRow, DeloadRows]   // and upstream's deload weeks (D109)
@@ -142,6 +191,7 @@ export function installSettings() {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)
       if (id === 'about') return <>{aboutPage(out, t)}<MediaSection key="hv-media" /></>
+      if (id === 'data') return <><BackupWatch key="hv-backup-watch" />{out}</>
       // D123: the fork's accents first, where upstream's hidden Accent color row was.
       if (id === 'look') return <><AccentRow key="hv-accent" />{out}</>
       if (id === 'workout') return appendToSection(appendToSection(out, t('Logging'), <PlateLineRow key="hv-plate-line" />),

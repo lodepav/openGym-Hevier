@@ -38,6 +38,8 @@ import { weightDecimals } from '../../lib/format.js'
 import { isPaused, canPause, pauseWorkout, resumeWorkout } from '../../lib/workout-pause.js'
 import { nextAfterRest } from '../lib/next-after-rest.js'
 import { workoutControls } from '../../lib/workout-controls.js'
+import { trendsOn } from '../lib/set-trend.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 // The rest whose end last brought the next exercise up: a page shown again over a rest still at
 // its end does not scroll a second time.
@@ -56,7 +58,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   const open = openSet(A, pick)
   // D127: the gym and the note show at the page's top or bottom, at the start or near the end;
   // a tap on the name holds until that changes (lib/header-open.js).
-  const [edge, setEdge] = useState(true)
+  // 'top', 'end' or '': which edge of the page is in view.
+  const [edge, setEdge] = useState('top')
   const zone = useRef(null)
   const detailsRef = useRef(null)
   useEffect(() => {
@@ -68,7 +71,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       const d = detailsRef.current
       const h = d ? d.getBoundingClientRect().height + (parseFloat(getComputedStyle(d).marginTop) || 0) : 0
       const z = zone.current = scrollZone(zone.current, top, gap, h)
-      setEdge(z.top || z.end)   // React skips the render when it is unchanged
+      setEdge(z.top ? 'top' : z.end ? 'end' : '')   // React skips the render when it is unchanged
     }
     check()
     // once a frame: scroll fires faster than that, and check reads layout
@@ -78,7 +81,9 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     window.addEventListener('resize', soon)
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', soon); window.removeEventListener('resize', soon) }
   }, [])
-  const auto = edge || progressOpen(A, units)
+  // With large text the sticky header would fill half the screen: the details open at the top only (the ninth critique, 2026-11-22).
+  const big = useLargeText()
+  const auto = big ? edge === 'top' : !!edge || progressOpen(A, units)
   const [manual, setManual] = useState(null)
   const shown = resolveOpen(auto, manual)
   if (manual && !shown.manual) setManual(null)
@@ -193,7 +198,10 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   const leave = () => (opened ? nav(-1) : nav('/home'))
 
   const live = !(A.backfill || editing)
-  return <div className="hv-workout">
+  // The ticked sets' marks, said with the tip once a set is ticked and the marks are on (the ninth critique, 2026-11-22).
+  const marks = trendsOn(S) && A.entries.some(e => e.sets.some(x => x.done || x.sides?.L?.done || x.sides?.R?.done))
+    ? ' ' + t('A ticked set’s mark compares it with last time: = the same, ↑ better, ↓ less.') : ''
+  return <div className={'hv-workout' + (big ? ' hv-big' : '')}>
     {/* a heading TalkBack can jump to; the name on the bar is a button */}
     <h1 className="vh">{editing ? t('Edit workout') : A.name || t('Log workout')}</h1>
     <div className="hv-whdr">
@@ -232,7 +240,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
       {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
     </section>
       {/* The two quick paths, said under the first table until one is first used (S.hvSetTipSeen, the eighth critique, 2026-11-22). */}
-      {n === 0 && !S.hvSetTipSeen && <p className="small dim hv-set-tip">{workoutControls(S).swipeSets ? t('Tap PREVIOUS to copy it, swipe a set for more.') : t('Tap PREVIOUS to copy it.')}</p>}
+      {n === 0 && !S.hvSetTipSeen && <p className="small dim hv-set-tip">{workoutControls(S).swipeSets ? t('Tap PREVIOUS to copy it, swipe a set for more.') : t('Tap PREVIOUS to copy it.')}{marks}</p>}
     </Fragment>) : <div className="hv-empty">
       <Icon name="dumbbell" />
       <b>{t('Get started')}</b>

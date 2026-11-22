@@ -10,11 +10,14 @@ import { useUI } from '../../store/useUI.js'
 import { setNav } from '../../lib/nav.js'
 import { todayISO } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
+import { monthCells } from '../lib/calendar.js'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
 import { Month, namesFit, wrapped } from './Calendar.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
+// Counted, to show which taps draw a month again (Month's memo, the ninth audit, 2026-11-22).
+vi.mock('../lib/calendar.js', async orig => { const m = await orig(); return { ...m, monthCells: vi.fn(m.monthCells) } })
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -74,6 +77,9 @@ describe('hevier: Calendar', () => {
     expect(day.classList.contains('today')).toBe(true)
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('1 week streak')
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('0 rest days')
+    // Spoken as what it counts, the drawn words hidden from TalkBack (the ninth critique, 2026-11-22).
+    expect(container.querySelector('.hv-cal-streak .hv-sr').textContent).toBe('0 days since your last workout')
+    expect(container.querySelector('.hv-cal-streak .muted > [aria-hidden="true"]').textContent).toBe('· 0 rest days')
     // Its spoken name says the date and that it was trained, then the workout (the audit, 2026-11-21).
     expect(day.parentElement.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', ' + 'Trained, Leg Day')
   })
@@ -81,7 +87,8 @@ describe('hevier: Calendar', () => {
   it('a deload day says so; its drawn title drops a trailing emoji, its spoken one keeps it (the eighth round, 2026-11-22)', () => {
     render('/calendar', [{ ...w, name: 'Deload legs 💪' }])
     const day = container.querySelector('.hv-cal-d.done').parentElement
-    expect(day.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', Trained, Deload, Deload legs 💪')
+    // The title says Deload already, so the kind word is not said twice (the ninth critique, 2026-11-22).
+    expect(day.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', Trained, Deload legs 💪')
     expect(day.querySelector('.hv-cal-tl').textContent).toBe('Deload legs')
     // One line at the default size: the streak stays pinned in the top.
     expect(container.querySelector('.hv-cal-top .hv-cal-streak')).not.toBeNull()
@@ -157,17 +164,37 @@ describe('hevier: Calendar', () => {
     const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
     expect(titles().at(-1)).toMatch(new RegExp(next.getFullYear() + '$'))
     expect(container.querySelectorAll('.hv-cal-m').item(6).querySelectorAll('.hv-cal-d.planned').length).toBe(new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())
+    // A tap on the picked Month goes back to this month (the ninth critique, 2026-11-22).
+    click(byText('.seg button', 'Month'))
+    expect(titles()).toHaveLength(6)
+    expect(titles().at(-1)).toMatch(new RegExp(now.getFullYear() + '$'))
+    expect(container.querySelector('.seg button.on').textContent).toBe('Month')
   })
 
   // The fresh audit, 2026-11-21: pinned, the key took a large share of a short screen at a big text size.
+  // The ninth audit, 2026-11-22: Show earlier months drew every month already shown again.
+  it('Show earlier months draws only the new months, after a write the months do not read', () => {
+    render('/calendar', [w])
+    act(() => useStore.getState().update(s => { s.unit = 'lb' }))
+    monthCells.mockClear()
+    click(byText('button', 'Show earlier months'))
+    expect(monthCells).toHaveBeenCalledTimes(6)
+  })
+
   it('the key sits under the months, out of the pinned top', () => {
     render('/calendar', [w])
     const key = container.querySelector('.hv-cal-key')
     expect(key.closest('.hv-cal-top')).toBeNull()
     // Right under the last month, above Show next month (the seventh critique, 2026-11-22).
     expect(key.previousElementSibling.classList.contains('hv-cal-m')).toBe(true)
-    expect(key.nextElementSibling.classList.contains('next')).toBe(true)
+    // Under it the one-time hint, until a day is tapped (the ninth critique, 2026-11-22).
+    expect(key.nextElementSibling.textContent).toBe('Tap a day to plan or rest it')
+    expect(key.nextElementSibling.nextElementSibling.classList.contains('next')).toBe(true)
     expect([...key.querySelectorAll('span')].map(x => x.textContent)).toEqual(['Strength', 'Cardio', 'Deload', 'Planned'])
+    act(() => container.querySelector('.hv-cal-c').click())
+    expect(useStore.getState().S.hvCalTapSeen).toBe(true)
+    expect(container.querySelector('.hv-cal-hint')).toBeNull()
+    expect(container.querySelector('.hv-cal-key').nextElementSibling.classList.contains('next')).toBe(true)
   })
 
   it('History’s Calendar chip opens it', () => {

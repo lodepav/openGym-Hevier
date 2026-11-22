@@ -45,7 +45,7 @@ import HvIcon from '../components/HvIcon.jsx'
 import { hooks } from '../hooks.js'
 import PageBar from '../components/PageBar.jsx'
 import { restTimerText } from '../lib/elapsed.js'
-import { NumberField, Row, SelectRow, Switch } from '../../components/ui.jsx'
+import { NumberField, Row, Switch, openSelectSheet } from '../../components/ui.jsx'
 import {
   routineRows, tableShape, setWorkField, setRange, addRow, removeRow, makeWarmup, makeWork, canWarmUp,
   canFail, setFailure, setMax, workCount, addWarmup, canAddWarmup,
@@ -224,7 +224,7 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown
   // Hevy's numbering: a hold reads H, as a warm-up reads W, and the other sets count on (D5).
   const numOf = row => work.filter(x => x.k <= row.k && !isHold(x)).length
   const holdNo = row => work.filter(x => x.k <= row.k && isHold(x)).length
-  const nameOf = row => (row.kind === 'warm' ? t('Warm-up') : isHold(row) ? t('Hold {0}', holdNo(row)) : t('Set {0}', numOf(row)))
+  const nameOf = row => (row.kind === 'warm' ? t('Warm-up {0}', row.n + 1) : isHold(row) ? t('Hold {0}', holdNo(row)) : t('Set {0}', numOf(row)))
   const openSetType = row => {
     const warm = row.kind === 'warm'
     const failing = !warm && row.failure
@@ -328,7 +328,8 @@ function RoutineExerciseCard({ r, i, unitOf, S, grip, press, held, tip, tipShown
       <button type="button" className="iconbtn hv-more" aria-label={t('More') + ', ' + exerciseNameText(ex)} onClick={openMore}><Icon name="more" /></button>
     </div>
     {e.note && <button type="button" className="hv-note hv-exnote" aria-label={t('Edit note') + ': ' + e.note} onClick={openNote}>{e.note}</button>}
-    {tipDrawn && <p className="small dim hv-rt-tip">{t('– opens at last time’s weight.')}</p>}
+    {tipDrawn && <p className="small dim hv-rt-tip">{progressionOn(r) && (r.prog || profileRule(S)) !== 'off' && !r.excludeFromProgression
+      ? t('– lets the rule pick the weight. Auto warm-ups ramp up to it.') : t('– opens at last time’s weight.')}</p>}
     <div className="hv-rt-row hv-rt-x hv-rt-head" style={grid} aria-hidden="true">
       <span>{t('SET')}</span>{cols.map(c => <span key={c.f}>{c.hd}</span>)}<span />
     </div>
@@ -404,7 +405,8 @@ function RoutineEditor({ id }) {
   const plain = isPlain(r)
   const held = useMemo(() => (plain ? openedHolds(nextSession(S, id)) : null), [S, id, plain]) // eslint-disable-line react-hooks/exhaustive-deps
   // What "–" under the weight means, said on the first exercise once: gone after the first visit that showed it (S.hvDashTipSeen).
-  const dashTip = plain && !S.hvDashTipSeen
+  // With progression on it says what "–" and a warm-up's Auto mean there (the ninth critique, 2026-11-22).
+  const dashTip = (plain || progressionOn(r)) && !S.hvDashTipSeen
   const tipShown = useRef(false)
   useEffect(() => () => { if (tipShown.current) useStore.getState().update(s => { s.hvDashTipSeen = true }) }, [])
   if (!r) return null
@@ -444,6 +446,8 @@ function RoutineEditor({ id }) {
   })
 
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
+  const rule = r.prog || profileRule(S)
+  const ruleOptions = POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))
   return <div className="hv-routine">
     <PageBar title={t('Edit Routine')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (r.name || t('Routine'))} onClick={openMore}><Icon name="more" /></button>
@@ -475,15 +479,18 @@ function RoutineEditor({ id }) {
     <div className="sect-b hv-rsettings">
       {/* D69: off, each set opens at what was done the last time that set was done. */}
       <Row icon="chartLine" title={t('Progression & auto warm-ups')}
-        subtitle={progressionOn(r) ? t('Targets move by the rule below; warm-ups ramp up to the work weight.') : t('Each set opens at what you did the last time that set was done, warm-ups too.')}>
+        subtitle={!progressionOn(r) ? t('Each set opens at what you did the last time that set was done, warm-ups too.')
+          : rule === 'off' ? t('Warm-ups ramp up to the work weight.') : t('Targets move by the rule below; warm-ups ramp up to the work weight.')}>
         <Switch checked={progressionOn(r)} onChange={v => setR(x => {
           if (v) x.hvProg = true
           else delete x.hvProg
         })} />
       </Row>
-      {progressionOn(r) && <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
-        value={r.prog || profileRule(S)} onChange={v => setR(x => { x.prog = v })}
-        options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />}
+      {/* Upstream's SelectRow with the rule's description as its subtitle, not a note under the list (the ninth critique, 2026-11-22). */}
+      {progressionOn(r) && <Row icon="chartLine" title={t('Progression')} accessory="chevron"
+        value={ruleOptions.find(o => o.value === rule)?.label ?? rule}
+        subtitle={t(POLICY_DESC[rule] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')}
+        onClick={() => openSelectSheet({ title: t('Progression'), value: rule, options: ruleOptions, onChange: v => setR(x => { x.prog = v }) })} />}
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>
         <Switch checked={r.excludeFromProgression === true} onChange={v => setR(x => {
@@ -492,12 +499,11 @@ function RoutineEditor({ id }) {
         })} />
       </Row>
     </div>
-    <div className="small dim hv-rsettings-note">
+    {(r.excludeFromProgression || !progressionOn(r)) && <div className="small dim hv-rsettings-note">
       {r.excludeFromProgression
         ? t('A deload routine opens at the numbers set here, so the progression above does not apply to it.') + ' ' + t('The next regular target continues from the last included workout.')
-        : progressionOn(r) ? t(POLICY_DESC[r.prog || profileRule(S)] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
         : t('A set never done opens at the numbers set here.')}
-    </div>
+    </div>}
     <div className="workout-end-spacer" />
   </div>
 }

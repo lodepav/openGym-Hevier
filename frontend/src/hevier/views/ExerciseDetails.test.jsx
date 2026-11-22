@@ -100,6 +100,7 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(tiles[0]).toBe('62.5 kg')
     expect(tiles[2]).toBe('60 kg × 8')
     expect([...container.querySelectorAll('.hv-xd-tile')][2].querySelectorAll('.hv-xd-whole')).toHaveLength(2)
+    expect([...container.querySelectorAll('.hv-xd-tile small[role="img"]')].map(x => x.getAttribute('aria-label'))).toEqual(['Best one rep max'])
     expect(container.textContent).toContain('Best Session Volume')
     const rows = [...container.querySelectorAll('.hv-xd-rr')]
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['6 reps', '8 reps'])
@@ -304,7 +305,7 @@ describe('hevier: exercise details (seam S10)', () => {
     timed[0].entries[0].sets.forEach((s, i) => { s.at = day('2026-09-26') + (i + 1) * 4 * 60000 })
     open(timed)
     const row = container.querySelector('.hv-xd-time')
-    expect(row.textContent).toBe('Time on this exercise · 8min a session')
+    expect(row.textContent).toBe('Time on this exercise · 8 min a session')
     expect(row.closest('button')).toBeNull()
   })
 

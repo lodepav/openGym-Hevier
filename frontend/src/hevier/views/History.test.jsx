@@ -72,8 +72,8 @@ describe('hevier: History (D135)', () => {
     const entries = [by('Chest', 4), by('Triceps', 3), by('Biceps', 2), by('Glutes', 1), by('Hamstrings', 1)]
     render({ workouts: [{ ...wo('2026-11-16', 60), entries }] })
     const line = container.querySelector('.hv-wcard .hv-mline')
-    expect(line.querySelector('[aria-hidden="true"]').textContent).toBe('Chest 4 · Triceps 3 · Biceps 2 · +2')
-    expect(line.querySelector('.hv-sr').textContent).toBe('Chest 4, Triceps 3, Biceps 2, Glutes 1, Hamstrings 1')
+    expect(line.querySelector('[aria-hidden="true"]').textContent).toBe('Chest 4 sets · Triceps 3 sets · Biceps 2 sets · +2')
+    expect(line.querySelector('.hv-sr').textContent).toBe('Chest, 4 sets, Triceps, 3 sets, Biceps, 2 sets, Glutes, 1 set, Hamstrings, 1 set')
   })
 
   it('an empty feed points to the Hevy import on Settings → Integrations', () => {

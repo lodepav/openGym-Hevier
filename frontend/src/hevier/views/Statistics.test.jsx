@@ -65,9 +65,10 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
     expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h in workouts this week')
     // Tile = now, card = more: the weekly chart does not repeat this week's time.
-    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
+    // Its heading names what it plots (the ninth critique, 2026-11-22).
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly duration')
     // One heading style: the chart's title is headed as the cards' heads are.
-    expect(container.querySelector('[data-card="weekly"] .hv-scard-h > h2').textContent).toBe('Weekly chart')
+    expect(container.querySelector('[data-card="weekly"] .hv-scard-h > h2').textContent).toBe('Weekly duration')
     // The page ends as Lifts does, with flat accent links, no icon cards and no filled button.
     expect(container.querySelector('.hv-linkrow')).toBeNull()
     expect(container.querySelector('.btn')).toBeNull()
@@ -198,7 +199,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('Measures: headings name each part; the chart says its last weight and change; the empty well logs one (the eighth round, 2026-11-22)', () => {
     const ago = days => isoOf(new Date(Date.now() - days * 86400000))
     render(['/measures'], { bodyweight: [{ d: ago(30), w: 82 }, { d: todayISO(), w: 80.5 }] })
-    expect([...container.querySelectorAll('h2')].map(h => h.textContent)).toEqual(['Body weight', 'Recent weigh-ins', 'Body'])
+    expect([...container.querySelectorAll('h2')].map(h => h.textContent)).toEqual(['Body weight', 'Recent weigh-ins', 'Measurements and photos'])
     expect(container.querySelector('.chart').getAttribute('aria-label')).toBe('Body weight chart, 80.5 kg, down 1.5 kg in 90 days')
     act(() => root.unmount()); container.remove()
     render(['/measures'])
@@ -215,15 +216,20 @@ describe('hevier: Statistics and Measures (M6)', () => {
       expect(byText('button', 'Log')).toBeUndefined()
       expect(container.textContent).toContain('From Health Connect')
       expect(container.querySelector('.hv-ms-empty').tagName).toBe('DIV')
-      expect(container.querySelector('.hv-ms-empty').textContent).toBe('No weigh-ins yet. They come from Health Connect.')
+      expect(container.querySelector('.hv-ms-empty').textContent).toBe('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.')
     } finally { await initWeighInSource(() => ({ readWeight: false }), () => {}) }
   })
 
   // The audit, 2026-11-21: with a goal set the button shows the number and says what it is.
-  it('Measures: the Goal button says Goal with its number', () => {
+  it('Measures: the Goal button says Goal with its number and unit, the distance under the weight', () => {
     render(['/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }], targetW: 75 })
-    const goal = [...container.querySelectorAll('button')].find(b => b.textContent === '75')
+    const goal = [...container.querySelectorAll('button')].find(b => b.textContent === '75 kg')
     expect(goal.getAttribute('aria-label')).toBe('Goal 75 kg')
+    expect(container.querySelector('.hv-ms-gap').textContent).toBe('5 kg to lose')
+    act(() => root.unmount()); container.remove()
+    render(['/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }] })
+    expect(byText('button', 'Set goal')).toBeTruthy()
+    expect(container.querySelector('.hv-ms-gap')).toBeNull()
   })
 
   const H = 'a'.repeat(64)

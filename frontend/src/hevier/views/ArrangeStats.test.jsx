@@ -47,13 +47,15 @@ describe('hevier: Arrange Statistics (D142)', () => {
     render(['/stats'])
     act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange').click())
     expect(path).toBe('/stats/arrange')
-    expect(container.textContent).toContain('Drag or tap a handle to move it, switch one off to hide it. A tile is one number now; a card shows more.')
+    expect(container.textContent).toContain('Drag a row by its handle, or tap the handle to move it up or down; switch a row off to hide it. A tile is one number now; a card shows more.')
     expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])
     expect(names(1)).toEqual(['Time per exercise', 'Body weight', 'Sets per muscle', 'Weekly chart'])
     const sw = row(0, 'Average RPE').querySelector('[role="switch"]')
-    expect(sw.getAttribute('aria-label')).toBe('Average RPE')
+    // Spoken with its list, as Body weight is in both (the ninth audit, 2026-11-22).
+    expect(sw.getAttribute('aria-label')).toBe('Average RPE tile')
+    expect(row(1, 'Body weight').querySelector('[role="switch"]').getAttribute('aria-label')).toBe('Body weight card')
     expect(sw.getAttribute('aria-checked')).toBe('false')
-    expect(row(1, 'Weekly chart').querySelector('.hv-grip').getAttribute('aria-label')).toBe('Move Weekly chart')
+    expect(row(1, 'Weekly chart').querySelector('.hv-grip').getAttribute('aria-label')).toBe('Move Weekly chart card')
   })
 
   it('a switch shows or hides its item, and Statistics follows', () => {
@@ -85,6 +87,8 @@ describe('hevier: Arrange Statistics (D142)', () => {
     act(() => [...host.querySelectorAll('.menu-item')].find(i => i.textContent === 'Move up').click())
     act(() => r.unmount())
     expect(names(1)).toEqual(['Time per exercise', 'Weekly chart', 'Body weight', 'Sets per muscle'])
+    // Said where it went (the ninth critique, 2026-11-22).
+    expect(container.querySelectorAll('section')[1].querySelector('.hv-sr[role="status"]').textContent).toBe('Moved to 2 of 4')
   })
 
   it('leaves out what has its module part off, a move stepping over it; no data yet still lists it', () => {

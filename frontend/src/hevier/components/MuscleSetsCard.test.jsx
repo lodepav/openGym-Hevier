@@ -36,4 +36,14 @@ describe('hevier: the Sets per muscle card', () => {
     expect(pressed()).toBe('Month')
     expect(container.querySelector('.hv-mset')).toBeTruthy()
   })
+
+  it('says each row in one name, and the new total after a chip is tapped (the ninth critique, 2026-11-22)', () => {
+    render([W('2026-10-14'), W('2026-10-15'), W('2026-10-08')])
+    const row = container.querySelector('.hv-mset')
+    expect(row.getAttribute('aria-label')).toBe(row.firstChild.textContent + ', 2 sets, 1 more than last week')
+    const status = () => container.querySelector('.hv-sr[role="status"]').textContent
+    expect(status()).toBe('')
+    act(() => [...container.querySelectorAll('.hv-chip')].find(b => b.textContent === 'Month').click())
+    expect(status()).toMatch(/^Month, \d+ sets$/)
+  })
 })

@@ -22,7 +22,7 @@ const footer = tree => [].concat(tree.props.children).find(k => k?.props?.classN
 
 describe('hevier version (D52)', () => {
   it('names both versions', () => {
-    expect(versionLine(tr, '1.0.0+abc1234', '1.4.1')).toBe('Go Hevier 1.0.0+abc1234 · based on openGym 1.4.1')
+    expect(versionLine(tr, '1.0.0+abc1234', '1.4.1')).toBe('Go Hevier 1.0.0 · based on openGym 1.4.1')
   })
   it('About: the Version row names Go Hevier and openGym, the update row Go Hevier, the footer no version', () => {
     const out = aboutPage(page('Update to openGym v1.1.0'), tr, '1.0.0', '1.4.1')

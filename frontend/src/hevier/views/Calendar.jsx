@@ -3,7 +3,7 @@
 // page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -17,7 +17,7 @@ import PageBar from '../components/PageBar.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid } from '../lib/calendar.js'
 import { partOn } from '../lib/module-parts.js'
 import { useSlicedS } from './Statistics.jsx'
 
@@ -30,7 +30,8 @@ export function openDay(iso, ws) {
     <div className="list">{ws.map(w => <WorkoutRow key={w.id} w={w} onClick={() => { close(); workoutDetailSheet(w) }} />)}</div></>)
 }
 
-export function Month({ y, mo, st, byDay, today, small, onTitle }) {
+// Memoised: Show earlier months draws only the new months, not every day button already shown (the ninth audit, 2026-11-22).
+export const Month = memo(function Month({ y, mo, st, byDay, today, small, onTitle }) {
   const ws = weekStartOf(st)
   const cells = monthCells(y, mo, ws)
   const n = cells.reduce((sum, iso) => sum + (iso && byDay[iso] ? byDay[iso].length : 0), 0)
@@ -61,7 +62,8 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
             // A note-only day too (the second audit); a past planned day draws no mark (D68), so says none (the third).
             // Cardio and deload, trained or planned, which the colour alone carried (the eighth audit, 2026-11-22).
             aria-label={[fmtDate(iso, true), byDay[iso] ? t('Trained') : plan ? t('Planned') : mark === 'noted' ? t('Note') : '',
-              ...[byDay[iso] ? kind : plan].map(k => (k === 'cardio' ? t('Cardio') : k === 'deload' ? t('Deload') : '')), title].filter(Boolean).join(', ')}
+              // The kind word goes when the title says it already: "Cardio" was read "Cardio, Cardio" (the ninth critique, 2026-11-22).
+              ...[byDay[iso] ? kind : plan].map(k => kindSaid(k === 'cardio' ? t('Cardio') : k === 'deload' ? t('Deload') : '', title)), title].filter(Boolean).join(', ')}
             onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
             {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{drawnTitle(title)}</span>}
@@ -69,7 +71,7 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
       })}
     </div>
   </div>
-}
+})
 
 // D117: with the part off, the page (and the month widget's tap, which opens it) lands on History.
 /**
@@ -110,7 +112,10 @@ export const wrapped = (height, font) => font > 0 && height > 2 * font
 
 function CalendarPage() {
   const nav = useNavigate()
-  const st = useSlicedS(READS)
+  const live = useSlicedS(READS)
+  // The live S is a new copy on any write; pinned on what the months read, so a memoised Month is left alone.
+  const st = useMemo(() => live, READS.map(k => live[k])) // eslint-disable-line react-hooks/exhaustive-deps
+  const tapSeen = useStore(s => !!s.S.hvCalTapSeen)
   const [view, setView] = useState('month')
   const today = todayISO()
   const now = new Date()
@@ -121,6 +126,10 @@ function CalendarPage() {
   const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
   const rest = useMemo(() => restDays(st.workouts, today), [st.workouts, today])
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
+  // A tap on Month while it is picked goes back to this month, at the bottom (the ninth critique, 2026-11-22).
+  const pickView = v => {
+    if (v === 'month' && view === 'month') { setFrom({ y: now.getFullYear(), mo: now.getMonth() }); setAhead(0) } else setView(v)
+  }
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
   // The month view opens on its newest month, scrolled to the bottom (its heading kept in view), a frame later, after upstream's
@@ -179,20 +188,27 @@ function CalendarPage() {
   // The streak is Motivation's (D97); the rest days stay.
   const streak = (partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak" ref={streakEl}>
     {partOn(st, 'motivation', 'streak') ? <><Icon name="flame" /><span>{streakLabel(st)}</span></> : null}
-    {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
+    {/* Said as what it counts: "33 rest days" beside a streak read as rest days inside it (the ninth critique, 2026-11-22). */}
+    {rest != null && <span className="muted"><span aria-hidden="true">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>
+      <span className="hv-sr">{rest === 1 ? t('1 day since your last workout') : t('{0} days since your last workout', rest)}</span></span>}
   </div>
-  return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
+  // The hint is said until the first tap on a day here (S.hvCalTapSeen), as Today's is; caught on the page, not
+  // in openDay, so a tap in Monthly report leaves it, and Month's props stay as they are (the ninth review, 2026-11-22).
+  const dayTap = e => { if (!tapSeen && e.target.closest?.('.hv-cal-c')) useStore.getState().update(s => { s.hvCalTapSeen = true }) }
+  return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page} onClick={dayTap}>
     {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
     {!wraps && streak}
-    <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
+    <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={pickView} />
     </div>
     {wraps && streak}
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
       {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}
       {key}
+      {/* What a tap on a day does, until the first one (the ninth critique, 2026-11-22). */}
+      {!tapSeen && <p className="small dim hv-cal-hint">{t('Tap a day to plan or rest it')}</p>}
       <button type="button" className="btn hv-cal-more next" onClick={() => setAhead(a => a + 1)}>{t('Show next month')}</button>
     </> : <>
       <div className="hv-cal-yr">

@@ -102,3 +102,7 @@ export const drawnTitle = title => String(title || '').replace(TRAILING_EMOJI, '
  *  the heading sits just under the bar (the sixth audit, 2026-11-22). `page` and `view` are the
  *  page's and the window's heights. */
 export const openScroll = ({ page, view, head, bar }) => Math.max(0, Math.min(page - view, head - bar - 8))
+
+/** A day's kind word ("Cardio", "Deload") as its spoken name says it: '' when its title already says
+ *  it, so "Cardio" is not read "Cardio, Cardio" (the ninth critique, 2026-11-22). */
+export const kindSaid = (word, title) => (word && !String(title || '').toLowerCase().includes(word.toLowerCase()) ? word : '')

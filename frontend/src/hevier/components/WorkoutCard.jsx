@@ -95,7 +95,7 @@ export default function WorkoutCard({ w }) {
         {prs > 0 && <> · <span className="hv-pr"><Icon name="trophy" />{recordsText(prs)}</span></>}
         {hr && <> · <span className="hv-wcard-hr" role="img" aria-label={t('Heart rate') + ' ' + hr.avg}><Icon name="heart" />{hr.avg}</span></>}</span></div>
       {shareOn && <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
-        onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>}
+        onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><HvIcon name="shareNodes" /></button>}
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); workoutActions(w, nav) }}><Icon name="more" /></button>
     </div>

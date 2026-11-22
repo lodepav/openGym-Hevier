@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
-import { monthCells, monthsBack, monthsWith, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll } from './calendar.js'
+import { monthCells, monthsBack, monthsWith, workoutsByDay, restDays, dayMark, workoutKind, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll, kindSaid } from './calendar.js'
 import { EXDB, isCardio } from '../../lib/exercises.js'
 
 const MONDAY = 1, SUNDAY = 0
@@ -93,5 +93,15 @@ describe('hevier: where the month view opens (the sixth audit, 2026-11-22)', () 
     expect(openScroll({ page: 2000, view: 800, head: 1000, bar: 150 })).toBe(842)
     // A page shorter than the screen stays at the top.
     expect(openScroll({ page: 600, view: 800, head: 200, bar: 150 })).toBe(0)
+  })
+})
+
+describe('hevier: a day\'s kind word in its spoken name (the ninth critique, 2026-11-22)', () => {
+  it('is left out when the title already says it, in any case', () => {
+    expect(kindSaid('Cardio', 'Cardio')).toBe('')
+    expect(kindSaid('Deload', 'deload legs 💪')).toBe('')
+    expect(kindSaid('Cardio', 'Morning run')).toBe('Cardio')
+    expect(kindSaid('Cardio', '')).toBe('Cardio')
+    expect(kindSaid('', 'Cardio')).toBe('')
   })
 })

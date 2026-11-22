@@ -28,9 +28,13 @@ export function restTimerText(own, fallback, off) {
   return n ? elapsedClock(n) : off
 }
 
-/** A logged total as Hevy writes it, to the minute: "45min", "1h 15min", "24h 17min"; under a
- *  minute its seconds. Takes ms, as upstream's fmtDur does. */
+/** A logged time in the fork's one duration style, spaced as the Finish sheet writes it (the ninth
+ *  critique, 2026-11-22): "2 min 30 s", "1 h 15 min". The running session's stats row keeps Hevy's "18min 19s". */
+export const elapsedSpaced = sec => elapsedWords(sec).replace(/(\d)([a-z])/g, '$1 $2')
+
+/** A logged total to the minute: "45 min", "1 h 15 min", "24 h 17 min"; under a minute its
+ *  seconds, "40 s". Takes ms, as upstream's fmtDur does. */
 export function durationWords(ms) {
   const sec = secsOf(Number(ms) / 1000)
-  return sec < 60 ? elapsedWords(sec) : elapsedWords(Math.round(sec / 60) * 60)
+  return elapsedSpaced(sec < 60 ? sec : Math.round(sec / 60) * 60)
 }

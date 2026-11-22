@@ -11,6 +11,7 @@ import { youtubeId, youtubeLinks } from '../lib/youtube.js'
 import { useAnimSources } from './Animations.jsx'
 import { OwnMediaFlip } from './OwnExerciseMedia.jsx'
 import { exMediaOf } from '../lib/ex-media.js'
+import { startsPlaying, pauseButton } from '../hevier/lib/media-motion.js' // [hevier] S71
 
 // Your own photo or video on this built-in exercise (lib/ex-media.js), or null. The raw entry is
 // selected, then read, so the store hands back the same value until it changes.
@@ -47,7 +48,7 @@ export default function Media(p) {
 // (gifSize 'off') — then nothing renders here and the exercise card closes up, exactly like
 // an exercise without media. Any other/legacy value behaves as 'full'.
 function BuiltinMedia({ ex, id, compact, minimizable, sayAs }) {
-  const [playing, setPlaying] = useState(true)
+  const [playing, setPlaying] = useState(startsPlaying) // [hevier] S71: the still under Reduce Motion
   // 'gif' → the animation failed, the still is showing; 'all' → the still failed too. Media is
   // fetched from wherever the build points (a mount, a CDN): a dropped connection, an expired
   // session on a gated instance or a CDN hiccup used to leave the browser's broken-image glyph
@@ -103,7 +104,7 @@ function BuiltinMedia({ ex, id, compact, minimizable, sayAs }) {
         </button>
       )}
       {!mini && !failed && !anim.still && (
-        <span className="gifhint">
+        <span className="gifhint" {...pauseButton(playing, onTap)}>{/* [hevier] S71: a named button */}
           <Icon name={playing ? 'pause' : 'play'} />{playing ? t('tap to pause') : t('tap to play')}
         </span>
       )}
