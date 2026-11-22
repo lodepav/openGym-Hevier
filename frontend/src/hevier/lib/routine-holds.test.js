@@ -49,9 +49,11 @@ describe('hevier routine holds (D146)', () => {
     expect(openHold(c, 0, base, filled)).toEqual([filled])
     // Last time a hold there: the planned seconds win, last time's weight stays.
     expect(openHold(c, 1, base, { w: 25, mode: 'time', sec: 60, done: false })[0]).toMatchObject({ mode: 'time', sec: 40, w: 25, hvHeld: 2 })
-    // A carried hold with nothing planned is marked; a planned rep set opens at the routine's numbers.
+    // A carried hold with nothing planned is marked; a planned rep set opens at the routine's reps,
+    // at last time's weight on that set (the routine's when last time had none).
     expect(openHold(curl, 1, base, { w: 25, mode: 'time', sec: 60 })[0].hvHeld).toBe(2)
-    expect(openHold(setHold(curl, 1, 0), 1, base, { w: 25, mode: 'time', sec: 60 })).toEqual([base])
+    expect(openHold(setHold(curl, 1, 0), 1, base, { w: 25, mode: 'time', sec: 60 })).toEqual([{ ...base, w: 25 }])
+    expect(openHold(setHold(curl, 1, 0), 1, base, { w: 0, mode: 'time', sec: 60 })).toEqual([base])
     // A per-side set becomes D89's L/R pair.
     const side = makeSideSet({ w: 20, r: 20 })
     const pair = openHold(setHold({ ...curl, side: true }, 0, 30), 0, side, side)
@@ -66,6 +68,7 @@ describe('hevier routine holds (D146)', () => {
     expect(sets[1].w).toBe(22)
     // The planned rep set over last time's hold.
     expect(kinds(buildPlannedEntry(S, setHold(curl, 2, 0), arms).sets)).toEqual(['S10', 'S9', 'S10'])
+    expect(buildPlannedEntry(S, setHold(curl, 2, 0), arms).sets[2].w).toBe(18)
     // Never done: the routine's weight.
     expect(buildPlannedEntry(S0([]), planned, arms).sets[1]).toMatchObject({ w: 20, mode: 'time', sec: 40 })
     // With progression on, upstream's build: no holds.

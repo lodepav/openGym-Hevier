@@ -68,13 +68,14 @@ const held = (rows, k) => rows.map(r => ({ ...r, hvHeld: k + 1 }))
  * Work set `k`'s rows as a plain routine opens them: `base` the row built at the routine's numbers,
  * `out` the same filled from last time (one row, or an L/R hold pair). A planned hold makes it a
  * hold at the planned seconds, its weight as filled; a planned rep set over last time's hold opens
- * at the routine's numbers (never done as a rep set there). Returns rows.
+ * at the routine's reps and last time's weight. Returns rows.
  */
 export function openHold(cfg, k, base, out) {
   const rows = [out].flat()
   const plan = base.done || !canBeHold(base, 'reps') ? undefined : plannedHold(cfg, k)
   const hold = rows.length > 1 || isHoldRow(rows[0])
-  if (plan === 0) return hold ? [base] : rows
+  // Back to reps over last time's hold: the routine's reps, last time's weight on that set.
+  if (plan === 0) return hold ? [Number(rows[0].w) > 0 ? { ...base, w: rows[0].w } : base] : rows
   if (!(plan > 0)) return hold ? held(rows, k) : rows
   if (hold) return held(rows.map(r => ({ ...r, sec: plan })), k)
   const [row] = rows
