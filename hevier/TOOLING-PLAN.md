@@ -113,6 +113,19 @@ refuses; on D53 it chose a set field without the copy rule it needs. Below 4 of 
 5 of 5), so upstream scoping stays on Opus. Plain lookups (find a file, list callers) were not
 tested: none were in the recent history.
 
+Second look, 2026-11-22 (the owner asked for five more):
+- verify's -gpu failure is already fixed on hevier/audit-5 (emulator.sh boots through `emu`, c55f5039c,
+  and sibling_check no longer compares -gpu; it passes there). It lands with that branch's merge.
+- Critique scores: see item 4's correction; rounds compare only fresh-to-fresh at one maximum.
+- UX journeys: of 16 re-walks (ledger rounds 1 to 13), none went over unchanged screens: views or
+  components changed between every pair (55 files in the closest, checked by hand). A "changed
+  screens only" rule would skip nothing. Dropped.
+- Instruction files: about 11k tokens of each subagent's 21k start, 10 % of subagent reading here;
+  a 3k trim saves about 2.8 % (0.05 B a month), and CLAUDE.md is upstream's file. Dropped.
+- Main-chat rule: no session has started since it went in. One headless test (a 5-call lookup)
+  stayed in the main chat at 32k a turn, as the rule says; the saving shows only in long sessions,
+  so the measure stays 2026-11-29.
+
 ## Owner decision
 
 - 10: standing permission to commit, merge into the fork main and push once checks pass;
