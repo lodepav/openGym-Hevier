@@ -19,6 +19,16 @@ cross-session messages, compactions and "what's left / is it hanging" questions.
 
 ## Phase 0: cheap, no risk
 
+Done 2026-11-22: harness (reproduces the review within 1 %), 8, the node half of 3, and 9b as
+a hook. Found while measuring:
+- 3: the PATH prefix is on 5,987 main-chat calls, not 1,000. Node is already on PATH; flutter and
+  adb are not. Adding them to `~/.profile` needs the owner's OK (the edit was blocked).
+- 9b: exit 144 is not a hang. `pkill -f "x"` matches its own shell and kills it (reproduced).
+  `~/.claude/hooks/pkill-self.py` (PreToolUse) denies it and says to write `"[x]..."`.
+- 9a dropped: 18 status questions a month, too few for a skill change.
+- verify fails on clean hevier/main: `sibling_check` sees `-gpu host` here and none in
+  OpenBite's launcher, which boots through `emu` since 2026-11-21. Blocks every push.
+
 | # | Build | Test | Measure, success |
 |---|---|---|---|
 | 3 | Absolute PATH (node, flutter, platform-tools) in `~/.claude/settings.json` `env` | `node -v`, `flutter --version`, `adb version` in a fresh session without exports | Calls with `export PATH=` drop from >1,000/month to near 0; no "command not found" |
