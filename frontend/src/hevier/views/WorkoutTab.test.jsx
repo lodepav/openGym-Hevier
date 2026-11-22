@@ -290,6 +290,14 @@ describe('hevier: the routines list’s rows (D130)', () => {
     expect(container.querySelector('#where').textContent).toBe('/plan')
   })
 
+  it('Rotation and Explore are said with where they go, and a folder’s toggle is a heading (the eighth audit, 2026-11-22)', () => {
+    render([R('a')])
+    at()
+    expect([...container.querySelectorAll('.hv-rend button')].map(b => b.getAttribute('aria-label')).slice(2))
+      .toEqual(['Rotation, your weekly plan', 'Empty workout', 'Explore starter plans'])
+    expect(container.querySelector('.hv-ftoggle').parentElement.getAttribute('role')).toBe('heading')
+  })
+
   it('Empty workout starts a session with nothing in it', () => {
     render([R('a')])
     act(() => [...container.querySelectorAll('.hv-rend button')].find(b => b.getAttribute('aria-label') === 'Empty workout').click())

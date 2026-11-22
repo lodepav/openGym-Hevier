@@ -26,6 +26,11 @@ describe('Statistics tile numbers (D142)', () => {
     expect(weekExerciseTime(log, TODAY, 3)).toBe(0)
     expect(weekExerciseTime([plain('2026-11-17', [{ w: 60, r: 8, done: true }])], TODAY, 1)).toBe(0)
     expect(longestExercises(log, TODAY, 1).map(r => r.id)).toEqual([SQUAT])
+    // Sets ticked seconds apart give no average, so the card leaves the exercise out (the eighth critique, 2026-11-22).
+    const quick = timed('2026-11-16', 0.1, 20)
+    expect(longestExercises([quick], TODAY).map(r => r.id)).toEqual([SQUAT])
+    // The tile counts the same sessions: the bench ticked at once is left out of the week too.
+    expect(weekExerciseTime([quick], TODAY, 1)).toBe(20 * MIN)
   })
 
   it('body weight: the latest and its change from 4 weeks before it', () => {

@@ -1,16 +1,24 @@
 // The line under a workout's stats in sets mode (hevier/DECISIONS.md D18): "Chest 8 · Triceps 5",
 // each ticked work set once, for its exercise's main muscle, or a secondary one in part as
-// Settings → Muscle sets says (D42; hevier/lib/volume.js).
+// Settings → Muscle sets says (D42; hevier/lib/volume.js). The feed card shows the top three (the critique, 2026-11-22).
 import { fmtNum } from '../../lib/format.js'
 import { useStore } from '../../store/useStore.js'
 import { muscleSets, muscleMode } from '../lib/volume.js'
 import { muscleText } from '../lib/main-muscle.js'
 
-export default function MuscleLine({ entries, mode }) {
+// `top`: show only that many, the most sets first, and "+N" for the rest; TalkBack still hears every one.
+export default function MuscleLine({ entries, mode, top }) {
   const own = useStore(s => muscleMode(s.S))
   const list = muscleSets(entries, mode || own)
   if (!list.length) return null
-  return <div className="hv-mline">{list.map((m, i) => <span key={m.muscle}>
+  const cut = top > 0 && list.length > top
+  const shown = cut ? list.slice(0, top) : list
+  const line = shown.map((m, i) => <span key={m.muscle}>
     {i > 0 && ' · '}{muscleText(m.muscle)} <b>{fmtNum(m.sets)}</b>
-  </span>)}</div>
+  </span>)
+  if (!cut) return <div className="hv-mline">{line}</div>
+  return <div className="hv-mline">
+    <span aria-hidden="true">{line} · +{list.length - top}</span>
+    <span className="hv-sr">{list.map(m => muscleText(m.muscle) + ' ' + fmtNum(m.sets)).join(', ')}</span>
+  </div>
 }

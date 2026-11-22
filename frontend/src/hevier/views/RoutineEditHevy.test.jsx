@@ -8,6 +8,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
+import { modeOf } from '../../lib/history.js'
 import { hevierRoutes } from '../routes.jsx'
 import { tableShape } from '../lib/routine-table.js'
 import { loadOfRoutine } from '../../lib/muscles.js'
@@ -264,17 +265,42 @@ describe('hevier: routine editor (M3)', () => {
     vi.useRealTimers()
   })
 
-  // The audit leftovers, 2026-11-21: the body map was worked out again on every name written.
-  it('a new title, once written, does not work out the body map again', () => {
-    vi.useFakeTimers()
-    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+  // The eighth critique, 2026-11-22: the body map is the routine page's; the editor ends at its settings.
+  it('draws no body map and works none out', () => {
     const n = loadOfRoutine.mock.calls.length
-    expect(n).toBeGreaterThan(0)
-    typeInto(container.querySelector('.hv-rtitle'), 'Leg Day 2')
-    act(() => vi.advanceTimersByTime(500))
-    vi.useRealTimers()
-    expect(useStore.getState().S.routines[0].name).toBe('Leg Day 2')
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    expect(container.querySelector('.hv-rmap')).toBeNull()
     expect(loadOfRoutine.mock.calls.length).toBe(n)
+  })
+
+  it('says once on the first exercise what "–" under the weight means, gone after that visit (S.hvDashTipSeen)', () => {
+    const tip = () => [...container.querySelectorAll('.hv-rt-tip')].map(p => p.textContent)
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }, { id: EX, mode: 'reps', sets: 2, reps: 8 }])
+    expect(tip()).toEqual(['– opens at last time’s weight.'])
+    expect(container.querySelector('.hv-ex .hv-rt-tip').closest('.hv-ex')).toBe(container.querySelector('.hv-ex'))
+    expect(useStore.getState().S.hvDashTipSeen).toBeUndefined()
+    act(() => root.unmount()); container.remove(); root = null
+    expect(useStore.getState().S.hvDashTipSeen).toBe(true)
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }])
+    act(() => useStore.getState().update(s => { s.hvDashTipSeen = true }))
+    expect(tip()).toEqual([])
+    act(() => root.unmount()); container.remove(); root = null
+    // A routine with progression on opens at its rule, not last time's weight: no tip.
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }], { hvProg: true })
+    expect(tip()).toEqual([])
+  })
+
+  it('a first exercise with no weight column draws no tip, so leaving does not mark it seen', () => {
+    const run = EXDB.find(e => modeOf({ id: e.id }) === 'cardio').id
+    render([{ id: run, mode: 'cardio', sets: 1, min: 20 }, { id: EX, mode: 'reps', sets: 2, reps: 8 }])
+    expect(container.querySelector('.hv-rt-tip')).toBeNull()
+    act(() => root.unmount()); container.remove(); root = null
+    expect(useStore.getState().S.hvDashTipSeen).toBeUndefined()
+  })
+
+  it('a set’s type button says what it opens', () => {
+    render([{ id: EX, mode: 'reps', sets: 1, reps: 8 }])
+    expect(container.querySelector('.hv-rt-row:not(.hv-rt-head) .hv-set').getAttribute('aria-label')).toMatch(/, Set type$/)
   })
 
   // The fresh audit, 2026-11-21: each key in a set field redrew every exercise card.

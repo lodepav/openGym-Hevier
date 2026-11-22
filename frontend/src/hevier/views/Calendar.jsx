@@ -17,8 +17,9 @@ import PageBar from '../components/PageBar.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { streakLabel } from '../lib/streak.js'
 import { cameBack } from '../lib/came-back.js'
-import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, planKind, planTitle, openScroll } from '../lib/calendar.js'
+import { monthCells, monthsBack, workoutsByDay, restDays, dayMark, dayKind, dayTitle, drawnTitle, planKind, planTitle, openScroll } from '../lib/calendar.js'
 import { partOn } from '../lib/module-parts.js'
+import { useSlicedS } from './Statistics.jsx'
 
 const MORE = 6
 
@@ -58,10 +59,12 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
           : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} aria-current={iso === today ? 'date' : undefined}
             // The date and what the day holds, as Today's week strip says it: fill and dot colour alone (the audit, 2026-11-21).
             // A note-only day too (the second audit); a past planned day draws no mark (D68), so says none (the third).
-            aria-label={[fmtDate(iso, true), byDay[iso] ? t('Trained') : plan ? t('Planned') : mark === 'noted' ? t('Note') : '', title].filter(Boolean).join(', ')}
+            // Cardio and deload, trained or planned, which the colour alone carried (the eighth audit, 2026-11-22).
+            aria-label={[fmtDate(iso, true), byDay[iso] ? t('Trained') : plan ? t('Planned') : mark === 'noted' ? t('Note') : '',
+              ...[byDay[iso] ? kind : plan].map(k => (k === 'cardio' ? t('Cardio') : k === 'deload' ? t('Deload') : '')), title].filter(Boolean).join(', ')}
             onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
-            {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{title}</span>}
+            {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{drawnTitle(title)}</span>}
           </button>
       })}
     </div>
@@ -99,9 +102,15 @@ export default function Calendar() {
   return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
 }
 
+// What the months and the streak read (dayMark, planKind, streakLabel, partOn): another write leaves ~183 day buttons alone (the eighth audit, 2026-11-22).
+const READS = ['workouts', 'routines', 'dayPlan', 'week', 'queue', 'dayNotes', 'weekStart', 'modules', 'hvModuleParts', 'checkIn']
+
+/** Whether a line of text `font` px high, `height` px tall, has wrapped: two lines are over two em. */
+export const wrapped = (height, font) => font > 0 && height > 2 * font
+
 function CalendarPage() {
   const nav = useNavigate()
-  const st = useStore(s => s.S)
+  const st = useSlicedS(READS)
   const [view, setView] = useState('month')
   const today = todayISO()
   const now = new Date()
@@ -147,6 +156,16 @@ function CalendarPage() {
     grow.current = null
   }, [count])
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
+  // A streak line wrapped by a large text size scrolls with the months, under the pinned bar and
+  // Month/Year, which then take less of a short screen; one line stays pinned (the eighth critique, 2026-11-22).
+  const streakEl = useRef(null)
+  const [wraps, setWraps] = useState(false)
+  useLayoutEffect(() => {
+    const fit = () => { const el = streakEl.current; if (el) setWraps(wrapped(el.getBoundingClientRect().height, parseFloat(getComputedStyle(el).fontSize))) }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [view, rest])
 
   // The key scrolls with the months, under this one where the page opens: pinned, it took a large
   // share of a short screen at a big text size (the fresh audit, 2026-11-21).
@@ -157,17 +176,19 @@ function CalendarPage() {
     <span><i className="k-deload" />{t('Deload')}</span>
     <span><i className="k-plan" />{t('Planned')}</span>
   </div>
+  // The streak is Motivation's (D97); the rest days stay.
+  const streak = (partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak" ref={streakEl}>
+    {partOn(st, 'motivation', 'streak') ? <><Icon name="flame" /><span>{streakLabel(st)}</span></> : null}
+    {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
+  </div>
   return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
     {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
-    {/* The streak is Motivation's (D97); the rest days stay. */}
-    {(partOn(st, 'motivation', 'streak') || rest != null) && <div className="hv-cal-streak">
-      {partOn(st, 'motivation', 'streak') ? <><Icon name="flame" /><span>{streakLabel(st)}</span></> : null}
-      {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
-    </div>}
+    {!wraps && streak}
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
     </div>
+    {wraps && streak}
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
       {monthsBack(from.y, from.mo + ahead, count + ahead).reverse().map(m => <Month key={m.y + '-' + m.mo} {...m} st={st} byDay={byDay} today={today} />)}

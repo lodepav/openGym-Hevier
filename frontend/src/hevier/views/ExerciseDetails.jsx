@@ -77,7 +77,8 @@ function ExerciseFacts({ ex }) {
   const lines = [
     [t('Primary'), (primary && muscleText(primary)) || (other ? t(other) : '')],
     [t('Secondary'), secondary.map(muscleText).join(', ')],
-    [t('Equipment'), ex.eq ? t(ex.eq) : ''],
+    // The catalogue's word is lower case; a capital as the muscles beside it have (the critique, 2026-11-22).
+    [t('Equipment'), ex.eq ? t(ex.eq).replace(/^\p{Ll}/u, c => c.toUpperCase()) : ''],
   ].filter(([, v]) => v)
   return <div className="hv-xd-facts">{lines.map(([k, v]) => <span key={k}>{k}: {v}</span>)}</div>
 }
@@ -173,12 +174,14 @@ function Chart({ ex, sum, st }) {
   const points = useMemo(() => { const p = inRange(sum.series[on], range); return lb ? curveIn(p, on, sum.metric, w => shownWeight(st, ex.id, w)) : p }, [sum, on, range, lb]) // eslint-disable-line react-hooks/exhaustive-deps
   const cu = on === 'main' ? unitOf(sum.metric, unit) : unit
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
+  // A weight curve names its unit, the exercise's own (the critique, 2026-11-22); reps, holds and minutes say theirs in the title already.
+  const title = curves.find(c => c.value === on).title + (on !== 'main' || sum.metric === 'weight' ? ' (' + unit + ')' : '')
   return <section>
-    <div className="hv-xd-cap"><h4 className="sec">{curves.find(c => c.value === on).title}</h4>
+    <div className="hv-xd-cap"><h4 className="sec">{title}</h4>
       {/* Upstream's picker sheet, not a native select's white system list (the fresh audit, 2026-11-21). */}
       <MenuButton className="hv-xd-range" title={t('Range')} value={range} onChange={setRange}
         options={[{ value: '3m', label: t('Last 3 months') }, { value: '1y', label: t('Year') }, { value: 'all', label: t('All time') }]} /></div>
-    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', curves.find(c => c.value === on).title)}><LineChart points={points} h={150} unit={cu} /></div>
+    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', title)}><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}

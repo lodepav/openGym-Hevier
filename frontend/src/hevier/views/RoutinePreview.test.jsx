@@ -86,6 +86,18 @@ describe('Routine page (D37, D128)', () => {
     expect(nums()[0].parentElement.textContent).toMatch(/^Next: – × \d+$/)   // and no unit after the dash (the critique, 2026-11-21)
   })
 
+  it('a bodyweight set shows "+" only before an added weight; no weight is said so, not underlined (the eighth critique, 2026-11-22)', () => {
+    render([{ ...PLAN[0], warmupSets: 0, weight: 0, bodyweight: true }])
+    expect(nums()[0].parentElement.textContent).toMatch(/^Next: – × 5$/)
+    expect(nums()[0].getAttribute('aria-label')).toMatch(/, Set 1, no weight$/)
+    expect(nums()[0].className).toContain('none')
+    act(() => root.unmount()); container.remove()
+    render([{ ...PLAN[0], warmupSets: 0, weight: 10, bodyweight: true }])
+    expect(nums()[0].parentElement.textContent).toMatch(/^Next: \+10 kg × 5$/)
+    expect(nums()[0].getAttribute('aria-label')).toMatch(/, Set 1, Weight 10 kg$/)
+    expect(nums()[0].className).not.toContain('none')
+  })
+
   it('opens from the routine name on Routines', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/routines')
     act(() => byText('button.hv-rname', 'Leg Day').click())

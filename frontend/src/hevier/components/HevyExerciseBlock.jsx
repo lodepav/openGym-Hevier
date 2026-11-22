@@ -370,8 +370,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
     if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, modeAt(s))} {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(modeAt(s), sec)) }} />
-    // A grey weight of nothing (a lift last logged without one) reads "–", as PREVIOUS's "× 10" does, not "0".
-    const noWeight = !firm && col.f === 'w' && !(Number(src.w) > 0)
+    // A weight of nothing (a lift last logged without one) reads "–", as PREVIOUS's "× 10" does, not "0": grey, and ticked too.
+    const noWeight = (!firm || src.done) && col.f === 'w' && !(Number(src.w) > 0)
     return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={noWeight ? '–' : boxOf(col, src[col.f], typed) ?? ''}
       {...hintProps}
       aria-label={fieldName(s, i, col, side)}
@@ -413,13 +413,15 @@ function HevyExerciseBlock({ entryIdx, live }) {
       </>)
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
-      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : v == null ? t(effortCol.hd) : effortKind === 'rir' ? (v === 1 ? t('1 rep in reserve') : t('{0} reps in reserve', fmtNum(v))) : t(effortCol.hd) + ' ' + fmtNum(v))}
       style={color && v != null ? { color: effortInk(color), background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
   }
 
   const swipeOn = !!(controls.swipeSets && onCopySetAt && onRemoveSetAt)
+  // The workout's hint on PREVIOUS and the swipe goes once either is first used (HevyWorkout.jsx).
+  const tipSeen = () => { if (!useStore.getState().S.hvSetTipSeen) update(st => { st.hvSetTipSeen = true }) }
   const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span>
     : isHoldRow(s) ? <span className="hv-hold">{workNumber(i)}<Icon name="timer" /></span> : workNumber(i))
@@ -522,8 +524,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
       onClick={e => { if (onOpen && !e.target.closest?.('.hv-chk, .hv-eff')) onOpen(i) }}
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (isOpenAt(i) ? ' hv-open' : '')}>
       {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
-      <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
-        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevSaid : undefined}>
+      <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => { copyPrev(i, p, side); tipSeen() }}
+        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevSaid : !p ? t('No previous set') : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
@@ -547,7 +549,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
     return <SwipeRowLive canDelete={editing || entry.sets.length > count}
       onDelete={() => onRemoveSetAt(i)} onCopy={() => onCopySetAt(i)}
       onBlocked={() => useUI.getState().toast(t('Keep at least one set, champ'))}
-      onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }) }}
+      onStart={() => { if (useUI.getState().swipeHint) setUI({ swipeHint: null }); tipSeen() }}
       closeKey={[entry.sets.length, s.done ? 1 : 0, count === 2 && entry.sets[from + 1]?.done ? 1 : 0,
         s.sides?.L?.done ? 1 : 0, s.sides?.R?.done ? 1 : 0].join('|')}
       flash={setFlash && mine(setFlash.i) ? setFlash.id : 0}

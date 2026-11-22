@@ -84,6 +84,7 @@ describe('hevier: strength levels list', () => {
     const secs = [...container.querySelectorAll('h2.sec')].map(h => h.textContent)
     expect(secs).toEqual(['Intermediate · 1', 'No 1RM logged yet · 1'])
     expect(container.textContent).toContain('15 kg to Advanced')
+    expect(container.querySelector('.hv-report-row b[role="img"]').getAttribute('aria-label')).toMatch(/^best 1RM \d+(\.\d+)? kg$/)
     expect(container.querySelector('.hv-sl-add').className).toBe('btn hv-sl-add')   // with a list, quieter
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)

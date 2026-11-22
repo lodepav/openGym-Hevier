@@ -107,7 +107,7 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(rows.map(r => r.querySelector('.hv-xd-new')?.textContent)).toEqual(['new', 'new'])
     // The chart comes before the long list of rep counts (the critique, 2026-11-21).
     const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
-    expect(heads).not.toContain('Heaviest Weight')
+    expect(heads).not.toContain('Heaviest Weight (kg)')
     // Under three sessions there is no curve, and a line would repeat the Heaviest tile: no chart section (the critiques, 2026-11-21).
     expect(container.querySelector('.hv-xd-chart')).toBeNull()
     expect(container.querySelector('.hv-xd-range')).toBeNull()
@@ -139,8 +139,9 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(container.querySelector('.hv-xd-chart')).toBeTruthy()
     // The chart comes before the long list of rep counts (the critique, 2026-11-21).
     const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
-    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
-    expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
+    expect(heads).toContain('Heaviest Weight (kg)')   // the unit in the title (the critique, 2026-11-22)
+    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight (kg)'))
+    expect(heads.indexOf('Heaviest Weight (kg)')).toBeLessThan(heads.indexOf('Best at each rep count'))
   })
 
   it('a reps-only set on the last sessions reads “8 reps”, not “× 8”', () => {
@@ -318,7 +319,7 @@ describe('hevier: exercise details (seam S10)', () => {
   it('names the main muscle, the others and the equipment under the picture, on one line', () => {
     open(log)
     const lines = [...container.querySelectorAll('.hv-xd-facts span')].map(s => s.textContent)
-    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Front delts', 'Equipment: barbell'])
+    expect(lines).toEqual(['Primary: Chest', 'Secondary: Triceps, Front delts', 'Equipment: Barbell'])
   })
 
   it('without the hook it is upstream’s sheet', () => {

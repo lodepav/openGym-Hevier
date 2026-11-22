@@ -111,6 +111,43 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.textContent).not.toContain('PRs')
   })
 
+  it('each number says its change in words, and the month opens a list of months to jump to (the eighth round, 2026-11-22)', () => {
+    render('/report', log)
+    const vs = MONTHS_LONG[before.mo]
+    expect(stat('Workouts').getAttribute('aria-label')).toBe(`Workouts, 2, 1 more than ${vs}`)
+    expect(stat('Duration').getAttribute('aria-label')).toBe(`Duration, 2 hours, 1 hour more than ${vs}`)
+    expect(stat('Sets').getAttribute('aria-label')).toBe(`Sets, 5, 4 more than ${vs}`)
+    act(() => container.querySelector('.hv-report-mt').click())
+    // The sheet on top, as the app's sheet host draws it.
+    const host = document.createElement('div')
+    const sheet = createRoot(host)
+    act(() => sheet.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const items = [...host.querySelectorAll('.menu-item')]
+    expect(items.map(i => i.querySelector('.tt').textContent)).toEqual([`${MONTHS_LONG[last.mo]}, selected`, vs])
+    act(() => items[1].click())
+    act(() => sheet.unmount())
+    expect(container.querySelector('.hv-report-bar h2').textContent).toContain(vs)
+    expect(stat('Workouts').getAttribute('aria-label')).toBe(`Workouts, 1, 1 more than ${MONTHS_LONG[(before.mo + 11) % 12]}`)
+  })
+
+  it('a jump to another month folds its PR list back to five rows (the eighth review, 2026-11-22)', () => {
+    const six = EXDB.filter(e => /^barbell /i.test(e.n)).slice(0, 6).map(e => e.id)
+    const day = (d, w) => ({ ...W(d, []), entries: six.map(id => ({ id, sets: [{ w, r: 5, done: true }] })) })
+    // The first month sets no records, so three months: the two after it each beat six.
+    render('/report', [day(month(-3).iso(5), 50), day(before.iso(5), 60), day(last.iso(5), 70)])
+    const more = () => container.querySelector('.hv-report-more')
+    act(() => more().click())
+    expect(more()).toBeNull()
+    act(() => container.querySelector('.hv-report-mt').click())
+    const host = document.createElement('div')
+    const sheet = createRoot(host)
+    act(() => sheet.render(useUI.getState().sheets.at(-1).render(() => {})))
+    act(() => [...host.querySelectorAll('.menu-item')][1].click())
+    act(() => sheet.unmount())
+    expect(container.querySelector('.hv-report-bar h2').textContent).toContain(MONTHS_LONG[before.mo])
+    expect(more().textContent).toMatch(/^Show all \(\d+\)$/)
+  })
+
   it('lists the records one row per exercise, each kind once with how often it was beaten', () => {
     const rec = (id, kind, v, d) => ({ id, kind, v, d })
     const rows = byExercise([

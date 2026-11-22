@@ -43,7 +43,7 @@ import { exUnitOf, shown as inUnit } from '../lib/ex-unit.js'
 import { pastSwaps, doneHere } from '../lib/swap-history.js'
 
 const PAGE = 50
-const RECENT = 10   // as many as Recent Exercises lists
+const RECENT = 10   // as many as Recent exercises lists
 const GYM = '@'   // the equipment filter's "what this gym has" (D62); the gym is `gymId`
 
 // What "Add superset" links into: { items() -> the list the picks were added to, end() -> the
@@ -115,7 +115,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   if (byBrand.length) list = [...byBrand.map(m => m.ex), ...list.filter(e => !brandOf.has(e.id))]
   // Same equipment first on a swap: a taken machine is usually swapped for the same kind of kit.
   if (likeEx?.eq && !q.trim()) list = [...list].sort((a, b) => Number(b.eq === likeEx.eq) - Number(a.eq === likeEx.eq))
-  // Browsing (nothing typed or narrowed) shows Recent Exercises above everything.
+  // Browsing (nothing typed or narrowed) shows Recent exercises above everything.
   const browsing = !q.trim() && !muscle && (eq === '' || eq === GYM)
   const recent = browsing && !hist
     ? recentIds(st).map(id => EXIDX[id] || all.find(e => e.id === id)).filter(e => e && e.id !== like && !e.missing)
@@ -237,10 +237,10 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       {!(swap && closeMatches.length) && <p className="small dim hv-pk-why">{suggestWhy}</p>}
       <div className="list">{suggested.map(e => row(e, 's'))}</div>
     </section>}
-    {recent.length > 0 && <><Sec className="sec">{t('Recent Exercises')}</Sec><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
+    {recent.length > 0 && <><Sec className="sec">{t('Recent exercises')}</Sec><div className="list">{recent.map(e => row(e, 'r'))}</div></>}
     {/* D67: every match hidden by the gym, the hidden line comes first, clear of the keyboard */}
     {!(list.length === 0 && hidden.length > 0) && <>
-      <Sec className="sec">{browsing ? t('All Exercises') : tn('{0} exercise', '{0} exercises', list.length)}</Sec>
+      <Sec className="sec">{browsing ? t('All exercises') : tn('{0} exercise', '{0} exercises', list.length)}</Sec>
       <div className="list">
         {list.slice(0, shown).map(e => row(e, 'a'))}
         {list.length === 0 && <div className="empty">{t('No exercises found')}

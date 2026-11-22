@@ -137,9 +137,24 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows).not.toContain('Body weight')   // D134: Today has no card to switch
     expect(hiddenSetting({ page: 'look', title: 'Accent color' })).toBe(true)
     act(() => root.unmount()); container.remove()
+    render(null, { accent: 'custom', accentCustom: '#008cff' })
+    const row = name => [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes(name))
+    // The fork's accent and the body diagram, not the theme (review S5; the accent, the eighth critique, 2026-11-22).
+    expect(row('Look & Home').textContent).toBe('Look & HomeBlue · Male body')
+    // The version is the footer's alone; the schedule in sentence case (the eighth critique).
+    expect(row('About').querySelector('.lrow-v')).toBeNull()
+    expect(row('Plan & schedule').textContent).toMatch(/^Plan & scheduleFixed week · (Mon|Sun)$/)
+  })
+
+  it('the Volume sheet says what Secondary muscles too changes (the eighth critique, 2026-11-22)', () => {
     render(null)
-    const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
-    expect(look.textContent).toBe('Look & HomeBody diagram · Male') // the body diagram, not the theme (review S5)
+    act(() => [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Volume')).click())
+    const host = document.createElement('div')
+    const sheet = createRoot(host)
+    act(() => sheet.render(useUI.getState().sheets.at(-1).render(() => {})))
+    const share = [...host.querySelectorAll('.menu-item')].find(i => i.textContent.includes('Secondary muscles too'))
+    expect(share.querySelector('.ss').textContent).toBe('A set also counts in part for each muscle that helps.')
+    act(() => sheet.unmount())
   })
 
   it('Gyms & equipment: the gyms, no filter switch or active profile (D62)', () => {

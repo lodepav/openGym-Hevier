@@ -14,8 +14,12 @@ import { EXDB } from '../../lib/exercises.js'
 import { todayISO, isoOf } from '../../lib/format.js'
 import { hevierRoutes, HevyTabBar } from '../routes.jsx'
 import { hooks } from '../hooks.js'
+import { initWeighInSource } from '../lib/weigh-in-source.js'
+import { shown } from '../lib/stats-layout.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
+// Counted, to show which writes draw the page again (useSlicedS, the eighth review, 2026-11-22).
+vi.mock('../lib/stats-layout.js', async orig => { const m = await orig(); return { ...m, shown: vi.fn(m.shown) } })
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
 
@@ -59,7 +63,7 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
     const hours = container.querySelector('[data-tile="hours"]')
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
-    expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h this week')
+    expect(hours.getAttribute('aria-label')).toBe('Training time, 1 h in workouts this week')
     // Tile = now, card = more: the weekly chart does not repeat this week's time.
     expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
     // One heading style: the chart's title is headed as the cards' heads are.
@@ -73,6 +77,17 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
+  })
+
+  it('a write to a field the page reads draws it again; another write does not (useSlicedS)', () => {
+    render(['/stats'], { workouts: [workout(todayISO())], bodyweight: [{ d: daysAgo(1), w: 82.4 }] })
+    const tile = () => container.querySelector('[data-tile="weight"]').getAttribute('aria-label')
+    expect(tile()).toBe('Body weight, 82.4 kg')
+    act(() => useStore.getState().update(s => { s.unit = 'lb' }))
+    expect(tile()).toBe('Body weight, 82.4 lb')
+    const n = shown.mock.calls.length
+    act(() => useStore.getState().update(s => { s.restSec = 123 }))
+    expect(shown.mock.calls.length).toBe(n)
   })
 
   it('a weigh-in brings the Body weight tile and card; the tile says its change and opens Measures', () => {
@@ -178,6 +193,30 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub').textContent).toBe('None yet')
     act(() => byText('.hv-linkrow', 'Body measurements').click())
     expect(path).toBe('/measurements')
+  })
+
+  it('Measures: headings name each part; the chart says its last weight and change; the empty well logs one (the eighth round, 2026-11-22)', () => {
+    const ago = days => isoOf(new Date(Date.now() - days * 86400000))
+    render(['/measures'], { bodyweight: [{ d: ago(30), w: 82 }, { d: todayISO(), w: 80.5 }] })
+    expect([...container.querySelectorAll('h2')].map(h => h.textContent)).toEqual(['Body weight', 'Recent weigh-ins', 'Body'])
+    expect(container.querySelector('.chart').getAttribute('aria-label')).toBe('Body weight chart, 80.5 kg, down 1.5 kg in 90 days')
+    act(() => root.unmount()); container.remove()
+    render(['/measures'])
+    const well = container.querySelector('.hv-ms-empty')
+    expect(well.tagName).toBe('BUTTON')
+    act(() => well.click())
+    expect(useUI.getState().sheets).toHaveLength(1)
+  })
+
+  it('Measures: with weigh-ins from Health Connect the empty well names it, with no Log', async () => {
+    await initWeighInSource(() => ({ readWeight: true }), () => {})
+    try {
+      render(['/measures'])
+      expect(byText('button', 'Log')).toBeUndefined()
+      expect(container.textContent).toContain('From Health Connect')
+      expect(container.querySelector('.hv-ms-empty').tagName).toBe('DIV')
+      expect(container.querySelector('.hv-ms-empty').textContent).toBe('No weigh-ins yet. They come from Health Connect.')
+    } finally { await initWeighInSource(() => ({ readWeight: false }), () => {}) }
   })
 
   // The audit, 2026-11-21: with a goal set the button shows the number and says what it is.

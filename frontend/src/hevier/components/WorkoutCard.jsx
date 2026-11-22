@@ -1,5 +1,5 @@
 // A finished workout as a Hevy feed card (reference/SCREENS.md §4): title, its gym (D94) and OpenBite's
-// phase (D93), its note, date, Time · Volume · Records, then the first exercises with their set counts. Tapping it opens the workout's details
+// phase (D93), its note, date, Time · Volume · Records, the top three muscles in sets mode, then the first exercises with their set counts. Tapping it opens the workout's details
 // (the fork's Workout Detail, seam S14); ⋯ offers Hevy's four actions, each the one upstream's details sheet runs.
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
@@ -29,6 +29,8 @@ import { partOn } from '../lib/module-parts.js'
 
 const SHOWN = 3
 const toast = msg => useUI.getState().toast(msg)
+// As Today's last-workout card writes it, said the same (the critique, 2026-11-22).
+const recordsText = n => (n === 1 ? t('1 record') : t('{0} records', n))
 
 // The actions of upstream's WorkoutDetail (sheets.jsx), with its wording and its confirms. `extra`
 // items go last (Workout Detail's All details).
@@ -90,7 +92,7 @@ export default function WorkoutCard({ w }) {
     <div className="hv-wcard-h">
       {/* Time, sets (or volume), records and heart rate ride on the date line: two rows less a card (the critique, 2026-11-21). */}
       <div className="hv-wcard-who"><span className="hv-wcard-d">{workoutWhenText(w)} · {workoutTimeText(w)} · {mode === 'weight' ? fmtVol(volume, unit) : tn('{0} set', '{0} sets', workSets(w.entries))}
-        {prs > 0 && <> · <span className="hv-pr" role="img" aria-label={t('Records') + ' ' + prs}><Icon name="trophy" />{prs}</span></>}
+        {prs > 0 && <> · <span className="hv-pr"><Icon name="trophy" />{recordsText(prs)}</span></>}
         {hr && <> · <span className="hv-wcard-hr" role="img" aria-label={t('Heart rate') + ' ' + hr.avg}><Icon name="heart" />{hr.avg}</span></>}</span></div>
       {shareOn && <button type="button" className="iconbtn" aria-label={t('Share workout') + ', ' + (w.name || t('Workout'))}
         onClick={e => { e.stopPropagation(); shareWorkoutSheet(w) }}><Icon name="share" /></button>}
@@ -104,7 +106,7 @@ export default function WorkoutCard({ w }) {
       {phase && <span>{t(PHASE_LABEL[phase])}</span>}
     </div>}
     {w.note && <p className="hv-wcard-note">{w.note}</p>}
-    {mode === 'sets' && <MuscleLine entries={w.entries} />}
+    {mode === 'sets' && <MuscleLine entries={w.entries} top={3} />}
     {entries.slice(0, SHOWN).map((e, i) => {
       const ex = EXIDX[e.id]
       const n = workSets([e])
@@ -115,7 +117,7 @@ export default function WorkoutCard({ w }) {
         {/* The count, the name, then a muted "warm-up": "(Warm-up)" between them split the two (the sixth audit, 2026-11-22). */}
         <span className="grow"><b>{tn('{0} set', '{0} sets', warm || n)}</b> <span className={exerciseNameClass(ex)}>{ex ? exerciseNameFor(ex) : (e.n || e.id)}</span>
           {warm > 0 && <span className="dim"> · {t('warm-up')}</span>}</span>
-        {prOf(e) > 0 && <span className="hv-pr" role="img" aria-label={t('Records') + ' ' + prOf(e)}><Icon name="trophy" />{prOf(e)}</span>}
+        {prOf(e) > 0 && <span className="hv-pr"><Icon name="trophy" />{recordsText(prOf(e))}</span>}
       </div>
     })}
     {entries.length > SHOWN && <div className="hv-wcard-more">{t('See more: {0}', exCount(entries.length - SHOWN))}</div>}

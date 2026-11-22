@@ -8,7 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
-import { exerciseNameText } from '../../lib/format.js'
 import { setNav } from '../../lib/nav.js'
 import { workoutDetailSheet } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
@@ -89,7 +88,8 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
     // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).
     const thumb = page.querySelector('.hv-wd-ex button.hv-thumb')
-    expect(thumb.getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameText(BENCH))   // the fifth audit, 2026-11-21
+    // Out of TalkBack's order, since the name opens the same page (the round-8 audit, 2026-11-22).
+    expect([thumb.getAttribute('aria-hidden'), thumb.getAttribute('tabindex')]).toEqual(['true', '-1'])
     const before = useUI.getState().sheets.length
     act(() => thumb.click())
     expect(useUI.getState().sheets.length).toBe(before + 1)
@@ -136,7 +136,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(rows[2].firstChild.className).toBe('hv-wd-h')
     // Spoken as words, not letters (the audit, 2026-11-21).
     expect([rows[0], rows[2]].map(r => [r.firstChild.getAttribute('role'), r.firstChild.getAttribute('aria-label')])).toEqual([['img', 'Warm-up'], ['img', 'Hold']])
-    expect(rows[1].firstChild.getAttribute('aria-label')).toBeNull()
+    expect(rows[1].firstChild.getAttribute('aria-label')).toBe('Set 1')   // not a bare "1" (the round-8 audit, 2026-11-22)
     expect(rows[2].textContent).toContain('0:30')
   })
 

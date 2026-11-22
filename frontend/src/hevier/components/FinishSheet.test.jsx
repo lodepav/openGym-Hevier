@@ -138,6 +138,8 @@ describe('hevier Finish sheet (D132)', () => {
   it('a duration changed on the sheet is the saved workout’s', () => {
     render()
     const el = finish()
+    // Spaced as the rest dock's "+1 min" writes it (the eighth critique, 2026-11-22).
+    expect(el.querySelector('.hv-fin-durbtn').textContent).toBe('45 min')
     act(() => el.querySelector('.hv-fin-durbtn').click())
     const [h, m] = el.querySelectorAll('.hv-fin-min')
     expect(h.value).toBe('0')

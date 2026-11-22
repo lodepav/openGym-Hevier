@@ -5,7 +5,7 @@
 // has run, passing this screen its own handlers. Nothing here writes the session except through
 // those handlers and upstream's sheets, so finishing, discarding, rest and progression are
 // upstream's, unchanged.
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -37,6 +37,7 @@ import { propsSig } from '../lib/card-state.js'
 import { weightDecimals } from '../../lib/format.js'
 import { isPaused, canPause, pauseWorkout, resumeWorkout } from '../../lib/workout-pause.js'
 import { nextAfterRest } from '../lib/next-after-rest.js'
+import { workoutControls } from '../../lib/workout-controls.js'
 
 // The rest whose end last brought the next exercise up: a page shown again over a rest still at
 // its end does not scroll a second time.
@@ -227,9 +228,12 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
 
-    {A.entries.length ? units.map(u => <section key={u.join('-')} className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
+    {A.entries.length ? units.map((u, n) => <Fragment key={u.join('-')}><section className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
       {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
-    </section>) : <div className="hv-empty">
+    </section>
+      {/* The two quick paths, said under the first table until one is first used (S.hvSetTipSeen, the eighth critique, 2026-11-22). */}
+      {n === 0 && !S.hvSetTipSeen && <p className="small dim hv-set-tip">{workoutControls(S).swipeSets ? t('Tap PREVIOUS to copy it, swipe a set for more.') : t('Tap PREVIOUS to copy it.')}</p>}
+    </Fragment>) : <div className="hv-empty">
       <Icon name="dumbbell" />
       <b>{t('Get started')}</b>
       <span>{t('Add an exercise to start your workout')}</span>

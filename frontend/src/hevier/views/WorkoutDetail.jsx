@@ -12,7 +12,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, fmtNum, exerciseNameText } from '../../lib/format.js'
+import { fmtVol, fmtNum } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { sessionSections, sessionVolume, EFFORT } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
@@ -78,7 +78,8 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
   const anyHr = rows.some(r => sanitizeHr(r.hr))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
-      {ex ? <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      {/* Out of TalkBack's way: the name beside it opens the same page (the round-8 audit, 2026-11-22); still a touch target. */}
+      {ex ? <button type="button" className="hv-thumb" aria-hidden="true" tabIndex={-1} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
         : <span className="hv-thumb" />}
       {/* Under the "Workout" h3, so a level below it (the fifth audit, 2026-11-21). */}
       <span role="heading" aria-level="4" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
@@ -100,9 +101,9 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
         const effort = effortShown(row.effort, scale)
         return <Fragment key={i + (row.side || '')}><div className="hv-wd-row">
           {/* W for a warm-up, H for a hold (D89), else the set's number among the rep sets; once a set. */}
-          {/* TalkBack says the word, not the letter (the audit, 2026-11-21). */}
+          {/* TalkBack says the word, not the letter (the audit, 2026-11-21), and "Set 1", not a bare "1" (the round-8 audit, 2026-11-22). */}
           {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}
-            {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : {})}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
+            {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : mark ? { role: 'img', 'aria-label': t('Set {0}', mark) } : {})}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
           {/* A record says more than an arrow: the set shows only its badge (D66). */}
           <span className="hv-wd-v">{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}
             {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}<Trend v={trend} /></span>

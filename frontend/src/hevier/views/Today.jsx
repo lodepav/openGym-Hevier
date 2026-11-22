@@ -72,15 +72,21 @@ function NextCard({ S, next, today }) {
 }
 
 function Week({ S, today }) {
+  const update = useStore(s => s.update)
   const days = weekStrip(S, today)
   const word = d => (d.kind === 'done' ? t('Done') : d.kind === 'plan' ? d.name : d.kind === 'missed' ? t('{0}, not done', d.name)
     : d.kind === 'rest' ? t('rest') : t('Nothing planned'))
-  return <div className="hv-tweek" role="group" aria-label={t('This week')}>{days.map(d =>
-    <button key={d.iso} type="button" className={'hv-tday ' + d.kind + (d.next ? ' next' : '') + (d.iso === today ? ' today' : '')}
-      aria-label={fmtDate(d.iso, true) + ', ' + word(d)} aria-current={d.iso === today ? 'date' : undefined} onClick={() => dayOverrideSheet(d.iso)}>
-      <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' || d.kind === 'missed' ? d.short : d.kind === 'rest' ? t('rest') : '–'}</b>
-      <span aria-hidden="true">{t(DAYS[d.day])}</span>
-    </button>)}</div>
+  const open = iso => { if (!S.hvDayTapSeen) update(s => { s.hvDayTapSeen = true }); dayOverrideSheet(iso) }
+  return <>
+    <div className="hv-tweek" role="group" aria-label={t('This week')}>{days.map(d =>
+      <button key={d.iso} type="button" className={'hv-tday ' + d.kind + (d.next ? ' next' : '') + (d.iso === today ? ' today' : '')}
+        aria-label={fmtDate(d.iso, true) + ', ' + word(d)} aria-current={d.iso === today ? 'date' : undefined} onClick={() => open(d.iso)}>
+        <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' || d.kind === 'missed' ? d.short : d.kind === 'rest' ? t('rest') : '–'}</b>
+        <span aria-hidden="true">{t(DAYS[d.day])}</span>
+      </button>)}</div>
+    {/* The days open a sheet, said until the first tap on one (S.hvDayTapSeen), as Lifts' totals hint is (the critique, 2026-11-22). */}
+    {!S.hvDayTapSeen && <p className="small dim hv-tweek-hint">{t('Tap a day to plan or rest it')}</p>}
+  </>
 }
 
 function LastWorkout({ S, w }) {

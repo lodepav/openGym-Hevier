@@ -6,7 +6,7 @@
 // in S.hvLiftsBy; under By muscle each group's header carries its change and how many of its lifts
 // are rising, an isolation lift counting half (D141). A row opens the exercise's details the way the library's rows do (seam S10). The
 // list is hevier/lib/lifts-list.js, the progress hevier/lib/lift-progress.js.
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -57,8 +57,9 @@ const SPAN_FLAT = {
   phase: 'estimated 1RM {0} {1} in this phase',
   all: 'estimated 1RM {0} {1} over all your workouts',
 }
-// One colour per machine label, the most recent first (D82); shortcut: a fourth label is not drawn, until someone logs one lift on four.
-const LINE_TONES = ['var(--acc)', 'var(--yellow)', 'var(--label-2)']
+// One colour per machine label, the most recent first (D82), none of them a meaning colour (yellow is a record's; the round-8 audit, 2026-11-22);
+// shortcut: a fourth label is not drawn, until someone logs one lift on four.
+const LINE_TONES = ['var(--acc)', 'var(--label)', 'var(--label-2)']
 
 const pctText = pct => (pct == null ? null : (signed(pct)?.text ?? '0') + '%')
 const pctSpoken = pct => (pct == null ? null : pct > 0 ? t('up {0} %', pct) : pct < 0 ? t('down {0} %', -pct) : t('no change'))
@@ -85,16 +86,14 @@ function LiftChart({ lines, tones }) {
   </svg>
 }
 
-function LiftRow({ r, S, today, p, win, half }) {
-  const ex = exOr(r.id)
-  const muscle = mainMuscleOf(ex)
-  const unit = exUnitOf(S, r.id)
-  // A set as the workout's PREVIOUS column writes it, without the unit, in the exercise's own (D41),
-  // without the effort, a per-side set as two lines, L over R.
+// Memoised on what it draws, not on S, so a write elsewhere does not redraw every row (the round-8 audit, 2026-11-22):
+// `name` and `muscle` carry the renames and main-muscle choices, `lang` a language switch.
+const LiftRow = memo(function LiftRow({ r, ex, name, muscle, unit, profileUnit, speedUnit, today, p, win, half }) {
+  // A set as the workout's PREVIOUS column writes it, in the exercise's own unit (D41), the unit written only when it
+  // is not the profile's, as Today's card does (the round-8 critique, 2026-11-22); without the effort, a per-side set as two lines, L over R.
   // The set is converted whole, so a per-side set, a hold and a carry follow the unit too. No weight reads "12 reps".
-  const text = set => liftSetText(mapSetWeights(set, w => shown(w, S.unit, unit)),
-    { mode: r.mode, bw: isBw({ id: r.id }), unit: '', id: r.id, target: r.target, speedUnit: speedUnitOf(S) })
-  const name = exerciseNameFor(ex)
+  const text = (set, u = unit !== profileUnit ? unit : '') => liftSetText(mapSetWeights(set, w => shown(w, profileUnit, unit)),
+    { mode: r.mode, bw: isBw({ id: r.id }), unit: u, id: r.id, target: r.target, speedUnit })
   const sub = [muscle && muscleText(muscle), r.d && fmtDaysAgo(r.d, today)].filter(Boolean).join(' · ')
   const lines = (p?.lines || []).slice(0, LINE_TONES.length)
   const tones = lines.length > 1 ? LINE_TONES : [p?.state === 'rising' ? 'var(--acc)' : p?.state === 'falling' ? 'var(--hv-fail,var(--red))' : 'var(--label-2)']
@@ -118,15 +117,16 @@ function LiftRow({ r, S, today, p, win, half }) {
     {r.newBest ? <small className="hv-pr"><Icon name="trophy" />{bestWord}</small>
       : r.best && <small>{t('best {0}', text(r.best))}</small>}
   </span>
-  const spoken = s => s.replace(/\n/g, ', ')
+  // Spoken always with its unit: TalkBack has no column head to lean on (the round-8 critique, 2026-11-22).
+  const spoken = set => text(set, unit).replace(/\n/g, ', ')
   const label = [
     name, sub,
-    said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], S.unit) : t(SPAN[win], said[0], said[1], S.unit)),
+    said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], profileUnit) : t(SPAN[win], said[0], said[1], profileUnit)),
     p?.state && t(WORD[p.state]),
     pctSpoken(pct),
     ...(lines.length > 1 ? lines.map(l => [brand(l), pctSpoken(shownPct(l.state, l.pct))].filter(Boolean).join(' ')) : []),
-    r.last && t('last {0}', spoken(text(r.last))),
-    r.newBest ? bestWord : r.best && t('best {0}', spoken(text(r.best))),
+    r.last && t('last {0}', spoken(r.last)),
+    r.newBest ? bestWord : r.best && t('best {0}', spoken(r.best)),
     half && t('isolation, counts half in its group'),
   ].filter(Boolean).join(', ')
   return <button type="button" className="item hv-lift" aria-label={label} onClick={() => exerciseDetailSheet(ex)}>
@@ -153,7 +153,7 @@ function LiftRow({ r, S, today, p, win, half }) {
       </span>)}</span>}
     </span>
   </button>
-}
+})
 
 // A muscle group's header (D141): its lifts' state as the rows draw theirs, the weighted change
 // beside it unless it points the other way or the group holds (shownPct), and how many of its lifts are rising; no
@@ -224,9 +224,10 @@ export default function Lifts() {
     <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search exercises')} aria-label={t('Search exercises')} value={q} onChange={e => setQ(e.target.value)} />
       {q && <button type="button" className="clear" onClick={() => setQ('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
+    <span id="hv-lifts-by-l" className="hv-sr">{t('Order')}</span>
     {rows.length > 0 && <span id="hv-lifts-win-l" className="hv-sr">{t('Time window')}</span>}
     <div className="hv-lifts-ctl">
-      <Segmented className="hv-lifts-by" value={by} onChange={v => update(s => { s.hvLiftsBy = v })}
+      <Segmented className="hv-lifts-by" ariaLabelledby="hv-lifts-by-l" value={by} onChange={v => update(s => { s.hvLiftsBy = v })}
         options={[{ value: 'recent', label: t('Recent') }, { value: 'muscle', label: t('By muscle') }]} />
       {rows.length > 0 && <Segmented className="hv-lifts-win" ariaLabelledby="hv-lifts-win-l" value={win} onChange={v => update(s => { s.hvLiftsWindow = v })}
         options={[{ value: '12w', label: t('12 weeks') }, phase && { value: 'phase', label: t('Phase') }, { value: 'all', label: t('All') }].filter(Boolean)} />}
@@ -247,8 +248,11 @@ export default function Lifts() {
     </>}
     {sections.map(sec => <section key={sec.key}>
       {by === 'muscle' ? <GroupHead label={muscleText(sec.label)} ids={sec.ids} progress={progress} /> : <h2 className="sec">{t(sec.label)}</h2>}
-      <div className="list hv-flat">{sec.rows.map(r => <LiftRow key={r.id} r={r} S={S} today={today} p={progress.get(r.id)} win={win}
-        half={by === 'muscle' && !isCompound(exOr(r.id))} />)}</div>
+      <div className="list hv-flat">{sec.rows.map(r => {
+        const ex = exOr(r.id)
+        return <LiftRow key={r.id} r={r} ex={ex} name={exerciseNameFor(ex)} muscle={mainMuscleOf(ex)} unit={exUnitOf(S, r.id)} profileUnit={S.unit}
+          speedUnit={speedUnitOf(S)} today={today} p={progress.get(r.id)} win={win} half={by === 'muscle' && !isCompound(ex)} lang={getVersion()} />
+      })}</div>
     </section>)}
     {!rows.length && <div className="empty"><div className="ico"><Icon name="dumbbell" /></div>{t('No exercises trained yet. They show here after your first workout.')}</div>}
     {rows.length > 0 && !sections.length && q.trim() && <div className="muted small hv-lifts-none">{t('No exercise you trained matches “{0}”.', q.trim())}</div>}

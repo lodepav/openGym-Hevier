@@ -29,6 +29,13 @@ export default function Measures() {
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
   const recent = S.bodyweight.slice(-5).reverse()
+  // The chart said only its name; now the last weight and its change over the days it shows (the eighth critique, 2026-11-22).
+  const ch = pts.length > 1 ? Math.round((pts.at(-1).y - pts[0].y) * 10) / 10 : null, by = ch == null ? '' : fmtNum(Math.abs(ch)) + ' ' + S.unit
+  const chartName = pts.length ? [t('Body weight chart'), fmtNum(pts.at(-1).y) + ' ' + S.unit, ch == null ? ''
+    : ch < 0 ? t('down {0} in {1} days', by, DAYS_SHOWN) : ch > 0 ? t('up {0} in {1} days', by, DAYS_SHOWN) : t('no change in {0} days', DAYS_SHOWN)].filter(Boolean).join(', ') : ''
+  // With weigh-ins from Health Connect there is no Log: the empty well names the source, else it opens the weigh-in (the eighth critique).
+  const none = S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN)
+    : hc ? t('No weigh-ins yet. They come from Health Connect.') : t('No weigh-ins yet. Log your weight to start the curve.')
   return <div className="narrow hv-measures">
     {/* Back names the page it returns to: Statistics links here too (the fresh audit, 2026-11-21). */}
     {/* A cold open goes up to the page back names (the fifth audit, 2026-11-21). */}
@@ -37,7 +44,9 @@ export default function Measures() {
     {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
         <div>
-          <div className="muted small">{t('Body weight')}</div>
+          {/* A heading as the parts below are, drawn as before (the eighth round, 2026-11-22). */}
+          <h2 className="muted small hv-ms-h">{t('Body weight')}</h2>
+          {hc && <div className="small dim">{t('From Health Connect')}</div>}
           {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
           {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
         </div>
@@ -46,12 +55,13 @@ export default function Measures() {
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
-      {pts.length > 0 ? <div className="chart" role="img" aria-label={t('Body weight chart')}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
-        : <div className="hv-ms-empty">{S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN) : t('No weigh-ins yet. Log your weight to start the curve.')}</div>}
+      {pts.length > 0 ? <div className="chart" role="img" aria-label={chartName}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
+        : hc ? <div className="hv-ms-empty">{none}</div>
+        : <button type="button" className="hv-ms-empty hv-ms-empty-btn" onClick={() => bwSheet()}>{none}</button>}
     </div>
     {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
     {recent.length > 0 && <>
-      <h2 className="sec">{t('History')}</h2>
+      <h2 className="sec">{t('Recent weigh-ins')}</h2>
       {/* One button, not five that all open the same list (the fresh audit, 2026-11-21). */}
       <button type="button" className="hv-ms-list" onClick={weighInsSheet}
         aria-label={recent.map(b => fmtDate(b.d, true) + ' ' + fmtNum(b.w) + ' ' + S.unit).join(', ') + '. ' + t('All weigh-ins')}>{recent.map(b => <span key={b.d + (b.t || '')} className="hv-ms-row">
@@ -59,7 +69,7 @@ export default function Measures() {
       </span>)}</button>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
-    {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}
+    {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('Body') : t('Measures')}</h2>}
     {/* Empty, each says so, not a bare title (the seventh critique, 2026-11-22). */}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
       sub={measurementsLine(S) || t('None yet')}

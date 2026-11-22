@@ -8,6 +8,7 @@ import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
 import { hevierRoutes } from '../routes.jsx'
+import { muscleOf } from '../lib/exercise-picker.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -63,6 +64,16 @@ describe('hevier: History (D135)', () => {
   it('a chip whose part is off is not drawn; Statistics always is', () => {
     render({ hvModuleParts: { 'hvStats.calendar': false, 'hvStats.report': false } })
     expect([...container.querySelectorAll('.hv-hlinks button')].map(b => b.textContent)).toEqual(['Statistics'])
+  })
+
+  it('a card names its top three muscles and +N for the rest; TalkBack hears them all (the critique, 2026-11-22)', () => {
+    const set = { w: 50, r: 8, done: true }
+    const by = (muscle, n) => ({ id: EXDB.find(e => muscleOf(e) === muscle).id, sets: Array(n).fill(set) })
+    const entries = [by('Chest', 4), by('Triceps', 3), by('Biceps', 2), by('Glutes', 1), by('Hamstrings', 1)]
+    render({ workouts: [{ ...wo('2026-11-16', 60), entries }] })
+    const line = container.querySelector('.hv-wcard .hv-mline')
+    expect(line.querySelector('[aria-hidden="true"]').textContent).toBe('Chest 4 · Triceps 3 · Biceps 2 · +2')
+    expect(line.querySelector('.hv-sr').textContent).toBe('Chest 4, Triceps 3, Biceps 2, Glutes 1, Hamstrings 1')
   })
 
   it('an empty feed points to the Hevy import on Settings → Integrations', () => {

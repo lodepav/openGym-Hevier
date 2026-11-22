@@ -2,21 +2,21 @@
 // (D142): the month's totals against the month before, its records, its calendar, sets per
 // muscle and top exercises, all read from the log by hevier/lib/month-report.js.
 import { useMemo, useState } from 'react'
-import { useStore } from '../../store/useStore.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, fmtVol, todayISO, weekStartOf, MONTHS_LONG } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { exOr } from '../../lib/exercises.js'
-import { exerciseDetailSheet } from '../../sheets.jsx'
+import { exerciseDetailSheet, menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { muscleText } from '../lib/main-muscle.js'
-import { workoutsByDay } from '../lib/calendar.js'
+import { workoutsByDay, monthsWith } from '../lib/calendar.js'
 import { durationWords } from '../lib/elapsed.js'
 import { byExercise, change, defaultMonth, firstMonth, monthReport } from '../lib/month-report.js'
 import { workoutRecords, recordValue, KINDS } from '../lib/records.js'
 import { Month, useNamesFit } from './Calendar.jsx'
-import { BackTo } from './Statistics.jsx'
+import { BackTo, useSlicedS } from './Statistics.jsx'
+import { timeSpoken } from '../lib/exercise-time.js'
 import { HISTORY_PATH } from './History.jsx'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
@@ -28,13 +28,27 @@ import { partOn } from '../lib/module-parts.js'
 
 const PR_ROWS = 5
 
-function Stat({ label, value, delta }) {
-  return <div><span>{label}</span><b>{value}</b>
+// What the report and its month read (the memo below, Month's marks, partOn): another write draws nothing (the eighth audit, 2026-11-22).
+const READS = ['workouts', 'routines', 'modules', 'hvModuleParts', 'checkIn', 'dbLoad', 'weekStart', 'hvVolume', 'hvMuscleSets', 'volumeWarmups',
+  'volumeBodyweight', 'bodyweight', 'oneRmFormula', 'customEx', 'hvMainMuscle', 'unit', 'dayPlan', 'week', 'queue', 'dayNotes',
+  'exAliases', 'exShownName']   // the names exerciseNameFor writes, renamed from ExerciseDetails
+
+// One name, said once: "Workouts, 11, 8 fewer than September"; TalkBack read "−8" with no word for less or against what.
+function Stat({ label, value, delta, said }) {
+  return <div role="img" aria-label={label + ', ' + said}><span>{label}</span><b>{value}</b>
     {delta && <em className={delta.up ? 'up' : 'down'}>{delta.text}</em>}</div>
 }
+// A duration said to the minute, as durationWords draws it.
+const minutes = ms => { const sec = Math.round(Math.abs(ms) / 1000); return timeSpoken(sec < 60 ? sec : Math.round(sec / 60) * 60) }
+/** `now` and its change from `before` in words: `said(n)` for a size, `more`/`fewer` the templates. */
+const spoken = (now, before, said, vs, [more, fewer]) => {
+  const d = (Number(now) || 0) - (Number(before) || 0)
+  return said(now) + ', ' + (!d ? t('same as {0}', vs) : t(d > 0 ? more : fewer, said(Math.abs(d)), vs))
+}
+const COUNT = ['{0} more than {1}', '{0} fewer than {1}'], AMOUNT = ['{0} more than {1}', '{0} less than {1}']
 
 export default function MonthReport() {
-  const st = useStore(s => s.S)
+  const st = useSlicedS(READS)
   const today = todayISO()
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const [allPrs, setAllPrs] = useState(false)
@@ -56,6 +70,13 @@ export default function MonthReport() {
   const isNow = at.y === Number(today.slice(0, 4)) && at.mo === Number(today.slice(5, 7)) - 1
   const canBack = !!first && (at.y > first.y || (at.y === first.y && at.mo > first.mo))
   const step = by => { setAllPrs(false); setAt(({ y, mo }) => { const d = new Date(y, mo + by, 1); return { y: d.getFullYear(), mo: d.getMonth() } }) }
+  // A tap on the month lists every month with a workout, a year's report a tap away, not a dozen (the eighth critique, 2026-11-22).
+  const months = useMemo(() => monthsWith(byDay), [byDay])
+  const pickMonth = () => menuSheet({ title: t('Go to a month'), sections: [...new Set(months.map(m => m.y))].map(y => ({ title: String(y),
+    items: months.filter(m => m.y === y).map(m => ({ label: m.y === at.y && m.mo === at.mo
+      ? <>{t(MONTHS_LONG[m.mo])}<span className="hv-sr">, {t('selected')}</span></> : t(MONTHS_LONG[m.mo]), sub: tn('{0} workout', '{0} workouts', m.n), on: m.y === at.y && m.mo === at.mo,
+      onClick: () => { setAllPrs(false); setAt({ y: m.y, mo: m.mo }) } })) })) })
+  const vs = t(MONTHS_LONG[(at.mo + 11) % 12])
   const prRows = byExercise(r.records)
   const unit = st.unit
   const sets = volumeMode(st) === 'sets'
@@ -78,16 +99,19 @@ export default function MonthReport() {
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
       {/* What the changes are against, under the month and above the numbers, not loose under them (the critique, 2026-11-21). */}
-      <div><h2>{month}</h2>{(isNow || trained) && <span className="hv-sub">{[isNow && t('so far'), trained && t('against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))].filter(Boolean).join(' · ')}</span>}</div>
+      <div><h2>{months.length ? <button type="button" className="hv-report-mt" aria-haspopup="dialog" aria-label={t('{0}, go to a month', month)}
+        onClick={pickMonth}>{month}<Icon name="chevronDown" /></button> : month}</h2>{(isNow || trained) && <span className="hv-sub">{[isNow && t('so far'), trained && t('against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))].filter(Boolean).join(' · ')}</span>}</div>
       <button type="button" className="iconbtn" aria-label={t('Next month')} disabled={isNow} onClick={() => step(1)}><Icon name="chevronRight" /></button>
     </div>
     {!trained ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
       <div className="hv-stats hv-report-stats">
-        <Stat label={t('Workouts')} value={r.workouts} delta={change(r.workouts, r.prev.workouts)} />
-        <Stat label={t('Duration')} value={durationWords(r.duration)} delta={change(r.duration, r.prev.duration, durationWords)} />
+        <Stat label={t('Workouts')} value={r.workouts} delta={change(r.workouts, r.prev.workouts)} said={spoken(r.workouts, r.prev.workouts, fmtNum, vs, COUNT)} />
+        <Stat label={t('Duration')} value={durationWords(r.duration)} delta={change(r.duration, r.prev.duration, durationWords)}
+          said={spoken(r.duration, r.prev.duration, minutes, vs, AMOUNT)} />
         {sets
-          ? <Stat label={t('Sets')} value={r.sets} delta={change(r.sets, r.prev.sets)} />
-          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit))} />}
+          ? <Stat label={t('Sets')} value={r.sets} delta={change(r.sets, r.prev.sets)} said={spoken(r.sets, r.prev.sets, fmtNum, vs, COUNT)} />
+          : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit))}
+            said={spoken(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit), vs, AMOUNT)} />}
       </div>
 
       {r.records.length > 0 && <>
