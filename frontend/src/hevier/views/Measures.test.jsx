@@ -25,7 +25,8 @@ function render(patch = {}) {
   act(() => root.render(<MemoryRouter initialEntries={['/measures']}><Routes>{hevierRoutes}</Routes></MemoryRouter>))
 }
 afterEach(() => { act(() => root.unmount()); container.remove() })
-const ago = days => isoOf(new Date(Date.now() - days * 86400000))
+// Calendar days, not 24-hour steps: across a clock change those land on the wrong date late in the evening.
+const ago = days => { const d = new Date(); d.setDate(d.getDate() - days); return isoOf(d) }
 
 describe('hevier: Measures (the tenth critique)', () => {
   it('shows the 90-day change under the weight, and no goal caption (the owner, 2026-11-22)', () => {

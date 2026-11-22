@@ -334,15 +334,16 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0]).toMatchObject({ w: 55, r: 9 })
   })
 
-  it('says under the first table that a set swipes, until PREVIOUS is first used (S.hvSetTipSeen)', () => {
+  it('says under the first table that a set swipes, until a set is first swiped (S.hvSetTipSeen)', () => {
     const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 55, r: 9, done: true }] }] }]
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }], past)
     const tip = () => container.querySelector('.hv-set-tip')
     expect(tip().textContent).toBe('Swipe a set for more.')
     expect(tip().previousElementSibling.className).toContain('hv-unit')
+    // PREVIOUS is not the swipe: the tip stays (the owner, 2026-11-22).
     act(() => container.querySelector('.hv-prev').click())
-    expect(tip()).toBeNull()
-    expect(useStore.getState().S.hvSetTipSeen).toBe(true)
+    expect(tip().textContent).toBe('Swipe a set for more.')
+    expect(useStore.getState().S.hvSetTipSeen).toBeUndefined()
     // With swipe actions off there is no tip.
     act(() => useStore.getState().update(s => { delete s.hvSetTipSeen; s.wc = { swipeSets: false } }))
     expect(tip()).toBeNull()

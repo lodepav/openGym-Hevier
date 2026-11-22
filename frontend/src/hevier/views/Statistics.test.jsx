@@ -43,7 +43,8 @@ function render(entries, patch = {}) {
 const byText = (sel, text) => [...container.querySelectorAll(sel)].find(b => b.textContent.includes(text))
 const tiles = () => [...container.querySelectorAll('[data-tile]')].map(x => x.dataset.tile)
 const cards = () => [...container.querySelectorAll('[data-card]')].map(x => x.dataset.card)
-const daysAgo = n => isoOf(new Date(Date.now() - n * 86400000))
+// Calendar days, not 24-hour steps: across a clock change those land on the wrong date late in the evening.
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return isoOf(d) }
 const workout = d => ({ id: 'w' + d, d, name: 'Push', start: 1, end: 3600001, vol: 960,
   entries: [{ id: BENCH, sets: [{ w: 60, r: 8, done: true }, { w: 60, r: 8, done: true }] }] })
 
@@ -211,7 +212,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
   })
 
   it('Measures: headings name each part; the chart says its last weight and change; the empty well logs one (the eighth round, 2026-11-22)', () => {
-    const ago = days => isoOf(new Date(Date.now() - days * 86400000))
+    // Calendar days, not 24-hour steps: across a clock change those land on the wrong date late in the evening.
+    const ago = days => { const d = new Date(); d.setDate(d.getDate() - days); return isoOf(d) }
     render(['/measures'], { bodyweight: [{ d: ago(30), w: 82 }, { d: todayISO(), w: 80.5 }] })
     expect([...container.querySelectorAll('h2')].map(h => h.textContent)).toEqual(['Body weight', 'Recent weigh-ins', 'Measurements and photos'])
     expect(container.querySelector('.chart').getAttribute('aria-label')).toBe('Body weight chart, 80.5 kg, down 1.5 kg in 30 days')

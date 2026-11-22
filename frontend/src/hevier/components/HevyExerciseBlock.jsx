@@ -424,7 +424,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
   }
 
   const swipeOn = !!(controls.swipeSets && onCopySetAt && onRemoveSetAt)
-  // The workout's hint on PREVIOUS and the swipe goes once either is first used (HevyWorkout.jsx).
+  // The workout's swipe tip goes once a set is first swiped (HevyWorkout.jsx; the owner, 2026-11-22).
   const tipSeen = () => { if (!useStore.getState().S.hvSetTipSeen) update(st => { st.hvSetTipSeen = true }) }
   const sideWord = side => (side === 'L' ? t('Left') : t('Right'))
   const markOf = (s, i) => (isWarmupRow(s) ? <span className="hv-w">W</span> : isFailureSet(s) ? <span className="hv-f">F</span>
@@ -529,7 +529,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       onClick={e => { if (onOpen && !e.target.closest?.('.hv-chk, .hv-eff')) onOpen(i) }}
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (isOpenAt(i) ? ' hv-open' : '')}>
       {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
-      <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => { copyPrev(i, p, side); tipSeen() }}
+      <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
         aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevSaid : !p ? t('No previous set') : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
