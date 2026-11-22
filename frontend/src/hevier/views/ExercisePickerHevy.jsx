@@ -227,6 +227,9 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <button className={'btn' + (eq && eq !== GYM ? ' on' : '')} onClick={openEquipment}><span className="capitalize">{eqLabel}</span><Icon name="chevronDown" /></button>
       <button className={'btn' + (muscle ? ' on' : '')} onClick={openMuscles}>{muscle ? muscleText(muscleValueLabel(muscle)) : t('All Muscles')}<Icon name="chevronDown" /></button>
     </div>
+    {/* What a search or a filter leaves is said, not only redrawn (the sixth audit, 2026-11-21). */}
+    <span className="hv-sr" role="status">{browsing ? '' : list.length ? tn('{0} exercise', '{0} exercises', list.length)
+      : hidden.length ? t('{0} hidden at {1}', hidden.length, profile?.name) : t('No exercises found')}</span>
     {backupList.length > 0 && <><Sec className="sec">{t('Your backups')}</Sec><div className="list">{backupList.map(e => row(e, 'b'))}</div></>}
     {histSection(t('You swapped to these before'), swapRows, 'w')}
     {histSection(hereGym ? t('You have done these here') : t('You have done these'), hereRows, 'd')}

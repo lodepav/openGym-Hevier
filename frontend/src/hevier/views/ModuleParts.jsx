@@ -22,11 +22,13 @@ export function ModuleParts({ mod, row }) {
   const on = isOn(S, mod)
   const parts = PARTS[mod]
   const n = parts.filter(p => partSwitch(S, mod, p.id)).length
+  const count = !on ? t('Off') : n === parts.length ? t('All') : t('{0} of {1}', n, parts.length)
   return <>
+    {/* The count shown beside it is in the button's name, so TalkBack reads it once, with the button (the sixth audit, 2026-11-21). */}
     {cloneElement(row, { className: row.props.className + ' hv-modrow' },
       <button type="button" className="hv-modrow-open" aria-expanded={open} aria-controls={id}
-        aria-label={t('Parts of {0}', name)} onClick={() => setOpen(o => !o)} />,
-      !open && <span className="lrow-v">{!on ? t('Off') : n === parts.length ? t('All') : t('{0} of {1}', n, parts.length)}</span>,
+        aria-label={t('Parts of {0}', name) + (open ? '' : ', ' + count)} onClick={() => setOpen(o => !o)} />,
+      !open && <span className="lrow-v" aria-hidden="true">{count}</span>,
       <Icon name={open ? 'chevronDown' : 'chevronRight'} className="lrow-c" />,
       row.props.children)}
     <div id={id} className="hv-modparts" role="group" aria-label={t('Parts of {0}', name)} hidden={!open}>

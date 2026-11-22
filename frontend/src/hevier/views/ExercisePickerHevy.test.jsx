@@ -110,7 +110,12 @@ describe('hevier: Add Exercise picker (seam S13)', () => {
   it('with nothing found, Create “…” opens the new exercise named as typed', () => {
     open(vi.fn())
     expect(container.querySelector('.hv-pk-create')).toBeNull()
+    const said = () => container.querySelector('.hv-sr[role="status"]').textContent
+    expect(said()).toBe('')
+    search('bench press')
+    expect(said()).toMatch(/^\d+ exercises$/)   // the count is said, not only drawn (the sixth audit, 2026-11-21)
     search('Qqzxj curl')
+    expect(said()).toBe('No exercises found')
     const create = container.querySelector('.hv-pk-create')
     expect(create.textContent).toBe('Create “Qqzxj curl”')
     const before = useUI.getState().sheets.length

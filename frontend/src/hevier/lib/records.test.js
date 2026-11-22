@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { EXDB, EXIDX, isAssisted, isCardio } from '../../lib/exercises.js'
 import { workoutRecords, liveRecords, recordsAt, recordValue } from './records.js'
+import { fieldSig } from './store-watch.js'
+
+// Counted, to show a log kept by identity is not written out again (the sixth audit, 2026-11-21).
+vi.mock('./store-watch.js', async orig => { const m = await orig(); return { ...m, fieldSig: vi.fn(m.fieldSig) } })
 
 const BENCH = EXDB.find(e => /^barbell bench press$/i.test(e.n)).id
 const PULLUP = '0652'     // pull-up
@@ -25,6 +29,23 @@ describe('hevier personal records (D51)', () => {
     expect(recs.find(r => r.kind === 'setVol')).toMatchObject({ v: 700, w: 70, r: 10 })
     expect(recordsAt(recs, 0, 2).map(r => r.kind)).toEqual(['weight', 'e1rm'])
     expect(recordsAt(recs, 0, -1).map(r => r.kind)).toEqual(['sessionVol'])
+  })
+
+  it('a new copy of S with the same log objects does not sign the log again; a changed log does', () => {
+    const a = wk(1, [{ id: BENCH, sets: [s(80, 5)] }])
+    const b = wk(3, [{ id: BENCH, sets: [s(85, 5)] }])
+    const S1 = { workouts: [a, b], dbLoad: {}, active: { entries: [{ id: BENCH, sets: [s(90, 5)] }] } }
+    expect(kinds(S1, b)).toContain('weight')
+    expect(liveRecords(S1).map(r => r.kind)).toContain('weight')
+    const signed = () => fieldSig.mock.calls.filter(c => c[1] === 'workouts').length
+    fieldSig.mockClear()
+    const S2 = { ...S1, active: { entries: [{ id: BENCH, sets: [s(95, 5)] }] } }   // a set typed
+    expect(kinds(S2, b)).toContain('weight')
+    expect(liveRecords(S2).map(r => r.kind)).toContain('weight')
+    expect(signed()).toBe(0)
+    const S3 = { ...S2, workouts: [a, { ...b, entries: [{ id: BENCH, sets: [s(70, 5)] }] }] }
+    expect(kinds(S3, S3.workouts[1])).toEqual([])
+    expect(signed()).toBeGreaterThan(0)
   })
 
   it('lists none while Motivation’s record marks are off, or Motivation is (D114)', () => {

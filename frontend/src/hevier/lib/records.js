@@ -164,21 +164,26 @@ function walk(S, workouts) {
   return { bests, byWorkout }
 }
 
-// The store deep-copies S on every change, so the walk is kept by the log's content (fieldSig, one
+// A copy of S may hold a new log of the same content (a sync, a merge), so the walk is kept by its content (fieldSig, one
 // JSON per copy of S), its dumbbell meanings and the 1RM formula: one walk per change of the log.
 // The answer is also kept per copy of S: each feed card asks on every change of the store, and
 // building and comparing the signature costs as much as the log is long.
 const sigOf = (S, extra = '') => fieldSig(S, 'workouts') + '\n' + fieldSig(S, 'dbLoad') + '\n' + formulaOf(S) + '\n' + extra
+// The store copies only the fields it touches: the same log objects reuse the last walk unsigned (the sixth audit, 2026-11-21).
+const inputsOf = (S, extra) => ({ w: S?.workouts, db: S?.dbLoad, f: formulaOf(S), x: extra })
+const sameInputs = (a, b) => a.w === b.w && a.db === b.db && a.f === b.f && a.x === b.x
 const perS = (cache, S, make) => {
   if (!S || typeof S !== 'object') return make()
   if (!cache.has(S)) cache.set(S, make())
   return cache.get(S)
 }
-let last = { sig: null, result: null }
+let last = { sig: null, result: null, in: {} }
 const walkedOf = new WeakMap()
 const walked = S => perS(walkedOf, S, () => {
+  const now = inputsOf(S, '')
+  if (sameInputs(last.in, now)) return last.result
   const sig = sigOf(S)
-  if (last.sig !== sig) last = { sig, result: walk(S, S?.workouts) }
+  last = { sig, result: last.sig === sig ? last.result : walk(S, S?.workouts), in: now }
   return last.result
 })
 
@@ -189,7 +194,7 @@ export const workoutRecords = (S, w) => !partOn(S, 'motivation', 'records') ? NO
 
 // The bests a running session competes with: every saved workout, less the one being edited and
 // any after it. Kept as the walk is.
-let lastPrior = { sig: null, bests: null }
+let lastPrior = { sig: null, bests: null, in: {} }
 function priorBests(S, A) {
   const editing = A?.editingWorkoutId
   const byEditing = perS(priorOf, S, () => new Map())
@@ -198,15 +203,17 @@ function priorBests(S, A) {
 }
 const priorOf = new WeakMap()
 function priorWalk(S, editing) {
+  const now = inputsOf(S, editing ?? '')
+  if (sameInputs(lastPrior.in, now)) return lastPrior.bests
   const sig = sigOf(S, editing ?? '')
-  if (lastPrior.sig === sig) return lastPrior.bests
+  if (lastPrior.sig === sig) { lastPrior.in = now; return lastPrior.bests }
   let base = list(S?.workouts)
   if (editing != null) {
     const self = base.find(w => w?.id === editing)
     const t = self ? workoutAt(self) : Infinity
     base = base.filter(w => w !== self && workoutAt(w) < t)
   }
-  lastPrior = { sig, bests: walk(S, base).bests }
+  lastPrior = { sig, bests: walk(S, base).bests, in: now }
   return lastPrior.bests
 }
 

@@ -292,6 +292,16 @@ describe('hevier: routine editor (M3)', () => {
     expect(useStore.getState().S.routines.map(r => r.name)).toEqual(['Leg Day'])
   })
 
+  it('a routine deleted elsewhere while the editor is open leaves the page without a crash', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // A sync (or another tab) takes the routine out: the editor redraws once before it navigates.
+    act(() => useStore.getState().update(s => { s.routines = [] }))
+    expect(errors).not.toHaveBeenCalled()
+    errors.mockRestore()
+    expect(path).toBe('/routines')
+  })
+
   it('the warning sign of an exercise the gym lacks says why on a tap', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }])
     act(() => {

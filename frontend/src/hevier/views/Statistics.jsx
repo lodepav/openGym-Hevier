@@ -10,7 +10,7 @@ import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { fmtNum, todayISO, weekStartOf, isoOf } from '../../lib/format.js'
 import { exOr } from '../../lib/exercises.js'
-import { countedS } from '../../lib/counted-log.js'
+import { countedWorkouts } from '../../lib/counted-log.js'
 import Icon from '../../components/Icon.jsx'
 import LineChart from '../../components/LineChart.jsx'
 import PageBar, { useBack } from '../components/PageBar.jsx'
@@ -146,7 +146,10 @@ export default function Statistics() {
   const { search } = useLocation()
   // Exercises kept out of progression are kept out of these numbers too (D57).
   const raw = useStore(s => s.S)
-  const S = usePhasedS(countedS(raw))
+  // The counted log once per change of the log or the routines, not per copy of S (the sixth audit, 2026-11-21).
+  const ws = useMemo(() => countedWorkouts(raw.workouts, raw.routines), [raw.workouts, raw.routines])
+  const counted = useMemo(() => (ws === raw.workouts ? raw : { ...raw, workouts: ws }), [raw, ws])
+  const S = usePhasedS(counted)
   const phase = useStatsPhase(s => s.phase)
   const today = todayISO()
   // The counted, phased log is a new copy on each write: key on what it is made from instead.

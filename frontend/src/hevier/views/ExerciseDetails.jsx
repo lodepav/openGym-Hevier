@@ -218,7 +218,10 @@ function History({ ex, sum, st }) {
 function useListed(ex, label) {
   const st = useStore(s => s.S)
   const listed = usePhasedS(st)
-  return useMemo(() => exerciseSummary(label != null ? withLabelFilter(listed, ex.id, label) : listed, ex.id), [listed, st.dbLoad, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
+  // A filtered log is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  return useMemo(() => exerciseSummary(label != null ? withLabelFilter(listed, ex.id, label) : listed, ex.id),
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 function AllHistory({ ex, label }) {
@@ -234,7 +237,10 @@ function AllHistory({ ex, label }) {
 // D96: two labels' histories side by side, each column its own sessions, newest first. `base` is
 // the log the History reads, so the phase filter (D93) narrows both.
 function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
-  const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id), [base, st.dbLoad, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
+  // `base` is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id),
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="hv-xd-cmpcol">
     <MenuButton className="hv-xd-label" title={t('Brand')} value={value} onChange={onPick}
       options={labels.filter(l => l.key !== other).map(l => ({ value: l.key, label: labelText(l, t) }))} />

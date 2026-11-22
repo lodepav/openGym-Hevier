@@ -101,6 +101,12 @@
 :root[data-ui="hevier"] .hv-thumb{flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--hv-thumb-bg);padding:0}
 /* .thumb too: an exercise without a picture is upstream's 50px tile, which the circle cut off-centre */
 :root[data-ui="hevier"] .hv-thumb :is(img, .thumb){width:100%;height:100%;object-fit:cover}
+/* A header's thumbnail reaches 48 dp, its picture rounding itself so the reach is not clipped (the sixth audit, 2026-11-21). */
+:root[data-ui="hevier"] .hv-exhd > button.hv-thumb{position:relative;overflow:visible}
+:root[data-ui="hevier"] .hv-exhd > button.hv-thumb .thumb{border-radius:50%}
+:root[data-ui="hevier"] .hv-exhd > button.hv-thumb::after{content:"";position:absolute;inset:-4px}
+/* the editor's grip ends 2 dp before it, so the reach stops there */
+:root[data-ui="hevier"] .hv-routine .hv-exhd > .hv-grip + button.hv-thumb::after{inset-inline-start:-2px}
 :root[data-ui="hevier"] .hv-name{flex:1;min-width:0;text-align:start;font-size:17px;font-weight:700;color:var(--hv-acc-ink);background:none;padding:0}
 :root[data-ui="hevier"] .hv-more{flex:none}
 /* D127: picture · name · brand on one line, the brand wrapping under the name when it must */
@@ -234,6 +240,10 @@
 :root[data-ui="hevier"] .hv-x{justify-self:center}
 :root[data-ui="hevier"] .hv-plates{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label-2);padding:2px 0 4px 44px}
 :root[data-ui="hevier"] .hv-hint-chip{display:flex;align-items:center;gap:6px;margin:4px auto;font-size:13px;background:var(--acc-soft);color:var(--hv-acc-ink);padding:6px 12px;border-radius:999px}
+/* Its reach takes its 4 dp margins, none of a set note's gap above it (the sixth audit, 2026-11-21). */
+:root[data-ui="hevier"] .hv-hint-chip{position:relative}
+:root[data-ui="hevier"] .hv-hint-chip::after{content:"";position:absolute;inset:-4px 0}
+:root[data-ui="hevier"] .hv-setnote + .hv-hint-chip::after{top:0}
 :root[data-ui="hevier"] .hv-addrow{display:flex;gap:8px;margin-top:8px}
 :root[data-ui="hevier"] :is(.hv-addset, .hv-addwarm, .hv-rtrest){flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:999px;background:var(--surface-2);color:var(--label);font-size:15px}
 
@@ -338,6 +348,8 @@
 :root[data-ui="hevier"] .hv-chip{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--surface-2);color:var(--label)}
 :root[data-ui="hevier"] .hv-chip.on{background:var(--acc);color:var(--on-acc)}
 :root[data-ui="hevier"] .hv-phase-filter{margin:0 0 10px}
+/* Large text or a narrow phone wraps the phases rather than cutting the last; wrapped rows sit 20 apart, twice a chip's reach (the sixth audit, 2026-11-21). */
+:root[data-ui="hevier"] .hv-phase-filter{flex-wrap:wrap;row-gap:20px}
 /* Structural balance's own header stays on top: the filter goes in under it (D93). */
 :root[data-ui="hevier"] .hv-phase-page{display:flex;flex-direction:column}
 :root[data-ui="hevier"] .hv-phase-page>.hdr{order:-2}
@@ -361,6 +373,9 @@
 :root[data-ui="hevier"] .hv-rt-auto,:root[data-ui="hevier"] .hv-rt-fixed{text-align:center;color:var(--label-3);font-size:15px}
 :root[data-ui="hevier"] .hv-rt-range{background:none;padding:8px 0;font-size:16px;font-weight:600;color:var(--label);text-align:center}
 :root[data-ui="hevier"] .hv-ss-btn{background:none;padding:0;display:flex;align-items:center;gap:8px;color:var(--label-2)}
+/* The superset line (about 21 dp) reaches 44 upward only, into the card's padding and the gap above (the sixth audit, 2026-11-21). */
+:root[data-ui="hevier"] .hv-ss-btn{position:relative}
+:root[data-ui="hevier"] .hv-ss-btn::after{content:"";position:absolute;inset-inline:0;bottom:0;height:44px}
 :root[data-ui="hevier"] .hv-warn{color:var(--orange);display:flex}
 /* the routine editor's warning sign is a button, sized like the ⋮ beside it */
 :root[data-ui="hevier"] .hv-exhd .hv-warn{background:none;margin:0}
@@ -433,7 +448,8 @@
    screen whatever the sides hold */
 :root[data-ui="hevier"] .hv-pagebar{
   position:sticky;top:0;z-index:20;display:grid;align-items:center;column-gap:6px;
-  grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);min-height:44px;
+  /* the sides keep their buttons whole and a long title shortens (the sixth audit, 2026-11-21, as Arrange had it) */
+  grid-template-columns:minmax(max-content,1fr) minmax(0,max-content) minmax(max-content,1fr);min-height:44px;
   margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 12px;
   padding:calc(var(--sat) + var(--conn) + 4px) calc(var(--pad) - 8px) 4px;
   background:var(--bg);border-bottom:var(--hair) solid var(--sep);
@@ -444,7 +460,6 @@
 :root[data-ui="hevier"] .hv-pagebar .iconbtn{background:none;color:var(--label);min-width:44px;min-height:44px}
 :root[data-ui="hevier"] .hv-pb-back .icn{font-size:22px;--icon-stroke:2.2}
 :root[data-ui="hevier"] .hv-pagebar .hv-link{flex:0 1 auto;min-width:0;min-height:44px;padding:0 8px;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-ui="hevier"] .hv-arrange .hv-pagebar{grid-template-columns:minmax(max-content,1fr) minmax(0,max-content) minmax(max-content,1fr)} /* at large text the long title shortens, not Reset */
 :root[data-ui="hevier"] .hv-pk-hd .hv-link{min-height:44px;padding:0 8px;font-size:16px}
 :root[data-ui="hevier"] .hv-pk .empty .hv-pk-create{display:block;width:auto;max-width:100%;margin:14px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* the empty Workout tab's and feed's way to the Hevy import */
@@ -938,6 +953,9 @@
 :root[data-ui="hevier"] #totop{display:none}
 /* A set's note (upstream 1.4.4, D5's 1.4.4 note): a line under the set, tapped to edit in the workout. */
 :root[data-ui="hevier"] .hv-setnote{display:flex;align-items:center;gap:6px;width:100%;margin:-2px 0 6px;padding:2px 12px 4px 44px;background:none;border:0;color:var(--label-2);font:inherit;font-size:13px;text-align:start}
+/* Its reach takes the 6 dp under it; the set row above is right against it (the sixth audit, 2026-11-21). */
+:root[data-ui="hevier"] .hv-setnote{position:relative}
+:root[data-ui="hevier"] .hv-setnote::after{content:"";position:absolute;inset:0 0 -6px}
 :root[data-ui="hevier"] .hv-setnote .icn,:root[data-ui="hevier"] .hv-wd-legend{margin:6px 0 0;padding-inline:4px}
 :root[data-ui="hevier"] .hv-wd-setnote .icn,:root[data-ui="hevier"] .hv-xd-note .icn{color:var(--hv-note,var(--yellow));font-size:12px;flex:none}
 :root[data-ui="hevier"] .hv-wd-setnote{display:flex;align-items:center;gap:6px;margin:-4px 0 8px;padding-inline-start:44px;font-size:13px;color:var(--label-2)}
@@ -1094,7 +1112,7 @@
 :root[data-ui="hevier"] .hv-fin-chk b{display:block;font-weight:600}
 :root[data-ui="hevier"] .hv-fin-chk small{display:block;color:var(--label-2);font-size:13px}
 :root[data-ui="hevier"] .hv-fin-chk .chk{flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--label-3);color:transparent}
-:root[data-ui="hevier"] .hv-fin-chk .chk.on{background:var(--acc);box-shadow:none;color:var(--on-acc,#000)}
+:root[data-ui="hevier"] .hv-fin-chk .chk.on{background:var(--acc);box-shadow:none;color:var(--on-acc)}
 :root[data-ui="hevier"] .hv-fin-save{width:100%;min-height:48px}
 :root[data-ui="hevier"] .hv-fin-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 :root[data-ui="hevier"] :is(.hv-fin-more, .hv-fin-discard){min-height:44px;background:none;border:0;padding:0 4px;color:var(--label-2);font-size:14px;display:inline-flex;align-items:center;gap:4px}
@@ -1194,6 +1212,8 @@
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name{min-height:48px}
 :root[data-ui="hevier"] .hv-wd-ex .hv-exhd .hv-name::after{inset:0}
 :root[data-ui="hevier"] .hv-ssec:focus{outline:none}
+/* The Routines heading takes the focus after a delete (WorkoutTab.jsx), as a card does here: no ring. */
+:root[data-ui="hevier"] .hv-wtab .hv-title:focus{outline:none}
 /* The Routines tab's + Routine, + Folder and Rotation reach 49 dp up and down, nothing under the reach (measured, 2026-11-21). */
 :root[data-ui="hevier"] .hv-rend .hv-chip::after{inset:-10px 0}
 /* At a large text size on a narrow phone the routine names go; TalkBack still says them (Calendar.jsx namesFit). */

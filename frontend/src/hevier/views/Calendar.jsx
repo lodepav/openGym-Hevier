@@ -76,6 +76,24 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
  */
 export const namesFit = (width, font) => !(width > 0 && font > 0 && width / font < 16)
 
+/** namesFit on the page: `[ref, tight]`, `ref` on what holds the month, measured again when `key` changes. */
+export function useNamesFit(key) {
+  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
+  const page = useRef(null)
+  const [tight, setTight] = useState(false)
+  useLayoutEffect(() => {
+    const fit = () => {
+      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
+      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
+      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [key])
+  return [page, tight]
+}
+
 export default function Calendar() {
   const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
   return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
@@ -105,19 +123,7 @@ function CalendarPage() {
   const mounted = useRef(false)
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
-  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
-  const page = useRef(null)
-  const [tight, setTight] = useState(false)
-  useLayoutEffect(() => {
-    const fit = () => {
-      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
-      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
-      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
-    }
-    fit()
-    window.addEventListener('resize', fit)
-    return () => window.removeEventListener('resize', fit)
-  }, [view])
+  const [page, tight] = useNamesFit(view)
   useEffect(() => {
     const first = !mounted.current
     mounted.current = true

@@ -1,9 +1,9 @@
 // Battery: the fork's background-ish passes (the Health Connect read, the
 // Hevy export, the month widget) each wake only when a field of S they read has changed. The
 // running workout lives in `S.active`, so watching S as a whole woke all three for every set
-// typed or ticked. The store's update deep-copies S (store/useStore.js `clone`), so every field
-// is a new object after any change: fields are compared by content, as JSON. Each copy of S is
-// written out once per field, however many watchers and screens ask.
+// typed or ticked. The store's update deep-copies each field it touches (store/useStore.js), so a
+// touched field is a new object even when its content is the same: fields are compared by identity,
+// then by content, as JSON. Each copy of S is written out once per field, however many watchers and screens ask.
 
 const sigs = new WeakMap()
 

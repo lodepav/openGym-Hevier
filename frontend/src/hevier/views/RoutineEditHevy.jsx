@@ -368,6 +368,10 @@ function RoutineEditor({ id }) {
     end: () => exOf().length - 1,
     pair: (i, j) => setR(x => { x.ex = pairAdjacent(x.ex, i, j) }),
   })
+  const units = supersetUnits(r?.ex || [])
+  // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
+  // Above the return: a routine deleted while open (a sync, ⋯ → Delete) redraws once first (the sixth audit, 2026-11-21).
+  const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   if (!r) return null
 
   // Several picks at once are called one by one in the same tick: one toast names them all.
@@ -404,10 +408,7 @@ function RoutineEditor({ id }) {
     ],
   })
 
-  const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
-  // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
-  const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
     <PageBar title={t('Edit Routine')} onBack={back}>
       <button type="button" className="iconbtn" aria-label={t('More') + ', ' + (r.name || t('Routine'))} onClick={openMore}><Icon name="more" /></button>

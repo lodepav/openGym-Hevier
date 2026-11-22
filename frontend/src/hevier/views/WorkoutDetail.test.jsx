@@ -96,12 +96,15 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
   })
 
-  it('works out each exercise’s trends once a render', () => {
+  it('works out each exercise’s trends once per change of the log, not on an unrelated write', () => {
     render()
     act(() => workoutDetailSheet(W))
-    const n = workoutTrends.mock.calls.length, m = workoutSideTrends.mock.calls.length
+    const calls = () => [workoutTrends.mock.calls.length, workoutSideTrends.mock.calls.length]
+    const [n, m] = calls()
     act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
-    expect([workoutTrends.mock.calls.length - n, workoutSideTrends.mock.calls.length - m]).toEqual([1, 1])
+    expect(calls()).toEqual([n, m])   // the sixth audit, 2026-11-21
+    act(() => useStore.getState().update(s => { s.workouts = [...s.workouts] }))
+    expect(calls()).toEqual([n + 1, m + 1])
   })
 
   it('lists the ticked sets, the warm-up as W', () => {
