@@ -2,6 +2,27 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.3.0 · 2026-11-22
+
+Based on openGym 1.4.5.
+
+### New
+
+- a routine can plan a timed hold on one set (D146)
+- the sixth and seventh audit and critique rounds (D144, D145)
+
+### Fixes and changes
+
+- fixes from the review of the merges since 2026-11-19
+- emulator-check matches the emu that waits
+- usage and critique-round reports, seam offers and the tooling plan
+- the fifth audit's fixes and the shared tools review
+- docs catch up with the statistics rework and release-1.4.6
+
+### From openGym
+
+- remote-tracking branch 'origin/hevier/main'
+
 ## 3.2.0 · 2026-11-19
 
 Based on openGym 1.4.5.
