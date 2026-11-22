@@ -52,7 +52,7 @@ describe('hevier: Today (D134)', () => {
     expect(card.querySelector('.hv-cap').textContent).toMatch(/^Next · tomorrow, /)
     expect(card.querySelector('.hv-next-n').textContent).toBe('Upper A')
     expect(card.querySelectorAll('.hv-next-ex')).toHaveLength(5)
-    expect(card.querySelector('.hv-next-sets').textContent).toBe('3 sets · 60 × 8')
+    expect(card.querySelector('.hv-next-sets').textContent).toBe('3 sets · 60 kg × 8')
     act(() => btn('2 more · open the plan').click())
     expect(path).toBe('/plan/r/r1/view')
   })
@@ -77,7 +77,8 @@ describe('hevier: Today (D134)', () => {
     const days = container.querySelectorAll('.hv-tday')
     expect(days).toHaveLength(7)
     expect(container.querySelector('.hv-tday.next').getAttribute('aria-label')).toContain('Upper A')
-    expect(container.querySelector('.hv-tday.today')).toBeTruthy()
+    expect(container.querySelector('.hv-tday.today').getAttribute('aria-current')).toBe('date')
+    expect(container.querySelectorAll('.hv-tday[aria-current]')).toHaveLength(1)
   })
 
   it('with nothing planned says so; the links and the last workout still show', () => {
@@ -91,6 +92,7 @@ describe('hevier: Today (D134)', () => {
     hooks.workoutDetail = vi.fn()
     act(() => last.click())
     expect(hooks.workoutDetail).toHaveBeenCalledWith(expect.objectContaining({ id: 'w1' }))
+    expect(btn('Empty workout').closest('.hv-tlinks')).toBeNull()   // a link under Start, not a third button
     act(() => btn('Empty workout').click())
     expect(useStore.getState().S.active.entries).toEqual([])
   })

@@ -3,7 +3,7 @@
 // and Skip. It is upstream's rest timer (store/useUI.js) drawn another way: upstream's bar steps
 // aside on this screen while there is a rest (hevier.css, body.hv-docked), and both go when it ends.
 // A timed set's countdown and a hold's count-in keep upstream's bar.
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -25,15 +25,32 @@ export default function RestDock() {
     document.body.classList.toggle('hv-dock-room', shown)   // the page's room for the panel, while it is there
     return () => document.body.classList.remove('hv-docked', 'hv-dock-room')
   }, [mine, shown])
-  if (!shown) return null
+  // The page keeps room for the panel at its measured height: at large text it outgrows a fixed one (R12-U5).
+  const box = useRef(null)
+  useEffect(() => {
+    const el = box.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => document.body.style.setProperty('--hv-dock-h', el.offsetHeight + 'px'))
+    ro.observe(el)
+    return () => { ro.disconnect(); document.body.style.removeProperty('--hv-dock-h') }
+  }, [shown])
+  // Said once when a rest starts, not each tick; the region stays mounted so the change is heard (the fifth audit, 2026-11-21).
+  const [said, setSaid] = useState('')
+  useEffect(() => {
+    setSaid(shown ? (timer.kind === 'switch' ? t('Switch sides') : t('Rest')) + ', ' + clock(timer.total) : '')
+  }, [shown, timer?.forIdx, timer?.forSet, timer?.kind]) // eslint-disable-line react-hooks/exhaustive-deps
+  const status = <span className="hv-sr" role="status">{said}</span>
+  if (!shown) return <>{status}</>
   const { addRest, skipRest } = useUI.getState()
   const pct = timer.total > 0 ? Math.max(0, Math.min(1, timer.left / timer.total)) : 0
-  return <div className="hv-dock" role="region" aria-label={t('Rest')}>
+  return <>{status}<div className="hv-dock" ref={box} role="region" aria-label={t('Rest')}>
     <div className="hv-dock-top">
       <button type="button" className="hv-dock-clock" onClick={adjustRestSheet}
-        aria-label={clock(timer.left) + '. ' + t('Change the time left')}>
+        // The seconds are its description, read on focus but not again each tick (the fresh audit, 2026-11-21).
+        aria-label={(timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')) + '. ' + t('Change the time left')}
+        aria-describedby="hv-dock-left">
         <span className="hv-dock-cap">{timer.kind === 'switch' ? t('Switch sides') : timer.paused ? t('Paused') : t('Rest')}</span>
-        <b role="timer">{clock(timer.left)}</b>
+        <b id="hv-dock-left" role="timer">{clock(timer.left)}</b>
       </button>
       {next && <div className="hv-dock-next"><span className="hv-dock-cap">{t('Next') + ' · ' + next.cap}</span>{next.what && <b>{next.what}</b>}</div>}
     </div>
@@ -43,5 +60,5 @@ export default function RestDock() {
       <button type="button" className="btn" onClick={() => addRest(120)}>{t('+2 min')}</button>
       <button type="button" className="btn primary" onClick={() => skipRest()}>{t('Skip')}</button>
     </div>
-  </div>
+  </div></>
 }

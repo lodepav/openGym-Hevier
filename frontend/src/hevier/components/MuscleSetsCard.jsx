@@ -1,29 +1,53 @@
 // Statistics' Sets per muscle card (hevier/DECISIONS.md D142, once the /muscle-sets page): the set
 // count per muscle group this week, month or year against the one before; no target ranges (D139).
-import { useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
+import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum, weekStartOf } from '../../lib/format.js'
 import { signed } from '../lib/delta.js'
-import { muscleSetCounts, PERIODS } from '../lib/muscle-sets.js'
+import { muscleSetCounts, namesAbove, PERIODS } from '../lib/muscle-sets.js'
 import { muscleMode } from '../lib/volume.js'
 import { muscleText } from '../lib/main-muscle.js'
+import { useStatsPhase } from '../lib/shared-phase-run.js'
 
 const PERIOD_LABEL = { week: 'Week', month: 'Month', year: 'Year' }
 const SINCE = { week: 'vs last week', month: 'vs last month', year: 'vs last year' }
 
+/** A ref for a `.hv-msets` list and whether its names go above the bars, measured on resize: a container query's em ignores text zoom (the fifth audit, 2026-11-21). */
+export function useNamesAbove() {
+  const [el, setEl] = useState(null)
+  const [above, setAbove] = useState(false)
+  useLayoutEffect(() => {
+    if (!el) return
+    const fit = () => setAbove(namesAbove(el.getBoundingClientRect().width, parseFloat(getComputedStyle(el).fontSize)))
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [el])
+  return [setEl, above]
+}
+
 /** `S` is the page's: counted (D57) and phased (D93). */
 export default function MuscleSetsCard({ S, today }) {
   const [kind, setKind] = useState('week')
-  const { rows } = muscleSetCounts(S.workouts, kind, { today, weekStart: weekStartOf(S), mode: muscleMode(S) })
+  const [list, above] = useNamesAbove()
+  // The page's S is a new copy on each write: key on what it is made from and reads (the fifth audit, 2026-11-21).
+  const raw = useStore(s => s.S)
+  const phase = useStatsPhase(s => s.phase)
+  const ws = weekStartOf(S), mode = muscleMode(S)
+  const { rows } = useMemo(() => muscleSetCounts(S.workouts, kind, { today, weekStart: ws, mode }),
+    [raw.workouts, raw.routines, raw.modules, raw.hvModuleParts, raw.hvMainMuscle, raw.customEx, phase, kind, today, ws, mode]) // eslint-disable-line react-hooks/exhaustive-deps
   const max = Math.max(1, ...rows.map(r => r.sets))
+  // Against a period with no sets at all every row would read as a gain, so the changes are left out.
+  const before = rows.some(r => r.prev > 0)
   return <div className="card hv-setcounts hv-scard">
     <h2>{t('Sets per muscle')}</h2>
     <div className="hv-chips">{PERIODS.map(k => <button key={k} type="button" className={'hv-chip' + (k === kind ? ' on' : '')}
       aria-pressed={k === kind} onClick={() => setKind(k)}>{t(PERIOD_LABEL[k])}</button>)}</div>
     {/* What the numbers count, under the chips where it is read first. */}
     <div className="small dim hv-msets-cap">{t(muscleMode(S) === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')} · {t(SINCE[kind])}</div>
-    {rows.length ? <div className="hv-msets">{rows.map(r => {
-      const d = signed(Math.round((r.sets - r.prev) * 10) / 10)
+    {rows.length ? <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={list}>{rows.map(r => {
+      const d = before ? signed(Math.round((r.sets - r.prev) * 10) / 10) : null
       return <div key={r.muscle} className="hv-mset">
         <span className="hv-mset-n">{muscleText(r.muscle)}</span>
         <span className="hv-mset-bar"><i style={{ width: Math.round((r.sets / max) * 100) + '%' }} /></span>

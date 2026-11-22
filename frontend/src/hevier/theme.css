@@ -41,12 +41,15 @@
   --hv-font: 'Nunito', Roboto, system-ui, sans-serif;   /* @font-face comes from build/boot-look.js */
   --hv-card-line: inset 0 0 0 1px var(--sep);   /* a card's edge, drawn inside so no box grows */
   /* the fork's own set-table colours (hevier.css) */
-  --hv-stripe:     #0b0a08;          /* alternate set rows */
+  --hv-cal-off:    #585550;          /* an untrained day in the year grid: 2.8:1 on black, 3.1:1 to a trained day's green */
   --hv-next-tick:  #48433b;          /* the next set's unticked box, a step above --surface-3 */
   --hv-tick:       var(--acc);       /* a ticked box and the tint of its row: done always wears the accent (D123) */
   --hv-tick-ink:   var(--on-acc);
   --hv-acc-ink:    var(--acc-ink);   /* the accent as text, until lib/meaning-colours-run.js sets it for our surfaces */
   --hv-on-meaning: #000000;          /* text on a meaning colour's fill: the superset pill, a cardio or deload day */
+  --hv-thumb-bg:   #ffffff;          /* the white disc behind an exercise thumbnail */
+  --hv-ring-track: rgba(127,127,127,.16);   /* a progress ring's empty track */
+  --hv-share-edge: rgba(255,255,255,.14);   /* the share card's edge on the black sheet */
   /* heart-rate zones 1 to 5 on the strap's full screen (StrapScreen.jsx), grey to red */
   --hv-zone-1:     #8e9aaf;
   --hv-zone-2:     #0a84ff;
@@ -73,7 +76,6 @@
   --surface-raised: #ffffff;   /* upstream's light values, which the dark block above now overrides */
   --raised-line:    rgba(60,60,67,.10);
   --label-dim:      var(--label-2);
-  --hv-stripe:      #f2f3f5;
 
   --label:     #111317;
   --label-2:   #6b7079;

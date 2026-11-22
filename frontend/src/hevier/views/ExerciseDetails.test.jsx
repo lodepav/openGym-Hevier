@@ -8,12 +8,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { withExUnit } from '../../lib/ex-unit.js'
 import { useUI } from '../../store/useUI.js'
+import { bindUI } from '../../components/ui.jsx'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { exerciseDetailSheet } from '../../sheets.jsx'
 import { hooks } from '../hooks.js'
 import { installExerciseDetails } from './ExerciseDetails.jsx'
 import { capWords } from '../../lib/format.js'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { useStatsPhase } from '../lib/shared-phase-run.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
@@ -36,6 +40,20 @@ function open(workouts, edit) {
   root = createRoot(container)
   const sheet = useUI.getState().sheets.at(-1)
   act(() => root.render(sheet.render(() => {})))
+}
+bindUI(useUI)   // the app binds it at boot; the menu buttons' picker sheet needs it
+// Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
+function pickMenu(btn, label) {
+  act(() => btn.click())
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const r = createRoot(host)
+  const top = useUI.getState().sheets.at(-1)
+  act(() => r.render(top.render(() => useUI.setState({ sheets: useUI.getState().sheets.filter(x => x !== top) }))))
+  const offered = [...host.querySelectorAll('button.lrow .lrow-t')].map(x => x.textContent)
+  if (label) act(() => [...host.querySelectorAll('button.lrow')].find(b => b.querySelector('.lrow-t').textContent === label).click())
+  act(() => r.unmount()); host.remove()
+  return offered
 }
 // Opens a row or link of the page and renders the sheet it opens; `subs` are unmounted after each test.
 let subs = []
@@ -72,10 +90,12 @@ describe('hevier: exercise details (seam S10)', () => {
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
     expect(lines).toHaveLength(1)
     // The only session holds every best: its sets carry the star, read out, and the line says best.
-    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best set: 60 kg × 8 · ★ Best set: 62.5 kg × 6')
+    expect(lines[0].querySelector('.hv-xd-lsets').textContent).toBe('★ Best 1RM, Best set: 60 kg × 8 · ★ Heaviest: 62.5 kg × 6')
     // Each set is one unit the line wraps around, the separators between them.
-    expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best set: 60 kg × 8', '★ Best set: 62.5 kg × 6'])
-    expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('best')
+    expect([...lines[0].querySelectorAll('.hv-xd-lset')].map(x => x.textContent)).toEqual(['★ Best 1RM, Best set: 60 kg × 8', '★ Heaviest: 62.5 kg × 6'])
+    expect(lines[0].querySelector('.hv-xd-best').textContent).toBe('Heaviest')
+    // Its button name is short: date, first set, count, best (the fifth audit, 2026-11-21).
+    expect(lines[0].getAttribute('aria-label')).toMatch(/., 60 kg × 8, 2 sets, Heaviest$/)
     const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
     expect(tiles[0]).toBe('62.5 kg')
     expect(tiles[2]).toBe('60 kg × 8')
@@ -85,6 +105,13 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['6 reps', '8 reps'])
     // Twenty days ago is within the last month: new, in words.
     expect(rows.map(r => r.querySelector('.hv-xd-new')?.textContent)).toEqual(['new', 'new'])
+    // The chart comes before the long list of rep counts (the critique, 2026-11-21).
+    const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
+    expect(heads).not.toContain('Heaviest Weight')
+    // Under three sessions there is no curve, and a line would repeat the Heaviest tile: no chart section (the critiques, 2026-11-21).
+    expect(container.querySelector('.hv-xd-chart')).toBeNull()
+    expect(container.querySelector('.hv-xd-range')).toBeNull()
+    expect(container.querySelector('.hv-xd-few')).toBeNull()
     const rowTitles = [...container.querySelectorAll('.hv-linkrow b')].map(b => b.textContent)
     expect(rowTitles).toEqual(['How to'])
     expect(container.querySelector('.hv-xd-more .hv-sl')).toBeTruthy()   // the strength level, in place
@@ -99,13 +126,49 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(tiles[1]).toMatch(/^1[45]\d(\.\d+)? lb$/)   // 50 kg × 12 is about 70 kg of 1RM, 154 lb
     expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,32[23](\.\d+)? lb/)   // 600 kg
     expect(container.querySelector('.hv-xd-rr b').textContent).toMatch(/^110\.23? lb$/)
-    // The chart plots lb too: its axis reaches past 100 where the stored 50 kg would not.
-    expect([...container.querySelectorAll('.chart text')].some(x => Number(x.textContent.replace(',', '')) >= 100)).toBe(true)
     // The strength level too: the kg levels and the best 1RM in lb, beside the tile above it.
     expect(container.querySelector('.hv-sl-foot').textContent).toMatch(/Best 1RM 1[45]\d(\.\d+)? lb/)
     expect(container.querySelector('.hv-sl-ticks').textContent).toMatch(/^88132\.5/)
     const all = sub('All history')
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
+  })
+
+  it('draws the chart from three sessions on', () => {
+    const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+    open([3, 2, 1].map(n => ({ id: 'w' + n, d: at(n * 7), entries: [{ id: EX.id, sets: [{ w: 60 + n, r: 8, done: true }] }] })))
+    expect(container.querySelector('.hv-xd-chart')).toBeTruthy()
+    // The chart comes before the long list of rep counts (the critique, 2026-11-21).
+    const heads = [...container.querySelectorAll('.hv-xd-page h4.sec')].map(h => h.textContent)
+    expect(heads.indexOf('Best sets')).toBeLessThan(heads.indexOf('Heaviest Weight'))
+    expect(heads.indexOf('Heaviest Weight')).toBeLessThan(heads.indexOf('Best at each rep count'))
+  })
+
+  it('a reps-only set on the last sessions reads “8 reps”, not “× 8”', () => {
+    const PUSH = EXDB.find(e => /^push-?up$/i.test(e.n) && modeOf({ id: e.id }) === 'reps')
+    const S = clone(DEF)
+    S.workouts = [{ id: 'p', d: log[0].d, entries: [{ id: PUSH.id, sets: [{ r: 8, done: true }] }] }]
+    useStore.setState({ S, user: null })
+    exerciseDetailSheet(PUSH)
+    container = document.createElement('div'); document.body.appendChild(container); root = createRoot(container)
+    act(() => root.render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(container.querySelector('.hv-xd-lset').textContent).toMatch(/: 8 reps$/)
+  })
+
+  // happy-dom draws no stylesheet: the rule's selector is run against the page (the critique, 2026-11-21).
+  it('the clip’s box is dark while it loads, not white', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
+    expect(css).toMatch(/\.hv-xd-page, \.hv-xd-howto\) > \.exmedia video\.catvid\{background:var\(--surface-2\)\}/)
+  })
+
+  it('gives a best 1RM that is the heaviest single the heaviest tile, not a second one', () => {
+    open([
+      { id: 'a', d: '2026-08-05', entries: [{ id: EX.id, sets: [{ w: 100, r: 1, done: true }] }] },
+      { id: 'b', d: '2026-04-06', entries: [{ id: EX.id, sets: [{ w: 60, r: 12, done: true }] }] },
+    ])
+    const tiles = [...container.querySelectorAll('.hv-xd-tile')].map(x => x.querySelector('small').textContent + ' ' + x.querySelector('b').textContent)
+    expect(tiles).toEqual(['Heaviest · Best 1RM 100 kg', 'Best set 60 kg × 12'])
+    // one date form on the page: the tiles read as the session lines do, without a weekday
+    expect([...container.querySelectorAll('.hv-xd-tile small:last-child')].map(x => x.textContent)).toEqual(['5 Aug', '6 Apr'])
   })
 
   it('marks each session against the one before, with its effort', () => {
@@ -117,7 +180,7 @@ describe('hevier: exercise details (seam S10)', () => {
     ])
     const lines = [...container.querySelectorAll('.hv-xd-ls')]
     expect(lines.map(l => l.querySelector('.hv-trend')?.getAttribute('aria-label') ?? l.querySelector('.hv-xd-best')?.textContent))
-      .toEqual(['Better than last time', 'Less than last time', 'best'])
+      .toEqual(['Better than last time', 'Less than last time', 'Heaviest'])
     expect(lines[0].querySelector('small').textContent).toBe(' RPE 8')
   })
 
@@ -186,16 +249,21 @@ describe('hevier: exercise details (seam S10)', () => {
     }
     const inputs = [...sl().querySelectorAll('input')]
     expect(inputs).toHaveLength(5)
+    // A wrong order is said as it shows; a closed form hands focus to what opens it again (the audit leftovers).
+    act(() => ['40', '55', '50', '90', '110'].forEach((v, i) => set(inputs[i], v)))
+    expect(sl().querySelector('.hv-sl-err').getAttribute('role')).toBe('alert')
     act(() => ['40', '55', '70', '90', '110'].forEach((v, i) => set(inputs[i], v)))
     act(() => sl().querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
     expect(useStore.getState().S.hvStrength[EX.id]).toMatchObject({ lv: [40, 55, 70, 90, 110], u: 'kg' })
     expect(sl().querySelector('form')).toBeNull()
+    expect(document.activeElement?.textContent).toBe('Edit')
     const best = Number(host.textContent.match(/Best 1RM ([\d.]+)/)[1])
     expect(best).toBeGreaterThan(70); expect(best).toBeLessThan(90)
     expect(sl().querySelector('.hv-sl-head').textContent).toMatch(/^Intermediate · [\d.]+ kg to Advanced$/)
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Edit').click())
     act(() => [...sl().querySelectorAll('button')].find(b => b.textContent === 'Remove levels').click())
     expect(useStore.getState().S.hvStrength?.[EX.id]).toBeUndefined()
+    expect(document.activeElement?.textContent).toBe('Compare strength')
   })
 
   it('other names: the switched-on one is the title, the rest and the own name are “Also called” (D73)', () => {
@@ -265,11 +333,9 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
   })
   it('narrows the page to the brand picked, and All history with it', () => {
     open(log)
-    const select = container.querySelector('.hv-xd-labels select')
-    act(() => {
-      Object.getOwnPropertyDescriptor(select.constructor.prototype, 'value').set.call(select, 'k:Technogym')
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    // Upstream's picker sheet, not a native select (the fresh audit, 2026-11-21).
+    expect(container.querySelector('.hv-xd-labels select')).toBeNull()
+    pickMenu(container.querySelector('.hv-xd-labels .menu-btn'), 'Technogym (2)')
     expect(lastShown()).toBe(2)
     expect(shown(sub('All history'))).toEqual(['s1', 's3'])
   })
@@ -278,7 +344,7 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s2']])
-    expect(cols().map(c => c.querySelector('select').value)).toEqual(['k:Technogym', 'k:Hammer'])
+    expect(cols().map(c => c.querySelector('.menu-btn').getAttribute('aria-label'))).toEqual(['Brand: Technogym', 'Brand: Hammer'])
     chip('Cutting')
     expect(cols().map(shown)).toEqual([['s1'], []])
   })
@@ -288,21 +354,16 @@ describe('hevier: an exercise\'s history by phase and brand (D93, D96)', () => {
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1'], ['s4']])
-    expect([...cols()[1].querySelectorAll('option')].map(o => o.textContent)).toEqual(['No brand'])
+    expect(pickMenu(cols()[1].querySelector('.menu-btn'))).toEqual(['No brand'])
   })
   it('lets a column pick No brand among other brands', () => {
     open([...log, session('s4', 9, undefined, 40)])
     const host = sub('Compare brands')
     const cols = () => [...host.querySelectorAll('.hv-xd-cmpcol')]
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s2']])
-    const select = cols()[1].querySelector('select')
-    expect([...select.querySelectorAll('option')].map(o => o.textContent)).toEqual(['Hammer', 'No brand'])
-    act(() => {
-      Object.getOwnPropertyDescriptor(select.constructor.prototype, 'value').set.call(select, 'k:')
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    expect(pickMenu(cols()[1].querySelector('.menu-btn'), 'No brand')).toEqual(['Hammer', 'No brand'])
     expect(cols().map(shown)).toEqual([['s1', 's3'], ['s4']])
-    expect(cols()[1].querySelector('select').value).toBe('k:')
+    expect(cols()[1].querySelector('.menu-btn').getAttribute('aria-label')).toBe('Brand: No brand')
   })
   it('does not offer Compare brands with one brand', () => {
     open(log.filter(w => w.id !== 's2'))

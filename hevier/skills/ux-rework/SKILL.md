@@ -155,7 +155,7 @@ All approved screens are built together (D125), unless the user asks for some of
    `hevier/SEAMS.md`; `hevier/FEATURES.md` gets what is new; the views' tests
    (`navigation.test.jsx` and each screen's own) follow the new screens.
 2. `verify`; `seam-check` if an upstream file changed; `emulator-check` on every screen; if the
-   workout screen or a routine changed, `hevier/tools/routine-check.sh`.
+   workout screen or a routine changed, `hevier/tools/routine-check.sh --build`.
 3. Score every built screen with `before-after` against its Baseline and compare it with its
    approved mockup. The result goes in the screen's Result cell. A screen that scores worse
    than its old one, or differs from its mockup, is fixed before the user sees it; if the fix

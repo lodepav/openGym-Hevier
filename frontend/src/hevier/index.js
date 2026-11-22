@@ -80,6 +80,7 @@ function install() {
   hooks.statsOff = ['j', 't', 'month', 'form', 'level', 'ranges']    // All statistics without the Journal, Tools, Your month, daily form, levels (S61, D109) and target ranges (D139)
   hooks.noMic = true                                      // the APK has no microphone permission (S60, D106)
   hooks.secondsStep = 5                                   // the rest and timer wheels in 5 s steps (D48)
+  hooks.namedSteps = true                                 // the effort sheet's − and + say what they change (S70, R12-U7)
   hooks.backupKeep = 5                                    // auto-backup keeps the newest 5 copies, not 14 (S52, D20)
   hooks.hiddenModules = HIDDEN_MODULES                    // modules whose features the fork never shows (S54, D97)
   Object.assign(hooks, { forkModules: FORK_MODULES, forkModuleCopy, setModule: setAnyModule }) // the fork's own modules (S54, D114)

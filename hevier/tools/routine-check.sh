@@ -2,9 +2,9 @@
 # Every routine of the test profile opens as it did the last time this was accepted: the emulator
 # half of the regression harness (the other half, routine-open.test.js, runs with the tests).
 #
-#   hevier/tools/routine-check.sh            # the debug app as installed on the running emulator
-#   hevier/tools/routine-check.sh --build    # build this checkout, boot the emulator, install, then check
-#   hevier/tools/routine-check.sh --accept   # the differences are meant: keep this run as the baseline
+#   ANDROID_SERIAL=emulator-5556 hevier/tools/routine-check.sh   # the debug app as installed there
+#   hevier/tools/routine-check.sh --build    # build this checkout, boot an emulator, install, then check
+#   hevier/tools/routine-check.sh --build --accept   # the differences are meant: keep this run as the baseline
 #   hevier/tools/routine-check.sh --build --once   # nothing when it passed for this app already
 #
 # It restores the test profile (hevier/ux/JOURNEYS.md, ~/.cache/hevier/ux-profile.tar), runs
@@ -55,13 +55,30 @@ if [[ -n "$ONCE" ]] && already_checked; then
   exit 0
 fi
 
+# The shared emulators (~/.claude/bin/emu), only now that it checks: --build boots a free one unless
+# ANDROID_SERIAL names one, and stops the one it booted on every exit. The profile restore wipes app
+# storage, so it runs only on an emulator this repo booted, never one adb happens to pick.
+BOOTED= OUT=
+cleanup() {
+  [[ -z "$OUT" ]] || rm -f "$OUT"
+  [[ -z "$BOOTED" ]] || "$HOME/.claude/bin/emu" down "$ANDROID_SERIAL" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+if [[ -z ${ANDROID_SERIAL:-} ]]; then
+  [[ -n "$BUILD" ]] || { echo "routine check: set ANDROID_SERIAL to an emulator this repo booted (~/.claude/bin/emu list), or use --build" >&2; exit 2; }
+  ANDROID_SERIAL="$("$HOME/.claude/bin/emu" up)" || { echo "routine check: no emulator could be booted (~/.claude/bin/emu list)" >&2; exit 2; }
+  BOOTED=1
+elif ! "$HOME/.claude/bin/emu" mine "$ANDROID_SERIAL"; then
+  echo "routine check: $ANDROID_SERIAL was not booted from this repo (~/.claude/bin/emu list)" >&2; exit 2
+fi
+export ANDROID_SERIAL
 if [[ -n "$BUILD" ]]; then
-  HEADLESS=1 hevier/tools/emulator.sh >/tmp/hevier-routine-check-build.log 2>&1 \
+  hevier/tools/emulator.sh >/tmp/hevier-routine-check-build.log 2>&1 \
     || { echo "routine check: the debug build failed, see /tmp/hevier-routine-check-build.log" >&2; exit 2; }
   # cap sync rewrites these in place; the tree stays as committed.
   git checkout -- frontend/android/app/capacitor.build.gradle frontend/android/capacitor.settings.gradle frontend/ios/App/Podfile 2>/dev/null || true
 fi
-"$ADB" get-state >/dev/null 2>&1 || { echo "routine check: no emulator is running (hevier/tools/emulator.sh, or --build)" >&2; exit 2; }
+"$ADB" get-state >/dev/null 2>&1 || { echo "routine check: $ANDROID_SERIAL is not reachable (hevier/tools/emulator.sh, or --build)" >&2; exit 2; }
 
 # The profile as saved, so every run reads the same data. Extracted with the app stopped.
 "$ADB" shell am force-stop "$APP"
@@ -74,7 +91,6 @@ fi
 sleep 5
 
 OUT="$(mktemp -t routines-XXXXXX.json)"
-trap 'rm -f "$OUT"' EXIT
 if [[ -n "$ACCEPT" || ! -s "$BASE" ]]; then
   node hevier/tools/routine-snapshot.mjs "$OUT"
   grep -q '"probe": {' "$OUT" || { echo "routine check: no warm-up probe ran, the profile has lost its warm-up routines: not kept" >&2; exit 2; }
@@ -86,7 +102,7 @@ if [[ -n "$ACCEPT" || ! -s "$BASE" ]]; then
 fi
 node hevier/tools/routine-snapshot.mjs "$OUT" --diff "$BASE" || {
   code=$?
-  [[ $code -eq 1 ]] && echo "routine check: routines open differently from the baseline. Meant? hevier/tools/routine-check.sh --accept" >&2
+  [[ $code -eq 1 ]] && echo "routine check: routines open differently from the baseline. Meant? hevier/tools/routine-check.sh --build --accept" >&2
   exit $code
 }
 passed

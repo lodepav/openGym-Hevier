@@ -92,7 +92,18 @@ publish() {  # version, lean apk, full apk
   echo; echo "$notes"; echo
   # The pre-push hook passes on the stamp (verify.sh lets a new fixture through; its upgrade test ran
   # after the commit). Should it run the suite: without this build's flags, upstream's tests expect none.
-  [[ "$(git branch --show-current)" == hevier/main ]] && env -u VITE_MOBILE -u VITE_HEVIER -u VITE_HEVIER_MEDIA -u VITE_UPDATE_REPO git push -q origin hevier/main
+  # A failed push is handled here: under set -e it would exit with the tag kept, and a rerun would
+  # find nothing to release.
+  if [[ "$(git branch --show-current)" == hevier/main ]] \
+      && ! env -u VITE_MOBILE -u VITE_HEVIER -u VITE_HEVIER_MEDIA -u VITE_UPDATE_REPO git push -q origin hevier/main; then
+    rm -rf "$dir"
+    untag "$tag"
+    echo "pushing hevier/main failed: nothing published, the tag is taken back. Origin may have moved on," >&2
+    echo "or the pre-push hook's verify.sh failed (its output is above)." >&2
+    echo "Run again to keep $ver. If origin moved on, the release commit goes too, and a run again writes it anew:" >&2
+    echo "  git fetch origin && git reset --hard origin/hevier/main && $0" >&2
+    return 1
+  fi
   # The pictures before the app's tag: an app release must never point at a zip that is not there.
   publish_media || {
     rm -rf "$dir"
@@ -128,15 +139,14 @@ EARLY=; rm -f "$EARLY_LOG"; trap - EXIT
 took checks
 # Every routine of the test profile opens as it did at the last release: a debug build of this
 # commit on the emulator (routine-check.sh, about a minute; --once skips it when it passed for
-# this app already, ROUTINE_CHECK=0 leaves it out). An emulator this started is stopped again,
-# so the release build has the memory.
+# this app already, ROUTINE_CHECK=0 leaves it out). It boots an emulator only when it checks, and
+# stops the one it booted, so the release build has the memory.
 if [[ "${ROUTINE_CHECK:-1}" != 0 ]]; then
-  WAS_UP="$("$ANDROID_HOME/platform-tools/adb" get-state 2>/dev/null || true)"
   DEBUG_APK=frontend/android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk STARTED=$(date +%s)
   RSTAMP="$(git rev-parse --path-format=absolute --git-common-dir)/hevier-routines-checked"
-  hevier/tools/routine-check.sh --build --once || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
-  [[ -n "$WAS_UP" ]] || "$ANDROID_HOME/platform-tools/adb" emu kill >/dev/null 2>&1 || true
-  (cd frontend/android && ./gradlew --stop -q) >/dev/null 2>&1 || true
+  hevier/tools/routine-check.sh --build --once || { echo "the routine check fails: nothing released (meant? hevier/tools/routine-check.sh --build --accept; or ROUTINE_CHECK=0)" >&2; exit 2; }
+  # Through heavy.sh: --stop ends every daemon of this Gradle version, a busy build's too.
+  (cd frontend/android && ../../hevier/tools/heavy.sh ./gradlew --stop -q) >/dev/null 2>&1 || true
   # Its debug APK asks for what the release will: a permission, library or exported component
   # missing from hevier/security stops here, before the version is committed. Only when the check
   # ran just now (its stamp is new; Gradle leaves an unchanged APK's date alone): skipped by --once,
@@ -147,9 +157,6 @@ if [[ "${ROUTINE_CHECK:-1}" != 0 ]]; then
   fi
 fi
 took "routine check"
-# Gradle's daemon takes about 40 s to start: start it now, while the notes are read, so the build
-# below finds it running (the build waits for this first: a busy daemon would make it start another).
-(cd frontend/android && nice -n 19 ./gradlew help -q --max-workers=2) >/dev/null 2>&1 & WARM=$!
 
 # The version: from the merges since the last release, or the one an earlier run committed and
 # did not get published (TAKEN empty), which is released as it is.
@@ -192,6 +199,10 @@ else
   VER="$NEW"
 fi
 took "version and notes"
+# Gradle's daemon takes about 40 s to start: start it now, past every exit that releases nothing,
+# while the pictures and the bundle are made, so the build below finds it running (the build waits
+# for this first: a busy daemon would make it start another).
+(cd frontend/android && nice -n 19 ./gradlew help -q --max-workers=2) >/dev/null 2>&1 & WARM=$!
 TMP="$(mktemp -d)"
 # The gates that read only the committed sources (git history, Trivy, npm packages) run while the
 # APK builds; the rest run once it is signed (D26). Stopped too if the build fails.
@@ -278,7 +289,7 @@ if unzip -Z1 "$OUT" | grep '^assets/public/exercise-media/' >/dev/null; then
 fi
 
 # Free the daemon's memory now: a second app's release may run right after this one.
-(cd android && ./gradlew --stop -q) >/dev/null 2>&1 || true
+(cd android && ../../hevier/tools/heavy.sh ./gradlew --stop -q) >/dev/null 2>&1 || true
 # cap sync rewrites these in place; a release check needs the tree as committed.
 git -C "$ROOT" checkout -q -- frontend/android/capacitor.settings.gradle frontend/android/app/capacitor.build.gradle frontend/ios 2>/dev/null || true
 took build

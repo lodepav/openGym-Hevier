@@ -40,7 +40,9 @@ import { workoutControls } from '../../lib/workout-controls.js'
 import { previousSetsFor, previousMode } from '../lib/previous-sets.js'
 import { isOpenRow } from '../lib/open-set.js'
 import { liveRecords, recordsAt, recordValue, KINDS } from '../lib/records.js'
+import { liveRecordsOn } from '../../lib/set-records.js'
 import { BrandLine, brandSheet } from './GymLabels.jsx'
+import { effortInk } from '../lib/effort-ink.js'
 import { reorderExercisesSheet } from './ReorderExercisesSheet.jsx'
 import HintNumberField from './HintNumberField.jsx'
 import DurationField from './DurationField.jsx'
@@ -146,8 +148,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
   // D127: the opened set, large (lib/open-set.js); this exercise is the open
   // one when `open` is passed, and only then shows its buttons and "+ Set".
   const isOpenAt = i => isOpenRow(entry.sets, open, i)
-  // D22, D51: the sets that hold a record so far, every kind, by the label the session shows.
-  const prSets = new Set(recordsAt(liveRecords(S), entryIdx).map(r => r.set))
+  // D22, D51: the sets that hold a record so far, every kind, by the label the session shows;
+  // none with upstream's Record trophies off (D107).
+  const prSets = new Set(liveRecordsOn(S) ? recordsAt(liveRecords(S), entryIdx).map(r => r.set) : [])
   const last = lastEntryFor(history, entry.id, entry.rid)
   const effortKind = effortOf(S)
   const effortCol = EFFORT[effortKind]
@@ -257,7 +260,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
   const rowName = (s, i) => (isWarmupRow(s) ? t('Warm-up {0}', setNumberOf(entry.sets, i)) : t('Set {0}', workNumber(i)))
   // D5: the set number opens the set-type picker (exercise-menus.js).
   const openSetType = (s, i) => setTypeMenu({ sets: entry.sets, i, mode, editing, rest: !editing && setRest(i), setPhaseAt, setFailureAt, setHold,
-    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note: noteOf(i) })
+    addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note: noteOf(i), trend: prSets.has(i) ? '' : trendWords(trendAt(s, i)) })
   // A set's note (upstream 1.4.4): on its first row, an L/R pair's L; written by upstream's sheet.
   const noteOf = i => {
     const at = setSpanAt(entry.sets, i)[0]
@@ -365,7 +368,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
     if (col.dur) return <DurationField className={'hv-num' + (firm ? '' : ' hv-hint')} sec={secOf(src, modeAt(s))} {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={sec => { touch(i, key); onField(i, col.f, fieldValue(modeAt(s), sec)) }} />
-    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={viewOf(col, src[col.f]) ?? ''}
+    // A grey weight of nothing (a lift last logged without one) reads "–", as PREVIOUS's "× 10" does, not "0".
+    const noWeight = !firm && col.f === 'w' && !(Number(src.w) > 0)
+    return <HintNumberField decimal={col.dec} nullable={col.opt} className={'hv-num' + (firm ? '' : ' hv-hint')} value={noWeight ? '–' : viewOf(col, src[col.f]) ?? ''}
       {...hintProps}
       aria-label={fieldName(s, i, col, side)}
       onChange={v => {
@@ -402,12 +407,12 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const open = () => (asTick
       ? useUI.getState().openSheet(close => <>
         <EffortPicker kind={effortKind} value={v} onPick={onPick} close={close} />
-        <Button icon="check" style={{ width: '100%', minHeight: 48, marginTop: 8, background: 'var(--surface-2)' }} onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
+        <Button icon="check" className="hv-eff-plain" onClick={() => { log(); close() }}>{t('Log without rating')}</Button>
       </>)
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
       aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : t(effortCol.hd) + (v == null ? '' : ' ' + fmtNum(v)))}
-      style={color && v != null ? { color, background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
+      style={color && v != null ? { color: effortInk(color), background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
       {v == null ? t(effortCol.hd) : fmtNum(v)}
     </button>
   }
@@ -491,7 +496,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const had = recordsAt(liveRecords(useStore.getState().S), entryIdx, i).map(r => r.kind)
     if (side) onToggleSide(i, side); else onToggle(i)
     const st = useStore.getState().S
-    if (!st.active?.entries[entryIdx]?.sets[i]?.done) return
+    if (!st.active?.entries[entryIdx]?.sets[i]?.done || !liveRecordsOn(st)) return
     const got = recordsAt(liveRecords(st), entryIdx, i).filter(r => !had.includes(r.kind))
     if (got.length) useUI.getState().toast(t('New PR · {0}', t(KINDS[got[0].kind]) + ' ' + prText(got[0])) + (got.length > 1 ? ' +' + (got.length - 1) : ''))
   }
@@ -503,7 +508,10 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const p = prev[i]
     const sideTag = side || s.side
     // A half of a hold pair reads its own side of a per-side set last time.
-    const prevText = previousCell(p, { ...prevOpts, side: side || (s.side && isSideSet(p) ? s.side : undefined) })
+    const prevSide = side || (s.side && isSideSet(p) ? s.side : undefined)
+    const prevText = previousCell(p, { ...prevOpts, side: prevSide })
+    // Said with its unit: the column header that names it is hidden from TalkBack (the fresh audit, 2026-11-21).
+    const prevSaid = previousCell(p, { ...prevOpts, unit: exUnit, side: prevSide })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
     const effTick = effOn && effAt(s) && !goOn && !src.done
@@ -513,7 +521,7 @@ function HevyExerciseBlock({ entryIdx, live }) {
       className={'hv-row' + goGrid + (src.done ? ' done' : '') + (side ? ' hv-side' : '') + (isOpenAt(i) ? ' hv-open' : '')}>
       {side === second || isPairTail(entry.sets, i) ? <span /> : setButton(s, i)}
       <button type="button" className="hv-prev" disabled={!canCopy} onClick={() => copyPrev(i, p, side)}
-        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevText : undefined}>
+        aria-label={canCopy ? t('Last time') + (side ? ' (' + sideWord(side) + ')' : '') + ': ' + prevSaid : undefined}>
         {sideTag && <span className="hv-lr">{sideTag === 'L' ? t('L') : t('R')}</span>}{prevText}</button>
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
@@ -568,11 +576,12 @@ function HevyExerciseBlock({ entryIdx, live }) {
   const addBrand = isOpen && !hasLabel(S, A, entryIdx) && partOn(S, 'hvGyms', 'brands')
   return <div ref={card} className={'hv-ex' + (isOpen ? ' hv-exopen' : '')}>
     <div className="hv-exhd">
-      <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameFor(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
-        <h3 className="hv-name-h"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
+        <h3 className="hv-name-h" aria-level={2}><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></h3>
         <BrandLine idx={entryIdx} />
-        {addBrand && <button type="button" className="hv-addbrand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
+        {/* A line under the name, as a machine's BrandLine draws it: one form for both (the critique, 2026-11-21). */}
+        {addBrand && <button type="button" className="hv-brand" onClick={() => brandSheet(entryIdx)}>{t('+ Brand')}</button>}
       </div>
       {!isOpen && onOpen && <button type="button" className="iconbtn hv-openex" aria-label={t('Open') + ', ' + exerciseNameFor(ex)} onClick={() => onOpen(null)}><Icon name="chevronDown" /></button>}
     </div>

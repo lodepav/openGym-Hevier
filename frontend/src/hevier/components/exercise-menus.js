@@ -18,7 +18,8 @@ import { moduleOn } from '../lib/fork-modules.js'
 
 // D5: the set number is Hevy's set-type picker, with openGym's extra kinds of set below it.
 // `rest` is the set's own rest and the one it takes without, with `save(sec)`; none while editing.
-export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note }) {
+// `trend` is the words of the ↑ = ↓ beside the set number, which the sheet spells out under its title.
+export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailureAt, setHold, addDropRow, addBurstRow, onCopySetAt, onRemoveSetAt, onField, note, trend }) {
   const s = sets[i]
   const cardio = mode === 'cardio'
   const warm = isWarmupRow(s)
@@ -30,6 +31,7 @@ export function setTypeMenu({ sets, i, mode, editing, rest, setPhaseAt, setFailu
   const notWarm = t('Not for a warm-up')
   menuSheet({
     title: t('Select set type'),
+    subtitle: trend || undefined,
     sections: [
       { items: [
         mode === 'reps' && { icon: 'sunrise', label: t('Warm-up set'), on: warm, disabled: !warm && (hold || !(mode === 'reps' && canBeWarmup(s) && otherWork)),
@@ -160,6 +162,11 @@ export function exerciseMenu(p, x) {
             { label: t('Left first'), on: first === 'L', onClick: () => update(s => { setSideOrder(s, entry.id, false) }) },
             { label: t('Right first'), on: first === 'R', onClick: () => update(s => { setSideOrder(s, entry.id, true) }) },
           ] }] }) },
+      ] },
+      // Upstream's one-step moves, beside Reorder's drag: a way without dragging (the audit, 2026-11-21, changes D118).
+      { items: [
+        p.onReorder && p.onMoveUp && { icon: 'chevronUp', label: t('Move up'), disabled: p.busy || !p.canMoveUp, onClick: p.onMoveUp },
+        p.onReorder && p.onMoveDown && { icon: 'chevronDown', label: t('Move down'), disabled: p.busy || !p.canMoveDown, onClick: p.onMoveDown },
       ] },
       { items: [
         p.onRemoveExercise && { icon: 'xmark', label: t('Remove exercise'), danger: true, disabled: p.busy, onClick: p.onRemoveExercise },

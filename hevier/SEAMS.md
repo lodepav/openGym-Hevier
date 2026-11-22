@@ -72,6 +72,7 @@ longer needed gets removed, and so does its row.
 | S67 | `frontend/src/sheets.jsx` (`DayOverride`, `changed`) | With `hooks.pinOn` set, the day sheet's " · changed for this day" reads the pin's state through the fork's rule (`hevier/lib/plan-pins.js`, D124), as S63 does. Unset, upstream's `pinState`. | done |
 | S68 | `frontend/src/sheets.jsx` (`EffortPicker`) | `EffortPicker` is exported. The live workout's effort button in the tick's place opens it in a sheet of its own with **Log without rating** under it (`hevier/components/HevyExerciseBlock.jsx`, D127). Upstream's `effortPickerSheet` is unchanged. Upstream could give its dialog a "no rating" row. | done |
 | S69 | `frontend/src/views/Workout.jsx` (`checkedToggle`) | A row with a mode of its own other than reps (a timed hold in a reps exercise, D89) ticks without upstream's typo check (#811): it has seconds, not reps, so its reps read as 0 against last time's. Upstream never makes such a row in a reps exercise; could be offered. | done |
+| S70 | `frontend/src/sheets.jsx` (`EffortPicker`, the Exact row's − and +) | With `hooks.namedSteps` (set in the fork's build only, so upstream's tests still find "Decrease"), the steppers are spoken with what they change, "RIR: Decrease", through upstream's own `nameIn` and strings; they were "Decrease" and "Increase" (R12-U7). The 48 dp size is the fork's CSS. Could be offered. | done |
 
 ## Upstream contracts the overlay depends on
 

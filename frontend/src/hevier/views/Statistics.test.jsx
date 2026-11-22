@@ -54,6 +54,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(tiles()).toEqual(['sets', 'hours'])
     expect(cards()).toEqual(['sets', 'weekly'])
     expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('b').textContent).toBe('2')
+    // Last week had none: no '+2', which would read as a gain (the critique, 2026-11-21).
+    expect(byText('[data-card="sets"] .hv-mset', 'Chest').querySelector('.hv-mset-d').textContent).toBe('')
     expect(container.querySelector('[data-tile="sets"]').getAttribute('aria-label')).toBe('Sets per muscle, 2 sets this week')
     const hours = container.querySelector('[data-tile="hours"]')
     expect([hours.querySelector('.hv-stile-t').textContent, hours.querySelector('b').textContent]).toEqual(['Training time', '1 h'])
@@ -65,9 +67,9 @@ describe('hevier: Statistics and Measures (M6)', () => {
     // The page ends as Lifts does, with flat accent links, no icon cards and no filled button.
     expect(container.querySelector('.hv-linkrow')).toBeNull()
     expect(container.querySelector('.btn')).toBeNull()
-    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => [b.tagName, b.textContent]))
-      .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange Statistics']])
-    act(() => byText('.hv-lifts-ends .hv-link', 'All statistics').click())
+    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => [b.tagName, b.textContent]))
+      .toEqual([['BUTTON', 'All statistics'], ['BUTTON', 'Structural balance'], ['BUTTON', 'Arrange']])
+    act(() => byText('.hv-stat-ends .hv-chip', 'All statistics').click())
     expect(path).toBe('/stats/all')
     expect(container.querySelector('.hv-allstats .hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
@@ -82,6 +84,8 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(tile.getAttribute('aria-label')).toBe('Body weight, 82.4 kg, down 0.6 kg in 4 weeks')
     act(() => tile.click())
     expect(path).toBe('/measures')
+    // Its ‹ says where it goes back to (the fresh audit, 2026-11-21).
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('Statistics')
   })
 
   it('… and not with the body module off', () => {
@@ -140,13 +144,13 @@ describe('hevier: Statistics and Measures (M6)', () => {
   it('an empty history says so on the sets card, and links no Structural balance', () => {
     render(['/stats'])
     expect(container.textContent).toContain('No sets in this period yet.')
-    expect([...container.querySelectorAll('.hv-lifts-ends .hv-link')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange Statistics'])
+    expect([...container.querySelectorAll('.hv-stat-ends .hv-chip')].map(b => b.textContent)).toEqual(['All statistics', 'Arrange'])
   })
 
   // The owner's choice after the third critique: an odd last tile keeps its half, not a mostly empty full row.
   it('no tile spans both columns, an odd last one included', () => {
     const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../hevier.css'), 'utf8')
-    expect(css).not.toMatch(/\.hv-stile[^{]*\{[^}]*grid-column:1 \/ -1/)
+    expect(css).not.toMatch(/\.hv-stile[^{]*\{[^}]*grid-column: *1 *\/ *-1/)
   })
 
   it('upstream’s ?focus= links land on upstream’s statistics', () => {
@@ -159,10 +163,35 @@ describe('hevier: Statistics and Measures (M6)', () => {
     render(['/history-tab', '/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }] })
     expect(container.querySelector('.big').textContent).toContain('80')
     expect(container.querySelector('[aria-current="page"], .on, .active')?.textContent).toContain('History')
+    expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')
     act(() => byText('button', 'Log').click())
     expect(useUI.getState().sheets).toHaveLength(1)
+    // The recent weigh-ins are one button to the whole log (the fresh audit, 2026-11-21).
+    const list = container.querySelector('.hv-ms-list')
+    expect(list.tagName).toBe('BUTTON')
+    expect(list.querySelectorAll('button')).toHaveLength(0)
+    act(() => list.click())
+    expect(useUI.getState().sheets).toHaveLength(2)
+    // Each row says what is there, with its day (the critique, 2026-11-21); no photos, no line.
+    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub')).toBeNull()
+    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub')).toBeNull()
     act(() => byText('.hv-linkrow', 'Body measurements').click())
     expect(path).toBe('/measurements')
+  })
+
+  // The audit, 2026-11-21: with a goal set the button shows the number and says what it is.
+  it('Measures: the Goal button says Goal with its number', () => {
+    render(['/measures'], { bodyweight: [{ d: todayISO(), t: Date.now(), w: 80 }], targetW: 75 })
+    const goal = [...container.querySelectorAll('button')].find(b => b.textContent === '75')
+    expect(goal.getAttribute('aria-label')).toBe('Goal 75 kg')
+  })
+
+  const H = 'a'.repeat(64)
+  it('Measures: the measurements row gives the last value, the photos row the count', () => {
+    render(['/measures'], { measurements: [{ d: '2026-11-03', waist: 82 }],
+      dayPhotos: { [H]: { d: '2026-11-01', m: { hash: H, kind: 'image', mime: 'image/jpeg', size: 1000, width: 600, height: 800 } } } })
+    expect(byText('.hv-linkrow', 'Body measurements').querySelector('.hv-sub').textContent).toMatch(/^Waist 82 cm · 3 Nov/)
+    expect(byText('.hv-linkrow', 'Progress photos').querySelector('.hv-sub').textContent).toMatch(/^1 photo · 1 Nov/)
   })
 
   it('upstream’s own ‹ on a page under Measures goes back there, not to Home', () => {

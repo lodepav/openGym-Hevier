@@ -174,7 +174,7 @@ describe('hevier: the live workout re-renders only the card that changed', () =>
     render([entry(0), entry(1)])
     onTestFinished(async () => { await act(async () => { await setLang('en') }) })
     await act(async () => { await setLang('de') })
-    expect(card(1).querySelector('.hv-thumb').getAttribute('aria-label')).toBe('So geht’s')
+    expect(card(1).querySelector('.hv-thumb').getAttribute('aria-label')).toMatch(/^So geht’s, /)   // then the exercise's name (the fifth audit, 2026-11-21)
   })
 
   it('a card takes on new weight decimals at the next render of the workout', () => {

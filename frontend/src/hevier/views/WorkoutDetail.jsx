@@ -12,7 +12,7 @@ import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXIDX } from '../../lib/exercises.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { fmtVol, fmtNum } from '../../lib/format.js'
+import { fmtVol, fmtNum, exerciseNameText } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { sessionSections, sessionVolume, EFFORT } from '../../lib/history.js'
 import { hasCompletedWork, isWarmupRow, isSideSet } from '../../lib/workout-model.js'
@@ -58,20 +58,32 @@ const Trend = TrendMark
 
 const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
 
-function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }) {
+// Each row's records and its ↑ = ↓, which a record replaces (D66): what a set row shows beside its numbers.
+function rowMarks(e, recs, trends = [], sideTrends = []) {
+  const rows = detailRows(e.sets)
+  const last = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s) && !isWarmupRow(s)).at(-1)?.i
+  return rows.map(row => {
+    const at = recordsOnRow(row, recs, e.sets, last)
+    return { row, at, trend: at.length ? null : row.side && isSideSet(e.sets[row.i]) ? sideTrends[row.i]?.[row.side] : trends[row.i] }
+  })
+}
+
+function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, legend = false }) {
   const ex = EXIDX[e.id]
   // A record sits on the set that made it, as in Hevy; a session's (its volume) on the last work set,
   // the one that took the session past it (changed 2026-10-20: it was on the exercise's header).
   // A per-side set is an L row and an R row (D133), its record on its side.
-  const rows = detailRows(e.sets)
-  const last = (e.sets || []).map((s, i) => ({ s, i })).filter(({ s }) => hasCompletedWork(s) && !isWarmupRow(s)).at(-1)?.i
+  const marks = rowMarks(e, recs, trends, sideTrends)
+  const rows = marks.map(m => m.row)
   const anyHr = rows.some(r => sanitizeHr(r.hr))
   return <div className="hv-wd-ex">
     <div className="hv-exhd">
-      <span className="hv-thumb">{ex && <Thumb ex={ex} />}</span>
-      <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
+      {ex ? <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+        : <span className="hv-thumb" />}
+      {/* Under the "Workout" h3, so a level below it (the fifth audit, 2026-11-21). */}
+      <span role="heading" aria-level="4" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => ex && exerciseDetailSheet(ex)}>
         {ex ? exerciseNameFor(ex) : (e.n || e.id)}
-      </button>
+      </button></span>
     </div>
     {(e.hvBrand || cableOn(e)) && <div className="hv-brand has"><Icon name="machine" />
       {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
@@ -82,18 +94,18 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span>
         {scale && <span className="hv-wd-rpe">{t(EFFORT[scale].hd)}</span>}{anyHr && <span className="hv-wd-hrc" />}</div>
-      {rows.map(row => {
+      {marks.map(({ row, at, trend }) => {
         const { i, s } = row
-        const at = recordsOnRow(row, recs, e.sets, last)
-        const trend = row.side && isSideSet(e.sets[i]) ? sideTrends[i]?.[row.side] : trends[i]
         const hr = row.head && sanitizeHr(row.hr)
         const effort = effortShown(row.effort, scale)
         return <Fragment key={i + (row.side || '')}><div className="hv-wd-row">
           {/* W for a warm-up, H for a hold (D89), else the set's number among the rep sets; once a set. */}
-          {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
+          {/* TalkBack says the word, not the letter (the audit, 2026-11-21). */}
+          {(mark => <span className={mark === 'W' ? 'hv-wd-w' : mark === 'H' ? 'hv-wd-h' : ''}
+            {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : {})}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
           {/* A record says more than an arrow: the set shows only its badge (D66). */}
-          <span className="hv-wd-v">{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}
-            {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}{!at.length && <Trend v={trend} />}</span>
+          <span className="hv-wd-v">{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}
+            {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}<Trend v={trend} /></span>
           {scale && <span className="hv-wd-rpe">{effort != null && <><span className="hv-sr">{t(EFFORT[scale].hd)} </span>{fmtNum(effort)}</>}</span>}
           {anyHr && <span className="hv-wd-hrc">{hr && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{hr.avg}</span>}</span>}
           <PrBadge recs={at} />
@@ -103,6 +115,7 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale }
       })}
       {rows.length === 0 && <div className="hv-wd-row muted"><span /><span>{t('no sets')}</span></div>}
     </div>
+    {legend && <p className="hv-wd-legend small dim" aria-hidden="true">{t('↑ = ↓ against the same set last time')}</p>}
   </div>
 }
 
@@ -143,6 +156,9 @@ export function WorkoutDetail() {
   // D133: the effort column shows when the workout has any effort logged, in the profile's scale.
   const scale = (w.entries || []).some(e => detailRows(e.sets).some(r => r.effort)) ? effortScale(st) : null
   const units = sessionSections(w.entries || []).flatMap(g => g.units)
+  // Each exercise's trends once, for the legend and its rows (the audit, 2026-11-21).
+  const trendsOf = (w.entries || []).map((_, i) => ({ trends: workoutTrends(st, w, i), sideTrends: workoutSideTrends(st, w, i) }))
+  const legendAt = units.flat().find(i => rowMarks(w.entries[i], recordsAt(prs, i), trendsOf[i].trends, trendsOf[i].sideTrends).some(m => m.trend != null))
   const gym = gymName(st, savedGym(w))   // D28: null without a gym, '' for one deleted since
   const phase = workoutPhase(w)   // D93: OpenBite's phase when it was saved
   const more = () => workoutActions(w, nav, [
@@ -170,9 +186,9 @@ export function WorkoutDetail() {
     {/* Shown when there is something to show; adding one is in All details. */}
     {workoutMediaCount(w) > 0 && <WorkoutMediaSection w={w} />}
     <h3 className="sec">{t('Workout')}</h3>
+    {/* The ↑ = ↓ explained once, under the first exercise that shows one; each mark is read out on its own (the critique, 2026-11-21). */}
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
-      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} trends={workoutTrends(st, w, i)}
-        sideTrends={workoutSideTrends(st, w, i)} time={times[i]} scale={scale} />)}
+      {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} {...trendsOf[i]} time={times[i]} scale={scale} legend={i === legendAt} />)}
     </div>)}
     <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
   </div>

@@ -32,7 +32,8 @@ export const FORK_MODULES = [
     desc: 'Progression, plate loading, drop-sets, units, other names and the main muscle of an exercise.' },
   { id: 'hvWorkout', group: 'training', icon: 'stopwatch', tint: 'var(--orange)', title: 'Workout extras',
     desc: 'The Timer and Stopwatch, and exercise demos.' },
-  { id: 'hvGyms', group: 'training', icon: 'pin', tint: 'var(--green)', title: 'Gyms',
+  // Settings' Gyms row's own icon and tint (upstream's equipment page), so the two read as one (the critique, 2026-11-21).
+  { id: 'hvGyms', group: 'training', icon: 'kettlebell', tint: 'var(--indigo)', title: 'Gyms',
     desc: 'Machine brands per gym, gyms nearby and backups per gym.' },
   { id: 'hvStats', group: 'extras', icon: 'chart', tint: 'var(--blue)', title: 'Statistics extras',
     desc: 'The monthly report, exercise time, the strength levels list and the calendar.' },

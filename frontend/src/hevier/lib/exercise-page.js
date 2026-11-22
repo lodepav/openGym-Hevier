@@ -38,8 +38,14 @@ function bestKeys(chron, exId, metric) {
       }
     })
   })
-  return new Set(Object.values(bests).map(b => b.key))
+  // Each starred set's key to the bests it holds, in KINDS order.
+  const held = new Map()
+  for (const kind of KINDS) if (bests[kind]) held.set(bests[kind].key, [...(held.get(bests[kind].key) || []), kind])
+  return held
 }
+
+// The order a line names its best in: the heaviest before the 1RM before the best set.
+const KINDS = ['weight', 'e1rm', 'setVol', 'reps', 'sec']
 
 // A session's top set to hold against another's: the heaviest and then the most reps (a side
 // counts on its own), the longest hold, the most minutes.
@@ -55,9 +61,9 @@ function topSet(sess) {
 
 /**
  * The last `n` sessions of `sum` (exerciseSummary's, newest first) as the page's lines:
- * [{ id, d, mode, target, sets: [{ s, star }], effort: [{ rir } | { rpe }], trend, best }].
+ * [{ id, d, mode, target, sets: [{ s, star, kinds }], effort: [{ rir } | { rpe }], trend, best, bestKind }].
  * `trend` is 1, 0, -1 or null, the top set against the session before's (the same kind of set);
- * `best` whether a set of it holds one of the bests. `formula` is the profile's, for the arrow.
+ * `best` whether a set of it holds one of the bests, `bestKind` the first of them in KINDS order (null for none). `formula` is the profile's, for the arrow.
  */
 export function lastSessions(sum, exId, { n = 5, formula } = {}) {
   const list = sum?.sessions || []
@@ -67,10 +73,12 @@ export function lastSessions(sum, exId, { n = 5, formula } = {}) {
   return list.slice(0, n).map((sess, k) => {
     const si = list.length - 1 - k
     const before = list[k + 1]
-    const sets = (sess.sets || []).map((s, j) => ({ s, star: stars.has(si + ':' + j) }))
+    const sets = (sess.sets || []).map((s, j) => ({ s, star: stars.has(si + ':' + j), kinds: stars.get(si + ':' + j) || [] }))
+    const kinds = sets.flatMap(x => x.kinds)
     const trend = before && before.mode === sess.mode ? setTrend(topSet(sess), topSet(before), { assisted, formula }) : null
     return { id: sess.id, d: sess.d, mode: sess.mode, target: sess.target, sets,
-      effort: (sess.sets || []).map(setEffort).filter(Boolean), trend, best: sets.some(x => x.star) }
+      effort: (sess.sets || []).map(setEffort).filter(Boolean), trend, best: sets.some(x => x.star),
+      bestKind: KINDS.find(k => kinds.includes(k)) || null }
   })
 }
 

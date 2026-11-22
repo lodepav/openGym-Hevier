@@ -247,7 +247,7 @@ gave a toast with Undo; Move up and down in the ⋮ covers a long drag.
 | R11-U6 | low | H4 | Last sessions write "20 Oct" and "80×8", the tiles "Tue, 20 Oct" and "60 × 12" | **open**: the short form keeps four sets on one line |
 | R11-U7 | low | H7 | The routines list has no "Search routines" field, which the mockup draws | **fixed**: Search routines at the top, matches listed without folders |
 
-Improvements, **open**: Statistics says "0s this week" where History's tile says "0"; the chart on
+Improvements, **open** (Statistics' "0s this week" is gone since D142: it reads "1 min", checked 2026-11-20): the chart on
 Year says "No data yet" for an exercise last done over a year ago; "Rest day" in the Plan's day
 sheet has no `aria-pressed` (upstream's sheet); a drag past a tall superset needs a hold at the
 top edge (discuss). Notes: "1/5" beside a muscle has no visible legend (D119); "1s a session" on
@@ -264,10 +264,10 @@ Settings and Discard Workout are 48 dp.
 | R12-U1 | high | A6, G7 | At 200% a weight of four or more characters is cut in its field: 102.5 reads "102" | **fixed**: a number wider than its field is drawn smaller until it fits (`lib/fit-numbers.js`), the grey prefilled ones too; this also covers R8-U7's cardio time |
 | R12-U2 | high | A3, A5 | With effort on, the button that logs an unticked set is spoken "Set 4, RIR" | **fixed**: "Set 4, log it with RIR" |
 | R12-U3 | medium | A6, H6 | At 200% the exercise's chips read "Sw…", "His…", "1m…", "Re…" | **fixed**: the buttons wrap to a second line when the words do not fit |
-| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **open** |
-| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **open**: Skip clears it |
+| R12-U4 | low | A6 | At 200% the plan page's headers run together and Edit reads "E…" | **fixed 2026-11-20**: the routine page's set table is one grid, so its SET column takes the word's width; Edit already fit after the D125 rework |
+| R12-U5 | low | A9 | At 200%, while resting, Settings and Discard Workout sit under the rest panel | **fixed 2026-11-20**: the page keeps room for the panel's measured height |
 | R12-U6 | low | A6 | Today's week strip cuts routine names, "P…" twice at 200% | **fixed**: the week row wraps when a name does not fit |
-| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **open** (upstream's sheet) |
+| R12-U7 | low | A1, A3 | Upstream's effort sheet: Exact RIR's − and + are 26 dp wide and spoken "Decrease", "Increase" | **fixed 2026-11-20**: 48 dp, spoken "RIR: Decrease" (seam S70) |
 
 Improvements, **open**: at 200% the Routines and Calendar pills are 1 to 3 dp too narrow for
 their text; the delete toast says "Set 3 gone." without the exercise; at 200% Today's Start is
@@ -297,3 +297,122 @@ Done on the plan page's keypad, and a discarded start using up the planned weigh
 date sits under bars 1 and 2 while its week is bar 3; "1.6 year streak" after four empty weeks
 (D59); the exercise animation is blank in the headless emulator's screenshots while the video
 reports playing (check on a phone).
+
+## Critique (2026-11-20, `/impeccable critique` of nine screens, snapshots in `.impeccable/critique/`)
+
+Scores out of 36 (Live workout out of 40): Live workout 32, Statistics 30, Settings 29, Routine
+page, Lifts and Workout detail 28, Today, History and Exercise details 26. Fixed on
+`hevier/critique-fixes`: a set without weight reads "× 10" in PREVIOUS and "3 × 10" on Today
+(every run "count × set"); Exercise details tags each best by its kind ("Heaviest", "Best set")
+and folds a best 1RM that is the heaviest single into that tile; the set type sheet spells out
+the ↑ = ↓ mark under its title; Settings' Look row reads "Body diagram · Male"; Statistics' card
+is "Time per exercise" and an odd last tile takes the whole row; History cards lose Hevy's avatar,
+name and "Workout" label (about 55 px a card), and its three week numbers go (D135, the user). Left: Settings' "Search…" hint is upstream's (a
+new seam for one placeholder); the dates without a year were all this year, as meant.
+
+## Critique, second run (2026-11-20, after `hevier/critique-fixes` merged)
+
+Scores: Live workout 33 of 40, Statistics 32, Settings 30, Routine page, Lifts and Workout
+detail 28, Today, History and Exercise details 27. The user chose these from each screen's list,
+built on `hevier/critique-2`: a grey weight of nothing reads "–" in the live workout and on the
+routine page; Today's week row drops a shared last word ("Leg Day" reads "Leg", D134), Empty
+workout is a link under Start and the last workout shows a chevron; History has month headers
+(D135); Exercise details uses one short date; Statistics' week tiles compare with last week and
+its links are one chip row (D142); the routine page names the usual rest once and repeats Start
+at the end (D128); Workout detail drops its stripes for hairlines; Settings' row reads "Gyms";
+Lifts names "Est. 1RM (kg)" once and an old record reads "PR: 17 Aug" (D140). Already there:
+Today's planned weights, the last workout opening its detail, Share in Workout detail's header.
+
+## Critique, third and fourth runs (2026-11-20 and 21, all 19 pages in the fourth)
+
+Third run, after `hevier/critique-2`: Live workout 34 of 40, Statistics 33, Settings and Routine
+page 31, Lifts, Workout detail, Today and History 30, Exercise details 29. Built on
+`hevier/critique-3`: a week tile says nothing against a week with nothing; an unplanned weight on
+the routine page reads "– × 5". Left: "2min" (Hevy's style, kept); the Arrange chip wrapping (the
+three labels need about 430 px of 380).
+
+Fourth run, every fork page: Arrange Statistics 38 of 40, Modules 36, Live workout 34, Statistics
+and the exercise picker 33, Routine page and Routine editor 32, Settings, Routines and Exercise
+time 31, Today, History, Workout detail, Lifts and Monthly report 30, Exercise details, Calendar
+and Measures 29, Strength levels 22. The user chose the small ones: the Sets per muscle card
+leaves its changes out against a period with no sets; a set without weight reads "× 10" on
+Workout detail and Exercise details, as PREVIOUS and Today write it; sets are parted by a
+hairline everywhere, the stripes gone from the live workout, the routine editor and the routine
+page. Left: the lb field's 110.23 against PREVIOUS's 110.2 is upstream's exact view (lib/units.js
+EXACT_VIEW, a typed number round-trips); Strength levels' page, the Calendar's planned names in
+the done green, the Monthly report's red "-8".
+
+Then the user chose the rest (2026-11-21, `hevier/critique-4`): the Calendar's planned names grey
+as the key's Planned dot (D68); a drop on the Monthly report grey, its minus already U+2212;
+Lifts' groups say how many lifts changed, every scale in the profile's unit; "Upper chest" with a
+capital; Modules' Gyms row with Settings' icon; Arrange says Body weight waits for a weigh-in;
+Strength levels with none set says how to add one and lists nothing; History cards carry time,
+sets and records on the date line; Exercise details puts the chart before the rep counts; the
+Statistics chip reads Arrange.
+
+Round 6 (2026-11-21), from the sixth critique, every item the owner's choice: Strength levels gets a
+Set a level button (picker, then the lift's page with its fields open); Exercise details writes one
+line for fewer than three sessions, "8 reps" after a star, and a dark box while the clip loads;
+Measures' rows give the last value and the photo count; Today's sets read "3 sets · 110.2 kg × 10";
+the routine editor puts the brand under the name and flattens + Set, + Warm-up and the rest; the
+workout says "+ Brand" in both places; Workout detail explains ↑ = ↓ once; Calendar names get two
+lines; Monthly report says what it compares against under the month; Routines' chips fit one row.
+
+Run 7 (2026-11-21) re-scored the ten pages round 6 changed: nine up, Live workout level, 13 points
+in total. Its four findings were fixed at the owner's word: no chart section under three sessions
+on Exercise details (the line repeated the best tile); Set a level as a full-width button; "+ Brand"
+as one text line under the name in the workout; "4 sets × 8" for a set without weight on Today.
+
+## Audit (2026-11-21, `/impeccable audit` of all 19 screens, reports in `.impeccable/audit/`)
+
+Scores out of 20, worst first: Live workout, Workout detail and Statistics 14; Exercise details,
+Calendar, Exercise picker, Lifts and History 15; Settings, Measures, Routines, Routine editor,
+Routine preview and Today 16; Monthly report, Exercise time, Module parts and Strength levels 17;
+Arrange stats 18. The owner took every finding. Small text buttons get a hit margin to 48 dp (Undo,
+Also called, Set a level, Show more, Measures' Log and Goal, the strength-level buttons, the
+workout's brand line, the set number, the gym line, the search ×, Settings' back), and a switch
+row toggles from anywhere on it. TalkBack says words: warm-up, hold, left, right in Workout
+detail, the date and trained or planned on a Calendar day, "up 2 vs last week" on Statistics,
+"Goal 75 kg", and which Volume option is chosen. The RIR 0 and 0.5 pill text reaches 4.5:1. Move
+up and Move down are back in the workout's More and on the Routines tab's menus (D118, D130). A
+Calendar year month is one tap target. At 320 px and 130 % text the Sets per muscle name goes
+above its bar, the Calendar key and Workout detail's stats wrap, Lifts' right column stays inside,
+and Exercise details' name takes two lines. The picker searches once per keystroke, the routine
+title is saved after a pause or on leaving the field, and Workout detail works out trends once.
+
+The third run (312 of 380, the routine editor up to 17) found two slips from the second round,
+both fixed: a past planned day no longer says Planned, and the brand line's tap stops above the
+action buttons. Then every small finding left: exercise names are headings, today is the current
+date on Today, the rest dock says Paused or Switch sides, the dimmed weekly bars reach 3:1, the
+year grid's untrained days are visible, Settings rows, Today's links and Start reach 48 dp, Workout
+detail's thumb opens the exercise and its name is 48 dp, the strength-level form keeps focus and
+says its error, and the picker, Exercise time and the routine editor stop recomputing on unrelated
+writes. Left as they are: day cells and week days (seven columns), the set number (44 dp row),
+thumbnails (clipped circles), the shared page title at 200 %, the locale words (English kept), and
+Exercise details' video autoplay with reduced motion, which needs a seam in upstream's Media.jsx.
+
+The fourth run, by a reviewer given no earlier findings, scored 308 of 380. Two of its Calendar
+points were older than the third run: the 9 px names and a grey year grid colour put in by hand.
+Fixed: the charts, set marks and the rest clock have spoken names, the previous cell says its
+unit, heading levels are right, a Statistics tile moves focus to its card, and Exercise time says
+its order. The routine editor redraws only the card being typed in, and Statistics, the weekly
+chart and the routine preview stop recomputing on every redraw. The Calendar's names go when a
+large text size leaves the month under 16 em (a 320 dp phone at 150 %; a container query can't
+see the WebView's text zoom), and its key scrolls with the months. Exercise details' range and
+brand open upstream's picker sheet, Measures' recent weigh-ins are one button, and its back says
+Statistics when you came from there. The Routines chips reach 49 dp. Left as it is: the folder
+fold state, which syncs by D13.
+
+The fifth run, again without earlier findings, scored 313 of 380. It caught a slip of the fourth:
+the Routines chips' 49 dp reach overlapped when they wrapped, so wrapped rows now sit 20 px apart.
+The Sets per muscle container query had the Calendar's problem (no text zoom), so Sets per muscle,
+Muscle Split and the week sheet measure themselves: on a 320 dp phone the name goes above the bar
+from 150 %, on 412 dp at 200 %. Calendar names are 11 px. Fixed for TalkBack: year months say
+their workouts, the preview's cells name their column, thumbnails name their exercise, the
+editor's rep range names its set, brand chips say which is on, Lifts says how many a filter
+leaves, a plain Statistics tile is read once, a rest is announced when it starts, and Exercise
+details' last sessions have short names. Settings' back names the tab it came from, Measures'
+back goes to Statistics on a cold open. Today's links and week days, the preview's numbers, the
+editor's set rows and folder heads reach 48 dp; colours are tokens; eight screens stop
+recomputing on every write. Left as they are: Today's next plan and week strip (they read most
+of the plan), the set row's own tap (its fields reach it), and the editor's 44 dp remove button.

@@ -64,7 +64,8 @@ export function useSupersetTarget(target) {
 
 function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const st = useStore(s => s.S)
-  const all = allExercises(st)
+  // Memoised with the searches below: a tick or any store change redraws the sheet (the audit, 2026-11-21).
+  const all = useMemo(() => allExercises(st), [st.customEx, st.exMerged]) // eslint-disable-line react-hooks/exhaustive-deps
   // D62: the workout's gym in a workout, else the gym last chosen here.
   const [path] = useState(currentPath)
   const [gymId, setGymId] = useState(() => pickerGym(st, path))
@@ -87,7 +88,7 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
 
   // A gym, or a kind or a whole group of kinds (D63).
   const avail = eq === GYM ? (profile ? e => gymHas(profile, e) : null) : eq ? e => eqMatches(eq, e) : null
-  const base = filterPicker(all, { muscle, avail }).filter(e => e.id !== like)
+  const base = useMemo(() => filterPicker(all, { muscle, avail }).filter(e => e.id !== like), [all, muscle, eq, profile, like]) // eslint-disable-line react-hooks/exhaustive-deps
   // D129: from the log, while nothing is typed; kept to what the filters keep.
   const rid = swap ? (st.active?.entries || []).find(e => e?.id === like)?.rid : null
   const hereGym = eq === GYM ? gymId : null
@@ -101,11 +102,16 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
   const swapRows = histRows(hist?.swaps || [])
   const hereRows = histRows(hist?.here || []).filter(r => !swapRows.some(x => x.id === r.id)).slice(0, swap ? undefined : RECENT)
   // D67: what the gym hid from the search, counted, and listed on a tap.
-  const hidden = eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []
-  let list = searchExercises(base, q)
-  list = q.trim() ? sortYoursFirst(list, st, usageOf(st)) : sortFavouritesFirst(list, st)
+  const hidden = useMemo(() => (eq === GYM ? hiddenByGym(all.filter(e => e.id !== like), { muscle, avail }, q, searchExercises) : []),
+    [all, muscle, eq, profile, like, q]) // eslint-disable-line react-hooks/exhaustive-deps
+  const found = useMemo(() => searchExercises(base, q), [base, q])
+  // Both scan every workout: once per change of what they read, not per redraw (the audit leftovers).
+  const usage = useMemo(() => usageOf({ routines: st.routines, workouts: st.workouts }), [st.routines, st.workouts])
+  const brands = useMemo(() => brandsByExercise({ hvMachines: st.hvMachines, workouts: st.workouts }), [st.hvMachines, st.workouts])
+  let list = found
+  list = q.trim() ? sortYoursFirst(list, st, usage) : sortFavouritesFirst(list, st)
   // D36: exercises a typed brand reaches come first, with the brand under the name.
-  const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brandsByExercise(st), q, searchExercises) : []
+  const byBrand = q.trim() && partOn(st, 'hvGyms', 'brands') ? brandMatches(base, brands, q, searchExercises) : []
   const brandOf = new Map(byBrand.map(m => [m.ex.id, m.brand]))
   if (byBrand.length) list = [...byBrand.map(m => m.ex), ...list.filter(e => !brandOf.has(e.id))]
   // Same equipment first on a swap: a taken machine is usually swapped for the same kind of kit.
@@ -213,8 +219,8 @@ function ExerciseList({ onPick, title, like, close, browse, backups }) {
       <h3>{swap ? (likeEx ? named(t('Swap {0}', '\u0001'), likeEx) : t('Swap exercise')) : title || t('Add Exercise')}</h3>
       <button className="hv-link" onClick={create}>{t('Create')}</button>
     </div>}
-    <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-      <input ref={searchRef} className="input" placeholder={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
+    <div className="picker-search"><div className="search-row"><div className={'search' + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+      <input ref={searchRef} className="input" placeholder={t('Search exercise')} aria-label={t('Search exercise')} value={q} onFocus={onSearchFocus} onChange={e => reset(setQ)(e.target.value)} />
       {q && <button className="clear" onClick={() => reset(setQ)('')} aria-label={t('Clear')}><Icon name="xmark" /></button>}</div></div></div>
     <div className="hv-pk-filters">
       {/* A chevron says each opens a list to pick from. */}

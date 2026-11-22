@@ -89,7 +89,7 @@ describe('hevier: navigation (seam S2)', () => {
 
   it('Routines: Empty workout opens a session through upstream’s startFlow', () => {
     render('/routines')
-    act(() => byText('button', 'Empty workout').click())
+    act(() => container.querySelector('button[aria-label="Empty workout"]').click())
     const A = useStore.getState().S.active
     expect(A).toBeTruthy()
     expect(A.entries).toEqual([])
@@ -172,7 +172,8 @@ describe('hevier: navigation (seam S2)', () => {
     const card = container.querySelector('.hv-wcard')
     expect(card.textContent).toContain('Leg Day')
     expect(card.textContent).toContain('2 sets')
-    expect(card.querySelector('.hv-wcard-stats .hv-pr').textContent).toBe('4')
+    expect(card.querySelector('.hv-wcard-d .hv-pr').textContent).toBe('4')
+    expect(card.querySelector('.hv-wcard-d .hv-pr').getAttribute('aria-label')).toBe('Records 4')
     expect(card.querySelector('.hv-wcard-ex .hv-pr').textContent).toBe('4')
     act(() => byText('.hv-hlinks .hv-chip', 'Statistics').click())
     expect(path).toBe('/stats')

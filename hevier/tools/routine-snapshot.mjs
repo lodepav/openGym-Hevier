@@ -18,7 +18,7 @@
 // (hevier/ux/JOURNEYS.md), or the two snapshots are of different data.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
-import { connect, evaluate } from './cdp.mjs'
+import { connect, evaluate, withStore } from './cdp.mjs'
 import { openedSnapshot, settingsSnapshot, diffSnapshots } from '../../frontend/src/hevier/lib/routine-open.js'
 
 const sleep = ms => new Promise(ok => setTimeout(ok, ms))
@@ -72,31 +72,38 @@ async function snapshot() {
     const out = { settings: settingsSnapshot(S), routines: [] }
     // A routine without exercises has a disabled button: it cannot open, so it is not counted.
     for (const [i, routine] of (S.routines || []).filter(r => r.ex?.length).entries()) {
-      // Each routine starts from its own page (D126: #/workout without a session goes to Today).
-      await evaluate(cdp, `location.hash = ${JSON.stringify('#/plan/r/' + encodeURIComponent(routine.id) + '/view')}`)
-      // The app may still be starting: wait for the button, then for the session, up to 20 s each.
-      if (!await until(() => evaluate(cdp, clickExact('Start')))) throw new Error(`no Start button on routine ${i + 1}'s page`)
-      await until(async () => (await read()).active)
-      await sleep(1000)
-      S = await read()
-      const opened = openedSnapshot(S)
-      if (!opened) throw new Error(`routine ${i + 1} did not start`)
-      const target = probeTarget(opened)
-      let probe = null
-      if (target) {
-        if (!await evaluate(cdp, typeWeight(target.row, target.weight))) throw new Error(`no weight field in set row ${target.row + 1}`)
-        await sleep(500)
-        const after = openedSnapshot(await read())
-        const typed = after.exercises[target.idx].sets.find(s => s.kind === 'work').w
-        if (typed !== target.weight) throw new Error(`typed ${target.weight} into ${target.id}, the session has ${typed}`)
-        probe = { id: target.id, typed: target.weight, before: warmups(opened, target.idx), after: warmups(after, target.idx) }
+      try {
+        // Each routine starts from its own page (D126: #/workout without a session goes to Today).
+        await evaluate(cdp, `location.hash = ${JSON.stringify('#/plan/r/' + encodeURIComponent(routine.id) + '/view')}`)
+        // The app may still be starting: wait for the button, then for the session, up to 20 s each.
+        if (!await until(() => evaluate(cdp, clickExact('Start')))) throw new Error(`no Start button on routine ${i + 1}'s page`)
+        await until(async () => (await read()).active)
+        await sleep(1000)
+        S = await read()
+        const opened = openedSnapshot(S)
+        if (!opened) throw new Error(`routine ${i + 1} did not start`)
+        const target = probeTarget(opened)
+        let probe = null
+        if (target) {
+          if (!await evaluate(cdp, typeWeight(target.row, target.weight))) throw new Error(`no weight field in set row ${target.row + 1}`)
+          await sleep(500)
+          const after = openedSnapshot(await read())
+          const typed = after.exercises[target.idx].sets.find(s => s.kind === 'work').w
+          if (typed !== target.weight) throw new Error(`typed ${target.weight} into ${target.id}, the session has ${typed}`)
+          probe = { id: target.id, typed: target.weight, before: warmups(opened, target.idx), after: warmups(after, target.idx) }
+        }
+        out.routines.push({ routine: routine?.name ?? null, hvProg: routine?.hvProg === true, ...opened, probe })
+        if (!await evaluate(cdp, clickExact('Discard Workout'))) throw new Error('no Discard Workout button')
+        await sleep(800)
+        await evaluate(cdp, clickExact('Discard', -1))
+        await sleep(800)
+        if ((await read()).active) throw new Error('the workout was not discarded')
+      } finally {
+        // A throw after Start would leave the workout in progress, and the next run refuses: the
+        // store ends it, as the tab bar's discard does (the store itself: localStorage may lag it).
+        // Its own failure must not hide the first one.
+        try { await evaluate(cdp, withStore('if (st.S.active) st.update(s => { s.active = null })')) } catch {}
       }
-      out.routines.push({ routine: routine?.name ?? null, hvProg: routine?.hvProg === true, ...opened, probe })
-      if (!await evaluate(cdp, clickExact('Discard Workout'))) throw new Error('no Discard Workout button')
-      await sleep(800)
-      await evaluate(cdp, clickExact('Discard', -1))
-      await sleep(800)
-      if ((await read()).active) throw new Error('the workout was not discarded')
     }
     return out
   } finally { cdp.close() }

@@ -8,15 +8,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
 import { EXDB } from '../../lib/exercises.js'
+import { exerciseNameText } from '../../lib/format.js'
 import { setNav } from '../../lib/nav.js'
 import { workoutDetailSheet } from '../../sheets.jsx'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
 import { rowMode } from '../lib/hold-set.js'
+import { workoutTrends, workoutSideTrends } from '../lib/set-trend.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// Counted, to show each exercise's trends are worked out once a render (the audit, 2026-11-21).
+vi.mock('../lib/set-trend.js', async orig => { const m = await orig(); return { ...m, workoutTrends: vi.fn(m.workoutTrends), workoutSideTrends: vi.fn(m.workoutSideTrends) } })
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -82,7 +86,22 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(page.textContent).not.toContain('Muscle Split')
     expect(page.querySelector('.hv-mline').textContent).toContain('Chest')
     expect(page.querySelector('.hv-name').textContent).toBe(BENCH.n)
+    expect(page.querySelector('[role="heading"][aria-level="4"] .hv-name')).toBeTruthy()   // TalkBack's heading jumps, under the "Workout" h3
+    // The thumb opens the details as the name does, as in the workout and the editor (the audit leftovers).
+    const thumb = page.querySelector('.hv-wd-ex button.hv-thumb')
+    expect(thumb.getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameText(BENCH))   // the fifth audit, 2026-11-21
+    const before = useUI.getState().sheets.length
+    act(() => thumb.click())
+    expect(useUI.getState().sheets.length).toBe(before + 1)
     expect(page.querySelector('.hv-wd-row .hv-pr')).toBeTruthy()
+  })
+
+  it('works out each exercise’s trends once a render', () => {
+    render()
+    act(() => workoutDetailSheet(W))
+    const n = workoutTrends.mock.calls.length, m = workoutSideTrends.mock.calls.length
+    act(() => useStore.getState().update(s => { s.hvUnrelated = 1 }))
+    expect([workoutTrends.mock.calls.length - n, workoutSideTrends.mock.calls.length - m]).toEqual([1, 1])
   })
 
   it('lists the ticked sets, the warm-up as W', () => {
@@ -112,6 +131,9 @@ describe('hevier: Workout Detail (seam S14)', () => {
     const rows = [...container.querySelectorAll('.hv-wd-row:not(.hv-wd-th)')]
     expect(rows.map(r => r.firstChild.textContent)).toEqual(['W', '1', 'H', '2'])
     expect(rows[2].firstChild.className).toBe('hv-wd-h')
+    // Spoken as words, not letters (the audit, 2026-11-21).
+    expect([rows[0], rows[2]].map(r => [r.firstChild.getAttribute('role'), r.firstChild.getAttribute('aria-label')])).toEqual([['img', 'Warm-up'], ['img', 'Hold']])
+    expect(rows[1].firstChild.getAttribute('aria-label')).toBeNull()
     expect(rows[2].textContent).toContain('0:30')
   })
 
@@ -143,6 +165,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
       ['H', 'L0:45'], ['', 'R0:40'],
       ['4', '30 kg × 5'],
     ])
+    expect([...container.querySelectorAll('.hv-lr')].slice(0, 2).map(x => x.getAttribute('aria-label'))).toEqual(['Left', 'Right'])
     // Effort in its own column, once on the first row (the scale's name read out only); heart rate the same.
     expect(container.querySelector('.hv-wd-th').textContent).toContain('RPE')
     expect(rows.map(r => r.querySelector('.hv-wd-rpe')?.textContent ?? null)).toEqual(['', '', 'RPE 8', '', '', '', '', '', 'RPE 7', '', ''])
@@ -184,6 +207,10 @@ describe('hevier: Workout Detail (seam S14)', () => {
     act(() => useStore.setState(({ S }) => ({ S: { ...S, workouts: S.workouts.map((w, k) => (k ? w : { ...w, entries: [{ ...w.entries[0], sets: [...w.entries[0].sets, { w: 60, r: 9, done: true }] }] })) } })))
     expect(trend('2').className).toContain('down')
     expect(trend('2').getAttribute('aria-label')).toBe('Less than last time')
+    // One line says what the marks mean, under the first exercise that has one, and only there (the critique, 2026-11-21).
+    const legends = [...container.querySelectorAll('.hv-wd-legend')]
+    expect(legends.map(l => l.textContent)).toEqual(['↑ = ↓ against the same set last time'])
+    expect(legends[0].closest('.hv-wd-ex').querySelector('.hv-trend')).toBeTruthy()
   })
 
   it('⋯ → All details opens upstream’s sheet', () => {

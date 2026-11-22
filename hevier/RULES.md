@@ -78,14 +78,15 @@ conflict on every upstream edit to them).
 
 ## Test rig
 
-- `hevier/tools/emulator.sh` builds the debug APK (which keeps x86_64), boots AVD
-  `xperia1vi_api36` (Android 16, 1080×2340, 420 dpi), installs and launches it.
+- `hevier/tools/emulator.sh` builds the debug APK (which keeps x86_64), boots a
+  shared emulator through `~/.claude/bin/emu` (a 2 GB light AVD, Android 16, 1080×2340, 420 dpi,
+  unless `ANDROID_SERIAL` names a running one), installs and launches it, and prints the serial.
 - `hevier/tools/cdp.mjs` drives the WebView over the DevTools protocol (`click`, `text`, `shot`,
   `eval`). No new dependencies.
 - **A strap** (D79): `hevier/tools/fake-strap/build.sh` makes a second AVD, `hevier_strap`, a
-  heart-rate strap. Boot the app's emulator first (`emulator.sh` installs on whichever device adb
-  sees), then the strap's on port 5556, and give `adb` and `cdp.mjs` `ANDROID_SERIAL=emulator-5554`.
-  Two emulators fill this machine's memory: stop the Gradle daemon first (`./gradlew --stop`).
+  heart-rate strap. Boot the app's emulator first (`emulator.sh` boots one through `~/.claude/bin/emu` and prints
+  its serial), then the strap's, and give `adb` and `cdp.mjs` the app's `ANDROID_SERIAL`.
+  Two emulators fill this machine's memory: stop the Gradle daemon first (`hevier/tools/heavy.sh ./gradlew --stop`).
 - The fork's Java has unit tests in `frontend/android/app/src/hevier/test/java`:
   `cd frontend/android && ./gradlew :app:testSideloadDebugUnitTest` (`JAVA_HOME`, `ANDROID_HOME`
   set as `emulator.sh` sets them).

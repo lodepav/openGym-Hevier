@@ -189,7 +189,8 @@ export function BrandLine({ idx }) {
   if (!e || !hasLabel(S, S.active, idx) || !partOn(S, 'hvGyms', 'brands')) return null // D114
   const b = entryBrand(S, S.active, idx)
   const brand = <button type="button" className={'hv-brand' + (b ? ' has' : '')} aria-label={b ? t('Brand') + ': ' + b : undefined} onClick={() => brandSheet(idx)}>
-    <Icon name="machine" />{b || t('Add brand')}
+    {/* Empty, it reads as the "+ Brand" chip other exercises have (the critique, 2026-11-21). */}
+    {b ? <><Icon name="machine" />{b}</> : t('+ Brand')}
   </button>
   if (!cable) return brand
   return <div className="hv-labels">

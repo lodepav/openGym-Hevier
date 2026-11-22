@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 // History → Calendar and Lifts → All exercises (reference/SCREENS.md §8, §11).
+import { fmtDate } from '../lib/dates.js'
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
@@ -11,7 +12,7 @@ import { todayISO } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
 import { hooks } from '../hooks.js'
 import { installWorkoutDetail, DETAIL_PATH } from './WorkoutDetail.jsx'
-import { Month } from './Calendar.jsx'
+import { Month, namesFit } from './Calendar.jsx'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/api.js', async orig => ({ ...(await orig()), api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
@@ -73,6 +74,8 @@ describe('hevier: Calendar', () => {
     expect(day.classList.contains('today')).toBe(true)
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('1 week streak')
     expect(container.querySelector('.hv-cal-streak').textContent).toContain('0 rest days')
+    // Its spoken name says the date and that it was trained, then the workout (the audit, 2026-11-21).
+    expect(day.parentElement.getAttribute('aria-label')).toBe(fmtDate(today, true) + ', ' + 'Trained, Leg Day')
   })
 
   it('a trained day opens its workout, another day upstream’s day sheet', () => {
@@ -88,6 +91,10 @@ describe('hevier: Calendar', () => {
     render('/calendar', [w])
     click(byText('.seg button', 'Year'))
     expect(container.querySelectorAll('.hv-cal-m.small')).toHaveLength(12)
+    // The fifth audit, 2026-11-21: a small month says its count; its dots are hidden.
+    const mo = new Date(start).getMonth()
+    expect(container.querySelectorAll('.hv-cal-m.small .hv-cal-mt')[mo].getAttribute('aria-label')).toMatch(/, 1 workout$/)
+    expect(container.querySelector('.hv-cal-m.small .hv-cal-g').getAttribute('aria-hidden')).toBe('true')
     click(container.querySelectorAll('.hv-cal-mt')[0])
     expect([...container.querySelectorAll('.hv-cal-m:not(.small) .hv-cal-mt b')].at(-1).textContent).toMatch(/^January /)
   })
@@ -104,6 +111,21 @@ describe('hevier: Calendar', () => {
     expect(titles()[6]).toBe(first)
   })
 
+  // The second audit, 2026-11-21: a note was seen and not said. The third: a past plan is not drawn, so not said.
+  it('a day with only a note says Note; a past planned day, drawn with no mark (D68), says nothing more', () => {
+    const d = new Date(); d.setDate(d.getDate() - 20)
+    const iso = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+    render('/calendar')
+    act(() => useStore.setState({ S: { ...useStore.getState().S, dayNotes: { [iso]: { tag: 'sick' } } } }))
+    const cell = () => [...container.querySelectorAll('.hv-cal-c')].find(c => c.getAttribute('aria-label').startsWith(fmtDate(iso, true)))
+    expect(cell().querySelector('.hv-cal-d').classList.contains('noted')).toBe(true)
+    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true) + ', Note')
+    const routines = [{ id: 'r', name: 'Push', ex: [] }], week = { 0: ['r'], 1: ['r'], 2: ['r'], 3: ['r'], 4: ['r'], 5: ['r'], 6: ['r'] }
+    act(() => useStore.setState({ S: { ...useStore.getState().S, routines, week, dayNotes: {} } }))
+    expect(cell().querySelector('.hv-cal-d').className).toMatch(/\bplan\b/)
+    expect(cell().getAttribute('aria-label')).toBe(fmtDate(iso, true))
+  })
+
   it('a planned day from today on has its dot, a past one none; Show next month adds months below (D68)', () => {
     const S = structuredClone(DEF)
     S.routines = [{ id: 'r', name: 'Push', ex: [] }]
@@ -115,6 +137,7 @@ describe('hevier: Calendar', () => {
     expect(planned[0].classList.contains('pk-strength')).toBe(true)
     expect(planned[0].parentElement.querySelector('.hv-cal-tl.pk-strength').textContent).toBe('Push')
     expect(container.querySelector('.hv-cal-d.today').classList.contains('planned')).toBe(true)
+    expect(planned[0].parentElement.getAttribute('aria-label')).toMatch(/, Planned, Push$/)
     const titles = () => [...container.querySelectorAll('.hv-cal-m .hv-cal-mt b')].map(b => b.textContent)
     const now = new Date()
     click(byText('button', 'Show next month'))
@@ -124,10 +147,29 @@ describe('hevier: Calendar', () => {
     expect(container.querySelectorAll('.hv-cal-m').item(6).querySelectorAll('.hv-cal-d.planned').length).toBe(new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())
   })
 
+  // The fresh audit, 2026-11-21: pinned, the key took a large share of a short screen at a big text size.
+  it('the key sits under the months, out of the pinned top', () => {
+    render('/calendar', [w])
+    const key = container.querySelector('.hv-cal-key')
+    expect(key.closest('.hv-cal-top')).toBeNull()
+    expect([...key.parentElement.children].at(-1)).toBe(key)
+    expect([...key.querySelectorAll('span')].map(x => x.textContent)).toEqual(['Strength', 'Cardio', 'Deload', 'Planned'])
+  })
+
   it('History’s Calendar chip opens it', () => {
     render('/history-tab')
     click([...container.querySelectorAll('.hv-hlinks button')].find(b => b.textContent.includes('Calendar')))
     expect(path).toBe('/calendar')
+  })
+})
+
+describe('the routine names under the days (namesFit)', () => {
+  it('stay from 16 em of month width, go below, and stay when nothing was measured', () => {
+    expect(namesFit(380, 21)).toBe(true)    // 412 dp phone at 150 %: 18 em
+    expect(namesFit(300, 21)).toBe(false)   // 320 dp phone at 150 %: 14 em
+    expect(namesFit(340, 28)).toBe(false)   // 360 dp phone at 200 %
+    expect(namesFit(0, 14)).toBe(true)
+    expect(namesFit(380, NaN)).toBe(true)
   })
 })
 

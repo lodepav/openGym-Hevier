@@ -1,22 +1,25 @@
-// The History tab (hevier/DECISIONS.md D126, D135, D142): this week in three numbers, one row of ways
-// into the statistics, then the phase filter and every workout as a feed card (D14's feed, unchanged).
-import { useState } from 'react'
+// The History tab (hevier/DECISIONS.md D126, D135, D142): one row of ways into the statistics (this
+// week's numbers are on Statistics and Today, the critique 2026-11-20), then the phase filter and every workout as a feed card (D14's feed, unchanged).
+import { Fragment, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
-import { t } from '../../lib/i18n.js'
-import { todayISO } from '../../lib/format.js'
+import { t, tn } from '../../lib/i18n.js'
 import { DEMO } from '../../lib/demo.js'
 import { historyRows } from '../../views/History.jsx'
+import { monthName, monthLabel } from '../../lib/month-story.js'
+import { todayISO } from '../../lib/format.js'
+import { monthHeads } from '../lib/history-months.js'
 import Icon from '../../components/Icon.jsx'
 import PageBar from '../components/PageBar.jsx'
 import WorkoutCard from '../components/WorkoutCard.jsx'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { SettingsGear } from './Today.jsx'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import { partOn } from '../lib/module-parts.js'
-import { weekNumbers } from '../lib/history-week.js'
-import { roundOf } from '../lib/today.js'
-import { durationWords } from '../lib/elapsed.js'
+
+// "November · 3 workouts", the year too when it is not this one.
+const monthHead = ({ ym, n }) => (ym.slice(0, 4) === todayISO().slice(0, 4) ? monthName(ym) : monthLabel(ym))
+  + ' · ' + tn('{0} workout', '{0} workouts', n)
 
 export const HISTORY_PATH = '/history-tab'
 export const PAGE = 10
@@ -24,24 +27,26 @@ export const PAGE = 10
 export function WorkoutFeed({ S }) {
   const nav = useNavigate()
   const [n, setN] = useState(PAGE)
-  const ws = historyRows(usePhasedS(S)).filter(r => r.w).map(r => r.w)   // D93
+  const P = usePhasedS(S)   // D93
+  const phase = useStatsPhase(s => s.phase)
+  // Only the workouts are kept, so the log, the phase and its switch decide; not each copy of S (the fifth audit, 2026-11-21).
+  const ws = useMemo(() => historyRows(P).filter(r => r.w).map(r => r.w), [S.workouts, phase, S.modules, S.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
+  const heads = useMemo(() => monthHeads(ws), [ws])
   if (!ws.length) return <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No workouts yet. Your first one will land here.')}
     {!DEMO && <><br /><button type="button" className="hv-link hv-empty-import" onClick={() => nav('/settings/integrations')}>{t('Import from Hevy')}</button></>}</div>
   return <>
     <PhaseFilter />
-    {ws.slice(0, n).map(w => <WorkoutCard key={w.id || w.start} w={w} />)}
+    {ws.slice(0, n).map((w, i) => <Fragment key={w.id || w.start}>
+      {heads.has(i) && <h3 className="hv-cap hv-hmonth" aria-level={2}>{monthHead(heads.get(i))}</h3>}
+      <WorkoutCard w={w} />
+    </Fragment>)}
     {ws.length > n && <button type="button" className="btn hv-moreb" onClick={() => setN(n + PAGE)}>{t('Show more')}</button>}
   </>
-}
-
-function Tile({ label, value, sub, className = '' }) {
-  return <div className="hv-htile"><span>{label}</span><b>{value}</b><span className={className}>{sub}</span></div>
 }
 
 export default function History() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
-  const n = weekNumbers(S, todayISO())
   // Each chip goes with the module part its page goes with; one row (D142), the rest is on Statistics.
   const chips = [
     partOn(S, 'hvStats', 'calendar') && ['Calendar', () => nav('/calendar')],
@@ -49,13 +54,7 @@ export default function History() {
     ['Statistics', () => nav('/stats')],
   ].filter(Boolean)
   return <div className="narrow hv-history">
-    <PageBar title={t('History')}><SettingsGear /></PageBar>
-    <div className="hv-htiles">
-      <Tile label={roundOf(S, todayISO())?.round ? t('This round') : t('This week')} value={n.planned ? t('{0} of {1}', n.done, n.planned) : n.done} sub={t('workouts')} />
-      <Tile label={t('Time')} value={n.ms ? durationWords(n.ms) : '0'} sub={t('this week')} />
-      <Tile label={t('Sets')} value={n.sets} className={n.records ? 'hv-pr' : ''}
-        sub={n.records ? <><Icon name="trophy" />{n.records === 1 ? t('1 record') : t('{0} records', n.records)}</> : t('this week')} />
-    </div>
+    <PageBar title={t('History')}><SettingsGear back="History" /></PageBar>
     <div className="hv-hgroup">
       <span className="hv-cap">{t('Look back')}</span>
       <div className="hv-chips hv-hlinks">{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>

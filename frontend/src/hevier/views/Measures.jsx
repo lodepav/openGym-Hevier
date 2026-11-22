@@ -1,7 +1,7 @@
 // Hevy's Measures (hevier/DECISIONS.md D14; reference/SCREENS.md §11), opened from History: body
 // weight with upstream's own log, goal and weigh-in list, then upstream's body measurements and
 // progress photos pages.
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t } from '../../lib/i18n.js'
 import { fmtNum } from '../../lib/format.js'
@@ -14,49 +14,55 @@ import { BackTo, LinkRow } from './Statistics.jsx'
 import { HISTORY_PATH } from './History.jsx'
 import { useHcOnly } from '../lib/weigh-in-source.js'
 import { partOn } from '../lib/module-parts.js'
+import { measurementsLine, photosLine } from '../lib/measures-rows.js'
+import { progressPhotosOf } from '../../views/ProgressPhotos.jsx'
 
 const DAYS_SHOWN = 90
 
 export default function Measures() {
   const nav = useNavigate()
+  const from = useLocation().state?.back
   const S = useStore(s => s.S)
   const weightOn = partOn(S, 'body', 'weight'), measOn = partOn(S, 'body', 'measurements'), photosOn = partOn(S, 'body', 'photos')
   const hc = useHcOnly(S)
   const last = lastBW(S)
   const since = Date.now() - DAYS_SHOWN * 86400000
   const pts = S.bodyweight.map(b => ({ t: b.t || new Date(b.d + 'T12:00:00').getTime(), y: b.w, d: b.d })).filter(p => p.t > since)
-  const lastM = (S.measurements || []).at(-1)
   const recent = S.bodyweight.slice(-5).reverse()
   return <div className="narrow hv-measures">
-    <BackTo label={t('History')} to={HISTORY_PATH} title={t('Measures')} />
+    {/* Back names the page it returns to: Statistics links here too (the fresh audit, 2026-11-21). */}
+    {/* A cold open goes up to the page back names (the fifth audit, 2026-11-21). */}
+    <BackTo label={t(from === 'Statistics' ? 'Statistics' : 'History')} to={from === 'Statistics' ? '/stats' : HISTORY_PATH} title={t('Measures')} />
     {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
     {weightOn && <><div className="card">
       <div className="row between" style={{ alignItems: 'flex-start' }}>
         <div>
           <div className="muted small">{t('Body weight')}</div>
-          {last && <div className="big">{fmtNum(last.w)} <span className="muted" style={{ fontSize: '1rem' }}>{S.unit}</span></div>}
+          {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
           {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <Button size="sm" icon="target" onClick={goalSheet}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
+          <Button size="sm" icon="target" onClick={goalSheet} aria-label={S.targetW ? t('Goal') + ' ' + fmtNum(S.targetW) + ' ' + S.unit : undefined}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
-      {pts.length > 0 ? <div className="chart"><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
+      {pts.length > 0 ? <div className="chart" role="img" aria-label={t('Body weight chart')}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
         : <div className="hv-ms-empty">{S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN) : t('No weigh-ins yet. Log your weight to start the curve.')}</div>}
     </div>
     {/* Hevy lists the latest entries under the chart; the whole log is upstream's sheet */}
     {recent.length > 0 && <>
       <h2 className="sec">{t('History')}</h2>
-      <div className="hv-ms-list">{recent.map(b => <button key={b.d + (b.t || '')} type="button" className="hv-ms-row" onClick={weighInsSheet}>
+      {/* One button, not five that all open the same list (the fresh audit, 2026-11-21). */}
+      <button type="button" className="hv-ms-list" onClick={weighInsSheet}
+        aria-label={recent.map(b => fmtDate(b.d, true) + ' ' + fmtNum(b.w) + ' ' + S.unit).join(', ') + '. ' + t('All weigh-ins')}>{recent.map(b => <span key={b.d + (b.t || '')} className="hv-ms-row">
         <span>{fmtDate(b.d, true)}</span><b>{fmtNum(b.w)} {S.unit}</b>
-      </button>)}</div>
+      </span>)}</button>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
     {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('More') : t('Measures')}</h2>}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
-      sub={lastM ? t('Last check-in {0}', fmtDate(lastM.d, true)) : undefined}
+      sub={measurementsLine(S) || undefined}
       onClick={() => nav('/measurements')} />}
-    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} onClick={() => nav('/progress-photos')} />}
+    {photosOn && <LinkRow icon="camera" title={t('Progress photos')} sub={photosLine(progressPhotosOf(S)) || undefined} onClick={() => nav('/progress-photos')} />}
   </div>
 }

@@ -131,6 +131,8 @@ describe('muscleText', () => {
   it('shows the fork’s names in sentence case, as upstream’s, and leaves other names alone', () => {
     expect(['Upper Back', 'Rear Delts', 'Hip Flexors', 'Chest'].map(muscleText)).toEqual(['Upper back', 'Rear delts', 'Hip flexors', 'Chest'])
     expect(muscleText('Rotator Cuff')).toBe('Rotator Cuff')   // a custom exercise's own spelling
+    // A catalogue muscle outside the list starts with a capital as the others do (the critique, 2026-11-21).
+    expect(muscleText('upper chest')).toBe('Upper chest')
     expect(muscleText('')).toBe('')
   })
 })

@@ -2,6 +2,7 @@
 // next session is, its first five exercises with their sets (three on a short screen), Start, the week in one row, the round
 // and the streak in one line, the ways into planning, and the last workout. Settings is the gear.
 // The next day is next-planned.js's (D124), the rest is hevier/lib/today.js.
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
@@ -28,11 +29,11 @@ const SHOWN = 5
 // Three on a screen as short as 320×568 dp, so Start stays above the fold. Read once per render, not on a resize.
 const shown = () => { try { return globalThis.matchMedia?.('(max-height: 600px)').matches ? 3 : SHOWN } catch { return SHOWN } }
 
-/** The gear in a tab's page bar, with the connection-trouble dot Home's had. */
-export function SettingsGear() {
+/** The gear in a tab's page bar, with the connection-trouble dot Home's had. `back` names the tab, for Settings' back. */
+export function SettingsGear({ back = 'Today' }) {
   const nav = useNavigate()
   const trouble = useConnectionTrouble()
-  return <button type="button" className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
+  return <button type="button" className="iconbtn" onClick={() => nav('/settings', { state: { back } })} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}>
     <Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
 }
 
@@ -75,15 +76,17 @@ function Week({ S, today }) {
   const word = d => (d.kind === 'done' ? t('Done') : d.kind === 'plan' ? d.name : d.kind === 'rest' ? t('rest') : t('Nothing planned'))
   return <div className="hv-tweek" role="group" aria-label={t('This week')}>{days.map(d =>
     <button key={d.iso} type="button" className={'hv-tday ' + d.kind + (d.next ? ' next' : '') + (d.iso === today ? ' today' : '')}
-      aria-label={fmtDate(d.iso, true) + ', ' + word(d)} onClick={() => dayOverrideSheet(d.iso)}>
+      aria-label={fmtDate(d.iso, true) + ', ' + word(d)} aria-current={d.iso === today ? 'date' : undefined} onClick={() => dayOverrideSheet(d.iso)}>
       <b aria-hidden="true">{d.kind === 'done' ? <Icon name="check" /> : d.kind === 'plan' ? d.short : d.kind === 'rest' ? t('rest') : '–'}</b>
       <span aria-hidden="true">{t(DAYS[d.day])}</span>
     </button>)}</div>
 }
 
 function LastWorkout({ S, w }) {
-  const recs = workoutRecords(S, w).length
+  // What records.js keys its walk on, not each copy of S (the fifth audit, 2026-11-21).
+  const recs = useMemo(() => workoutRecords(S, w).length, [w, S.workouts, S.dbLoad, S.oneRmFormula, S.customEx, S.modules, S.hvModuleParts]) // eslint-disable-line react-hooks/exhaustive-deps
   return <button type="button" className="card hv-tlast" onClick={() => workoutDetailSheet(w)}>
+    <Icon name="chevronRight" className="hv-tlast-go" />
     <span className="hv-cap">{t('Last workout')} · {fmtDate(w.d, true)}</span>
     <b>{w.name || t('Workout')}</b>
     <span className="small dim">{[hasClock(w) && workoutTimeText(w), t('{0} sets', workSets(w.entries))].filter(Boolean).join(' · ')}
@@ -99,7 +102,8 @@ export default function Today() {
   const round = roundOf(S, today)
   const streak = partOn(S, 'motivation', 'streak') && S.workouts.length > 0 && streakLabel(S, today)
   const line = [round && t(round.round ? '{0} of {1} done this round' : '{0} of {1} done this week', round.done, round.of), streak].filter(Boolean)
-  const last = historyRows(S).find(r => r.w)?.w
+  // The newest workout depends on the log alone (the fifth audit, 2026-11-21).
+  const last = useMemo(() => historyRows(S).find(r => r.w)?.w, [S.workouts]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="narrow hv-today-page">
     <PageBar title={t('Today')}><SettingsGear /></PageBar>
     {next ? <NextCard S={S} next={next} today={today} />
@@ -107,12 +111,13 @@ export default function Today() {
         <h2 className="hv-next-n">{t('Nothing planned')}</h2>
         <p className="small dim">{t('Plan your days in the Calendar, or start one of your routines.')}</p>
       </div>}
+    {/* Starting without a plan is the rarer way, so a link under Start, not a third button (the critique, 2026-11-20). */}
+    <button type="button" className="hv-link hv-tempty" onClick={() => startFlow([])}>{t('Empty workout')}</button>
     <Week S={S} today={today} />
     {line.length > 0 && <p className="hv-tline">{line.join(' · ')}</p>}
     <div className="hv-tlinks">
       <button type="button" className="btn" onClick={() => nav('/routines')}>{t('Routines')}</button>
       {partOn(S, 'hvStats', 'calendar') && <button type="button" className="btn" onClick={() => nav('/calendar')}>{t('Calendar')}</button>}
-      <button type="button" className="btn" onClick={() => startFlow([])}>{t('Empty workout')}</button>
     </div>
     {last && <LastWorkout S={S} w={last} />}
   </div>

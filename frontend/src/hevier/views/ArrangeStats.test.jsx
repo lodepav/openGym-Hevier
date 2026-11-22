@@ -26,16 +26,26 @@ function render(entries, patch = {}) {
 }
 const list = n => container.querySelectorAll('.hv-arrlist')[n]
 const names = n => [...list(n).querySelectorAll('.hv-arr-n')].map(x => x.textContent)
-const row = (n, name) => [...list(n).querySelectorAll('.hv-arr')].find(r => r.textContent === name)
+const row = (n, name) => [...list(n).querySelectorAll('.hv-arr')].find(r => r.querySelector('.hv-arr-n').textContent === name)
 const layout = () => useStore.getState().S.hvStatsLayout
 
 beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '', toastAction: null }) })
 afterEach(() => { if (root) act(() => root.unmount()); document.body.innerHTML = '' })
 
 describe('hevier: Arrange Statistics (D142)', () => {
+  it('says Body weight waits for a weigh-in while there is none (the critique, 2026-11-21)', () => {
+    render(['/stats/arrange'])
+    expect(row(0, 'Body weight').querySelector('.hv-arr-h').textContent).toBe('Shows once you log a weigh-in')
+    expect(row(1, 'Body weight').querySelector('.hv-arr-h')).not.toBeNull()
+    expect(row(0, 'Sets per muscle').querySelector('.hv-arr-h')).toBeNull()
+    act(() => root.unmount()); document.body.innerHTML = ''
+    render(['/stats/arrange'], { bodyweight: [{ d: '2026-11-01', w: 80 }] })
+    expect(row(0, 'Body weight').querySelector('.hv-arr-h')).toBeNull()
+  })
+
   it('is reached from Statistics and lists the tiles and the cards, the optional tiles off', () => {
     render(['/stats'])
-    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange Statistics').click())
+    act(() => [...container.querySelectorAll('button')].find(b => b.textContent === 'Arrange').click())
     expect(path).toBe('/stats/arrange')
     expect(container.textContent).toContain('Drag or tap the handle to move. Switch one off to hide it, on to add it back.')
     expect(names(0)).toEqual(['Exercise time', 'Body weight', 'Sets per muscle', 'Training time', 'Workouts this month', 'Average RPE'])

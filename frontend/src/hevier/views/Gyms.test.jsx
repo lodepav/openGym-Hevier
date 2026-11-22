@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
+import { bindUI } from '../../components/ui.jsx'
 import { EXIDX } from '../../lib/exercises.js'
 import { setNav, nav } from '../../lib/nav.js'
 import { hevierRoutes } from '../routes.jsx'
@@ -75,6 +76,21 @@ afterEach(() => {
   container?.remove()
   hooks.finish = hooks.done = null
 })
+
+bindUI(useUI)   // the app binds it at boot; the menu buttons' picker sheet needs it
+// Picks `label` in the sheet a menu button opens (upstream's picker), and returns the labels offered.
+function pickMenu(btn, label) {
+  act(() => btn.click())
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+  const r = createRoot(host)
+  const top = useUI.getState().sheets.at(-1)
+  act(() => r.render(top.render(() => useUI.setState({ sheets: useUI.getState().sheets.filter(x => x !== top) }))))
+  const offered = [...host.querySelectorAll('button.lrow .lrow-t')].map(x => x.textContent)
+  if (label) act(() => [...host.querySelectorAll('button.lrow')].find(b => b.querySelector('.lrow-t').textContent === label).click())
+  act(() => r.unmount()); host.remove()
+  return offered
+}
 
 describe('hevier gyms and machine labels on screen (D28)', () => {
   it('the workout shows the active profile as its gym, and the gym can be changed', () => {
@@ -150,9 +166,19 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     expect(lines[0].textContent).toContain('Life Fitness')
   })
 
+  // The seventh critique (2026-11-21): one form, a text line under the name, on a dumbbell as on a cable.
+  it('a free weight’s + Brand is the same line under the name as a machine’s', () => {
+    render(<Workout />, { entries: [{ id: DB, sets: [{ w: 10, r: 8 }] }] })
+    const line = [...container.querySelectorAll('.hv-nameline button')].find(b => b.textContent === '+ Brand')
+    expect(line.className).toBe('hv-brand')
+    expect(container.querySelector('.hv-addbrand')).toBeNull()
+  })
+
   it('the brand sheet changes the label and what this gym has from now on', () => {
     render(<Workout />, { entries: [{ id: CABLE, sets: [] }], extra: { hvMachines: { [CABLE]: { '': 'Matrix' } } } })
-    expect(container.querySelector('.hv-brand').textContent).toContain('Add brand')
+    // The same words as on other exercises (the critique, 2026-11-21).
+    expect(container.querySelector('.hv-brand').textContent).toBe('+ Brand')
+    expect(container.querySelector('.hv-brand svg')).toBeNull()
     act(() => container.querySelector('.hv-brand').click())
     const host = sheet()
     expect(host.textContent).toContain('Used for this exercise at City Gym from now on.')
@@ -197,9 +223,8 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     act(() => exerciseDetailsSheet(EXIDX[CABLE]))
     const host = sheet()
     const sel = host.querySelector('.hv-xd-label')
-    expect([...sel.options].map(o => o.textContent)).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
     expect(host.querySelector('.hv-xd-tile b').textContent).toBe('45 kg')
-    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    expect(pickMenu(sel, 'Matrix (1)')).toEqual(['All sets', 'Life Fitness (2)', 'Matrix (1)'])
     expect(host.querySelector('.hv-xd-tile b').textContent).toBe('25 kg')
   })
 
@@ -213,8 +238,7 @@ describe('hevier gyms and machine labels on screen (D28)', () => {
     // D131: the page's strength level is the one the picked brand's best 1RM reaches.
     const level = () => host.querySelector('.hv-sl-head').textContent.split(' · ')[0]
     expect(level()).toBe('Intermediate')   // 45 × 10, 1RM 60
-    const sel = host.querySelector('.hv-xd-label')
-    act(() => { sel.value = 'k:Matrix'; sel.dispatchEvent(new Event('change', { bubbles: true })) })
+    pickMenu(host.querySelector('.hv-xd-label'), 'Matrix (1)')
     expect(level()).toBe('Beginner')       // 25 × 10, 1RM 33
   })
 })

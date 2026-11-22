@@ -43,4 +43,5 @@ export const hooks = {
   setNumber: null,       // (sets, i) => number: the number set row i shows, before upstream's (S62)
   integrationsAfter: null, // (catId) => element | null: the fork's section after an Integrations category (S57)
   hevyMore: null,        // { day, workout, fetched, merged, hasMore, Rows, toast }: the rest of the Hevy API (S21)
+  namedSteps: false,   // the effort sheet's Exact − and + are spoken with what they change (S70)
 }

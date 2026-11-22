@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Workout from '../../views/Workout.jsx'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { EXDB } from '../../lib/exercises.js'
+import { EXDB, EXIDX } from '../../lib/exercises.js'
+import { exerciseNameFor } from '../../lib/i18n.js'
 import { modeOf } from '../../lib/history.js'
 import { hooks } from '../hooks.js'
 import { isPlain } from '../lib/plain-routine.js'
@@ -171,6 +172,12 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(useUI.getState().sheets).toHaveLength(open)
   })
 
+  it('a grey weight of nothing reads "–", a grey weight its number', () => {
+    render([{ id: EX, target: { sets: 2, reps: 10 }, sets: [reps(0, 10), reps(60, 8)] }])
+    const kg = [...container.querySelectorAll('input')].filter(x => /Weight/.test(x.getAttribute('aria-label') || ''))
+    expect(kg.map(x => x.value + '|' + x.placeholder)).toEqual(['|–', '|60'])
+  })
+
   it('a ticked set beside its number says how it compares with the same set last time, behind upstream’s switch (D66, #907)', () => {
     const past = [{ id: 'p', d: '2026-10-01', start: 1, entries: [{ id: EX, sets: [reps(60, 10, { done: true }), reps(60, 10, { done: true })] }] }]
     // Below last time, so no record: a record's trophy takes the arrow's place, as in Workout Detail.
@@ -178,6 +185,11 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     const marks = () => [...container.querySelectorAll('.hv-set')].map(b => b.querySelector('.hv-trend')?.className || '')
     expect(marks()).toEqual(['hv-trend down', ''])
     expect(container.querySelector('.hv-set').getAttribute('aria-label')).toContain('Less than last time')
+    // A tap on the number spells the mark out under the set type sheet's title.
+    act(() => container.querySelector('.hv-set').click())
+    const host = document.createElement('div')
+    act(() => createRoot(host).render(useUI.getState().sheets.at(-1).render(() => {})))
+    expect(host.querySelector('.muted.small')?.textContent).toBe('Less than last time')
     act(() => useStore.getState().update(st => { st.setTrend = false }))
     expect(marks()).toEqual(['', ''])
   })
@@ -785,9 +797,20 @@ describe('hevier: the open set and its exercise (D127)', () => {
     expect(dock()).toBeTruthy()
     expect(document.body.classList.contains('hv-docked')).toBe(true)
     expect(document.body.classList.contains('hv-dock')).toBe(false)   // the panel's own class, position: fixed
+    // The start is said once, its length, and not again as it changes (the fifth audit, 2026-11-21).
+    const status = () => container.querySelector('.hv-sr[role="status"]')
+    const total = useUI.getState().timer.total
+    expect(status().textContent).toBe('Rest, ' + Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0'))
     const left = useUI.getState().timer.left
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === '+1 min').click())
     expect(useUI.getState().timer.left).toBe(left + 60)
+    expect(status().textContent).toBe('Rest, ' + Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0'))
+    // A paused rest says so to TalkBack too, not only on screen (the audit leftovers, 2026-11-21).
+    act(() => useUI.setState({ timer: { ...useUI.getState().timer, paused: true } }))
+    expect(dock().querySelector('.hv-dock-clock').getAttribute('aria-label')).toBe('Paused. Change the time left')
+    // The seconds are the description, so a focused clock is not read again each tick (the fresh audit).
+    expect(document.getElementById(dock().querySelector('.hv-dock-clock').getAttribute('aria-describedby')).textContent).toMatch(/^\d+:\d\d$/)
+    act(() => useUI.setState({ timer: { ...useUI.getState().timer, paused: false } }))
     // Run out by itself, the panel goes and the page gives its room back, upstream's bar still aside.
     expect(document.body.classList.contains('hv-dock-room')).toBe(true)
     const running = useUI.getState().timer
@@ -798,6 +821,7 @@ describe('hevier: the open set and its exercise (D127)', () => {
     act(() => useUI.setState({ timer: running }))
     act(() => [...dock().querySelectorAll('button')].find(b => b.textContent === 'Skip').click())
     expect(dock()).toBeNull()
+    expect(status().textContent).toBe('')
     expect(document.body.classList.contains('hv-docked')).toBe(false)
   })
 })
@@ -818,7 +842,6 @@ describe('hevier: the exercise ⋮ menu', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(useUI.getState().timer.forIdx).toBe(0)
     const items = menuItems()
-    expect(items.map(x => x.label)).not.toContain('Move up')
     expect(items.map(x => x.label)).not.toContain('Reorder exercises')
     act(() => [...container.querySelectorAll('.hv-acts button')].find(b => b.textContent === 'Reorder').click())
     const host = document.createElement('div')
@@ -840,10 +863,24 @@ describe('hevier: the exercise ⋮ menu', () => {
     host.remove()
   })
 
+  // The audit, 2026-11-21: Move up and Move down in More too, a way to reorder without dragging (changes D118).
+  it('More has Move up and Move down; a superset passes as one block', () => {
+    render([one(EX), { ...one(B), sg: 's' }, { ...one(C), sg: 's' }, one(D)])
+    const ids = () => useStore.getState().S.active.entries.map(e => e.id)
+    let items = menuItems()
+    const at = label => items.find(x => x.label === label)
+    expect(at('Move up').disabled).toBe(true)
+    expect(at('Move down').disabled).toBe(false)
+    act(() => at('Move down').onClick())
+    expect(ids()).toEqual([B, C, EX, D])
+    items = menuItems()
+    expect(items.map(x => x.label).indexOf('Move down')).toBeLessThan(items.map(x => x.label).indexOf('Remove exercise'))
+  })
+
   it('How to do it is left to the thumbnail and the name', () => {
     render([one(EX)])
     expect(menuItems().map(x => x.label)).not.toContain('How to do it')
-    expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it')
+    expect(container.querySelector('.hv-thumb').getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameFor(EXIDX[EX]))   // the fifth audit, 2026-11-21
   })
 
   it('More holds Per side, Superset, Weight unit, Exercise settings and Remove exercise, each with an icon (D127)', () => {
@@ -868,5 +905,88 @@ describe('hevier: the exercise ⋮ menu', () => {
       set({ modules: {}, hvModuleParts: {}, ...off })
       expect(labels()).not.toContain('Plate loading')
     }
+  })
+})
+
+describe('hevier: D107 in the live workout', () => {
+  const settingsItems = () => {
+    act(() => [...container.querySelectorAll('.hv-foot button')].find(b => b.textContent === 'Settings').click())
+    const items = useUI.getState().sheets.at(-1).render(() => {}).props.sections.flatMap(x => x.items).filter(Boolean)
+    useUI.setState({ sheets: [] })
+    return items
+  }
+
+  it('Settings pauses the workout and resumes it; the header clock stands and says Paused', () => {
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }])
+    const A = () => useStore.getState().S.active
+    act(() => vi.advanceTimersByTime(5000))
+    const pause = settingsItems().find(x => x.label === 'Pause workout')
+    expect(pause.icon).toBe('pause')
+    expect(pause.sub).toBe('The clock and the rest wait for you')
+    act(() => pause.onClick())
+    expect(A().pausedAt).toBeGreaterThan(0)
+    const time = () => container.querySelector('.hv-wtime').textContent
+    expect(time()).toBe('Paused 0:05')
+    act(() => vi.advanceTimersByTime(60000))
+    expect(time()).toBe('Paused 0:05')
+    const resume = settingsItems().find(x => x.label === 'Resume workout')
+    expect(resume.icon).toBe('play')
+    act(() => resume.onClick())
+    expect(A().pausedAt).toBeUndefined()
+    expect(A().pausedMs).toBe(60000)
+    expect(time()).toBe('0:05')
+  })
+
+  it('a saved workout being edited offers no pause', () => {
+    const saved = { id: 'w1', d: '2026-10-15', name: 'Leg Day', entries: [{ id: EX, sets: [reps(60, 5, { done: true })] }] }
+    render([], [saved])
+    act(() => useStore.getState().update(s => { s.active = { ...clone(saved), cur: 0, editingWorkoutId: 'w1', editBase: { name: 'Leg Day', note: '', bw: null } } }))
+    expect(settingsItems().map(x => x.label)).not.toContain('Pause workout')
+  })
+
+  it('with Record trophies off a record set has no trophy and no toast', () => {
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(70, 8), reps(70, 8)] }],
+      [{ id: 'w1', d: '2026-10-09', start: 1, end: 2, entries: [{ id: EX, sets: [{ w: 65, r: 8, done: true }] }] }])
+    const trophies = () => [...container.querySelectorAll('.hv-set')].map(b => !!b.querySelector('.hv-pr-live'))
+    act(() => useStore.getState().update(s => { s.liveRecords = false }))
+    act(() => container.querySelectorAll('.hv-chk')[0].click())
+    expect(trophies()).toEqual([false, false])
+    expect(useUI.getState().toastMsg).not.toContain('PR')
+    expect(container.querySelector('.hv-set').getAttribute('aria-label')).not.toContain('PR')
+    // switched back on, the card draws the record it holds
+    act(() => useStore.getState().update(s => { s.liveRecords = true }))
+    expect(trophies()).toEqual([true, false])
+  })
+
+  describe('Next exercise when the rest ends', () => {
+    const [B] = EXDB.filter(e => e.id !== EX && modeOfId(e.id) === 'reps').map(e => e.id)
+    let scrolled
+    beforeEach(() => {
+      scrolled = []
+      Element.prototype.scrollIntoView = function () { scrolled.push(this) }
+    })
+    afterEach(() => { delete Element.prototype.scrollIntoView })
+    const run = on => {
+      render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: B, target: { sets: 2, reps: 8 }, sets: [reps(40, 8, { done: true }), reps(40, 8)] }])
+      act(() => useStore.getState().update(s => { s.autoNextExercise = on; s.restSec = 30; s.sound = false }))
+      act(() => container.querySelector('.hv-chk').click())
+      expect(useUI.getState().timer.forIdx).toBe(0)
+      act(() => vi.advanceTimersByTime(31000))
+      expect(useUI.getState().timer?.ready).toBe(true)
+    }
+
+    it('brings the next exercise’s open set up once, after its last set’s rest', () => {
+      run(true)
+      expect(scrolled).toHaveLength(1)
+      expect(scrolled[0].closest('[data-exidx]').dataset.exidx).toBe('1')
+      expect([...scrolled[0].closest('[data-exidx]').querySelectorAll('.hv-row')].indexOf(scrolled[0])).toBe(1)
+      act(() => vi.advanceTimersByTime(5000))
+      expect(scrolled).toHaveLength(1)
+    })
+
+    it('stays put with the setting off', () => {
+      run(false)
+      expect(scrolled).toHaveLength(0)
+    })
   })
 })

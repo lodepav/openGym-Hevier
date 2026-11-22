@@ -3,7 +3,7 @@
 // page opens, as Hevy's; trained days filled) or Year (twelve small months). The
 // marks and taps are upstream's Calendar sheet's (sheets.jsx): a trained day opens its workout,
 // several open a list, and any other day opens upstream's day sheet to plan a session there.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -38,9 +38,11 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
     {!small && n > 0 && <span>{tn('{0} workout', '{0} workouts', n)}</span>}
   </>
   return <div className={'hv-cal-m' + (small ? ' small' : '')}>
-    <h2 className="hv-cal-mh">{onTitle ? <button type="button" className="hv-cal-mt" onClick={onTitle}>{heading}</button>
+    <h2 className="hv-cal-mh">{onTitle ? <button type="button" className="hv-cal-mt" onClick={onTitle}
+      // A small month said only its name; its count is drawn as dots alone (the fifth audit, 2026-11-21).
+      aria-label={small ? t(MONTHS_LONG[mo]) + ', ' + tn('{0} workout', '{0} workouts', n) : undefined}>{heading}</button>
       : <span className="hv-cal-mt">{heading}</span>}</h2>
-    <div className="hv-cal-g">
+    <div className="hv-cal-g" aria-hidden={small || undefined}>
       {!small && weekOrder(ws).map(d => <span key={d} className="hv-cal-h">{t(DAYS[d])}</span>)}
       {cells.map((iso, i) => {
         if (!iso) return <span key={'b' + i} />
@@ -54,6 +56,9 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
         return small
           ? <span key={iso} className={cls} />
           : <button key={iso} type="button" className={'hv-cal-c' + (iso === today ? ' today' : '')} aria-current={iso === today ? 'date' : undefined}
+            // The date and what the day holds, as Today's week strip says it: fill and dot colour alone (the audit, 2026-11-21).
+            // A note-only day too (the second audit); a past planned day draws no mark (D68), so says none (the third).
+            aria-label={[fmtDate(iso, true), byDay[iso] ? t('Trained') : plan ? t('Planned') : mark === 'noted' ? t('Note') : '', title].filter(Boolean).join(', ')}
             onClick={() => openDay(iso, byDay[iso])}>
             <span className={cls}>{day}</span>
             {title && <span className={'hv-cal-tl' + (plan ? ' pk-' + plan : '')}>{title}</span>}
@@ -64,6 +69,13 @@ export function Month({ y, mo, st, byDay, today, small, onTitle }) {
 }
 
 // D117: with the part off, the page (and the month widget's tap, which opens it) lands on History.
+/**
+ * Whether the routine names under the days fit: a month `width` px wide in text `font` px high (the
+ * phone's text size zooms it, D122; a day number's size) holds them from 16 of its em up. Below that they shrink to a
+ * fragment, so they go and the day's mark stays (the fresh audit, 2026-11-21). Unmeasured, they stay.
+ */
+export const namesFit = (width, font) => !(width > 0 && font > 0 && width / font < 16)
+
 export default function Calendar() {
   const on = useStore(s => partOn(s.S, 'hvStats', 'calendar'))
   return on ? <CalendarPage /> : <Navigate to={HISTORY_PATH} replace />
@@ -79,8 +91,8 @@ function CalendarPage() {
   const [count, setCount] = useState(MORE)
   const [ahead, setAhead] = useState(0)
   const [year, setYear] = useState(now.getFullYear())
-  const byDay = workoutsByDay(st.workouts)
-  const rest = restDays(st.workouts, today)
+  const byDay = useMemo(() => workoutsByDay(st.workouts), [st.workouts])
+  const rest = useMemo(() => restDays(st.workouts, today), [st.workouts, today])
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav(HISTORY_PATH))
   // A month tapped in the year view opens the month view on it.
   const openMonth = mo => { setFrom({ y: year, mo }); setCount(MORE); setAhead(0); setView('month') }
@@ -93,6 +105,19 @@ function CalendarPage() {
   const mounted = useRef(false)
   const grow = useRef(null)
   const pageH = () => document.documentElement.scrollHeight
+  // CSS can't do this: a container query's em ignores the WebView's text zoom (measured, 2026-11-21).
+  const page = useRef(null)
+  const [tight, setTight] = useState(false)
+  useLayoutEffect(() => {
+    const fit = () => {
+      const g = page.current?.querySelector('.hv-cal-m:not(.small) .hv-cal-g')
+      const d = g?.querySelector('.hv-cal-d')   // a day's number: 14 px at 100 %
+      if (d) setTight(!namesFit(g.getBoundingClientRect().width, parseFloat(getComputedStyle(d).fontSize)))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [view])
   useEffect(() => {
     const first = !mounted.current
     mounted.current = true
@@ -107,8 +132,8 @@ function CalendarPage() {
   }, [count])
   const earlier = () => { grow.current = pageH(); setCount(c => c + MORE) }
 
-  return <div className="hv-cal">
-    {/* The bar, streak, Month/Year switch and key stay pinned while the months scroll under them. */}
+  return <div className={'hv-cal' + (tight ? ' hv-cal-tight' : '')} ref={page}>
+    {/* The bar, streak and Month/Year switch stay pinned while the months scroll under them. */}
     <div className="hv-cal-top">
     <PageBar title={t('Calendar')} onBack={back} />
     {/* The streak is Motivation's (D97); the rest days stay. */}
@@ -117,12 +142,6 @@ function CalendarPage() {
       {rest != null && <span className="muted">{partOn(st, 'motivation', 'streak') ? '· ' : ''}{rest === 1 ? t('1 rest day') : t('{0} rest days', rest)}</span>}
     </div>}
     <Segmented options={[{ value: 'month', label: t('Month') }, { value: 'year', label: t('Year') }]} value={view} onChange={setView} />
-    <div className="hv-cal-key">
-      <span><i className="k-strength" />{t('Strength')}</span>
-      <span><i className="k-cardio" />{t('Cardio')}</span>
-      <span><i className="k-deload" />{t('Deload')}</span>
-      <span><i className="k-plan" />{t('Planned')}</span>
-    </div>
     </div>
     {view === 'month' ? <>
       <button type="button" className="btn hv-cal-more" onClick={earlier}>{t('Show earlier months')}</button>
@@ -138,5 +157,13 @@ function CalendarPage() {
         {Array.from({ length: 12 }, (_, mo) => <Month key={mo} y={year} mo={mo} st={st} byDay={byDay} today={today} small onTitle={() => openMonth(mo)} />)}
       </div>
     </>}
+    {/* The key scrolls with the months, under this one where the page opens: pinned, it took a
+        large share of a short screen at a big text size (the fresh audit, 2026-11-21). */}
+    <div className="hv-cal-key">
+      <span><i className="k-strength" />{t('Strength')}</span>
+      <span><i className="k-cardio" />{t('Cardio')}</span>
+      <span><i className="k-deload" />{t('Deload')}</span>
+      <span><i className="k-plan" />{t('Planned')}</span>
+    </div>
   </div>
 }

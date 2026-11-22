@@ -22,6 +22,7 @@ import { countedWorkouts } from '../../lib/counted-log.js'
 import { usePhasedS } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
 import { shareMonthSheet } from '../components/ShareSheet.jsx'
+import { useNamesAbove } from '../components/MuscleSetsCard.jsx'
 import { sessionVolume } from '../../lib/history.js'
 import { partOn } from '../lib/module-parts.js'
 
@@ -37,6 +38,7 @@ export default function MonthReport() {
   const today = todayISO()
   const [at, setAt] = useState(() => defaultMonth(st.workouts, today))
   const [allPrs, setAllPrs] = useState(false)
+  const [splitList, above] = useNamesAbove()
   const ws = weekStartOf(st)
   const mm = muscleMode(st)
   // Exercises kept out of progression are kept out of the report (D57); its calendar shows every day.
@@ -69,7 +71,8 @@ export default function MonthReport() {
     <PhaseFilter />
     <div className="hv-report-bar">
       <button type="button" className="iconbtn" aria-label={t('Previous month')} disabled={!canBack} onClick={() => step(-1)}><Icon name="chevronLeft" /></button>
-      <div><h2>{month}</h2>{isNow && <span className="hv-sub">{t('so far')}</span>}</div>
+      {/* What the changes are against, under the month and above the numbers, not loose under them (the critique, 2026-11-21). */}
+      <div><h2>{month}</h2>{(isNow || trained) && <span className="hv-sub">{[isNow && t('so far'), trained && t('against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))].filter(Boolean).join(' · ')}</span>}</div>
       <button type="button" className="iconbtn" aria-label={t('Next month')} disabled={isNow} onClick={() => step(1)}><Icon name="chevronRight" /></button>
     </div>
     {!trained ? <div className="empty"><div className="ico"><Icon name="calendar" /></div>{t('No workouts this month')}</div> : <>
@@ -80,7 +83,6 @@ export default function MonthReport() {
           ? <Stat label={t('Sets')} value={r.sets} delta={change(r.sets, r.prev.sets)} />
           : <Stat label={t('Volume')} value={fmtVol(r.volume, unit)} delta={change(Math.round(r.volume), Math.round(r.prev.volume), v => fmtVol(v, unit))} />}
       </div>
-      <div className="hv-sub hv-report-vs">{t('Against {0}', t(MONTHS_LONG[(at.mo + 11) % 12]))}</div>
 
       {r.records.length > 0 && <>
         <h3 className="sec"><Icon name="trophy" /> {t('PRs')} <span className="dim">{r.records.length}</span></h3>
@@ -98,7 +100,7 @@ export default function MonthReport() {
 
       {r.muscles.length > 0 && <>
         <h3 className="sec">{t('Muscle Split')}</h3>
-        <div className="hv-msets">{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
+        <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
           <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
           <b>{tn('{0} set', '{0} sets', m.sets)}</b>

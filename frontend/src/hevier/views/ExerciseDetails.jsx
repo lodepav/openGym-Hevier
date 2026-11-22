@@ -8,7 +8,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { t, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
+import { t, tn, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from '../../lib/i18n.js'
 import { exConverted, exUnitOf, shownWeight } from '../../lib/ex-unit.js'
 import { mapSetWeights } from '../../lib/units.js'
 import { fmtNum, fmtVol, capWords, todayISO } from '../../lib/format.js'
@@ -26,7 +26,7 @@ import {
   menuSheet, addToRoutineSheet, customExSheet, deleteCustomEx, workoutDetailSheet,
   upstreamExerciseDetailSheet,
 } from '../../sheets.jsx'
-import { Button } from '../../components/ui.jsx'
+import { Button, MenuButton } from '../../components/ui.jsx'
 import { youtubeSearchUrl } from '../../lib/youtube.js'
 import { openExternal } from '../../components/CustomMedia.jsx'
 import Media from '../../components/Media.jsx'
@@ -37,12 +37,12 @@ import { exerciseSummary, inRange } from '../lib/exercise-summary.js'
 import { lastSessions, repBests, curveIn } from '../lib/exercise-page.js'
 import { detailRows, effortScale, effortShown } from '../lib/side-rows.js'
 import { sideBalance } from '../lib/side-balance.js'
-import StrengthLevel from '../components/StrengthLevel.jsx'
+import StrengthLevel, { comparePending } from '../components/StrengthLevel.jsx'
 import { comparePair, labelsFor, labelText, withLabelFilter } from '../lib/gym-labels.js'
 import { countedS } from '../../lib/counted-log.js'
-import { usePhasedS } from '../lib/shared-phase-run.js'
+import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import PhaseFilter from '../components/PhaseFilter.jsx'
-import TrendMark from '../components/TrendMark.jsx'
+import TrendMark, { trendWords } from '../components/TrendMark.jsx'
 import { aliasesOf, shownAlias } from '../lib/ex-aliases.js'
 import { aliasSheet } from '../components/AliasSheet.jsx'
 import { musclesShown, mainMuscleOf, muscleText } from '../lib/main-muscle.js'
@@ -58,9 +58,13 @@ import { elapsedWords } from '../lib/elapsed.js'
 // A date of another year says its year: the history reaches back further than one (H6).
 const notThisYear = d => !!d && d.slice(0, 4) !== String(new Date().getFullYear())
 const dateOf = d => fmtDate(d, true, notThisYear(d))
+// The page's lines and tiles share one short form, "17 Jul" (the critique, 2026-11-20); a session card keeps its weekday.
+const shortDate = d => fmtDate(d, false, notThisYear(d))
 
 const MAIN_LABEL = { weight: 'Heaviest Weight', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
 const TILE_LABEL = { weight: 'Heaviest', reps: 'Most Reps', sec: 'Longest Hold', min: 'Minutes' }
+// The tag a session line names its best with (exercise-page.js KINDS), the tiles' own words.
+const KIND_LABEL = { ...TILE_LABEL, e1rm: 'Best 1RM', setVol: 'Best set' }
 const unitOf = (metric, unit) => (metric === 'weight' ? unit : metric === 'reps' ? t('reps') : metric === 'sec' ? 's' : t('min'))
 const repsWord = n => n + ' ' + (n === 1 ? t('rep') : t('reps'))
 
@@ -85,7 +89,9 @@ const inUnit = (st, id, s) => (exConverted(st, id) ? mapSetWeights(s, w => shown
 // (it has its own place), a per-side set's two sides on one line.
 const shortSet = (ex, s, target, st) => {
   const text = setText(ex.id, inUnit(st, ex.id, noEffort(s)), target, speedUnitOf(st), exUnitOf(st, ex.id))
-  return isSideSet(s) ? text.replace(' · ', ' ') : text
+  if (isSideSet(s)) return text.replace(' · ', ' ')
+  // Reps alone read "8 reps", not a bare "8" or "× 8" after the star (the critique, 2026-11-21).
+  return text.replace(/^(?:0 )?(?:× )?(\d+)$/, (_, n) => tn('{0} rep', '{0} reps', Number(n)))
 }
 
 // The last sessions, one line each (D131): the date, the sets, the effort, and an arrow against the
@@ -100,14 +106,17 @@ function LastSessions({ ex, sum, st, onAll }) {
     {lines.map((l, k) => {
       const w = byId.get(l.id)
       const effort = l.effort.map(e => effortShown(e, scale)).filter(v => v != null)
-      return <div key={l.id ?? k} className="hv-xd-ls" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
-        <span className="hv-xd-ld">{fmtDate(l.d, false, notThisYear(l.d))}</span>
+      // Its date, first set, count and best or trend; the whole line was one long button name (the fifth audit, 2026-11-21).
+      const said = w && [shortDate(l.d), l.sets[0] && shortSet(ex, l.sets[0].s, l.target, st), l.sets.length > 1 && tn('{0} set', '{0} sets', l.sets.length),
+        l.bestKind ? t(KIND_LABEL[l.bestKind]) : trendWords(l.trend)].filter(Boolean).join(', ')
+      return <div key={l.id ?? k} className="hv-xd-ls" aria-label={said || undefined} {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
+        <span className="hv-xd-ld">{shortDate(l.d)}</span>
         {/* Each set is whole on a line that wraps ("80 kg × 6", not "80 kg" over "× 6"); the line breaks between sets. */}
         <span className="hv-xd-lsets">{l.sets.map((x, j) => <Fragment key={j}>{j > 0 && ' · '}<span className="hv-xd-lset">{x.star
-          ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{t('Best set')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
+          ? <em className="hv-xd-star"><span aria-hidden="true">★ </span><span className="hv-sr">{x.kinds.map(k => t(KIND_LABEL[k])).join(', ')}: </span>{shortSet(ex, x.s, l.target, st)}</em>
           : shortSet(ex, x.s, l.target, st)}</span></Fragment>)}
           {effort.length > 0 && <small> {t(EFFORT[scale].hd)} {effort.map(fmtNum).join(' · ')}</small>}</span>
-        {l.best ? <span className="hv-xd-best">{t('best')}</span> : <TrendMark v={l.trend} />}
+        {l.bestKind ? <span className="hv-xd-best">{t(KIND_LABEL[l.bestKind])}</span> : <TrendMark v={l.trend} />}
       </div>
     })}
   </section>
@@ -118,14 +127,17 @@ const wholeParts = text => text.split(/ (?=× )/).map((p, i) => <Fragment key={i
 
 // The best sets (D131): three tiles, the best session's volume under them, then the best at each
 // rep count, the ones from the last month in yellow with "new".
-function Bests({ ex, sum, st }) {
+// `children` (the chart) goes between the best sets and the rep counts: the long list comes last (the critique, 2026-11-21).
+function Bests({ ex, sum, st, children }) {
   const unit = exUnitOf(st, ex.id)
   const show = w => shownWeight(st, ex.id, w)
   const weight = sum.metric === 'weight'
   const r = sum.records
+  // A best 1RM that is the heaviest single itself shares its tile, not a second one with the same number.
+  const oneSet = weight && r.best && r.e1rm && r.best.d === r.e1rm.d && Math.abs(r.best.v - r.e1rm.v) < 0.01
   const tiles = [
-    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
-    r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
+    r.best && { k: 'best', label: t(TILE_LABEL[sum.metric]) + (oneSet ? ' · ' + t('Best 1RM') : ''), v: fmtNum(weight ? show(r.best.v) : r.best.v) + ' ' + unitOf(sum.metric, unit), d: r.best.d },
+    !oneSet && r.e1rm && { k: 'e1rm', label: t('Best 1RM'), v: fmtNum(show(r.e1rm.v)) + ' ' + unit, d: r.e1rm.d },
     r.setVol && { k: 'setVol', label: t('Best set'), v: wholeParts(setFormat(`${fmtNum(show(r.setVol.w))}×${r.setVol.r}`, unit)), d: r.setVol.d },
   ].filter(Boolean)
   const reps = repBests(sum.reps, todayISO())
@@ -133,13 +145,14 @@ function Bests({ ex, sum, st }) {
     {tiles.length > 0 && <section>
       <h4 className="sec">{t('Best sets')}</h4>
       <div className="hv-xd-tiles">{tiles.map(x => <div key={x.k} className="hv-xd-tile">
-        <small>{x.label}</small><b>{x.v}</b><small>{dateOf(x.d)}</small></div>)}</div>
-      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {dateOf(r.sessionVol.d)}</div>}
+        <small>{x.label}</small><b>{x.v}</b><small>{shortDate(x.d)}</small></div>)}</div>
+      {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {shortDate(r.sessionVol.d)}</div>}
     </section>}
+    {children}
     {reps.length > 0 && <section>
       <h4 className="sec">{t('Best at each rep count')}</h4>
       <div className="hv-xd-reps">{reps.map(x => <div key={x.r} className={'hv-xd-rr' + (x.isNew ? ' new' : '')}>
-        <span>{repsWord(x.r)}</span><b>{fmtNum(show(x.w))} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{dateOf(x.d)}</em>
+        <span>{repsWord(x.r)}</span><b>{fmtNum(show(x.w))} {unit}</b>{x.isNew && <span className="hv-xd-new">{t('new')}</span>}<em>{shortDate(x.d)}</em>
       </div>)}</div>
     </section>}
   </>
@@ -162,12 +175,10 @@ function Chart({ ex, sum, st }) {
   const sides = useMemo(() => sideBalance(sum.sessions, ex.id), [sum, ex.id])
   return <section>
     <div className="hv-xd-cap"><h4 className="sec">{curves.find(c => c.value === on).title}</h4>
-      <select className="hv-xd-range" value={range} aria-label={t('Range')} onChange={e => setRange(e.target.value)}>
-        <option value="3m">{t('Last 3 months')}</option>
-        <option value="1y">{t('Year')}</option>
-        <option value="all">{t('All time')}</option>
-      </select></div>
-    <div className="chart hv-xd-chart"><LineChart points={points} h={150} unit={cu} /></div>
+      {/* Upstream's picker sheet, not a native select's white system list (the fresh audit, 2026-11-21). */}
+      <MenuButton className="hv-xd-range" title={t('Range')} value={range} onChange={setRange}
+        options={[{ value: '3m', label: t('Last 3 months') }, { value: '1y', label: t('Year') }, { value: 'all', label: t('All time') }]} /></div>
+    <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', curves.find(c => c.value === on).title)}><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
         aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
@@ -187,13 +198,14 @@ function History({ ex, sum, st }) {
     const rows = historyRows(workoutAs(w, ex.id, currentDbLoad(st, ex.id)), ex.id, s)
     const sets = rows.map(y => y.s)
     return <div key={s.id ?? i} className="card hv-xd-sess" {...tappable(w ? () => workoutDetailSheet(w) : undefined)}>
-      <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
+      <div className="hv-xd-st">{w?.name || t('Workout')} {s.pr && <span className="pr"><Icon name="trophy" />{t('PR')}</span>}</div>
       <div className="hv-xd-sd">{dateOf(s.d)}</div>
       {/* The holds of a reps session too (D89), marked H as a warm-up is W. */}
       {detailRows(sets).map(row => {
         const mark = row.head ? setMark(sets, row.i) : ''
-        return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}>{mark === 'H' ? t('H') : mark}</span>
-          <span>{row.side && <span className="hv-lr">{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : setText(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st), exUnitOf(st, ex.id))}</span>
+        return <div key={row.i + (row.side || '')} className="hv-xd-set"><span className={'hv-xd-n' + (mark === 'H' ? ' hv-xd-h' : '')}
+          {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : {})}>{mark === 'H' ? t('H') : mark}</span>
+          <span>{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}{row.undone ? '–' : setText(ex.id, inUnit(st, ex.id, row.s), rows[row.i].target, speedUnitOf(st), exUnitOf(st, ex.id))}</span>
           {/* A set's note (upstream 1.4.4, D5). */}
           {row.last && setNoteOf(sets[row.i]) && <span className="hv-xd-note"><Icon name="note" />{setNoteOf(sets[row.i])}</span>}</div>
       })}
@@ -224,9 +236,8 @@ function AllHistory({ ex, label }) {
 function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
   const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id), [base, st.dbLoad, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="hv-xd-cmpcol">
-    <select className="hv-xd-label" value={'k:' + value} aria-label={t('Brand')} onChange={e => onPick(e.target.value.slice(2))}>
-      {labels.filter(l => l.key !== other).map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)}</option>)}
-    </select>
+    <MenuButton className="hv-xd-label" title={t('Brand')} value={value} onChange={onPick}
+      options={labels.filter(l => l.key !== other).map(l => ({ value: l.key, label: labelText(l, t) }))} />
     <History ex={ex} sum={sum} st={st} />
   </div>
 }
@@ -286,22 +297,26 @@ function ExerciseDetails({ ex, close }) {
   // every one. The filter by OpenBite's phase (D93) narrows both.
   const counted = usePhasedS(countedS(st))
   const listed = usePhasedS(st)
-  const all = useMemo(() => exerciseSummary(counted, ex.id), [counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Both are new copies on each write: the summaries key on what they are made from and read (the fifth audit, 2026-11-21).
+  const phase = useStatsPhase(s => s.phase)
+  const made = [st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx]
+  const all = useMemo(() => exerciseSummary(counted, ex.id), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // With nothing kept out (the usual case), both are the same copy of S: one summary serves both.
   const same = counted === listed
-  const logged = useMemo(() => (same ? all : exerciseSummary(listed, ex.id)), [all, same, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const logged = useMemo(() => (same ? all : exerciseSummary(listed, ex.id)), [all, same, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D28: the brand · setup labels this exercise was done with (not the gym, which is only where);
   // the page follows the one picked. null: all of them.
   const labels = useMemo(() => labelsFor(st, ex.id), [st.workouts, ex.id])
   const [label, pickLabel] = useState(null)
   const brands = labels.length > 0 && partOn(st, 'hvGyms', 'brands')
   const on = brands && labels.some(l => l.key === label) ? label : null
-  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, counted, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, listed, st.dbLoad, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const sum = useMemo(() => (on != null ? exerciseSummary(withLabelFilter(counted, ex.id, on), ex.id) : all), [all, on, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D88: this exercise's time a session, from its sets' tick times, as Exercise time reads it.
   const time = useMemo(() => (partOn(st, 'hvStats', 'time')
-    ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [listed, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+    ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
+  const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
   const fav = isFav(st, ex.id)
   // D73: the exercise's other names; the one shown as its name is left out and its own name put in.
   const shown = shownAlias(st, ex.id)
@@ -338,20 +353,20 @@ function ExerciseDetails({ ex, close }) {
       <Media ex={ex} />
       <ExerciseFacts ex={ex} />
       {brands && <div className="hv-xd-labels">
-        <select className="hv-xd-label" value={on == null ? '' : 'k:' + on} aria-label={t('Brand')}
-          onChange={e => pickLabel(e.target.value ? e.target.value.slice(2) : null)}>
-          <option value="">{t('All sets')}</option>
-          {labels.map(l => <option key={l.key} value={'k:' + l.key}>{labelText(l, t)} ({l.n})</option>)}
-        </select>
+        {/* 'k:' keeps No brand's own key ('') apart from All sets. */}
+        <MenuButton className="hv-xd-label" title={t('Brand')} value={on == null ? '' : 'k:' + on}
+          onChange={v => pickLabel(v ? v.slice(2) : null)}
+          options={[{ value: '', label: t('All sets') }, ...labels.map(l => ({ value: 'k:' + l.key, label: labelText(l, t) + ' (' + l.n + ')' }))]} />
       </div>}
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
         : <LastSessions ex={ex} sum={hist} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
-      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st} />}
-      {sum.total > 0 && <Chart ex={ex} sum={sum} st={st} />}
+      {/* Under three sessions a curve says nothing and the best tile already gives its number: no chart (the critiques, 2026-11-21). */}
+      {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}>{(sum.series.main || []).length >= 3 && <Chart ex={ex} sum={sum} st={st} />}</Bests>}
       <section className="hv-xd-more">
         {/* D19 follows the label the page shows (D28), every set under All. */}
-        {e1rm && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={shownWeight(st, ex.id, e1rm.v)} unit={exUnitOf(st, ex.id)} st={st} />}
+        {/* Without a 1RM too when opened from Set a level, or once levels are typed in. */}
+        {(e1rm || asked || st.hvStrength?.[ex.id]) && isOn(st, 'strength') /* D139: Strength has no parts left */ && <StrengthLevel exId={ex.id} oneRm={e1rm ? shownWeight(st, ex.id, e1rm.v) : 0} unit={exUnitOf(st, ex.id)} st={st} />}
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
         {time && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}

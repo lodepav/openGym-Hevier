@@ -36,8 +36,12 @@ export const muscleLabel = tg => (typeof tg === 'string' ? LABEL[tg] || tg : '')
 // upstream's are ('Upper back'), which also finds upstream's translations.
 const OURS = new Set(Object.values(LABEL))
 /** A muscle name as the page writes it, translated: the fork's 'Upper Back' → 'Upper back'; any other name as it is. */
-export const muscleText = name => (typeof name === 'string' && name
-  ? t(OURS.has(name) ? name[0] + name.slice(1).toLowerCase() : name) : '')
+export const muscleText = name => {
+  if (typeof name !== 'string' || !name) return ''
+  // A catalogue muscle outside OURS ("upper chest") starts with a capital as the rest do.
+  const s = t(OURS.has(name) ? name[0] + name.slice(1).toLowerCase() : name)
+  return s[0].toUpperCase() + s.slice(1)
+}
 
 // Each rule: the name it reads and the muscle it gives, for a custom exercise with no muscles whose
 // name finds no catalogue exercise. The first that matches wins, so the narrower come first (a

@@ -8,26 +8,44 @@
 //   node hevier/tools/cdp.mjs shot out.png                   # screenshot of the WebView
 //   node hevier/tools/cdp.mjs reload | nav "#/workout"
 //
-// Env: ADB (default ~/Android/Sdk/platform-tools/adb), APP_ID (default ch.duartesantos.opengym.hevier.test),
-// CDP_PORT (default 9223).
+// Env: ANDROID_SERIAL (required: an emulator this repo booted, ~/.claude/bin/emu), ADB (default
+// ~/Android/Sdk/platform-tools/adb), APP_ID (default ch.duartesantos.opengym.hevier.test), CDP_PORT
+// (default 9223 + (console port - 5554) / 2: 9223 for emulator-5554, 9224 for emulator-5556).
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ADB = process.env.ADB || homedir() + '/Android/Sdk/platform-tools/adb'
 const APP_ID = process.env.APP_ID || 'ch.duartesantos.opengym.hevier.test'
-const PORT = process.env.CDP_PORT || '9223'
+const ROOT = fileURLToPath(new URL('../..', import.meta.url))
+
+// The emulator a run drives: never whatever plain adb picks, and each its own local port, so runs
+// on two emulators keep their CDP connections apart. Checked when first needed, not on import.
+let dev = null
+export function device() {
+  if (dev) return dev
+  const serial = process.env.ANDROID_SERIAL
+  const stop = msg => { console.error(msg); process.exit(2) }
+  if (!serial) stop('set ANDROID_SERIAL to an emulator this repo booted (~/.claude/bin/emu list)')
+  try { execFileSync(homedir() + '/.claude/bin/emu', ['mine', serial], { cwd: ROOT, stdio: 'ignore' }) }
+  catch { stop(`${serial} was not booted from this repo (~/.claude/bin/emu list)`) }
+  const m = /^emulator-(\d+)$/.exec(serial)
+  if (!m) stop(`${serial} is not an emulator serial (emulator-<port>)`)
+  dev = { serial, port: process.env.CDP_PORT || String(9223 + (Number(m[1]) - 5554) / 2) }
+  return dev
+}
 
 function forward() {
+  const { port } = device()
   const pid = execFileSync(ADB, ['shell', 'pidof', APP_ID]).toString().trim().split(/\s+/)[0]
   if (!pid) throw new Error(APP_ID + ' is not running')
-  execFileSync(ADB, ['forward', 'tcp:' + PORT, 'localabstract:webview_devtools_remote_' + pid])
+  execFileSync(ADB, ['forward', 'tcp:' + port, 'localabstract:webview_devtools_remote_' + pid])
 }
 
 export async function connect() {
   forward()
-  const pages = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json()
+  const pages = await (await fetch(`http://127.0.0.1:${device().port}/json/list`)).json()
   const page = pages.find(p => p.type === 'page')
   if (!page) throw new Error('no WebView page found')
   const ws = new WebSocket(page.webSocketDebuggerUrl)
@@ -65,6 +83,27 @@ export async function screenshot(cdp, file) {
   }
   writeFileSync(file, execFileSync(ADB, ['exec-out', 'screencap', '-p'], { maxBuffer: 64 << 20 }))
 }
+
+// The app's store, as App.jsx's useStore() holds it: found through React's fibers from #root, since
+// the bundle exposes nothing. Its actions (update, setUnit) are the app's own, so a change goes
+// through the same stamps and saves as a tap. `body` runs with it as `st`.
+export const withStore = body => `(() => {
+  const root = document.getElementById('root')
+  const key = root && Object.keys(root).find(k => k.startsWith('__reactContainer$'))
+  const stack = key ? [root[key].stateNode?.current || root[key]] : []
+  let st = null
+  while (stack.length && !st) {
+    const f = stack.pop()
+    for (let h = f.memoizedState; h && typeof h === 'object' && 'next' in h && !st; h = h.next) {
+      const v = h.memoizedState
+      if (v && typeof v === 'object' && v.S && typeof v.update === 'function' && typeof v.setUnit === 'function') st = v
+    }
+    if (f.sibling) stack.push(f.sibling)
+    if (f.child) stack.push(f.child)
+  }
+  if (!st) throw new Error('the app store was not found')
+  ${body}
+})()`
 
 // Clicks the smallest visible element whose own text matches (buttons/links preferred).
 export const clickJs = needle => `(() => {

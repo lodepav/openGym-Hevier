@@ -35,7 +35,8 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Finish opens a sheet over the workout: sets, new best sets, duration, unticked sets, "Update the routine too", Save, then Today with "Workout saved" | D132 | Fork |
 | Swap shows what you swapped this exercise for before (how often, when, the last set), then what you did at this gym for the muscle, then the catalogue's substitutes, each one tap; worked out from the log, and a swap never changes the routine. Add exercise lists what you did at this gym first | D129 | Fork |
 | The ⏱ Timer remembers its last time and counts down on a ring | D10 | Offered (#1078, issue; PR #1361, a Timer and a Stopwatch in the header) |
-| Live PR trophy on the set as it is ticked, with a toast | D22, D51 | Fork (upstream 1.4.5 has its own trophy at the tick; one trophy, not two, at the merge, D107) |
+| Live PR trophy on the set as it is ticked, with a toast; upstream's Record trophies switch turns both off | D22, D51, D107 | Fork (upstream 1.4.5 has its own trophy at the tick; the fork keeps its own, per brand label, D107) |
+| Pause the workout from the footer's Settings, and Next exercise when the rest ends (upstream's #976, #1017) in the fork's workout | D107 | Fork |
 | "Update the routine too" on the Finish sheet when a workout changed its routine | D35, D129, D132 | Offered (#1376: removed, swapped and reordered exercises with Undo, against the routine as the workout started; no set counts) |
 | The fork's screens show and type an exercise in its own weight unit (upstream's pin since 1.4.4, #657) | D41 | Fork |
 | TIME column with a count-up timer for cardio and holds | D53 | Offered (#1375: the count-up clock on a cardio set, whole minutes; holds already run by themselves upstream) |
@@ -135,7 +136,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Lifts: every trained exercise with its last set and best ("new best" after a record), Recent or By muscle, a search; Strength levels as a link at the end | D135 | Fork |
 | Lifts shows where each lift is going: a chart of estimated 1RM with its change, a line per brand, over 12 weeks, the diet phase or all; rising, holding and falling totals that filter | D140 | Fork |
 | Lifts' By muscle shows each muscle group's change and how many of its lifts are rising; isolation lifts count half | D141 | Fork |
-| History: this week in three numbers, one row of chips (Calendar, Monthly report, Statistics), the phase filter and the workout feed | D135 | Fork |
+| History: one row of chips (Calendar, Monthly report, Statistics), the phase filter and the workout feed | D135 | Fork |
 | All statistics without upstream's week streak card, so D59's streak is the only one on the app's pages | D135 | Fork |
 | Routines page (the Workout tab until D126): routine rows since D130 | D13, D130 | Fork |
 | Statistics as one page: number tiles, then cards (Exercise time, Body weight, Sets per muscle by week, month or year, the weekly chart), all under the phase filter; Arrange Statistics orders them and switches each on or off | D14, D135, D142 | Fork |

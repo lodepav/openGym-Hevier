@@ -8,7 +8,8 @@ import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { afterEach, beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
-import { EXDB } from '../../lib/exercises.js'
+import { EXDB, EXIDX } from '../../lib/exercises.js'
+import { exerciseNameText } from '../../lib/format.js'
 import { hevierRoutes } from '../routes.jsx'
 import Modals from '../../components/Modals.jsx'
 import { hooks } from '../hooks.js'
@@ -44,7 +45,8 @@ function render(ex, at = '/plan/r/r1/view', extra = {}) {
   </MemoryRouter>))
 }
 const byText = (sel, text) => [...document.querySelectorAll(sel)].find(b => b.textContent.includes(text))
-const rows = () => [...container.querySelectorAll('.hv-np-row:not(.hv-np-head)')].map(r => [...r.children].map(c => c.textContent))
+// What is drawn: each cell's spoken column name (.hv-sr) left out.
+const rows = () => [...container.querySelectorAll('.hv-np-row:not(.hv-np-head)')].map(r => [...r.children].map(c => c.textContent.replace(/^(Last time|Next): /, '')))
 const nums = () => container.querySelectorAll('.hv-np-num')
 const key = text => act(() => [...document.querySelectorAll('.hv-kp-keys button')].find(b => b.textContent === text).click())
 const press = label => act(() => document.querySelector(`.hv-kp-keys [aria-label="${label}"]`).click())
@@ -73,6 +75,16 @@ afterEach(() => {
 })
 
 describe('Routine page (D37, D128)', () => {
+  it('names the usual rest once, an exercise’s own only where it differs, and Start at both ends (the critique, 2026-11-20)', () => {
+    const other = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ ...PLAN[0], weight: 0 }, { id: other, mode: 'reps', sets: 1, reps: 8, weight: 40, restSec: 120 }], undefined, { restSec: 90 })
+    expect(container.querySelector('.hv-rv-usual').textContent).toBe('1:30 rest')
+    expect([...container.querySelectorAll('.hv-rv-rest')].map(x => x.textContent)).toEqual(['Rest Timer: 2:00'])
+    expect(container.querySelectorAll('.hv-rv-start')).toHaveLength(2)
+    expect(nums()[0].textContent).toBe('–')   // no planned weight reads as the workout's KG does
+    expect(nums()[0].parentElement.textContent).toMatch(/^Next: – × \d+$/)   // and no unit after the dash (the critique, 2026-11-21)
+  })
+
   it('opens from the routine name on Routines', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/routines')
     act(() => byText('button.hv-rname', 'Leg Day').click())
@@ -84,6 +96,10 @@ describe('Routine page (D37, D128)', () => {
     render(PLAN, undefined, { workouts: [last] })
     expect(container.querySelector('input')).toBeNull()
     expect(rows()).toEqual([['W', '60 kg × 5', '60 kg × 5'], ['1', '100 kg × 5', '100 kg × 5'], ['2', '90 kg × 8', '90 kg × 8']])
+    // The column head is hidden from TalkBack, so each cell says its column (the fifth audit, 2026-11-21).
+    const row = container.querySelectorAll('.hv-np-row:not(.hv-np-head)')[1]
+    expect([...row.querySelectorAll('.hv-sr')].map(s => s.textContent)).toEqual(['Last time: ', 'Next: '])
+    expect(container.querySelector('.hv-exhd .hv-thumb').getAttribute('aria-label')).toBe('How to do it, ' + exerciseNameText(EXIDX[EX]))
   })
 
   it('never done: the routine’s own numbers, no last time', () => {

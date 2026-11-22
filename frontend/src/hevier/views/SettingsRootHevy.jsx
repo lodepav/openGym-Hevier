@@ -39,12 +39,14 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   const mMode = useStore(s => muscleMode(s.S))
   const MUSCLE = { main: t('Main muscle only'), share: t('Secondary muscles too') }
   // D18's volume and D42's muscle count are one question, so one row and one sheet.
+  // Upstream's menu shows the choice with a tick TalkBack does not read: the label says it (the audit, 2026-11-21).
+  const chosen = (label, on) => (on ? <>{label}<span className="hv-sr">, {t('selected')}</span></> : label)
   const pickVolume = () => menuSheet({
     title: t('Volume'),
     sections: [
-      { items: Object.entries(VOLUME).map(([v, label]) => ({ label, on: mode === v,
+      { items: Object.entries(VOLUME).map(([v, label]) => ({ label: chosen(label, mode === v), on: mode === v,
         onClick: () => useStore.getState().update(s => { s.hvVolume = v }) })) },
-      { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label, on: mMode === v,
+      { title: t('Muscle sets'), items: Object.entries(MUSCLE).map(([v, label]) => ({ label: chosen(label, mMode === v), on: mMode === v,
         onClick: () => useStore.getState().update(s => { s.hvMuscleSets = v }) })) },
     ],
   })
@@ -53,12 +55,13 @@ function SettingsRootHevy({ ctx, preview, open, acct, faceName }) {
   // rest timer alone, in upstream's words. Look's preview names upstream's theme (pinned, D17) and
   // accent (the fork's own row, D123), so that row names the body diagram instead.
   const value = id => (id === 'workout' ? (restSec > 0 ? t('{0} rest', restTimerText(restSec, 0, '')) : t('No rest timer'))
-    : id === 'look' ? t(body === 'female' ? 'Female' : 'Male')
+    : id === 'look' ? t('Body diagram') + ' · ' + t(body === 'female' ? 'Female' : 'Male')
     // D62: the gyms, not upstream's filter switch.
     : id === 'equipment' ? (gyms || []).map(g => g?.name).filter(Boolean).join(' · ') || t('No gyms')
     : preview[id]?.() || null)
   // The Workout group's first row is not called Workout too; its page keeps upstream's title.
-  const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms & equipment' : PAGES[id].title)
+  // "Gyms": with its gyms named beside it, the longer title wrapped on a phone (the critique, 2026-11-20).
+  const title = id => t(id === 'workout' ? 'During a workout' : id === 'equipment' ? 'Gyms' : PAGES[id].title)
   const row = id => <Row key={id} icon={PAGES[id].icon} iconTint={PAGES[id].tint} title={title(id)}
     value={value(id)} accessory="chevron" onClick={() => open(id)} className="sp-root-row" />
   const own = {
@@ -113,10 +116,14 @@ const TYPE_PROPS = new Map([[ForgottenRows, { mobile: false }]])
 export function installSettings() {
   hooks.settings = {
     root: props => <SettingsRootHevy {...props} />,
-    // Settings opens from a tab's ⚙ (D136): back the way you came, else up to Today.
-    back: () => <button className="sp-back" aria-label={t('Today')}
-      onClick={() => ((window.history.state?.idx || 0) > 0 ? nav(-1) : nav('/home', { replace: true }))}>
-      <Icon name="chevronLeft" /><span>{t('Today')}</span></button>,
+    // Back the way you came, named by the tab whose ⚙ opened it (D136; the fifth audit, 2026-11-21), else up to Today.
+    back: () => {
+      const came = (window.history.state?.idx || 0) > 0, from = came && window.history.state?.usr?.back
+      const label = from === 'History' ? t('History') : from === 'Lifts' ? t('Lifts') : t('Today')
+      return <button className="sp-back" aria-label={label}
+        onClick={() => (came ? nav(-1) : nav('/home', { replace: true }))}>
+        <Icon name="chevronLeft" /><span>{label}</span></button>
+    },
     page: (id, tree) => {
       if (id === 'equipment') return <GymsPage card={tree} tr={t} />
       const out = relabelPage(id, prunePage(id, tree, t, HIDDEN_TYPES, TYPE_PROPS), t)

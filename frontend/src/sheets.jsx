@@ -3325,10 +3325,12 @@ export function EffortPicker({ kind, value, onPick, close, cardio = false }) {
         <div className="grow"><div className="tt">{t('Exact {0}', hd)}</div></div>
         <div className="stp effcell-stp"
           style={curColor ? { color: curColor, background: `color-mix(in srgb, ${curColor} 20%, var(--surface-2))` } : undefined}>
-          <button aria-label={t('Decrease')} onClick={() => set(stepEffort(kind, v, -1))}><Icon name="minus" /></button>
+          {/* [hevier] S70: the steppers say what they change, "RIR, Decrease" (R12-U7) */}
+          <button aria-label={hooks.namedSteps ? nameIn(hd, t('Decrease')) : t('Decrease')} onClick={() => set(stepEffort(kind, v, -1))}><Icon name="minus" /></button>
           <span className="val"><NumberField decimal nullable value={v ?? ''} placeholder="–"
             onChange={nv => set(capEffort(kind, nv))} /></span>
-          <button aria-label={t('Increase')} onClick={() => set(stepEffort(kind, v, 1))}><Icon name="plus" /></button>
+          <button aria-label={hooks.namedSteps ? nameIn(hd, t('Increase')) : t('Increase')} onClick={() => set(stepEffort(kind, v, 1))}><Icon name="plus" /></button>
+          {/* [/hevier] */}
         </div>
       </div>
     </div>

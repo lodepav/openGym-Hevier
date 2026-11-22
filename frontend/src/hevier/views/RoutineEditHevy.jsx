@@ -5,7 +5,7 @@
 // chip — then + Add Exercise, and below it the routine-wide progression, deload and body map
 // upstream's editor has. Every change saves as it is made, as upstream's editor does.
 import { progressionOn } from '../lib/plain-routine.js'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -23,6 +23,7 @@ import { MOBILE, printHtml } from '../../lib/mobile.js'
 import { speedUnitOf, toSpeed, fromSpeed } from '../../lib/speed.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC, profileRule } from '../../lib/progression.js'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../../lib/muscles.js'
+import { sameForRoutineCard } from '../lib/card-state.js'
 import { workoutControls } from '../../lib/workout-controls.js'
 import { glyphOf } from '../../lib/glyphs.js'
 import {
@@ -95,13 +96,13 @@ function BrandSheet({ exId, close }) {
     <input className="input" autoFocus value={v} maxLength={BRAND_MAX} placeholder={t('Brand or machine, e.g. Life Fitness')}
       aria-label={t('Brand')} onChange={ev => setV(ev.target.value)} />
     {brands.length > 0 && <div className="hv-xd-chips">{brands.map(b =>
-      <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} onClick={() => save(b)}>{b}</button>)}</div>}
+      <button key={b} type="button" className={'chip nocap' + (b === v ? ' on' : '')} aria-pressed={b === v} onClick={() => save(b)}>{b}</button>)}</div>}
     <button type="submit" className="btn primary">{t('Save')}</button>
     {had && <button type="button" className="btn ghost dim" onClick={() => save('')}>{t('Remove brand')}</button>}
   </form>
 }
 
-function RoutineExercise({ r, i, unitOf, S, grip, press }) {
+function RoutineExerciseCard({ r, i, unitOf, S, grip, press }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const e = r.ex[i]
@@ -243,10 +244,12 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const cell = (row, c) => {
     if (row.kind === 'warm') return <span key={c.f} className="hv-rt-auto">{c.f === 'w' && progressionOn(r) ? t('Auto') : '–'}</span>
     if (c.f === 'w' && row.fixed) return <span key={c.f} className="hv-rt-fixed" title={t('Back-off sets follow the first set')}>{fmtNum(row.w)}<span className="hv-sr"> ({t('Back-off sets follow the first set')})</span></span>
-    if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range"
+    // Named as the plain fields are, its value after (the fifth audit, 2026-11-21).
+    const said = v => t('Set {0}', row.k + 1) + ', ' + (c.say || c.hd) + ', ' + v
+    if (c.f === 'r' && shape.ranged) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(row.repsMin + '–' + row.reps)}
       onClick={() => useUI.getState().openSheet(close => <RangeSheet from={row.repsMin} to={row.reps} close={close}
         onDone={(a, b) => edit(cfg => setRange(cfg, a, b))} />)}>{row.repsMin}–{row.reps}</button>
-    if (c.f === 'r' && row.max) return <button key={c.f} type="button" className="hv-rt-range" onClick={() => openSetType(row)}>{t('Max')}</button>
+    if (c.f === 'r' && row.max) return <button key={c.f} type="button" className="hv-rt-range" aria-label={said(t('Max'))} onClick={() => openSetType(row)}>{t('Max')}</button>
     const key = c.f === 'r' ? 'reps' : c.f
     const v = row[key]
     // Hevy's grey dash for a weight not set yet (0); typing one fills it
@@ -259,7 +262,7 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   const mark = row => (row.kind === 'warm' ? <span className="hv-w">W</span> : row.failure ? <span className="hv-f">F</span> : row.k + 1)
   const line = row => <div className="hv-rt-row hv-rt-x" style={grid}>
     <button type="button" className="hv-set" onClick={() => openSetType(row)}
-      aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1)}>{mark(row)}</button>
+      aria-label={row.kind === 'warm' ? t('Warm-up') : t('Set {0}', row.k + 1) + (row.failure ? ', ' + t('Failure set') : '')}>{mark(row)}</button>
     {cols.map(c => cell(row, c))}
     <button type="button" className="iconbtn hv-rt-del" onClick={() => remove(row)}
       aria-label={row.kind === 'warm' ? t('Remove warm-up {0}', row.n + 1) : t('Remove set {0}', row.k + 1)}><HvIcon name="minusCircle" /></button>
@@ -276,9 +279,9 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
     </button>}
     <div className="hv-exhd" {...press}>
       {grip && <button type="button" className="hv-grip" aria-label={t('Move {0}', exerciseNameText(ex))} title={t('Drag to reorder')} {...grip}><Icon name="grip" /></button>}
-      <button type="button" className="hv-thumb" aria-label={t('How to do it')} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
+      <button type="button" className="hv-thumb" aria-label={t('How to do it') + ', ' + exerciseNameText(ex)} onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>
       <div className="hv-nameline">
-        <button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button>
+        <span role="heading" aria-level="2" className="hv-namehd"><button type="button" className={'hv-name ' + exerciseNameClass(ex)} onClick={() => exerciseDetailSheet(ex)}>{exerciseNameFor(ex)}</button></span>
         {brandsOn && (brand
           ? <button type="button" className="hv-brand has" aria-label={t('Brand') + ': ' + brand} onClick={openBrand}><Icon name="machine" />{brand}</button>
           : <button type="button" className="hv-addbrand" onClick={openBrand}>{t('+ Brand')}</button>)}
@@ -303,15 +306,56 @@ function RoutineExercise({ r, i, unitOf, S, grip, press }) {
   </div>
 }
 
+// A key in the title redraws the page, not every card (the second audit, 2026-11-21). The drag
+// handlers read their state through refs, so a card needs new ones only when its place (`at`) changes.
+// A key in one card's set field writes the store, which copies every routine: each card compares
+// its own part by content, so only that card redraws (the fresh audit, 2026-11-21).
+const RoutineExercise = memo(RoutineExerciseCard, (a, b) => a.i === b.i && a.at === b.at && !a.grip === !b.grip
+  && String(a.unitOf.get(a.i)) === String(b.unitOf.get(b.i)) && a.r.id === b.r.id
+  && sameForRoutineCard(a.S, b.S, a.r.id, a.i, a.unitOf.get(a.i)))
+
+// Keyed by the routine: Copy routine navigates to the copy on the same route, and the page's own
+// state (the title, its pending save) belongs to one routine (the second audit, 2026-11-21).
+// The body map from the exercises alone: a title written copies them but keeps what they say,
+// so the map is not worked out again (the audit leftovers, 2026-11-21).
+const RoutineMap = memo(function RoutineMap({ ex, body }) {
+  const load = loadOfRoutine({ ex })
+  return <div className="card hv-rmap">
+    <h2>{t('What this session hits')}</h2>
+    <BodyMap load={load} body={body} />
+    <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
+  </div>
+}, (a, b) => a.body === b.body && JSON.stringify(a.ex) === JSON.stringify(b.ex))
+
 export default function RoutineEditHevy() {
-  const nav = useNavigate()
   const { id } = useParams()
+  return <RoutineEditor key={id} id={id} />
+}
+
+function RoutineEditor({ id }) {
+  const nav = useNavigate()
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
   const r = S.routines.find(x => x.id === id)
   const back = () => (window.history.state?.idx > 0 ? nav(-1) : nav('/routines'))
   useEffect(() => { if (!r) nav('/routines', { replace: true }) }, [!!r])
+  // The title is written after a pause, on blur or on the way out, not per key: each write redrew
+  // every exercise card (the audit, 2026-11-21). Declared before the backup so that one has the name.
+  const typed = useRef(null)
+  const commitName = () => {
+    if (!typed.current) return
+    clearTimeout(typed.current.timer)
+    const v = typed.current.v.trim()
+    typed.current = null
+    update(s => { const x = s.routines.find(y => y.id === id); if (x) x.name = v || t('New routine') })
+  }
+  useEffect(() => {
+    // Android may kill the app in the background before the pause ends (the audit leftovers, 2026-11-21).
+    const away = () => { if (document.visibilityState === 'hidden') commitName() }
+    document.addEventListener('visibilitychange', away)
+    return () => { document.removeEventListener('visibilitychange', away); commitName() }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   // One auto-backup on the way out covers the whole editing session, as upstream's editor does.
   useEffect(() => () => useStore.getState().autoBackupNow?.(), [])
   // A new routine's default name shows as the placeholder, so the first key typed starts the name (D2: no select on focus).
@@ -362,7 +406,6 @@ export default function RoutineEditHevy() {
 
   const units = supersetUnits(r.ex)
   const unitOf = new Map(units.flatMap(u => u.map(idx => [idx, u])))
-  const load = r.ex.length ? loadOfRoutine(r) : null
   // A superset moves as one: a long press on any of its exercises' headers drags the whole unit.
   const reorder = useDragReorder(units.length, (from, to) => setR(x => { reorderRoutineUnit(x.ex, units[from][0], to) }))
   return <div className="hv-routine">
@@ -371,13 +414,18 @@ export default function RoutineEditHevy() {
       <button type="button" className="btn primary pill hv-finish" onClick={back}>{t('Done')}</button>
     </PageBar>
     <input className="hv-rtitle" value={name} placeholder={t('Routine title')} aria-label={t('Routine title')}
-      onChange={ev => { setName(ev.target.value); const v = ev.target.value.trim(); setR(x => { x.name = v || t('New routine') }) }} />
+      onBlur={commitName}
+      onChange={ev => {
+        setName(ev.target.value)
+        clearTimeout(typed.current?.timer)
+        typed.current = { v: ev.target.value, timer: setTimeout(commitName, 400) }
+      }} />
 
     {r.ex.length ? <div ref={reorder.listRef} className={'hv-units' + (reorder.drag ? ' is-reordering' : '')}>
       {units.map((u, n) => <section key={u.map(i => r.ex[i].id).join('-') + ':' + u[0]} data-reorder-row style={reorder.rowStyle(n)}
         className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
         {u.map(i => <RoutineExercise key={i + ':' + r.ex[i].id} r={r} i={i} unitOf={unitOf} S={S}
-          grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
+          at={n + '/' + units.length} grip={units.length > 1 ? reorder.handle(n) : null} press={reorder.press(n)} />)}
       </section>)}
     </div> : <div className="hv-empty">
       <Icon name="dumbbell" />
@@ -414,11 +462,7 @@ export default function RoutineEditHevy() {
         : progressionOn(r) ? t(POLICY_DESC[r.prog || profileRule(S)] || POLICY_DESC.linear) + ' ' + t('Applies to every exercise in this routine that does not set its own rule.')
         : t('A set never done opens at the numbers set here.')}
     </div>
-    {load && <div className="card hv-rmap">
-      <h2>{t('What this session hits')}</h2>
-      <BodyMap load={load} body={S.body} />
-      <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
-    </div>}
+    {r.ex.length > 0 && <RoutineMap ex={r.ex} body={S.body} />}
     <div className="workout-end-spacer" />
   </div>
 }

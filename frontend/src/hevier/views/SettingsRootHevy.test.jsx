@@ -54,6 +54,17 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.sp-back').textContent).toBe('Today')
   })
 
+  // The fifth audit, 2026-11-21: back names the tab whose gear opened Settings, Today on a cold open.
+  it('back is named by the tab it returns to', () => {
+    const was = window.history.state
+    window.history.replaceState({ idx: 1, usr: { back: 'Lifts' } }, '')
+    try {
+      render(null)
+      expect(container.querySelector('.sp-back').getAttribute('aria-label')).toBe('Lifts')
+      expect(container.querySelector('.sp-back').textContent).toBe('Lifts')
+    } finally { window.history.replaceState(was, '') }
+  })
+
   it('leaves the layout rows out of Workout and Fine-tuning, keeping the rest', () => {
     render('workout')
     const rows = titles()
@@ -61,6 +72,8 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(rows).toContain('Rest timer')
     expect(rows).toContain('Effort per set')
     expect(rows).toContain('Weigh in before workouts')
+    // the fork's workout has these (D107)
+    expect(rows).toEqual(expect.arrayContaining(['Record trophies', 'Cheer on a record', 'Next exercise when the rest ends']))
     act(() => root.unmount()); container.remove()
     render('advanced')
     const adv = titles()
@@ -124,14 +137,14 @@ describe('hevier: Settings (seams S11, S12)', () => {
     act(() => root.unmount()); container.remove()
     render(null)
     const look = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Look & Home'))
-    expect(look.textContent).toBe('Look & HomeMale') // the body diagram, not the theme (review S5)
+    expect(look.textContent).toBe('Look & HomeBody diagram · Male') // the body diagram, not the theme (review S5)
   })
 
   it('Gyms & equipment: the gyms, no filter switch or active profile (D62)', () => {
     const equipProfiles = [{ id: 'g1', name: 'City Gym', equipment: ['dumbbell'], accV: 1 }]
     render(null, { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
-    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Gyms & equipment'))
-    expect(row.textContent).toBe('Gyms & equipmentCity Gym')
+    const row = [...container.querySelectorAll('.sp-root-row')].find(r => r.textContent.includes('Gyms'))
+    expect(row.textContent).toBe('GymsCity Gym')
     act(() => root.unmount()); container.remove()
     render('equipment', { equipProfiles, activeEquipId: 'g1', equipFilterOn: true })
     const rows = titles()
