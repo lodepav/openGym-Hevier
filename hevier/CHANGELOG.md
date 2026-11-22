@@ -2,6 +2,21 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.4.0 · 2026-11-22
+
+Based on openGym 1.4.5.
+
+### New
+
+- the tenth critique's and audit's fixes (D149)
+- the ninth critique's and audit's fixes (D148)
+- the eighth critique's and audit's fixes (D147)
+
+### Fixes and changes
+
+- docs caught up with the merges since 2026-11-20
+- a hold's L/R mark spaced as a set's on the routine page
+
 ## 3.3.0 · 2026-11-22
 
 Based on openGym 1.4.5.
