@@ -116,6 +116,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     const prRows = [...container.querySelectorAll('.hv-wd-row')].filter(r => r.querySelector('.hv-pr'))
     expect(prRows.map(r => r.firstChild.textContent)).toEqual(['1', '2'])
     expect(prRows[0].querySelector('.hv-pr').textContent).toBe('Heaviest Weight · Best 1RM · Best Set Volume')
+    expect(prRows[0].querySelector('.hv-pr [role="img"]').getAttribute('aria-label')).toBe('Heaviest Weight · Best one rep max · Best Set Volume')
     expect(prRows[1].querySelector('.hv-pr').textContent).toBe('Best Session Volume')
     expect(container.querySelector('.hv-exhd .hv-pr')).toBeNull()
     expect([...container.querySelectorAll('.hv-stats div')].find(d => d.textContent.startsWith('Records')).textContent).toBe('Records4')
@@ -183,6 +184,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     expect(container.querySelector('.hv-wd-th').textContent).toContain('RIR')
     expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-rpe').textContent).toBe('RIR 2')
     expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-v').textContent).toBe('30 kg × 5')
+    expect(container.querySelector('.hv-wd-row:not(.hv-wd-th) .hv-wd-v [role="img"]').getAttribute('aria-label')).toBe('30 kilograms, 5 reps')
     act(() => workoutDetailSheet(W))
     expect(container.querySelector('.hv-wd-th').textContent).not.toMatch(/RPE|RIR/)
     expect(container.querySelector('.hv-wd-rpe')).toBeNull()
@@ -245,7 +247,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
     timed.entries[0].sets.forEach((s, i) => { if (s.done) s.at = start + (i + 1) * 4 * 60000 })
     act(() => useStore.getState().update(s => { s.workouts.push(timed) }))
     act(() => workoutDetailSheet(timed))
-    expect(container.querySelector('.hv-extime').textContent).toBe('Exercise time: 12min')
+    expect(container.querySelector('.hv-extime').textContent).toBe('Exercise time: 12 min')
   })
   it('compares the workout with the same routine’s last one, under the stats', () => {
     render()
@@ -256,7 +258,7 @@ describe('hevier: Workout Detail (seam S14)', () => {
       s.hvVolume = 'weight'
       Object.assign(s.workouts[0], { name: 'Push Day', end: s.workouts[0].start + 50 * 60000 })
     }))
-    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set · +10min vs 3 Oct')
+    expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set · +10 min vs 3 Oct')
     // A number that did not change is left out, and with none left the line says so.
     act(() => useStore.getState().update(s => { s.workouts[0].end = s.workouts[0].start + 60 * 60000 }))
     expect(container.querySelector('.hv-wd-vs').textContent).toBe('+520 kg · +1 set vs 3 Oct')

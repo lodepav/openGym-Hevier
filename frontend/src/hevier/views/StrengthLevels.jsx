@@ -38,8 +38,9 @@ export default function StrengthLevels() {
     <PhaseFilter />
     {/* With none set, a line, not a list of every lift; Set a level picks one (the critique, 2026-11-21). */}
     {/* What a level is, as the app bundles none: you type them in (D19, the sixth audit, 2026-11-22). */}
-    {!groups.length && <div className="hv-ms-empty"><div className="hv-sl-lead">{t('No strength levels yet.')}</div>
-      <div className="small dim" style={{ marginTop: 6 }}>{t('A strength level places your best estimated 1RM among five levels, Beginner to Elite, whose weights you type in yourself.')}</div></div>}
+    {/* A heading, and where the weights come from: Compare strength looks them up (the ninth critique, 2026-11-22). */}
+    {!groups.length && <div className="hv-ms-empty"><h2 className="hv-sl-lead">{t('No strength levels yet.')}</h2>
+      <div className="small dim" style={{ marginTop: 6 }}>{t('A strength level places your best estimated one-rep max among five levels, Beginner to Elite, whose weights you type in yourself. Compare strength on an exercise looks them up on strengthlevel.com.')}</div></div>}
     {/* The page's one action: full width, filled while the page is empty (the critique, 2026-11-21). */}
     <button type="button" className={'btn' + (groups.length ? '' : ' primary') + ' hv-sl-add'} onClick={setLevel}>{t('Set a level')}</button>
     {groups.map(g => <section key={String(g.level)}>
@@ -47,11 +48,11 @@ export default function StrengthLevels() {
       <div className="list">{g.items.map(x => {
         const ex = exOr(x.id)
         return <button key={x.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
-          <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
+          <span className="grow"><span className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</span>
             {x.oneRm > 0 && x.next != null && <span className="small dim">{fmtNum(x.toNext)} {unit} {t('to')} {t(LEVELS[x.next])}</span>}
           </span>
           {/* Named, as a bare "120 kg" could be the gap above it (the eighth audit, 2026-11-22). */}
-          {x.oneRm > 0 && <b role="img" aria-label={t('best 1RM {0}', fmtNum(x.oneRm) + ' ' + unit)}>{fmtNum(x.oneRm)} {unit}</b>}
+          {x.oneRm > 0 && <b role="img" aria-label={t('best one-rep max {0}', fmtNum(x.oneRm) + ' ' + unit)}>{fmtNum(x.oneRm)} {unit}</b>}
         </button>
       })}</div>
     </section>)}

@@ -34,6 +34,7 @@ import { exUnitOf, shown } from '../lib/ex-unit.js'
 import { signed } from '../lib/delta.js'
 import { mapSetWeights } from '../../lib/units.js'
 import { partOn } from '../lib/module-parts.js'
+import { spokenSet } from '../lib/set-spoken.js'
 import { isOn } from '../../lib/modules.js'
 import { fieldSig } from '../lib/store-watch.js'
 
@@ -117,8 +118,8 @@ const LiftRow = memo(function LiftRow({ r, ex, name, muscle, unit, profileUnit, 
     {r.newBest ? <small className="hv-pr"><Icon name="trophy" />{bestWord}</small>
       : r.best && <small>{t('best {0}', text(r.best))}</small>}
   </span>
-  // Spoken always with its unit: TalkBack has no column head to lean on (the round-8 critique, 2026-11-22).
-  const spoken = set => text(set, unit).replace(/\n/g, ', ')
+  // Spoken always with its unit: TalkBack has no column head to lean on (the round-8 critique, 2026-11-22), in words (the ninth audit).
+  const spoken = set => spokenSet(text(set, unit))
   const label = [
     name, sub,
     said && (said[0] === said[1] ? t(SPAN_FLAT[win], said[0], profileUnit) : t(SPAN[win], said[0], said[1], profileUnit)),

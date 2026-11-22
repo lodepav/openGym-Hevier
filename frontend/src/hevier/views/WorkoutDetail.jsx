@@ -27,7 +27,8 @@ import PageBar from '../components/PageBar.jsx'
 import { shareWorkoutSheet } from '../components/ShareSheet.jsx'
 import { setText, noEffort } from '../lib/set-text.js'
 import { entryTimes } from '../lib/exercise-time.js'
-import { elapsedWords, durationWords } from '../lib/elapsed.js'
+import { elapsedSpaced, durationWords } from '../lib/elapsed.js'
+import { spokenSet, spoken1rm } from '../lib/set-spoken.js'
 import { workoutActions, editWorkout } from '../components/WorkoutCard.jsx'
 import { hooks } from '../hooks.js'
 import { workoutRecords, recordsAt, KINDS } from '../lib/records.js'
@@ -56,7 +57,14 @@ export const DETAIL_PATH = '/workout-detail'
 // Beat last time (D66): each work set against the same set last time.
 const Trend = TrendMark
 
-const PrBadge = ({ recs }) => recs.length > 0 && <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{recs.map(r => t(KINDS[r.kind])).join(' · ')}</span>
+// "Best 1RM" is spoken "Best one rep max" (the ninth audit, 2026-11-22).
+const PrBadge = ({ recs }) => {
+  if (!recs.length) return false
+  const names = recs.map(r => t(KINDS[r.kind])).join(' · '), said = spoken1rm(names)
+  return <span className="hv-pr hv-pr-kinds"><Icon name="trophy" />{said === names ? names : <span role="img" aria-label={said}>{names}</span>}</span>
+}
+// A set is spoken in words, "80 kilograms, 8 reps", not "80 kg × 8" (the ninth audit); one that reads as written stays as it is.
+const SetValue = ({ text }) => (spokenSet(text) === text ? text : <span role="img" aria-label={spokenSet(text)}>{text}</span>)
 
 // Each row's records and its ↑ = ↓, which a record replaces (D66): what a set row shows beside its numbers.
 function rowMarks(e, recs, trends = [], sideTrends = []) {
@@ -90,7 +98,7 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
       {[e.hvBrand, cableOn(e) && t('Cable') + ' ' + cableText(savedCable(e))].filter(Boolean).join(' · ')}</div>}
     {/* How long the exercise took, from its sets' tick times (D88). */}
     {time > 0 && <div className="hv-brand has hv-extime">
-      <Icon name="timer" /><span className="hv-sr">{t('Exercise time')}: </span>{elapsedWords(Math.round(time / 1000))}</div>}
+      <Icon name="timer" /><span className="hv-sr">{t('Exercise time')}: </span>{elapsedSpaced(Math.round(time / 1000))}</div>}
     {e.note && <div className="hv-note">{e.note}</div>}
     <div className="hv-wd-sets">
       <div className="hv-wd-row hv-wd-th"><span>{t('SET')}</span><span>{t('WEIGHT & REPS')}</span>
@@ -106,7 +114,7 @@ function ExerciseSets({ e, st, recs, trends = [], sideTrends = [], time, scale, 
             {...(mark === 'W' || mark === 'H' ? { role: 'img', 'aria-label': t(mark === 'W' ? 'Warm-up' : 'Hold') } : mark ? { role: 'img', 'aria-label': t('Set {0}', mark) } : {})}>{mark === 'W' || mark === 'H' ? t(mark) : mark}</span>)(row.head ? setMark(e.sets, i) : '')}
           {/* A record says more than an arrow: the set shows only its badge (D66). */}
           <span className="hv-wd-v">{row.side && <span className="hv-lr" role="img" aria-label={t(row.side === 'L' ? 'Left' : 'Right')}>{row.side === 'L' ? t('L') : t('R')}</span>}
-            {row.undone ? '–' : setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)}<Trend v={trend} /></span>
+            {row.undone ? '–' : <SetValue text={setText(e.id, noEffort(s), e.target, speedUnitOf(st), st.unit)} />}<Trend v={trend} /></span>
           {scale && <span className="hv-wd-rpe">{effort != null && <><span className="hv-sr">{t(EFFORT[scale].hd)} </span>{fmtNum(effort)}</>}</span>}
           {anyHr && <span className="hv-wd-hrc">{hr && <span className="hv-wd-hr" title={t('Heart rate')}><Icon name="heart" /><span className="hv-sr">{t('Heart rate')}: </span>{hr.avg}</span>}</span>}
           <PrBadge recs={at} />
@@ -170,7 +178,7 @@ export function WorkoutDetail() {
 
   return <div className="hv-wd">
     <PageBar title={t('Workout Detail')} onBack={back}>
-      {partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><Icon name="share" /></button>}
+      {partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share workout')} onClick={() => shareWorkoutSheet(w)}><HvIcon name="shareNodes" /></button>}
       <button type="button" className="iconbtn" aria-label={t('More')} onClick={more}><Icon name="more" /></button>
     </PageBar>
     <div className="hv-wd-d">{workoutWhenText(w)}{gym != null && <> · <span className="hv-wd-gym"><HvIcon name="mapPin" />{gym || t('Removed gym')}</span></>}{phase && <> · {t(PHASE_LABEL[phase])}</>}</div>
@@ -193,7 +201,7 @@ export function WorkoutDetail() {
     {units.map(unit => <div key={unit[0]} className={'hv-unit' + (unit.length > 1 ? ' ss' : '')}>
       {unit.map(i => <ExerciseSets key={i} e={w.entries[i]} st={st} recs={recordsAt(prs, i)} {...trendsOf[i]} time={times[i]} scale={scale} legend={i === legendAt} />)}
     </div>)}
-    <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit Workout')}</button>
+    <button type="button" className="btn hv-wd-edit" onClick={() => editWorkout(w, nav)}>{t('Edit workout')}</button>
   </div>
 }
 

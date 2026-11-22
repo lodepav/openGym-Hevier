@@ -16,6 +16,7 @@ import { useHcOnly } from '../lib/weigh-in-source.js'
 import { partOn } from '../lib/module-parts.js'
 import { measurementsLine, photosLine } from '../lib/measures-rows.js'
 import { progressPhotosOf } from '../../views/ProgressPhotos.jsx'
+import { goalGap } from '../lib/body-goal.js'
 
 const DAYS_SHOWN = 90
 
@@ -35,26 +36,30 @@ export default function Measures() {
     : ch < 0 ? t('down {0} in {1} days', by, DAYS_SHOWN) : ch > 0 ? t('up {0} in {1} days', by, DAYS_SHOWN) : t('no change in {0} days', DAYS_SHOWN)].filter(Boolean).join(', ') : ''
   // With weigh-ins from Health Connect there is no Log: the empty well names the source, else it opens the weigh-in (the eighth critique).
   const none = S.bodyweight.length ? t('No weigh-ins in the last {0} days', DAYS_SHOWN)
-    : hc ? t('No weigh-ins yet. They come from Health Connect.') : t('No weigh-ins yet. Log your weight to start the curve.')
+    : hc ? t('No weigh-ins yet from Health Connect. Check that Go Hevier may read weight there and that your scale app writes it.') : t('No weigh-ins yet. Log your weight to start the curve.')
+  // How far the last weigh-in is from the goal (the ninth critique, 2026-11-22).
+  const gap = last && goalGap(last.w, S.targetW)
+  const goalText = S.targetW ? fmtNum(S.targetW) + ' ' + S.unit : null
   return <div className="narrow hv-measures">
     {/* Back names the page it returns to: Statistics links here too (the fresh audit, 2026-11-21). */}
     {/* A cold open goes up to the page back names (the fifth audit, 2026-11-21). */}
     <BackTo label={t(from === 'Statistics' ? 'Statistics' : 'History')} to={from === 'Statistics' ? '/stats' : HISTORY_PATH} title={t('Measures')} />
     {/* Body's parts (D102): the weight, the measurements and the photos, each on its own switch. */}
     {weightOn && <><div className="card">
-      <div className="row between" style={{ alignItems: 'flex-start' }}>
-        <div>
-          {/* A heading as the parts below are, drawn as before (the eighth round, 2026-11-22). */}
-          <h2 className="muted small hv-ms-h">{t('Body weight')}</h2>
-          {hc && <div className="small dim">{t('From Health Connect')}</div>}
-          {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
-          {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
-        </div>
+      {/* Goal and Log on the heading's line, the weight under them (the ninth critique, 2026-11-22). */}
+      <div className="row between hv-ms-top">
+        {/* A heading as the parts below are, drawn as before (the eighth round, 2026-11-22). */}
+        <h2 className="muted small hv-ms-h">{t('Body weight')}</h2>
         <div className="row" style={{ gap: 8 }}>
-          <Button size="sm" icon="target" onClick={goalSheet} aria-label={S.targetW ? t('Goal') + ' ' + fmtNum(S.targetW) + ' ' + S.unit : undefined}>{S.targetW ? fmtNum(S.targetW) : t('Goal')}</Button>
+          {/* The goal with its unit; with none, what a tap does (the ninth critique). */}
+          <Button size="sm" icon="target" onClick={goalSheet} aria-label={goalText ? t('Goal') + ' ' + goalText : undefined}>{goalText || t('Set goal')}</Button>
           {!hc && <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>}
         </div>
       </div>
+      {hc && <div className="small dim">{t('From Health Connect')}</div>}
+      {last && <div className="big">{fmtNum(last.w)} <span className="muted hv-ms-unit">{S.unit}</span></div>}
+      {last && <div className="small dim">{fmtDate(last.d, true)}</div>}
+      {gap && <div className="small dim hv-ms-gap">{gap.reached ? t('Goal reached') : t(gap.up ? '{0} to gain' : '{0} to lose', fmtNum(gap.by) + ' ' + S.unit)}</div>}
       {pts.length > 0 ? <div className="chart" role="img" aria-label={chartName}><LineChart points={pts} h={150} unit={S.unit} goal={S.targetW} /></div>
         : hc ? <div className="hv-ms-empty">{none}</div>
         : <button type="button" className="hv-ms-empty hv-ms-empty-btn" onClick={() => bwSheet()}>{none}</button>}
@@ -69,7 +74,7 @@ export default function Measures() {
       </span>)}</button>
       {S.bodyweight.length > recent.length && <Button variant="ghost" className="hv-ms-all" trailingIcon="chevronRight" onClick={weighInsSheet}>{t('All weigh-ins')}</Button>}
     </>}</>}
-    {(measOn || photosOn) && <h2 className="sec">{weightOn ? t('Body') : t('Measures')}</h2>}
+    {(measOn || photosOn) && <h2 className="sec">{!weightOn ? t('Measures') : measOn && photosOn ? t('Measurements and photos') : measOn ? t('Measurements') : t('Photos')}</h2>}
     {/* Empty, each says so, not a bare title (the seventh critique, 2026-11-22). */}
     {measOn && <LinkRow icon="ruler" title={t('Body measurements')}
       sub={measurementsLine(S) || t('None yet')}

@@ -8,9 +8,10 @@ import { Row } from '../../components/ui.jsx'
 const own = () => (typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev')
 const upstream = () => (typeof __UPSTREAM_VERSION__ === 'string' ? __UPSTREAM_VERSION__ : '?')
 
-/** "Go Hevier 1.0.0 · based on openGym 1.4.1" (a debug build adds its commit: 1.0.0+abc1234). */
+/** "Go Hevier 1.0.0 · based on openGym 1.4.1": a debug build's commit (1.0.0+abc1234) is left to About's
+ *  Version row (the ninth critique, 2026-11-22). */
 export const versionLine = (tr = s => s, mine = own(), theirs = upstream()) =>
-  'Go Hevier ' + mine + ' · ' + tr('based on openGym {0}', theirs)
+  'Go Hevier ' + String(mine).replace(/\+.*$/, '') + ' · ' + tr('based on openGym {0}', theirs)
 
 export const FONT_LICENCE = 'Nunito font, SIL Open Font License 1.1'
 

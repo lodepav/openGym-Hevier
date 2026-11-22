@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { elapsedWords, elapsedClock, restTimerText } from './elapsed.js'
+import { elapsedWords, elapsedClock, restTimerText, elapsedSpaced, durationWords } from './elapsed.js'
 
 describe('elapsedWords', () => {
   it('writes seconds, minutes and hours as Hevy does', () => {
@@ -32,5 +32,14 @@ describe('restTimerText', () => {
     expect(restTimerText(0, 90, 'Off')).toBe('1:30')
     expect(restTimerText(undefined, 45, 'Off')).toBe('0:45')
     expect(restTimerText(0, 0, 'Off')).toBe('Off')
+  })
+})
+
+describe('elapsedSpaced and durationWords', () => {
+  it('space the units as the Finish sheet does', () => {
+    expect(elapsedSpaced(150)).toBe('2 min 30 s')
+    expect(elapsedSpaced(3600)).toBe('1 h')
+    expect(durationWords(103 * 60000 + 20000)).toBe('1 h 43 min')
+    expect(durationWords(40000)).toBe('40 s')
   })
 })

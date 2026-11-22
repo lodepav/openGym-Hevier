@@ -53,6 +53,7 @@ import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stop
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
 import { previousCell } from '../lib/set-text.js'
+import { liftSetText } from '../lib/lifts-list.js'
 import { useCardState } from './useCardState.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
 import { shownWeight } from '../../lib/ex-unit.js'
@@ -515,7 +516,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const prevSide = side || (s.side && isSideSet(p) ? s.side : undefined)
     const prevText = previousCell(p, { ...prevOpts, side: prevSide })
     // Said with its unit: the column header that names it is hidden from TalkBack (the fresh audit, 2026-11-21).
-    const prevSaid = previousCell(p, { ...prevOpts, unit: exUnit, side: prevSide })
+    // No weight is said "8 reps", not "× 8" (the ninth audit, 2026-11-22).
+    const prevSaid = liftSetText(p, { ...prevOpts, unit: exUnit, side: prevSide })
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
     const effTick = effOn && effAt(s) && !goOn && !src.done

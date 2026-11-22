@@ -22,6 +22,8 @@ import { usePhasedS, useStatsPhase } from '../lib/shared-phase-run.js'
 import { useNamesAbove } from './MuscleSetsCard.jsx'
 
 const LABEL = { duration: 'Duration', volume: 'Volume', sets: 'Sets', reps: 'Reps' }
+// The heading names what the bars plot, following the chip (the ninth critique, 2026-11-22).
+const HEAD = { duration: 'Weekly duration', volume: 'Weekly volume', sets: 'Weekly sets', reps: 'Weekly reps' }
 // Hevy's range picker over the chart, a view choice that is not kept.
 const RANGES = [{ weeks: 12, label: 'Last 12 weeks' }, { weeks: 26, label: 'Last 6 months' }, { weeks: 52, label: 'Last year' }]
 
@@ -62,14 +64,14 @@ export default function WeeklyChart() {
   const pts = useMemo(() => weeklySeries(countedWorkouts(S.workouts, S.routines), kind, { today, weeks, weekStart, vol: w => sessionVolume(w, S) }),
     [raw.workouts, raw.routines, raw.bodyweight, raw.volumeBodyweight, raw.volumeWarmups, raw.modules, raw.hvModuleParts, phase, kind, weeks, today, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps
   const max = niceMax(Math.max(...pts.map(p => p.value)), kind)
-  const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : '0') : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
+  const fmt = v => (kind === 'duration' ? (v ? durationWords(v) : t('{0} min', 0)) : kind === 'volume' ? fmtNum(Math.round(v)) + ' ' + S.unit
     : kind === 'sets' ? tn('{0} set', '{0} sets', v) : fmtNum(v) + ' ' + (v === 1 ? t('rep') : t('reps')))
   const axis = v => (kind === 'duration' ? Math.round(v / 3600000 * 10) / 10 + ' h' : fmtNum(Math.round(v)))
   const day = iso => fmtDate(iso)
   const picked = pts.find(p => p.week === sel)
   const weekText = p => t('Week of {0}', fmtDate(p.week, true)) + ': ' + fmt(p.value)
   const tap = p => { const on = p.week === sel; setSel(on ? null : p.week); if (kind === 'sets' && !on) weekSheet(S, p.week) }
-  const head = picked ? weekText(picked) : t('Weekly chart')
+  const head = picked ? weekText(picked) : t(HEAD[kind])
   // Large system text widens the dates: measure the widest one and keep only the dates that fit.
   const axisRef = useRef(null), probeRef = useRef(null)
   const [fit, setFit] = useState(null)

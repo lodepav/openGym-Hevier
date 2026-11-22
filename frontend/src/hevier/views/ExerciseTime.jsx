@@ -16,12 +16,13 @@ import Icon from '../../components/Icon.jsx'
 import { BackTo } from './Statistics.jsx'
 import { timedSessions, timeSections, periodSince, timeSpoken } from '../lib/exercise-time.js'
 import { setGaps } from '../lib/set-gaps.js'
-import { elapsedWords, elapsedClock, restTimerText } from '../lib/elapsed.js'
+import { elapsedSpaced, elapsedClock, restTimerText } from '../lib/elapsed.js'
 import { mainMuscleOf, muscleText } from '../lib/main-muscle.js'
 import { gymName } from '../lib/gym-labels.js'
 
 const PERIODS = [['30d', '30 days'], ['90d', '90 days'], ['year', 'Year'], ['all', 'All']]
-const secs = ms => elapsedWords(Math.round(ms / 1000))
+// "1 min 30 s", the fork's one duration style (the ninth critique, 2026-11-22).
+const secs = ms => elapsedSpaced(Math.round(ms / 1000))
 // A gap between sets reads as a clock, as the rest beside it does.
 const clock = ms => elapsedClock(Math.round(ms / 1000))
 // Each said in words (role img, so the label is read in the row's name): TalkBack read "1min 30s" and "1:30" as letters and a clock (the eighth audit, 2026-11-22).
@@ -48,21 +49,27 @@ export default function ExerciseTime() {
   const title = key => (by === 'gym' ? (key ? gymName(st, key) || t('A removed gym') : t('No gym'))
     : key ? muscleText(key) : t('Other'))
   const group = k => setBy(by === k ? null : k)
+  const count = sections.reduce((n, sec) => n + sec.rows.length, 0)
+  const untimed = sections.some(sec => sec.rows.some(r => r.avg == null))
   return <div className="narrow hv-statpage">
     <BackTo label={t('Statistics')} to="/stats" title={t('Exercise time')} />
     <PhaseFilter />
     <div className="hv-chips">{PERIODS.map(([k, label]) => <button key={k} type="button" className={'hv-chip' + (k === period ? ' on' : '')}
       aria-pressed={k === period} onClick={() => setPeriod(k)}>{t(label)}</button>)}</div>
     <div className="hv-extime-sort">
-      <button type="button" className="hv-chip" onClick={() => setAsc(!asc)} aria-label={t('Order: {0}', t(asc ? 'shortest first' : 'longest first'))}>
+      {/* An order, not a filter: a bare text toggle, not a chip like the two beside it (the ninth critique, 2026-11-22). */}
+      <button type="button" className="hv-link hv-extime-order" onClick={() => setAsc(!asc)} aria-label={t('Order: {0}', t(asc ? 'shortest first' : 'longest first'))}>
         <Icon name={asc ? 'arrowUp' : 'arrowDown'} />{t(asc ? 'Shortest first' : 'Longest first')}</button>
       {[['muscle', 'Muscle'], ['gym', 'Gym']].map(([k, label]) => <button key={k} type="button"
         className={'hv-chip' + (by === k ? ' on' : '')} aria-pressed={by === k} onClick={() => group(k)}>{t(label)}</button>)}
     </div>
     {/* A new period or order is said, not only redrawn (the fresh audit, 2026-11-21). */}
     <span className="hv-sr" role="status">{[t(asc ? 'Shortest first' : 'Longest first'), by && t(by === 'gym' ? 'Gym' : 'Muscle'),
-      tn('{0} exercise', '{0} exercises', sections.reduce((n, sec) => n + sec.rows.length, 0))].filter(Boolean).join(', ')}</span>
-    <div className="small dim">{t('Average time a session, from the times your sets were ticked: the rest before each set counts.')}</div>
+      tn('{0} exercise', '{0} exercises', count)].filter(Boolean).join(', ')}</span>
+    {/* The count shown too, not only said (the ninth critique, 2026-11-22). */}
+    <div className="small dim hv-extime-cap">{count > 0 && <span aria-hidden="true">{tn('{0} exercise', '{0} exercises', count)} · </span>}{t('Average time per session, from the times your sets were ticked: the rest before each set counts.')}
+      {/* What "Ticked all at once" and "Too few sets" mean, once, while a row shows one. */}
+      {untimed && <> {t('Sets ticked together or after the workout, or one set a session, give no time.')}</>}</div>
     {!sections.length && <div className="muted small" style={{ marginTop: 10 }}>{t('No timed exercises in this period. Workouts imported from other apps have no set times.')}</div>}
     {sections.map(sec => <section key={sec.key}>
       {by && <h2 className="sec">{title(sec.key)} {sec.total > 0 && <span className="dim">· <span role="img" aria-label={said(sec.total)}>{secs(sec.total)}</span> {t('total')}</span>}</h2>}
@@ -71,12 +78,12 @@ export default function ExerciseTime() {
         const g = gaps.get(r.id)
         return <button key={r.id} type="button" className="item hv-report-row" onClick={() => exerciseDetailSheet(ex)}>
           <span className="grow"><b className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</b>
-            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')}{r.avg != null && <> · <span role="img" aria-label={said(r.total)}>{secs(r.total)}</span> {t('total')}</>}</span>
+            <span className="small dim">{r.sessions} {t(r.sessions === 1 ? 'session' : 'sessions')}{r.avg != null && r.sessions > 1 && <> · <span role="img" aria-label={said(r.total)}>{secs(r.total)}</span> {t('total')}</>}</span>
             {g && <span className="small dim" role="img" aria-label={g.rest > 0 ? t('Between sets {0}, rest set to {1}', said(g.gap), timeSpoken(g.rest)) : t('Between sets {0}, no rest timer', said(g.gap))}>
               {g.rest > 0 ? t('Between sets {0} · rest set to {1}', clock(g.gap), restTimerText(g.rest, 0, '')) : t('Between sets {0} · no rest timer', clock(g.gap))}</span>}
           </span>
           {/* One set a session is one gap, not a time (the sixth audit, 2026-11-22); nor are sets ticked seconds apart (the eighth critique). */}
-          {r.avg == null ? <span className="small dim">{t(r.quick ? 'Ticked all at once' : 'Too few sets')}</span>
+          {r.avg == null ? <span className="small dim hv-extime-st">{t(r.quick ? 'Ticked all at once' : 'Too few sets')}</span>
             : <b className="hv-extime-avg" role="img" aria-label={t('Average') + ': ' + said(r.avg)}>{secs(r.avg)} <span className="small dim">{t('avg')}</span></b>}
         </button>
       })}</div>

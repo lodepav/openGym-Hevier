@@ -40,7 +40,7 @@ function render(el, extra = {}, at = '/') {
   act(() => root.render(<MemoryRouter initialEntries={[at]}><Routes><Route path="*" element={el} /></Routes></MemoryRouter>))
 }
 const stats = () => [...container.querySelectorAll('.hv-stats span')].map(s => s.textContent)
-const line = () => container.querySelector('.hv-mline')?.textContent
+const line = () => container.querySelector('.hv-mline [aria-hidden]')?.textContent
 const sheetHost = () => {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -61,7 +61,8 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const at = { pathname: '/workout-detail', state: { ref: { id: 'w1', d: W.d, start } } }
     render(<WorkoutDetail />, {}, at)
     expect(stats()).not.toContain('Volume')
-    expect(line()).toBe('Chest 3 · Triceps 2')
+    expect(line()).toBe('Chest 3 sets · Triceps 2 sets')
+    expect(container.querySelector('.hv-mline .hv-sr').textContent).toBe('Chest, 3 sets, Triceps, 2 sets')
     act(() => root.unmount()); container.remove()
     render(<WorkoutDetail />, { hvVolume: 'weight' }, at)
     expect(stats()).toContain('Volume')
@@ -72,7 +73,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     render(<WorkoutCard w={W} />)
     expect(container.querySelector('.hv-wcard-d').textContent).toBe(`${workoutWhenText(W)} · ${workoutTimeText(W)} · 5 sets`)
     expect(container.querySelector('.hv-wcard-stats')).toBeNull()
-    expect(line()).toBe('Chest 3 · Triceps 2')
+    expect(line()).toBe('Chest 3 sets · Triceps 2 sets')
   })
 
   it('the feed card names an exercise done only as warm-ups first, a muted warm-up after (the sixth audit, 2026-11-22)', () => {
@@ -96,7 +97,7 @@ describe('hevier: volume as sets per muscle (D18)', () => {
     const chips = [...container.querySelectorAll('.hv-chip')]
     expect(chips.map(c => c.textContent)).toEqual(['Duration', 'Sets', 'Reps'])
     act(() => chips[1].click())
-    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly sets')
     act(() => [...container.querySelectorAll('button.hv-barcol')].at(-1).click())
     expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 5 sets$/)
     expect(sheetHost().textContent).toContain('Chest')

@@ -53,7 +53,8 @@ import { isOn } from '../../lib/modules.js'
 import { setNoteOf } from '../../lib/set-notes.js'
 import { workoutAs, currentDbLoad } from '../../lib/dumbbells.js'
 import { timedSessions, timeSections } from '../lib/exercise-time.js'
-import { elapsedWords } from '../lib/elapsed.js'
+import { elapsedSpaced } from '../lib/elapsed.js'
+import { spoken1rm } from '../lib/set-spoken.js'
 
 // A date of another year says its year: the history reaches back further than one (H6).
 const notThisYear = d => !!d && d.slice(0, 4) !== String(new Date().getFullYear())
@@ -146,7 +147,8 @@ function Bests({ ex, sum, st, children }) {
     {tiles.length > 0 && <section>
       <h4 className="sec">{t('Best sets')}</h4>
       <div className="hv-xd-tiles">{tiles.map(x => <div key={x.k} className="hv-xd-tile">
-        <small>{x.label}</small><b>{x.v}</b><small>{shortDate(x.d)}</small></div>)}</div>
+        {/* "Best 1RM" is spoken "Best one rep max" (the ninth critique, 2026-11-22). */}
+        {spoken1rm(x.label) === x.label ? <small>{x.label}</small> : <small role="img" aria-label={spoken1rm(x.label)}>{x.label}</small>}<b>{x.v}</b><small>{shortDate(x.d)}</small></div>)}</div>
       {r.sessionVol && <div className="hv-xd-svol small dim">{t('Best Session Volume')} {fmtVol(show(r.sessionVol.v), unit)} · {shortDate(r.sessionVol.d)}</div>}
     </section>}
     {children}
@@ -184,7 +186,7 @@ function Chart({ ex, sum, st }) {
     <div className="chart hv-xd-chart" role="img" aria-label={t('{0} chart', title)}><LineChart points={points} h={150} unit={cu} /></div>
     {curves.length > 1 && <div className="hv-xd-chips">
       {curves.map(c => <button key={c.value} type="button" className={'chip nocap' + (c.value === on ? ' on' : '')}
-        aria-pressed={c.value === on} onClick={() => setCurve(c.value)}>{c.label}</button>)}
+        aria-pressed={c.value === on} aria-label={spoken1rm(c.label) === c.label ? undefined : spoken1rm(c.label)} onClick={() => setCurve(c.value)}>{c.label}</button>)}
     </div>}
     {sides && <div className="hv-xd-sides">{sides.even ? t('Left and right are even')
       : t(sides.side === 'R' ? 'Right is {0}% stronger (last {1} sessions)' : 'Left is {0}% stronger (last {1} sessions)', sides.pct, sides.n)}</div>}
@@ -397,7 +399,7 @@ function ExerciseDetails({ ex, close }) {
         {brands && labels.length > 1 && <LinkRow icon="machine" title={t('Compare brands')} sub={labels.map(l => labelText(l, t)).join(', ')}
           onClick={() => openSub(<CompareHistory ex={ex} />)} />}
         {/* No line for one set a session: too few sets for a time (the sixth audit, 2026-11-22). */}
-      {time?.avg != null && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedWords(Math.round(time.avg / 1000)))}</p>}
+      {time?.avg != null && <p className="hv-xd-time"><Icon name="timer" />{t('Time on this exercise')} · {t('{0} a session', elapsedSpaced(Math.round(time.avg / 1000)))}</p>}
         <LinkRow icon="info" title={t('How to')} onClick={() => openSub(<HowTo ex={ex} />)} />
       </section>
     </div>

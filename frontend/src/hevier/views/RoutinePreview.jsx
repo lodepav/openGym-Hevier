@@ -9,7 +9,7 @@ import { useUI } from '../../store/useUI.js'
 import { exOr } from '../../lib/exercises.js'
 import { exCount, fmtNum, todayISO, exerciseNameText } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
 import { supersetUnits, isBw } from '../../lib/history.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
 import { speedUnitOf } from '../../lib/speed.js'
@@ -51,15 +51,15 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const meta = unit2?.length > 1 && unit2[0] === x.idx ? supersetMeta(r.ex, unit2) : null
   // An exercise's own rest only where it differs from the usual one, which the page names once at the top (the critique, 2026-11-20).
   const ownRest = e?.restSec != null && e.restSec !== S.restSec ? restTimerText(e.restSec, S.restSec, t('Off')) : null
-  const num = f => {
+  const num = (f, pre = '') => {
     // A weight of nothing reads "–", as the workout's grey KG does, not "0".
     const none = f.field === 'w' && !(shownOf(S, f) > 0)
     const text = none ? '–' : fmtNum(shownOf(S, f))
     // Said "no weight" in the place of "Weight", not "Weight – kg" (the eighth audit, 2026-11-22).
     const words = fieldWords(f)
     const said = none ? words.slice(0, words.lastIndexOf(t('Weight'))) + t('no weight') : words + ' ' + text + (f.field === 'w' ? ' ' + unit : '')
-    return <button type="button" className={'hv-np-num' + (f.planned ? ' chg' : '') + (none ? ' none' : '')} onClick={() => onPlan(f.id)}
-      aria-label={said + (f.planned ? ', ' + t('planned') : '')}>{text}</button>
+    return <button type="button" className={'hv-np-num' + (f.field === 'w' ? ' w' : '') + (f.planned ? ' chg' : '') + (none ? ' none' : '')} onClick={() => onPlan(f.id)}
+      aria-label={said + (f.planned ? ', ' + t('planned') : '')}>{pre}{text}</button>
   }
   const field = (set, side, f) => fields.get([x.key, set.key, side || '', f].join('|'))
   // A set's lines: last time, then what opens, its weight and reps as buttons when it can be planned.
@@ -68,7 +68,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     if (set.plannable) return (isSideSet(row) ? ['L', 'R'] : [null]).map(side => ({
       side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit }),
       // An added weight's "+" only once one is planned: before a "–" it read as an add button (the eighth critique, 2026-11-22).
-      next: <>{isBw(cfg) && shownOf(S, field(set, side, 'w')) > 0 && '+'}{num(field(set, side, 'w'))}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
+      next: <>{num(field(set, side, 'w'), isBw(cfg) && shownOf(S, field(set, side, 'w')) > 0 ? '+' : '')}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
     }))
     const pair = set.rows.length > 1
     return set.rows.map((s, i) => {
@@ -83,6 +83,8 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     : held(set) ? <span className="hv-h" role="img" aria-label={t('Hold')}>{t('H')}</span>
     : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span>
     : workNumberOf(x.sets, set))
+  // No weight last time reads "× 8" and is said "8 reps" (the ninth audit, 2026-11-22).
+  const repsSaid = text => (m => (m ? <><span aria-hidden="true">{text}</span><span className="hv-sr">{tn('{0} rep', '{0} reps', Number(m[1]))}</span></> : text))(/^× (\d+)$/.exec(text))
   const sideMark = side => side && <span className="hv-np-side" role="img" aria-label={side === 'L' ? t('Left') : t('Right')}>{side}</span>
   return <div className={'hv-ex' + (e?.sg ? ' hv-in-ss' : '')}>
     {meta && <div className="hv-ss"><span className="hv-sspill"><Icon name="link" />{meta.name || t('Superset')}</span>
@@ -101,7 +103,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
       return <div key={set.key} className="hv-np-row">
         <span className="hv-set">{mark(set)}</span>
         {/* The column head is hidden, so each cell names its column (the fifth audit, 2026-11-21). */}
-        <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Last time')}: </span>}{sideMark(l.side)}{l.last}</span>)}</span>
+        <span className="hv-np-last">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Last time')}: </span>}{sideMark(l.side)}{repsSaid(l.last)}</span>)}</span>
         <span className="hv-np-next">{ls.map((l, i) => <span key={i}>{i === 0 && <span className="hv-sr">{t('Next')}: </span>}{sideMark(l.side)}{l.next}</span>)}</span>
       </div>
     })}
@@ -164,7 +166,8 @@ export default function RoutinePreview() {
       <h2>{t('What this session hits')}</h2>
       {/* Hidden from TalkBack: the muscle names under it say what it draws (the eighth audit, 2026-11-22). */}
       <div aria-hidden="true"><BodyMap load={load} body={S.body} /></div>
-      <div className="mchips">{rankOf(load).worked.slice(0, 6).map(m => <span key={m} className="mchip">{t(MUSCLE_NAME[m])}</span>)}</div>
+      {/* Plain text, not upstream's filled chips, which read as buttons (the ninth critique, 2026-11-22). */}
+      <p className="hv-rmap-names">{rankOf(load).worked.slice(0, 6).map(m => t(MUSCLE_NAME[m])).join(' · ')}</p>
     </div>}
     {/* Start again at the end, reached after reading the plan (the critique, 2026-11-20). */}
     {r.ex.length > 0 && startBtn}

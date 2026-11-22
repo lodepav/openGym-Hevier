@@ -199,7 +199,7 @@ describe('hevier: Lifts (D135)', () => {
     expect(a.querySelector('svg.hv-lift-chart').getAttribute('aria-hidden')).toBe('true')
     const [hi, lo] = [...a.querySelectorAll('.hv-lift-scale span')].map(s => Number(s.textContent))
     expect(hi).toBeGreaterThan(lo)
-    expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 kg × 8, best 80 kg × 8`)
+    expect(a.getAttribute('aria-label')).toBe(`${exerciseNameFor(A)}, ${a.querySelector('.ss').textContent}, estimated 1RM ${lo} to ${hi} kg over 12 weeks, Falling, down ${a.querySelector('.hv-lift-ch').textContent.match(/\d+/)[0]} %, last 70 kilograms, 8 reps, best 80 kilograms, 8 reps`)
   })
 
   it('a small change draws on a padded scale but speaks the lift’s own range', () => {

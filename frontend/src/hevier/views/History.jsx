@@ -56,7 +56,7 @@ export default function History() {
   return <div className="narrow hv-history">
     <PageBar title={t('History')}><SettingsGear back="History" /></PageBar>
     <div className="hv-hgroup">
-      <span className="hv-cap">{t('Look back')}</span>
+      <h2 className="hv-cap">{t('Look back')}</h2>
       <div className="hv-chips hv-hlinks">{chips.map(([label, go]) => <button key={label} type="button" className="hv-chip" onClick={go}>{t(label)}</button>)}</div>
     </div>
     <WorkoutFeed S={S} />

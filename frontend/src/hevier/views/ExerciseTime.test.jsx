@@ -47,6 +47,7 @@ function render(at, workouts = log) {
 // Statistics' Exercise time card and its All link (D142).
 const link = () => container.querySelector('[data-card="time"] .hv-scard-h button')
 const chip = text => [...container.querySelectorAll('.hv-chip')].find(b => b.textContent === text)
+const order = () => container.querySelector('.hv-extime-order')
 const names = () => [...container.querySelectorAll('.hv-report-row b:first-child')].map(b => b.textContent)
 
 beforeEach(() => { useUI.setState({ sheets: [], toastMsg: '' }) })
@@ -64,7 +65,7 @@ describe('hevier: exercise time page', () => {
     expect(container.querySelector('[data-tile="time"]').getAttribute('aria-label')).toBe('Exercise time, 25 min of timed sets this week')
     expect(container.querySelector('[data-tile="time"] .hv-stile-s').textContent).toBe('timed sets this week')
     expect([...container.querySelectorAll('[data-card="time"] .hv-scard-row')].map(r => r.textContent)).toEqual([
-      expect.stringMatching(/squat.*15min$/i), expect.stringMatching(/bench.*10min$/i)])
+      expect.stringMatching(/squat.*15 min$/i), expect.stringMatching(/bench.*10 min$/i)])
     act(() => container.querySelector('[data-tile="time"]').click())
     expect(path).toBe('/exercise-time')
   })
@@ -74,12 +75,15 @@ describe('hevier: exercise time page', () => {
     act(() => link().click())
     expect(path).toBe('/exercise-time')
     expect(names()).toEqual(['Barbell Full Squat', 'Barbell Bench Press'].map(n => expect.stringMatching(new RegExp(n, 'i'))))
-    expect(container.textContent).toContain('15min')
-    expect(container.textContent).toContain('1 session · 10min total')
-    act(() => chip('Longest first').click())
+    expect(container.textContent).toContain('15 min')
+    // One session: its total would repeat its average (the ninth critique, 2026-11-22).
+    expect(container.textContent).toContain('1 session')
+    expect(container.textContent).not.toContain('10 min total')
+    expect(container.querySelector('.hv-extime-cap').textContent).toMatch(/^2 exercises · Average time per session/)
+    act(() => order().click())
     expect(names()[0]).toMatch(/bench/i)
     act(() => chip('Gym').click())
-    expect([...container.querySelectorAll('h2.sec')].map(h => h.textContent)).toEqual(['City Gym · 25min total'])
+    expect([...container.querySelectorAll('h2.sec')].map(h => h.textContent)).toEqual(['City Gym · 25 min total'])
     act(() => chip('Muscle').click())
     expect(chip('Gym').getAttribute('aria-pressed')).toBe('false')
     expect(container.querySelectorAll('h2.sec')).toHaveLength(2)
@@ -111,6 +115,7 @@ describe('hevier: exercise time page', () => {
     expect(rows[1].textContent).toContain('Too few sets')
     expect(rows[1].textContent).not.toContain('total')
     expect(rows[0].textContent).not.toContain('Too few sets')
+    expect(container.querySelector('.hv-extime-cap').textContent).toContain('one set a session, give no time')
   })
 
   it('sets ticked seconds apart give no time; a time is marked avg and said in words (the eighth round, 2026-11-22)', () => {
@@ -121,8 +126,8 @@ describe('hevier: exercise time page', () => {
     const rows = [...container.querySelectorAll('.hv-report-row')]
     expect(rows[1].textContent).toMatch(/squat.*Ticked all at once/i)
     const avg = rows[0].querySelector('.hv-extime-avg')
-    expect(avg.textContent).toBe('2min 30s avg')
+    expect(avg.textContent).toBe('2 min 30 s avg')
     expect(avg.getAttribute('aria-label')).toBe('Average: 2 minutes 30 seconds')
-    expect(chip('Longest first').getAttribute('aria-label')).toBe('Order: longest first')
+    expect(order().getAttribute('aria-label')).toBe('Order: longest first')
   })
 })

@@ -11,6 +11,8 @@ const P = {
   figure: <><circle cx="12" cy="4.8" r="1.9" /><path d="M5.6 8.6 12 9.6l6.4-1M12 9.6v5M12 14.6l-2.6 5.8M12 14.6l2.6 5.8" /></>,
   // A set row's remove mark in the routine editor: upstream's plusCircle with the bar alone, so it can't read as an empty value
   minusCircle: <><circle cx="12" cy="12" r="8.2" /><path d="M8.2 12h7.6" /></>,
+  // Android's share, Material's three joined dots, where upstream's share is iOS's box and arrow (the ninth audit, 2026-11-22)
+  shareNodes: <><circle cx="17.6" cy="5.6" r="2.6" /><circle cx="6.4" cy="12" r="2.6" /><circle cx="17.6" cy="18.4" r="2.6" /><path d="m8.7 10.7 6.6-3.8M8.7 13.3l6.6 3.8" /></>,
 }
 
 export const HV_ICON_NAMES = Object.keys(P)

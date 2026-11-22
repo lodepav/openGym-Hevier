@@ -98,6 +98,22 @@ describe('Routine page (D37, D128)', () => {
     expect(nums()[0].className).not.toContain('none')
   })
 
+  it('says last time without a weight as reps, and sits a short weight against its unit (the ninth audit, 2026-11-22)', () => {
+    const bw = { ...last, entries: [{ id: EX, rid: 'r1', target: { sets: 1, reps: 8 }, sets: [{ w: 0, r: 8, done: true }] }] }
+    render([{ id: EX, mode: 'reps', sets: 1, reps: 8, weight: 25 }], undefined, { workouts: [bw] })
+    const cell = container.querySelector('.hv-np-row:not(.hv-np-head) .hv-np-last')
+    expect(cell.querySelector('[aria-hidden="true"]').textContent).toBe('× 8')
+    expect([...cell.querySelectorAll('.hv-sr')].map(s => s.textContent)).toEqual(['Last time: ', '8 reps'])
+    expect(nums()[0].className).toContain(' w')
+    expect(nums()[1].className).not.toContain(' w')
+  })
+
+  it('names the muscles the session hits as plain text, not chips (the ninth critique, 2026-11-22)', () => {
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }])
+    expect(container.querySelector('.hv-rmap .mchip')).toBeNull()
+    expect(container.querySelector('.hv-rmap-names').textContent).toMatch(/\S/)
+  })
+
   it('opens from the routine name on Routines', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], '/routines')
     act(() => byText('button.hv-rname', 'Leg Day').click())
@@ -241,7 +257,7 @@ describe('Routine page (D37, D128)', () => {
     render([{ id: EX, mode: 'reps', sets: 3, reps: 5, weight: 100 }], undefined, { workouts: [w(50)] })
     expect(container.querySelector('.hv-rv-when').textContent).not.toContain('about')
     act(() => useStore.setState(st => ({ S: { ...st.S, workouts: [w(50), w(65), w(55)] } })))
-    expect(container.querySelector('.hv-rv-when').textContent).toContain('about 55min')
+    expect(container.querySelector('.hv-rv-when').textContent).toContain('about 55 min')
   })
 
   it('a routine that is gone goes back to Routines', () => {

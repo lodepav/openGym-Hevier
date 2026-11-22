@@ -56,6 +56,24 @@ describe('hevier: Settings (seams S11, S12)', () => {
     expect(container.querySelector('.sp-nav > h1.sp-title').textContent).toBe('Settings')
   })
 
+  // The ninth critique, 2026-11-22: Data & backup says when the last backup was exported, nothing before one.
+  it('records an exported backup and names it on Data & backup', () => {
+    render('data')
+    expect(useStore.getState().S.hvBackupAt).toBeUndefined()
+    act(() => useUI.getState().toast('Something went wrong'))
+    expect(useStore.getState().S.hvBackupAt).toBeUndefined()
+    act(() => useUI.getState().toast('Backup exported'))
+    const at = useStore.getState().S.hvBackupAt
+    expect(at).toBeGreaterThan(Date.now() - 5000)
+    act(() => root.unmount()); container.remove()
+    const row = () => [...container.querySelectorAll('.lrow')].find(r => r.querySelector('.lrow-t')?.textContent === 'Data & backup')
+    render(null)
+    expect(row().textContent).not.toContain('Last backup')
+    act(() => root.unmount()); container.remove()
+    render(null, { hvBackupAt: Date.now() - 3 * 86400000 })
+    expect(row().textContent).toContain('Last backup 3 days ago')
+  })
+
   // The fifth audit, 2026-11-21: back names the tab whose gear opened Settings, Today on a cold open.
   it('back is named by the tab it returns to', () => {
     const was = window.history.state

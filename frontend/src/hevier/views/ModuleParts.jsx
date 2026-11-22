@@ -10,6 +10,9 @@ import { Row, Switch } from '../../components/ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { PARTS, hasParts, partSwitch, setPart, needOf } from '../lib/module-parts.js'
 
+// Upstream's "Webhooks for Home Assistant and friends, and the MCP server" in a lifter's words, with the fork's parts (the ninth critique, 2026-11-22).
+const INTEGRATIONS_LINE = 'Send your workouts to Hevy, OpenBite, Home Assistant and AI assistants.'
+
 /** `hooks.moduleRow`: upstream's row of module `mod`, with its parts under it when it has any. */
 export const moduleRow = (mod, row) => hasParts(mod) ? <ModuleParts key={mod} mod={mod} row={row} /> : row
 
@@ -39,8 +42,10 @@ export function ModuleParts({ mod, row }) {
   return <>
     {/* The count shown beside it is in the button's name, so TalkBack reads it once, with the button (the sixth audit, 2026-11-21). */}
     {/* Unfolded, the parts say what the module's line said, so it goes (the eighth critique, 2026-11-22). */}
-    {cloneElement(row, { className: row.props.className + ' hv-modrow', subtitle: open ? null : row.props.subtitle },
-      <button type="button" className="hv-modrow-open" aria-expanded={open} aria-controls={id}
+    {/* The name and line are read with the button, once, not as text before it too (the ninth audit, 2026-11-22). */}
+    {cloneElement(row, { className: row.props.className + ' hv-modrow', title: <span aria-hidden="true">{name}</span>,
+      subtitle: open ? null : <span id={id + '-d'} aria-hidden="true">{mod === 'integrations' ? t(INTEGRATIONS_LINE) : row.props.subtitle}</span> },
+      <button type="button" className="hv-modrow-open" aria-expanded={open} aria-controls={id} aria-describedby={open ? undefined : id + '-d'}
         aria-label={t('Parts of {0}', name) + (open ? '' : ', ' + count)} onClick={() => setOpen(o => !o)} />,
       !open && <span className="lrow-v" aria-hidden="true">{count}</span>,
       // Android's expand more / expand less, not a page's › (the eighth audit, 2026-11-22).

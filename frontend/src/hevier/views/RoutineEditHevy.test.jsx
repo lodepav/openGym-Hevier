@@ -7,6 +7,7 @@ import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEF, useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
+import { bindUI } from '../../components/ui.jsx'
 import { EXDB } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
 import { hevierRoutes } from '../routes.jsx'
@@ -285,9 +286,39 @@ describe('hevier: routine editor (M3)', () => {
     act(() => useStore.getState().update(s => { s.hvDashTipSeen = true }))
     expect(tip()).toEqual([])
     act(() => root.unmount()); container.remove(); root = null
-    // A routine with progression on opens at its rule, not last time's weight: no tip.
+    // A routine with progression on opens at its rule: the tip says so, and what Auto means (the ninth critique).
+    useStore.getState().update(s => { delete s.hvDashTipSeen })
     render([{ id: EX, mode: 'reps', sets: 2, reps: 8 }], { hvProg: true })
-    expect(tip()).toEqual([])
+    expect(tip()).toEqual(['– lets the rule pick the weight. Auto warm-ups ramp up to it.'])
+    // No rule to pick it, or a deload routine: the plain tip.
+    act(() => useStore.getState().update(s => { s.routines[0].prog = 'off' }))
+    expect(tip()).toEqual(['– opens at last time’s weight.'])
+    act(() => useStore.getState().update(s => { s.routines[0].prog = 'linear'; s.routines[0].excludeFromProgression = true }))
+    expect(tip()).toEqual(['– opens at last time’s weight.'])
+  })
+
+  it('the Progression row carries its rule’s description, and the switch does not contradict "No automatic progression"', () => {
+    const rowOf = title => [...container.querySelectorAll('.hv-rsettings .lrow')].find(r => r.querySelector('.lrow-t')?.textContent === title)
+    const sub = title => rowOf(title)?.querySelector('.lrow-s')?.textContent
+    render([{ id: EX, mode: 'reps', sets: 3, reps: 8, weight: 60 }], { hvProg: true })
+    expect(sub('Progression')).toMatch(/^Hit every rep in every set/)
+    expect(sub('Progression & auto warm-ups')).toMatch(/^Targets move by the rule below/)
+    expect(container.querySelector('.hv-rsettings-note')).toBeNull()
+    act(() => useStore.getState().update(s => { s.routines[0].prog = 'off' }))
+    expect(rowOf('Progression').querySelector('.lrow-v').textContent).toBe('No automatic progression')
+    expect(sub('Progression')).toMatch(/^Targets stay where you set them\./)
+    expect(sub('Progression & auto warm-ups')).toBe('Warm-ups ramp up to the work weight.')
+    bindUI(useUI)
+    act(() => rowOf('Progression').click())
+    const host = sheet()
+    act(() => [...host.querySelectorAll('button')].find(b => b.textContent.includes('Double progression')).click())
+    expect(useStore.getState().S.routines[0].prog).toBe('double')
+  })
+
+  it('numbers each warm-up in its spoken name', () => {
+    render([{ id: EX, mode: 'reps', sets: 2, reps: 8, weight: 60, warmupSets: 2 }])
+    const names = [...container.querySelectorAll('.hv-rt-row .hv-set')].map(b => b.getAttribute('aria-label'))
+    expect(names.slice(0, 2)).toEqual(['Warm-up 1, Set type', 'Warm-up 2, Set type'])
   })
 
   it('a first exercise with no weight column draws no tip, so leaving does not mark it seen', () => {

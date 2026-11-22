@@ -167,6 +167,8 @@
    below it clears the curve (the open one ends on + Set and + Warm-up, inset as they are) */
 :root[data-ui="hevier"] .hv-unit:not(.ss):not(:has(.hv-exopen)){padding-bottom:20px}
 :root[data-ui="hevier"] .hv-unit .swfront{background:var(--bg)}
+/* A swipe's Delete or Remove in dark ink on the red: white read 3.94:1, black 5.33:1 (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .swpane.del button{color:var(--hv-on-meaning)}
 :root[data-ui="hevier"] .hv-unit:not(.ss) .swfront > .hv-row{padding-inline:15px;border-radius:0}
 :root[data-ui="hevier"] .hv-unit:not(.ss) :not(.swfront) > .hv-row{margin-inline:-11px;padding-inline:15px;border-radius:0}
 /* A per-side pair inside a swipe row: the swipe row already reaches the edges. */
@@ -308,6 +310,8 @@
 :root[data-ui="hevier"] .hv-wcard{display:flex;flex-direction:column;margin:0 0 12px;border-radius:var(--r-card);padding:14px 16px 12px;background:var(--bg);box-shadow:var(--hv-card-line)}
 :root[data-ui="hevier"] .hv-wcard:active{background:var(--surface-2)}
 :root[data-ui="hevier"] .hv-wcard-h{justify-content:flex-start;gap:10px;margin:-2px -6px 4px 0}
+/* Share and ⋯ each reach 6 dp past their 36: 4 dp more between them keeps the two 48 dp areas apart (the ninth audit). */
+:root[data-ui="hevier"] .hv-wcard-h .iconbtn+.iconbtn{margin-left:4px}
 :root[data-ui="hevier"] .hv-wcard-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 :root[data-ui="hevier"] .hv-wcard-who b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-ui="hevier"] .hv-wcard-who .hv-wcard-d{font-size:13px;margin:0}
@@ -389,6 +393,8 @@
 :root[data-ui="hevier"] .hv-rsettings-note{margin:6px 2px 16px}
 :root[data-ui="hevier"] .hv-rt-tip{margin:0 2px 6px}
 :root[data-ui="hevier"] .hv-rmap{margin-top:12px}
+/* The muscles it hits as plain text, not chips that look tappable (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-rmap-names{margin:10px 0 0;font-size:14px;color:var(--label-2);text-align:center}
 /* D130: the editor shows its drag handle, ends each set row with a remove mark, and has the rest as a chip */
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-routine .hv-exhd .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
@@ -441,11 +447,19 @@
 :root[data-ui="hevier"] .hv-rrow .hv-grip:not(:focus-visible){position:static;width:auto;height:auto;overflow:visible;clip-path:none}
 :root[data-ui="hevier"] .hv-rrow .hv-grip{min-width:44px;min-height:44px;padding:0;align-items:center;justify-content:center;margin-inline:-12px -8px}
 :root[data-ui="hevier"] .hv-rrow .hv-grip-gap{flex:none;width:44px;margin-inline:-12px -8px}
-/* Wrapped rows sit 20 apart, twice the chips' 10 dp reach (the fifth audit, 2026-11-21). */
-:root[data-ui="hevier"] .hv-rend{flex-wrap:wrap;gap:20px 6px;margin:14px 0}
-:root[data-ui="hevier"] .hv-rend .hv-chip{padding-inline:10px}
+/* Wrapped rows sit 20 apart, twice the chips' 10 dp reach (the fifth audit, 2026-11-21); 8 apart in a row, and padded
+   7 so the five still share one row on a 380 dp phone (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-rend{flex-wrap:wrap;gap:20px 8px;margin:14px 0}
+:root[data-ui="hevier"] .hv-rend .hv-chip{padding-inline:7px}
+/* With large text a routine's Start goes under its name, ⋯ stays beside it (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-big .hv-rrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"g n m" ". s .";align-items:center;column-gap:8px;padding-bottom:8px}
+:root[data-ui="hevier"] .hv-big .hv-rrow:not(:has(> .hv-grip, > .hv-grip-gap)){grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n m" "s ."}
+:root[data-ui="hevier"] .hv-big .hv-rrow > :is(.hv-grip, .hv-grip-gap){grid-area:g}
+:root[data-ui="hevier"] .hv-big .hv-rrow > .hv-rname{grid-area:n}
+:root[data-ui="hevier"] .hv-big .hv-rrow > .hv-rstart{grid-area:s;justify-self:start}
+:root[data-ui="hevier"] .hv-big .hv-rrow > .iconbtn{grid-area:m}
 :root[data-ui="hevier"] .hv-sl-add{width:100%;margin-top:12px}
-:root[data-ui="hevier"] .hv-sl-lead{color:var(--label);font-weight:600}
+:root[data-ui="hevier"] .hv-sl-lead{margin:0;font-size:inherit;line-height:inherit;color:var(--label);font-weight:600}
 :root[data-ui="hevier"] .hv-folder{margin-bottom:10px}
 :root[data-ui="hevier"] .hv-fhead{display:flex;align-items:center;gap:4px;min-height:40px}
 :root[data-ui="hevier"] .hv-ftoggle{flex:1;display:flex;align-items:center;gap:6px;background:none;padding:6px 0;font-size:15px;font-weight:600;color:var(--label-2);text-align:start}
@@ -521,7 +535,7 @@
 :root[data-ui="hevier"] .hv-xd-chart polygon{display:none}
 :root[data-ui="hevier"] .hv-xd-cap .hv-link{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px;font-size:14px;font-weight:700}
 /* The last sessions, one line each (D131). */
-:root[data-ui="hevier"] .hv-xd-ls{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 2px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
+:root[data-ui="hevier"] .hv-xd-ls{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 2px;border-bottom:var(--hair) solid var(--sep);font-variant-numeric:tabular-nums}
 :root[data-ui="hevier"] .hv-xd-ld{flex:none;width:5.5em;font-size:13px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-lsets{flex:1;min-width:0;font-weight:700;font-size:15px}
 :root[data-ui="hevier"] .hv-xd-lsets small{font-weight:500;font-size:12px;color:var(--label-2)}
@@ -546,6 +560,8 @@
 :root[data-ui="hevier"] .hv-xd-time{display:flex;align-items:center;gap:8px;margin:4px 2px;font-size:14px;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-xd-history{display:flex;flex-direction:column;gap:10px}
 :root[data-ui="hevier"] .hv-xd-sess{padding:12px 14px}
+/* All history lists every session: the cards off screen are not laid out or painted (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-xd-history>.hv-xd-sess{content-visibility:auto;contain-intrinsic-size:auto 160px}
 :root[data-ui="hevier"] .hv-xd-st{font-weight:700;display:flex;gap:8px;align-items:center}
 :root[data-ui="hevier"] .hv-xd-sd{font-size:12px;color:var(--label-2);margin:2px 0 8px}
 :root[data-ui="hevier"] .hv-xd-set{display:flex;gap:12px;font-size:14px;padding:3px 0;font-variant-numeric:tabular-nums}
@@ -610,7 +626,8 @@
 /* The sticky search covers the sheet's 8 px top padding too (index.css .sheet), where scrolled rows showed above it (the eighth audit, 2026-11-22). */
 :root[data-ui="hevier"] .sheet .hv-pk .picker-search{top:-8px;margin-top:-8px;padding-top:8px}
 :root[data-ui="hevier"] .hv-pk-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
-:root[data-ui="hevier"] .hv-pk-filters .btn{min-height:36px;font-size:14px}
+/* Narrower padding keeps "All Equipment" on one line at 320 dp, as "All Muscles" is (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-pk-filters .btn{min-height:36px;font-size:14px;padding-inline:10px;gap:4px}
 :root[data-ui="hevier"] .hv-pk-filters .btn.on{color:var(--hv-acc-ink)}
 /* Hevy's list: flat rows split by hairlines, not cards; Lifts, Exercise time and the month's
    report draw their exercises the same way (.hv-flat) */
@@ -753,6 +770,10 @@
 :root[data-ui="hevier"] .hv-report-mt{position:relative;display:inline-flex;align-items:center;gap:4px;min-height:0;padding:0 4px;border:0;background:none;color:inherit;font:inherit}
 :root[data-ui="hevier"] .hv-report-mt::after{content:"";position:absolute;inset-inline:0;top:50%;height:48px;transform:translateY(-50%)}
 :root[data-ui="hevier"] .hv-report-mt .icn{width:18px;height:18px;color:var(--label-2)}
+/* The three stats over the row's width, not its left half (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-report-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}
+/* The split's counts as Statistics' Sets per muscle card draws them: the number, bold, in the label's colour. */
+:root[data-ui="hevier"] .hv-report .hv-wd-split b{font-weight:700;color:var(--label)}
 :root[data-ui="hevier"] .hv-report-stats em{font-style:normal;font-size:12px;font-weight:500}
 :root[data-ui="hevier"] .hv-report-stats em.up{color:var(--hv-acc-ink)}
 /* fewer than last month is grey, not an alarm: a lighter month is often meant (the critique, 2026-11-21) */
@@ -843,7 +864,9 @@
 :root[data-ui="hevier"] .hv-ms-row b{font-weight:500}
 :root[data-ui="hevier"] .hv-ms-all{width:100%;justify-content:center}
 :root[data-ui="hevier"] .hv-ms-unit{font-size:1rem}
-/* The effort dialog's Log without rating (HevyExerciseBlock.jsx), a class, not inline (the fifth audit, 2026-11-21). */
+/* The ninth critique, 2026-11-22: Goal and Log centred on the heading's line; the last weight a 22 px tabular headline, not upstream's 30/600. */
+:root[data-ui="hevier"] .hv-ms-top{align-items:center;gap:8px}
+:root[data-ui="hevier"] .hv-measures .card .big{margin-top:6px;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}/* The effort dialog's Log without rating (HevyExerciseBlock.jsx), a class, not inline (the fifth audit, 2026-11-21). */
 :root[data-ui="hevier"] .btn.hv-eff-plain{width:100%;min-height:48px;margin-top:8px;background:var(--surface-2)}
 
 /* ---------- Settings root's version line (D52) ----------
@@ -944,6 +967,9 @@
    short rather than running into the next (A6). At the normal size both fit as before. */
 :root[data-ui="hevier"] .hv-row .hv-prev{white-space:pre-line;text-overflow:clip;line-height:1.2}
 :root[data-ui="hevier"] .hv-head > *{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+/* With large text the heads shrink to fit their columns, not "S… PR… RE…" (16 px at 200 %; the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-big .hv-head{font-size:8px;letter-spacing:0}
+:root[data-ui="hevier"] .hv-big .hv-head .icn{font-size:9px}
 
 /* Exercise time (D88): a label only a screen reader hears; the page's sort row. */
 :root[data-ui="hevier"] .hv-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -952,7 +978,14 @@
 :root[data-ui="hevier"] .hv-extime-sort .hv-chip{display:inline-flex;align-items:center;gap:4px;min-height:32px}
 :root[data-ui="hevier"] .hv-extime-sort .icn{width:14px;height:14px}
 :root[data-ui="hevier"] .hv-extime-avg{white-space:nowrap}
+/* The ninth round, 2026-11-22: the order a bare text toggle with a 48 dp reach; at 200 % "avg" wraps under its time and a name breaks, not runs into it. */
+:root[data-ui="hevier"] .hv-extime-sort .hv-extime-order{display:inline-flex;align-items:center;gap:4px;min-height:48px;margin-block:-8px}
+:root[data-ui="hevier"] .hv-extime-avg{white-space:normal;flex:none;max-width:45%;text-align:end}
+:root[data-ui="hevier"] .hv-extime-avg .dim{white-space:nowrap}
+:root[data-ui="hevier"] .hv-report-row .grow b{overflow-wrap:break-word}
+:root[data-ui="hevier"] .hv-extime-cap{margin:8px 0 6px}
 :root[data-ui="hevier"] .hv-extime-avg .dim{font-weight:400}
+:root[data-ui="hevier"] .hv-extime-st{flex:none;max-width:45%;text-align:end}
 /* The chips are 29–32 dp: an invisible 8 dp above and below makes a 44 dp target (A1). */
 :root[data-ui="hevier"] .hv-chip{position:relative}
 :root[data-ui="hevier"] .hv-chip::after{content:"";position:absolute;inset:-8px 0}
@@ -1006,6 +1039,13 @@
 :root[data-ui="hevier"] .hv-modrow>.sw{position:relative;z-index:1}
 :root[data-ui="hevier"] .hv-modrow>.sw::before{inset:-9px -4px}
 :root[data-ui="hevier"] .hv-modrow>.lrow-v{white-space:nowrap}
+/* The ninth round, 2026-11-22: the fold stops 8 dp before the switch's reach (337 → 333); the count wraps past 4.5em,
+   so at 320 dp it no longer squeezes the line to ~100 dp; a part's title a size under its module's. */
+:root[data-ui="hevier"] .hv-modrow-open{inset-inline-end:calc(var(--pad) + 63px)}
+:root[data-ui="hevier"] .hv-modrow>.lrow-v{white-space:normal;max-width:4.5em;text-align:end}
+:root[data-ui="hevier"] .hv-modparts>.lrow .lrow-t{font-size:15px}
+/* On a narrow phone the module's line gets the room: the count is in the fold button's spoken name, and unfolded the parts show it (the ninth audit, 2026-11-22). */
+@media (max-width:359px){:root[data-ui="hevier"] .hv-modrow>.lrow-v{display:none}}
 /* Parts 20 px in from their module's title, as the picker filter's kinds (the seventh critique, 2026-11-22). */
 :root[data-ui="hevier"] .sect-b .hv-modparts>.lrow{padding-inline:calc(var(--pad) + 56px) var(--pad)}
 :root[data-ui="hevier"] .hv-modparts>.lrow::before,:root[data-ui="hevier"] .hv-modparts+.lrow::before{content:'';position:absolute;inset-inline-start:calc(var(--pad) + 36px);inset-inline-end:0;top:0;height:var(--hair);background:var(--sep)}
@@ -1044,6 +1084,12 @@
 :root[data-ui="hevier"] .hv-tday.done b{color:var(--hv-acc-ink)}
 /* A past planned day not trained keeps its routine's name, quieter than a day to come (the seventh critique, 2026-11-22). */
 :root[data-ui="hevier"] .hv-tday.missed b{color:var(--label-2);font-weight:400}
+/* ...and struck through with a thin line, so it reads as missed, not only as lighter (D145; the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-tday.missed b{text-decoration:line-through;text-decoration-thickness:1px}
+/* With large text the week wraps to a second row and keeps its words whole, "Push", not "P us" (D134; the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-big .hv-tweek{flex-wrap:wrap;row-gap:10px}
+:root[data-ui="hevier"] .hv-big .hv-tday{min-width:min-content}
+:root[data-ui="hevier"] .hv-big .hv-tday b{overflow-wrap:normal;hyphens:none}
 :root[data-ui="hevier"] .hv-tday.today{color:var(--label)}
 :root[data-ui="hevier"] .hv-tday.next{box-shadow:inset 0 0 0 1.5px var(--acc)}
 :root[data-ui="hevier"] .hv-tline{margin:10px 0;font-size:13px;color:var(--label-2)}
@@ -1073,6 +1119,8 @@
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg{background:none;padding:0;border:1px solid var(--sep);border-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg .seg-sel{display:none}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button{border-radius:0;color:var(--label);font-weight:600}
+/* "✓ 12 weeks" on one line at 411 dp, as the others are; the row wraps whole toggles (the ninth critique, 2026-11-22). */
+:root[data-ui="hevier"] .hv-lifts-ctl>.seg button{white-space:nowrap;padding-inline:6px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:first-of-type{border-start-start-radius:99px;border-end-start-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button:last-of-type{border-start-end-radius:99px;border-end-end-radius:99px}
 :root[data-ui="hevier"] .hv-lifts-ctl>.seg button+button{border-inline-start:1px solid var(--sep)}
@@ -1099,6 +1147,8 @@
 :root[data-ui="hevier"] .hv-lifts-gh small{font-size:12px;font-weight:700;color:var(--label-2)}
 :root[data-ui="hevier"] .hv-lift-half{flex:none;font-size:11px;font-weight:800;color:var(--label-2);border:1px solid var(--sep);border-radius:99px;padding:0 6px}
 :root[data-ui="hevier"] .hv-lift{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;text-align:start;color:var(--label);font:inherit}
+/* A long list of rows, each with a chart: the ones off screen are not laid out or painted (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .item.hv-lift{content-visibility:auto;contain-intrinsic-size:auto 76px}
 :root[data-ui="hevier"] .hv-lift .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 /* The muscle sits beside the name and drops to its own line when the text is large; the change stays right. */
 :root[data-ui="hevier"] .hv-lift-hd{display:flex;align-items:flex-start;gap:8px}
@@ -1190,9 +1240,11 @@
 :root[data-ui="hevier"] .hv-np-last > span{display:flex;align-items:center;gap:6px;min-height:44px;color:var(--label-2);font-size:13px}
 :root[data-ui="hevier"] .hv-np-next > span{display:flex;align-items:center;gap:2px;min-height:44px;font-weight:700;white-space:nowrap}
 :root[data-ui="hevier"] .hv-np-side{font-size:11px;font-weight:800;color:var(--label-2)}
-/* Next spaces its parts 2px (the "+" and the unit); its L/R mark sits 6px off, as Last's does. */
+/* Next spaces its parts 2px (the unit); its L/R mark sits 6px off, as Last's does. */
 :root[data-ui="hevier"] .hv-np-next .hv-np-side{margin-inline-end:4px}
-:root[data-ui="hevier"] .hv-np-num{min-width:44px;min-height:44px;padding:0 4px;background:none;border:0;font:inherit;font-weight:700;color:var(--label);text-decoration:underline dotted var(--label-3);text-underline-offset:4px}
+:root[data-ui="hevier"] .hv-np-num{min-width:44px;min-height:44px;padding:0 4px;background:none;border:0;font:inherit;font-weight:700;color:var(--label);text-decoration:underline dotted var(--label-3);text-underline-offset:4px;text-align:start}
+/* A short weight sits against its unit, "25 kg" as close as "12.5 kg", in its 44 dp button (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-np-num.w{text-align:end}
 :root[data-ui="hevier"] .hv-np-num.chg{color:var(--hv-acc-ink)}
 /* An empty "–" keeps its 44 dp button but no underline: only numbers look tappable (the eighth critique, 2026-11-22). */
 :root[data-ui="hevier"] .hv-np-num.none{text-decoration:none}
@@ -1211,7 +1263,9 @@
 :root[data-ui="hevier"] .effpick-free .effcell-stp>button{width:48px;min-width:48px;height:48px;flex:none}
 
 /* History: where each month starts in the feed (the critique, 2026-11-20). */
-:root[data-ui="hevier"] .hv-hmonth{margin:18px 4px 8px;font-size:15px;font-weight:700;color:var(--label-2)}
+:root[data-ui="hevier"] .hv-hmonth{margin:18px 0 8px;font-size:15px;font-weight:700;color:var(--label-2)}
+/* "Look back" is a heading for TalkBack, drawn as the caption it was (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-hgroup>h2.hv-cap{margin:0}
 :root[data-ui="hevier"] .hv-stat-ends{margin:16px 0 8px}
 :root[data-ui="hevier"] .hv-rv-usual{display:inline-flex;align-items:center;gap:4px}
 
@@ -1274,6 +1328,11 @@
 :root[data-ui="hevier"] .hv-rend .hv-chip::after{inset:-10px 0}
 /* At a large text size on a narrow phone the routine names go; TalkBack still says them (Calendar.jsx namesFit). */
 :root[data-ui="hevier"] .hv-cal-tight .hv-cal-tl{display:none}
+/* With its name gone a planned day keeps its dot, the mark D68 gives it (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-cal-tight .hv-cal-c .hv-cal-d.planned::after{display:block}
+/* Month/Year reach 48 dp up and down, not upstream's 44 (the ninth audit, 2026-11-22). */
+:root[data-ui="hevier"] .hv-cal-top .seg button::before{inset:-8px 0}
+:root[data-ui="hevier"] .hv-cal-hint{margin:4px 0 0;text-align:center}
 :root[data-ui="hevier"] .hv-cal > .hv-cal-key{margin:16px 0 8px}
 /* Exercise details' range and brand are upstream's menu buttons now: its chevron, not the select's drawn one. */
 :root[data-ui="hevier"] .menu-btn.hv-xd-range{background-image:none;padding:6px 4px}

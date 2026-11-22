@@ -8,6 +8,7 @@ import { fmtDate } from '../lib/dates.js'
 import { exOr } from '../../lib/exercises.js'
 import { exerciseDetailSheet, menuSheet } from '../../sheets.jsx'
 import Icon from '../../components/Icon.jsx'
+import HvIcon from '../components/HvIcon.jsx'
 import { volumeMode, muscleMode } from '../lib/volume.js'
 import { muscleText } from '../lib/main-muscle.js'
 import { workoutsByDay, monthsWith } from '../lib/calendar.js'
@@ -93,7 +94,7 @@ export default function MonthReport() {
       {trained && partOn(st, 'motivation', 'share') && <button type="button" className="iconbtn" aria-label={t('Share report')} onClick={() => shareMonthSheet({
         y: at.y, mo: at.mo, report: r, workouts: counted, byDay, ws, title, when: isNow ? t('so far') : '',
         before: t(MONTHS_LONG[(at.mo + 11) % 12]),
-      })}><Icon name="share" /></button>}
+      })}><HvIcon name="shareNodes" /></button>}
     </BackTo>
     <PhaseFilter />
     <div className="hv-report-bar">
@@ -130,10 +131,13 @@ export default function MonthReport() {
 
       {r.muscles.length > 0 && <>
         <h3 className="sec">{t('Muscle split')}</h3>
-        <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split">
+        {/* What it counts, and the counts drawn as Statistics' Sets per muscle card draws them (the ninth critique, 2026-11-22). */}
+        <div className="small dim hv-msets-cap">{t(mm === 'share' ? 'Work sets, a secondary muscle counted in part' : 'Work sets, each for its main muscle')}</div>
+        <div className={'hv-msets' + (above ? ' hv-msets-above' : '')} ref={splitList}>{r.muscles.map(m => <div key={m.muscle} className="hv-wd-split"
+          role="img" aria-label={muscleText(m.muscle) + ', ' + tn('{0} set', '{0} sets', m.sets)}>
           <span>{muscleText(m.muscle)}</span>
           <span className="hv-mset-bar"><i style={{ width: (m.sets / topMuscle) * 100 + '%' }} /></span>
-          <b>{tn('{0} set', '{0} sets', m.sets)}</b>
+          <b>{fmtNum(m.sets)}</b>
         </div>)}</div>
       </>}
 

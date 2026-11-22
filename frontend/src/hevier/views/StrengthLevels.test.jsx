@@ -84,7 +84,7 @@ describe('hevier: strength levels list', () => {
     const secs = [...container.querySelectorAll('h2.sec')].map(h => h.textContent)
     expect(secs).toEqual(['Intermediate · 1', 'No 1RM logged yet · 1'])
     expect(container.textContent).toContain('15 kg to Advanced')
-    expect(container.querySelector('.hv-report-row b[role="img"]').getAttribute('aria-label')).toMatch(/^best 1RM \d+(\.\d+)? kg$/)
+    expect(container.querySelector('.hv-report-row b[role="img"]').getAttribute('aria-label')).toMatch(/^best one-rep max \d+(\.\d+)? kg$/)
     expect(container.querySelector('.hv-sl-add').className).toBe('btn hv-sl-add')   // with a list, quieter
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
@@ -93,7 +93,8 @@ describe('hevier: strength levels list', () => {
     render('/strength')
     const empty = container.querySelector('.hv-ms-empty')
     expect(empty.firstChild.textContent).toBe('No strength levels yet.')
-    expect(empty.querySelector('.dim').textContent).toBe('A strength level places your best estimated 1RM among five levels, Beginner to Elite, whose weights you type in yourself.')
+    expect(empty.firstChild.tagName).toBe('H2')
+    expect(empty.querySelector('.dim').textContent).toBe('A strength level places your best estimated one-rep max among five levels, Beginner to Elite, whose weights you type in yourself. Compare strength on an exercise looks them up on strengthlevel.com.')
     expect(container.querySelector('.hv-report-row')).toBeNull()
     // The page's one action is a full-width button, not a chip (the critique, 2026-11-21).
     expect(container.querySelector('.hv-sl-add').className).toBe('btn primary hv-sl-add')

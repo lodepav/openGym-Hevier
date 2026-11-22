@@ -24,6 +24,7 @@ import { gymName } from '../lib/gym-labels.js'
 import { workoutTimeText, hasClock } from '../lib/workout-when.js'
 import { workSets } from '../lib/volume.js'
 import { workoutRecords } from '../lib/records.js'
+import { useLargeText } from '../components/useLargeText.js'
 
 const SHOWN = 5
 // Three on a screen as short as 320×568 dp, so Start stays above the fold. Read once per render, not on a resize.
@@ -111,7 +112,9 @@ export default function Today() {
   const line = [round && t(round.round ? '{0} of {1} done this round' : '{0} of {1} done this week', round.done, round.of), streak].filter(Boolean)
   // The newest workout depends on the log alone (the fifth audit, 2026-11-21).
   const last = useMemo(() => historyRows(S).find(r => r.w)?.w, [S.workouts]) // eslint-disable-line react-hooks/exhaustive-deps
-  return <div className="narrow hv-today-page">
+  // With large text the week wraps rather than break its names (D134).
+  const big = useLargeText()
+  return <div className={'narrow hv-today-page' + (big ? ' hv-big' : '')}>
     <PageBar title={t('Today')}><SettingsGear /></PageBar>
     {next ? <NextCard S={S} next={next} today={today} />
       : <div className="card hv-next hv-next-none">

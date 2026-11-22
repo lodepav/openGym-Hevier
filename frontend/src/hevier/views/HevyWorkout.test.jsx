@@ -21,6 +21,9 @@ import { stopped } from '../lib/set-timer.js'
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
 vi.mock('../../lib/api.js', () => ({ api: vi.fn(() => Promise.resolve({})), beacon: vi.fn() }))
+// The phone's text size (components/useLargeText.js), set per test.
+const text = vi.hoisted(() => ({ big: false }))
+vi.mock('../components/useLargeText.js', () => ({ useLargeText: () => text.big }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = v => JSON.parse(JSON.stringify(v))
@@ -132,6 +135,19 @@ describe('hevier: Log Workout screen (seam S3)', () => {
       expect(container.querySelector('.hv-gym')).toBeNull()
       act(() => container.querySelector('.hv-wname').click())
       expect(shown()).toBe('true')
+    })
+
+    it('with large text the gym and the note stay closed at the start mid-page, and open at the top (the ninth critique)', () => {
+      text.big = true
+      try {
+        render(two(false))
+        expect(shown()).toBe('false')
+        expect(container.querySelector('.hv-workout').className).toContain('hv-big')
+        act(() => root.unmount()); container.remove(); root = null
+        Object.defineProperty(window, 'scrollY', { configurable: true, get: () => 0 })
+        render(two(false))
+        expect(shown()).toBe('true')
+      } finally { text.big = false }
     })
 
     it('a sheet’s scroll lock (fixed body, scrollY 0) does not count as the top', () => {
@@ -328,6 +344,25 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     // With swipe actions off it says only the tap.
     act(() => useStore.getState().update(s => { delete s.hvSetTipSeen; s.wc = { swipeSets: false } }))
     expect(tip().textContent).toBe('Tap PREVIOUS to copy it.')
+  })
+
+  it('once a set is ticked the tip also says what its mark means, while the marks are on (the ninth critique)', () => {
+    const marks = 'A ticked set’s mark compares it with last time: = the same, ↑ better, ↓ less.'
+    render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
+    const tip = () => container.querySelector('.hv-set-tip').textContent
+    expect(tip()).not.toContain(marks)
+    act(() => useStore.getState().update(s => { s.active.entries[0].sets[0].done = true }))
+    expect(tip()).toBe('Tap PREVIOUS to copy it, swipe a set for more. ' + marks)
+    act(() => useStore.getState().update(s => { s.setTrend = false }))
+    expect(tip()).not.toContain(marks)
+  })
+
+  it('says a PREVIOUS without weight as reps, "8 reps", not "× 8" (the ninth audit)', () => {
+    const past = [{ d: '2026-10-10', entries: [{ id: EX, sets: [{ w: 0, r: 8, done: true }] }] }]
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(0, 8)] }], past)
+    const prev = container.querySelector('.hv-prev')
+    expect(prev.textContent).toBe('× 8')
+    expect(prev.getAttribute('aria-label')).toBe('Last time: 8 reps')
   })
 
   it('a ticked set with no weight reads "–" under KG; its RIR and an empty PREVIOUS are said in words', () => {

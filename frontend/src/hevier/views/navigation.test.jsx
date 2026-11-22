@@ -186,7 +186,7 @@ describe('hevier: navigation (seam S2)', () => {
     act(() => week.click())
     expect(container.querySelector('.hv-chart-h h2').textContent).toMatch(/^Week of .+: 16 reps$/)
     act(() => week.click())
-    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly chart')
+    expect(container.querySelector('.hv-chart-h h2').textContent).toBe('Weekly reps')
   })
 
   it('the tab you are on, tapped again, scrolls its page to the top (D11, upstream 1.4.4)', () => {

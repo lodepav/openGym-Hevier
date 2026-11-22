@@ -63,8 +63,18 @@ describe('hevier: monthly report (D23)', () => {
     expect(container.textContent).toContain('Heaviest Weight · 75 kg')
     // Sentence case, and the top exercise's weight named (the seventh critique, 2026-11-22).
     expect([...container.querySelectorAll('h3.sec')].map(h => h.textContent)).toContain('Muscle split')
+    // Its caption and bare counts, as Statistics' card; each row said in one name (the ninth critique, 2026-11-22).
+    expect(container.querySelector('.hv-report .hv-msets-cap').textContent).toBe('Work sets, each for its main muscle')
+    const split = container.querySelector('.hv-report .hv-wd-split')
+    expect(split.querySelector('b').textContent).toBe('5')
+    expect(split.getAttribute('aria-label')).toBe(split.firstChild.textContent + ', 5 sets')
+    // Android's share glyph (the ninth audit, 2026-11-22).
+    expect(container.querySelector('[aria-label="Share report"] .icn').dataset.icon).toBe('shareNodes')
     expect([...container.querySelectorAll('.hv-report-row .dim')].at(-1).textContent).toBe('5 sets · best 75 kg')
     expect(container.querySelectorAll('.hv-report .hv-cal-d.done')).toHaveLength(2)
+    // A day tapped here leaves the Calendar's one-time hint to be seen there (the ninth review, 2026-11-22).
+    act(() => container.querySelector('.hv-report .hv-cal-c').click())
+    expect(useStore.getState().S.hvCalTapSeen).toBeUndefined()
     // Back goes to History, where it opens from (D142).
     expect(container.querySelector('.hv-pb-back').getAttribute('aria-label')).toBe('History')
   })
