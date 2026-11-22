@@ -69,6 +69,11 @@ wait; boots once one frees). The flock already frees when a holder dies, so no s
 530 of 942 cross-session messages were emulator handoffs. The "message before boot or stop"
 rule stays until the owner says otherwise: it also carries "the other session has priority".
 
+Item 6 done 2026-11-22 as `tools/seam-offers.mjs` beside `upstream-status.mjs`: 12 of 54 seams
+go once upstream takes what was offered (5 of them D124's), none is waiting on an offer not yet
+sent (the two Offer rows, D19 and D51, name no seam). Hand check of D124, D89, D48, D63 and D17
+matched. A seam that names a decision only in passing can read as going too early.
+
 ## Phase 3: cheaper models, only with proof
 
 14 run 2026-11-22 (`.claude/hillclimb/reviewer/sonnet-2026-11-22/results.md`): Sonnet found 4 of
