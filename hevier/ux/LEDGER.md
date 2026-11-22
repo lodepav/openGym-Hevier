@@ -429,3 +429,10 @@ exercise's unit, the live box's decimals (a pre-filled lb weight is stored as 49
 first read as typed; the emulator caught it), Exercise time's "Too few sets", History's warm-up
 line, four help lines, Settings' bar that stays, Calendar opening on the current month, a
 folder's only routine lined up, and Sets per muscle opening on a period with sets.
+
+The seventh audit and critique (2026-11-22) scored 343 of 380 and 563 of 728. The critique
+caught a slip of the sixth round: Settings' title, made a second sticky layer, rendered tiny and
+blurred; it is now drawn inside the one sticky bar. The visible fixes the user chose are D145,
+three of them past D68, D117 and D140. Left for later: the text-size and TalkBack findings of
+the audit (clipping at 130 to 200 % on small phones, folder headings, spoken set rows, the
+picker's growing list, scroll padding under sticky bars).
