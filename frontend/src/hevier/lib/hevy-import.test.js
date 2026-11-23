@@ -6,6 +6,7 @@ import { EXIDX } from '../../lib/exercises.js'
 import { parseImport, mergeImport, importId } from '../../lib/import-csv.js'
 import { parseHevyWorkouts, parseHevyRoutines, parseHevyBodyweight } from '../../lib/import-hevy.js'
 import { isSideSet } from '../../lib/workout-model.js'
+import { workoutsCSV } from '../../lib/export-csv.js'
 
 const HEAD = '"title","start_time","end_time","description","exercise_title","superset_id","exercise_notes","set_index","set_type","weight_kg","reps","distance_km","duration_seconds","rpe"'
 const row = (ex, i, type, w, r, start = '14 Oct 2026, 16:27') =>
@@ -31,6 +32,16 @@ describe('hevier Hevy import (D29)', () => {
     expect(splitBrand('Leg Press (Machine) (brand: LifeFitness)')).toEqual({ name: 'Leg Press (Machine)', brand: 'LifeFitness' })
     expect(splitBrand('Calf Extension (Brand:Achilles Rehab) (Machine)')).toEqual({ name: 'Calf Extension (Machine)', brand: 'Achilles Rehab' })
     expect(splitBrand('Leg Press (Machine) (LifeFitness)')).toEqual({ name: 'Leg Press (Machine) (LifeFitness)', brand: '' })
+  })
+
+  it('leaves openGym\'s own CSV as the file says: its ids and plain sets', () => {
+    const t0 = Date.parse('2026-11-01T10:00:00Z')
+    const S = { unit: 'kg', workouts: [{ id: 'w1', d: '2026-11-01', start: t0, end: t0 + 3600e3, entries: [
+      { id: '10539', sets: [{ w: 20, r: 10, done: true }] }, { id: '7564', sets: [{ w: 15, r: 8, done: true }] },
+    ] }] }
+    const p = parseImport(workoutsCSV(S), { unit: 'kg' })
+    expect(p.source).toBe('openGym')
+    expect(entriesOf(p).map(e => [e.id, e.sets[0].r, !!e.sets[0].sides])).toEqual([['10539', 10, false], ['7564', 8, false]])
   })
 
   it('fixes what upstream matches wrongly, Hevy only', () => {

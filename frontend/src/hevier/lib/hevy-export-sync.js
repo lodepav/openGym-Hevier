@@ -90,6 +90,13 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
   if (!todo.workouts.length && !todo.routines.length) return { sent, refused, error: null }
   const drafts = [...todo.workouts, ...todo.routines]
   const refuse = async item => { st.failed[item.id] = item.h; refused++; await save(st) }
+  const sentAs = async (item, id) => {
+    st.out.w[item.id] = { id, h: item.h }
+    delete st.failed[item.id]
+    if (st.unsure) delete st.unsure[item.id]
+    sent++
+    await save(st)
+  }
   const off = () => st.on === false    // turned off while this pass runs: no further call
 
   try {
@@ -190,11 +197,7 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
           if (id) await web('PUT', `/v2/workout/${encodeURIComponent(id)}`, v2Update(v2(id)))
         }
         if (!id) id = await post(uuid())
-        st.out.w[item.id] = { id, h: item.h }
-        delete st.failed[item.id]
-        if (st.unsure) delete st.unsure[item.id]
-        sent++
-        await save(st)
+        await sentAs(item, id)
       } catch (e) { if (stops(e)) throw e; await refuse(item) }
     }
 
@@ -222,11 +225,7 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
             throw e
           }
         }
-        st.out.w[item.id] = { id, h: item.h }
-        delete st.failed[item.id]
-        if (st.unsure) delete st.unsure[item.id]
-        sent++
-        await save(st)
+        await sentAs(item, id)
       } catch (e) { if (stops(e)) throw e; await refuse(item) }
     }
 
@@ -369,6 +368,8 @@ export async function disableExport() {
   await removeSecret(KEY_NAME)
   await removeSecret(SESSION_NAME)
   if (running) await within(running, 3000).catch(() => {})
+  // A pass still running may have refreshed and kept the session again since.
+  await removeSecret(SESSION_NAME)
   told(st)
   return st
 }

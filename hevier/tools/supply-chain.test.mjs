@@ -25,11 +25,13 @@ test('lockEntries flags packages from outside the registry or without integrity'
   const lock = { packages: {
     'node_modules/git-dep': { version: '1.0.0', resolved: 'git+ssh://git@github.com/x/y.git#abc' },
     'node_modules/no-hash': { version: '1.0.0', resolved: R + 'no-hash/-/no-hash-1.0.0.tgz' },
+    'node_modules/react': { version: '19.1.0', resolved: R + 'evil/-/evil-19.1.0.tgz', integrity: 'sha512-z' },
   } }
   const { problems } = lockEntries('api', lock)
-  assert.equal(problems.length, 2)
+  assert.equal(problems.length, 3)
   assert.match(problems[0], /git-dep@1.0.0 is not from the npm registry/)
   assert.match(problems[1], /no-hash@1.0.0 has no integrity hash/)
+  assert.match(problems[2], /react@19.1.0 is not from the npm registry/)
 })
 
 test('diffLines: a version bump or a new install script counts as new', () => {
@@ -43,8 +45,8 @@ test('diffLines: a version bump or a new install script counts as new', () => {
 
 test('scanText finds hosts, ignoring data: URIs and fragments that are not hosts', () => {
   const { hosts } = scanText('fetch("https://API.hevyapp.com/v1");x="http://www.w3.org/2000/svg";' +
-    'y="https://-t";z="data:image/png;base64,aHR0cHM6Ly9ldmlsLmNvbQ==";w="wss://localhost:3000"')
-  assert.deepEqual([...hosts].sort(), ['api.hevyapp.com', 'localhost', 'www.w3.org'])
+    'y="https://-t";z="data:image/png;base64,aHR0cHM6Ly9ldmlsLmNvbQ==";w="wss://localhost:3000";v="http://203.0.113.5/x"')
+  assert.deepEqual([...hosts].sort(), ['203.0.113.5', 'api.hevyapp.com', 'localhost', 'www.w3.org'])
 })
 
 test('scanText counts code that runs or hides strings, not lookalikes', () => {

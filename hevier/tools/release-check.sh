@@ -149,15 +149,8 @@ apk_release() {
 }
 # Every permission the merged manifest asks for is in the reviewed list.
 apk_permissions() {
-  local asked allowed new
-  asked="$("${BT}aapt2" dump permissions "$APK" | sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" | sed "s/^$APP_ID\(\.test\)\{0,1\}\./\$PKG./" | sort -u)"
-  allowed="$(listed "$SEC/apk-permissions.txt" | awk '{print $1}' | sort -u)"
-  new="$(comm -23 <(echo "$asked") <(echo "$allowed"))"
-  gone="$(comm -13 <(echo "$asked") <(echo "$allowed"))"
-  [[ -n "$gone" ]] && { echo "listed but no longer asked for (remove from the list):"; echo "$gone" | sed 's/^/  /'; }
-  [[ -z "$new" ]] && { echo "$(echo "$asked" | wc -l) permissions, all listed"; return 0; }
-  echo "not in hevier/security/apk-permissions.txt:"; echo "$new" | sed 's/^/  /'
-  return 1
+  "${BT}aapt2" dump permissions "$APK" | sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" |
+    sed "s/^$APP_ID\(\.test\)\{0,1\}\./\$PKG./" | against "$SEC/apk-permissions.txt" "permissions"
 }
 # Signed with APK Signature Scheme v2 or later, not only the v1 JAR signature (which leaves the
 # zip's other bytes unsigned and is what Android before 7 reads).
@@ -172,6 +165,8 @@ against() {   # list file, what (for the messages), entries on stdin
   local have allowed new gone
   have="$(sort -u)"
   allowed="$(listed "$1" | sed 's/[[:space:]]\{2,\}.*//' | sort -u)"
+  # Nothing read against a list that has entries: the reading failed, not the APK changed.
+  [[ -z "$have" && -n "$allowed" ]] && { echo "read no $2 from the APK"; return 1; }
   new="$(comm -23 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
   gone="$(comm -13 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
   [[ -n "$gone" ]] && { echo "listed but no longer in the APK (remove from the list):"; echo "$gone" | sed 's/^/  /'; }

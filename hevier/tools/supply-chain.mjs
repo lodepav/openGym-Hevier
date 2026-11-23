@@ -35,7 +35,9 @@ export function lockEntries(dir, lock) {
     const name = p.name || key.slice(key.lastIndexOf('node_modules/') + 'node_modules/'.length)
     const id = `${name}@${p.version}`
     lines.push(`${dir}\t${id}${p.hasInstallScript ? '\tinstall-script' : ''}`)
-    if (!p.resolved?.startsWith(REGISTRY)) problems.push(`${dir}: ${id} is not from the npm registry (${p.resolved || 'no resolved URL'})`)
+    // The tarball of that name and version, so a swapped one under an unchanged name@version fails too.
+    const tarball = `${REGISTRY}${name}/-/${name.split('/').pop()}-${p.version}.tgz`
+    if (p.resolved !== tarball) problems.push(`${dir}: ${id} is not from the npm registry (${p.resolved || 'no resolved URL'})`)
     else if (!p.integrity) problems.push(`${dir}: ${id} has no integrity hash`)
   }
   return { lines, problems }
@@ -73,7 +75,7 @@ function packages(accept) {
 
 // ---------- bundle
 
-const HOST = /\b(?:https?|wss?):\/\/((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}|localhost)\b/gi
+const HOST = /\b(?:https?|wss?):\/\/((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}|localhost|\d{1,3}(?:\.\d{1,3}){3})\b/gi
 // Code that runs strings, or hides them. Each hit must be allow-listed by pattern and chunk.
 export const PATTERNS = {
   'eval': /(?<![\w$.])eval\(/g,
@@ -112,7 +114,7 @@ function bundle(dist) {
   const hostOK = new Set(readList(readFileSync(join(SEC, 'endpoints.txt'), 'utf8')).map(h => h.toLowerCase()))
   const patOK = new Set(readList(readFileSync(join(SEC, 'bundle-allow.txt'), 'utf8')).map(l => l.split(/\s+/).join(' ')))
   const findings = [], seen = new Map()
-  const files = walk(dist).filter(f => /\.(m?js|html|json|webmanifest)$/.test(f))
+  const files = walk(dist).filter(f => /\.(m?js|css|html|json|webmanifest)$/.test(f))
   for (const f of files) {
     const rel = relative(dist, f)
     const { hosts, hits } = scanText(readFileSync(f, 'utf8'))
