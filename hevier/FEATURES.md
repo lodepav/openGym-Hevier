@@ -61,6 +61,9 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 | Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down, a button on the open exercise | D118, D127 | Fork |
 | A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293, merged into `release-1.4.6` 2026-11-23) |
+| An unset exact RIR or RPE reads Not set, not a dash | D149 | Offered (#1511; S73 goes when merged) |
+| The effort picker's − and + say what they change ("RIR: Decrease") | S70 | Offered (#1512; S70 goes when merged) |
+| A new weigh-in far off the last one asks first, as a typo in a set does | D149 | Offered (#1514; S72 goes when merged) |
 
 ## Routines
 
@@ -107,6 +110,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | An exercise's page is one page, no tabs: the animation, the phase and brand filter, the last sessions one line each (an arrow against the session before, a star on each best set, All history), the best sets as three tiles, the best at each rep count (the last month's marked new), the chart, then Strength level, Compare brands, Time on this exercise and How to | D131 | Fork |
 | YouTube demo on an exercise's How to (upstream 1.4.4's card) | D101 | Fork |
 | Create “<text>” in the picker when a search finds nothing | D118 | Fork |
+| The animation opens on its still under Reduce Motion, and its pause hint is a button | D148 | Offered (#1513; S71 goes when merged) |
 
 ## Statistics and history
 
@@ -154,6 +158,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
 | Switches that can do nothing are disabled and say which module they need | D118 | Fork |
+| A sheet opened over another sheet keeps the page's router state | D150 | Offered (#1510; S74 goes when merged) |
 
 ## Hevy import and export
 
@@ -208,4 +213,4 @@ These work through upstream's own features and are listed only because a fork us
 - **Keep the screen on** (D25): upstream's Keep screen awake switch.
 - **Rest before the next exercise, text size and WebDAV backups** (D111): upstream's settings, taken as they are.
 
-Decisions without a row: D105 (1.4.5's set fields, agreed and not built yet), D113 (the routine page and effort column stay as they are), D125 (the rework's north star), D144, D145, D147, D148 and D149 (the sixth to tenth audit rounds' fixes), D150 (the owner's corrections to them). `tools/features-check.mjs` fails on a decision named nowhere in this file.
+Decisions without a row: D105 (1.4.5's set fields, agreed and not built yet), D113 (the routine page and effort column stay as they are), D125 (the rework's north star), D144, D145, D147, and D148, D149 and D150 beyond their rows above (the sixth to tenth audit rounds' fixes and the owner's corrections to them). `tools/features-check.mjs` fails on a decision named nowhere in this file.

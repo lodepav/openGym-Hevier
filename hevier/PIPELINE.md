@@ -31,7 +31,11 @@ The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #90
 maintainer merged a batch of PRs that morning, two of them the fork's: **#1092** (Android back,
 S16) and **#1293** (a day planned in the Calendar trains what was picked, D124). No new npm
 dependency in `frontend` or `api`, only the version strings. The rest of the fork's open PRs did
-not move.
+not move. The same day the fork opened five small PRs on `release-1.4.6`, each
+removing one seam when merged: **#1510** (a sheet over a sheet keeps the router state, S74),
+**#1511** (Not set in the effort picker, S73), **#1512** (its − and + named, S70), **#1513** (the
+animation's still under Reduce Motion and its pause button, S71) and **#1514** (a weigh-in far off
+the last asks first, S72). Upstream's suite passed on each.
 
 **Checked 2026-11-22: no v1.4.6 tag yet.** `release-1.4.6` is at `a087aaf33` (2026-11-22), 63
 commits past v1.4.5, merges included. No new npm dependency in `frontend`, `api` or `mcp`. The
