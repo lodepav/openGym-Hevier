@@ -161,6 +161,17 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(v.ex[1].restOff).toBeUndefined()
   })
 
+  it('warm-ups typed into a slot that chose none become its own block, as upstream writes them', () => {
+    const r = routine()
+    r.ex[1].warmup = 'none'
+    const S = state(r)
+    const A = start(S)
+    A.entries[1].sets.unshift({ w: 30, r: 5, warmup: true, edited: true, done: true })
+    const u = one(S, A)
+    expect(u.ex[1].warmup).toBe('own')
+    expect(u.ex[1].warmupRows).toHaveLength(1)
+  })
+
   it('a superset survives a removed partner as a single exercise', () => {
     const r = routine()
     r.ex[1].sg = 'g'; r.ex[2].sg = 'g'

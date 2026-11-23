@@ -69,7 +69,7 @@ const held = (rows, k) => rows.map(r => ({ ...r, hvHeld: k + 1 }))
 const lastW = r => (Number(r?.w) > 0 ? r.w : null)
 function backToReps(base, rows) {
   if (isSideSet(base)) {
-    const wL = lastW(rows[0]), wR = lastW(rows.at(-1)) ?? wL
+    const wL = lastW(rows[0]), wR = lastW(rows[1])
     if (wL == null && wR == null) return base
     const side = (k, w) => (w == null ? base.sides[k] : { ...base.sides[k], w, weightOrigin: WEIGHT_ORIGIN_MANUAL })
     return { ...syncSideAggregate({ ...base, sides: { L: side('L', wL), R: side('R', wR) } }), hvLast: (wL == null ? '' : 'L') + (wR == null ? '' : 'R') }

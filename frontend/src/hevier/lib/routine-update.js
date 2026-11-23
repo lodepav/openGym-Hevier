@@ -16,7 +16,7 @@
 // slot's planned backups (`subs`, D45) is that slot, wherever it went: the plan working as meant
 // (D46, D86), so the slot stays as the routine has it. Anything else unmatched was added
 // and is copied the way upstream's Save as routine copies it (routineFromSession).
-import { routineSlotIndex, routineChangesFromEntry, replaceSlotExercise } from '../../lib/routines.js'
+import { routineSlotIndex, updateRoutineFromEntry, replaceSlotExercise } from '../../lib/routines.js'
 import { routineFromSession } from '../../lib/session-routines.js'
 import { modeOf, setsFromRows, cleanupSg } from '../../lib/history.js'
 import { isWarmupRow } from '../../lib/workout-model.js'
@@ -70,13 +70,8 @@ export function routineUpdate(S, session, routine) {
       if (a < last) summary.moved = true
       last = a
       let slot = withSets({ ...routine.ex[a] }, setDelta(entry))
-      for (const { key, to } of routineChangesFromEntry(routine, entries, i)?.changes || []) {
-        // "No timer" is restOff, never a negative rest, as upstream's updateRoutineFromEntry writes it.
-        if (key === 'restSec') delete slot.restOff
-        if (key === 'restSec' && to < 0) { delete slot.restSec; slot.restOff = true }
-        else if (to) slot[key] = to
-        else delete slot[key]
-      }
+      // What upstream's ⋮ → Update routine copies (warm-ups, rest, note), written by upstream into this slot.
+      updateRoutineFromEntry({ ...routine, ex: routine.ex.map((x, b) => (b === a ? slot : x)) }, entries, i)
       // Per side switched in the exercise's settings (D75), with the plan's reps the sheet set
       // for it (both sides' total when on), never progression's prescription.
       const side = !!entry.target?.side
@@ -92,8 +87,7 @@ export function routineUpdate(S, session, routine) {
       }
       // A set made a timed hold in the workout, or one turned back (D146; only a plain routine opens them).
       const holds = isPlain(routine) ? holdsAfter(slot, entry) : null
-      if (holds) slot = pruneHolds({ ...slot, hvHolds: holds })
-      else if (slot.hvHolds) slot = pruneHolds(slot)
+      slot = pruneHolds(holds ? { ...slot, hvHolds: holds } : slot)
       if (!same(slot, routine.ex[a])) summary.changed++
       ex.push(slot)
       return

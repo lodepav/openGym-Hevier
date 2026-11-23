@@ -49,3 +49,11 @@ Round 2 tests: rotation-restart.test.js 8 passed (6 before).
 | 3 | - | - | 1 withdrawn (warmupRows written without `warmup: 'own'`: progression-on only); notes: the Finish sheet's Update has no Undo (outside the area); routine-snapshot clicks the first "Start"; `autoMuscleOf` of a custom exercise reads the user's choice for the catalogue one | - | not findings |
 
 Round 3 tests: the area's files, 29 files 314 passed.
+| 4 | I1 | medium | routineUpdate copies upstream's `updateRoutineFromEntry` loop but drops its warm-up branch, so warm-ups typed into a slot that chose none or its own get `warmupRows` without `warmup: 'own'` and never open | accept | the loop (and round 3's H1 lines) replaced by a call to upstream's `updateRoutineFromEntry` on this slot; test (slot `warmup: 'none'`, an edited warm-up) failed before (`'none'`), passes after; H1's test still passes |
+| 4 | I2 | low | `setRoutineBrand` repeats `setEntryBrand`'s hvMachines write | reject | two writers with different gym keys; the shared helper would reach into gym-labels.js, which the merged workout area also owns, for about 6 lines |
+| 4 | I3 | low | `fill()`'s two per-side branches can merge into one | reject | same behaviour, but the two comments (a Hevy import's one row, a per-side log) explain different cases |
+| 4 | I4 | low | round 1's `?? wL` in `backToReps` copies L's weight onto an R of 0, unlike `fill()`'s carried hold | accept | `wR = lastW(rows[1])`; a per-side base always comes with the pair |
+| 4 | I5 | low | routineUpdate's hold step prunes twice behind a conditional | accept | one `pruneHolds` call; the hold tests pin it |
+| 4 | - | - | 2 withdrawn (unused exports, `gyms` vs `gymsOf`); notes: routine-when.js walks the 28 days twice; `idsOf` written five times; `muscleOf` alias | - | not findings |
+
+Round 4 tests: the area's files plus FinishSheet.test.jsx, 30 files 325 passed; finish-facts.test.js 6 passed. Round 4 net: 6 added, 10 removed in code (I1, I4, I5), 11 test lines added.
