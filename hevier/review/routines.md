@@ -41,3 +41,11 @@ Round 1 tests: the area's files, 29 files 311 passed.
 | 2 | - | - | notes: a never-done pyramid Max set reads "× 0" on Today and the routine page; Today.jsx runs `nextSession` per routine on every render without a memo | - | not findings |
 
 Round 2 tests: rotation-restart.test.js 8 passed (6 before).
+| 3 | H1 | medium | Update routine writes "No timer" as `restSec: -1` (the routine keeps timing rest) and a rest set back to the default leaves `restOff`, so nothing changes | accept | written as upstream's `updateRoutineFromEntry` writes it (`restOff`, cleared on any rest change); test (No timer, then back to default) failed before (`restOff` undefined), passes after |
+| 3 | H2 | low | The editor's rest chip and the routine page ignore `restOff` from the settings sheet, and the chip's 0:00 leaves the timer off | defer | display, reached only through the settings sheet's No timer; the fix changes what the chip shows |
+| 3 | H3 | medium | With an exercise twice and the first removed in the workout, Update matches the done one to the first slot (positional twins): the heavy slot stays, gets the back-off's note, the done one goes, and "new order" is reported | defer | upstream's documented twin rule (`routineSlotIndex`); the fix needs each entry stamped with its slot at Start, outside this area's helpers; rare |
+| 3 | H4 | low | A routine edited between Start and Finish is reverted by Update (an added exercise counts as removed) | defer | the box is unticked by default (D129) and the summary shows the −1; same stamp as H3 |
+| 3 | H5 | low | Today's week strip names a missed past day from the weekly plan, not that day's override | defer | display only |
+| 3 | - | - | 1 withdrawn (warmupRows written without `warmup: 'own'`: progression-on only); notes: the Finish sheet's Update has no Undo (outside the area); routine-snapshot clicks the first "Start"; `autoMuscleOf` of a custom exercise reads the user's choice for the catalogue one | - | not findings |
+
+Round 3 tests: the area's files, 29 files 314 passed.

@@ -71,7 +71,10 @@ export function routineUpdate(S, session, routine) {
       last = a
       let slot = withSets({ ...routine.ex[a] }, setDelta(entry))
       for (const { key, to } of routineChangesFromEntry(routine, entries, i)?.changes || []) {
-        if (to) slot[key] = to
+        // "No timer" is restOff, never a negative rest, as upstream's updateRoutineFromEntry writes it.
+        if (key === 'restSec') delete slot.restOff
+        if (key === 'restSec' && to < 0) { delete slot.restSec; slot.restOff = true }
+        else if (to) slot[key] = to
         else delete slot[key]
       }
       // Per side switched in the exercise's settings (D75), with the plan's reps the sheet set
