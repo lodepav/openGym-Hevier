@@ -23,7 +23,7 @@ export function durationProblem(A, min, now = Date.now()) {
   if (!(min >= 1)) return 'Enter how long it took (at least 1 minute).'
   if (min > MAX_DURATION_MIN) return 'That’s more than a day. Keep it to 24 hours or less.'
   // A minute of slack: the start is kept to the minute and the length rounded to one.
-  if (endsInFuture(A.d, startTimeOf(A), min, now - 60000)) return 'That’s still in the future. Try an earlier start.'
+  if (endsInFuture(A.d, startTimeOf(A), min, now + 60000)) return 'That’s still in the future. Try an earlier start.'
   return null
 }
 
