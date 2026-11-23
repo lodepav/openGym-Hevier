@@ -2,6 +2,22 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.5.1 · 2026-11-23
+
+Based on openGym 1.4.5.
+
+### Fixes and changes
+
+- the five review findings the owner decided
+- fixes from the shell area's review
+- fixes from the native area's review
+- fixes from the stats area's review
+- fixes from the routines area's review
+- S70 to S74 marked as offered upstream
+- the Finish sheet writes its labels again
+- fixes from the workout area's review
+- fixes from the hevy area's review
+
 ## 3.5.0 · 2026-11-23
 
 Based on openGym 1.4.5.
