@@ -30,6 +30,27 @@ export function workoutPhase(w) {
   return PHASES.includes(p) ? p : null
 }
 
+/**
+ * The current phase of a log sorted oldest first: `{ phase, run }`, the phase of the latest workout
+ * that has one and that phase's workouts back to one done in another phase, or null when no workout
+ * has a phase. A workout without one (a backfill, a finish without Save Workout) is not in the run
+ * and does not end it.
+ */
+export function phaseRun(log) {
+  const list = Array.isArray(log) ? log : []
+  let i = list.length - 1
+  while (i >= 0 && !workoutPhase(list[i])) i--
+  if (i < 0) return null
+  const phase = workoutPhase(list[i])
+  const run = []
+  for (; i >= 0; i--) {
+    const p = workoutPhase(list[i])
+    if (p === phase) run.push(list[i])
+    else if (p) break
+  }
+  return { phase, run: run.reverse() }
+}
+
 /** The phases the log has workouts in, in PHASES' order. */
 export function phasesIn(workouts) {
   const seen = new Set((Array.isArray(workouts) ? workouts : []).map(workoutPhase))

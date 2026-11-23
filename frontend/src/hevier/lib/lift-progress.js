@@ -8,7 +8,7 @@ import { countedS } from '../../lib/counted-log.js'
 import { entryExcluded, metricRowsForEntry } from '../../lib/history.js'
 import { entryLastKey } from './gym-labels.js'
 import { exerciseSummary } from './exercise-summary.js'
-import { workoutPhase } from './shared-phase.js'
+import { phaseRun } from './shared-phase.js'
 import { dayNo, compared, arrows, sessionVerdict, readExercise } from './strength-signal.js'
 import { isCompound as compoundEx } from './compound.js'
 
@@ -25,17 +25,10 @@ const sorted = workouts => (Array.isArray(workouts) ? workouts : [])
   .filter(w => w?.d)
   .sort((a, b) => a.d.localeCompare(b.d) || (a.start || 0) - (b.start || 0))
 
-/**
- * The phase of the latest workout and the first day of the unbroken run of workouts done in it:
- * `{ phase, since }`, or null when the latest workout has no phase.
- */
+/** The current phase as strength-signal.js reads it (phaseRun) and its first day: `{ phase, since }`, or null. */
 export function currentPhase(S) {
-  const log = sorted(S?.workouts)
-  const phase = workoutPhase(log.at(-1))
-  if (!phase) return null
-  let from = log.length - 1
-  while (from > 0 && workoutPhase(log[from - 1]) === phase) from--
-  return { phase, since: log[from].d }
+  const current = phaseRun(sorted(S?.workouts))
+  return current && { phase: current.phase, since: current.run[0].d }
 }
 
 /** The window's first day as an ISO date, null for 'all'. 12 weeks counts today as one of 84 days. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { phaseFromRow, phasedS, phasesIn, withPhase, workoutPhase } from './shared-phase.js'
+import { phaseFromRow, phaseRun, phasedS, phasesIn, withPhase, workoutPhase } from './shared-phase.js'
 
 const NOW = 1_800_000_000_000
 const DAY = 24 * 3600 * 1000
@@ -57,5 +57,17 @@ describe('phasedS', () => {
   })
   it('reads as All when the log has no workout in the phase', () => {
     expect(phasedS(S, 'maintaining')).toBe(S)
+  })
+})
+
+describe('phaseRun', () => {
+  it('is the latest phase and its workouts, skipping those without one', () => {
+    const log = [w('a', 'cutting'), w('b', 'bulking'), w('c', 'cutting'), w('d'), w('e', 'cutting'), w('f')]
+    expect(phaseRun(log)).toEqual({ phase: 'cutting', run: [log[2], log[4]] })
+  })
+  it('is null when no workout has a phase', () => {
+    expect(phaseRun([w('a'), w('b')])).toBeNull()
+    expect(phaseRun([])).toBeNull()
+    expect(phaseRun(null)).toBeNull()
   })
 })
