@@ -369,6 +369,8 @@ export async function disableExport() {
   await removeSecret(KEY_NAME)
   await removeSecret(SESSION_NAME)
   if (running) await within(running, 3000).catch(() => {})
+  // A pass still running may have refreshed and kept the session again since.
+  await removeSecret(SESSION_NAME)
   told(st)
   return st
 }

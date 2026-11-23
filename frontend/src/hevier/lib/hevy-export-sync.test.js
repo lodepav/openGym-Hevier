@@ -155,6 +155,24 @@ describe('sendToHevy over the private web API (D138)', () => {
     } finally { delete S.workouts[0].entries[0].hvBrand }
   })
 
+  it('turned off during a pass, it forgets the login even when the pass refreshes it after', async () => {
+    let off = null
+    vi.stubGlobal('fetch', async (url, init) => {
+      const path = String(url).replace('https://api.hevyapp.com', '')
+      if (path === '/v2/workout' && !off) {
+        off = mod.disableExport()
+        await new Promise(r => setTimeout(r, 0))       // the switch has forgotten the session
+        return { ok: false, status: 401, text: async () => '' }
+      }
+      const body = path === '/auth/refresh_token' ? { access_token: 'a2', refresh_token: 'r2', expires_at: null }
+        : path === '/v2/workout' ? { id: 'PW1' } : []
+      return { ok: true, status: 200, text: async () => JSON.stringify(body) }
+    })
+    await mod.sendToHevy(getState, { force: true })
+    await off
+    expect(secrets['hevy-web-session']).toBeUndefined()
+  })
+
   it('lists as unused only the customs no workout, routine or export template uses, reading every page', async () => {
     const asked = []
     const w = id => ({ exercises: [{ exercise_template_id: id }] })
