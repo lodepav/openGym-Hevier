@@ -52,6 +52,8 @@ elif ! "$HOME/.claude/bin/emu" mine "$ANDROID_SERIAL"; then
   echo "emulator.sh: $ANDROID_SERIAL was not booted from this repo (emu list)" >&2; exit 1
 fi
 export ANDROID_SERIAL
+# Said now, so a failed install below still leaves the serial to stop it with (emu down).
+echo "emulator.sh: on $ANDROID_SERIAL" >&2
 adb shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
 
 adb install -r "$APK"

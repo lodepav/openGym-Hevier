@@ -35,3 +35,9 @@ Round 1 tests: area vitest unchanged (no frontend change); seam_check on the rep
 | 2 | - | - | notes: `hvModuleParts` syncs as one field (D102 says so, tested); `cdp.mjs click` prints NOT FOUND and exits 0, nothing chains on it; a second finger on a grip handle replaces the gesture (cosmetic) | - | not findings |
 
 Round 2 tests: area vitest plus BackupsSheet.test.jsx, 35 files, 276 passed and 1 expected fail.
+| 3 | H1 | medium | Settings search in the fork still finds upstream's "Add a gym" and "Your gym", the hidden gym reminder's sub-pages, which lead to a background-location setting the fork's manifest removes | accept | `gym-find` and `gym-edit` join `HIDDEN_PAGES`, as their parent `gym` (D16, D47); the new assertions in SettingsRootHevy.test.jsx failed before and pass after |
+| 3 | H2 | low | emulator.sh never prints the serial it booted when the install or launch fails, so the emulator stays up unnoticed on a shared machine | accept | one line: the serial goes to stderr right after boot; `bash -n` only (needs a failing install on an emulator) |
+| 3 | H3 | low | upgrade-fixture.sh writes to a path built from its argument | withdrawn | by the reviewer: needs a deliberately malformed argument from the owner |
+| 3 | - | - | notes: round 1-2 fixes checked and kept; no fork CSS selector outside `:root[data-ui="hevier"]` (every rule parsed); hevier-checks.yml checks out without `persist-credentials: false` (token is contents: read, push-only); cdp.mjs `send()` waits forever if the app dies mid-command | - | not findings |
+
+Round 3 tests: area vitest 34 files, 273 passed and 1 expected fail.
