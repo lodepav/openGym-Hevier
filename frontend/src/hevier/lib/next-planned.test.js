@@ -53,6 +53,17 @@ describe("Home's rotation line names the Calendar's next day (S66, D124)", () =>
     expect(status(later)).toBe(null)
   })
 
+  it('with nothing planned and today trained, names the session the rotation gives tomorrow (G1)', () => {
+    const trained = [w('ua', '2026-11-14'), w('la', '2026-11-15'), w('ub', TODAY)]
+    expect(nextPlanned(S({ dayPlan: {}, workouts: trained }), TODAY)).toEqual({ iso: '2026-11-17', ids: ['lb'] })
+    expect(nextPlanned(S({ dayPlan: { [TODAY]: 'rest' } }), TODAY)).toEqual({ iso: '2026-11-17', ids: ['ub'] })
+  })
+
+  it('a day planned tomorrow still wins over the rotation (G1)', () => {
+    const trained = [w('ua', '2026-11-14'), w('la', '2026-11-15'), w('ub', TODAY)]
+    expect(nextPlanned(S({ dayPlan: { '2026-11-17': 'lc' }, workouts: trained }), TODAY)).toEqual({ iso: '2026-11-17', ids: ['lc'] })
+  })
+
   it('nothing planned within four weeks keeps upstream text', () => {
     const s = S({ dayPlan: { '2026-12-20': 'ub', '2026-12-21': 'lb', '2026-12-22': 'uc', '2026-12-23': 'lc' } })
     expect(status(s)).toBe(null)

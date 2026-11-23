@@ -321,7 +321,11 @@ export function refillAfter(s, w, today = todayISO(), now = Date.now()) {
     // editor resyncs it on its next save, as for a simple loop that no longer matches.
     const seg = segmentAt(full, s.rotation.at)
     if (!seg || seg.ids.length !== q.ids.length || seg.ids.some((id, i) => id !== q.ids[i])) return false
+    // [hevier] S64: a loop's refill keeps the user's plans too (D124); the editor's resync still sweeps
+    const plan = hooks.keepPinsOnRefill && s.dayPlan ? { ...s.dayPlan } : null
     advanceLoop(s, q, [w.d, lastCreditDay(s)].filter(Boolean).sort().at(-1), today, now)
+    if (plan) s.dayPlan = plan
+    // [/hevier]
     return true
   }
   const seq = rotationIds(s)
