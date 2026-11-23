@@ -89,6 +89,13 @@ describe('hevier: strength levels list', () => {
     act(() => container.querySelector('.hv-report-row').click())
     expect(useUI.getState().sheets.length).toBe(1)
   })
+  it('places each lift by its best 1RM in the profile’s formula (D19, D51)', () => {
+    // 80 × 5 is 90 kg by Brzycki (Epley's 93.3 would be past Intermediate's 80 too, 6.7 kg to Advanced).
+    render('/strength', { hvStrength: { [BENCH]: LV }, oneRmFormula: 'brzycki',
+      workouts: [{ id: 'w2', d: '2026-10-10', start: 1, end: 2, entries: [{ id: BENCH, sets: [{ w: 80, r: 5, done: true }] }] }] })
+    expect(container.querySelector('.hv-report-row b[role="img"]').getAttribute('aria-label')).toBe('best one-rep max 90 kg')
+    expect(container.textContent).toContain('10 kg to Advanced')
+  })
   it('with no levels yet, says how to add one and lists nothing (the critique, 2026-11-21)', () => {
     render('/strength')
     const empty = container.querySelector('.hv-ms-empty')

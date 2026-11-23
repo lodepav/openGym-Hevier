@@ -24,6 +24,13 @@ describe('lastSessions (D131)', () => {
     sess('2026-07-01', [set(60, 8)]),
   ] }
 
+  it('stars the best 1RM in the profile’s formula, as the tile reads it', () => {
+    // 72 × 12 is Epley's best 1RM (100.8 against 99); O'Conner's is 90 × 3 (96.75 against 93.6).
+    const two = { metric: 'weight', sessions: [sess('2026-11-02', [set(72, 12)]), sess('2026-11-01', [set(90, 3)])] }
+    expect(lastSessions(two, BENCH, { formula: 'epley' }).map(l => l.sets[0].kinds)).toEqual([['e1rm', 'setVol'], ['weight']])
+    expect(lastSessions(two, BENCH, { formula: 'oconner' }).map(l => l.sets[0].kinds)).toEqual([['setVol'], ['weight', 'e1rm']])
+  })
+
   it('takes the last five, each against the session before by its top set', () => {
     const lines = lastSessions(sum, BENCH)
     expect(lines.map(l => l.d)).toEqual(['2026-11-12', '2026-10-26', '2026-10-09', '2026-08-18', '2026-08-04'])

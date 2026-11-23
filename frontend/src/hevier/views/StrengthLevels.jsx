@@ -29,7 +29,7 @@ export default function StrengthLevels() {
   const groups = useMemo(() => {
     const counted = phasedS(countedS(st), partOn(st, 'integrations', 'openbite') ? phase : null)
     return levelGroups(st.hvStrength, unit, id => exerciseSummary(counted, id).records.e1rm?.v)
-  }, [st.hvStrength, st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, unit]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st.hvStrength, st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.oneRmFormula, st.customEx, unit]) // eslint-disable-line react-hooks/exhaustive-deps
   const setLevel = () => {
     const picker = exercisePickerSheet(ex => { picker.close(); openCompareFor(ex.id); exerciseDetailSheet(ex) }, { title: t('Set a level') })
   }

@@ -206,7 +206,7 @@ export default function Lifts() {
   // A stored Phase reads as 12 weeks while there is no phase to show.
   const win = liftsWindow(S) === 'phase' && !phase ? '12w' : liftsWindow(S)
   const from = windowFrom(S, win, today)
-  const progress = useMemo(() => liftProgress(S, { from }), [log, S.routines, from]) // eslint-disable-line react-hooks/exhaustive-deps
+  const progress = useMemo(() => liftProgress(S, { from }), [log, S.routines, S.oneRmFormula, from]) // eslint-disable-line react-hooks/exhaustive-deps
   const totals = progressTotals(progress)
   // By name and by brand (D36), as the picker searches; kept per what it reads, not per copy of S (the fifth audit, 2026-11-21).
   const sections = useMemo(() => {

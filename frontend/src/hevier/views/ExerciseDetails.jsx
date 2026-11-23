@@ -244,7 +244,7 @@ function useListed(ex, label) {
   // A filtered log is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
   const phase = useStatsPhase(s => s.phase)
   return useMemo(() => exerciseSummary(label != null ? withLabelFilter(listed, ex.id, label) : listed, ex.id),
-    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.oneRmFormula, st.customEx, ex.id, label]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 function AllHistory({ ex, label }) {
@@ -263,7 +263,7 @@ function CompareColumn({ ex, base, st, labels, value, other, onPick }) {
   // `base` is a new copy on each write: key on what it is made from (the sixth audit, 2026-11-21).
   const phase = useStatsPhase(s => s.phase)
   const sum = useMemo(() => exerciseSummary(withLabelFilter(base, ex.id, value), ex.id),
-    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
+    [st.workouts, phase, st.modules, st.hvModuleParts, st.dbLoad, st.oneRmFormula, st.customEx, ex.id, value]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="hv-xd-cmpcol">
     <MenuButton className="hv-xd-label" title={t('Brand')} value={value} onChange={onPick}
       options={labels.filter(l => l.key !== other).map(l => ({ value: l.key, label: labelText(l, t) }))} />
@@ -345,7 +345,7 @@ function ExerciseDetails({ ex, close }) {
   const listed = usePhasedS(st)
   // Both are new copies on each write: the summaries key on what they are made from and read (the fifth audit, 2026-11-21).
   const phase = useStatsPhase(s => s.phase)
-  const made = [st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.volumeWarmups, st.customEx]
+  const made = [st.workouts, st.routines, phase, st.modules, st.hvModuleParts, st.dbLoad, st.oneRmFormula, st.customEx]
   const all = useMemo(() => exerciseSummary(counted, ex.id), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // With nothing kept out (the usual case), both are the same copy of S: one summary serves both.
   const same = counted === listed

@@ -137,6 +137,16 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
   })
 
+  it('the bests follow D51: warm-ups out of the session volume with upstream’s switch on, the 1RM in the profile’s formula', () => {
+    open([{ ...log[0], entries: [{ id: EX.id, sets: [{ w: 40, r: 10, done: true, warmup: true }, { w: 80, r: 5, done: true }, { w: 60, r: 12, done: true }] }] }],
+      S => { S.volumeWarmups = true; S.oneRmFormula = 'brzycki'; S.hvStrength = { [EX.id]: { lv: [40, 60, 80, 100, 120], u: 'kg' } } })
+    // 80 × 5 is 90 kg by Brzycki, 93.3 by Epley, the default.
+    const tiles = [...container.querySelectorAll('.hv-xd-tile b')].map(b => b.textContent)
+    expect(tiles[1]).toBe('90 kg')
+    expect(container.querySelector('.hv-xd-svol').textContent).toMatch(/1,120 kg/)   // 400 + 720, the 400 kg warm-up left out
+    expect(container.querySelector('.hv-sl-foot').textContent).toContain('Best 1RM 90 kg')
+  })
+
   it('a session kept out of progression gets no star in Last sessions (D57)', () => {
     const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
     open([{ id: 'w2', d: at(14), entries: [{ id: EX.id, sets: [{ w: 80, r: 5, done: true }] }] },
