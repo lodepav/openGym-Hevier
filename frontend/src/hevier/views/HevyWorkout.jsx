@@ -233,7 +233,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
 
     {A.entries.length ? units.map((u, n) => <Fragment key={u.join('-')}><section className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
-      {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
+      {/* Keyed by the exercise too: a card's D2 marks and running-clock memory belong to its exercise, not its place. */}
+      {u.map(idx => <div key={idx + ':' + A.entries[idx].id} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
     </section>
       {/* The swipe, said under the first table until a set is first swiped or copied (S.hvSetTipSeen; only that line, the owner, 2026-11-22). */}
       {n === 0 && !S.hvSetTipSeen && workoutControls(S).swipeSets && <p className="small dim hv-set-tip">{t('Swipe a set for more.')}</p>}
