@@ -210,6 +210,8 @@ const STEPS = [
 ]
 
 function answer(title, source, choices, pick) {
+  // openGym's own file names its exercises by id and its sets as logged: nothing to fix (D29).
+  if (source === 'openGym') return null
   const { name, brand } = partsOf(title, source, choices)
   const cable = cableFor(title, source, choices)
   const own = choiceOf(title, source, choices, pick)
