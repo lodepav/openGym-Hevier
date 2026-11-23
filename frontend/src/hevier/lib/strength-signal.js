@@ -10,6 +10,7 @@ import { isWarmupRow } from '../../lib/workout-model.js'
 import { entryLastKey } from './gym-labels.js'
 import { mainMuscleOf } from './main-muscle.js'
 import { workoutTrends } from './set-trend.js'
+import { isPairTail } from './hold-set.js'
 import { workoutPhase } from './shared-phase.js'
 import { workSets } from './volume.js'
 
@@ -71,11 +72,12 @@ const mostOf = (list, test) => list.length >= 2 && list.filter(test).length * 2 
 // Only loaded lifts: a bodyweight or assisted exercise changes with the weight a cut takes off.
 export const compared = id => !isAssisted(id) && (EXIDX[id]?.eq || '') !== 'body weight'
 
+// A per-side hold's R row is the same set as its L row: one vote (D89).
 export function arrows(S, w, i) {
   const e = w.entries[i]
   return workoutTrends(S, w, i).map((v, k) => {
     const s = e.sets?.[k]
-    return s && Number(s.w) > 0 && !isWarmupRow(s) ? v : null
+    return s && Number(s.w) > 0 && !isWarmupRow(s) && !isPairTail(e.sets, k) ? v : null
   })
 }
 
@@ -98,13 +100,15 @@ export function strengthSignal(S, today, now = Date.now()) {
   const todayNo = dayNo(today)
   const phaseDays = todayNo - dayNo(run[0].d)
 
+  // The arrows are read whatever upstream's Compare sets with last time shows on screen, as lift-progress.js reads them.
+  const R = { ...S, setTrend: true }
   const byExercise = new Map()
   for (const w of run) {
     const day = dayNo(w.d)
     if (todayNo - day >= WINDOW_DAYS) continue
     ;(w.entries || []).forEach((e, i) => {
       if (entryExcluded(w, e) || !compared(e.id)) return
-      const verdict = sessionVerdict(arrows(S, w, i))
+      const verdict = sessionVerdict(arrows(R, w, i))
       if (verdict == null) return
       const key = e.id + '|' + entryLastKey(e)   // another machine is another chain (D82)
       if (!byExercise.has(key)) byExercise.set(key, { id: e.id, sessions: [] })

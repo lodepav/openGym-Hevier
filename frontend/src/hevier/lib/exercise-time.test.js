@@ -43,6 +43,12 @@ describe('hevier: exercise time (D88)', () => {
     expect(timedSessions([w], '2026-10-21')).toEqual([])
   })
 
+  it('a deload routine\'s entries are timed, as the counted log keeps them (D57)', () => {
+    const w = wo([{ id: 'a', noProg: true, routineId: 'r1', sets: [tick(5), tick(8)] }], { routineId: 'r1', excludeFromProgression: true })
+    expect(timedSessions([w], '', [{ id: 'r1', excludeFromProgression: true }])).toEqual([{ id: 'a', gym: '', ms: 8 * MIN, sets: 2 }])
+    expect(timedSessions([w], '', [{ id: 'r1' }])).toEqual([])
+  })
+
   it('sorts by the average, longest first, and groups by muscle or gym', () => {
     const s = [
       { id: 'a', gym: 'g1', ms: 10 * MIN }, { id: 'a', gym: '', ms: 6 * MIN },

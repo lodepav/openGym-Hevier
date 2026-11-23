@@ -18,16 +18,16 @@ const upTo = (workouts, today) => (workouts || []).filter(w => workoutDay(w) <= 
 
 /** This week's exercise time: the timed exercises of this week's workouts added up, in ms (0 with none),
  *  over the weeks the weekly chart and the other tiles use. */
-export function weekExerciseTime(workouts, today, weekStart) {
+export function weekExerciseTime(workouts, today, weekStart, routines) {
   const week = weeklySeries([], 'duration', { today, weeks: 1, weekStart })[0].week
   // The sessions the Exercise time page times: not one set, nor sets ticked at once (the eighth review, 2026-11-22).
-  return timedSessions(upTo(workouts, today).filter(w => inWeek(w, week, weekStart))).filter(timed).reduce((n, s) => n + s.ms, 0)
+  return timedSessions(upTo(workouts, today).filter(w => inWeek(w, week, weekStart)), '', routines).filter(timed).reduce((n, s) => n + s.ms, 0)
 }
 
 /** The `n` exercises that take longest a session over the last 90 days: `[{ id, avg, … }]`; one
  *  with too few sets for an average, or with its sets ticked seconds apart, is left out. */
-export const longestExercises = (workouts, today, n = 3) =>
-  (timeSections(timedSessions(workouts, periodSince(TIME_PERIOD, today)))[0]?.rows || []).filter(r => r.avg != null).slice(0, n)
+export const longestExercises = (workouts, today, n = 3, routines) =>
+  (timeSections(timedSessions(workouts, periodSince(TIME_PERIOD, today), routines))[0]?.rows || []).filter(r => r.avg != null).slice(0, n)
 
 const back = (iso, days) => isoOf(new Date(Date.parse(iso + 'T12:00:00') - days * DAY))
 

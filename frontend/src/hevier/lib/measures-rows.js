@@ -5,13 +5,15 @@ import { fmtNum } from '../../lib/format.js'
 import { enabledMeasurementFields, lengthUnitOf, measurementUnit, measurementUnitLabel, measurementValue, toMeasurementDisplay } from '../../lib/measurements.js'
 import { fmtDate } from './dates.js'
 
-/** "Waist 82 cm · 3 Nov": the last check-in's first switched-on field with a value; null for none. */
+/** "Waist 82 cm · 3 Nov": the last check-in with a switched-on field's value, its first such field; null for none. */
 export function measurementsLine(S) {
-  const entry = (S.measurements || []).at(-1)
-  if (!entry) return null
   const unit = lengthUnitOf(S)
-  const field = enabledMeasurementFields(S).find(f => measurementValue(entry, f.key) != null)
-  if (!field) return null
+  const fields = enabledMeasurementFields(S)
+  const fieldOf = e => fields.find(f => measurementValue(e, f.key) != null)
+  // A check-in may hold only a note, or only fields since switched off.
+  const entry = [...(S.measurements || [])].reverse().find(fieldOf)
+  if (!entry) return null
+  const field = fieldOf(entry)
   const v = toMeasurementDisplay(measurementValue(entry, field.key), unit, field)
   const u = measurementUnitLabel(measurementUnit(unit, field))
   return (field.custom ? field.label : t(field.label)) + ' ' + fmtNum(v) + (u ? ' ' + u : '') + ' · ' + fmtDate(entry.d)

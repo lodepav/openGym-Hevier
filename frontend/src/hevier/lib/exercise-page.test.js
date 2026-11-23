@@ -9,6 +9,12 @@ const set = (w, r, extra = {}) => ({ w, r, done: true, ...extra })
 const sess = (d, sets, mode = 'reps') => ({ id: d, d, mode, sets })
 
 describe('lastSessions (D131)', () => {
+  it('a session kept out of progression gets no star (D57)', () => {
+    const all = { metric: 'weight', sessions: [sess('2026-11-02', [set(60, 15)]), sess('2026-11-01', [set(80, 5)])] }
+    const lines = lastSessions(all, BENCH, { kept: new Set(['2026-11-01']) })
+    expect(lines.map(l => l.sets.map(x => x.kinds))).toEqual([[[]], [['weight', 'e1rm', 'setVol']]])
+  })
+
   const sum = { metric: 'weight', sessions: [
     sess('2026-11-12', [set(62.5, 9, { rpe: 8 }), set(47.5, 12, { rpe: 7 })]),
     sess('2026-10-26', [set(62.5, 6), set(47.5, 10)]),
@@ -49,6 +55,10 @@ describe('lastSessions (D131)', () => {
 })
 
 describe('repBests', () => {
+  it('counts the month back in local days, east of UTC+12 too', () => {
+    expect(repBests([{ r: 5, w: 60, d: '2026-10-23' }, { r: 6, w: 60, d: '2026-10-24' }], '2026-11-23').map(x => x.isNew)).toEqual([false, true])
+  })
+
   it('marks the ones set in the last month new', () => {
     const got = repBests([{ r: 6, w: 72.5, d: '2026-08-04' }, { r: 9, w: 62.5, d: '2026-11-12' }, { r: 10, w: 55, d: '2026-10-17' }], '2026-11-16')
     expect(got.map(x => x.isNew)).toEqual([false, true, true])

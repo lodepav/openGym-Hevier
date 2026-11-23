@@ -137,6 +137,15 @@ describe('hevier: exercise details (seam S10)', () => {
     expect(all.querySelector('.hv-xd-set').textContent).toMatch(/110\.23? lb × 12/)
   })
 
+  it('a session kept out of progression gets no star in Last sessions (D57)', () => {
+    const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+    open([{ id: 'w2', d: at(14), entries: [{ id: EX.id, sets: [{ w: 80, r: 5, done: true }] }] },
+      { id: 'w1', d: at(7), entries: [{ id: EX.id, noProg: true, sets: [{ w: 60, r: 15, done: true }] }] }])
+    const lines = [...container.querySelectorAll('.hv-xd-ls')]
+    expect(lines[0].querySelector('.hv-xd-star')).toBeNull()
+    expect(lines[1].querySelector('.hv-xd-star')).toBeTruthy()
+  })
+
   it('draws the chart from three sessions on', () => {
     const at = n => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
     open([3, 2, 1].map(n => ({ id: 'w' + n, d: at(n * 7), entries: [{ id: EX.id, sets: [{ w: 60 + n, r: 8, done: true }] }] })))

@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEF } from '../../store/useStore.js'
 import { EXDB } from '../../lib/exercises.js'
-import { fallingChain, muscleGroup, readExercise, sessionVerdict, strengthSignal } from './strength-signal.js'
+import { arrows, fallingChain, muscleGroup, readExercise, sessionVerdict, strengthSignal } from './strength-signal.js'
 
 const TODAY = '2026-10-31'
 const NOW = Date.parse(TODAY + 'T12:00:00Z')
@@ -211,5 +211,23 @@ describe('strengthSignal', () => {
     const S = log(workouts.reverse())
     strengthSignal(S, TODAY, NOW)
     expect(S.workouts.map(w => w.id)).toEqual(order)
+  })
+})
+
+describe('strengthSignal: round 2 of the stats review', () => {
+  it('reads the arrows whatever Compare sets with last time shows on screen', () => {
+    const r = signal(series(CHEST.slice(0, 2), [15, 8, 1], [70, 65, 60]), { setTrend: false })
+    expect(r).toMatchObject({ trend: 'falling', level: 'warning', muscles: 'Chest' })
+  })
+
+  it('a per-side hold\'s L and R rows are one vote', () => {
+    const hold = (side, sec) => ({ w: 20, mode: 'time', sec, side, done: true })
+    const at = (ago, top, sec) => ({ id: 'h' + ago, d: dayAgo(ago), start: NOW - ago * 864e5, end: NOW - ago * 864e5 + 36e5,
+      entries: [{ id: CHEST[0], sets: [{ w: top, r: 8, done: true }, hold('L', sec), hold('R', sec)] }] })
+    const S = log([at(8, 70, 30), at(1, 65, 40)])
+    const w = S.workouts[1]
+    // 65 × 8 is worse, the hold on each side better: one set each way, the same.
+    expect(arrows(S, w, 0)).toEqual([-1, 1, null])
+    expect(sessionVerdict(arrows(S, w, 0))).toBe(0)
   })
 })

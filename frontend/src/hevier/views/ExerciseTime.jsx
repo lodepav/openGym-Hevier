@@ -46,8 +46,8 @@ export default function ExerciseTime() {
   const log = usePhasedS(st).workouts   // D93
   // A picked phase makes the log a new copy on each write: key on what it is made from (the fifth audit, 2026-11-21).
   const phase = useStatsPhase(s => s.phase)
-  const made = [st.workouts, phase, st.modules, st.hvModuleParts]
-  const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO())),
+  const made = [st.workouts, st.routines, phase, st.modules, st.hvModuleParts]
+  const sessions = useMemo(() => timedSessions(log, periodSince(period, todayISO()), st.routines),
     [...made, period]) // eslint-disable-line react-hooks/exhaustive-deps
   // Per exercise over the whole period, the same number in whichever section its row shows.
   // setGaps reads only the rest settings from S, so another write leaves the gaps alone (the audit leftovers).

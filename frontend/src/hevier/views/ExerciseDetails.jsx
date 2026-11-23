@@ -100,9 +100,10 @@ const shortSet = (ex, s, target, st) => {
 
 // The last sessions, one line each (D131): the date, the sets, the effort, and an arrow against the
 // session before, or "best" with a star on each set that holds one of the page's bests.
-function LastSessions({ ex, sum, st, onAll }) {
+function LastSessions({ ex, sum, kept, st, onAll }) {
   const byId = new Map((st.workouts || []).filter(w => w.id != null).map(w => [w.id, w]))
-  const lines = lastSessions(sum, ex.id, { formula: formulaOf(st) })
+  // The stars only on sessions the bests count (D57): `kept` is the counted summary.
+  const lines = lastSessions(sum, ex.id, { formula: formulaOf(st), kept: new Set(kept.sessions.map(s => s.id)) })
   const scale = effortScale(st)
   return <section className="hv-xd-last">
     <div className="hv-xd-cap"><h4 className="sec">{t('Last sessions')}</h4>
@@ -359,7 +360,7 @@ function ExerciseDetails({ ex, close }) {
   const hist = useMemo(() => (on == null ? logged : same ? sum : exerciseSummary(withLabelFilter(listed, ex.id, on), ex.id)), [logged, sum, same, on, ...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // D88: this exercise's time a session, from its sets' tick times, as Exercise time reads it.
   const time = useMemo(() => (partOn(st, 'hvStats', 'time')
-    ? timeSections(timedSessions(listed.workouts).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
+    ? timeSections(timedSessions(listed.workouts, '', listed.routines).filter(x => x.id === ex.id))[0]?.rows[0] : null), [...made, ex.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const e1rm = sum.records.e1rm
   const [asked] = useState(() => comparePending(ex.id))   // opened from Strength levels → Set a level
   const media = useMediaDrawn()
@@ -408,7 +409,7 @@ function ExerciseDetails({ ex, close }) {
       </div>}
       <PhaseFilter />
       {!hist.total ? <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
-        : <LastSessions ex={ex} sum={hist} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
+        : <LastSessions ex={ex} sum={hist} kept={sum} st={st} onAll={() => openSub(<AllHistory ex={ex} label={on} />)} />}
       {/* Under three sessions a curve says nothing and the best tile already gives its number: no chart (the critiques, 2026-11-21). */}
       {sum.total > 0 && <Bests ex={ex} sum={sum} st={st}>{(sum.series.main || []).length >= 3 && <Chart ex={ex} sum={sum} st={st} />}</Bests>}
       <section className="hv-xd-more">
