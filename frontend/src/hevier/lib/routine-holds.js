@@ -5,7 +5,7 @@
 // Only a plain routine (D69) opens with it: progression's own build reads the reps rows only.
 import { modeOf } from '../../lib/history.js'
 import { isPyramid } from '../../lib/pyramid.js'
-import { isWarmupRow, isSideSet } from '../../lib/workout-model.js'
+import { isWarmupRow, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL } from '../../lib/workout-model.js'
 import { HOLD_SEC, canBeHold, isHoldRow, toHold, toSideHold, setUnits } from './hold-set.js'
 
 /** The longest hold a routine plans: an hour. */
@@ -64,6 +64,19 @@ export function shiftHolds(cfg, k) {
 // workout from one it opened with, and which planned hold it was.
 const held = (rows, k) => rows.map(r => ({ ...r, hvHeld: k + 1 }))
 
+// Last time's hold `rows` (one row, or an L/R pair) back as a rep set: the routine's reps, last
+// time's weight marked as filled from it (plain-routine.js own), on each side for a per-side set.
+const lastW = r => (Number(r?.w) > 0 ? r.w : null)
+function backToReps(base, rows) {
+  if (isSideSet(base)) {
+    const wL = lastW(rows[0]), wR = lastW(rows.at(-1)) ?? wL
+    if (wL == null && wR == null) return base
+    const side = (k, w) => (w == null ? base.sides[k] : { ...base.sides[k], w, weightOrigin: WEIGHT_ORIGIN_MANUAL })
+    return { ...syncSideAggregate({ ...base, sides: { L: side('L', wL), R: side('R', wR) } }), hvLast: (wL == null ? '' : 'L') + (wR == null ? '' : 'R') }
+  }
+  return lastW(rows[0]) == null ? base : { ...base, w: rows[0].w, weightOrigin: WEIGHT_ORIGIN_MANUAL, hvLast: 1 }
+}
+
 /**
  * Work set `k`'s rows as a plain routine opens them: `base` the row built at the routine's numbers,
  * `out` the same filled from last time (one row, or an L/R hold pair). A planned hold makes it a
@@ -75,7 +88,7 @@ export function openHold(cfg, k, base, out) {
   const plan = base.done || !canBeHold(base, 'reps') ? undefined : plannedHold(cfg, k)
   const hold = rows.length > 1 || isHoldRow(rows[0])
   // Back to reps over last time's hold: the routine's reps, last time's weight on that set.
-  if (plan === 0) return hold ? [Number(rows[0].w) > 0 ? { ...base, w: rows[0].w } : base] : rows
+  if (plan === 0) return hold ? [backToReps(base, rows)] : rows
   if (!(plan > 0)) return hold ? held(rows, k) : rows
   if (hold) return held(rows.map(r => ({ ...r, sec: plan })), k)
   const [row] = rows
