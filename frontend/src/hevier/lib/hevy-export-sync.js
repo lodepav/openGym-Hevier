@@ -69,6 +69,18 @@ const webRecent = async (web, st) => {
   return (Array.isArray(res?.workouts) ? res.workouts : []).map(w => ({ id: w.id, start: w.start_time }))
 }
 
+/** Whether Hevy's copy of a workout is private; false when Hevy does not say. */
+// shortcut: `GET /workout/{id}` and its `is_private` are not checked against Hevy yet, and a miss sends false as before; upgrade once read on the account.
+const hevyPrivate = async (web, id) => {
+  try {
+    const res = await web('GET', `/workout/${encodeURIComponent(id)}`)
+    return (res?.is_private ?? res?.workout?.is_private) === true
+  } catch (e) {
+    if (stops(e)) throw e
+    return false
+  }
+}
+
 /** The account's own templates on the private API, the archived (deleted) ones left out. */
 const webCustoms = async web => {
   const res = await web('GET', '/custom_exercise_templates')
@@ -188,7 +200,9 @@ export async function exportOnce(S, st, { call, pages, web = null, apply, save =
         }
         if (edit) {
           // The old route moves the start and end, which v2 never does, but drops the set times: v2 puts them back.
-          try { await web('PUT', '/workout', { ...webWorkout(body, { titleOf, clientId: uuid() }), workout_id: id }) } catch (e) {
+          // The old route sets privacy too: it goes as Hevy has it, so one made private there stays private.
+          const isPrivate = await hevyPrivate(web, id)
+          try { await web('PUT', '/workout', { ...webWorkout(body, { titleOf, clientId: uuid(), isPrivate }), workout_id: id }) } catch (e) {
             if (!(e instanceof HevyApiError) || e.status !== 404) throw e
             // Deleted in Hevy: a repair leaves it deleted; an edit here sends it again as a new one.
             if (st.out.w[item.id]?.h === 'repair') { st.out.w[item.id].h = item.h; await save(st); continue }

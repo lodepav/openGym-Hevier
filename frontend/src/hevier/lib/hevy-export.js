@@ -529,8 +529,9 @@ export function v2Workout(body, { titleOf = () => '', workoutId, gymId = null, g
   }
 }
 
-/** The edit's body for `PUT /v2/workout/{id}`: the v2 workout less its id. */
-export const v2Update = v2 => { const { workout_id, ...workoutUpdate } = v2.workout; return { workoutUpdate } }
+/** The edit's body for `PUT /v2/workout/{id}`: the v2 workout less its id and its privacy. */
+// A key absent here is left as Hevy has it, so a workout made private in Hevy stays private.
+export const v2Update = v2 => { const { workout_id, is_private, ...workoutUpdate } = v2.workout; return { workoutUpdate } }
 
 /**
  * A finished workout body (`finish`) as the body of `PUT /workout` (D138): camelCase, times in
