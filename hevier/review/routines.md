@@ -30,3 +30,14 @@ routine-snapshot.test.mjs 3 passed.
 | 1 | - | - | notes: `startLabelKey` reads the first of a repeated exercise's label; `brandMatches` matches any 2-letter word inside a brand | - | not findings |
 
 Round 1 tests: the area's files, 29 files 311 passed.
+| 2 | G1 | medium | With a rotation and no planned days, once today is trained or rested `nextPlanned` finds nothing (upstream's `queueNext` answers only for today), so Today reads "Nothing planned" and Routines marks no next | needs your call | D124 has the line follow the days the Calendar shows, and upstream's Calendar paints the rotation only on today; asking each later day as of itself would show tomorrow's session on Today, a visible change |
+| 2 | G2 | medium | A refill of a loop with rest days or repeats still sweeps the planned days (`advanceLoop` in rotation.js, outside seam S64), against D124's "a pass refill never deletes plans" | needs your call | the fix widens seam S64 into upstream's `advanceLoop`, also called by the rotation edit's resync, which should keep sweeping |
+| 2 | G3 | low | Save clears the whole routine's D128 plan, also an exercise swapped away by the gym before its plan was laid (next-plan.js comment says it stays) | defer | D128 says the plan is used up by that workout; one re-typeable number |
+| 2 | G4 | low | The plan key counts repeats over the session's entries, so a gym swap to a backup that is also in the routine lays the other slot's plan | defer | needs a backup that is also elsewhere in the same routine |
+| 2 | G5 | low | Add routine inside a running workout neither lays nor uses that routine's plan | defer | D128 names Start from the page and Today; nothing is lost, the plan shows in the accent colour |
+| 2 | G6 | low | The routine page and Today show the routine's exercise where the gym will swap it to a backup at Start (D46/D86) | defer | preview only; the start's toast names the swap; showing the swap is a visible change |
+| 2 | G7 | low | `gymLacks` checks only equipment and accessories, so "Needs …" can be empty or name kit the gym has when machine kinds or own kit hide the exercise | defer | wording only, the filter itself is right; the fix changes visible text |
+| 2 | G8 | low | rotation-restart.js's later-workout guard and its earliest-in-sequence pick have no test | accept | mutation survived: with the guard removed, and with `credited.find` for `seq.find`, the old tests stayed green; two tests added, each fails under its mutation and passes on the code |
+| 2 | - | - | notes: a never-done pyramid Max set reads "× 0" on Today and the routine page; Today.jsx runs `nextSession` per routine on every render without a memo | - | not findings |
+
+Round 2 tests: rotation-restart.test.js 8 passed (6 before).
