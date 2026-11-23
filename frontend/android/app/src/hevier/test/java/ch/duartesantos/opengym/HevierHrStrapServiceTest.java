@@ -27,7 +27,7 @@ public class HevierHrStrapServiceTest {
     }
 
     @Test
-    public void theRestCardAndTheWorkoutCardAreNotPostedOver() {
+    public void theRestCardAndTheWorkoutCardAreToldApart() {
         assertTrue(HevierHrStrapService.isCard(RestAlert.COUNTDOWN_CHANNEL_ID));
         assertTrue(HevierHrStrapService.isCard(WorkoutNotification.CHANNEL_ID));   // upstream 1.4.5's card (D110)
         assertFalse(HevierHrStrapService.isCard(HevierHrStrapService.CHANNEL_ID));

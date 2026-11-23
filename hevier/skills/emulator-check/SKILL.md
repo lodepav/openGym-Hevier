@@ -5,6 +5,13 @@ description: Build the fork's debug APK, install it on the Android 16 emulator a
 
 # Emulator check
 
+A check handed to an agent runs on Sonnet (`model: sonnet`). The main session builds, boots and
+restores the profile (below), passes the serial and stops the emulator after; the agent only
+drives, never builds, boots or stops. Brief it with the serial, what to check as
+it should work, to say "works" only for what it saw, and to end with a `Not checked:` line. UX
+reviews and journeys (the `ux-reviewer` agent) and debugging an unknown cause stay on Opus
+(`.claude/hillclimb/emulator-sonnet-2026-11-23/results.md`).
+
 ## Build, install, launch
 
 Emulators are shared with OpenBite; use only the one you booted. Booting or stopping needs no
