@@ -2,9 +2,9 @@
 // sets and new best sets, the duration (a tap changes it), a word on sets left unticked, an
 // unticked "Update the routine too" when the workout changed its routine, Save, and under it the
 // title, gym and note, and Discard. Finish reaches it through seam S9 (upstream's finishWorkout
-// asks the fork first). Save is upstream's doFinishWorkout, unchanged (lib/finish-labels-run.js adds
-// the gym and brand labels); OpenBite's phase and a changed duration are then written onto the
-// saved record, as the Save Workout page did, and the workout lands on Today with a "Workout saved" message.
+// asks the fork first). Save is upstream's doFinishWorkout, unchanged; the gym and brand labels,
+// OpenBite's phase and a changed duration are then written onto the saved record, as the Save
+// Workout page did, and the workout lands on Today with a "Workout saved" message.
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../../store/useStore.js'
 import { useUI } from '../../store/useUI.js'
@@ -16,7 +16,7 @@ import Icon from '../../components/Icon.jsx'
 import { hooks } from '../hooks.js'
 import { durationWords } from '../lib/elapsed.js'
 import { sessionMin, durationProblem, applyDuration, TITLE_MAX } from '../lib/save-workout.js'
-import { workoutGym, gymName } from '../lib/gym-labels.js'
+import { labelsAtFinish, withLabels, workoutGym, gymName } from '../lib/gym-labels.js'
 import { withPhase } from '../lib/shared-phase.js'
 import { readSharedPhase } from '../lib/shared-phase-run.js'
 import { routineUpdates, applyRoutineUpdates } from '../lib/routine-update.js'
@@ -93,14 +93,18 @@ function FinishSheet({ nav, close }) {
     const problem = durationProblem(A, min)
     if (problem) { useUI.getState().toast(t(problem)); return }
     keep(title, note)
-    const cur = useStore.getState().S.active
+    const { S: cur0 } = useStore.getState()
+    const cur = cur0.active
     const ref = { id: cur.id, d: cur.d, start: cur.start }
+    // D28: upstream's finish keeps only the fields it knows, so the gym and machine labels are
+    // written onto the saved record here, after it is saved.
+    const labels = labelsAtFinish(cur0, cur)
     // The saved record drops an exercise with no ticked set: what was taken out is read from here.
     const session = keepInRoutine ? structuredClone(cur) : null
     close()
     doFinishWorkout()
     useStore.getState().update(s => {
-      s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withPhase(w, phase.current) : w))
+      s.workouts = s.workouts.map(w => (sameWorkout(w, ref) ? withPhase(withLabels(w, labels), phase.current) : w))
       s.workouts = applyDuration(s.workouts, ref, min)
       // Against the routines as they are after the save, so a swapped-in exercise starts from
       // today's weight (replaceSlotExercise).
