@@ -34,6 +34,8 @@ export const sinceStart = (s, now = Date.now()) => (s?.[RUN] ? Math.max(0, runni
 export function stopped(s, mode, now = Date.now()) {
   if (!s?.[RUN]) return s
   const { [RUN]: _, [GOAL]: goal, [FROM]: __, ...rest } = s
+  // Ticked elsewhere (the watch writes its own time and leaves the stamp): that time stands.
+  if (s.done) return rest
   const sec = goal > 0 ? Math.min(goal, runningSec(s, now)) : runningSec(s, now)
   return { ...rest, [fieldOf(mode)]: fieldValue(mode, sec) }
 }
@@ -51,7 +53,7 @@ export const goalLeft = (s, now = Date.now()) => (s?.[RUN] && s[GOAL] > 0 ? s[GO
 export function dueGoals(active, now = Date.now()) {
   const out = []
   ;(active?.entries || []).forEach((e, ei) => (e?.sets || []).forEach((s, si) => {
-    const left = goalLeft(s, now)
+    const left = s?.done ? null : goalLeft(s, now)
     if (left != null && left <= 0) out.push([ei, si])
   }))
   return out

@@ -80,6 +80,17 @@ describe('hevier hold goal (D89)', () => {
     expect(stopped(s, 'time', 90_000)).toEqual({ sec: 40 })
   })
 
+  it('a set ticked elsewhere (the watch) keeps the time it was ticked with, its clock only dropped', () => {
+    const A = { entries: [
+      { id: 'x', target: { mode: 'time' }, sets: [{ sec: 30, done: true, hvRun: 1000, hvGoal: 45 }] },
+      { id: 'treadmill', target: { mode: 'cardio' }, sets: [{ min: 20, done: true, hvRun: 1000 }] },
+    ] }
+    expect(dueGoals(A, 90_000)).toEqual([])
+    stopAll(A, 50 * 60_000)
+    expect(A.entries[0].sets[0]).toEqual({ sec: 30, done: true })
+    expect(A.entries[1].sets[0]).toEqual({ min: 20, done: true })
+  })
+
   it('−15 never goes below the time already held, and a plain start has no goal', () => {
     const A = { entries: [{ id: 'x', sets: [{ sec: 40, hvGoal: 9 }] }] }
     startRun(A, 0, 0, 1000, 40)
