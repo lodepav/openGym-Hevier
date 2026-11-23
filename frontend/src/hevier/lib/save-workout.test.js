@@ -21,6 +21,7 @@ describe('hevier save workout', () => {
     expect(durationProblem(A, 24 * 60 + 1, now)).toMatch(/more than a day/)
     expect(durationProblem(A, 90, now)).toMatch(/future/)
     expect(durationProblem(A, 50, now)).toBeNull()
+    expect(durationProblem(A, 60, now)).toBeNull()   // the session's own length, typed back
     expect(durationProblem({ ...A, d: '2026-10-15', start: at('2026-10-15', '18:00') }, 90, now)).toBeNull()
   })
 

@@ -10,7 +10,7 @@ Each fork feature is listed once, with the decision that describes it in [DECISI
 | **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
 | **Removed** | Was in the fork until a later decision took it out; listed so it can still be found. |
 
-A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.6` on 2026-11-18.
+A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.6` on 2026-11-23.
 
 Upstream's training logic stays as it is: progression, 1RM, recovery, sync and storage. Where the fork behaves differently, it wraps upstream's helpers rather than changing them.
 
@@ -60,7 +60,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 | Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down, a button on the open exercise | D118, D127 | Fork |
-| A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293) |
+| A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293, merged into `release-1.4.6` 2026-11-23) |
 
 ## Routines
 
@@ -185,7 +185,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A newer version offers itself in the app, with Install and Not now | D77 | Offered (#1098) |
 | A lean APK, with the exercise pictures downloaded once and kept across updates; a full APK beside it | D115 | Fork |
 | Auto-backup keeps five copies, not fourteen | S52 | Offered (#1091, as a choice of 5, 14, 30 or 60; S52 goes when merged) |
-| Android back goes up a page the app opened, even when the WebView says it cannot | S16 | Offered (#1092) |
+| Android back goes up a page the app opened, even when the WebView says it cannot | S16 | Offered (#1092, merged into `release-1.4.6` 2026-11-23; S16 keeps only the fork's tab list at the 1.4.6 merge) |
 | The updater falls back to the API's asset link when github.com's fails | S56 | Ported (#1084, released in v1.4.5; S56 is gone) |
 | Android 13 and later only | D116 | Fork |
 | No Garmin watch link (its exported binding service removed from the manifest) and no microphone | D106 | Fork |

@@ -83,6 +83,10 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   // With large text the sticky header would fill half the screen: the details open only by the chevron (the tenth critique, 2026-11-22).
   const big = useLargeText()
   const auto = big ? false : !!edge || progressOpen(A, units)
+  // A card is keyed by its exercise (and which of the same it is), not its place: its D2 marks and
+  // running-clock memory stay with it when an exercise above is removed, moved or swapped.
+  // shortcut: the same exercise twice hands marks to the other copy when the first goes; key by an entry id if entries get one.
+  const exKey = idx => A.entries[idx].id + '#' + A.entries.slice(0, idx).filter(e => e.id === A.entries[idx].id).length
   const [manual, setManual] = useState(null)
   const shown = resolveOpen(auto, manual)
   if (manual && !shown.manual) setManual(null)
@@ -232,8 +236,8 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
     {editing && <p className="hv-sub">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <p className="hv-sub">{t('Logging a past workout, so no rest timers.')}</p>}
 
-    {A.entries.length ? units.map((u, n) => <Fragment key={u.join('-')}><section className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
-      {u.map(idx => <div key={idx} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
+    {A.entries.length ? units.map((u, n) => <Fragment key={u.map(exKey).join('-')}><section className={'hv-unit' + (u.length > 1 ? ' ss' : '')}>
+      {u.map(idx => <div key={exKey(idx)} ref={el => bindEx(idx, el)} data-exidx={idx}>{block(idx, u)}</div>)}
     </section>
       {/* The swipe, said under the first table until a set is first swiped or copied (S.hvSetTipSeen; only that line, the owner, 2026-11-22). */}
       {n === 0 && !S.hvSetTipSeen && workoutControls(S).swipeSets && <p className="small dim hv-set-tip">{t('Swipe a set for more.')}</p>}

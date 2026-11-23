@@ -43,11 +43,12 @@ describe('the notification follows the screen, not upstream’s current exercise
     expect(curAfter(edit, ticked)).toBe(null)
   })
 
-  it('in the store: a swap of the last exercise puts the notification back on the first', () => {
+  it('in the store: a swap of the last exercise puts the notification back on the first', async () => {
     useStore.setState({ S: { ...clone(DEF), active: session() } })
     const off = initCurFollow(storeAdapter(useStore, () => {}))
     try {
       useStore.getState().update(s => { swapActiveExercise(s.active, 3, { id: 'x3', target: {}, sets: [set(), set()] }) })
+      await Promise.resolve()   // cur follows once the change is done (a multi-pick add, D78)
       expect(useStore.getState().S.active.cur).toBe(0)
       expect(upcomingSets(useStore.getState().S)[0].entryIdx).toBe(0)
     } finally { off() }

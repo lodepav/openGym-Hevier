@@ -17,6 +17,8 @@ import { installExercisePicker } from './ExercisePickerHevy.jsx'
 import { fromSpeed } from '../../lib/speed.js'
 import { clampIncline } from '../../lib/incline.js'
 import { stopped } from '../lib/set-timer.js'
+import { initCurFollow } from '../lib/cur-follow.js'
+import { storeAdapter } from '../lib/store-watch.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -293,6 +295,23 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[3].className).toContain('hv-hint')       // set 3, untouched
   })
 
+  it('a typed value stays with its exercise when the exercise above it is removed (D2)', () => {
+    const EX2 = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: EX2, target: { sets: 1, reps: 8 }, sets: [reps(40, 8)] }])
+    typeInto(container.querySelectorAll('.hv-num')[1], '10')   // the first exercise's reps
+    act(() => useStore.getState().update(s => { s.active.entries.splice(0, 1) }))
+    const nums = container.querySelectorAll('.hv-num')
+    expect(nums[1].className).toContain('hv-hint')   // the second exercise's reps, untouched
+  })
+
+  it('a typed value stays bold on its own exercise when an exercise above it is removed (D2)', () => {
+    const EX2 = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: EX2, target: { sets: 1, reps: 8 }, sets: [reps(40, 8)] }])
+    typeInto(container.querySelectorAll('.hv-num')[3], '10')   // the second exercise's reps
+    act(() => useStore.getState().update(s => { s.active.entries.splice(0, 1) }))
+    expect(container.querySelectorAll('.hv-num')[1].className).not.toContain('hv-hint')
+  })
+
   it('an untouched value is the grey placeholder: typing replaces it, left empty it stays (D2)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     let w = container.querySelectorAll('.hv-num')[0]
@@ -485,6 +504,21 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0]).toMatchObject({ sec: 75, done: true })
     expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('Finish stops a count-up timer still running, its time written in (D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ w: 0, sec: 30, done: false, hvRun: Date.now() - 40_000 }] }])
+    act(() => container.querySelector('.hv-finish').click())
+    expect(sets()[0].hvRun).toBeUndefined()
+    expect(sets()[0].sec).toBe(40)
+  })
+
+  it('a set ticked on the watch while its clock ran shows the time it was ticked with (D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ w: 0, sec: 30, done: true, hvRun: Date.now() - 40_000 }] }])
+    expect(container.querySelector('.hv-running')).toBeNull()
+    expect(container.querySelector('.hv-go.on')).toBeNull()
   })
 
   it('a hold stopped from the big clock or its own end is firm, not a grey hint (D2, D89)', () => {
@@ -746,6 +780,30 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(es[3].sg).toBe(es[2].sg)
     expect(es[0].sg || es[1].sg).toBeFalsy()
     done()
+  })
+
+  it('with the app\'s cur-follow on, two picks still go in the order picked and Add superset links them (D78)', () => {
+    const { OTHER, rows, button, done } = openPicker()
+    const stop = initCurFollow(storeAdapter(useStore))
+    try {
+      act(() => rows[0].click())
+      act(() => rows[1].click())
+      act(() => button('Add superset').click())
+      const es = useStore.getState().S.active.entries
+      expect(es).toHaveLength(4)
+      expect([es[0].id, es[1].id]).toEqual([EX, OTHER])
+      expect(es[2].sg).toBeTruthy()
+      expect(es[3].sg).toBe(es[2].sg)
+    } finally { stop(); done() }
+    const p = openPicker()
+    const stop2 = initCurFollow(storeAdapter(useStore))
+    try {
+      act(() => p.rows[0].click())
+      act(() => p.rows[1].click())
+      act(() => p.button('Insert after').click())
+      const es = useStore.getState().S.active.entries
+      expect(es.map(e => e.id)[3]).toBe(p.OTHER)   // the picks sit between EX and OTHER, OTHER stays last
+    } finally { stop2(); p.done() }
   })
 
   it('Insert after puts the pick after the current exercise; Add to end after the last one', () => {

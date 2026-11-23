@@ -26,6 +26,13 @@ D107 (Pause, the next exercise after the rest, the trophy switches) is built (20
 The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
 #903) were closed 2026-11-14; #901 is still open.
 
+**Checked 2026-11-23: still no v1.4.6 tag, but the first test build is out.** `release-1.4.6` is at
+`770509e98` (2026-11-23, iOS build 73, Android versionCode 47), 229 commits past v1.4.5. The
+maintainer merged a batch of PRs that morning, two of them the fork's: **#1092** (Android back,
+S16) and **#1293** (a day planned in the Calendar trains what was picked, D124). No new npm
+dependency in `frontend` or `api`, only the version strings. The rest of the fork's open PRs did
+not move.
+
 **Checked 2026-11-22: no v1.4.6 tag yet.** `release-1.4.6` is at `a087aaf33` (2026-11-22), 63
 commits past v1.4.5, merges included. No new npm dependency in `frontend`, `api` or `mcp`. The
 three since `da62470d3` touch no seam: Health Connect's file stays out of Android's backups (`backup_rules.xml`,
@@ -271,10 +278,10 @@ count-up timer, which upstream does not have.
 | #199 | Comment: the main muscle per exercise (D76) as one piece of editable built-ins | Commented 2026-11-09 |
 | #1087 | A switch for each part of a module (D102); asks to agree the part list first | Issue opened 2026-11-09 |
 | #1088 | Health Connect as the only source of weigh-ins while reading from it (D32) | Issue opened 2026-11-09 |
-| #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; **cubetes's #1201** (2026-11-13, open on `release-1.4.5`, credited) builds it as the issue suggested, so no PR from the fork |
+| #1089 | Each keystroke in a live workout writes the whole profile to the file mirror at once (`workoutMoved`): 75 ms write + 9 ms localStorage per keystroke, 423 KB profile, emulator | Issue opened 2026-11-09; **cubetes's #1201** (2026-11-13, open on `release-1.4.5`, credited) builds it as the issue suggested, so no PR from the fork. Issue closed 2026-11-18; #1201 is in `release-1.4.6` (`8653d7a08`) |
 | #1090 | Zepp toolchain npm overrides (S55): 62 findings to 0, tests and build unchanged | PR opened 2026-11-09 on release-1.4.5; drops S55 when merged |
 | #1091 | Auto-backup: choose how many copies to keep (5, 14, 30 or 60; S52) | PR opened 2026-11-09 on release-1.4.5; drops S52 when merged (the fork sets 5) |
-| #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; S16 keeps only the fork's tab list when merged |
+| #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; **merged into release-1.4.6** (2026-11-23, `ab2a1afb2`): S16 keeps only the fork's tab list at the 1.4.6 merge |
 | #1093 | A set of a reps exercise as a timed hold (D89, S48) | Issue opened 2026-11-09, offering a PR; S48 goes if upstream builds it |
 | #1097 | History rows and workout details name the workout's gym, with two gyms or more (D94) | PR opened 2026-11-09 on release-1.4.5 |
 | #1098 | A newer APK offers itself when the app opens, once per version, About's question with Not now (D77) | PR opened 2026-11-09 on release-1.4.5; replaces the fork's UpdateNotice when merged. CodeRabbit (2026-11-12): the check on coming to the front asks again after an hour, an offer held back by a workout or an open sheet is made after, an update started from About counts as offered (all fixed; the fork's own UpdateNotice already stays off an open sheet, but keeps the session's answer and does not make a held-back offer until the next return to the app) |

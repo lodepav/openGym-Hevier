@@ -358,7 +358,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
     // Typed this visit or on an earlier one (a pre-filled weight is not manual): its box keeps its places.
     const typed = isTouched(i, key) || (col.f === 'w' && src.weightOrigin === WEIGHT_ORIGIN_MANUAL && !filledFromLast(s, side))
     const firm = src.done || typed
-    if (col.dur && src[RUN]) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
+    // A set ticked on the watch keeps the phone's stamp until a stop drops it (set-timer.js): it shows its time.
+    if (col.dur && src[RUN] && !src.done) return <span className="hv-num hv-running" role="timer" aria-label={fieldName(s, i, col, side)}><Elapsed start={src[RUN]} /></span>
     // A grey value typed over and left empty stays, and so does whatever the typing copied down the sets.
     const hintProps = {
       hint: !firm,
@@ -539,9 +540,9 @@ function HevyExerciseBlock({ entryIdx, live }) {
       {colsOf(s).map(c => <span key={c.f} className="hv-cell">{field(s, i, c, side)}</span>)}
       {effOn && (effAt(s) ? effortCell(s, i, side, effTick) : <span />)}
       {goOn && !playAt(s) && <span />}
-      {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] ? ' on' : '')} disabled={s.done}
+      {playAt(s) && modeAt(s) === 'time' && <button type="button" className={'iconbtn hv-go' + (s[RUN] && !s.done ? ' on' : '')} disabled={s.done}
         aria-label={t('Timed hold') + ', ' + t('Set {0}', workNumber(i))} onClick={() => holdClock(s, i)}><Icon name="timer" /></button>}
-      {playAt(s) && modeAt(s) !== 'time' && (s[RUN]
+      {playAt(s) && modeAt(s) !== 'time' && (s[RUN] && !s.done
         ? <button type="button" className="iconbtn hv-go on" aria-label={t('Stop') + ', ' + t('Set {0}', workNumber(i))} onClick={() => stopTimer(i)}><HvIcon name="stop" /></button>
         : <button type="button" className="iconbtn hv-go" aria-label={t('Start set') + ', ' + t('Set {0}', workNumber(i))} disabled={s.done}
           onClick={() => startTimer(i)}><Icon name="play" /></button>)}

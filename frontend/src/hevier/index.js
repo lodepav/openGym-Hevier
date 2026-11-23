@@ -47,6 +47,7 @@ import { isPlain, plainRows } from './lib/plain-routine.js'
 import { initFieldReveal } from './lib/field-reveal.js'
 import { initSheetToast } from './lib/sheet-toast-run.js'
 import { initRestExtra } from './lib/rest-extra-run.js'
+import { initFinishLabels } from './lib/finish-labels-run.js'
 import { initHoldClock } from './lib/hold-clock-run.js'
 import { initCurFollow } from './lib/cur-follow.js'
 import { initClockOff, initClockChain } from './lib/clock-off-run.js'
@@ -98,6 +99,7 @@ function install() {
   initUpdateNotice(store)                                 // a newer Go Hevier asks once when the app opens (D77)
   initMediaPack(store, askMedia)                          // the lean APK downloads the exercise pictures once (D115)
   initRestExtra(store)                                    // a rest after a first side and an exercise's last set; Ready goes
+  initFinishLabels(store)                                 // a finish without the sheet (the watch, a forgotten workout) keeps the gym and brands too (D28)
   initHoldClock(store)                                    // a hold on the big clock ends at its seconds (D89)
   initCurFollow(store)                                    // the notification starts where the screen does, after a swap too (D127)
   initClockOff(store)                                     // a Timer countdown ends when Timer and Stopwatch are switched off (D117)
