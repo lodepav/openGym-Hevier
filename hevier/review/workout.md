@@ -30,3 +30,9 @@ Baseline: vitest 49 files, 362 passed (the area's own test files).
 | 1 | F6 | low | "Discard and start" on Routines drops the session without `markDiscarded` | reject | watch-sync's store watcher marks any session that leaves without being saved (`leftUnsaved`, lib/watch-sync.js:1311) |
 
 Round 1 tests: the area's files plus finish-labels and gym-labels, 51 files 391 passed.
+| 2 | G1 | medium | A set ticked on the watch keeps the phone's clock stamp; the hold clock or Finish then rewrites its logged time from it | accept | `stopped` drops a ticked set's stamp without writing a time, `dueGoals` skips ticked sets; test failed before (due list not empty), passes after; the phone's own tick stops the clock before ticking, so it is unchanged |
+| 2 | G2 | medium | Round 1's F1 key (place + id) remounts every card below a removed or moved exercise and drops its marks | accept | cards and their sections keyed by exercise id and which of the same it is; test (type into the second exercise, remove the first, still firm) failed before (and on the original key), passes after |
+| 2 | G3 | low | Copying a set while its clock runs copies the stamp, so two rows count from one start | defer | rare and visible on screen; the fix wraps upstream's copy in the block, more than a one-liner |
+| 2 | G4 | low | The Finish sheet refuses the session's own length typed back: the minute of slack was subtracted from now | accept | `now + 60000`; test (start 18:00, now 19:00, 60 min accepted) failed before, passes after |
+
+Round 2 tests: the area's files plus finish-labels and gym-labels, 51 files 393 passed; src/hevier/views 36 files 424 passed.
