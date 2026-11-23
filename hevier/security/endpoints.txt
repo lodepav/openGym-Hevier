@@ -16,6 +16,8 @@ openrouter.ai                        # coach provider, user-supplied key
 generativelanguage.googleapis.com    # coach provider (Gemini), user-supplied key
 localhost                            # React Router's fallback URL base (not fetched)
 ollama.example.com                   # placeholder text in the coach's Ollama URL field
+127.0.0.1                            # placeholder text in the admin page's ChatGPT sign-in steps (not fetched)
+192.168.1.20                         # example address in the coach's Ollama setup text (not fetched)
 
 # Links the user opens, or text, never fetched
 gitlab.com                           # upstream 1.4.2's link to its repo (Login's "Self-host it", Settings), lib/demo.js REPO

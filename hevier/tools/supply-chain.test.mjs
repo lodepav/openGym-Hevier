@@ -43,8 +43,8 @@ test('diffLines: a version bump or a new install script counts as new', () => {
 
 test('scanText finds hosts, ignoring data: URIs and fragments that are not hosts', () => {
   const { hosts } = scanText('fetch("https://API.hevyapp.com/v1");x="http://www.w3.org/2000/svg";' +
-    'y="https://-t";z="data:image/png;base64,aHR0cHM6Ly9ldmlsLmNvbQ==";w="wss://localhost:3000"')
-  assert.deepEqual([...hosts].sort(), ['api.hevyapp.com', 'localhost', 'www.w3.org'])
+    'y="https://-t";z="data:image/png;base64,aHR0cHM6Ly9ldmlsLmNvbQ==";w="wss://localhost:3000";v="http://203.0.113.5/x"')
+  assert.deepEqual([...hosts].sort(), ['203.0.113.5', 'api.hevyapp.com', 'localhost', 'www.w3.org'])
 })
 
 test('scanText counts code that runs or hides strings, not lookalikes', () => {
