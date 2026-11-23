@@ -35,7 +35,9 @@ export function lockEntries(dir, lock) {
     const name = p.name || key.slice(key.lastIndexOf('node_modules/') + 'node_modules/'.length)
     const id = `${name}@${p.version}`
     lines.push(`${dir}\t${id}${p.hasInstallScript ? '\tinstall-script' : ''}`)
-    if (!p.resolved?.startsWith(REGISTRY)) problems.push(`${dir}: ${id} is not from the npm registry (${p.resolved || 'no resolved URL'})`)
+    // The tarball of that name and version, so a swapped one under an unchanged name@version fails too.
+    const tarball = `${REGISTRY}${name}/-/${name.split('/').pop()}-${p.version}.tgz`
+    if (p.resolved !== tarball) problems.push(`${dir}: ${id} is not from the npm registry (${p.resolved || 'no resolved URL'})`)
     else if (!p.integrity) problems.push(`${dir}: ${id} has no integrity hash`)
   }
   return { lines, problems }
