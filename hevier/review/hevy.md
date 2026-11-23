@@ -29,3 +29,11 @@ Java HevierHevyLoginActivityTest (testSideloadDebugUnitTest): 2 passed.
 | 1 | F5 | low | Bundle endpoint scan skips .css and IP-literal hosts | accept | D26 "any other host fails"; css + IPv4 added, test failed before, passes after; two upstream placeholder IPs (127.0.0.1, 192.168.1.20) listed in endpoints.txt with reasons; bundle gate ok on frontend/dist |
 
 Round 1 tests: vitest 22 files 214 passed; node --test hevier/tools 36 passed.
+| 2 | G1 | low | A workout with an out-of-range time (corrupt backup/sync) makes toISOString throw and stops every later send silently | defer | needs corrupt data the app's clocks never make; worth a guard in workoutDraft if it is ever seen |
+| 2 | G2 | low | Package gate misses a tarball swapped under an unchanged name@version | accept | D26 "a new or bumped package fails"; `resolved` must be that name's own tarball URL; test failed before, passes after; `packages` gate ok on the real lockfiles (565) |
+| 2 | G3 | low | Editing a sent workout sends `is_private: false`, so one made private in Hevy goes public again | needs your call | changes what Hevy shows; D143 leaves a hand-set gym alone, privacy is not decided |
+| 2 | G4 | low | An unusable Keystore key alias is never deleted, so the session can't be kept again until reinstall | defer | key not bound to user auth, so rare; needs a device to check the fix |
+| 2 | G5 | low | Hevy measurement with an impossible date or huge value is stored as is | reject | data comes only from the owner's own Hevy account over the API, which validates dates |
+| 2 | - | - | 3 withdrawn (session from another page, path injection through ids, empty digest in publish()) | - | reviewer's own counterargument |
+
+Round 2 tests: node --test hevier/tools 36 passed (supply-chain 8). No high or medium stood: early exit, round 3 skipped.
