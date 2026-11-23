@@ -26,7 +26,7 @@ export function initCurFollow(store) {
     queueMicrotask(() => {
       const now = store.get()?.active
       const cur = now?.id === A.id ? curAfter(B, now) : null
-      if (cur != null) store.update(s => { if (s.active?.id === A.id) s.active.cur = cur })
+      if (cur != null) store.update(s => { s.active.cur = cur })
     })
   })
 }
