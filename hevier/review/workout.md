@@ -36,3 +36,10 @@ Round 1 tests: the area's files plus finish-labels and gym-labels, 51 files 391 
 | 2 | G4 | low | The Finish sheet refuses the session's own length typed back: the minute of slack was subtracted from now | accept | `now + 60000`; test (start 18:00, now 19:00, 60 min accepted) failed before, passes after |
 
 Round 2 tests: the area's files plus finish-labels and gym-labels, 51 files 393 passed; src/hevier/views 36 files 424 passed.
+| 3 | H1 | high | cur-follow moves `cur` inside each pick's update, so a multi-pick Add lands out of order and Add superset links nothing | accept | the move waits for a microtask, after the whole change; test with the app's watcher installed (two picks, Add superset; two picks, Insert after) failed before (picks out of order), passes after; cur-follow.test.js's store test now awaits that microtask, its expectation unchanged |
+| 3 | H2 | low | With the same exercise twice, removing the first hands its D2 marks to the second | accept | known limit, `shortcut:` comment on exKey; entries have no id of their own |
+| 3 | H3 | low | A set ticked on the watch while its clock ran keeps showing a running clock and Stop | accept | running cell and Stop only on a set not ticked; test failed before (`.hv-running` drawn), passes after |
+| 3 | H4 | low | D90 "Timer still running?" is reached by no test | reject | mutation killed: with the ask disabled, "a cardio timer left running asks at the tick" (HevyWorkout.test.jsx:589) fails |
+| 3 | - | - | notes: pairing two exercises remounts their cards (as before round 2); "N sets not ticked" is stale while the sheet is open and the watch ticks | - | not findings |
+
+Round 3 tests: the area's files plus finish-labels and gym-labels, 51 files 395 passed.
