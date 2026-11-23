@@ -1,0 +1,31 @@
+# Implement-review: area `hevy`
+
+Branch `hevier/review-hevy`, from hevier/main 6394b8689. Files: `python3 hevier/review/areas.py hevy` (79).
+
+Intent: the owner's workouts go to Hevy through Hevy's web login (D138, D143) or the Pro key
+(D34), with set times and the gym, and Hevy data comes in by API or CSV (D29-D31, D33); the
+login session and key stay encrypted on the phone and never reach `S`, a backup or a sync.
+Gym backups (D47/D86 files), the update notice (D77) and version (D52) work as decided, and the
+release and supply-chain gates (D26, D38) block what they claim to block. Nothing leaves the
+phone except to Hevy and GitHub releases, and an imported file cannot do more than add data.
+
+Decisions: D26 D29 D30 D31 D33 D34 D38 D47 D52 D54 D77 D86 D106 D114 D115 D137 D138 D143.
+
+Baseline: vitest 22 files, 212 passed; node --test release-notes + supply-chain 14 passed;
+Java HevierHevyLoginActivityTest (testSideloadDebugUnitTest): 2 passed.
+
+## Ledger
+
+| Round | Id | Sev | Claim | Decision | Reason |
+|---|---|---|---|---|---|
+| 0 | P1 | - | Hevy export toggle off/on within ~20 s during a send can leave it off | reject | dismissed by owner 2026-10-22 |
+| 0 | P2 | - | Watchdog-abandoned send can overlap the next and POST a workout twice | reject | dismissed by owner 2026-10-22 |
+| 0 | P3 | - | note-text.js `\n` fix runs on any imported workout's notes, not only Hevy's | reject | dismissed by owner 2026-10-22 |
+| 0 | P4 | - | HevierLocationPlugin (API < 30) requestSingleUpdate listener not removed after 25 s fallback | reject | dismissed by owner 2026-10-22 |
+| 1 | F1 | medium | Fork import step re-matches and doubles one-limb sets in openGym's own CSV (ids from the file) | accept | D29 scopes the step to Hevy; test round-trips an own CSV, failed before (10538 r=20 sides), passes after; `answer()` returns null for source openGym |
+| 1 | F2 | low | Turning Send to Hevy off while a pass refreshes leaves the session stored again | accept | D34/D138 "turning it off forgets"; one line: remove the session again after the pass settles; test failed before (session a2 kept), passes after |
+| 1 | F3 | low | Two web clients refreshing at once can wipe a good session (or a Keystore error on load) | defer | needs two refreshes within ms; recovery is one login, no data lost; a shared refresh promise is more than a one-liner |
+| 1 | F4 | low | APK list gates pass when aapt2 reads nothing | accept | D38 gate fails open; empty read against a non-empty list now fails; checked with a harness (exit 0 before, 1 after) and `--lists-only` on the debug APK (all three gates ok) |
+| 1 | F5 | low | Bundle endpoint scan skips .css and IP-literal hosts | accept | D26 "any other host fails"; css + IPv4 added, test failed before, passes after; two upstream placeholder IPs (127.0.0.1, 192.168.1.20) listed in endpoints.txt with reasons; bundle gate ok on frontend/dist |
+
+Round 1 tests: vitest 22 files 214 passed; node --test hevier/tools 36 passed.
