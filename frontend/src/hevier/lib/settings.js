@@ -61,7 +61,7 @@ export const HIDDEN_ROWS = {
     'Show the tour again', 'Build your first plan', 'Create your own exercise', 'Edit your data', 'Export & import'],
 }
 // Pages left out whole: not found by the search, nor any row on them.
-export const HIDDEN_PAGES = ['gym', 'themes', 'zepp', 'wear', 'garmin', 'watch', 'watches']   // no watch at all (D100, D121, D106)
+export const HIDDEN_PAGES = ['gym', 'gym-find', 'gym-edit', 'themes', 'zepp', 'wear', 'garmin', 'watch', 'watches']   // no watch at all (D100, D121, D106)
 // A section whose footer speaks of rows that are gone loses the footer.
 const STALE_FOOTERS = ['Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.']
 
