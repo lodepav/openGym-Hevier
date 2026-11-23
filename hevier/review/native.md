@@ -35,3 +35,8 @@ Baseline: vitest 15 files, 94 passed (the area's own test files). Gradle `:app:t
 | 1 | - | - | notes: the develop permission and `<queries>` pair is in the release manifest too (extra package visibility only); the launch sweep may clear a crash-left recording if localStorage was also evicted; ScanSheet leaves its scan running up to 10 s after closing | - | not findings |
 
 Round 1 tests: hr-strap-run.test.js 6 passed; Gradle `:app:testSideloadDebugUnitTest` 170 passed, `compileSideloadReleaseJavaWithJavac` built.
+| 2 | G1 | low | After a cold start from the month widget, a reopen from Recents once the process died rebuilds the activity from the task's first intent, extra included, and lands on Calendar again | accept in part | one line: `keepRoute` ignores an intent launched from history (the Recents path); a launcher tap on the dead task would need saved state, left out; no JVM test (Intent is a stub there), compiled |
+| 2 | G2 | low | `handleOnStop` switches the launcher alias while the app's own Hevy login activity or a system picker covers MainActivity | defer | upstream's AppIconPlugin applies its icon in `handleOnStop` the same way; the close rests on a code comment and is unproven on a device |
+| 2 | - | - | notes: `updated_at` read as milliseconds (checked: OpenBite's PhaseProvider.kt says milliseconds, so not a finding); the F1 tests return an empty recording, so the `mergeStrap` call in `settle` is not reached (mergeStrap has its own tests); nothing compares Java `HevierIcons.IDS` with JS `ICON_IDS` (they match today) | - | not findings |
+
+Round 2 tests: Gradle `:app:testSideloadDebugUnitTest` 170 passed, `compileSideloadReleaseJavaWithJavac` built. No high or medium stood, so the early exit fired: round 3 skipped, round 4 next.
