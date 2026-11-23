@@ -428,7 +428,6 @@ public class HevierHrStrapService extends Service {
     /** The rest countdown's card or the workout card, while one is up; null otherwise. */
     private Notification restCard() {
         NotificationManager nm = getSystemService(NotificationManager.class);
-        if (nm == null) return null;
         for (StatusBarNotification s : nm.getActiveNotifications()) {
             if (s.getId() == NOTIFICATION_ID && isCard(s.getNotification().getChannelId())) return s.getNotification();
         }
@@ -449,7 +448,7 @@ public class HevierHrStrapService extends Service {
         if (!running) return;
         if (WorkoutNotification.active(this) && WorkoutNotification.allowed(this)) return;   // the workout card comes back instead
         NotificationManager nm = getSystemService(NotificationManager.class);
-        if (nm != null) nm.notify(NOTIFICATION_ID, build(cardText));
+        nm.notify(NOTIFICATION_ID, build(cardText));
     }
 
     private void goForeground(String text) {
@@ -468,7 +467,7 @@ public class HevierHrStrapService extends Service {
             return;
         }
         NotificationManager nm = getSystemService(NotificationManager.class);
-        if (nm != null) nm.notify(NOTIFICATION_ID, build(text));
+        nm.notify(NOTIFICATION_ID, build(text));
     }
 
     private void close() {

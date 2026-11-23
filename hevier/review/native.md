@@ -40,3 +40,13 @@ Round 1 tests: hr-strap-run.test.js 6 passed; Gradle `:app:testSideloadDebugUnit
 | 2 | - | - | notes: `updated_at` read as milliseconds (checked: OpenBite's PhaseProvider.kt says milliseconds, so not a finding); the F1 tests return an empty recording, so the `mergeStrap` call in `settle` is not reached (mergeStrap has its own tests); nothing compares Java `HevierIcons.IDS` with JS `ICON_IDS` (they match today) | - | not findings |
 
 Round 2 tests: Gradle `:app:testSideloadDebugUnitTest` 170 passed, `compileSideloadReleaseJavaWithJavac` built. No high or medium stood, so the early exit fired: round 3 skipped, round 4 next.
+| 4 | I1 | low | `restCard`, `restGone` and `notifyText` null-check a NotificationManager that `build()` already uses unchecked | accept | the three checks removed; same behaviour on Android 13+ |
+| 4 | I2 | low | `lm == null` in HevierLocationPlugin.position cannot happen | reject | four cheap lines; a stripped ROM is the one case it covers |
+| 4 | I3 | low | The widget snapshot's `v: 1` is written but never read | reject | dropping it changes the snapshot string (one extra redraw) for 3 lines; the version is where a later format change would be told apart |
+| 4 | I4 | low | month-widget.js checks the route the plugin already checked | reject | the plugin is the trust boundary, the JS check is one line |
+| 4 | I5 | low | HevierPhasePlugin loops over a one-column `TEXT` array | reject | mirrors `NUMBERS` beside it; saves about 2 lines |
+| 4 | - | - | notes: the round 1-2 fixes were each questioned and kept (discovery disconnect, MainActivity tap, LAUNCHED_FROM_HISTORY beside removeExtra); the `plugin()` loader is copied in 7 files on purpose (upstream's lib/secret.js pattern); `STRAP_FILE` export unused outside its file | - | not findings |
+
+Round 4 tests: area vitest 15 files, 96 passed; Gradle `:app:testSideloadDebugUnitTest` 170 passed, `compileSideloadReleaseJavaWithJavac` built. Round 4 net: 0 added, 3 removed in code (I1).
+
+Noise floor: rounds 2 and 4 raised only lows.
