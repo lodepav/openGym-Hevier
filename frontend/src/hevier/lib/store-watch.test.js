@@ -24,8 +24,10 @@ describe('hevier store watch (battery)', () => {
   })
 
   it('writes each copy of S out once per field', () => {
-    const a = copy(S)
+    let written = 0
+    const a = { ...copy(S), workouts: { toJSON: () => { written++; return [] } } }
     expect(fieldSig(a, 'workouts')).toBe(fieldSig(a, 'workouts'))
+    expect(written).toBe(1)
     expect(fieldSig(a, 'missing')).toBe('null')
   })
 

@@ -5,7 +5,7 @@
 // row is near the top or bottom edge, so a long routine can be reordered end to end.
 // As in Hevy, a row is also picked up by a long press anywhere on it (`press(i)`); the handle stays
 // for the keyboard and screen readers.
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // The edge zone is wide and its slowest speed is not a crawl: on a phone the gesture bar takes the
 // bottom few millimetres, so a finger rarely gets deep into the zone.
@@ -28,14 +28,17 @@ export function useDragReorder(count, onMove) {
   const stopScroll = () => { const g = gesture.current; if (g?.raf) cancelAnimationFrame(g.raf); if (g) g.raf = 0 }
   const cancelPress = () => { if (pending.current) clearTimeout(pending.current.timer); pending.current = null }
   useEffect(() => () => { stopScroll(); cancelPress(); gesture.current = null }, [])
+  // The list element itself, not the row count: a search can unmount the list and bring a new one
+  // with as many rows, and a routine made on this visit has no list until it has rows.
+  const [listEl, setListEl] = useState(null)
+  const setList = useCallback(el => { listRef.current = el; setListEl(el) }, [])
   // While a row is held, the finger drags it rather than the page (touch-action can't change mid-touch).
   useEffect(() => {
-    const el = listRef.current
-    if (!el) return
+    if (!listEl) return
     const hold = e => { if (gesture.current) e.preventDefault() }
-    el.addEventListener('touchmove', hold, { passive: false })
-    return () => el.removeEventListener('touchmove', hold)
-  }, [count])   // the list mounts only once it has rows: a routine made on this visit had none
+    listEl.addEventListener('touchmove', hold, { passive: false })
+    return () => listEl.removeEventListener('touchmove', hold)
+  }, [listEl])
 
   // What scrolls: the sheet the list is in, else the page.
   const sheet = () => listRef.current?.closest?.('.sheet') || null
@@ -148,5 +151,5 @@ export function useDragReorder(count, onMove) {
     return { transform: 'translateY(0)' }
   }
 
-  return { listRef, drag, handle, press, rowStyle }
+  return { listRef: setList, drag, handle, press, rowStyle }
 }

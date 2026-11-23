@@ -20,8 +20,6 @@ same() {  # what, its line in ours, its line in theirs
   return 1
 }
 lock() { grep -E '^lock=' "$1/heavy.sh" || true; }
-# Both launchers must boot through the shared ~/.claude/bin/emu, which owns the
-# flags (an AVD booted with other ones drops its snapshot) and who owns which emulator.
 emu() { grep -v '^[[:space:]]*#' "$1/emulator.sh" | grep -q '\.claude/bin/emu' && echo "boots through emu" || true; }
 same "heavy.sh's lock" "$(lock "$ours")" "$(lock "$theirs")"
 same "the emulator launcher" "$(emu "$ours")" "$(emu "$theirs")"

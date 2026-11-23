@@ -66,7 +66,10 @@ if upstream is None:
     print('seam_check: no upstream remote here, only the rows and markers are checked')
 else:
     base = git('merge-base', 'HEAD', upstream).strip()
-    changed = git('diff', '--name-only', '--diff-filter=M', base, 'HEAD', '--', '.', *FORK_OWNED)
+    if not base:
+        findings.append(f'no merge base with {upstream} (a shallow clone?), upstream files not checked')
+    # A deleted or renamed upstream file is a fork edit too.
+    changed = git('diff', '--name-only', '--no-renames', '--diff-filter=MD', base, 'HEAD', '--', '.', *FORK_OWNED) if base else ''
     for path in changed.splitlines():
         if path in ALLOWED or path in markers or named(path):
             continue

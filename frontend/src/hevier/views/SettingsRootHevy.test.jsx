@@ -218,6 +218,9 @@ describe('hevier: Settings (seams S11, S12)', () => {
     // The gym reminder's and the seasonal themes' pages, and every row on them, stay out of a search.
     expect(hiddenSetting({ page: 'gym', title: 'Gym reminder', isPage: true })).toBe(true)
     expect(hiddenSetting({ page: 'themes', title: 'Halloween' })).toBe(true)
+    // and the reminder's own sub-pages, which a search for "gym" finds (S.gym's Add a gym, Your gym).
+    expect(hiddenSetting({ page: 'gym-find', title: 'Add a gym', isPage: true })).toBe(true)
+    expect(hiddenSetting({ page: 'gym-edit', title: 'Your gym', isPage: true })).toBe(true)
     expect(hiddenSetting({ page: 'look', title: 'Look & Home', isPage: true })).toBe(false)
     // D100: what the APK no longer has is not offered either.
     expect(hiddenSetting({ page: 'look', title: 'Assistant & shortcuts' })).toBe(true)
