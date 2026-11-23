@@ -152,6 +152,8 @@ apk_permissions() {
   local asked allowed new
   asked="$("${BT}aapt2" dump permissions "$APK" | sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" | sed "s/^$APP_ID\(\.test\)\{0,1\}\./\$PKG./" | sort -u)"
   allowed="$(listed "$SEC/apk-permissions.txt" | awk '{print $1}' | sort -u)"
+  # aapt2 failing or printing another format reads as no permission at all, which would pass.
+  [[ -n "$asked" ]] || { echo "read no permission from the APK"; return 1; }
   new="$(comm -23 <(echo "$asked") <(echo "$allowed"))"
   gone="$(comm -13 <(echo "$asked") <(echo "$allowed"))"
   [[ -n "$gone" ]] && { echo "listed but no longer asked for (remove from the list):"; echo "$gone" | sed 's/^/  /'; }
@@ -172,6 +174,8 @@ against() {   # list file, what (for the messages), entries on stdin
   local have allowed new gone
   have="$(sort -u)"
   allowed="$(listed "$1" | sed 's/[[:space:]]\{2,\}.*//' | sort -u)"
+  # Nothing read against a list that has entries: the reading failed, not the APK changed.
+  [[ -z "$have" && -n "$allowed" ]] && { echo "read no $2 from the APK"; return 1; }
   new="$(comm -23 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
   gone="$(comm -13 <(echo "$have") <(echo "$allowed") | sed '/^$/d')"
   [[ -n "$gone" ]] && { echo "listed but no longer in the APK (remove from the list):"; echo "$gone" | sed 's/^/  /'; }
