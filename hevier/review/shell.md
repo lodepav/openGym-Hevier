@@ -30,3 +30,8 @@ Baseline: vitest 34 files, 272 passed and 1 expected fail (the area's own test f
 | 1 | - | - | notes: S74 (Modals.jsx) changes upstream in both builds, documented in SEAMS.md and offered as #1510; hevier.css and theme.css ship in upstream's bundle but every rule is under `:root[data-ui="hevier"]`; heavy.sh has no timeout, a hung holder blocks the rest (says it is waiting, not a deadlock) | - | not findings |
 
 Round 1 tests: area vitest unchanged (no frontend change); seam_check on the repo "59 seams, 33 files with markers: fine"; verify.sh and seam_check reproduced in a scratch clone as above.
+| 2 | G1 | medium | useDragReorder keeps its touchmove hold on the list element it saw when the row count last changed, so after a routine search hides and brings back the folder list, a long press on a folder scrolls the page and the folder drops back | accept | the hold follows the element through a callback ref; new test (list unmounted and back, same count, a lifted row's touchmove is not prevented) failed before and passes after; restores D13/D15's long press, no visible change otherwise |
+| 2 | G2 | low | store-watch's "writes each copy of S out once per field" compares two equal strings, so dropping the cache keeps it green | accept | the test counts serialisations through a `toJSON`; with the cache removed it fails (mutation run), restored it passes |
+| 2 | - | - | notes: `hvModuleParts` syncs as one field (D102 says so, tested); `cdp.mjs click` prints NOT FOUND and exits 0, nothing chains on it; a second finger on a grip handle replaces the gesture (cosmetic) | - | not findings |
+
+Round 2 tests: area vitest plus BackupsSheet.test.jsx, 35 files, 276 passed and 1 expected fail.
