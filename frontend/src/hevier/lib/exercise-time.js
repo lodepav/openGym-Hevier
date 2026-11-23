@@ -8,7 +8,7 @@
 // a tick before the start or past the end (catching up the log later, a workout logged into the
 // past) is left out. A workout with no tick times (imported, or older) has none.
 import { entryTimes } from '../../lib/exercise-time.js'
-import { entryExcluded } from '../../lib/history.js'
+import { countedWorkouts } from '../../lib/counted-log.js'
 import { hasCompletedWork } from '../../lib/workout-model.js'
 import { t } from '../../lib/i18n.js'
 
@@ -23,9 +23,12 @@ const tickedSets = e => (e.sets || []).filter(st => hasCompletedWork(st) && Numb
  * Every timed session of an exercise in `workouts` from `since` (an ISO day, '' for all), one per
  * workout and exercise (an exercise done twice in one workout counts once, its times added):
  * `{ id, gym, ms, sets }`, `sets` its ticked sets. An entry kept out of progression is left out
- * (D57), after the times are worked out, so its time does not go to the exercise after it.
+ * (D57), after the times are worked out, so its time does not go to the exercise after it; a deload
+ * routine's (in `routines`) is kept, as the counted log keeps it.
  */
-export function timedSessions(workouts, since = '') {
+export function timedSessions(workouts, since = '', routines = []) {
+  // The counted log keeps the very entry objects it does not leave out.
+  const kept = new Set(countedWorkouts(workouts, routines).flatMap(w => w.entries || []))
   const out = []
   for (const w of workouts || []) {
     if (since && !(String(w?.d || '') >= since)) continue
@@ -33,7 +36,7 @@ export function timedSessions(workouts, since = '') {
     if (!times.length) continue
     const byId = new Map()
     w.entries.forEach((e, i) => {
-      if (!(times[i] > 0) || entryExcluded(w, e)) return
+      if (!(times[i] > 0) || !kept.has(e)) return
       const had = byId.get(e.id)
       if (had) { had.ms += times[i]; had.sets += tickedSets(e) }
       else byId.set(e.id, { id: e.id, gym: e.hvGym || '', ms: times[i], sets: tickedSets(e) })

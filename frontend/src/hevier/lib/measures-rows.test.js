@@ -14,6 +14,9 @@ describe('hevier: Measures rows', () => {
     expect(measurementsLine({ unit: 'kg', measurements: [] })).toBeNull()
     expect(measurementsLine({ unit: 'kg', measurements: [{ d }] })).toBeNull()
   })
+  it('a last check-in with only a note reads the one before it', () => {
+    expect(measurementsLine({ unit: 'kg', measurements: [{ d: '2026-10-01', waist: 85 }, { d, note: 'sick' }] })).toMatch(/^Waist 85 cm · 1 Oct/)
+  })
   it('the photos counted, with the newest one’s day', () => {
     expect(photosLine([{ d }, { d: '2026-10-01' }])).toMatch(/^2 photos · 3 Nov/)
     expect(photosLine([{ d }])).toMatch(/^1 photo · /)

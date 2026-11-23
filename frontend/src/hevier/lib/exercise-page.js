@@ -4,6 +4,7 @@
 // ones from the last month marked new. Nothing is stored.
 import { beatsWeight, isAssisted } from '../../lib/exercises.js'
 import { estimate1RM } from '../../lib/onerm.js'
+import { isoOf } from '../../lib/format.js'
 import { isSideSet } from '../../lib/workout-model.js'
 import { setTrend } from './set-trend.js'
 import { setEffort } from './side-rows.js'
@@ -16,7 +17,7 @@ const parts = s => (isSideSet(s) ? [s.sides.L, s.sides.R].filter(p => p?.done ==
 // The sets holding the page's bests, as "session index:set index" over `chron` (oldest first): a tie
 // keeps the first time it was reached, as the records do. The 1RM is upstream's estimate as the
 // summary's series reads it (onerm.js bestSetOf: the default formula, the set's RIR).
-function bestKeys(chron, exId, metric) {
+function bestKeys(chron, exId, metric, kept) {
   const bests = {}
   const put = (kind, v, key, beats = (a, b) => a > b) => {
     if (v > 0 && (!bests[kind] || beats(v, bests[kind].v))) bests[kind] = { v, key }
@@ -24,6 +25,7 @@ function bestKeys(chron, exId, metric) {
   const helped = isAssisted(exId)
   chron.forEach((sess, si) => {
     if (metric === 'sec' ? sess.mode !== 'time' : sess.mode !== 'reps') return
+    if (kept && !kept.has(sess.id)) return
     sess.sets.forEach((s, k) => {
       const key = si + ':' + k
       for (const p of parts(s)) {
@@ -64,11 +66,12 @@ function topSet(sess) {
  * [{ id, d, mode, target, sets: [{ s, star, kinds }], effort: [{ rir } | { rpe }], trend, best, bestKind }].
  * `trend` is 1, 0, -1 or null, the top set against the session before's (the same kind of set);
  * `best` whether a set of it holds one of the bests, `bestKind` the first of them in KINDS order (null for none). `formula` is the profile's, for the arrow.
+ * `kept`, the ids of the sessions the bests count (D57), else all of them.
  */
-export function lastSessions(sum, exId, { n = 5, formula } = {}) {
+export function lastSessions(sum, exId, { n = 5, formula, kept } = {}) {
   const list = sum?.sessions || []
   const chron = [...list].reverse()
-  const stars = bestKeys(chron, exId, sum?.metric)
+  const stars = bestKeys(chron, exId, sum?.metric, kept)
   const assisted = isAssisted(exId)
   return list.slice(0, n).map((sess, k) => {
     const si = list.length - 1 - k
@@ -85,7 +88,9 @@ export function lastSessions(sum, exId, { n = 5, formula } = {}) {
 /** The best at each rep count (`reps`, exerciseSummary's), each with `isNew` when it was set in
  *  the `days` days up to `today` (an ISO date). */
 export function repBests(reps, today, days = 30) {
-  const since = new Date(new Date(today + 'T12:00:00').getTime() - days * DAY).toISOString().slice(0, 10)
+  const at = new Date(today + 'T12:00:00')
+  at.setDate(at.getDate() - days)
+  const since = isoOf(at)
   return (reps || []).map(x => ({ ...x, isNew: !!x.d && x.d >= since }))
 }
 

@@ -77,12 +77,13 @@ function CardHead({ title, link, label, onClick }) {
 /** The series that walk the whole log, worked out once per change of what they read (the fresh
  *  audit, 2026-11-21: they ran on every store write while the page was open). */
 function numbers(S, today, timeLog) {
+  const rs = S.routines
   const ws = weekStartOf(S)
   // The same day last week, for the week tiles' change (the critique, 2026-11-20).
   const before = isoOf(new Date(Date.parse(today + 'T12:00:00') - 7 * 86400000))
   return {
-    exMs: weekExerciseTime(timeLog, today, ws), exMsBefore: weekExerciseTime(timeLog, before, ws),
-    longest: longestExercises(timeLog, today),
+    exMs: weekExerciseTime(timeLog, today, ws, rs), exMsBefore: weekExerciseTime(timeLog, before, ws, rs),
+    longest: longestExercises(timeLog, today, 3, rs),
     bw: bodyWeightNow(S.bodyweight), pts: bodyWeightPoints(S.bodyweight, today),
     week: thisWeek(S.workouts, today, ws), lastWeek: thisWeek(S.workouts, before, ws),
     month: workoutsThisMonth(S.workouts, today), rpe: weekRpe(S.workouts, today, ws).rpe,
