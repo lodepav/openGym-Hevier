@@ -2,6 +2,21 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.5.0 · 2026-11-23
+
+Based on openGym 1.4.5.
+
+### New
+
+- the owner's corrections to the critique rounds (D150)
+
+### Fixes and changes
+
+- last time's effort readable on the open set's button
+- last time's RPE or RIR on the routine page
+- last time's RPE or RIR in the workout's PREVIOUS cell and effort button
+- Lifts pills keep their padding, the set tip waits for a swipe
+
 ## 3.4.0 · 2026-11-22
 
 Based on openGym 1.4.5.
