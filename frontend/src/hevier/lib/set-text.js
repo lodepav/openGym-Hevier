@@ -104,11 +104,7 @@ export const noEffort = x => {
  * With `effort` ('rpe' | 'rir') last time's rating follows short, "60 × 8 @ 8" or "60 × 8 · RIR 2" (D6).
  */
 export function previousCell(p, opts) {
-  const tail = side => {
-    const v = opts.effort ? previousEffort(p, side, opts.effort) : null
-    // A no-break space keeps the number with its "@" or "RIR" when a narrow cell wraps.
-    return v == null ? '' : opts.effort === 'rpe' ? ' @\u00a0' + fmtNum(v) : ' · RIR\u00a0' + fmtNum(v)
-  }
+  const tail = side => effortTail(p, side, opts.effort)
   const text = previousText(noEffort(p), opts)
   if (!opts.side && p && isSideSet(p) && !isHoldRow(p)) {
     const [l, r] = text.split(' · ')
@@ -118,6 +114,13 @@ export function previousCell(p, opts) {
   return text === '–' ? text : text + tail(opts.side)
 }
 
+
+/** Last time's rating as a cell's tail on scale `kind`: " @ 8", " · RIR 2", '' for none or no `kind` (D6). */
+export function effortTail(p, side, kind) {
+  const v = kind ? previousEffort(p, side, kind) : null
+  // A no-break space keeps the number with its "@" or "RIR" when a narrow cell wraps.
+  return v == null ? '' : kind === 'rpe' ? ' @\u00a0' + fmtNum(v) : ' · RIR\u00a0' + fmtNum(v)
+}
 
 /**
  * Last time's rating of set `p` (one side of it with `side`) on scale `kind` ('rpe' | 'rir'), a set
