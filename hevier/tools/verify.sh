@@ -33,11 +33,7 @@ already_checked() {
   # A fixture only when added: a changed or deleted one changes what the upgrade test checks.
   [[ -z "$(git diff --name-only --diff-filter=a "$last" HEAD -- frontend/src/hevier/upgrade/fixtures)" ]]
 }
-if already_checked; then
-  echo "verify: passed at $(git rev-parse --short "$(cat "$STAMP")"), and only docs or a new upgrade fixture changed since"
-  exit 0
-fi
-
+# The quick checks read .md files (SEAMS.md, DECISIONS.md, FEATURES.md), so they run even on a docs-only change.
 # One shipped in DECISIONS.md once (658d4cab).
 if git grep -nE '^(<{7}|>{7}|\|{7})( |$)' -- . ':!hevier/CONFLICTS.md'; then
   echo "verify: a conflict marker was left behind" >&2
@@ -50,6 +46,11 @@ diff <(hevier/tools/decision-index.sh) hevier/DECISIONS-INDEX.md || {
   exit 1
 }
 node hevier/tools/features-check.mjs
+if already_checked; then
+  echo "verify: passed at $(git rev-parse --short "$(cat "$STAMP")"), and only docs or a new upgrade fixture changed since"
+  exit 0
+fi
+
 node --test hevier/tools/*.test.mjs >/dev/null
 
 # What changed since the last pass, working tree included; without one, the last commit (a
@@ -66,10 +67,12 @@ if touched '^frontend/src/locales/'; then (cd frontend && node scripts/check-loc
 if touched '^frontend/android/'; then
   if [[ -n "${CI:-}" ]]; then
     echo "verify: the Android project changed; the fork's Java tests are skipped in CI, which has no Android SDK"
+    partial=1
   # A worktree that never ran `cap sync` has no generated Gradle files; the push from the main
   # checkout runs them.
   elif [[ ! -e frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle ]]; then
     echo "verify: the Android project changed; the fork's Java tests are skipped here, the Android project is not synced (cap sync)"
+    partial=1
   else
     (cd frontend/android && JAVA_HOME="$HOME/.local/opt/jdk21" ANDROID_HOME="$HOME/Android/Sdk" \
       "$ROOT/hevier/tools/heavy.sh" ./gradlew -q :app:testSideloadDebugUnitTest :app:compileSideloadReleaseJavaWithJavac)
@@ -84,6 +87,7 @@ pgrep -x qemu-system-x86 >/dev/null && workers=2
 "$ROOT/hevier/tools/heavy.sh" npx vitest run --config src/hevier/build/vitest-fast.config.js --maxWorkers="$workers" --retry=1
 VITE_HEVIER=1 "$ROOT/hevier/tools/heavy.sh" npx vite build --logLevel error
 cd "$ROOT"
-# The build's output is ignored, so this says whether the tree was clean all along.
-if clean; then git rev-parse HEAD > "$STAMP"; fi
+# The build's output is ignored, so this says whether the tree was clean all along. A skipped
+# Java step leaves no stamp, so a later run from a synced checkout still runs those tests.
+if clean && [[ -z "${partial:-}" ]]; then git rev-parse HEAD > "$STAMP"; fi
 echo "verify: passed"
