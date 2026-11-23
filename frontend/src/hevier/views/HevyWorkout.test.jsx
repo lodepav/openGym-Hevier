@@ -302,6 +302,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[1].className).toContain('hv-hint')   // the second exercise's reps, untouched
   })
 
+  it('a typed value stays bold on its own exercise when an exercise above it is removed (D2)', () => {
+    const EX2 = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: EX2, target: { sets: 1, reps: 8 }, sets: [reps(40, 8)] }])
+    typeInto(container.querySelectorAll('.hv-num')[3], '10')   // the second exercise's reps
+    act(() => useStore.getState().update(s => { s.active.entries.splice(0, 1) }))
+    expect(container.querySelectorAll('.hv-num')[1].className).not.toContain('hv-hint')
+  })
+
   it('an untouched value is the grey placeholder: typing replaces it, left empty it stays (D2)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     let w = container.querySelectorAll('.hv-num')[0]
