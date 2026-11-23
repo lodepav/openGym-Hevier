@@ -19,7 +19,7 @@ import { cleanNum } from '../../lib/format.js'
 import { previousSetsFor, previousMode } from './previous-sets.js'
 import { startLabelKey } from './gym-labels.js'
 import { isHoldRow, isPairTail } from './hold-set.js'
-import { previousText } from './set-text.js'
+import { previousText, effortTail } from './set-text.js'
 
 const isMap = v => !!v && typeof v === 'object' && !Array.isArray(v)
 // The heaviest weight and the most reps a plan takes, as upstream's session targets (#972) hold them.
@@ -233,10 +233,11 @@ export function stepped(S, cfg, field, v, dir) {
  * Last time's set `p` as the page's left column writes it, the workout's PREVIOUS (set-text.js
  * previousText): "60 kg × 8", "+10 kg × 12" or "× 12" on body weight, without the unit with `unit`
  * '', one side's with `side`; a timed, cardio or hold set as Workout Detail writes it; '–' for none.
- * `show` turns a stored weight into the exercise's unit (D41).
+ * `show` turns a stored weight into the exercise's unit (D41); `effort` ('rpe' | 'rir') adds last time's rating (D6).
  */
-export function lastText(p, { cfg, side = null, speedUnit, show = w => w, unit = '' }) {
-  return previousText(p, { side, mode: modeOf(cfg), bw: isBw(cfg), unit, show, id: cfg.id, target: cfg, speedUnit })
+export function lastText(p, { cfg, side = null, speedUnit, show = w => w, unit = '', effort = null }) {
+  const text = previousText(p, { side, mode: modeOf(cfg), bw: isBw(cfg), unit, show, id: cfg.id, target: cfg, speedUnit })
+  return text === '–' ? text : text + effortTail(p, side, effort)
 }
 
 /** Opens routines `rids`' plans in the running session on the draft `s`, and marks them as its. */

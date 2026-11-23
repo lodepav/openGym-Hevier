@@ -10,7 +10,7 @@ import { exOr } from '../../lib/exercises.js'
 import { exCount, fmtNum, todayISO, exerciseNameText } from '../../lib/format.js'
 import { fmtDate } from '../lib/dates.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../../lib/i18n.js'
-import { supersetUnits, isBw } from '../../lib/history.js'
+import { supersetUnits, isBw, modeOf, effortOf, EFFORT } from '../../lib/history.js'
 import { supersetMeta } from '../../lib/superset-meta.js'
 import { speedUnitOf } from '../../lib/speed.js'
 import { shownWeight, exUnitOf } from '../../lib/ex-unit.js'
@@ -46,6 +46,8 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const speedUnit = speedUnitOf(S)
   const show = w => shownWeight(S, x.id, w)
   const unit = exUnitOf(S, x.id)
+  // D6: with RPE or RIR on, last time carries its rating, as the workout's PREVIOUS does.
+  const effort = modeOf(cfg) === 'reps' && EFFORT[effortOf(S)] ? effortOf(S) : null
   // The brand (D28) and cable setup (D43) last time is read on, at the gym the session starts at.
   const label = [brandDefault(S, x.id, gym), isCable(x.id) && cableText(cableDefault(S, x.id, gym))].filter(Boolean).join(' · ')
   const unit2 = units.find(u => u.includes(x.idx))
@@ -67,14 +69,14 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
   const lines = set => {
     const [row] = set.rows
     if (set.plannable) return (isSideSet(row) ? ['L', 'R'] : [null]).map(side => ({
-      side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit }),
+      side, last: lastText(set.last[0], { cfg, side, speedUnit, show, unit, effort }),
       // An added weight's "+" only once one is planned: before a "–" it read as an add button (the eighth critique, 2026-11-22).
       next: <>{num(field(set, side, 'w'), isBw(cfg) && shownOf(S, field(set, side, 'w')) > 0 ? '+' : '')}{shownOf(S, field(set, side, 'w')) > 0 && ' ' + unit} × {num(field(set, side, 'r'))}</>,
     }))
     const pair = set.rows.length > 1
     return set.rows.map((s, i) => {
       const side = pair ? (i ? 'R' : 'L') : null
-      return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show, unit }), next: <span className="hv-np-ro">{setText(x.id, mapSetWeights(s, show), cfg, speedUnit, unit)}</span> }
+      return { side, last: lastText(set.last[i], { cfg, side, speedUnit, show, unit, effort }), next: <span className="hv-np-ro">{setText(x.id, mapSetWeights(s, show), cfg, speedUnit, unit)}</span> }
     })
   }
   // W and F said as words, as Workout detail does (the fresh audit, 2026-11-21). A timed hold,
@@ -85,7 +87,7 @@ function PlanExercise({ r, x, units, S, gym, fields, onPlan, note }) {
     : set.rows[0].failure ? <span className="hv-f" role="img" aria-label={t('Failure set')}>F</span>
     : workNumberOf(x.sets, set))
   // No weight last time reads "× 8" and is said "8 reps" (the ninth audit, 2026-11-22).
-  const repsSaid = text => (m => (m ? <><span aria-hidden="true">{text}</span><span className="hv-sr">{tn('{0} rep', '{0} reps', Number(m[1]))}</span></> : text))(/^× (\d+)$/.exec(text))
+  const repsSaid = text => (m => (m ? <><span aria-hidden="true">{text}</span><span className="hv-sr">{tn('{0} rep', '{0} reps', Number(m[1])) + (m[2] || '')}</span></> : text))(/^× (\d+)( .*)?$/.exec(text))
   // With auto warm-ups on (D69) the warm-ups ramp to the work weight, not last time's (the tenth critique, 2026-11-22).
   const ramps = progressionOn(r)
   const lastWarm = ramps ? x.sets.findLastIndex(set => set.kind === 'warm') : -1

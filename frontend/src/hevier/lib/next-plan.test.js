@@ -76,6 +76,12 @@ describe('hevier: what the next session opens with (D128)', () => {
     const bench = session.find(x => x.id === BENCH)
     expect(bench.sets.map(s => [s.key, s.rows[0].w, s.rows[0].r])).toEqual([['w0', 42.5, 8], ['0', 65, 8], ['1', 65, 7], ['2', 65, 6]])
     expect(bench.sets.map(s => lastText(s.last[0], { cfg: bench.cfg }))).toEqual(['42.5 × 8', '65 × 8', '65 × 7', '65 × 6'])
+    // D6: last time's rating follows with effort on, as the workout's PREVIOUS writes it.
+    const rated = { ...bench.sets[1].last[0], rpe: 8 }
+    expect(lastText(rated, { cfg: bench.cfg, effort: 'rpe' })).toBe('65 × 8 @\u00a08')
+    expect(lastText(rated, { cfg: bench.cfg, effort: 'rir' })).toBe('65 × 8 · RIR\u00a02')
+    expect(lastText(rated, { cfg: bench.cfg })).toBe('65 × 8')
+    expect(lastText(null, { cfg: bench.cfg, effort: 'rpe' })).toBe('–')
     // Never done: the routine's own numbers, and no last time.
     const dl = session.find(x => x.id === DEADLIFT)
     expect(dl.sets.map(s => [s.rows[0].w, s.rows[0].r, s.last[0]])).toEqual([[100, 5, null], [100, 5, null]])
