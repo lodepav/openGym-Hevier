@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { exerciseSummary, inRange } from './exercise-summary.js'
 import { EXDB, isAssisted } from '../../lib/exercises.js'
 import { modeOf } from '../../lib/history.js'
+import { estimate1RM } from '../../lib/onerm.js'
+import { workoutRecords } from './records.js'
 
 const BENCH = EXDB.find(e => /barbell bench press/i.test(e.n) && modeOf({ id: e.id }) === 'reps').id
 const ASSIST = EXDB.find(e => isAssisted(e.id))?.id
@@ -28,6 +30,32 @@ describe('hevier exercise summary', () => {
     expect(s.records.sessionVol).toMatchObject({ v: 975, d: '2026-09-01' })
     expect(s.series.main.map(p => p.y)).toEqual([60, 70, 70])
     expect(s.series.setVol.map(p => p.y)).toEqual([480, 625, 520])
+  })
+
+  it('warm-ups never count in the session volume, even with upstream’s switch on (D51)', () => {
+    // Session a with its 40 × 10 warm-up would read 1360 and beat b's 975.
+    expect(exerciseSummary({ ...S(log), volumeWarmups: true }, BENCH).records.sessionVol).toMatchObject({ v: 975, d: '2026-09-01' })
+  })
+
+  it('the best 1RM is the profile’s formula, the set’s RIR read in (D51)', () => {
+    const s = exerciseSummary({ ...S(log), oneRmFormula: 'brzycki' }, BENCH)
+    expect(s.records.e1rm).toEqual({ v: estimate1RM(62.5, 10, 'brzycki'), d: '2026-09-01' })
+    const rir = exerciseSummary({ ...S([W('r', '2026-09-01', [set(100, 5, { rir: 2 })])]), oneRmFormula: 'brzycki' }, BENCH)
+    expect(rir.records.e1rm.v).toBe(estimate1RM(100, 5, 'brzycki', 2))
+  })
+
+  it('the chart’s 1RM curve is in the profile’s formula too: its top is the Best 1RM tile', () => {
+    const s = exerciseSummary({ ...S(log), oneRmFormula: 'brzycki' }, BENCH)
+    expect(s.series.e1rm.map(p => p.y)).toEqual([estimate1RM(60, 8, 'brzycki'), estimate1RM(62.5, 10, 'brzycki'), estimate1RM(65, 8, 'brzycki')])
+    expect(Math.max(...s.series.e1rm.map(p => p.y))).toBe(s.records.e1rm.v)
+  })
+
+  it('its records equal records.js’s for the same log', () => {
+    const last = W('c', '2026-10-10', [set(75, 5), set(65, 10)])
+    const st = { ...S([...log.slice(0, 2), last]), volumeWarmups: true, oneRmFormula: 'brzycki' }
+    const recs = Object.fromEntries(workoutRecords(st, last).map(r => [r.kind, r.v]))
+    const s = exerciseSummary(st, BENCH)
+    expect(recs).toEqual({ weight: s.records.best.v, e1rm: s.records.e1rm.v, setVol: s.records.setVol.v, sessionVol: s.records.sessionVol.v })
   })
 
   it('reads a per-side set one side at a time, as the records do', () => {

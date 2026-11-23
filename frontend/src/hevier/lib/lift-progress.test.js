@@ -67,8 +67,14 @@ describe('currentPhase and windowFrom', () => {
     expect(windowFrom(S, 'phase', TODAY)).toBe(dayAgo(30))
   })
 
-  it('none when the latest workout has no phase', () => {
-    const S = state([phased(30, 'cutting'), phased(20, 'cutting'), phased(5, null)])
+  it('a workout without a phase neither ends the run nor starts it (D95)', () => {
+    const S = state([phased(30, 'cutting'), phased(20, null), phased(10, 'cutting'), phased(5, null)])
+    expect(currentPhase(S)).toEqual({ phase: 'cutting', since: dayAgo(30) })
+    expect(windowFrom(S, 'phase', TODAY)).toBe(dayAgo(30))
+  })
+
+  it('none when no workout has a phase', () => {
+    const S = state([phased(30, null), phased(5, null)])
     expect(currentPhase(S)).toBeNull()
     expect(windowFrom(S, 'phase', TODAY)).toBe(dayAgo(83))
     expect(currentPhase(state([]))).toBeNull()

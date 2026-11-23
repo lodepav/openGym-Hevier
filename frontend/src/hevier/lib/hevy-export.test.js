@@ -166,7 +166,7 @@ describe('hevier export to Hevy: set times and the gym (D143)', () => {
 
   it('makes the edit\'s body the v2 body less its id', () => {
     const v = v2Workout(finish(workoutDraft(ticked(), 'kg', GS), tpl), { workoutId: 'u-1' })
-    const { workout_id, ...rest } = v.workout
+    const { workout_id, is_private, ...rest } = v.workout
     expect(v2Update(v)).toEqual({ workoutUpdate: rest })
     expect('gym' in v2Update(v).workoutUpdate).toBe(false)
   })
@@ -603,6 +603,7 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     expect(sent.workout.gym).toEqual({ type: 'commercial', gym_id: 77 })
     expect(sent.workout.description).not.toMatch(/At Lemon Gym/)
     expect(sent.workout.workout_id).toMatch(/^[0-9a-f-]{36}$/)
+    expect(sent.workout.is_private).toBe(false)
     expect(st.out.w.a.id).toBe(sent.workout.workout_id)
     expect(st.gyms).toEqual({ g1: 77 })
     S.workouts.push({ ...ticked(), id: 'b', start: T0 + 86400e3, end: T0 + 90000e3 })
@@ -668,7 +669,7 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     calls.length = 0
     expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
     // Then edited to what the workout is now, as an edit is.
-    expect(keys()).toEqual(['POST /v2/workout', 'PUT /workout', 'PUT /v2/workout/' + wid])
+    expect(keys()).toEqual(['POST /v2/workout', 'GET /workout/' + wid, 'PUT /workout', 'PUT /v2/workout/' + wid])
     expect(calls.find(c => c[1] === '/v2/workout')[2].workout.workout_id).toBe(wid)
     expect(st.out.w.a.id).toBe(wid)
     expect(st.unsure).toEqual({})
@@ -687,7 +688,7 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     replies['GET /gyms/visited'] = []
     replies['GET /gyms/popular?latitude=56.9646269&longitude=24.1186412'] = []
     await exportOnce(S, st, { web })
-    expect(keys()).toEqual(['GET /gyms/visited', 'GET /gyms/popular?latitude=56.9646269&longitude=24.1186412', 'PUT /workout', 'PUT /v2/workout/HW'])
+    expect(keys()).toEqual(['GET /gyms/visited', 'GET /gyms/popular?latitude=56.9646269&longitude=24.1186412', 'GET /workout/HW', 'PUT /workout', 'PUT /v2/workout/HW'])
     const [old, v2] = calls.filter(c => c[0] === 'PUT').map(c => c[2])
     expect(old.workout_id).toBe('HW')
     expect(old.workout.startTime).toBe(T0 / 1e3)
@@ -725,7 +726,7 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     replies['GET /account'] = { username: 'me' }
     replies['GET /user_workouts_paged?username=me&limit=5&offset=0'] = { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] }
     await exportOnce(S, st, { web })
-    expect(keys()).toEqual(['GET /account', 'GET /user_workouts_paged?username=me&limit=5&offset=0', 'PUT /workout', 'PUT /v2/workout/TW'])
+    expect(keys()).toEqual(['GET /account', 'GET /user_workouts_paged?username=me&limit=5&offset=0', 'GET /workout/TW', 'PUT /workout', 'PUT /v2/workout/TW'])
     expect(st.out.w.a.id).toBe('TW')
   })
 
@@ -734,7 +735,33 @@ describe('hevier export to Hevy: the v2 routes and the gym (D143)', () => {
     st.out.w.a = { id: 'HW', h: 'repair' }
     st.gyms = { g1: 77 }
     expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
-    expect(keys()).toEqual(['PUT /workout', 'PUT /v2/workout/HW'])
+    expect(keys()).toEqual(['GET /workout/HW', 'PUT /workout', 'PUT /v2/workout/HW'])
     expect(st.out.w.a).toEqual({ id: 'HW', h: pending(S, { base: {}, out: { w: {} } }).workouts[0].h })
+  })
+
+  it('an edit leaves a workout made private in Hevy private', async () => {
+    const { S, st, calls, replies, web } = setup()
+    st.out.w.a = { id: 'HW', h: 'old' }
+    st.gyms = { g1: 77 }
+    replies['GET /workout/HW'] = { id: 'HW', is_private: true }
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    const [old, v2] = calls.filter(c => c[0] === 'PUT').map(c => c[2])
+    expect(old.workout.isPrivate).toBe(true)
+    expect('is_private' in v2.workoutUpdate).toBe(false)
+  })
+
+  it('an edit whose privacy Hevy will not tell goes as before; one that stops the pass stops it', async () => {
+    const { S, st, calls, replies, web } = setup()
+    st.out.w.a = { id: 'HW', h: 'old' }
+    st.gyms = { g1: 77 }
+    replies['GET /workout/HW'] = new HevyApiError(404, 'http 404')
+    expect(await exportOnce(S, st, { web })).toEqual({ sent: 1, refused: 0, error: null })
+    expect(calls.find(c => c[1] === '/workout' && c[0] === 'PUT')[2].workout.isPrivate).toBe(false)
+    const b = setup()
+    b.st.out.w.a = { id: 'HW', h: 'old' }
+    b.st.gyms = { g1: 77 }
+    b.replies['GET /workout/HW'] = new HevyApiError(429, 'rate-limit')
+    expect(await exportOnce(b.S, b.st, { web: b.web })).toEqual({ sent: 0, refused: 0, error: 'rate' })
+    expect(b.calls.some(c => c[0] === 'PUT')).toBe(false)
   })
 })

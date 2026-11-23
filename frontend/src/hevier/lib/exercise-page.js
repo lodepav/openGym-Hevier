@@ -15,9 +15,9 @@ const num = v => Number(v) || 0
 const parts = s => (isSideSet(s) ? [s.sides.L, s.sides.R].filter(p => p?.done === true) : [s])
 
 // The sets holding the page's bests, as "session index:set index" over `chron` (oldest first): a tie
-// keeps the first time it was reached, as the records do. The 1RM is upstream's estimate as the
-// summary's series reads it (onerm.js bestSetOf: the default formula, the set's RIR).
-function bestKeys(chron, exId, metric, kept) {
+// keeps the first time it was reached, as the records do. The 1RM is the profile's formula with the
+// set's RIR, as the summary's Best 1RM tile reads it.
+function bestKeys(chron, exId, metric, kept, formula) {
   const bests = {}
   const put = (kind, v, key, beats = (a, b) => a > b) => {
     if (v > 0 && (!bests[kind] || beats(v, bests[kind].v))) bests[kind] = { v, key }
@@ -35,7 +35,7 @@ function bestKeys(chron, exId, metric, kept) {
         if (metric !== 'weight' || !(r > 0)) continue
         put('weight', w, key, (a, b) => beatsWeight(exId, a, b))
         if (helped) continue
-        put('e1rm', estimate1RM(w, r, undefined, p.rir ?? null) || 0, key)
+        put('e1rm', estimate1RM(w, r, formula, p.rir ?? null) || 0, key)
         put('setVol', w * r, key)
       }
     })
@@ -65,13 +65,13 @@ function topSet(sess) {
  * The last `n` sessions of `sum` (exerciseSummary's, newest first) as the page's lines:
  * [{ id, d, mode, target, sets: [{ s, star, kinds }], effort: [{ rir } | { rpe }], trend, best, bestKind }].
  * `trend` is 1, 0, -1 or null, the top set against the session before's (the same kind of set);
- * `best` whether a set of it holds one of the bests, `bestKind` the first of them in KINDS order (null for none). `formula` is the profile's, for the arrow.
+ * `best` whether a set of it holds one of the bests, `bestKind` the first of them in KINDS order (null for none). `formula` is the profile's, for the arrow and the 1RM star.
  * `kept`, the ids of the sessions the bests count (D57), else all of them.
  */
 export function lastSessions(sum, exId, { n = 5, formula, kept } = {}) {
   const list = sum?.sessions || []
   const chron = [...list].reverse()
-  const stars = bestKeys(chron, exId, sum?.metric, kept)
+  const stars = bestKeys(chron, exId, sum?.metric, kept, formula)
   const assisted = isAssisted(exId)
   return list.slice(0, n).map((sess, k) => {
     const si = list.length - 1 - k

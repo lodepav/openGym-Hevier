@@ -79,7 +79,7 @@ describe('readExercise', () => {
 })
 
 describe('strengthSignal', () => {
-  it('has nothing without a phase on the latest workout, or anything to judge', () => {
+  it('has nothing without a phase on any workout, or anything to judge', () => {
     expect(signal([])).toBeNull()
     expect(signal(series(CHEST.slice(0, 2), [10, 5], [60, 50], null))).toBeNull()
     expect(signal([workout(1, 'cutting', { [CHEST[0]]: [[60, 8]] })])).toBeNull()   // no last time
@@ -167,6 +167,25 @@ describe('strengthSignal', () => {
     expect(r.phase).toBe('cutting')
     expect(r.phase_days).toBe(8)
     expect(r.exercises_falling).toBe(0)
+  })
+
+  it('a workout without a phase inside a cut neither ends it nor counts in it', () => {
+    const cut = series(CHEST.slice(0, 2), [20, 8, 1], [70, 65, 60])
+    const none = series(CHEST.slice(0, 2), [12], [70], null)[0]
+    const r = signal([cut[0], none, cut[1], cut[2]])
+    expect(r).toMatchObject({ phase: 'cutting', phase_days: 20, sessions_week_avg: 1.1 })
+    // The latest workout without a phase: the row follows the latest one with a phase.
+    const late = series(CHEST.slice(0, 2), [0], [60], null)[0]
+    expect(signal([cut[0], none, cut[1], late])).toMatchObject({ phase: 'cutting', phase_days: 20, last_workout_at: cut[1].end })
+  })
+
+  it('a workout in another phase still ends the run', () => {
+    const r = signal([
+      ...series(CHEST.slice(0, 2), [20], [70]),
+      ...series(CHEST.slice(0, 2), [12], [70], 'bulking'),
+      ...series(CHEST.slice(0, 2), [8, 1], [65, 60]),
+    ])
+    expect(r).toMatchObject({ phase: 'cutting', phase_days: 8 })
   })
 
   it('looks at three weeks only', () => {

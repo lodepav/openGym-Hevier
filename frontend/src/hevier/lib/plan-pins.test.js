@@ -3,7 +3,7 @@ import { pinOn } from './plan-pins.js'
 import { hooks } from '../hooks.js'
 import { pinState } from '../../lib/queue.js'
 import { effectiveRoutineIds } from '../../lib/history.js'
-import { refillAfter } from '../../lib/rotation.js'
+import { refillAfter, saveRotation, REST } from '../../lib/rotation.js'
 
 // A six-session rotation whose pass began Monday 2 Nov; Upper A and Lower A were done Sat 14 and
 // Sun 15 Nov, and today is Monday 16 Nov (the user's case, synthetic).
@@ -81,5 +81,28 @@ describe('a pass refill keeps the plans (S64, D124)', () => {
     const s = two()
     expect(refillAfter(s, s.workouts[1], TODAY, NOW)).toBe(true)
     expect(s.dayPlan['2026-11-20']).toBe('ua')
+  })
+
+  // A loop with a rest day refills through upstream's advanceLoop, which the editor's resync uses too.
+  const loop = () => S({
+    queue: { ids: ['ua', 'la'], since: SINCE, startsOn: '2026-11-02', label: 'TBJP', rotationId: 'r1' },
+    rotation: { id: 'r1', sequence: ['ua', 'la', REST, 'ub'], label: 'TBJP', at: 0 },
+    dayPlan: { '2026-11-20': 'ua' },
+  })
+
+  it('with the hook on a loop refill keeps the pin (G2)', () => {
+    hooks.keepPinsOnRefill = true
+    const s = loop()
+    expect(refillAfter(s, s.workouts[1], TODAY, NOW)).toBe(true)
+    expect(s.queue.ids).toEqual(['ub'])
+    expect(s.dayPlan['2026-11-20']).toBe('ua')
+  })
+
+  it("with the hook on the editor's resync of a loop still sweeps the pin", () => {
+    hooks.keepPinsOnRefill = true
+    const s = loop()
+    saveRotation(s, ['ua', 'la', REST, 'ub'], 'TBJP', TODAY, NOW)
+    expect(s.queue.ids).toEqual(['ub'])
+    expect(s.dayPlan['2026-11-20']).toBeUndefined()
   })
 })

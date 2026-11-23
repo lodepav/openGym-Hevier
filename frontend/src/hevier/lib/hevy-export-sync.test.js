@@ -224,7 +224,7 @@ describe('sendToHevy over the private web API (D138)', () => {
     hevy({ 'GET /account': { username: 'me' }, 'GET /user_workouts_paged?username=me&limit=5&offset=0': { workouts: [{ id: 'TW', start_time: T0 / 1e3 }] } })
     file.unsure = { a: 1 }
     const st = await mod.sendToHevy(getState, { force: true })
-    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['PUT /workout', 'PUT /v2/workout/TW'])
+    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['GET /workout/TW', 'PUT /workout', 'PUT /v2/workout/TW'])
     expect(web.find(c => c.key === 'PUT /workout').body.workout_id).toBe('TW')
     expect(st.out.w.a.id).toBe('TW')
   })
@@ -233,7 +233,7 @@ describe('sendToHevy over the private web API (D138)', () => {
     hevy({ 'PUT /workout': 404 })
     file.out.w.a = { id: 'OLD', h: 'repair' }
     const st = await mod.sendToHevy(getState, { force: true })
-    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['PUT /workout'])
+    expect(web.map(c => c.key).filter(k => k.includes('/workout'))).toEqual(['GET /workout/OLD', 'PUT /workout'])
     expect(st.out.w.a.id).toBe('OLD')
     expect(st.out.w.a.h).not.toBe('repair')
     expect(st.last.error).toBeNull()

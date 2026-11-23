@@ -16,7 +16,9 @@ export function nextPlanned(S, today) {
     d.setDate(d.getDate() + i)
     const iso = isoOf(d)
     if (workoutsOn(S, iso).length) continue
-    const ids = effectiveRoutineIds(S, iso, today)
+    // A later day as of itself: upstream's queue answers only for its own today, so once today is
+    // trained or rested the rotation's next session would show nowhere until midnight.
+    const ids = effectiveRoutineIds(S, iso, i ? iso : today)
     if (ids.length) return { iso, ids }
   }
   return null

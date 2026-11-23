@@ -11,7 +11,7 @@ import { entryLastKey } from './gym-labels.js'
 import { mainMuscleOf } from './main-muscle.js'
 import { workoutTrends } from './set-trend.js'
 import { isPairTail } from './hold-set.js'
-import { workoutPhase } from './shared-phase.js'
+import { phaseRun } from './shared-phase.js'
 import { workSets } from './volume.js'
 
 const DAY = 24 * 3600 * 1000
@@ -82,21 +82,18 @@ export function arrows(S, w, i) {
 }
 
 /**
- * The row OpenBite reads, or null for nothing to share: no phase on the latest workout, or no
- * exercise to judge in the period. Only the workouts of the current phase count, each still held
- * against the session before it, whichever phase that was in.
+ * The row OpenBite reads, or null for nothing to share: no phase on any workout, or no exercise to
+ * judge in the period. Only the workouts of the current phase count (phaseRun), each still held
+ * against the session before it, whichever phase or none that was in.
  */
 export function strengthSignal(S, today, now = Date.now()) {
   const log = (Array.isArray(S?.workouts) ? S.workouts : [])
     .filter(w => w?.d)
     .sort((a, b) => a.d.localeCompare(b.d) || (a.start || 0) - (b.start || 0))
-  if (!log.length) return null
-  const last = log[log.length - 1]
-  const phase = workoutPhase(last)
-  if (!phase) return null
-  let from = log.length - 1
-  while (from > 0 && workoutPhase(log[from - 1]) === phase) from--
-  const run = log.slice(from)
+  const current = phaseRun(log)
+  if (!current) return null
+  const { phase, run } = current
+  const last = run[run.length - 1]
   const todayNo = dayNo(today)
   const phaseDays = todayNo - dayNo(run[0].d)
 
