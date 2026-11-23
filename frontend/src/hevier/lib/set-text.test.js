@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hevySetText, hevySetLabel, previousText, previousCell, setFormat, setText, setRuns } from './set-text.js'
+import { hevySetText, hevySetLabel, previousText, previousCell, previousEffort, setFormat, setText, setRuns } from './set-text.js'
 
 describe('the fork’s set format', () => {
   it('spaces the sign: plain, drops, bursts, per side', () => {
@@ -120,5 +120,34 @@ describe('previousCell (D127)', () => {
     expect(previousCell(p, opts)).toBe('L 15 kg × 15\nR 15 kg × 15')
     expect(previousCell(p, { ...opts, side: 'R' })).toBe('15 kg × 15')
   })
+  it('adds last time’s rating with `effort` on, on the profile’s scale', () => {
+    const o = { ...opts, unit: '' }
+    expect(previousCell({ w: 60, r: 8, rpe: 9 }, { ...o, effort: 'rpe' })).toBe('60 × 8 @\u00a09')
+    expect(previousCell({ w: 60, r: 8, rpe: 9 }, { ...o, effort: 'rir' })).toBe('60 × 8 · RIR\u00a01')
+    expect(previousCell({ w: 60, r: 8 }, { ...o, effort: 'rpe' })).toBe('60 × 8')
+    expect(previousCell(null, { ...o, effort: 'rpe' })).toBe('–')
+    const p = { sides: { L: { w: 15, r: 15, rpe: 6 }, R: { w: 15, r: 15 } } }
+    expect(previousCell(p, { ...o, effort: 'rpe' })).toBe('L 15 × 15 @\u00a06\nR 15 × 15')
+    expect(previousCell(p, { ...o, side: 'L', effort: 'rpe' })).toBe('15 × 15 @\u00a06')
+  })
 })
 
+
+describe('previousEffort', () => {
+  it('reads last time’s rating on the profile’s scale, either way it was logged', () => {
+    expect(previousEffort({ w: 60, r: 8, rpe: 8 }, undefined, 'rpe')).toBe(8)
+    expect(previousEffort({ w: 60, r: 8, rpe: 8 }, undefined, 'rir')).toBe(2)
+    expect(previousEffort({ w: 60, r: 8, rir: 1 }, undefined, 'rpe')).toBe(9)
+    expect(previousEffort({ w: 60, r: 8, rir: 0 }, undefined, 'rir')).toBe(0)
+  })
+  it('reads one side of a per-side set', () => {
+    const p = { sides: { L: { w: 10, r: 8, rpe: 7 }, R: { w: 10, r: 8, rpe: 9.5 } } }
+    expect(previousEffort(p, 'R', 'rpe')).toBe(9.5)
+  })
+  it('is null for no set, an unrated one, or a failure set nobody rated', () => {
+    expect(previousEffort(null, undefined, 'rpe')).toBe(null)
+    expect(previousEffort({ w: 60, r: 8 }, undefined, 'rpe')).toBe(null)
+    expect(previousEffort({ w: 60, r: 8, type: 'failure' }, undefined, 'rpe')).toBe(null)
+    expect(previousEffort({ w: 60, r: 8, rpe: 8 }, 'L', 'rpe')).toBe(null)
+  })
+})
