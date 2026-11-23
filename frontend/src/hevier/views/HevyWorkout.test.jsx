@@ -293,6 +293,15 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(nums[3].className).toContain('hv-hint')       // set 3, untouched
   })
 
+  it('a typed value stays with its exercise when the exercise above it is removed (D2)', () => {
+    const EX2 = EXDB.find(e => e.id !== EX && /barbell/i.test(e.eq || '')).id
+    render([{ id: EX, target: { sets: 1, reps: 8 }, sets: [reps(60, 8)] }, { id: EX2, target: { sets: 1, reps: 8 }, sets: [reps(40, 8)] }])
+    typeInto(container.querySelectorAll('.hv-num')[1], '10')   // the first exercise's reps
+    act(() => useStore.getState().update(s => { s.active.entries.splice(0, 1) }))
+    const nums = container.querySelectorAll('.hv-num')
+    expect(nums[1].className).toContain('hv-hint')   // the second exercise's reps, untouched
+  })
+
   it('an untouched value is the grey placeholder: typing replaces it, left empty it stays (D2)', () => {
     render([{ id: EX, target: { sets: 2, reps: 8 }, sets: [reps(60, 8), reps(60, 8)] }])
     let w = container.querySelectorAll('.hv-num')[0]
@@ -485,6 +494,14 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     act(() => container.querySelector('.hv-chk').click())
     expect(sets()[0]).toMatchObject({ sec: 75, done: true })
     expect(sets()[0].hvRun).toBeUndefined()
+  })
+
+  it('Finish stops a count-up timer still running, its time written in (D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ w: 0, sec: 30, done: false, hvRun: Date.now() - 40_000 }] }])
+    act(() => container.querySelector('.hv-finish').click())
+    expect(sets()[0].hvRun).toBeUndefined()
+    expect(sets()[0].sec).toBe(40)
   })
 
   it('a hold stopped from the big clock or its own end is firm, not a grey hint (D2, D89)', () => {
