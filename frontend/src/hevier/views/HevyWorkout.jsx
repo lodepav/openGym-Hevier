@@ -85,6 +85,7 @@ export default function HevyWorkout({ units, editing, blockProps, bindExRef, bin
   const auto = big ? false : !!edge || progressOpen(A, units)
   // A card is keyed by its exercise (and which of the same it is), not its place: its D2 marks and
   // running-clock memory stay with it when an exercise above is removed, moved or swapped.
+  // shortcut: the same exercise twice hands marks to the other copy when the first goes; key by an entry id if entries get one.
   const exKey = idx => A.entries[idx].id + '#' + A.entries.slice(0, idx).filter(e => e.id === A.entries[idx].id).length
   const [manual, setManual] = useState(null)
   const shown = resolveOpen(auto, manual)
