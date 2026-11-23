@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { workNumberOf, openedHolds, holdsOf, plannedHold, setHold, shiftHolds, pruneHolds, openHold, holdsAfter, canPlanHolds, HOLD_MAX } from './routine-holds.js'
 import { isPlain, plainRows, refillRows } from './plain-routine.js'
 import { buildPlannedEntry } from '../../lib/session-start.js'
-import { makeSideSet } from '../../lib/workout-model.js'
+import { makeSideSet, syncSideAggregate } from '../../lib/workout-model.js'
+import { toSideHold } from './hold-set.js'
 import { mergeStates, stampChange } from '../../lib/sync-merge.js'
 import { hooks } from '../hooks.js'
 import { nextSession } from './next-plan.js'
@@ -52,12 +53,18 @@ describe('hevier routine holds (D146)', () => {
     // A carried hold with nothing planned is marked; a planned rep set opens at the routine's reps,
     // at last time's weight on that set (the routine's when last time had none).
     expect(openHold(curl, 1, base, { w: 25, mode: 'time', sec: 60 })[0].hvHeld).toBe(2)
-    expect(openHold(setHold(curl, 1, 0), 1, base, { w: 25, mode: 'time', sec: 60 })).toEqual([{ ...base, w: 25 }])
+    // Last time's weight is marked as filled from last time (D2 grey, no cascade onto it).
+    expect(openHold(setHold(curl, 1, 0), 1, base, { w: 25, mode: 'time', sec: 60 })).toEqual([{ ...base, w: 25, weightOrigin: 'manual', hvLast: 1 }])
     expect(openHold(setHold(curl, 1, 0), 1, base, { w: 0, mode: 'time', sec: 60 })).toEqual([base])
     // A per-side set becomes D89's L/R pair.
     const side = makeSideSet({ w: 20, r: 20 })
     const pair = openHold(setHold({ ...curl, side: true }, 0, 30), 0, side, side)
     expect(pair.map(r => [r.side, r.mode, r.sec, r.hvHeld])).toEqual([['L', 'time', 30, 1], ['R', 'time', 30, 1]])
+    // A planned rep set over last time's per-side hold pair: each side takes its half's weight.
+    const [lastL, lastR] = toSideHold(side, 40).map((r, i) => ({ ...r, w: i ? 32 : 30 }))
+    const [back] = openHold(setHold({ ...curl, side: true }, 0, 0), 0, side, [lastL, lastR])
+    expect([back.sides.L.w, back.sides.R.w, back.sides.L.r, back.hvLast]).toEqual([30, 32, side.sides.L.r, 'LR'])
+    expect(back).toEqual(syncSideAggregate(back))
   })
 
   it('a plain routine opens the planned set as a hold; last time’s hold carries over elsewhere', () => {

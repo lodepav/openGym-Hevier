@@ -63,6 +63,22 @@ describe('redoing a session restarts the pass from it (D124)', () => {
     expect(restartOnRedo(s, (s.workouts.push(w('ua', '2026-11-17')), s.workouts.at(-1)), '2026-11-17')).toBe(false)
   })
 
+  it('a backfilled redo older than a later workout of the pass credits as upstream does', () => {
+    const s = S()
+    const q = s.queue
+    // Upper A redone on the 14th's evening, logged after Lower A of the 15th.
+    const back = { ...w('ua', '2026-11-14'), id: 'w-back', start: Date.parse('2026-11-14T18:00:00') }
+    expect(finish(s, back, '2026-11-17')).toBe(false)
+    expect(s.queue).toBe(q)
+  })
+
+  it('a combined workout redoing two sessions starts at the earlier in the sequence', () => {
+    const s = S()
+    const both = { ...w('la', '2026-11-17'), routineIds: ['la', 'ua'] }
+    expect(finish(s, both, '2026-11-17')).toBe(true)
+    expect(s.queue.ids[0]).toBe('ua')
+  })
+
   it('keeps the plans', () => {
     const s = S()
     finish(s, w('ua', '2026-11-17'), '2026-11-17')

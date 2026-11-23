@@ -144,6 +144,34 @@ describe('hevier: keep the workout’s changes in its routine (D35)', () => {
     expect(u.ex[0].restSec).toBeUndefined()
   })
 
+  it('"No timer" is written as restOff, and a rest back to the default clears it', () => {
+    const S = state()
+    const A = start(S)
+    A.entries[1].target = { ...A.entries[1].target, restOff: true }
+    const u = one(S, A)
+    expect(u.ex[1].restOff).toBe(true)
+    expect(u.ex[1].restSec).toBeUndefined()
+    const r = routine()
+    r.ex[1].restOff = true
+    const S2 = state(r)
+    const B = start(S2)
+    delete B.entries[1].target.restOff
+    delete B.entries[1].target.restSec
+    const v = one(S2, B)
+    expect(v.ex[1].restOff).toBeUndefined()
+  })
+
+  it('warm-ups typed into a slot that chose none become its own block, as upstream writes them', () => {
+    const r = routine()
+    r.ex[1].warmup = 'none'
+    const S = state(r)
+    const A = start(S)
+    A.entries[1].sets.unshift({ w: 30, r: 5, warmup: true, edited: true, done: true })
+    const u = one(S, A)
+    expect(u.ex[1].warmup).toBe('own')
+    expect(u.ex[1].warmupRows).toHaveLength(1)
+  })
+
   it('a superset survives a removed partner as a single exercise', () => {
     const r = routine()
     r.ex[1].sg = 'g'; r.ex[2].sg = 'g'
