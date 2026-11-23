@@ -41,3 +41,10 @@ Round 2 tests: area vitest plus BackupsSheet.test.jsx, 35 files, 276 passed and 
 | 3 | - | - | notes: round 1-2 fixes checked and kept; no fork CSS selector outside `:root[data-ui="hevier"]` (every rule parsed); hevier-checks.yml checks out without `persist-credentials: false` (token is contents: read, push-only); cdp.mjs `send()` waits forever if the app dies mid-command | - | not findings |
 
 Round 3 tests: area vitest 34 files, 273 passed and 1 expected fail.
+| 4 | I1 | low | sibling_check.sh repeats its header in a comment above `emu()`, the only difference from OpenBite's copy | accept | the two comment lines removed; the copies are byte-identical again and the check still passes |
+| 4 | I2 | low | `partial=1` in verify.sh's CI branch is never read, CI has no stamp | withdrawn | by the reviewer: it closes a local run with `CI=1` |
+| 4 | - | - | notes: every round 1-3 fix questioned and kept; no dead exports in the fork's lib, hooks, flag or boot-look; hevier.css, screens.mjs and usage-report.py not combed for dead rules | - | not findings |
+
+Round 4 net: 0 added, 2 removed (I1, comment lines).
+
+Noise floor: round 4 raised one low.
