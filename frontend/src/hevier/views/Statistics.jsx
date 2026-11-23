@@ -76,13 +76,13 @@ function CardHead({ title, link, label, onClick }) {
 
 /** The series that walk the whole log, worked out once per change of what they read (the fresh
  *  audit, 2026-11-21: they ran on every store write while the page was open). */
-function numbers(S, today) {
+function numbers(S, today, timeLog) {
   const ws = weekStartOf(S)
   // The same day last week, for the week tiles' change (the critique, 2026-11-20).
   const before = isoOf(new Date(Date.parse(today + 'T12:00:00') - 7 * 86400000))
   return {
-    exMs: weekExerciseTime(S.workouts, today, ws), exMsBefore: weekExerciseTime(S.workouts, before, ws),
-    longest: longestExercises(S.workouts, today),
+    exMs: weekExerciseTime(timeLog, today, ws), exMsBefore: weekExerciseTime(timeLog, before, ws),
+    longest: longestExercises(timeLog, today),
     bw: bodyWeightNow(S.bodyweight), pts: bodyWeightPoints(S.bodyweight, today),
     week: thisWeek(S.workouts, today, ws), lastWeek: thisWeek(S.workouts, before, ws),
     month: workoutsThisMonth(S.workouts, today), rpe: weekRpe(S.workouts, today, ws).rpe,
@@ -163,12 +163,14 @@ export default function Statistics() {
   const ws = useMemo(() => countedWorkouts(raw.workouts, raw.routines), [raw.workouts, raw.routines])
   const counted = useMemo(() => (ws === raw.workouts ? raw : { ...raw, workouts: ws }), [raw, ws])
   const S = usePhasedS(counted)
+  // Times from the uncounted log: timedSessions drops a kept-out entry after timing it, so its time stays its own (D57, D88).
+  const timeLog = usePhasedS(raw).workouts
   const phase = useStatsPhase(s => s.phase)
   // Counts the Sets per muscle tile's taps: each opens its card on Week, the tile's period (the tenth critique, 2026-11-22).
   const [setsWeek, setSetsWeek] = useState(0)
   const today = todayISO()
   // The counted, phased log is a new copy on each write: key on what it is made from instead.
-  const n = useMemo(() => numbers(S, today), [raw.workouts, raw.routines, raw.bodyweight, raw.modules, raw.hvModuleParts, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
+  const n = useMemo(() => numbers(S, today, timeLog), [raw.workouts, raw.routines, raw.bodyweight, raw.modules, raw.hvModuleParts, phase, today, weekStartOf(S)]) // eslint-disable-line react-hooks/exhaustive-deps
   // Upstream links into its own statistics with ?focus=… (Plan's weekly muscle volume row).
   if (/[?&]focus=/.test(search)) return <Navigate to={'/stats/all' + search} replace />
   const layout = S.hvStatsLayout || {}

@@ -81,6 +81,17 @@ describe('hevier: Statistics and Measures (M6)', () => {
     expect(container.querySelector('.hv-allstats .hv-title').textContent).toBe('All statistics')
   })
 
+  it('a kept-out entry\'s time does not go to the exercise after it (D57, D88)', () => {
+    const SQUAT = EXDB.find(e => /^barbell full squat$/i.test(e.n)).id
+    const t0 = Date.parse(todayISO() + 'T08:00:00'), at = min => t0 + min * 60000
+    const tick = min => ({ w: 60, r: 8, done: true, at: at(min) })
+    render(['/history-tab', '/stats'], { workouts: [{ id: 'wt', d: todayISO(), name: 'Push', start: t0, end: at(25), vol: 0,
+      entries: [{ id: SQUAT, noProg: true, sets: [tick(5), tick(10), tick(15)] }, { id: BENCH, sets: [tick(18), tick(21)] }] }] })
+    // Bench took 18 → 21 plus the 3 min before its first set; from the start it would read 21 min.
+    expect(container.querySelector('[data-card="time"] .hv-scard-row b').textContent).toBe('6 min')
+    expect(container.querySelector('[data-tile="time"] b').textContent).toBe('6 min')
+  })
+
   it('a write to a field the page reads draws it again; another write does not (useSlicedS)', () => {
     render(['/stats'], { workouts: [workout(todayISO())], bodyweight: [{ d: daysAgo(1), w: 82.4 }] })
     const tile = () => container.querySelector('[data-tile="weight"]').getAttribute('aria-label')
