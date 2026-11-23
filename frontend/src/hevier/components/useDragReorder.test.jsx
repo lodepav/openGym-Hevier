@@ -78,4 +78,24 @@ describe('hevier: useDragReorder long press', () => {
     act(() => r1.click())
     expect(clicks).toEqual([1, 1])          // and the next tap is a click again
   })
+
+  it('a list that unmounts and comes back with as many rows still holds the page while a row is lifted', () => {
+    let show
+    function Hidden() {
+      const [on, setOn] = React.useState(true)
+      show = setOn
+      const { listRef, press } = useDragReorder(3, () => {})
+      return on ? <div ref={listRef}>{[0, 1, 2].map(i => <div key={i} data-reorder-row="" {...press(i)}>row {i}</div>)}</div> : <p>searching</p>
+    }
+    act(() => root.render(<Hidden />))
+    act(() => show(false))                   // a search hides the list
+    act(() => show(true))                    // and clearing it brings a new one, same count
+    const r0 = container.firstChild.children[0]
+    r0.getBoundingClientRect = () => ({ top: 0, height: H, bottom: H, left: 0, right: 300, width: 300, x: 0, y: 0 })
+    pointer(r0, 'pointerdown', 25)
+    act(() => vi.advanceTimersByTime(450))
+    const tm = new Event('touchmove', { bubbles: true, cancelable: true })
+    r0.dispatchEvent(tm)
+    expect(tm.defaultPrevented).toBe(true)
+  })
 })
