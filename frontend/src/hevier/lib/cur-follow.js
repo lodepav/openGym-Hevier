@@ -21,7 +21,12 @@ export function initCurFollow(store) {
   return store.subscribe((state, before) => {
     const A = state.S?.active, B = before.S?.active
     if (!A || !B || A === B || A.id !== B.id) return
-    const cur = curAfter(B, A)
-    if (cur != null) store.update(s => { if (s.active?.id === A.id) s.active.cur = cur })
+    // After the change is done: a multi-pick add (D78) places each pick after `cur`, and Add
+    // superset reads the last pick from it, so moving it between picks scrambles them.
+    queueMicrotask(() => {
+      const now = store.get()?.active
+      const cur = now?.id === A.id ? curAfter(B, now) : null
+      if (cur != null) store.update(s => { if (s.active?.id === A.id) s.active.cur = cur })
+    })
   })
 }

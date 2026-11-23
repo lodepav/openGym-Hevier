@@ -17,6 +17,8 @@ import { installExercisePicker } from './ExercisePickerHevy.jsx'
 import { fromSpeed } from '../../lib/speed.js'
 import { clampIncline } from '../../lib/incline.js'
 import { stopped } from '../lib/set-timer.js'
+import { initCurFollow } from '../lib/cur-follow.js'
+import { storeAdapter } from '../lib/store-watch.js'
 
 vi.mock('../flag.js', () => ({ HEVIER: true }))
 vi.mock('../../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn(), alertBuzz: vi.fn(), unlock: vi.fn() }))
@@ -771,6 +773,30 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(es[3].sg).toBe(es[2].sg)
     expect(es[0].sg || es[1].sg).toBeFalsy()
     done()
+  })
+
+  it('with the app\'s cur-follow on, two picks still go in the order picked and Add superset links them (D78)', () => {
+    const { OTHER, rows, button, done } = openPicker()
+    const stop = initCurFollow(storeAdapter(useStore))
+    try {
+      act(() => rows[0].click())
+      act(() => rows[1].click())
+      act(() => button('Add superset').click())
+      const es = useStore.getState().S.active.entries
+      expect(es).toHaveLength(4)
+      expect([es[0].id, es[1].id]).toEqual([EX, OTHER])
+      expect(es[2].sg).toBeTruthy()
+      expect(es[3].sg).toBe(es[2].sg)
+    } finally { stop(); done() }
+    const p = openPicker()
+    const stop2 = initCurFollow(storeAdapter(useStore))
+    try {
+      act(() => p.rows[0].click())
+      act(() => p.rows[1].click())
+      act(() => p.button('Insert after').click())
+      const es = useStore.getState().S.active.entries
+      expect(es.map(e => e.id)[3]).toBe(p.OTHER)   // the picks sit between EX and OTHER, OTHER stays last
+    } finally { stop2(); p.done() }
   })
 
   it('Insert after puts the pick after the current exercise; Add to end after the last one', () => {
