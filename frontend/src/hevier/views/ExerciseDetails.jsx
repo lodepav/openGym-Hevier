@@ -103,7 +103,7 @@ const shortSet = (ex, s, target, st) => {
 function LastSessions({ ex, sum, kept, st, onAll }) {
   const byId = new Map((st.workouts || []).filter(w => w.id != null).map(w => [w.id, w]))
   // The stars only on sessions the bests count (D57): `kept` is the counted summary.
-  const lines = lastSessions(sum, ex.id, { formula: formulaOf(st), kept: kept && kept !== sum ? new Set(kept.sessions.map(s => s.id)) : undefined })
+  const lines = lastSessions(sum, ex.id, { formula: formulaOf(st), kept: new Set(kept.sessions.map(s => s.id)) })
   const scale = effortScale(st)
   return <section className="hv-xd-last">
     <div className="hv-xd-cap"><h4 className="sec">{t('Last sessions')}</h4>

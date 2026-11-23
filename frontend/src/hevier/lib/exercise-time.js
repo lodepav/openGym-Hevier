@@ -11,6 +11,7 @@ import { entryTimes } from '../../lib/exercise-time.js'
 import { countedWorkouts } from '../../lib/counted-log.js'
 import { hasCompletedWork } from '../../lib/workout-model.js'
 import { t } from '../../lib/i18n.js'
+import { isoOf } from '../../lib/format.js'
 
 // The per-entry times are upstream's own now; the fork adds the sessions and sections on top.
 export { entryTimes }
@@ -104,5 +105,5 @@ export function periodSince(period, today) {
   if (!days) return ''
   const d = new Date(today + 'T12:00:00')
   d.setDate(d.getDate() - days + 1)
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+  return isoOf(d)
 }

@@ -42,3 +42,10 @@ Round 2 tests: strength-signal, strength-signal-run, lift-progress and Lifts tes
 | 3 | - | - | 1 withdrawn (levels form's unrounded fields: `convertWeight` rounds); notes: G3's fix drops an R row's vote even when only R is ticked; Strength levels page reads the profile unit, the exercise page the exercise's (D41) | - | not findings |
 
 Round 3 tests: the area's files, 49 files 419 passed; exercise-page, measures-rows and exercise-time tests also under `TZ=Pacific/Auckland`, 24 passed. A whole-frontend run with these changes: 1095 files passed, SetVideo.test.jsx (outside the area, untouched) failed twice under load and passed on its own, 10 passed.
+| 4 | I1 | low | LastSessions' `kept && kept !== sum` guard checks states that cannot change the stars | accept | always passes the counted summary's ids; with nothing kept out every session is in it, so the stars are the same; the H2 tests still pass |
+| 4 | I2 | low | "N days before an ISO date" and day numbers are written by hand about six times; `periodSince` formats by hand what `isoOf` does | accept in part | `periodSince` returns `isoOf(d)`; one shared `daysBefore` / `dayNo` deferred: four files touched to save about six lines |
+| 4 | - | - | 1 withdrawn (`longestExercises`' literal `3` before `routines`); notes: `findLast` possible in measures-rows (not used, the oldest WebView not checked); several exports used only in their own file | - | not findings |
+
+Round 4 tests: the area's files, 49 files 419 passed. Round 4 net: 3 added, 3 removed in code (I1, I2), no test lines.
+
+Noise floor: round 4 raised only lows, none a correctness finding.
