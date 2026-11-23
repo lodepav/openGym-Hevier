@@ -514,6 +514,13 @@ describe('hevier: Log Workout screen (seam S3)', () => {
     expect(sets()[0].sec).toBe(40)
   })
 
+  it('a set ticked on the watch while its clock ran shows the time it was ticked with (D53)', () => {
+    vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
+    render([{ id: EX, target: { mode: 'time', sets: 1, sec: 30 }, sets: [{ w: 0, sec: 30, done: true, hvRun: Date.now() - 40_000 }] }])
+    expect(container.querySelector('.hv-running')).toBeNull()
+    expect(container.querySelector('.hv-go.on')).toBeNull()
+  })
+
   it('a hold stopped from the big clock or its own end is firm, not a grey hint (D2, D89)', () => {
     vi.setSystemTime(Date.parse('2026-10-18T10:00:00'))
     const now = Date.now()
