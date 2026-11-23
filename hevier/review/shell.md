@@ -48,3 +48,5 @@ Round 3 tests: area vitest 34 files, 273 passed and 1 expected fail.
 Round 4 net: 0 added, 2 removed (I1, comment lines).
 
 Noise floor: round 4 raised one low.
+
+Finish: `hevier/tools/heavy.sh hevier/tools/verify.sh` at the round 4 commit: "Test Files 1096 passed (1096)", "Tests 11788 passed | 1 expected fail", "verify: passed". Gradle not run (no Android file changed).
