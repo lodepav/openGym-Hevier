@@ -52,7 +52,7 @@ import HvIcon from './HvIcon.jsx'
 import { RUN, secOf, fieldValue, stopped, startRun, runningSec, sinceStart, stoppedRows } from '../lib/set-timer.js'
 import { holdClockSheet, openHoldClock } from './ClockSheet.jsx'
 import { longRun } from '../lib/odd-value.js'
-import { previousCell } from '../lib/set-text.js'
+import { previousCell, previousEffort } from '../lib/set-text.js'
 import { liftSetText } from '../lib/lifts-list.js'
 import { useCardState } from './useCardState.js'
 import { exUnitOf, exUnitChoice, shown, convert } from '../lib/ex-unit.js'
@@ -400,6 +400,8 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const src = side ? (s.sides?.[side] || {}) : s
     const v = src[effortCol.f] ?? null
     const color = effortColor(effortKind === 'rpe' ? (v == null ? null : 10 - v) : v)
+    // A set not rated or ticked yet shows last time's rating, grey (the owner, 2026-11-23).
+    const was = v == null && !src.done ? previousEffort(prev[i], side, effortKind) : null
     const log = () => {
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
       const freshSrc = side ? fresh?.sides?.[side] : fresh
@@ -417,9 +419,10 @@ function HevyExerciseBlock({ entryIdx, live }) {
       </>)
       : effortPickerSheet(effortKind, v, onPick))
     return <button type="button" className={'hv-eff' + (v == null ? ' empty' : '') + (asTick ? ' hv-eff-tick' : '')} onClick={open}
-      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : v == null ? t(effortCol.hd) : effortKind === 'rir' ? (v === 1 ? t('1 rep in reserve') : t('{0} reps in reserve', fmtNum(v))) : t(effortCol.hd) + ' ' + fmtNum(v))}
+      aria-label={rowName(s, i) + (side ? ' (' + sideWord(side) + ')' : '') + ', ' + (asTick ? (effortKind === 'rir' ? t('log it with reps in reserve') : t('log it with {0}', t(effortCol.hd))) : v == null ? t(effortCol.hd) : effortKind === 'rir' ? (v === 1 ? t('1 rep in reserve') : t('{0} reps in reserve', fmtNum(v))) : t(effortCol.hd) + ' ' + fmtNum(v)) + (was == null ? '' : ', ' + t('Last time') + ' ' + fmtNum(was))}
       style={color && v != null ? { color: effortInk(color), background: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}>
-      {v == null ? t(effortCol.hd) : fmtNum(v)}
+      {v != null ? fmtNum(v) : was == null ? t(effortCol.hd)
+        : asTick ? <>{t(effortCol.hd)} <span className="hv-eff-was">{fmtNum(was)}</span></> : <span className="hv-eff-was">{fmtNum(was)}</span>}
     </button>
   }
 
@@ -517,10 +520,11 @@ function HevyExerciseBlock({ entryIdx, live }) {
     const sideTag = side || s.side
     // A half of a hold pair reads its own side of a per-side set last time.
     const prevSide = side || (s.side && isSideSet(p) ? s.side : undefined)
-    const prevText = previousCell(p, { ...prevOpts, side: prevSide })
+    const prevText = previousCell(p, { ...prevOpts, side: prevSide, effort: effOn ? effortKind : null })
     // Said with its unit: the column header that names it is hidden from TalkBack (the fresh audit, 2026-11-21).
     // No weight is said "8 reps", not "× 8" (the ninth audit, 2026-11-22).
-    const prevSaid = liftSetText(p, { ...prevOpts, unit: exUnit, side: prevSide })
+    const prevEff = effOn ? previousEffort(p, prevSide, effortKind) : null
+    const prevSaid = liftSetText(p, { ...prevOpts, unit: exUnit, side: prevSide }) + (prevEff == null ? '' : ', ' + t(effortCol.hd) + ' ' + fmtNum(prevEff))
     const canCopy = side ? !!(p && (isSideSet(p) || isHoldRow(p))) : !!p
     // With effort on, a set not ticked yet has the effort button in the tick's place (the user, 2026-11-16).
     const effTick = effOn && effAt(s) && !goOn && !src.done

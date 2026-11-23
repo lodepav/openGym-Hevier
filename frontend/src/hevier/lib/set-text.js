@@ -9,6 +9,7 @@ import { elapsedClock } from './elapsed.js'
 import { isHoldRow } from './hold-set.js'
 import { setBandsOf } from '../../lib/bands.js'
 import { mapSetWeights } from '../../lib/units.js'
+import { toScale } from '../../lib/effort.js'
 
 const PLAIN = /^(\d[\d.,]*)×(\d+)( .+)?$/
 const TIGHT = /(\d)×(?=\d)/g
@@ -98,11 +99,32 @@ export const noEffort = x => {
 }
 
 /**
- * The live workout's PREVIOUS column (D127): previousText without the effort, so last time reads on
+ * The live workout's PREVIOUS column (D127): previousText without upstream's "(RPE 8)", so last time reads on
  * one line where it can, and a per-side set read whole as two lines, "L 15 × 15" over "R 15 × 15".
+ * With `effort` ('rpe' | 'rir') last time's rating follows short, "60 × 8 @ 8" or "60 × 8 · RIR 2" (D6).
  */
 export function previousCell(p, opts) {
+  const tail = side => {
+    const v = opts.effort ? previousEffort(p, side, opts.effort) : null
+    // A no-break space keeps the number with its "@" or "RIR" when a narrow cell wraps.
+    return v == null ? '' : opts.effort === 'rpe' ? ' @\u00a0' + fmtNum(v) : ' · RIR\u00a0' + fmtNum(v)
+  }
   const text = previousText(noEffort(p), opts)
-  return !opts.side && p && isSideSet(p) && !isHoldRow(p) ? text.replace(' · ', '\n') : text
+  if (!opts.side && p && isSideSet(p) && !isHoldRow(p)) {
+    const [l, r] = text.split(' · ')
+    if (r != null) return l + tail('L') + '\n' + r + tail('R')
+    return text
+  }
+  return text === '–' ? text : text + tail(opts.side)
 }
 
+
+/**
+ * Last time's rating of set `p` (one side of it with `side`) on scale `kind` ('rpe' | 'rir'), a set
+ * logged in the other scale converted; null when it was not rated (a failure mark alone is no rating).
+ */
+export function previousEffort(p, side, kind) {
+  const x = side ? p?.sides?.[side] : p
+  if (!x || (x.rir == null && x.rpe == null)) return null
+  return toScale(kind, x.rir != null ? x.rir : 10 - x.rpe)
+}
