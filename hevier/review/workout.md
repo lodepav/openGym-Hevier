@@ -43,8 +43,8 @@ Round 2 tests: the area's files plus finish-labels and gym-labels, 51 files 393 
 | 3 | - | - | notes: pairing two exercises remounts their cards (as before round 2); "N sets not ticked" is stale while the sheet is open and the watch ticks | - | not findings |
 
 Round 3 tests: the area's files plus finish-labels and gym-labels, 51 files 395 passed.
-| 4 | I1 | medium | The Finish sheet's Save still writes the labels the finish watcher already wrote | accept | the sheet's labelsAtFinish/withLabels and its comment removed; the watcher writes synchronously inside upstream's finish, before the sheet's own update |
+| 4 | I1 | medium | The Finish sheet's Save still writes the labels the finish watcher already wrote | reject | tried and reverted: the full suite's Gyms.test.jsx ("Save on the Finish sheet writes the gym and the brand") checks the sheet's own write without the watcher; the second write is idempotent |
 | 4 | I2 | low | cur-follow's microtask checks the session id twice | accept | the inner check goes; `update` is synchronous right after the fresh read |
 | 4 | - | - | 2 withdrawn (finish-labels' JSON compare, finish-labels-run's early exit) | - | reviewer's own counterargument |
 
-Round 4 tests: the area's files plus finish-labels and gym-labels, 51 files 395 passed. Round 4 net: 7 added, 11 removed.
+Round 4 tests: the area's files plus finish-labels and gym-labels, 51 files 395 passed. Round 4 net: 1 added, 1 removed (I2; I1 reverted).
