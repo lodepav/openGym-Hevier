@@ -37,3 +37,13 @@ Round 1 tests: vitest 22 files 214 passed; node --test hevier/tools 36 passed.
 | 2 | - | - | 3 withdrawn (session from another page, path injection through ids, empty digest in publish()) | - | reviewer's own counterargument |
 
 Round 2 tests: node --test hevier/tools 36 passed (supply-chain 8). No high or medium stood: early exit, round 3 skipped.
+| 4 | H1 | medium | `apk_permissions` repeats `against()` (the empty-read guard had to go in twice) | accept | now one pipeline into `against`; `--lists-only` on the debug APK: 37 permissions, all listed; only the "gone" line's wording changes |
+| 4 | H2 | low | `rebrand` and `byName` in hevy-import.js move ids the same way | reject | saves ~6 lines across two import paths for a refactor risk; tests pass either way |
+| 4 | H3 | low | Both workout loops in hevy-export-sync.js end with the same five lines | accept | `sentAs(item, id)` beside `refuse`; area tests 214 passed |
+| 4 | H4 | low | Username lookup and paged workouts URL written twice | reject | ~3 lines; the callers react differently to no user |
+| 4 | H6 | low | `shouldOffer`'s `busy` is always false in the app | reject | tests use it as its own unit; saving is small |
+| 4 | H7 | low | `hevyGymFor` filters id-less gyms its caller already dropped | reject | exported pure helper, the filter costs nothing |
+| 4 | H8 | low | seam-check SKILL.md repeats seam_check.py, and its pathspec misses `android/app/src/hevier*` and `public/hevier` | defer | a skill edit needs a dry-run; verify.sh runs the script, so nothing slips through |
+| 4 | - | - | 5 withdrawn (H5 isPrivate waits on G3, H9 publish() cert pin, H10 early tool tests, H11 first removeSecret, H12/H13 shared fetch helpers) | - | reviewer's own counterargument |
+
+Round 4 tests: vitest 22 files 214 passed; node --test hevier/tools 36 passed. Round 4 net: 11 added, 21 removed.
