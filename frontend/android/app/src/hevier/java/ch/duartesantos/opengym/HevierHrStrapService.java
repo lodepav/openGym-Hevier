@@ -291,7 +291,8 @@ public class HevierHrStrapService extends Service {
             main.post(() -> {
                 if (g != gatt) return;
                 Log.i(TAG, "connection state " + newState + ", status " + status);
-                if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) g.discoverServices();
+                // A discovery that won't start would leave the link "connecting" for good: dropped, it is made again.
+                if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) { if (!g.discoverServices()) g.disconnect(); }
                 // A link that came up with an error, or went down, is made again: left as it was, it
                 // stayed "connecting" for good.
                 else if (newState == BluetoothProfile.STATE_DISCONNECTED || status != BluetoothGatt.GATT_SUCCESS) retry();
@@ -414,11 +415,13 @@ public class HevierHrStrapService extends Service {
             ch.setShowBadge(false);
             nm.createNotificationChannel(ch);
         }
-        Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
-        PendingIntent tap = open == null ? null : PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        // MainActivity itself, not the launcher alias: HevierIconPlugin may switch that one off (D123).
+        Intent open = new Intent(this, MainActivity.class).setAction(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_LAUNCHER).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent tap = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder b = new Notification.Builder(this, CHANNEL_ID);
         b.setSmallIcon(R.drawable.ic_stat_dumbbell).setContentTitle(title).setContentText(text).setOngoing(true).setOnlyAlertOnce(true).setShowWhen(false);
-        if (tap != null) b.setContentIntent(tap);
+        b.setContentIntent(tap);
         return b.build();
     }
 

@@ -17,8 +17,8 @@ vi.mock('@capacitor/core', () => ({
     sessions: async () => ({ sessions: [] }),
     start: async arg => { h.calls.push(['start', arg.session, arg.address]) },
     stop: async () => { h.calls.push(['stop']) },
-    recording: async () => ({ text: '' }),
-    clear: async () => {},
+    recording: async arg => { h.calls.push(['recording', arg.session]); return { text: '' } },
+    clear: async arg => { h.calls.push(['clear', arg.session]) },
   }),
 }))
 
@@ -69,5 +69,21 @@ describe('hevier: the strap at run time (D79)', () => {
     expect(run.liveStrap().last).toEqual({ t: 1000, bpm: 130 })
     h.listeners.reading({ t: 2000, hex: '04ff', bpm: 255 })      // contact supported, none
     expect(run.liveStrap().last).toEqual({ t: 1000, bpm: 130 })
+  })
+
+  it('a saved workout stops the service, then reads its recording and lets the file go', async () => {
+    S.workouts.push({ id: 'w1', entries: [] })
+    S.active = null
+    bump()
+    await settled()
+    expect(h.calls.slice(1)).toEqual([['stop']])
+    await vi.waitFor(() => expect(h.calls.slice(1)).toEqual([['stop'], ['recording', 'w1'], ['clear', 'w1']]), { timeout: 3000 })
+  })
+
+  it('a discarded workout stops the service and lets its recording go unread', async () => {
+    S.active = null
+    bump()
+    await settled()
+    await vi.waitFor(() => expect(h.calls.slice(1)).toEqual([['stop'], ['clear', 'w1']]), { timeout: 3000 })
   })
 })
