@@ -2,6 +2,15 @@
 
 Written by hevier/tools/release-notes.mjs at each release (D52).
 
+## 3.5.2 · 2026-11-24
+
+Based on openGym 1.4.5.
+
+### Fixes and changes
+
+- exercises without a Hevy id export as their old one
+- lever incline chest press exports to its Hevy built-in
+
 ## 3.5.1 · 2026-11-23
 
 Based on openGym 1.4.5.
