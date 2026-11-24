@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, bare, isImported, EXPORT_FIXES, builtinTemplates, webWorkout, v2Workout, v2Update, repairMarks } from './hevy-export.js'
+import { rpeOf, workoutDraft, routineDraft, fingerprint, baseline, pending, templateFinder, newTemplate, finish, bare, isImported, EXPORT_FIXES, FORMER_IDS, builtinTemplates, webWorkout, v2Workout, v2Update, repairMarks } from './hevy-export.js'
 import { exportOnce } from './hevy-export-sync.js'
 import { HevyApiError, HEVY_ID_MAP } from '../../lib/import-hevy.js'
 import { HEVY_TITLE_MAP } from '../../lib/hevy-id-map.js'
@@ -539,6 +539,15 @@ describe('hevier export to Hevy: the private web API and the repair (D138)', () 
     expect(f('1479', 'LifeFitness', '', false)?.id).toBe('LF')
     // the custom an earlier export made for it is replaced by the repair
     expect(repairMarks({ workouts: [] }, { tpl: { 1299: { id: 'f7d6da6c' } }, out: { w: {} } }, f).tpl[1299]?.id).toBe('FBF92739')
+  })
+
+  it('sends an exercise the upstream map no longer names as the Hevy exercise it named before, last of all', () => {
+    const f = find({})
+    expect(f('1452')?.id).toBe('EB43ADD4')   // lever seated crunch → Crunch (Machine)
+    expect(f('1350')?.id).toBe('1DF4A847')   // lever seated row → Seated Row (Machine)
+    expect(f('0607')?.id).toBe('3092FADD')   // lever triceps extension → Triceps Extension (Machine)
+    expect(f('0770')?.id).toBe('DDCC3821')   // smith squat → Squat (Smith Machine)
+    for (const ex of Object.keys(FORMER_IDS)) expect(f(ex), ex).not.toBeNull()
   })
 
   it('writes the old PUT /workout body an edit still makes: camelCase, seconds, every measure, the type as indicator', () => {

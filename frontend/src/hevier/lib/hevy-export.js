@@ -331,6 +331,24 @@ export const EXPORT_FIXES = {
   1299: 'FBF92739',   // lever incline chest press → Incline Chest Press (Machine), which the import now reads as 1479
 }
 
+/**
+ * Exercises upstream's map named before fababd2f8 (2026-10-19) moved each Hevy id to another
+ * exercise, leaving them none: sent as that Hevy exercise when nothing else matches, not as a new custom.
+ */
+export const FORMER_IDS = {
+  '0065': 'D53F2886', '0067': 'FB09C938', '0127': '40C6A9FC', '0168': '22578A94', '0196': '8C331CD8',
+  '0206': '9F48F858', '0243': '92D858EA', '0313': '1D4B3D6B', '0443': 'A01BE509', '0459': '2FA77B28',
+  '0493': '39C99849', '0521': '1B89CA1B', '0529': '89304423', '0544': '3FF6A22E', '0575': 'AF328E3D',
+  '0607': '3092FADD', '0624': 'C8706C80', '0631': '9F9C164B', '0767': '742E5BD5', '0770': 'DDCC3821',
+  '0803': '218DA87C', '0809': '20C1A3CB', '0830': 'CD6DC8E5', '0858': '9283BABA', '0865': '09C9F635',
+  '0970': '56808FD2', '0972': 'A41C7261', '0977': 'DF200976', '0979': 'CC55119B', '0983': 'D82EA543',
+  1003: 'A8814C06', 1258: 'E644F828', 1350: '1DF4A847', 1372: 'E53CCBE5', 1409: '49C922A1',
+  1410: 'F2A37357', 1426: '95F2E076', 1452: 'EB43ADD4', 1457: '073032BB', 1494: '8C9D2928',
+  1495: 'DBE341AA', 1675: '90427D4A', 1700: '542F3CD5', 2137: 'A69FF221', 2143: 'D4A2FE7E',
+  2271: 'A0D8FA1B', 2330: 'D2FE7B2E', 3142: '6622E5A0', 3193: '68B83EE0', 3360: 'B3B1D947',
+  3543: '9694DA61', 3655: '150E076B', 3663: '99B49684',
+}
+
 /** Hevy's built-in templates (hevy-builtins.js) in the shape of the official API's template list. */
 export const builtinTemplates = () => HEVY_BUILTINS.map(([id, title, type]) => ({ id, title, type, is_custom: false }))
 
@@ -369,11 +387,12 @@ export function templateFinder(templates, S) {
     const id = canonicalExId(HEVY_ID_MAP[t.id])
     if (id && EXIDX[id]) put(id, t)
   }
+  for (const [exId, hevyId] of Object.entries(FORMER_IDS)) if (byId.has(hevyId)) put(exId, byId.get(hevyId))
   const byTitle = new Map()
   for (const t of list) if (!byTitle.has(norm(t.title))) byTitle.set(norm(t.title), t)
   const exs = new Map(allExercises(S || {}).map(e => [e.id, e]))
   // A brand copy of a fix-table built-in is keyed by the exercise the import reads it as.
-  const via = id => EXPORT_FIXES[id] && canonicalExId(HEVY_ID_MAP[EXPORT_FIXES[id]])
+  const via = id => { const h = EXPORT_FIXES[id] || FORMER_IDS[id]; return h && canonicalExId(HEVY_ID_MAP[h]) }
   return (exId, brand, cable, side) => {
     const k = brand && brandKey(exId, brand, cable, side)
     if (k && branded.has(k)) return branded.get(k)
