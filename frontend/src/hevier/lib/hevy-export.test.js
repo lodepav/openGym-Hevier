@@ -531,6 +531,16 @@ describe('hevier export to Hevy: the private web API and the repair (D138)', () 
     expect(HEVY_ID_MAP[f(squat)?.id]).toBe(squat)
   })
 
+  it('sends lever incline chest press as the built-in whose artwork moved to another exercise, and to its brand copy', () => {
+    const f = templateFinder([...builtinTemplates(),
+      { id: 'LF', title: 'Incline Chest Press (Machine) (brand:LifeFitness)', type: 'weight_reps', is_custom: true }], {})
+    expect(f('1299')?.id).toBe('FBF92739')
+    expect(f('1299', 'LifeFitness', '', false)?.id).toBe('LF')
+    expect(f('1479', 'LifeFitness', '', false)?.id).toBe('LF')
+    // the custom an earlier export made for it is replaced by the repair
+    expect(repairMarks({ workouts: [] }, { tpl: { 1299: { id: 'f7d6da6c' } }, out: { w: {} } }, f).tpl[1299]?.id).toBe('FBF92739')
+  })
+
   it('writes the old PUT /workout body an edit still makes: camelCase, seconds, every measure, the type as indicator', () => {
     const body = finish(workoutDraft(workout()), ex => ({ id: ex === squat ? 'SQ' : 'LC', type: 'weight_reps' }))
     const w = webWorkout(body, { titleOf: id => ({ SQ: 'Squat (Barbell)' })[id], clientId: 'c-1' })

@@ -328,6 +328,7 @@ export const EXPORT_FIXES = {
   5178: '629AE73D',   // lever single leg extension (plate loaded) → Single Leg Extensions
   9868: '9264ADA1',   // cable 45 degrees single arm reverse fly → Reverse Fly Single Arm (Cable)
   5033: '552AB030',   // cable single arm triceps pushdown (rope attachment) → Single Arm Triceps Pushdown (Cable)
+  1299: 'FBF92739',   // lever incline chest press → Incline Chest Press (Machine), which the import now reads as 1479
 }
 
 /** Hevy's built-in templates (hevy-builtins.js) in the shape of the official API's template list. */
@@ -371,9 +372,13 @@ export function templateFinder(templates, S) {
   const byTitle = new Map()
   for (const t of list) if (!byTitle.has(norm(t.title))) byTitle.set(norm(t.title), t)
   const exs = new Map(allExercises(S || {}).map(e => [e.id, e]))
+  // A brand copy of a fix-table built-in is keyed by the exercise the import reads it as.
+  const via = id => EXPORT_FIXES[id] && canonicalExId(HEVY_ID_MAP[EXPORT_FIXES[id]])
   return (exId, brand, cable, side) => {
     const k = brand && brandKey(exId, brand, cable, side)
     if (k && branded.has(k)) return branded.get(k)
+    const kv = brand && via(exId) && brandKey(via(exId), brand, cable, side)
+    if (kv && branded.has(kv)) return branded.get(kv)
     if (found.has(exId)) return found.get(exId)
     const t = byTitle.get(norm(exs.get(exId)?.n))
     return t ? { id: String(t.id), type: t.type || null } : null
