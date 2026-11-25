@@ -12,13 +12,13 @@ Each journey has two modes. **Walk**: the `ux-reviewer` agent walks it as above 
 the end state, the saved data read from the app's store after a restart, not pixels. It is for
 after an upstream merge: a merge can keep every unit test green and still break the wiring (a seam
 no longer called, a moved handler, a sheet that will not open). Each journey's **Check:** line says
-what its end state must be and which steps are scripted; J1, J8 and J8b are, the others are Walk
-only for now. Every failed check fails the run, and so does a difference from the baseline kept on
+what its end state must be and which steps are scripted; every journey but J1's swipes and the
+judgement steps is. Every failed check fails the run, and so does a difference from the baseline kept on
 this machine (`~/.cache/hevier/journeys/<J>.json`; `--accept <J>` keeps a meant change). The script
 saves the app's data first and puts it back on every exit.
 
 ```bash
-ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh            # J1 J8 J8b
+ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh            # J1 to J7, J8, J8b
 ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh J8 --accept # J8's differences are meant
 ```
 
@@ -124,8 +124,10 @@ Has used Hevy for a year and wants their history and routines to come along.
    a Hevy user (C5, H2)?
 
 **Check:** nothing is imported (S.workouts as before); the routine edited and put back has the same
-sets as before (its exercises, sets, reps and warm-ups); the leg press's brand is unchanged. Not
-scripted yet. Step 4 is judgement only.
+sets as before (its exercises, sets, reps and warm-ups); the leg press's brand is unchanged.
+Scripted: step 1 sees the import rows and taps none (no file on the device, so no CSV summary),
+step 2 searches Lifts for "life fitness" and opens the leg press, step 3 opens Leg Day's page and
+editor, adds a set to its first exercise and removes it. Step 4 is judgement only.
 
 ## J3 The two-gym lifter
 
@@ -142,7 +144,8 @@ Trains at a city gym on weekdays and a smaller one at weekends.
 
 **Check:** no workout saved (S.active empty, S.workouts as before); the brand picked for the leg
 press stays for that gym in S.hvMachines and the other gym keeps its own; the cable's ×2 is in
-S.hvCables for that gym; no gym added (Find gyms nearby never tapped). Not scripted yet.
+S.hvCables for that gym; no gym added (Find gyms nearby never tapped). Scripted: every step; the
+search in step 4 tries a few gym-only words until one says "N hidden at <gym>".
 
 ## J4 The per-side and timer user
 
@@ -158,7 +161,8 @@ Does rehab work: single-leg exercises, planks and the bike.
 
 **Check:** no workout saved; the single-leg exercise's side order is right first in S.hvSideOrder;
 while it ran, the plank's hold kept the time stopped and the bike's set read 12:34 (min 12.57),
-and after 20 s away the set timer showed the time since ▶. Not scripted yet.
+and after 20 s away the set timer showed the time since ▶. Scripted: every step; step 4 runs the
+bike's second set timer and presses Home over adb.
 
 ## J5 The numbers person
 
@@ -175,7 +179,10 @@ Wants to know whether they are progressing.
 6. Calendar: show earlier months, and a planned day.
 
 **Check:** read only: S.workouts, S.routines and the strength levels as before; after Reset the
-statistics layout is the default again. Not scripted yet.
+statistics layout is the default again. Scripted: steps 1 to 6 as taps, with a few fixed numbers
+pinned in the baseline (workout and routine counts, the latest workout's detail, the leg press's
+page). Left out: History's three numbers (they moved to the Statistics tiles, D142) and step 2's
+reading, which is judgement.
 
 ## J6 The planner
 
@@ -188,8 +195,10 @@ Sets up next month's training.
 4. Delete the routine and the folder. Is each step confirmed or undoable?
 
 **Check:** S.rotation and S.dayPlan as before; S.routines and S.hvFolders as before (the routine
-and folder made and deleted); the backup marked missing went with its routine (S.hvGymMissing as
-before). Not scripted yet.
+and folder made and deleted); S.hvGymMissing as before. The mark is kept per exercise, not per
+routine, so deleting the routine does not take it back: the journey taps the gym chip a second
+time before it deletes. Scripted: steps 1 to 4, the reorder by the tap path (Move up). Left out:
+the reorder by handle (a drag) and the rep range (shown only with progression on, D69).
 
 ## J7 Low vision, one hand, in the gym
 
@@ -202,7 +211,9 @@ Wears no glasses at the gym and holds a phone in one hand between sets.
 3. Put `font_scale` back to `1.0` and relaunch.
 
 **Check:** J1's end state at `font_scale 2.0`, and `font_scale` back at 1.0 afterwards. Partial:
-what is readable and reachable with one hand is judgement only (Walk). Not scripted yet.
+what is readable and reachable with one hand is judgement only (Walk). Scripted: J1's steps at
+2.0, the AX names of the set row's fields, the set-type letter, the tick and the rest buttons read
+mid-workout (each must have one), and 1.0 set back on every exit.
 
 ## J8 The owner's Upper A
 

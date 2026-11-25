@@ -9,6 +9,8 @@
 // hold nothing that moves with the date or the clock: no ids, timestamps or heart rates, and J1,
 // whose routine is the one Today plans, keeps only its rules' outcomes.
 
+import { createHash } from 'node:crypto'
+
 // The owner's profile (~/.cache/hevier/owner-profile.tar, from the 2026-11-18 backup).
 export const OWNER = {
   UPPER_A: 'mvdp0joqy9lf7', LOWER_A: 'mvdp0joqq1vn3',
@@ -20,8 +22,15 @@ export const J8_TYPED = {
   TOP_STEP: 2.5, TOP_RPE: 9.5, BACK_RPE: 9, PRESS_BRAND: 'Evolve', PRESS_KG: 72.6, NOTE: 'Journey check',
   CURL: { L: 10, R: 8 }, TRICEPS: { L: 11, R: 9 },
 }
-export const SCRIPTED = ['J1', 'J8', 'J8b']
-export const PROFILE_OF = { J1: 'ux', J8: 'owner', J8b: 'owner' }
+export const SCRIPTED = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J8b']
+export const PROFILE_OF = { J1: 'ux', J2: 'ux', J3: 'ux', J4: 'ux', J5: 'ux', J6: 'ux', J7: 'ux', J8: 'owner', J8b: 'owner' }
+// What J3, J4 and J6 add (catalogue ids): the test profile's leg press and cable (JOURNEYS.md, "Set up on
+// 2026-10-25"), a one-limb, a timed and a cardio exercise, and three plain ones for a new routine.
+export const UX = {
+  LEG_PRESS: '0739', CABLE: '1323', ONE_LEG: '0733', PLANK: '0463', BIKE: '0798',
+  NEW_ROUTINE: ['0274', '0499', '0612'], BACKUP: '0001', ROUTINE: 'Leg Day',
+  FOLDER: 'Journey folder', ROUTINE_NAME: 'Journey routine', BIKE_DIGITS: '1234', BIKE_SHOWN: '12:34', BIKE_SEC: 754,
+}
 
 const num = v => (v == null || v === '' ? null : Number(v))
 const round = v => (v == null ? null : Math.round(Number(v) * 1000) / 1000)
@@ -281,14 +290,14 @@ export function checkJ8b(run) {
  * { before, after, skipped }, swap: { idx, from, to }, routine (routineFacts before), ui: { saved,
  * inHistory, detailShowsWeight } }.
  */
-export function checkJ1(run) {
+export function checkJ1(run, J = 'J1') {
   const { problems, want } = checker()
   const { S, opened } = run
   const w = (S.workouts || []).filter(x => x.start > (run.since || 0)).at(-1)
   const checks = {}
-  const rule = (name, ok, line) => { checks[name] = want(ok, 'J1: ' + line) }
+  const rule = (name, ok, line) => { checks[name] = want(ok, J + ': ' + line) }
   rule('started from Today', !!run.started, 'Today had no Start button for the next session')
-  if (!want(w, 'J1: no workout saved by this run')) return { problems, facts: { checks } }
+  if (!want(w, J + ': no workout saved by this run')) return { problems, facts: { checks } }
   rule('named as Today said', w.name === run.started, `the workout is "${w.name}", Today said "${run.started}"`)
   rule('saved toast', run.ui.saved, 'Finish did not say "Workout saved"')
   const p = run.prefilled, t = run.typed
@@ -322,7 +331,190 @@ function hrChecks(run, w, want, J) {
   want(sets.every(s => Number(s.hr?.avg) > 0), `${J}: --hr, but ${sets.filter(s => !(Number(s.hr?.avg) > 0)).length} ticked sets have no heart rate`)
 }
 
-export const CHECKS = { J1: checkJ1, J8: checkJ8, J8b: checkJ8b }
+/* ------------------------------------------- the test profile's journeys, J2 to J7 -- */
+
+const hashOf = v => createHash('sha1').update(JSON.stringify(v ?? null)).digest('hex').slice(0, 12)
+const gymNames = S => Object.fromEntries((S?.equipProfiles || []).filter(p => p?.id != null).map(p => [p.id, p.name || String(p.id)]))
+const asList = v => (Array.isArray(v) ? [...v] : [])
+
+/**
+ * What J2 to J7 compare before and after: the log, the routines and the plan as hashes and counts,
+ * the per-gym maps keyed by gym name (no ids in the facts), and the fork's layout fields as they are.
+ */
+export function snapOf(S) {
+  const g = gymNames(S)
+  const byName = m => Object.fromEntries(Object.entries(m || {}).sort().map(([ex, by]) => [ex, Object.fromEntries(Object.entries(by || {}).map(([k, v]) => [g[k] ?? k, v]).sort())]))
+  return {
+    workouts: hashOf(S.workouts), nWorkouts: (S.workouts || []).length, active: !!S.active,
+    routines: hashOf(S.routines), nRoutines: (S.routines || []).length,
+    gyms: Object.values(g).sort(),
+    machines: byName(S.hvMachines), cables: byName(S.hvCables),
+    missing: Object.fromEntries(Object.entries(S.hvGymMissing || {}).sort().map(([ex, ids]) => [ex, asList(ids).map(i => g[i] ?? i).sort()])),
+    sideOrder: { ...(S.hvSideOrder || {}) }, strength: hashOf(S.hvStrength || {}), layout: S.hvStatsLayout ?? null,
+    week: S.week || {}, dayPlan: S.dayPlan || {}, rotation: hashOf(S.rotation ?? null),
+    folders: asList(S.hvFolders), foldersClosed: asList(S.hvFoldersClosed),
+  }
+}
+
+// A journey's named rules, as J1 keeps them: each one's outcome goes to the facts, a failure to the problems.
+const rules = J => {
+  const { problems, want } = checker()
+  const checks = {}
+  const rule = (name, ok, line) => { checks[name] = want(ok, J + ': ' + line) }
+  return { problems, checks, rule }
+}
+const same = (rule, a, b, field, name, line) => rule(name, eqJ(a?.[field], b?.[field]), `${line}: ${JSON.stringify(a?.[field])} → ${JSON.stringify(b?.[field])}`)
+
+/**
+ * J2, the Hevy switcher: reads the import, finds the leg press by its brand, edits a routine's sets
+ * and puts them back. `run`: { before, after (snapOf), routine: { name, before, after (routineFacts),
+ * sets: { before, added, removed } }, ui: { importShown, liftFound, liftOpened, labels, routinePage,
+ * editor } }.
+ */
+export function checkJ2(run) {
+  const { problems, checks, rule } = rules('J2')
+  const { before, after, routine: r, ui } = run
+  rule('nothing imported', before.workouts === after.workouts && before.nWorkouts === after.nWorkouts, `S.workouts changed (${before.nWorkouts} → ${after.nWorkouts} workouts): something was imported or edited`)
+  rule('import section shown', ui.importShown, 'step 1: Settings → Data shows no "Import backup" and "Import from another app"')
+  rule('leg press found by its brand', ui.liftFound, 'step 2: Lifts\' search for "life fitness" does not list the leg press (0739)')
+  rule('leg press page opened', ui.liftOpened, 'step 2: the leg press\'s page did not open')
+  rule('routine page opened', ui.routinePage, `step 3: a tap on ${r.name}'s row did not open its page`)
+  rule('editor opened', ui.editor, `step 3: ${r.name}'s Edit did not open the editor`)
+  rule('a set added', r.sets.added === r.sets.before + 1, `step 3: + Set took ${r.name}'s first exercise from ${r.sets.before} to ${r.sets.added} sets`)
+  rule('the set removed again', r.sets.removed === r.sets.before, `step 3: removing the added set left ${r.sets.removed} sets, not ${r.sets.before}`)
+  rule('routine as before', eqJ(r.before, r.after), `${r.name} is not as before after its set was added and removed: ${diffFacts(r.before, r.after).join('; ')}`)
+  same(rule, before.machines, after.machines, UX.LEG_PRESS, 'leg press brands unchanged', 'the leg press\'s brands changed')
+  return { problems, facts: { checks, workouts: after.nWorkouts, routine: r.after, legPress: after.machines[UX.LEG_PRESS] ?? null, labels: !!ui.labels } }
+}
+
+/**
+ * J3, the two-gym lifter: an empty workout at the other gym, the leg press's brand changed, the
+ * cable on ×2, a search the gym narrows, then Discard. `run`: { before, after (snapOf), gym, other,
+ * ui: { brandShown, picked, prevBefore, prevAfter, logged: { before, after }, header, hidden,
+ * discardAsked } }.
+ */
+export function checkJ3(run) {
+  const { problems, checks, rule } = rules('J3')
+  const { before, after, gym, other, ui } = run
+  const LP = UX.LEG_PRESS, C = UX.CABLE
+  rule('no workout saved', !after.active && before.workouts === after.workouts, `the workout was saved or left open (active ${after.active}, ${before.nWorkouts} → ${after.nWorkouts} workouts)`)
+  rule('no gym added', eqJ(before.gyms, after.gyms), `the gyms changed: ${JSON.stringify(before.gyms)} → ${JSON.stringify(after.gyms)} (was Find gyms nearby or Custom gym tapped?)`)
+  rule('brand follows the gym', ui.brandShown === (before.machines[LP]?.[gym] ?? null), `step 2: the leg press shows brand ${ui.brandShown ?? 'none'} at ${gym}, which has ${before.machines[LP]?.[gym] ?? 'none'}`)
+  rule('picked brand kept for this gym', after.machines[LP]?.[gym] === ui.picked, `step 2: S.hvMachines has ${after.machines[LP]?.[gym] ?? 'none'} for the leg press at ${gym}, picked ${ui.picked}`)
+  rule('other gym keeps its brand', (after.machines[LP]?.[other] ?? null) === (before.machines[LP]?.[other] ?? null), `step 2: the leg press at ${other} went from ${before.machines[LP]?.[other] ?? 'none'} to ${after.machines[LP]?.[other] ?? 'none'}`)
+  const moved = mapChanges(before.machines, after.machines)
+  rule('only that brand changed', moved.length <= 1 && moved.every(l => l.startsWith(`${LP}.${gym}:`)), `S.hvMachines changed by ${JSON.stringify(moved)}, expected only the leg press at ${gym}`)
+  // PREVIOUS reads last time on the same machine (D82): with either brand ever logged it must change.
+  if (ui.logged.before || ui.logged.after) rule('PREVIOUS follows the brand', ui.prevBefore !== ui.prevAfter, `step 2: PREVIOUS stayed "${ui.prevBefore}" when the brand went to ${ui.picked}`)
+  rule('cable ×2 kept for this gym', after.cables[C]?.[gym] === 'x2', `step 3: S.hvCables has ${after.cables[C]?.[gym] ?? 'none'} for ${C} at ${gym}, not ×2`)
+  const cables = mapChanges(before.cables, after.cables)
+  rule('only that cable changed', cables.every(l => l.startsWith(`${C}.${gym}:`)), `S.hvCables changed by ${JSON.stringify(cables)}`)
+  rule('weight header says ×2', /×2/.test(ui.header || ''), `step 3: the cable's weight column reads "${ui.header}", not "… ×2"`)
+  rule('hidden line names the gym', new RegExp(`^\\d+ hidden at ${(ui.hiddenGym || gym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`).test(ui.hidden || ''), `step 4: the picker's line reads "${ui.hidden}", not "N hidden at ${ui.hiddenGym || gym}"`)
+  rule('discard asks first', ui.discardAsked === 'Discard workout?', `step 5: Discard asked "${ui.discardAsked}", not "Discard workout?"`)
+  return { problems, facts: { checks, gym, picked: ui.picked, header: ui.header, machines: moved, cables } }
+}
+
+/**
+ * J4, the per-side and timer user. `run`: { before, after (snapOf), ui: { perSide, firstSide, ticked:
+ * { R, L }, plank: { afterStop, afterTick, done }, bike: { shown, min }, away: { shown, expected },
+ * discardAsked } }.
+ */
+export function checkJ4(run) {
+  const { problems, checks, rule } = rules('J4')
+  const { before, after, ui } = run
+  rule('no workout saved', !after.active && before.workouts === after.workouts, `the workout was saved or left open (active ${after.active}, ${before.nWorkouts} → ${after.nWorkouts} workouts)`)
+  rule('one-limb starts per side', ui.perSide, `step 1: ${UX.ONE_LEG} did not start per side (D75)`)
+  rule('side order saved right first', after.sideOrder[UX.ONE_LEG] === 'RL', `step 1: S.hvSideOrder has ${after.sideOrder[UX.ONE_LEG] ?? 'nothing'} for ${UX.ONE_LEG}, not RL`)
+  rule('right row first', ui.firstSide === 'R', `step 1: the per-side set's first row is ${ui.firstSide ?? 'no side'}, not R, after Right first`)
+  rule('set ticked both sides', ui.ticked.R && ui.ticked.L, `step 1: the per-side set is ticked R ${ui.ticked.R}, L ${ui.ticked.L}`)
+  const p = ui.plank
+  rule('plank hold stopped with its time', p.afterStop >= 1 && p.afterStop <= 60, `step 2: the plank's Stop wrote ${p.afterStop} s`)
+  rule('tick kept the stopped time', p.done && p.afterTick === p.afterStop, `step 2: the plank's set ticked ${p.done} at ${p.afterTick} s, stopped at ${p.afterStop} s`)
+  rule('bike reads 12:34', ui.bike.shown === UX.BIKE_SHOWN, `step 3: ${UX.BIKE_DIGITS} on the number pad reads "${ui.bike.shown}", not ${UX.BIKE_SHOWN}`)
+  rule('bike time stored', Math.abs(Number(ui.bike.min) - UX.BIKE_SEC / 60) < 0.01, `step 3: the bike's set holds ${ui.bike.min} min, not ${round(UX.BIKE_SEC / 60)}`)
+  const a = ui.away
+  rule('timer counted while away', a.shown != null && a.shown >= 20 && Math.abs(a.shown - a.expected) <= 3, `step 4: after 20 s away the set timer showed ${a.shown} s, ${a.expected} s since ▶`)
+  rule('discard asks first', ui.discardAsked === 'Discard workout?', `step 5: Discard asked "${ui.discardAsked}", not "Discard workout?"`)
+  return { problems, facts: { checks, firstSide: ui.firstSide, sideOrder: after.sideOrder[UX.ONE_LEG] ?? null, bike: ui.bike.shown, bikeMin: round(ui.bike.min) } }
+}
+
+/**
+ * J5, the numbers person: read only, with Arrange Statistics put back by Reset. `run`: { before,
+ * after (snapOf), layoutDefault, ui: { chart: { reps, week, setsSheet }, arrange: { hidden, moved,
+ * reset }, report: { opened }, lift: { opened, last, reps, chart, all }, detail: { opened, trends,
+ * named }, calendar: { before, after, planned } }, pins }.
+ */
+export function checkJ5(run) {
+  const { problems, checks, rule } = rules('J5')
+  const { before, after, ui } = run
+  rule('workouts as before', before.workouts === after.workouts, `S.workouts changed (${before.nWorkouts} → ${after.nWorkouts})`)
+  rule('routines as before', before.routines === after.routines, 'S.routines changed')
+  rule('strength levels as before', before.strength === after.strength, 'S.hvStrength changed: were strength levels saved?')
+  rule('layout default after Reset', eqJ(after.layout, run.layoutDefault), `after Reset S.hvStatsLayout is ${JSON.stringify(after.layout)}, not the default`)
+  rule('chart switched to reps', ui.chart.reps === 'Weekly reps', `step 1: the chart's head reads "${ui.chart.reps}" after Reps`)
+  rule('a week tapped', /^Week of /.test(ui.chart.week || ''), `step 1: a tap on a week left the head "${ui.chart.week}"`)
+  rule('a week\'s sets opened', ui.chart.setsSheet, 'step 1: a week tapped on Sets opened no sheet of its sets per muscle')
+  rule('a card hidden', ui.arrange.hidden, 'step 2: the Weekly chart card\'s switch did not hide it')
+  rule('a tile moved', ui.arrange.moved, 'step 2: Move down did not move the first tile')
+  rule('reset said so', ui.arrange.reset, 'step 2: Reset gave no "Layout reset" toast')
+  rule('a record opened', ui.report.opened, 'step 3: no row of the monthly report opened its exercise, 12 months back')
+  rule('lift page opened', ui.lift.opened, 'step 4: the leg press\'s page did not open from Lifts')
+  rule('lift page has its parts', ui.lift.last && ui.lift.reps > 0 && ui.lift.chart, `step 4: the lift's page lacks a part (last sessions ${ui.lift.last}, rep counts ${ui.lift.reps}, chart ${ui.lift.chart})`)
+  rule('all history listed', ui.lift.all > 0, 'step 4: All history listed no session')
+  rule('detail opened', ui.detail.opened, 'step 5: the first History card did not open its Workout Detail')
+  rule('trend marks named', ui.detail.named === ui.detail.trends, `step 5: ${ui.detail.trends - ui.detail.named} of ${ui.detail.trends} ↑ = ↓ marks have no name (D66)`)
+  rule('earlier months shown', ui.calendar.after > ui.calendar.before, `step 6: Show earlier months went from ${ui.calendar.before} to ${ui.calendar.after} months`)
+  if (ui.calendar.planned != null) rule('planned day opened', ui.calendar.planned, 'step 6: a tap on a planned day opened no sheet')
+  return { problems, facts: { checks, pins: run.pins } }
+}
+
+/**
+ * J6, the planner: a weekday changed and put back, a routine made in a new folder and deleted with
+ * it. `run`: { before, after (snapOf), mid: { ex, linked, warmups, orderBefore, orderAfter, backup,
+ * missingMarked, missingCleared }, ui: { day, dayChanged, folderMade, toasts } }.
+ */
+export function checkJ6(run) {
+  const { problems, checks, rule } = rules('J6')
+  const { before, after, mid, ui } = run
+  for (const f of ['week', 'dayPlan', 'rotation']) same(rule, before, after, f, `S.${f} as before`, `S.${f} is not as before`)
+  rule('routines as before', before.routines === after.routines && before.nRoutines === after.nRoutines, `S.routines is not as before (${before.nRoutines} → ${after.nRoutines})`)
+  same(rule, before, after, 'folders', 'S.hvFolders as before', 'S.hvFolders is not as before')
+  same(rule, before, after, 'missing', 'S.hvGymMissing as before', 'S.hvGymMissing is not as before')
+  rule('a day changed', ui.dayChanged, `step 1: a tap on ${ui.day ?? 'a day'}'s routine did not change S.week`)
+  rule('folder made', ui.folderMade, `step 2: + Folder did not list "${UX.FOLDER}"`)
+  rule('three exercises', eqJ(mid.ex, UX.NEW_ROUTINE), `step 2: the new routine holds ${JSON.stringify(mid.ex)}, not ${JSON.stringify(UX.NEW_ROUTINE)}`)
+  rule('superset linked', mid.linked, 'step 2: Make superset with previous did not link the first two')
+  rule('warm-up added', mid.warmups > 0, 'step 2: + Warm-up added no warm-up to the first exercise')
+  rule('reordered by tap', !eqJ(mid.orderBefore, mid.orderAfter), `step 2: Move up left the order ${JSON.stringify(mid.orderAfter)}`)
+  rule('backup added', mid.backup === UX.BACKUP, `step 3: the slot's backups are ${JSON.stringify(mid.backup)}, not ${UX.BACKUP}`)
+  rule('backup marked missing', mid.missingMarked, 'step 3: the backup\'s gym chip did not mark it missing (S.hvGymMissing)')
+  rule('missing mark taken back', mid.missingCleared, 'step 3: a second tap on the chip did not take the mark back')
+  rule('deletes are undoable', (ui.toasts || []).some(x => /gone\.$/.test(x)), `step 4: no "… gone." toast with Undo came: ${JSON.stringify(ui.toasts)}`)
+  return { problems, facts: { checks, ex: mid.ex, order: mid.orderAfter, warmups: mid.warmups } }
+}
+
+/**
+ * J7, J1 at font_scale 2.0. `run`: J1's run, plus `font`: { during, after } (`settings get system
+ * font_scale`) and `ax`: { fields, setType, tick, rest }, each { role, name } as the DOM gives them.
+ */
+export function checkJ7(run) {
+  const base = checkJ1(run, 'J7')
+  const problems = [...base.problems]
+  const checks = { ...base.facts.checks }
+  const rule = (name, ok, line) => { checks[name] = !!ok; if (!ok) problems.push('J7: ' + line) }
+  rule('font scale 2.0 during', Number(run.font?.during) === 2, `font_scale read ${run.font?.during} while J1 ran, not 2.0`)
+  rule('font scale back to 1.0', Number(run.font?.after) === 1, `font_scale is ${run.font?.after} afterwards, not 1.0`)
+  const ax = run.ax || {}
+  const named = x => !!x && !!String(x.name || '').trim() && !!x.role
+  rule('set row fields named', (ax.fields || []).length > 0 && ax.fields.every(named), `a set row's fields have no name: ${JSON.stringify(ax.fields)}`)
+  rule('set type named', named(ax.setType), `the set-type letter has no name: ${JSON.stringify(ax.setType)}`)
+  rule('tick named', named(ax.tick), `the tick has no name: ${JSON.stringify(ax.tick)}`)
+  rule('rest buttons named', (ax.rest || []).length >= 2 && ax.rest.every(named), `the rest timer's buttons have no name: ${JSON.stringify(ax.rest)}`)
+  return { problems, facts: { checks }, info: { ...(base.info || {}), ax } }
+}
+
+export const CHECKS = { J1: checkJ1, J2: checkJ2, J3: checkJ3, J4: checkJ4, J5: checkJ5, J6: checkJ6, J7: checkJ7, J8: checkJ8, J8b: checkJ8b }
 
 /** The report on one journey: its problems, then its differences from the baseline. 0 when clean. */
 export function report(J, result, base) {

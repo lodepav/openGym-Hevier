@@ -1,7 +1,7 @@
 // node --test hevier/tools/journey-lib.test.mjs
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { OWNER, J8_TYPED as T, checkJ8, checkJ8b, checkJ1, diffFacts, entryFacts, exportFacts, mapChanges, report, rowOf, rowPlan, routineFacts } from './journey-lib.mjs'
+import { OWNER, UX, J8_TYPED as T, checkJ8, checkJ8b, checkJ1, checkJ2, checkJ3, checkJ4, checkJ5, checkJ6, checkJ7, snapOf, diffFacts, entryFacts, exportFacts, mapChanges, report, rowOf, rowPlan, routineFacts } from './journey-lib.mjs'
 
 const G = OWNER.GROSTONAS.id
 const warm = (w, r) => ({ w, r, done: true, phase: 'warmup', warmup: true })
@@ -142,4 +142,128 @@ test('facts drop the clock and ids; a diff and a map change read as before → a
   assert.equal(r.code, 1)
   assert.equal(r.text, 'J8: 1 failed check, 1 difference from the baseline\n  FAIL J8: x\n  DIFF a: 1 → 2')
   assert.deepEqual(report('J1', { problems: [], facts: { a: 1 } }, { a: 1 }), { code: 0, text: 'J1: every check passed, no difference from the baseline' })
+})
+
+// The test profile, cut down: two gyms with the leg press's brands (JOURNEYS.md, "Set up on 2026-10-25").
+const uxS = () => ({
+  workouts: [{ start: 1, entries: [{ id: UX.LEG_PRESS, hvBrand: 'Life Fitness' }] }], routines: [{ id: 'r1', name: UX.ROUTINE, ex: [{ id: UX.LEG_PRESS, sets: 3 }] }],
+  equipProfiles: [{ id: 'g1', name: 'Holmes Place' }, { id: 'g2', name: 'Weekend Gym' }],
+  hvMachines: { [UX.LEG_PRESS]: { g1: 'Life Fitness', g2: 'Hammer' } }, hvCables: { [UX.CABLE]: { g1: 'x2' } },
+  week: { 1: ['r1'] }, dayPlan: {}, rotation: { sequence: ['r1'] },
+})
+
+test('snapOf keys the per-gym maps by gym name and hashes the log', () => {
+  const s = snapOf(uxS())
+  assert.deepEqual(s.machines, { [UX.LEG_PRESS]: { 'Holmes Place': 'Life Fitness', 'Weekend Gym': 'Hammer' } })
+  assert.equal(s.nWorkouts, 1)
+  assert.notEqual(s.workouts, snapOf({ ...uxS(), workouts: [] }).workouts)
+})
+
+test('J2 passes when nothing was imported and the routine is as before, and says which set count went wrong', () => {
+  const S = uxS()
+  const r = routineFacts(S.routines[0])
+  const run = {
+    before: snapOf(S), after: snapOf(S),
+    routine: { name: UX.ROUTINE, before: r, after: r, sets: { before: 3, added: 4, removed: 3 } },
+    ui: { importShown: true, liftFound: true, liftOpened: true, labels: true, routinePage: true, editor: true },
+  }
+  assert.deepEqual(checkJ2(run).problems, [])
+  run.routine.sets.removed = 4
+  run.routine.after = { ...r, ex: [{ ...r.ex[0], sets: 4 }] }
+  run.after = snapOf({ ...S, workouts: [] })
+  const { problems } = checkJ2(run)
+  assert.ok(problems.includes('J2: S.workouts changed (1 → 0 workouts): something was imported or edited'))
+  assert.ok(problems.includes('J2: step 3: removing the added set left 4 sets, not 3'))
+  assert.ok(problems.some(p => p.startsWith('J2: Leg Day is not as before') && p.includes('ex.0.sets: 3 → 4')))
+})
+
+test('J3 keeps the brand picked at that gym only, and fails on a saved workout or a lost ×2', () => {
+  const S = uxS()
+  const after = { ...S, hvMachines: { [UX.LEG_PRESS]: { g1: 'Life Fitness', g2: 'Life Fitness' } }, hvCables: { [UX.CABLE]: { g1: 'x2', g2: 'x2' } } }
+  const run = {
+    before: snapOf(S), after: snapOf(after), gym: 'Weekend Gym', other: 'Holmes Place',
+    ui: { brandShown: 'Hammer', picked: 'Life Fitness', prevBefore: '120 × 10', prevAfter: '140 × 8', logged: { before: false, after: true },
+      header: 'KG ×2', hidden: '12 hidden at Weekend Gym', discardAsked: 'Discard workout?' },
+  }
+  assert.deepEqual(checkJ3(run).problems, [])
+  run.after = snapOf({ ...after, active: { entries: [] }, hvCables: {} })
+  run.ui.prevAfter = '120 × 10'
+  const { problems } = checkJ3(run)
+  assert.ok(problems.some(p => p.startsWith('J3: the workout was saved or left open')))
+  assert.ok(problems.includes('J3: step 3: S.hvCables has none for 1323 at Weekend Gym, not ×2'))
+  assert.ok(problems.includes('J3: step 2: PREVIOUS stayed "120 × 10" when the brand went to Life Fitness'))
+})
+
+test('J4 wants right first saved, the hold kept, 12:34 and the time since ▶ after Home', () => {
+  const S = uxS()
+  const good = () => ({
+    before: snapOf(S), after: snapOf({ ...S, hvSideOrder: { [UX.ONE_LEG]: 'RL' } }),
+    ui: { perSide: true, firstSide: 'R', ticked: { R: true, L: true }, plank: { afterStop: 3, afterTick: 3, done: true },
+      bike: { shown: '12:34', min: 754 / 60 }, away: { shown: 22, expected: 22 }, discardAsked: 'Discard workout?' },
+  })
+  assert.deepEqual(checkJ4(good()).problems, [])
+  const run = good()
+  run.ui.bike.shown = '0:12:34'
+  run.ui.away.shown = 1   // the timer started over when the app came back
+  run.after = snapOf(S)
+  const { problems } = checkJ4(run)
+  assert.ok(problems.includes('J4: step 1: S.hvSideOrder has nothing for 0733, not RL'))
+  assert.ok(problems.includes('J4: step 3: 1234 on the number pad reads "0:12:34", not 12:34'))
+  assert.ok(problems.includes('J4: step 4: after 20 s away the set timer showed 1 s, 22 s since ▶'))
+})
+
+test('J5 is read only and ends on the default layout; a layout left changed fails', () => {
+  const S = uxS()
+  const def = { tiles: { order: ['a'], hidden: [] }, cards: { order: ['w'], hidden: [] } }
+  const run = {
+    before: snapOf(S), after: snapOf({ ...S, hvStatsLayout: def }), layoutDefault: def, pins: { workouts: 1 },
+    ui: { chart: { reps: 'Weekly reps', week: 'Week of 3 Nov: 120 reps', setsSheet: true }, arrange: { hidden: true, moved: true, reset: true },
+      report: { opened: true }, lift: { opened: true, last: true, reps: 5, chart: true, all: 12 }, detail: { opened: true, trends: 4, named: 4 },
+      calendar: { before: 6, after: 12, planned: null } },
+  }
+  assert.deepEqual(checkJ5(run).problems, [])
+  run.after = snapOf({ ...S, hvStatsLayout: { ...def, cards: { order: ['w'], hidden: ['w'] } }, hvStrength: { [UX.LEG_PRESS]: 'x' } })
+  run.ui.detail.named = 3
+  const { problems } = checkJ5(run)
+  assert.ok(problems.includes('J5: S.hvStrength changed: were strength levels saved?'))
+  assert.ok(problems.some(p => p.startsWith('J5: after Reset S.hvStatsLayout is')))
+  assert.ok(problems.includes('J5: step 5: 1 of 4 ↑ = ↓ marks have no name (D66)'))
+})
+
+test('J6 leaves the plan, routines, folders and gym marks as they were; a leftover mark fails', () => {
+  const S = uxS()
+  const run = {
+    before: snapOf(S), after: snapOf(S),
+    mid: { ex: [...UX.NEW_ROUTINE].sort(), linked: true, warmups: 1, orderBefore: UX.NEW_ROUTINE, orderAfter: ['0612', '0274', '0499'], backup: UX.BACKUP, missingMarked: true, missingCleared: true },
+    ui: { day: '1', dayChanged: true, folderMade: true, toasts: ['“Journey routine” gone.'] },
+  }
+  assert.deepEqual(checkJ6(run).problems, [])
+  run.after = snapOf({ ...S, hvGymMissing: { [UX.BACKUP]: ['g1'] }, week: { 1: ['r1', 'r2'] } })
+  run.mid.missingCleared = false
+  const { problems } = checkJ6(run)
+  assert.ok(problems.includes('J6: S.hvGymMissing is not as before: {} → {"0001":["Holmes Place"]}'))
+  assert.ok(problems.includes('J6: S.week is not as before: {"1":["r1"]} → {"1":["r1","r2"]}'))
+  assert.ok(problems.includes('J6: step 3: a second tap on the chip did not take the mark back'))
+})
+
+test('J7 is J1 at font_scale 2.0, named controls, and the scale back at 1.0', () => {
+  const routine = { id: 'r', name: 'Push Day', ex: [{ id: 'a', sets: 2 }] }
+  const named = name => ({ role: 'button', name })
+  const run = {
+    since: 0, started: 'Push Day', routine: routineFacts(routine),
+    opened: [{ sets: [{ w: 60, r: 8 }, { w: 60, r: 8 }] }], prefilled: { idx: 0, set: 0 }, typed: { idx: 0, set: 1, w: 62.5 },
+    rest: { before: 85, after: 145, skipped: true }, swap: null, ui: { saved: true, inHistory: true, detailShowsWeight: true },
+    S: { routines: [routine], workouts: [{ start: 1, name: 'Push Day', entries: [{ id: 'a', sets: [{ w: 60, r: 8 }, { w: 62.5, r: 8 }] }] }] },
+    font: { during: '2.0', after: '1.0' },
+    ax: { fields: [{ role: 'textbox', name: 'Set 2, Weight (kg)' }], setType: named('Set 2, Set type'), tick: named('Set 2 done'), rest: [named('+1 min'), named('Skip')] },
+  }
+  assert.deepEqual(checkJ7(run).problems, [])
+  run.font.after = '2.0'
+  run.ax.tick = { role: 'checkbox', name: '' }
+  run.rest.skipped = false
+  assert.deepEqual(checkJ7(run).problems, [
+    'J7: Skip left the rest running',
+    'J7: font_scale is 2.0 afterwards, not 1.0',
+    'J7: the tick has no name: {"role":"checkbox","name":""}',
+  ])
 })

@@ -87,7 +87,7 @@ conflict on every upstream edit to them).
   heart-rate strap. Boot the app's emulator first (`emulator.sh` boots one through `~/.claude/bin/emu` and prints
   its serial), then the strap's, and give `adb` and `cdp.mjs` the app's `ANDROID_SERIAL`.
   Two emulators fill this machine's memory: stop the Gradle daemon first (`hevier/tools/heavy.sh ./gradlew --stop`).
-- `hevier/tools/journey-check.sh` taps the scripted UX journeys (J1, J8, J8b in
+- `hevier/tools/journey-check.sh` taps the scripted UX journeys (J1 to J7, J8 and J8b in
   [ux/JOURNEYS.md](ux/JOURNEYS.md), their "Check" lines) through on the emulator and checks what
   they saved, against a baseline in `~/.cache/hevier/journeys/`. Run it after an upstream merge,
   beside `routine-check.sh`: a seam no longer called keeps the unit tests green and still fails here.
