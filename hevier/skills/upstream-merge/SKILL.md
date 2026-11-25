@@ -28,6 +28,13 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    see what the warm-ups do, and discards. Its last lines must show a warm-up probe for a routine
    with progression off (warm-ups unchanged, D69) and one with it on (they follow); "saw nothing"
    means the profile lost its warm-up routines: fix the profile first.
+   Then the journeys' end state on the same build: `ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh`
+   (J1 to J7, J8, J8b, about 6 min; the "two modes" paragraph at the top of JOURNEYS.md). It must end with every journey
+   "every check passed, no difference from the baseline" and exit 0: the baselines in
+   `~/.cache/hevier/journeys/` then stand for `hevier/main` as it is (a journey without one gets
+   it from this run, kept only when every check passed; say so to the user). A failure here is not the
+   merge's: fix it, or `--accept` it with the user's yes, before step 4. Exit 2 (could not run, e.g.
+   no owner profile, or the device runs another build) is fixed first too, never skipped.
 4. **Merge on a throwaway branch.** `git checkout -b sync/$TARGET hevier/main`, then
    `git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"`.
 5. **Resolve.** Classify each file with `git diff --name-only --diff-filter=U` and apply
@@ -48,10 +55,17 @@ Below is the procedure as a checklist. Stop and ask at any "stop" point in CONFL
    step 3 explains it: show the user the lines, never land over them. `routine-open.test.js`
    (in `verify`) checks the same on a fixture profile; a failure there after a merge is the same
    question, and its snapshot is rewritten only for a change a decision explains.
+   Then `ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh` on the merged build, the one the
+   `emulator-check` smoke walk above built and installed (it refuses an app that is not this
+   checkout's APK; `--build` builds and installs it again). Every `FAIL` and `DIFF` line is a
+   regression unless a decision of step 3 explains it, the same as the snapshot's: show the user
+   the lines, never land over them, and never `--accept` before landing.
    D128: check that upstream's start, start-from-last included (seam S40), still runs before the fork lays a routine's plan over it (`hevier/lib/next-plan.js` builds through `buildCombinedEntries`; `RoutinePreview.test.jsx` starts a planned routine for real and compares it with the page).
-   Once the merge has landed (step 8), `ANDROID_SERIAL=<serial> hevier/tools/routine-check.sh --build --accept`
+   After step 8 (the merge landed on `hevier/main`), `ANDROID_SERIAL=<serial> hevier/tools/routine-check.sh --build --accept`
    on the emulator already booted keeps the merged build's snapshot as the baseline the next release
-   is checked against; without the serial it boots a second one.
+   is checked against; without the serial it boots a second one. Likewise
+   `ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh --accept <J…>` for each journey whose
+   differences a decision explained, and only those.
    Then every UX journey (`ux-review` skill, all of JOURNEYS.md), compared with the ledger's last
    rounds: each should finish roughly as before. Then the `release-check` skill (D26): upstream's new or bumped npm packages and new
    endpoints fail its gates until they are reviewed, and the accepted baseline is committed
