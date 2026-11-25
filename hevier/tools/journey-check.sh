@@ -3,7 +3,7 @@
 # the emulator, its end state checked and compared with the baseline kept on this machine. Run it
 # after an upstream merge, beside routine-check.sh.
 #
-#   ANDROID_SERIAL=emulator-5556 hevier/tools/journey-check.sh        # every scripted journey (J1 J8 J8b)
+#   ANDROID_SERIAL=emulator-5556 hevier/tools/journey-check.sh        # every scripted journey (J1 to J7, J8, J8b)
 #   hevier/tools/journey-check.sh J8 J8b                               # these only
 #   hevier/tools/journey-check.sh --build                              # build this checkout, boot an emulator, install, then check
 #   hevier/tools/journey-check.sh --accept J8                          # the differences are meant: keep this run as J8's baseline
@@ -11,10 +11,11 @@
 #   hevier/tools/journey-check.sh --make-owner-profile [backup.json]   # (re)make ~/.cache/hevier/owner-profile.tar
 #
 # Before anything it saves the app's own data, and puts it back on every exit, a failure included.
-# Each journey starts from its profile: J1 from ux-profile.tar, J8 and J8b from owner-profile.tar
+# Each journey starts from its profile: J1 to J7 from ux-profile.tar, J8 and J8b from owner-profile.tar
 # (the owner's backup, imported through Settings → Data). Baselines: ~/.cache/hevier/journeys/<J>.json;
 # a journey without one keeps its first clean run. Exit 1 on a failed check or a difference, 2 when
-# it could not run. It refuses a profile with Send to Hevy on: nothing goes to Hevy.
+# it could not run. It refuses a profile with Send to Hevy on: nothing goes to Hevy. J7 runs at
+# font_scale 2.0 and puts it back at 1.0 on every exit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -34,13 +35,13 @@ while [[ $# -gt 0 ]]; do
     --accept) ACCEPT=1 ;;
     --hr) export JOURNEY_HR=1 ;;
     --make-owner-profile) MAKE=1; if [[ ${2:-} == *.json ]]; then BACKUP="$2"; shift; fi ;;
-    J1|J8|J8b) JOURNEYS+=("$1") ;;
-    *) echo "usage: journey-check.sh [--build] [--accept] [--hr] [J1 J8 J8b] | --make-owner-profile [backup.json]" >&2; exit 2 ;;
+    J[1-7]|J8|J8b) JOURNEYS+=("$1") ;;
+    *) echo "usage: journey-check.sh [--build] [--accept] [--hr] [J1 … J7 J8 J8b] | --make-owner-profile [backup.json]" >&2; exit 2 ;;
   esac
   shift
 done
-[[ ${#JOURNEYS[@]} -gt 0 ]] || JOURNEYS=(J1 J8 J8b)
-profile_of() { [[ $1 == J1 ]] && echo "$UX_PROFILE" || echo "$OWNER_PROFILE"; }
+[[ ${#JOURNEYS[@]} -gt 0 ]] || JOURNEYS=(J1 J2 J3 J4 J5 J6 J7 J8 J8b)
+profile_of() { [[ $1 == J[1-7] ]] && echo "$UX_PROFILE" || echo "$OWNER_PROFILE"; }
 
 if [[ -z "$MAKE" ]]; then
   for j in "${JOURNEYS[@]}"; do
@@ -67,6 +68,9 @@ restore() {
   "$ADB" shell monkey -p "$APP" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
 }
 cleanup() {
+  # J7 sets the system's font scale; a run stopped in the middle of it leaves 1.0 all the same
+  # (only on the emulator checked above: SNAP is set once it is).
+  [[ -z "$SNAP" || " ${JOURNEYS[*]} " != *" J7 "* ]] || "$ADB" shell settings put system font_scale 1.0 >/dev/null 2>&1 || true
   restore
   # The snapshot stays only when it could not go back (said above); a run's own files go.
   [[ -z "$RUN" ]] || rm -rf "${RUN:?}"
