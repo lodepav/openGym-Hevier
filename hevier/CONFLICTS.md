@@ -35,6 +35,10 @@ git diff --stat hevier/main...$TARGET -- $(git grep -l '\[hevier\]' hevier/main 
 # 3b. List what the release brings and get the user's decisions (see "Decide what a release
 #     brings"). Nothing lands until every item has one.
 
+# 3c. The baselines on hevier/main as it is, before the merge (the upstream-merge skill, step 3a):
+#     the routine snapshot, then the journeys, which must pass with no difference
+ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh --build
+
 # 4. Merge on a throwaway branch, so a bad resolution never lands on the trunk
 git checkout -b sync/$TARGET hevier/main
 git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"
@@ -45,8 +49,9 @@ git merge --no-ff $TARGET -m "hevier: merge upstream $TARGET"
 (cd frontend && npm ci) && (cd api && npm ci) && (cd mcp && npm ci)
 hevier/tools/verify.sh
 
-# 6. Device check (see "Verification")
+# 6. Device check (see "Verification"), then the journeys on the merged build
 HEADLESS=1 hevier/tools/emulator.sh
+ANDROID_SERIAL=<serial> hevier/tools/journey-check.sh
 
 # 7. Land it
 git checkout hevier/main && git merge --ff-only sync/$TARGET && git branch -d sync/$TARGET
@@ -230,10 +235,13 @@ A clean merge can still break the fork. After every sync, check these:
 2. `HEADLESS=1 hevier/tools/emulator.sh`, then the smoke walk (cdp.mjs): start a routine, log
    two sets, minimise, resume, finish, see it in history, start it again, see each set open at
    what was done last time (D69). Screenshot each step into the scratchpad.
-3. **The UX journeys** (`hevier/ux/JOURNEYS.md`, the `ux-review` skill): every journey again on
+3. **The journeys' end state**: `hevier/tools/journey-check.sh` on the merged build, against the
+   baselines it passed on `hevier/main` before the merge. A `FAIL` or `DIFF` line is a regression
+   unless a decision explains it; `--accept` only after landing, for those journeys.
+4. **The UX journeys** (`hevier/ux/JOURNEYS.md`, the `ux-review` skill): every journey again on
    the test profile, to see that each still finishes roughly as before and nothing broke with
    the release. Compare with the last rounds in `hevier/ux/LEDGER.md`.
-4. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
+5. Merge commit message: `hevier: merge upstream <TARGET>`, then a body listing conflicted
    files and how each was resolved (rule letter), any seam added, moved or removed, and any
    silent-drift items skipped.
 
