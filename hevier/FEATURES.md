@@ -10,7 +10,7 @@ Each fork feature is listed once, with the decision that describes it in [DECISI
 | **Ported** | Built ahead of an upstream release that already has it. Upstream's version replaces it at that merge. |
 | **Removed** | Was in the fork until a later decision took it out; listed so it can still be found. |
 
-A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.6` on 2026-11-23.
+A row with a seam number (S52) in place of a decision is a small change that has no decision of its own; [SEAMS.md](SEAMS.md) describes it. The marks were last checked against upstream's `release-1.4.6` on 2026-11-27.
 
 Upstream's training logic stays as it is: progression, 1RM, recovery, sync and storage. Where the fork behaves differently, it wraps upstream's helpers rather than changing them.
 
@@ -54,16 +54,16 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A routine plans a timed hold on one set: Timed hold in the editor's set type sheet, H and its time in the editor and on the routine page, Update routine carries a hold made or undone in the workout | D146 | Fork |
 | A tick asks first when a weight or rep count is over double the exercise's best or under a third of last time's (a likely typo), or a cardio timer was left running | D90 | Offered (#811, released in v1.4.4 on 2026-11-03: the weight and rep checks, too high and too low; the cardio timer is the fork’s, as upstream has no count-up timer to forget, D53) |
 | One notification for the rest countdown and the heart-rate strap, the bpm in the card's header | D91 | Fork |
-| A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offered (#1079, issue; PR #1213) |
+| A live workout's Exercise settings save as they close, with Done instead of Save | D92 | Offered (#1079, issue; PR #1213; built in `release-1.4.6` from its idea 2026-11-24, S50 goes at the 1.4.6 merge) |
 | OpenBite's phase on saved workouts, and a filter by it on the statistics pages, exercise history and workout feed | D93 | Fork |
-| The gym on the feed card | D94 | Offered (#1097, History rows and details) |
+| The gym on the feed card | D94 | Offered (#1097, History rows and details; built in `release-1.4.6` from its idea 2026-11-24, in upstream's workout detail; the fork's D94 stays) |
 | Strength in the current phase, shared with OpenBite | D95 | Fork |
 | Two brands' session histories of an exercise side by side | D96 | Fork |
 | Reorder exercises: one collapsed drag list in the workout, in place of Move up / Move down, a button on the open exercise | D118, D127 | Fork |
 | A day planned in the Calendar trains what you picked, even a rotation session done the week before; a pass refill keeps the plans; redoing a done session starts the rotation over from it | D124 | Offered (#1293, merged into `release-1.4.6` 2026-11-23) |
-| An unset exact RIR or RPE reads Not set, not a dash | D149 | Offered (#1511; S73 goes when merged) |
-| The effort picker's − and + say what they change ("RIR: Decrease") | S70 | Offered (#1512; S70 goes when merged) |
-| A new weigh-in far off the last one asks first, as a typo in a set does | D149 | Offered (#1514; S72 goes when merged) |
+| An unset exact RIR or RPE reads Not set, not a dash | D149 | Offered (#1511, merged into `release-1.4.6` 2026-11-24; S73 goes at the 1.4.6 merge) |
+| The effort picker's − and + say what they change ("RIR: Decrease") | S70 | Offered (#1512, merged into `release-1.4.6` 2026-11-24; S70 goes at the 1.4.6 merge) |
+| A new weigh-in far off the last one asks first, as a typo in a set does | D149 | Offered (#1514; built in `release-1.4.6` from its idea 2026-11-24; S72 merges without a conflict, drop it by hand at the 1.4.6 merge) |
 
 ## Routines
 
@@ -88,7 +88,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | A gym per workout (an equipment profile); brand labels on machine and cable exercises, any exercise via ⋮ → Add label | D28 | Offered (a comment on #988; built in release-1.4.5 as Numbers per gym, with the brand as a label. The fork keeps its own, D104) |
 | PREVIOUS and last time's prefilled sets read the machine's brand and cable setup, refilled when the gym or brand changes | D82 | Fork |
 | Cable setup 1:1 / 2:1 / ×2, ×2 logged per stack | D43 | Offered (#1081, issue) |
-| Exercise search by machine brand | D36 | Offered (#1082, issue; PR #1211) |
+| Exercise search by machine brand | D36 | Offered (#1082, issue; PR #1211; built in `release-1.4.6` from its idea 2026-11-24, in the picker, the Library and the muscle map) |
 | Gym picker: your gyms, gyms nearby from OpenStreetMap, custom gym | D47 | Fork (upstream has its own gym search on OpenStreetMap, `lib/gym-places.js`) |
 | Picker filters by the workout's gym; Gyms & equipment page | D62 | Fork (body weight as a profile's own tick offered as #1159, issue; PR #1214) |
 | Gym filter says how many exercises it hid, and shows them on a tap | D67 | Ported (#905, upstream's count and Show all equipment since 1.4.5, D103) |
@@ -110,7 +110,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | An exercise's page is one page, no tabs: the animation, the phase and brand filter, the last sessions one line each (an arrow against the session before, a star on each best set, All history), the best sets as three tiles, the best at each rep count (the last month's marked new), the chart, then Strength level, Compare brands, Time on this exercise and How to | D131 | Fork |
 | YouTube demo on an exercise's How to (upstream 1.4.4's card) | D101 | Fork |
 | Create “<text>” in the picker when a search finds nothing | D118 | Fork |
-| The animation opens on its still under Reduce Motion, and its pause hint is a button | D148 | Offered (#1513; S71 goes when merged) |
+| The animation opens on its still under Reduce Motion, and its pause hint is a button | D148 | Offered (#1513, merged into `release-1.4.6` 2026-11-24; S71 goes at the 1.4.6 merge) |
 
 ## Statistics and history
 
@@ -130,7 +130,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | No target ranges for weekly sets: upstream's Ranges row hidden, its Muscles card without the range band | D139 | Fork |
 | Weekly sets per muscle against a target range, counted the fork's way | D99 | Removed (D139) |
 | A workout against the last time the routine was done; a routine's usual length; left against right; time between sets | D119 | Fork |
-| Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374) |
+| Effort on warm-ups can be switched off: no RIR or RPE cell on a warm-up row | D120 | Offered (#1374; built in `release-1.4.6` from its idea 2026-11-24 as `S.warmupEffort`) |
 | The phone's font size zooms all text again, the fork's screens included, as before 1.4.5 | D122 | Fork |
 
 ## Home, navigation and look
@@ -158,7 +158,7 @@ Upstream's training logic stays as it is: progression, 1RM, recovery, sync and s
 | The fork's own features as Modules parts (Send to Hevy, OpenBite, Record marks) and three modules of its own | D114 | Fork |
 | A module's parts unfold under it on Settings → Modules; a Workout extras module (Timer and Stopwatch, Exercise demos) and three more parts (Calendar, Other names, Main muscle) | D117 | Fork |
 | Switches that can do nothing are disabled and say which module they need | D118 | Fork |
-| A sheet opened over another sheet keeps the page's router state | D150 | Offered (#1510; S74 goes when merged) |
+| A sheet opened over another sheet keeps the page's router state | D150 | Offered (#1510, merged into `release-1.4.6` 2026-11-24; S74 goes at the 1.4.6 merge) |
 
 ## Hevy import and export
 

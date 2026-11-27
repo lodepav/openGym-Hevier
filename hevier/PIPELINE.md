@@ -26,6 +26,28 @@ D107 (Pause, the next exercise after the rest, the trophy switches) is built (20
 The fork's PRs and issues that 1.4.5 released (#807, #813, #815, #902, #905, #906, #931, #900,
 #903) were closed 2026-11-14; #901 is still open.
 
+**Checked 2026-11-27: still no v1.4.6 tag, ten test builds out.** `release-1.4.6` is at
+`c0c0414fe` (2026-11-26, iOS build 82, Android versionCode 56, the tenth test build), 164 commits
+past `770509e98` and 393 past v1.4.5. On 2026-11-24 the maintainer merged eleven work branches into
+it (`fix146-core`, `-platform`, `-prs`, `-watch`, `ideas146-app`, `-onboarding`, `-picks`,
+`-server`, `-typed-workout`, `-watchcheckin`, `garmin-146`); none has a commit the release branch
+lacks. No `release-1.4.7` branch yet. The milestones: v1.4.5 is still open (due 2026-11-29, 6
+open), v1.4.6 "Wear OS & Health Connect" is due 2026-12-13, v1.4.7 "Progression engine & circuits"
+2026-12-27, v1.4.8 "Search, catalogue & equipment" 2027-01-10. `upstream/main` is still
+`e4a68a94c`. **One new npm dependency:** `typescript` 7.0.2 in `frontend`'s devDependencies (a
+`typecheck` script and a CI step; the lockfile adds `typescript` and 20
+`@typescript/typescript-<platform>` binaries), which D26's supply-chain gate has to allow. **Most
+of the fork's small PRs are in the branch now**, though GitHub still shows every one open and no
+maintainer has commented: #1510, #1511, #1512 and #1513 as is (co-authored), #1508 (the
+splash-screen plugin in the cap sync files) as is, and #1374, #1514, #1213, #1211 and #1097 rebuilt
+by the maintainer from the idea, each credited. A trial merge into `hevier/main` now conflicts in
+nine files, not two: `components/Media.jsx` (S71), `components/Modals.jsx` (S74),
+`components/MuscleExplorer.jsx` (S38), `lib/history.js` (S63), `lib/rotation.js` (S64),
+`lib/update.js` (S6), `sheets.jsx` (ten hunks: S9, S14, S50, S65, S67, S70, S73),
+`views/Stats.jsx` (S0, S34, S61) and `views/Workout.jsx` (S50). The S63 and S64 conflicts were
+there at `770509e98` already (#1293 merged); the four in Media, Modals, MuscleExplorer and
+Workout are new. What it means is in "Since 2026-11-23" under "What release-1.4.6 brings".
+
 **Checked 2026-11-23: still no v1.4.6 tag, but the first test build is out.** `release-1.4.6` is at
 `770509e98` (2026-11-23, iOS build 73, Android versionCode 47), 229 commits past v1.4.5. The
 maintainer merged a batch of PRs that morning, two of them the fork's: **#1092** (Android back,
@@ -89,7 +111,34 @@ git branch -r | grep release-                        # new release branches?
 git show upstream/release-X.Y.Z:CHANGELOG.md | awk '/^## v1.4.1/{exit} {print}'   # since our base
 ```
 
-## What release-1.4.6 brings (2026-11-20, `da62470d3`; rechecked 2026-11-22 at `a087aaf33`, not tagged yet)
+## What release-1.4.6 brings (2026-11-20, `da62470d3`; rechecked 2026-11-22 at `a087aaf33` and 2026-11-27 at `c0c0414fe`, not tagged yet)
+
+**Since 2026-11-23** (164 commits, read from the commit subjects and a trial merge into
+`hevier/main` with `git merge-tree`; the changelog's `## Unreleased` has 157 entries now):
+
+| Upstream | Fork impact |
+|---|---|
+| **The fork's #1510, #1511, #1512, #1513** taken as is (`f3da54e72`, `1776d67a1`, `8ac55ada5`, `e6b41e1fe`) | **S74, S73, S70 and S71 go** at the 1.4.6 merge. Each conflicts with its own seam (Modals, sheets' `EffortPicker`, Media): take upstream's side. #1511's stepper grows to 188 px for the words, so check the fork's 48 dp steppers (S70's CSS) still fit. |
+| **A weigh-in more than 15 % off the last asks first** (`791faa85b`, "idea from #1514", `lib/weigh-in-check.js`) | **S72 goes**, but it merges without a conflict: `BwSheet` would then ask twice, the fork's `weighInAsk` and upstream's `weighInOff`. Drop S72 by hand at the merge. The fork's file is `hevier/lib/weigh-in-check.js`, so the two do not collide by name. |
+| **Exercise settings keep a change however the sheet closes**, with Done in a live workout (`a17b1b28d`, #1079, "idea from #1213") | **S50 goes**: upstream's `keepOnClose` does what `hooks.settingsAutosave` does, Done included. Conflicts in `sheets.jsx` (`ExConfig`) and `Workout.jsx`: take upstream's. |
+| **Effort: a switch to leave warm-ups unrated** (`8f2aab956`, `S.warmupEffort`, rebuilt from #1374) | **D120 can move onto upstream's switch** (a hidden cell keeps the columns lined up, Focus skips it). Where the fork's set row draws its own effort cell, map D120's setting onto `S.warmupEffort` or keep the fork's. |
+| **Search by machine brand** in the picker, the Library and the muscle map (`fab4ef8fa`, #1082, "idea from #1211", `lib/brand-search.js`) | **D36's search can move onto it**, on upstream's `S.exGym` brands (D104 keeps the fork's brands its own for now). Its edit to `MuscleExplorer.jsx` is one cause of the S38 conflict. |
+| **Several equipment and type picks at once** in the Library, picker and muscle map (`366628692`) | **Conflicts with S38** (the fork's equipment groups, D63, #901 still open). The filter's shape changed under `equipChips`: rework S38 onto the new multi-pick, or ask whether #901 still makes sense. |
+| **History: a workout names its gym with two or more** (`13bc50168`, "idea from #1097", in upstream's workout detail sheet) | D94's gym on the fork's feed card and Workout Detail stays the fork's (S14 opens the fork's page). Nothing goes; #1097 can be closed as built. |
+| **What's new after an update**, and **the sideload APK says when a newer version is out** (`9ce1a1b23`: once a day and once per version, Update goes to About) | **Meets D77** (the fork's UpdateNotice, #1098 still open) and S6 (`update.js`, `compareSemver` exported, part of its conflict). Upstream starts it from its `Home.jsx`, which the fork replaces with Today, so it does not show there; Settings → About opens upstream's notes for 1.4.6, not the fork's. Decide: hide that row, or keep it. |
+| **Your own warm-up ramp as the default** (`77028fd6a`, #1423, `S.warmupRamp`) | **Meets the fork's warm-ups**: `lib/warmup-ramp.js` changes under them, and a profile with no ramp saved keeps the built-in. Run `routine-check.sh` and `journey-check.sh` after the merge: warm-ups are in both. |
+| **Dumbbells: a session opens on the gym's own bells** (`00315be18`, `rowsOnOwned`) | **Meets D28** (gyms as equipment profiles): a routine can open on a different dumbbell than before. `routine-check.sh` will show it; accept it or not with the owner. |
+| **`lib/history.js` and `lib/rotation.js`**: #1293 merged on 2026-11-23 | **Conflicts with S63 and S64** (D124's pin rules). The fork's PR is upstream's now: check whether upstream's `pinState` and refill already do what `plan-pins.js` and `keepPinsOnRefill` add; if so S63, S64 and S67 go, else keep them on top. |
+| **Devices: a link sign in the workout bar and a Devices sheet** (`0d6ed79d8`, #1160) | Upstream's workout bar; the fork draws its own header (D10). Nothing to do unless the fork wants the sign. |
+| **Mark all sets done in a live session**, hold-to-move exercises in the live list, start workout's other routines by folder, a past workout typed out one exercise per line | Upstream's workout and Start screens, which the fork replaces. Each is a D100-style choice: offer it in the fork's UI, or leave it out. |
+| **TypeScript, step by step** (`8631ac43a`): `tsconfig.json`, `types/model.ts`, `lib/recap-period.js` becomes `.ts` | A new dev dependency (above). The fork's code stays JavaScript; `verify.sh` may need `npm run typecheck` if upstream's CI makes it a gate. |
+
+**Nothing for the fork since 2026-11-23:** the Christmas cards, snow globe and Advent calendar
+(`lib/advent.js`, `Seasonal.jsx`), the Coach and MCP fixes (Coach off), webhooks, Garmin, Wear OS
+and Apple Watch fixes, the Strava archive import, onboarding's language and layout picks,
+Saturday as a week start, container hardening docs, sync gzip.
+
+The rows below are from 2026-11-20 and 2026-11-22.
 
 Read from its CHANGELOG (`## Unreleased`, 26 entries; 29 at `a087aaf33`) and a trial merge into `hevier/main`
 (`git merge-tree`). Two files conflict: `lib/update.js` (S6) and `views/Stats.jsx` (S34, S61).
@@ -190,7 +239,7 @@ sync-app route; it can stay off), Strava, the calendar feed, the Apple Watch, We
 redesigns, Danish, Bengali, Czech, Persian, Indonesian, Lithuanian and Vietnamese (take upstream's
 locales, rule C), the website and the routines library.
 
-## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09, 2026-11-12, 2026-11-14, 2026-11-20 and 2026-11-22)
+## The fork's PRs and issues upstream (2026-10-24, checked 2026-10-25, 2026-10-29, 2026-11-02, 2026-11-03, 2026-11-06, 2026-11-08, 2026-11-09, 2026-11-12, 2026-11-14, 2026-11-20, 2026-11-22, 2026-11-23 and 2026-11-27)
 
 **2026-11-08:** nothing moved. No comment or state change on any of the fork's PRs or issues, #988
 unchanged since 2026-11-05 (no milestone), #849 still on v1.4.5 and #638 on v1.4.8.
@@ -232,6 +281,17 @@ source of weigh-ins; D32, for #1088), and on 2026-11-18 **#1374** (warm-ups left
 only CodeRabbit has answered. #1089 is closed (#1201 is in `release-1.4.6`). The live list is
 `node hevier/tools/upstream-status.mjs --open`.
 
+**2026-11-27:** nothing moved on GitHub since 2026-11-23: no maintainer comment, review, close or
+milestone on any of the fork's PRs or issues (only CodeRabbit answered). But `release-1.4.6`
+carries ten of them since 2026-11-24. Taken as is, co-authored: **#1508** (`8a811bed3`, the
+splash-screen plugin in the cap sync files), **#1510** (`f3da54e72`), **#1511** (`1776d67a1`),
+**#1512** (`8ac55ada5`) and **#1513** (`e6b41e1fe`). Rebuilt from the idea, credited: **#1374**
+(`8f2aab956`), **#1514** (`791faa85b`), **#1213** for #1079 (`a17b1b28d`), **#1211** for #1082
+(`fab4ef8fa`) and **#1097** (`13bc50168`). Upstream usually closes them by hand at the tag. The
+maintainer's #1466 (`55f85a478`) builds devcoons's #1134 the same way. Still in no upstream
+branch: #901, #1085, #1090, #1091, #1098, #1156, #1157, #1158, #1161, #1214, #1235, #1237, #1361,
+#1362, #1375, #1376, #1377, and the issues #1077, #1078, #1080, #1081, #1087, #1088, #1093, #1159, #1236.
+
 **#815 against upstream's own version** (`8a91a9c34`, 2026-11-06, "idea by @lodepav"; no comment
 or review on the PR itself): taken are the workout and exercise notes, a routine's rest timers and
 its rep ranges. **Left out:** the body measurements beside the weight, the routine a workout was
@@ -272,10 +332,10 @@ count-up timer, which upstream does not have.
 | #988 | Per-gym and per-brand tracking for the same exercise (RobinRHL's issue; D28, D82, D51, D96, D46, D86, D47) | Issue open; **released in v1.4.5** as Numbers per gym, with the fork's brand-as-label design credited |
 | #1077 | Security gates before a release: the advisories each release fixed from the one before, Trivy and gitleaks over every tag, and six gates to suggest (D26, D38; `release-check.sh` offered as the example) | Issue opened 2026-11-09; PRs for the dependency and secret gates offered |
 | #1078 | A Timer and a Stopwatch in the workout, for time that is not a set (D10) | Issue opened 2026-11-09; port offered |
-| #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; **PR #1213** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/settings-keep-on-close`, `4c439fcfb`, suite green): `exConfigSheet`'s `opts.autosave`, the sheet saves on unmount only when what it would store differs from when it opened. S50 goes when merged. Two of upstream's `Workout.noprog` tests pressed Save there and were adapted. CodeRabbit: an exercise unit changed by a sync while the sheet is open looked like an edit (fixed 2026-11-14, the comparison runs before the unit conversion); second round: a unit switched in the sheet itself looked like one too (four more rounds, settled in `2d4f864b9`: the loads are compared per unit, or as stored where a unit has no baseline, and everything else with the opening; reviewed with no actionable comments, all threads resolved) |
+| #1079 | Exercise settings during a workout keep their changes on close (D92) | Issue opened 2026-11-09; **built in release-1.4.6** from #1213's idea (`a17b1b28d`, 2026-11-24, Done included): S50 goes at the 1.4.6 merge. **PR #1213** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/settings-keep-on-close`, `4c439fcfb`, suite green): `exConfigSheet`'s `opts.autosave`, the sheet saves on unmount only when what it would store differs from when it opened. S50 goes when merged. Two of upstream's `Workout.noprog` tests pressed Save there and were adapted. CodeRabbit: an exercise unit changed by a sync while the sheet is open looked like an edit (fixed 2026-11-14, the comparison runs before the unit conversion); second round: a unit switched in the sheet itself looked like one too (four more rounds, settled in `2d4f864b9`: the loads are compared per unit, or as stored where a unit has no baseline, and everything else with the opening; reviewed with no actionable comments, all threads resolved) |
 | #1080 | A Bluetooth heart-rate strap recorded live (D79, D80); asks plugin or hand-written service | Issue opened 2026-11-09 |
 | #1081 | Cable setups 1:1, 2:1, ×2 (D43) | Issue opened 2026-11-09 |
-| #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; **PR #1211** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/brand-search`, `639766dbf`, suite green): `lib/brand-search.js` on upstream's `S.exGym` brands and `entry.brand`, wired in the picker only (the Library and the explorer offered). CodeRabbit: "l ife" matches Life Fitness through the whole-query match (not changed: that match keeps the hit while a brand is typed; answered on the PR 2026-11-14). If merged, D36's picker search can move onto it once the fork's brands are upstream's (D104 keeps them the fork's for now) |
+| #1082 | Search by machine brand, on #988's brands (D36) | Issue opened 2026-11-09; **built in release-1.4.6** from #1211's idea (`fab4ef8fa`, 2026-11-24, in the picker, the Library and the muscle map). **PR #1211** (2026-11-14, on `release-1.4.5`, branch `upstream-pr/brand-search`, `639766dbf`, suite green): `lib/brand-search.js` on upstream's `S.exGym` brands and `entry.brand`, wired in the picker only (the Library and the explorer offered). CodeRabbit: "l ife" matches Life Fitness through the whole-query match (not changed: that match keeps the hit while a brand is typed; answered on the PR 2026-11-14). If merged, D36's picker search can move onto it once the fork's brands are upstream's (D104 keeps them the fork's for now) |
 | #1083 | release-1.4.5 fails the UTC+14, Los Angeles and shuffled-order robustness runs (seen on #901; the streak weeks a day early east of UTC) | Issue opened 2026-11-09; the timezone failures are test-only (UTC dates in the tests), fix on `upstream-pr/streak-tz`, commented. **Fixed by cubetes's #1197**, merged into `release-1.4.5` on 2026-11-14 (credited); the fork closed the issue 2026-11-14 |
 | #1084 | The updater falls back to the API's asset link (S56) | **Merged into release-1.4.5** (2026-11-09): S56 went with the 1.4.5 merge |
 | #1085 | Right side first for a per-side exercise (D72), as `sideOrder: 'RL'` on the target | PR opened 2026-11-09 on release-1.4.5 |
@@ -287,8 +347,8 @@ count-up timer, which upstream does not have.
 | #1091 | Auto-backup: choose how many copies to keep (5, 14, 30 or 60; S52) | PR opened 2026-11-09 on release-1.4.5; drops S52 when merged (the fork sets 5) |
 | #1092 | Android back goes up a page the app opened when the WebView says canGoBack false (reproduced on release-1.4.5's own build, Settings → Data & backup) | PR opened 2026-11-09 on release-1.4.5; **merged into release-1.4.6** (2026-11-23, `ab2a1afb2`): S16 keeps only the fork's tab list at the 1.4.6 merge |
 | #1093 | A set of a reps exercise as a timed hold (D89, S48) | Issue opened 2026-11-09, offering a PR; S48 goes if upstream builds it |
-| #1097 | History rows and workout details name the workout's gym, with two gyms or more (D94) | PR opened 2026-11-09 on release-1.4.5 |
-| #1098 | A newer APK offers itself when the app opens, once per version, About's question with Not now (D77) | PR opened 2026-11-09 on release-1.4.5; replaces the fork's UpdateNotice when merged. CodeRabbit (2026-11-12): the check on coming to the front asks again after an hour, an offer held back by a workout or an open sheet is made after, an update started from About counts as offered (all fixed; the fork's own UpdateNotice already stays off an open sheet, but keeps the session's answer and does not make a held-back offer until the next return to the app) |
+| #1097 | History rows and workout details name the workout's gym, with two gyms or more (D94) | PR opened 2026-11-09 on release-1.4.5; **built in release-1.4.6** from its idea (`13bc50168`, 2026-11-24, upstream's workout detail sheet); the fork's own D94 stays |
+| #1098 | A newer APK offers itself when the app opens, once per version, About's question with Not now (D77) | PR opened 2026-11-09 on release-1.4.5; replaces the fork's UpdateNotice when merged. CodeRabbit (2026-11-12): the check on coming to the front asks again after an hour, an offer held back by a workout or an open sheet is made after, an update started from About counts as offered (all fixed; the fork's own UpdateNotice already stays off an open sheet, but keeps the session's answer and does not make a held-back offer until the next return to the app). Not merged, but release-1.4.6's own `9ce1a1b23` (2026-11-26) has the sideload APK say when a newer version is out, once a day and once per version, from upstream's Home |
 | #1156 | The seconds wheel in steps of 5, a Settings choice (D48, S28): branch `upstream-pr/wheel-step`, `a664d632a` | PR opened 2026-11-12 on release-1.4.5 (Built on release-1.4.5 on 2026-11-12, upstream's suite green). Drops S28 when merged. CodeRabbit: the spinbuttons announce the shown duration (fixed 2026-11-12) |
 | #1157 | Weekly sets per muscle: count main muscles only, off by default (D42): branch `upstream-pr/main-muscle-sets`, `3e805404e` | PR opened 2026-11-12 on release-1.4.5 (Built 2026-11-12, suite green). Upstream already counts a supporting muscle 0.4, so only the switch is new. CodeRabbit: a logged generic shoulder counts all three heads (fixed 2026-11-12) |
 | #1158 | Hevy API import: workouts filed under their routine and Hevy's routine folders (D30, D31, S20), and since 2026-11-12 the rest of #815's leftovers (D31, S21): body measurements, custom exercises' muscles and equipment with the backfill, the account's unit: branch `upstream-pr/hevy-links-folders`, `8708b5194` | PR opened 2026-11-12 on release-1.4.5, extended the same day (suite green). CodeRabbit's four findings: three fixed (a 20 s limit on the optional reads, a session links only its nearest workout, a time-zone-proof test), the fourth (count updated routines in the toast) declined as upstream's own behaviour. S20 and S21 go when merged |
